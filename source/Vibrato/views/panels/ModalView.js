@@ -1,0 +1,77 @@
+// -------------------------------------------------------------------------- \\
+// File: ModalView.js                                                         \\
+// Module: View                                                               \\
+// Requires: Core, Foundation, DOM, View.js                                   \\
+// Author: Neil Jenkins                                                       \\
+// License: © 2010–2011 Opera Software ASA. All rights reserved.              \\
+// -------------------------------------------------------------------------- \\
+
+/*global O */
+
+"use strict";
+
+( function ( NS ) {
+
+var ModalView = NS.Class({
+    
+    Extends: NS.View,
+
+    className: 'ModalView',
+    
+    didCreateLayer: function ( layer ) {
+        layer.set( 'style', Object.toCSSString({
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: this.get( 'zIndex' )
+        }) );
+        return this;
+    },
+    
+    zIndex: 5000,
+    
+    title: '',
+    
+    didAppendLayerToDocument: function () {
+        NS.RootViewController.pushResponder( this );
+        return ModalView.parent.didAppendLayerToDocument.call( this );
+    },
+    willRemoveLayerFromDocument: function () {
+        NS.RootViewController.removeResponder( this );
+        return ModalView.parent.willRemoveLayerFromDocument.call( this );
+    },
+    
+    _render: function ( layer ) {
+        var el = NS.Element.create,
+            container = this._container = el( 'div', {
+                styles: this.get( 'layerStyles' )
+            }, [
+                el( 'h1', {
+                    text: this.get( 'title' )
+                })
+            ]),
+            children = this.get( 'childViews' );
+        
+        for ( var i = 0, l = children.length; i < l; i += 1 ) {
+            container.appendChild( children[i].render().get( 'layer' ) );
+        }
+        
+        layer.appendChild( container );
+    },
+    
+    insertView: function ( view, relativeNode, where ) {
+        if ( !relativeNode ) { relativeNode = this._container; }
+        return ModalView.parent.insertView.call(
+            this, view, relativeNode, where );
+    },
+    
+    _stopEvent: function ( event ) {
+        event.stopPropagation();
+    }.on( 'keypress' )
+});
+
+NS.ModalView = ModalView;
+
+}( O ) );

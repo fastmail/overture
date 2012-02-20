@@ -1,0 +1,439 @@
+// -------------------------------------------------------------------------- \\
+// File: String.js                                                            \\
+// Module: Core                                                               \\
+// Requires: Core.js                                                          \\
+// Author: Neil Jenkins                                                       \\
+// License: © 2010–2011 Opera Software ASA. All rights reserved.              \\
+// -------------------------------------------------------------------------- \\
+
+"use strict";
+
+( function ( undefined ) {
+
+var splitter =
+    /%(\+)?(?:'(.))?(-)?([0-9+])?(?:\.([0-9]+))?(?:\$([0-9])+)?([%sn@])/g;
+
+String.implement({
+    /*
+        Method: String#interpolate
+        
+        Format a string by substituting in arguments. The method can also add
+        padding to make the insertion a fixed width and restrict the number of
+        decimal places in a number.
+        
+        A placeholder is denoted by a `%` sign, which followed by:
+        
+        1. (optional) *Sign*: `+` means always show sign.
+        2. (optional) *Padding*: `'c` where `c` is any character. Default is
+           space.
+        3. (optional) *Alignment*: `-` means make left-aligned (default
+           right-align).
+        4. (optional) *Width*: Integer specifying number of characters in
+           output.
+        5. (optional) *Precision*: `.` + Number of digits after decimal point.
+        6. (optional) *Argument*: `$` + Number of argument (indexed from 1) to
+           use.
+        7. *Type*: %, n, s, @.
+        
+        If no specific argument is used, the index of a placeholder is used to
+        determine which argument to use. The possible argument types are String,
+        Number or Object; these must match the placeholder types of 's', 'n' and
+        '@' respectively. A literal % is inserted by %%. Objects are converted
+        to strings via their toString() method.
+        
+        e.g. If the string is `"%+'*-16.3$2n"` and argument 2 is `123.456789`,
+        then the output is: `"+123.456********"`.
+        
+        Parameters:
+            var_args - {...(String|Number|Object)} The arguments to interpolate.
+        
+        Returns:
+            {String} The formatted string.
+    */
+    interpolate: function () {
+        // Reset RegExp.
+        splitter.lastIndex = 0;
+        
+        var output = '',
+            i = 0,
+            argIndex = 1,
+            part, data, toInsert, padLength, padChar, padding;
+            
+        while ( ( part = splitter.exec( this ) ) ) {
+            // Add everything between last placeholder and this placeholder
+            output += this.slice( i, part.index );
+            // And set i to point to the next character after the placeholder
+            i = part.index + part[0].length;
+            
+            // Find argument to subsitute in; either the one specified in
+            // (6) or the index of this placeholder.
+            data = arguments[ ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
+            
+            // Generate the string form of the data from the type specified
+            // in (7).
+            switch ( part[7] ) {
+                case '%':
+                    // Special case: just output the character and continue;
+                    output += '%';
+                    continue;
+                case 's':
+                    toInsert = data;
+                    break;
+                case 'n':
+                    // (1) Ensure sign will be shown
+                    toInsert = ( ( part[1] && data >= 0 ) ? '+' : '' );
+                    // (5) Restrict number of decimal places
+                    toInsert += ( part[5] !== undefined ) ?
+                        data.toFixed( part[5] ) : ( data + '' );
+                    break;
+                case '@':
+                    toInsert = data.toString();
+                    break;
+            }
+            
+            // (4) Check minimum width
+            padLength = ( part[4] || 0 ) - toInsert.length;
+            if ( padLength > 0 ) {
+                // Padding character is (2) or a space
+                padChar = part[2] || ' ';
+                padding = padChar;
+                while ( ( padLength -= 1 ) ) {
+                    padding += padChar;
+                }
+                // Insert padding before unless (3) is set.
+                if ( part[3] ) {
+                    toInsert += padding;
+                } else {
+                    toInsert = padding + toInsert;
+                }
+            }
+            
+            // And add the string to the output
+            output += toInsert;
+            
+            // Keep track of the arg index to use.
+            argIndex += 1;
+        }
+        // Add any remaining string
+        output += this.slice( i );
+        
+        return output;
+    },
+    
+    /*
+        Method: String#escapeHTML
+        
+        Returns the string with the characters <,>,& replaced by HTML entities.
+        
+        Returns:
+            {String} The escaped string.
+    */
+    escapeHTML: function () {
+        return this.split( '&' ).join( '&amp;' )
+                   .split( '<' ).join( '&lt;'  )
+                   .split( '>' ).join( '&gt;'  );
+    },
+    
+    /*
+        Method: String#escapeRegExp
+        
+        Escape any characters with special meaning when passed to the RegExp
+        constructor.
+        
+        Returns:
+            {String} The escaped string.
+    */
+    escapeRegExp: function () {
+        return this.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
+    },
+    
+    /*
+        Method: String#capitalise
+        
+        Returns this string with the first letter converted to a capital.
+        
+        Returns:
+            {String} The capitalised string.
+    */
+    capitalise: function () {
+        return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
+    },
+    
+    /*
+        Method: String#capitalise
+        
+        Returns this string with any sequence of a hyphen followed by a
+        lower-case letter replaced by the capitalised letter.
+        
+        Returns:
+            {String} The camel-cased string.
+    */
+    camelCase: function () {
+        return this.replace( /\-([a-z])/g, function ( _, letter ) {
+            return letter.toUpperCase();
+        });
+    },
+    
+    /*
+        Method: String#hyphenate
+        
+        Returns this string with any captials converted to lower case and
+        preceded by a hyphen.
+        
+        Returns:
+            {String} The hyphenated string.
+    */
+    hyphenate: function () {
+        return this.replace( /[A-Z]/g, function ( letter ) {
+            return ( '-' + letter.toLowerCase() );
+        });
+    },
+    
+    /*
+        Method: String#contains
+        
+        Tests whether the string contains the value supplied. If a seperator is
+        given, the value must have at either end one of: the beginning of the
+        string, the end of the string or the separator.
+        
+        Parameters:
+            string - {String} The value to search for.
+            separator - {String} (optional) The separator string.
+        
+        Returns:
+            {Boolean} Does this string contain the given string?
+    */
+    contains: function ( string, separator ) {
+        return ( separator ?
+            ( separator + this + separator ).indexOf(
+                separator + string + separator ) :
+            this.indexOf( string ) ) > -1;
+    },
+    
+    /*
+        Method: String#trim
+        
+        Returns the string with any white space at the beginning and end
+        removed. Implementation by Stven Levithan:
+        <http://blog.stevenlevithan.com/archives/faster-trim-javascript>
+        
+        Returns:
+            {String} The trimmed string.
+    */
+    trim: function () {
+        var str = this.replace( /^\s\s*/, '' ),
+            ws = /\s/,
+            i = str.length;
+        while ( ws.test( str.charAt( i -= 1 ) ) ) {/* Empty! */}
+        return str.slice( 0, i + 1 );
+    },
+    
+    /*
+        Method: String#hash
+        
+        Hashes the string to return a number which should (in theory at least)
+        be statistically randomly distributed over any set of inputs, and each
+        change in a bit of input should result in a change in roughly 50% of the
+        bits in the output. Algorithm from:
+        <http://www.azillionmonkeys.com/qed/hash.html>
+        
+        Returns:
+            {Number} The hash. This is a *signed* 32-bit int.
+    */
+    hash: function () {
+        var hash = this.length,
+            remainder = hash & 1,
+            l = hash - remainder;
+
+        for ( var i = 0; i < l; i += 2 ) {
+            hash += this.charCodeAt( i );
+            hash = ( hash << 16 ) ^
+                ( ( this.charCodeAt( i + 1 ) << 11 ) ^ hash );
+            hash += hash >> 11;
+        }
+
+        if ( remainder ) {
+            hash += this.charCodeAt( l );
+            hash ^= hash << 11;
+            hash += hash >> 17;
+        }
+
+        // Force "avalanching" of final 127 bits
+        hash ^= hash << 3;
+        hash += hash >> 5;
+        hash ^= hash << 4;
+        hash += hash >> 17;
+        hash ^= hash << 25;
+        hash += hash >> 6;
+
+        return hash;
+    },
+    
+    /*
+        Method: String#md5
+        
+        Calculates the MD5 hash of the string.
+        See <http://en.wikipedia.org/wiki/MD5>.
+        
+        Returns:
+            {String} The 128 bit hash in the form of a hexadecimal string.
+    */
+    md5: function () {
+        var r = [
+            7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+            5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
+            4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+            6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
+        ];
+        
+        var k = [
+            0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
+            0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
+            0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
+            0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
+            0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa,
+            0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
+            0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed,
+            0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
+            0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c,
+            0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
+            0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05,
+            0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
+            0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
+            0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
+            0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
+            0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
+        ];
+
+        var utf16To8 = function ( string ) {
+            var utf8 = '',
+                i, l, c;
+            for ( i = 0, l = string.length; i < l; i += 1 ) {
+                c = string.charCodeAt( i );
+                if ( c < 128 ) {
+                    utf8 += string[i];
+                } else if ( c < 2048 ) {
+                    utf8 += String.fromCharCode( ( c >> 6 ) | 192 );
+                    utf8 += String.fromCharCode( ( c & 63 ) | 128 );
+                } else {
+                    utf8 += String.fromCharCode( ( c >> 12 ) | 224 );
+                    utf8 += String.fromCharCode( ( ( c >> 6 ) & 63 ) | 128 );
+                    utf8 += String.fromCharCode( ( c & 63 ) | 128 );
+                }
+            }
+            return utf8;
+        };
+
+        var stringToWords = function ( string ) {
+            // Each character is 8 bits. Pack into an array of 32 bit numbers
+            // then pad the end as specified by the MD5 standard: a single one
+            // bit followed by as many zeros as need to make the length in bits
+            // === 448 mod 512, then finally the length of the input, in bits,
+            // as a 64 bit little-endian long int.
+            var length = string.length,
+                blocks = [ 0 ],
+                i, j, k, padding;
+            for ( i = 0, j = 0, k = 0; j < length; j += 1 ) {
+                blocks[i] |= string.charCodeAt( j ) << k;
+                k += 8;
+                if ( k === 32 ) {
+                    k = 0;
+                    blocks[ i += 1 ] = 0;
+                }
+            }
+            blocks[i] |= 0x80 << k;
+            i += 1;
+            
+            padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
+            for ( ; i < padding ; i += 1 ) {
+                blocks[i] = 0;
+            }
+            
+            // Each char is 8 bits.
+            blocks[i] = length << 3;
+            blocks[ i + 1 ] = length >>> 29;
+            
+            return blocks;
+        };
+        
+        // Add unsigned 32 bit ints with overflow.
+        var add = function ( a, b ) {
+            var lsw = ( a & 0xffff ) + ( b & 0xffff ),
+                msw = ( a >> 16 ) + ( b >> 16 ) + ( lsw >> 16 );
+            return ( msw << 16 ) | ( lsw & 0xffff );
+        };
+
+        var leftRotate = function ( a, b ) {
+            return ( a << b ) | ( a >>> ( 32 - b ) );
+        };
+
+        var hexCharacters = '0123456789abcdef';
+        var hex = function ( number ) {
+            var string = '',
+                i;
+            for ( i = 0; i < 32; i += 8 ) {
+                string += hexCharacters[ ( number >> i + 4 ) & 0xf ];
+                string += hexCharacters[ ( number >> i ) & 0xf ];
+            }
+            return string;
+        };
+
+        return function () {
+            var words = stringToWords( utf16To8( this ) ),
+                h0 = 0x67452301,
+                h1 = 0xEFCDAB89,
+                h2 = 0x98BADCFE,
+                h3 = 0x10325476,
+                i, j, l, a, b, c, d, f, g, temp;
+
+            for ( j = 0, l = words.length; j < l; j += 16 ) {
+                a = h0;
+                b = h1;
+                c = h2;
+                d = h3;
+                
+                for ( i = 0; i < 64; i += 1 ) {
+                    if ( i < 16 ) {
+                        f = ( b & c ) | ( (~b) & d );
+                        g = i;
+                    }
+                    else if ( i < 32 ) {
+                        f = ( d & b ) | ( (~d) & c );
+                        g = ( ( 5 * i ) + 1 ) % 16;
+                    }
+                    else if ( i < 48 ) {
+                        f = b ^ c ^ d;
+                        g = ( ( 3 * i ) + 5 ) % 16;
+                    }
+                    else {
+                        f = c ^ ( b | (~d) );
+                        g = ( 7 * i ) % 16;
+                    }
+                    temp = d;
+                    d = c;
+                    c = b;
+                    b = add( b,
+                            leftRotate(
+                                add( a,
+                                    add( f,
+                                        add( k[i], words[ j + g ] )
+                                    )
+                                ),
+                                r[i]
+                            )
+                        );
+                    a = temp;
+                }
+
+                h0 = add( h0, a );
+                h1 = add( h1, b );
+                h2 = add( h2, c );
+                h3 = add( h3, d );
+            }
+
+            return hex( h0 ) + hex( h1 ) + hex( h2 ) + hex( h3 );
+        };
+    }()
+});
+
+}() );
