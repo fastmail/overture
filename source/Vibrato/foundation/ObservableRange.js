@@ -10,7 +10,7 @@
 
 "use strict";
 
-/*
+/**
     Mixin: O.ObservableRange
     
     The ObservableRange mixin adds support for observing an (integer-based)
@@ -23,7 +23,7 @@
 var meta = NS.meta;
 
 NS.ObservableRange = {
-    /*
+    /**
         Method: O.ObservableRange#rangeDidChange
      
         Notifies observers that are observing a range which intersects the range
@@ -69,7 +69,7 @@ NS.ObservableRange = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableRange#addObserverForRange
 
         Registers an object and a method to be called on that object whenever an
@@ -105,7 +105,7 @@ NS.ObservableRange = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableRange#removeObserverForRange
 
         Stops callbacks to an object/method when content changes occur within

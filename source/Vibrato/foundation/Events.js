@@ -18,7 +18,7 @@ var meta = NS.meta,
     toString = Object.prototype.toString;
 
 Function.implement({
-    /*
+    /**
         Method: Function#on
         
         Defines the list of events this event is interested in. Whenever one of
@@ -38,7 +38,7 @@ Function.implement({
     }
 });
 
-/*
+/**
     Mixin: O.Events
     
     The Events mixin allows you to add custom event support to any other class
@@ -50,7 +50,7 @@ Function.implement({
 */
 NS.Events = {
     
-    /*
+    /**
         Property: O.Events#nextEventTarget
         Type: (O.Events|null)
         
@@ -58,7 +58,7 @@ NS.Events = {
     */
     nextEventTarget: null,
     
-    /*
+    /**
         Method: O.Events#on
         
         Add a function to be called whenever an event of a particular type is
@@ -93,7 +93,7 @@ NS.Events = {
         return this;
     },
     
-    /*
+    /**
         Method: O.Events#once
         
         Add a function to be called the next time an event of a particular type
@@ -114,7 +114,7 @@ NS.Events = {
         return this;
     },
     
-    /*
+    /**
         Method: O.Events#fire
         
         Fires an event, causing all subscribed functions to be called with an
@@ -190,7 +190,7 @@ NS.Events = {
         return !canBubble;
     },
     
-    /*
+    /**
         Method: O.Events#detach
         
         Detaches a particular event handler or all handlers for a particular

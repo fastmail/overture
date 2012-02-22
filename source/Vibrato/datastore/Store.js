@@ -10,7 +10,7 @@
 
 "use strict";
 
-/*
+/**
     Module: DataStore
  
     The DataStore module provides classes for managing the CRUD lifecycle of
@@ -57,14 +57,14 @@ var set = function ( status ) {
     };
 };
 
-/*
+/**
     Class: O.Store
     
     A Store is used to keep track of all records in the model. It provides
     methods for retrieving single records or lists based on queries.
 */
 var Store = NS.Class({
-    /*
+    /**
         Property: O.Store#autoCommit
         Type: Boolean
         Default: true
@@ -74,7 +74,7 @@ var Store = NS.Class({
     */
     autoCommit: true,
     
-    /*
+    /**
         Property: O.Store#rebaseConflicts
         Type: Boolean
         Default: true
@@ -85,7 +85,7 @@ var Store = NS.Class({
     */
     rebaseConflicts: true,
     
-    /*
+    /**
         Property: O.Store#isNested
         Type: Boolean
         
@@ -93,7 +93,7 @@ var Store = NS.Class({
     */
     isNested: false,
     
-    /*
+    /**
         Constructor: O.Store
                 
         Parameters:
@@ -143,7 +143,7 @@ var Store = NS.Class({
         this._source = source;
     },
     
-    /*
+    /**
         Method: O.Store#addNested
         
         Registers a new nested store. Automatically called by the
@@ -160,7 +160,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#removeNested
         
         Deregisters a nested store previously registered with addNested.
@@ -179,7 +179,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#getStoreKey
         
         Returns the store key for a particular record type and record id. This
@@ -211,7 +211,7 @@ var Store = NS.Class({
         return storeKey;
     },
     
-    /*
+    /**
         Method: O.Store#getIdFromStoreKey
         
         Get the record id for a given store key.
@@ -229,7 +229,7 @@ var Store = NS.Class({
             ( this._typeToSkToId[ Type.className ] || {} )[ storeKey ];
     },
     
-    /*
+    /**
         Method: O.Store#setIdForStoreKey
         
         Changes the id for a record with the given store key.
@@ -264,7 +264,7 @@ var Store = NS.Class({
     
     // === Client API ==========================================================
     
-    /*
+    /**
         Method: O.Store#getRecordStatus
         
         Returns the status value for a given record type and id.
@@ -281,7 +281,7 @@ var Store = NS.Class({
         return _idToSk ? this.getStatus( _idToSk[ id ] ) : EMPTY;
     },
     
-    /*
+    /**
         Method: O.Store#newRecord
         
         Creates a new record of the given type and marks it to be committed next
@@ -326,7 +326,7 @@ var Store = NS.Class({
             this.materialiseRecord( storeKey, Type );
     },
     
-    /*
+    /**
         Method: O.Store#getRecord
         
         Returns a record object for a particular type and id, creating it if it
@@ -356,7 +356,7 @@ var Store = NS.Class({
         return record;
     },
     
-    /*
+    /**
         Method: O.Store#hasChanges
         
         Returns:
@@ -376,7 +376,7 @@ var Store = NS.Class({
         return false;
     },
     
-    /*
+    /**
         Method: O.Store#commitChanges
         
         Commits any outstanding changes (created/updated/deleted records) to the
@@ -457,7 +457,7 @@ var Store = NS.Class({
         return this;
     }.queue( 'before' ),
     
-    /*
+    /**
         Method: O.Store#discardChanges
         
         Discards any outstanding changes (created/updated/deleted records),
@@ -500,7 +500,7 @@ var Store = NS.Class({
      
     // === Low level (primarily internal) API: uses storeKey ===================
     
-    /*
+    /**
         Method: O.Store#getStatus
         
         Get the status of a record with a given store key.
@@ -515,7 +515,7 @@ var Store = NS.Class({
         return this._skToStatus[ storeKey ] || EMPTY;
     },
     
-    /*
+    /**
         Method: O.Store#setStatus
         
         Set the status of a record with a given store key.
@@ -542,7 +542,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#setDirty
         
         Add the <O.Status.DIRTY> bit to the record status
@@ -555,7 +555,7 @@ var Store = NS.Class({
     */
     setDirty: set( DIRTY ),
     
-    /*
+    /**
         Method: O.Store#setLoading
         
         Add the <O.Status.LOADING> bit to the record status
@@ -568,7 +568,7 @@ var Store = NS.Class({
     */
     setLoading: set( LOADING ),
     
-    /*
+    /**
         Method: O.Store#setCommitting
         
         Add the <O.Status.COMMITTING> bit to the record status
@@ -581,7 +581,7 @@ var Store = NS.Class({
     */
     setCommitting: set( COMMITTING ),
     
-    /*
+    /**
         Method: O.Store#setObsolete
         
         Add the <O.Status.OBSOLETE> bit to the record status
@@ -594,7 +594,7 @@ var Store = NS.Class({
     */
     setObsolete: set( OBSOLETE ),
     
-    /*
+    /**
         Method: O.Store#materialiseRecord
         
         Returns the record object for a given store key, creating it if this is
@@ -612,7 +612,7 @@ var Store = NS.Class({
             ( this._skToRecord[ storeKey ] = new Type( this, storeKey ) );
     },
     
-    /*
+    /**
         Method: O.Store#mayUnloadRecord
         
         Called before unloading a record from memory. Checks the record is in a
@@ -638,7 +638,7 @@ var Store = NS.Class({
         });
     },
     
-    /*
+    /**
         Method: O.Store#willUnloadRecord
         
         Called just before the record is removed from memory. If the record has
@@ -662,7 +662,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#unloadRecord
         
         Unloads everything about a record from the store, freeing up memory,
@@ -695,7 +695,7 @@ var Store = NS.Class({
         return true;
     },
     
-    /*
+    /**
         Method: O.Store#createRecord
         
         Creates a new record with the given store key. The existing status for
@@ -735,7 +735,7 @@ var Store = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.Store#destroyRecord
         
         Marks a record as destroyed and commits this back to the server when
@@ -779,7 +779,7 @@ var Store = NS.Class({
         return this._recordSetWasModified( this._skToType[ storeKey ] );
     },
     
-    /*
+    /**
         Method: O.Store#fetchHash
         
         Fetches the data for a given record from the server.
@@ -809,7 +809,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#getHash
         
         Returns the current data hash in memory for the given record
@@ -824,7 +824,7 @@ var Store = NS.Class({
         return this._skToData[ storeKey ];
     },
     
-    /*
+    /**
         Method: O.Store#setHash
         
         Sets the data hash for a given record.
@@ -844,7 +844,7 @@ var Store = NS.Class({
         return this.updateHash( storeKey, data, changeIsDirty );
     },
     
-    /*
+    /**
         Method: O.Store#updateHash
         
         Updates the data hash for a given record with the supplied attributes.
@@ -936,7 +936,7 @@ var Store = NS.Class({
         return true;
     },
 
-    /*
+    /**
         Method: O.Store#revertHash
         
         Reverts the data hash for a given record to the last committed state.
@@ -955,7 +955,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method (private): O.Store#_notifyRecordOfChanges
         
         Triggers change notifications if this record has an instantiated
@@ -987,7 +987,7 @@ var Store = NS.Class({
     
     // === Source callbacks ====================================================
     
-    /*
+    /**
         Method: O.Store#sourceDidFetchAllRecords
         
         Callback made by the <O.Source> object associated with this store when
@@ -1005,7 +1005,7 @@ var Store = NS.Class({
         return this.sourceDidFetchRecords( Type, records, true );
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidFetchRecords
         
         Callback made by the <O.Source> object associated with this store when
@@ -1065,7 +1065,7 @@ var Store = NS.Class({
         return this.sourceDidFetchUpdates( Type, updates );
     },
     
-    /*
+    /**
         Method: O.Store#sourceHasUpdatesForRecords
         
         Callback made by the <O.Source> object associated with this store when
@@ -1095,7 +1095,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidFetchUpdates
         
         Callback made by the <O.Source> object associated with this store when
@@ -1186,7 +1186,7 @@ var Store = NS.Class({
         return this._recordSetWasModified( Type );
     },
     
-    /*
+    /**
         Method: O.Store#sourceCouldNotFindRecords
         
         Callback made by the <O.Source> object associated with this store when
@@ -1225,7 +1225,7 @@ var Store = NS.Class({
         return this._recordSetWasModified( Type );
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidDestroyRecords
         
         Callback made by the <O.Source> object associated with this store when
@@ -1262,7 +1262,7 @@ var Store = NS.Class({
     
     // ---
     
-    /*
+    /**
         Method: O.Store#sourceDidCommitCreate
         
         Callback made by the <O.Source> object associated with this store when
@@ -1290,7 +1290,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidNotCreate
         
         Callback made by the <O.Source> object associated with this store when
@@ -1334,7 +1334,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidCommitUpdate
         
         Callback made by the <O.Source> object associated with this store when
@@ -1370,7 +1370,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidNotUpdate
         
         Callback made by the <O.Source> object associated with this store when
@@ -1425,7 +1425,7 @@ var Store = NS.Class({
         return this._recordSetWasModified();
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidCommitDestroy
         
         Callback made by the <O.Source> object associated with this store when
@@ -1454,7 +1454,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidNotDestroy
         
         Callback made by the <O.Source> object associated with this store when
@@ -1489,7 +1489,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#sourceDidError
         
         Callback made by the <O.Source> object associated with this store when
@@ -1534,7 +1534,7 @@ var Store = NS.Class({
     
     // === Queries =============================================================
     
-    /*
+    /**
         Method: O.Store#getAllLoadedRecords
         
         Materialises and returns an array of record objects for all records of a
@@ -1561,7 +1561,7 @@ var Store = NS.Class({
         return records;
     },
     
-    /*
+    /**
         Method: O.Store#addQuery
         
         Registers a query with the store. This is automatically called by the
@@ -1592,7 +1592,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#removeQuery
         
         Deregisters a query with the store. This is automatically called when
@@ -1616,7 +1616,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#getQuery
         
         Parameters:
@@ -1638,7 +1638,7 @@ var Store = NS.Class({
             }) ) : null );
     },
     
-    /*
+    /**
         Method: O.Store#getAllRemoteQueries
         
         Returns a list of all remote queries registered with the store.
@@ -1651,7 +1651,7 @@ var Store = NS.Class({
         return this._remoteQueries;
     },
     
-    /*
+    /**
         Method: O.Store#refreshLiveQueries
         
         Refreshes the contents of all registered instances of <O.LiveQuery>
@@ -1681,7 +1681,7 @@ var Store = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#_recordSetWasModified
         
         Called whenever the set of loaded records changes for a particular type,

@@ -12,7 +12,7 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Class: O.Binding
     
     Includes: O.ComputedProps
@@ -27,7 +27,7 @@
     <O.BoundProps> class rather than directly.
 */
 
-/*
+/**
     Method (private): O.Binding-_resolveRootAndPath
 
     When created, a binding may need to reference a path on an object that does
@@ -65,7 +65,7 @@ var _resolveRootAndPath = function ( binding, direction, path, root ) {
     binding.set( direction + 'Path', observablePath );
 };
 
-/*
+/**
     Method (private): O.Binding-identity
     
     Returns the first argument. This is the default transform (has no effect).
@@ -91,7 +91,7 @@ var Binding = NS.Class({
         metadata.inits.Bindings -= 1;
     },
     
-    /*
+    /**
         Property (private): O.Binding#_isConnected
         Type: Boolean
         
@@ -99,7 +99,7 @@ var Binding = NS.Class({
     */
     _isConnected: false,
     
-    /*
+    /**
         Property (private): O.Binding#_needsSync
         Type: Boolean
         
@@ -107,7 +107,7 @@ var Binding = NS.Class({
     */
     _needsSync: true,
     
-    /*
+    /**
         Property (private): O.Binding#_isSuspended
         Type: Boolean
         
@@ -115,7 +115,7 @@ var Binding = NS.Class({
     */
     _isSuspended: false,
     
-    /*
+    /**
         Property (private): O.Binding#_syncFromToTo
         Type: Boolean
         
@@ -124,7 +124,7 @@ var Binding = NS.Class({
     */
     _syncFromToTo: true,
     
-    /*
+    /**
         Property: O.Binding#isTwoWay
         Type: Boolean
     
@@ -133,7 +133,7 @@ var Binding = NS.Class({
     */
     isTwoWay: false,
     
-    /*
+    /**
         Constructor: O.Binding
         
         Parameters:
@@ -150,7 +150,7 @@ var Binding = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.Binding#destroy
         
         Disconnects binding and prevents any further value syncs.
@@ -161,7 +161,7 @@ var Binding = NS.Class({
         this._isSuspended = this._isConnected = true;
     },
     
-    /*
+    /**
         Method: O.Binding#from
         
         Sets the path and object to observe for changes. This method has no
@@ -185,7 +185,7 @@ var Binding = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Binding#to
         
         Sets the path and object to propagate changes to. This method has no
@@ -211,21 +211,21 @@ var Binding = NS.Class({
     
     // ------------
     
-    /*
+    /**
         Property: O.Binding#fromObject
         Type: Object
         
         The static object the observed path begins from.
     */
     
-    /*
+    /**
         Property: O.Binding#fromPath
         Type: String
         
         The dynamic path to observe on the from object.
     */
     
-    /*
+    /**
         Property: O.Binding#fromKey
         Type: String
     
@@ -237,7 +237,7 @@ var Binding = NS.Class({
         return fromPath.slice( fromPath.lastIndexOf( '.' ) + 1 );
     }.property( 'fromPath' ),
     
-    /*
+    /**
         Property: O.Binding#fromPathBeforeKey
         Type: String
     
@@ -249,21 +249,21 @@ var Binding = NS.Class({
         return ( lastDot === -1 ) ? null : fromPath.slice( 0, lastDot );
     }.property( 'fromPath' ),
     
-    /*
+    /**
         Property: O.Binding#toObject
         Type: Object
         
         The static object from which the object-to-update path is resolved.
     */
     
-    /*
+    /**
         Property: O.Binding#toPath
         Type: String
         
         The dynamic path to follow on the to object.
     */
     
-    /*
+    /**
         Property: O.Binding#toKey
         Type: String
     
@@ -275,7 +275,7 @@ var Binding = NS.Class({
         return toPath.slice( toPath.lastIndexOf( '.' ) + 1 );
     }.property( 'toPath' ),
     
-    /*
+    /**
         Property: O.Binding#toPathBeforeKey
         Type: String
     
@@ -289,7 +289,7 @@ var Binding = NS.Class({
     
     // ------------
     
-    /*
+    /**
         Property (private): O.Binding#_doNotDelayConnection
         Type: Boolean
         
@@ -298,7 +298,7 @@ var Binding = NS.Class({
     */
     _doNotDelayConnection: false,
     
-    /*
+    /**
         Method: O.Binding#connect
         
         Starts observing for changes and syncs the current value of the observed
@@ -342,7 +342,7 @@ var Binding = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Binding#disconnect
         
         Stops observing for changes.
@@ -368,7 +368,7 @@ var Binding = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Binding#suspend
         
         Stop propagating changes. The instance will still note when the observed
@@ -383,7 +383,7 @@ var Binding = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Binding#resume
         
         Restart propagating changes. Sync the to object if the observed property
@@ -402,7 +402,7 @@ var Binding = NS.Class({
     
     // ------------
     
-    /*
+    /**
         Property (private): O.Binding#_transform
         Type: Function
         
@@ -410,7 +410,7 @@ var Binding = NS.Class({
     */
     _transform: identity,
     
-    /*
+    /**
         Method: O.Binding#resetTransforms
         
         Clears any transforms set on the object
@@ -423,7 +423,7 @@ var Binding = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Property: O.Binding#transform
         Type: Function
         
@@ -442,7 +442,7 @@ var Binding = NS.Class({
         return this._transform;
     }.property(),
     
-    /*
+    /**
         Method: O.Binding#defaultValue
     
         Helper method to set a transform which converts any falsy value to the
@@ -459,7 +459,7 @@ var Binding = NS.Class({
 
     // ------------
     
-    /*
+    /**
         Method (private): O.Binding#_fromDidChange
         
         Called when the observed property on the from object changes; adds the
@@ -477,7 +477,7 @@ var Binding = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method (private): O.Binding#_toDidChange
         
         If the binding is two-way, this is called when the observed property on
@@ -496,7 +496,7 @@ var Binding = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Binding#sync
         
         If the observed property has changed, this method applies any transforms
@@ -535,7 +535,7 @@ var Binding = NS.Class({
 
 NS.Binding = Binding;
 
-/*
+/**
     Function: O.bind
     
     Convenience method. A shortcut for:

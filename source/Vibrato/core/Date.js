@@ -13,7 +13,7 @@
 ( function () {
 
 Date.extend({
-    /*
+    /**
         Function: Date.now
         
         ECMAScript 5 Date.now method. Returns the current time as the number of
@@ -32,7 +32,7 @@ var pad = function ( num, nopad, character ) {
 };
 
 Date.implement({
-    /*
+    /**
         Method: Date#isToday
         
         Determines if the point of time represented by the date object is today
@@ -45,7 +45,7 @@ Date.implement({
         return this.isOnSameDayAs( new Date() );
     },
     
-    /*
+    /**
         Method: Date#isOnSameDayAs
         
         Determines if the two points of time are on the same day. Each date is
@@ -65,7 +65,7 @@ Date.implement({
                ~~( ( this - ( this.getTimezoneOffset() * 60000 ) ) / aDay );
     },
     
-    /*
+    /**
         Method: Date#getDayName
         
         Returns the day of the week for this date in the currently active
@@ -86,7 +86,7 @@ Date.implement({
         return names ? names[ day ] : day;
     },
     
-    /*
+    /**
         Method: Date#getMonthName
         
         Returns the month of the year for this date in the currently active
@@ -107,7 +107,7 @@ Date.implement({
         return names ? names[ day ] : day;
     },
     
-    /*
+    /**
         Method: Date#getDayOfYear
         
         Returns the day of the year for this date, where 1 is the 1st January.
@@ -121,7 +121,7 @@ Date.implement({
         return ~~( ( this - beginningOfYear ) / 86400000 ) + 1;
     },
     
-    /*
+    /**
         Method: Date#format
         
         Formats the date as a string, according to the format pattern given.

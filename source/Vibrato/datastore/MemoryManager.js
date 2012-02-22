@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
     
-/*
+/**
     Class: O.MemoryManager
     
     A MemoryManager instance periodically checks the store to ensure it doesn't
@@ -23,7 +23,7 @@
 
 var MemoryManager = NS.Class({
     
-    /*
+    /**
         Property (private): O.MemoryManager#_typeIndex
         Type: Number
         
@@ -31,21 +31,21 @@ var MemoryManager = NS.Class({
     */
     _typeIndex: 0,
     
-    /*
+    /**
         Property (private): O.MemoryManager#_types
         Type: Array<O.Class.<Record>>
 
         The name of each type we need to memory manage.
     */
      
-    /*
+    /**
         Property (private): O.MemoryManager#_store
         Type: O.Store
         
         The store where the records are stored.
     */
      
-    /*
+    /**
         Property (private): O.MemoryManager#_restrictions
         Type: Object
         
@@ -53,7 +53,7 @@ var MemoryManager = NS.Class({
         object may have a 'max' property and an 'afterCleanup' method.
     */
     
-    /*
+    /**
         Property: O.MemoryManager#frequency
         Type: Number
         Default: 30000 (30 seconds)
@@ -61,7 +61,7 @@ var MemoryManager = NS.Class({
         The time in milliseconds between running the cleanup function.
     */
     
-    /*
+    /**
         Constructor: O.MemoryManager
         
         Parameters:
@@ -86,7 +86,7 @@ var MemoryManager = NS.Class({
         NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
     },
     
-    /*
+    /**
         Method: O.MemoryManager#cleanup
         
         Examines the store to see how many entries of each record type are

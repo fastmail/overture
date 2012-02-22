@@ -16,7 +16,7 @@ var cssNoPx = {
 };
 
 Object.extend({
-    /*
+    /**
         Function: Object.create
         
         ECMAScript 5 create static method. Returns an object with the given
@@ -78,7 +78,7 @@ Object.extend({
     },
     */
     
-    /*
+    /**
         Function: Object.keys
         
         ECMAScript 5 keys static method. Returns an array of keys for all
@@ -101,7 +101,7 @@ Object.extend({
         return keys;
     },
     
-    /*
+    /**
         Function: Object.values
         
         Returns an array of values for all enumerable properties defined
@@ -123,7 +123,7 @@ Object.extend({
         return values;
     },
     
-    /*
+    /**
         Function: Object.keyOf
         
         Searches the object and returns the first key it finds which maps to the
@@ -145,7 +145,7 @@ Object.extend({
         }
     },
     
-    /*
+    /**
         Function: Object.filter
         
         Takes two objects and returns a new object which contains all the
@@ -171,7 +171,7 @@ Object.extend({
         return result;
     },
     
-    /*
+    /**
         Function: Object.zip
         
         Takes two arrays and returns an object with keys from the first array
@@ -193,7 +193,7 @@ Object.extend({
         return obj;
     },
     
-    /*
+    /**
         Function: Object.toCSSString
         
         Converts an object into a String of 'key:value' pairs, delimited by ';'.
@@ -222,7 +222,7 @@ Object.extend({
         return result;
     },
     
-    /*
+    /**
         Function: Object.fromQueryString
         
         Converts a URL query string (the part after the '?') into an object of

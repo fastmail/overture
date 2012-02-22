@@ -14,7 +14,7 @@ var splitter =
     /%(\+)?(?:'(.))?(-)?([0-9+])?(?:\.([0-9]+))?(?:\$([0-9])+)?([%sn@])/g;
 
 String.implement({
-    /*
+    /**
         Method: String#interpolate
         
         Format a string by substituting in arguments. The method can also add
@@ -120,7 +120,7 @@ String.implement({
         return output;
     },
     
-    /*
+    /**
         Method: String#escapeHTML
         
         Returns the string with the characters <,>,& replaced by HTML entities.
@@ -134,7 +134,7 @@ String.implement({
                    .split( '>' ).join( '&gt;'  );
     },
     
-    /*
+    /**
         Method: String#escapeRegExp
         
         Escape any characters with special meaning when passed to the RegExp
@@ -147,7 +147,7 @@ String.implement({
         return this.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
     },
     
-    /*
+    /**
         Method: String#capitalise
         
         Returns this string with the first letter converted to a capital.
@@ -159,7 +159,7 @@ String.implement({
         return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
     },
     
-    /*
+    /**
         Method: String#capitalise
         
         Returns this string with any sequence of a hyphen followed by a
@@ -174,7 +174,7 @@ String.implement({
         });
     },
     
-    /*
+    /**
         Method: String#hyphenate
         
         Returns this string with any captials converted to lower case and
@@ -189,7 +189,7 @@ String.implement({
         });
     },
     
-    /*
+    /**
         Method: String#contains
         
         Tests whether the string contains the value supplied. If a seperator is
@@ -210,7 +210,7 @@ String.implement({
             this.indexOf( string ) ) > -1;
     },
     
-    /*
+    /**
         Method: String#trim
         
         Returns the string with any white space at the beginning and end
@@ -228,7 +228,7 @@ String.implement({
         return str.slice( 0, i + 1 );
     },
     
-    /*
+    /**
         Method: String#hash
         
         Hashes the string to return a number which should (in theory at least)
@@ -269,7 +269,7 @@ String.implement({
         return hash;
     },
     
-    /*
+    /**
         Method: String#md5
         
         Calculates the MD5 hash of the string.

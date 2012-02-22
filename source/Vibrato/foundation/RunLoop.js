@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
     
-/*
+/**
     Class: O.RunLoop
     
     The run loop allows data to propagate through the app in stages, preventing
@@ -23,7 +23,7 @@
 */
 
 Function.implement({
-    /*
+    /**
         Method: Function#queue
         
         Parameters:
@@ -44,7 +44,7 @@ Function.implement({
 });
 
 NS.RunLoop = {
-    /*
+    /**
         Method: O.RunLoop.invokeInNextEventLoop
         
         Use this to invoke a function in a new browser event loop, immediately
@@ -67,7 +67,7 @@ NS.RunLoop = {
         return this;
     },
     
-    /*
+    /**
         Method: O.RunLoop.invokeAfterDelay
         
         Use this to invoke a function after a specified delay. The function will
@@ -93,7 +93,7 @@ NS.RunLoop = {
         }, delay );
     },
     
-    /*
+    /**
         Method: O.RunLoop.invokePeriodically
         
         Use this to invoke a function periodically, with a set time between
@@ -118,7 +118,7 @@ NS.RunLoop = {
         }, period );
     },
     
-    /*
+    /**
         Method: O.RunLoop.cancel
         
         Use this to cancel the future invocations of functions scheduled with
@@ -139,7 +139,7 @@ NS.RunLoop = {
         return this;
     },
     
-    /*
+    /**
         Property (private): NS.RunLoop._queueOrder
         Type: Array.<String>
         
@@ -147,7 +147,7 @@ NS.RunLoop = {
     */
     _queueOrder: [ 'before', 'bindings', 'after' ],
     
-    /*
+    /**
         Property (private): NS.RunLoop._queues
         Type: Object
         
@@ -160,7 +160,7 @@ NS.RunLoop = {
         after: []
     },
     
-    /*
+    /**
         Property (private): NS.RunLoop._depth
         Type: Number
         
@@ -169,7 +169,7 @@ NS.RunLoop = {
     */
     _depth: 0,
     
-    /*
+    /**
         Method: O.RunLoop.flushQueue
         
         Invokes each function in an array of [function, object] tuples, binding
@@ -198,7 +198,7 @@ NS.RunLoop = {
         return false;
     },
     
-    /*
+    /**
         Method: O.RunLoop.queueFn
         
         Add a [function, object] tuple to a queue, ensuring it is not added
@@ -226,7 +226,7 @@ NS.RunLoop = {
         return this;
     },
     
-    /*
+    /**
         Method: O.RunLoop.begin
         
         Start a run loop.
@@ -239,7 +239,7 @@ NS.RunLoop = {
         return this;
     },
     
-    /*
+    /**
         Method: O.RunLoop.begin
         
         End a run loop. Flushes the queues if all nested calls to begin have now

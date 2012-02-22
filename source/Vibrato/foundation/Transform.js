@@ -11,14 +11,14 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Namespace: O.Transform
     
     Holds a number of useful functions for transforming values, for use with
     <O.Binding>.
 */
 NS.Transform = {
-    /*
+    /**
         Function: O.Transform.toBoolean
         
         Converts the given value to a Boolean
@@ -33,7 +33,7 @@ NS.Transform = {
         return !!value;
     },
     
-    /*
+    /**
         Function: O.Transform.toString
         
         Converts the given value to a String
@@ -48,7 +48,7 @@ NS.Transform = {
         return value != null ? value + '' : '';
     },
     
-    /*
+    /**
         Function: O.Transform.toInt
         
         Converts the given value to an integer
@@ -63,7 +63,7 @@ NS.Transform = {
         return parseInt( value, 10 ) || 0;
     },
     
-    /*
+    /**
         Function: O.Transform.toFloat
         
         Converts the given value to a floating point Number.
@@ -78,7 +78,7 @@ NS.Transform = {
         return parseFloat( value );
     },
     
-    /*
+    /**
         Function: O.Transform.invert
         
         Converts the given value to a Boolean then inverts it.
@@ -93,7 +93,7 @@ NS.Transform = {
         return !value;
     },
     
-    /*
+    /**
         Function: O.Transform.undefinedToNull
         
         Converts an undefined value into null, passes others through unchanged.
@@ -108,7 +108,7 @@ NS.Transform = {
         return value === undefined ? null : value;
     },
     
-    /*
+    /**
         Function: O.Transform.isEqualToValue
         
         Returns a function which will compare a given value to the value

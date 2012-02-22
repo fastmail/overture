@@ -12,14 +12,14 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Class: O.XHR
     
     Wrapper class for the native XMLHTTPRequest object in the browser. Hooks
     into the more fully featured I/O class but can be used on its own
 */
 var XHR = NS.Class({
-    /*
+    /**
         Property (private): O.XHR#_io
         Type: Object
         
@@ -32,7 +32,7 @@ var XHR = NS.Class({
         // failure: function () {}
     },
     
-    /*
+    /**
         Property (private): O.XHR#_isRunning
         Type: Boolean
         
@@ -40,7 +40,7 @@ var XHR = NS.Class({
     */
     _isRunning: false,
     
-    /*
+    /**
         Constructor: O.XHR
 
         Parameters:
@@ -64,7 +64,7 @@ var XHR = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.XHR#isSuccess
         
         Determines whether a request completed successfully, as determined by
@@ -80,7 +80,7 @@ var XHR = NS.Class({
         return ( status >= 200 && status < 300 );
     },
     
-    /*
+    /**
         Method: O.XHR#isRunning
         
         Determines whether a request is currently in progress.
@@ -92,7 +92,7 @@ var XHR = NS.Class({
         return !!this._isRunning;
     },
     
-    /*
+    /**
         Method: O.XHR#getHeader
         
         Returns the contents of the response header corresponding to the name
@@ -111,7 +111,7 @@ var XHR = NS.Class({
       return '';
     },
     
-    /*
+    /**
         Method: O.XHR#getResponse
         
         Returns the full text of the response to the request.
@@ -128,7 +128,7 @@ var XHR = NS.Class({
         return '';
     },
     
-    /*
+    /**
         Method: O.XHR#getResponseType
         
         Returns the MIME type of the response, according to the Content-type
@@ -141,7 +141,7 @@ var XHR = NS.Class({
         return this.getHeader( 'Content-type' );
     },
     
-    /*
+    /**
         Method: O.XHR#getStatus
         
         Returns the HTTP status code returned by the server in response to the
@@ -154,7 +154,7 @@ var XHR = NS.Class({
         return this._status;
     },
     
-    /*
+    /**
         Method: O.XHR#send
         
         If a request is currently active, it is first aborted. A new request is
@@ -204,7 +204,7 @@ var XHR = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method (private): O.XHR#_xhrStateDidChange
         
         Determines the state of the XMLHttpRequest object and fires the
@@ -238,7 +238,7 @@ var XHR = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.XHR#abort
         
         Aborts the currently active request. No further callbacks will be made

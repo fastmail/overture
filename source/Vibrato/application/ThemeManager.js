@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Class: O.ThemeManager
     
     Extends: O.Object
@@ -32,7 +32,7 @@ var ThemeManager = NS.Class({
         this._activeStylesheets = {};
     },
 
-    /*
+    /**
         Property: O.ThemeManager#theme
         Type: String
 
@@ -40,7 +40,7 @@ var ThemeManager = NS.Class({
     */
     theme: '',
     
-    /*
+    /**
         Method (private): O.ThemeManager#_themeDidChange
     
         Triggered whenever the theme changes. Replaces the stylesheets in the
@@ -65,7 +65,7 @@ var ThemeManager = NS.Class({
         }
     }.observes( 'theme' ),
     
-    /*
+    /**
         Method: O.ThemeManager#imageDidLoad
     
         Registers an image with the theme manager, making it available via
@@ -84,7 +84,7 @@ var ThemeManager = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.ThemeManager#stylesheetDidLoad
     
         Registers an stylesheet with the theme manager, making it available to
@@ -103,7 +103,7 @@ var ThemeManager = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.ThemeManager#addStylesheet
     
         Injects a new stylesheet into the page. Will first substitute in the
@@ -138,7 +138,7 @@ var ThemeManager = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.ThemeManager#removeStylesheet
     
         Removes a previously added stylesheet from the page.
@@ -159,7 +159,7 @@ var ThemeManager = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.ThemeManager#getImageSrc
     
         Gets the (data) url for a loaded image.

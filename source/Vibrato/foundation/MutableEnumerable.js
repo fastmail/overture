@@ -12,7 +12,7 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Mixin: O.MutableEnumerable
     
     The MutableEnumerable mixin adds a number of mutation methods to any class
@@ -23,7 +23,7 @@ NS.MutableEnumerable = {
 
     // :: Mutation methods =====================================================
 
-    /*
+    /**
         Method: O.MutableEnumerable#push
     
         ECMAScript Array#push.
@@ -39,7 +39,7 @@ NS.MutableEnumerable = {
         return this.get( 'length' );
     },
 
-    /*
+    /**
         Method: O.MutableEnumerable#pop
     
         ECMAScript Array#pop.
@@ -53,7 +53,7 @@ NS.MutableEnumerable = {
             undefined : this.replaceObjectsAt( length - 1, 1 )[0];
     },
 
-    /*
+    /**
         Method: O.MutableEnumerable#unshift
     
         ECMAScript Array#unshift.
@@ -69,7 +69,7 @@ NS.MutableEnumerable = {
         return this.get( 'length' );
     },
 
-    /*
+    /**
         Method: O.MutableEnumerable#shift
     
         ECMAScript Array#shift.
@@ -82,7 +82,7 @@ NS.MutableEnumerable = {
             undefined : this.replaceObjectsAt( 0, 1 )[0];
     },
 
-    /*
+    /**
         Method: O.MutableEnumerable#splice
     
         ECMAScript Array#splice.

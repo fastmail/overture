@@ -12,14 +12,14 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Module: Localisation
     
     The Localisation module provides classes for localising an interface.
 */
     
 Date.implement({
-    /*
+    /**
         Method: Date#isOnSameDayAs
         
         Returns the difference in time between the date given in the sole
@@ -82,7 +82,7 @@ Date.implement({
 var slice = Array.prototype.slice,
     interpolate = String.prototype.interpolate;
 
-/*
+/**
     Class: O.Language
     
     Language packs for use in localisation are created as instances of the
@@ -90,7 +90,7 @@ var slice = Array.prototype.slice,
 */
 var Language = NS.Class({
     
-    /*
+    /**
         Constructor: O.Language
 
         Most options passed as the argument to this constructor are just added
@@ -118,7 +118,7 @@ var Language = NS.Class({
         NS.merge( this, options );
     },
     
-    /*
+    /**
         Property: O.Language#code
         Type: String
         
@@ -126,7 +126,7 @@ var Language = NS.Class({
     */
     code: 'xx',
     
-    /*
+    /**
         Property: O.Language#dayNames
         Type: Array.<String>
         
@@ -134,7 +134,7 @@ var Language = NS.Class({
     */
     dayNames: [ 'Sunday', 'Monday', 'Tuesday',
         'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
-    /*
+    /**
         Property: O.Language#abbreviatedDayNames
         Type: Array.<String>
 
@@ -142,7 +142,7 @@ var Language = NS.Class({
     */
     abbreviatedDayNames: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
     
-    /*
+    /**
         Property: O.Language#monthNames
         Type: Array.<String>
 
@@ -151,7 +151,7 @@ var Language = NS.Class({
     monthNames: [ 'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December' ],
 
-    /*
+    /**
         Property: O.Language#abbreviatedMonthNames
         Type: Array.<String>
 
@@ -160,7 +160,7 @@ var Language = NS.Class({
     abbreviatedMonthNames: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
     
-    /*
+    /**
         Property: O.Language#decimalPoint
         Type: String
 
@@ -169,7 +169,7 @@ var Language = NS.Class({
     */
     decimalPoint: '.',
     
-    /*
+    /**
         Property: O.Language#thousandsSeparator
         Type: String
 
@@ -177,7 +177,7 @@ var Language = NS.Class({
     */
     thousandsSeparator: ',',
     
-    /*
+    /**
         Property: O.Language#amDesignator
         Type: String
 
@@ -186,7 +186,7 @@ var Language = NS.Class({
     */
     amDesignator: 'AM',
     
-    /*
+    /**
         Property: O.Language#amDesignator
         Type: String
 
@@ -195,7 +195,7 @@ var Language = NS.Class({
     */
     pmDesignator: 'PM',
     
-    /*
+    /**
         Property: O.Language#macros
         Type: Object.<String,Function>
 
@@ -371,7 +371,7 @@ var Language = NS.Class({
         }
     },
     
-    /*
+    /**
         Property: O.Language#translations
         Type: Object.<String,String>
 
@@ -380,7 +380,7 @@ var Language = NS.Class({
     */
     translations: {},
     
-    /*
+    /**
         Property: O.Language#use24hClock
         Type: Boolean
         
@@ -388,7 +388,7 @@ var Language = NS.Class({
     */
     use24hClock: true,
     
-    /*
+    /**
         Property: O.Language#dateFormats
         Type: Object.<String,String>
         
@@ -408,7 +408,7 @@ var Language = NS.Class({
         shortDayMonthYear: '%-d %b ’%y'
     },
     
-    /*
+    /**
         Method: O.Language#translate
         
         Get a localised version of a string.
@@ -582,7 +582,7 @@ var Language = NS.Class({
         return translation.apply( this, slice.call( arguments, 1 ) );
     },
     
-    /*
+    /**
         Method: O.Language#getFormattedDate
         
         Get a date or time formatted according to local conventions.
@@ -603,7 +603,7 @@ var Language = NS.Class({
     }
 });
 
-/*
+/**
     Class: O.Localisation
     
     Alias: O.i18n
@@ -612,7 +612,7 @@ var Language = NS.Class({
     registering and setting the user interface language.
 */
 
-/*
+/**
     Property (private): O.Localisation-languages
     Type: Object
     
@@ -622,7 +622,7 @@ var languages = {
     xx: new Language({ code: 'xx' })
 };
 
-/*
+/**
     Property (private): O.Localisation-active
     Type: O.Language
     
@@ -631,7 +631,7 @@ var languages = {
 var active = languages.xx;
 
 var Localisation = {
-    /*
+    /**
         Property: O.Localisation.activeLangCode
         Type: String
 
@@ -639,7 +639,7 @@ var Localisation = {
     */
     activeLangCode: 'xx',
     
-    /*
+    /**
         Method: O.Localisation.addLanguage
         
         Registers a resource bundle with the class.
@@ -656,7 +656,7 @@ var Localisation = {
         return this;
     },
     
-    /*
+    /**
         Method: O.Localisation.setLanguage
         
         Sets a different language as the active one. Will only have an effect if
@@ -678,7 +678,7 @@ var Localisation = {
         return this;
     },
     
-    /*
+    /**
         Method: O.Localisation.getLanguage
         
         Returns a previously added language object.
@@ -693,7 +693,7 @@ var Localisation = {
         return languages[ langcode ] || null;
     },
     
-    /*
+    /**
         Function: O.Localisation.get
         
         Gets a property from the active language.
@@ -708,7 +708,7 @@ var Localisation = {
         return active[ key ];
     },
     
-    /*
+    /**
         Function: O.Localisation.localise
         
         Get a localised version of a string.
@@ -731,7 +731,7 @@ var Localisation = {
         }
     },
     
-    /*
+    /**
         Function: O.Localisation.date
         
         Get a date or time formatted according to local conventions.

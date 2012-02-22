@@ -9,7 +9,7 @@
 "use strict";
 
 Function.implement({
-    /*
+    /**
         Method: Function#bind
         
         ECMAScript 5 bind method. Returns a function which will call the

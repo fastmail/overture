@@ -23,7 +23,7 @@ var NEW        =  64; // Record has not been committed to source.
 var DIRTY      = 128; // Record has local changes not commited to source
 var OBSOLETE   = 256; // Source may have changes not yet loaded.
 
-/*
+/**
     Class: O.NestedStore
     
     A Nested Store may be used to buffer changes before committing them to the
@@ -37,7 +37,7 @@ var NestedStore = NS.Class({
     autoCommit: false,
     isNested: true,
     
-    /*
+    /**
         Constructor: O.NestedStore
         
         Parameters:
@@ -89,7 +89,7 @@ var NestedStore = NS.Class({
         this._parentStore = store;
     },
     
-    /*
+    /**
         Method: O.NestedStore#destroy
         
         Removes the connection to the parent store so this store may be garbage
@@ -101,7 +101,7 @@ var NestedStore = NS.Class({
     
     // === Client API ==========================================================
     
-    /*
+    /**
         Method: O.Store#commitChanges
         
         Commits any outstanding changes (created/updated/deleted records) to the
@@ -139,7 +139,7 @@ var NestedStore = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Store#discardChanges
         
         Discards any outstanding changes (created/updated/deleted records),
@@ -181,7 +181,7 @@ var NestedStore = NS.Class({
     
     // === Notifications from parent store =====================================
     
-    /*
+    /**
         Method: O.NestedStore#parentDidChangeStatus
         
         Called by the parent store whenever it changes the status of a record.
@@ -229,7 +229,7 @@ var NestedStore = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.NestedStore#parentDidChangeData
         
         Called by the parent store whenever it makes a change to the data hash

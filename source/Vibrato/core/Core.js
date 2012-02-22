@@ -9,7 +9,7 @@
 
 "use strict";
 
-/*
+/**
     Module: Core
     
     The Core module defines 'O', the global namespace to contain this library,
@@ -17,7 +17,7 @@
     the default types and class creation functionality.
 */
 
-/*
+/**
     Namespace: O
     
     The only new global variable introduced by the library. All Classes and
@@ -26,7 +26,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Method: O.meta
     
     Returns an object representing the metadata for the given object. This has
@@ -172,7 +172,7 @@ var meta = NS.meta = function ( object, readOnly ) {
     return data || EMPTY_METADATA;
 };
 
-/*
+/**
     Method: O.guid
     
     Returns a unique ID (within the scope of this instance of the application)
@@ -192,7 +192,7 @@ NS.guid = function ( item ) {
         '(' + type + ':' + item + ')';
 };
 
-/*
+/**
     Method: O.mixin
     
     Add properties to an object, doing the necessary setup and teardown to
@@ -234,7 +234,7 @@ var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
     return object;
 };
 
-/*
+/**
     Function: O.extend
     
     Add all properties of one object to another, overwriting any existing
@@ -263,7 +263,7 @@ var extend = NS.extend = function ( base, extras, doNotOverwrite ) {
     return base;
 };
 
-/*
+/**
     Function: O.merge
     
     Add all properties of one object to another, recursively merging if a key
@@ -295,7 +295,7 @@ var merge = NS.merge = function ( base, extras ) {
     return base;
 };
 
-/*
+/**
     Function: O.clone
     
     Creates a deep copy of a value. Only works on native JS types; do not use
@@ -329,7 +329,7 @@ var clone = NS.clone = function ( value ) {
     return cloned;
 };
 
-/*
+/**
     Function: O.Class
     
     The Class function takes an object containing the instance functions for a
@@ -386,7 +386,7 @@ NS.Class = function ( params ) {
     return init;
 };
 
-/*
+/**
     Function: O.sortByProperties
     
     Creates a comparison function which takes two objects and
@@ -433,7 +433,7 @@ NS.sortByProperties = function ( properties ) {
     };
 };
 
-/*
+/**
     Method: Function#implement
     
     Adds a set of methods or other properties to the prototype of a function, so
@@ -452,7 +452,7 @@ Function.prototype.implement = function ( methods, force ) {
     return this;
 };
 
-/*
+/**
     Method: Function#extend
     
     Adds a set of static methods/properties to the function.

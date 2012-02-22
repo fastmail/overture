@@ -20,7 +20,7 @@ var Status = NS.Status,
 
 var qid = 0;
 
-/*
+/**
     Class: O.LocalQuery
     
     Extends: O.ObservableArray
@@ -35,7 +35,7 @@ var LocalQuery = NS.Class({
     
     Extends: NS.ObservableArray,
     
-    /*
+    /**
         Property: O.LocalQuery#id
         Type: String
 
@@ -45,7 +45,7 @@ var LocalQuery = NS.Class({
         return this.get( 'className' ) + '-query-' + ( qid += 1 );
     }.property(),
     
-    /*
+    /**
         Property: O.LocalQuery#filter
         Type: (Function|null)
 
@@ -53,7 +53,7 @@ var LocalQuery = NS.Class({
     */
     filter: null,
     
-    /*
+    /**
         Property: O.LocalQuery#sort
         Type: (Function|null)
 
@@ -61,14 +61,14 @@ var LocalQuery = NS.Class({
     */
     sort: null,
     
-    /*
+    /**
         Property: O.LocalQuery#store
         Type: O.Store
 
         The store to query for records.
     */
     
-    /*
+    /**
         Property: O.LocalQuery#type
         Type: O.Class.<Record>
         
@@ -76,7 +76,7 @@ var LocalQuery = NS.Class({
         include in this query.
     */
     
-    /*
+    /**
         Property: O.LocalQuery#status
         Type: O.Status
         
@@ -84,7 +84,7 @@ var LocalQuery = NS.Class({
     */
     status: EMPTY,
     
-    /*
+    /**
         Property: O.LocalQuery#className
         Type: String
         
@@ -92,7 +92,7 @@ var LocalQuery = NS.Class({
     */
     className: 'LocalQuery',
     
-    /*
+    /**
         Constructor: O.LocalQuery
 
         The following options should be configured:
@@ -129,7 +129,7 @@ var LocalQuery = NS.Class({
         this.refresh();
     },
     
-    /*
+    /**
         Method: O.LocalQuery#destroy
         
         Call this method when you have finished with a local query to ensure it
@@ -142,7 +142,7 @@ var LocalQuery = NS.Class({
         LocalQuery.parent.destroy.call( this );
     },
     
-    /*
+    /**
         Method: O.LocalQuery#refresh
         
         Recalculates the results that should be included in the query to ensure
@@ -167,7 +167,7 @@ var LocalQuery = NS.Class({
         this.set( '[]', records ).set( 'status', READY );
     },
     
-    /*
+    /**
         Method: O.LocalQuery#getIdsForObjectsInRange
         
         Get a callback with an array of the id properties for all objects in the
@@ -196,7 +196,7 @@ var LocalQuery = NS.Class({
         return false;
     },
 
-    /*
+    /**
         Method: O.LocalQuery#getIdsForAllObjects
         
         Get a callback with an array of the id properties for all objects in the

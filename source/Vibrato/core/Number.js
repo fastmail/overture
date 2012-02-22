@@ -9,7 +9,7 @@
 "use strict";
 
 Number.implement({
-    /*
+    /**
         Method: Number#limit
         
         Limits the number to be within the given range.
@@ -26,7 +26,7 @@ Number.implement({
         return this < min ? min : this > max ? max : this;
     },
     
-    /*
+    /**
         Method: Number#mod
         
         Returns the number mod n.

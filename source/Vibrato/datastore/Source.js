@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Class: O.Source
     
     Extends: O.Object
@@ -27,7 +27,7 @@ var Source = NS.Class({
     
     Extends: NS.Object,
     
-    /*
+    /**
         Constructor: O.Source
         
         Parameters:
@@ -50,7 +50,7 @@ var Source = NS.Class({
         Source.parent.init.call( this, options );
     },
     
-    /*
+    /**
         Method: O.Source#send
         
         Override this to actually dispatch a request. You probably want to make
@@ -59,7 +59,7 @@ var Source = NS.Class({
     */
     send: function () {},
     
-    /*
+    /**
         Method: O.Source#popRequest
         
         This will make calls to O.Source#(record|query)(Fetchers|Refreshers) to
@@ -111,7 +111,7 @@ var Source = NS.Class({
     
     // ---
     
-    /*
+    /**
         Method: O.Source#fetchRecord
         
         Fetches a particular record from the source
@@ -129,7 +129,7 @@ var Source = NS.Class({
         return this.fetchRecords( Type, [ id ], callback );
     },
     
-    /*
+    /**
         Method: O.Source#fetchRecords
         
         Fetches a set of records of a particular type from the source.
@@ -170,7 +170,7 @@ var Source = NS.Class({
         return true;
     },
     
-    /*
+    /**
         Method: O.Source#refreshRecord
         
         Fetches any new data for a record since the last fetch if a handler for
@@ -190,7 +190,7 @@ var Source = NS.Class({
         return this.refreshRecords( Type, [ id ], callback );
     },
     
-    /*
+    /**
         Method: O.Source#refreshRecords
         
         Fetches any new data for a set of records since the last fetch if a
@@ -236,7 +236,7 @@ var Source = NS.Class({
         return true;
     },
     
-    /*
+    /**
         Property: O.Source#commitPrecedence
         Type: Object.<String,Number>|null
         
@@ -246,7 +246,7 @@ var Source = NS.Class({
     */
     commitPrecedence: null,
     
-    /*
+    /**
         Method: O.Source#commitChanges
         
         Commits a set of creates/updates/destroys to the source. These are
@@ -356,7 +356,7 @@ var Source = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Source#fetchQuery
         
         Fetches the data for a remote query from the source.
@@ -382,7 +382,7 @@ var Source = NS.Class({
         return true;
     },
     
-    /*
+    /**
         Property: O.Source#recordFetchers
         Type: Object.<String,Function>
         
@@ -393,7 +393,7 @@ var Source = NS.Class({
     */
     recordFetchers: {},
     
-    /*
+    /**
         Property: O.Source#recordRefreshers
         Type: Object.<String,Function>
         
@@ -404,7 +404,7 @@ var Source = NS.Class({
     */
     recordRefreshers: {},
     
-    /*
+    /**
         Property: O.Source#recordCommitters
         Type: Object.<String,Function>
         
@@ -413,7 +413,7 @@ var Source = NS.Class({
     */
     recordCommitters: {},
     
-    /*
+    /**
         Property: O.Source#recordCreators
         Type: Object.<String,Function>
         
@@ -436,7 +436,7 @@ var Source = NS.Class({
     */
     recordCreators: {},
     
-    /*
+    /**
         Property: O.Source#recordUpdaters
         Type: Object.<String,Function>
         
@@ -463,7 +463,7 @@ var Source = NS.Class({
     */
     recordUpdaters: {},
     
-    /*
+    /**
         Property: O.Source#recordDestroyers
         Type: Object.<String,Function>
         
@@ -485,7 +485,7 @@ var Source = NS.Class({
     */
     recordDestroyers: {},
     
-    /*
+    /**
         Property: O.Source#queryFetchers
         Type: Object.<String,Function>
         

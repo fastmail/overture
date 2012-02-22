@@ -26,7 +26,7 @@ var trim = function trim ( obj ) {
 
 var parseFile = function ( contents ) {
     var lines = contents.split( '\n' ),
-        beginDocs = /^(\s*)\/\*$/,
+        beginDocs = /^(\s*)\/\*\*$/,
         endDocs = /^(\s*)\*\/$/,
         type = /^([A-Z][a-z]+)(?: \((pr(?:ivate|otected))\))?:(.*)$/,
         title = /^([A-Z][a-z]+):/,

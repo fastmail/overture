@@ -14,7 +14,7 @@
 
 var meta = NS.meta;
 
-/*
+/**
     Class: O.Object
     
     Includes: O.ComputedProps, O.BoundProps, O.ObservableProps, O.Events
@@ -27,7 +27,7 @@ NS.Object = O.Class({
     
     Mixin: [ NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.Events ],
     
-    /*
+    /**
         Constructor: O.Object
         
         Parameters:
@@ -49,7 +49,7 @@ NS.Object = O.Class({
         metadata.isInitialised = true;
     },
     
-    /*
+    /**
         Method: O.Object#destroy
         
         Removes any connections to other objects (e.g. path observers and

@@ -10,7 +10,7 @@
 
 "use strict";
 
-/*
+/**
     Module: Application
     
     The Application module contains classes for managing an HTML5 application.
@@ -25,7 +25,7 @@ var getHash = function () {
     return  i > -1 ? hash.slice( i ) : '';
 };
 
-/*
+/**
     Class: O.Application
     
     Extends: O.Object
@@ -39,14 +39,14 @@ var Application = NS.Class({
     
     // Window title management
     
-    /*
+    /**
         Property: O.Application#title
         Type: String
         
         The title to use for the main window.
     */
     title: '',
-    /*
+    /**
         Property: O.Application#defaultTitle
         Type: String
         Default: The <title> value in the page html.
@@ -55,7 +55,7 @@ var Application = NS.Class({
     */
     defaultTitle: document.title,
     
-    /*
+    /**
         Method: O.Application#setTitle
         
         Sets the window title. Called automatically whenever the
@@ -67,7 +67,7 @@ var Application = NS.Class({
     
     // URL management
     
-    /*
+    /**
         Property: O.Application#isReady
         Type: Boolean
         
@@ -77,7 +77,7 @@ var Application = NS.Class({
     */
     isReady: false,
     
-    /*
+    /**
         Property: O.Application#encodedState
         Type: String
         
@@ -88,7 +88,7 @@ var Application = NS.Class({
     */
     encodedState: '',
     
-    /*
+    /**
         Property: O.Application#routes
         Type: Array
         
@@ -105,7 +105,7 @@ var Application = NS.Class({
     */
     routes: [],
     
-    /*
+    /**
         Property (private): O.Application#_currentHash
         Type: String
         
@@ -114,7 +114,7 @@ var Application = NS.Class({
     _currentHash: getHash(),
     
     
-    /*
+    /**
         Constructor: O.Application
         
         Parameters:
@@ -149,7 +149,7 @@ var Application = NS.Class({
         this.restoreStateFromUrl();
     },
     
-    /*
+    /**
         Method: O.Application#restoreStateFromUrl
         
         Iterates throught the <O.Application#routes> until it finds a match,
@@ -174,7 +174,7 @@ var Application = NS.Class({
         }
     }.observes( 'isReady' ),
     
-    /*
+    /**
         Method: O.Application#encodeStateToUrl
         
         Sets the current URL to match the <O.Application#encodedState> property.

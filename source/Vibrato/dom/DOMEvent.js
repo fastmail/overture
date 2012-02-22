@@ -12,13 +12,13 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Namespace: O.DOMEvent
     
     O.DOMEvent contains functions for use with DOM event objects
 */
 var DOMEvent = {
-    /*
+    /**
         Property: O.DomEvent.keys
         Type: Object
         
@@ -46,7 +46,7 @@ var DOMEvent = {
         'numlock': 144
     },
     
-    /*
+    /**
         Function: O.DomEvent.lookupKey
         
         Determines which key was pressed to generate the event supplied as an

@@ -9,7 +9,7 @@
 "use strict";
 
 Array.implement({
-    /*
+    /**
         Method: Array#get
         
         Returns the property of the object with the name given as the only
@@ -25,7 +25,7 @@ Array.implement({
         return this[ key ];
     },
     
-    /*
+    /**
         Method: Array#set
         
         Sets the value of a given property on the Array.
@@ -42,7 +42,7 @@ Array.implement({
         return this;
     },
     
-    /*
+    /**
         Method: Array#getObjectAt
         
         Returns the value at a given index in the array.
@@ -57,7 +57,7 @@ Array.implement({
         return this[ index ];
     },
     
-    /*
+    /**
         Method: Array#setObjectAt
         
         Sets the value at a given index in the array.
@@ -74,7 +74,7 @@ Array.implement({
         return this;
     },
     
-    /*
+    /**
         Method: Array#include
         
         Adds an item to the end of the array if it is not already present (as
@@ -96,7 +96,7 @@ Array.implement({
         return this;
     },
     
-    /*
+    /**
         Method: Array#erase
         
         Removes all occurrences of the item from the array.

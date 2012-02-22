@@ -88,7 +88,7 @@ var teardownObserver = function ( metadata, method ) {
 };
 
 Function.implement({
-    /*
+    /**
         Method: Function#observes
         
         Defines the list of properties (on the same object) or paths (relative
@@ -115,7 +115,7 @@ Function.implement({
     }
 });
 
-/*
+/**
     Method (private): O.ObservableProps-_setupTeardownPaths
 
     Adds or removes path observers for methods on an object.
@@ -138,7 +138,7 @@ var _setupTeardownPaths = function ( obj, method ) {
     }
 };
 
-/*
+/**
     Method (private): O.ObservableProps-_notifyObserversOfKey
 
     Notifies any observers of a particular key and also removes old path
@@ -214,7 +214,7 @@ var _notifyObserversOfKey =
     }
 };
 
-/*
+/**
     Method (private): O.ObservableProps-_notifyGenericObservers
     
     Notifies any observers interested (registered as observing key '*') that
@@ -239,7 +239,7 @@ var _notifyGenericObservers = function ( that, metadata, changed ) {
     }
 };
 
-/*
+/**
     Mixin: O.ObservableProps
     
     The O.ObservableProps mixin adds support for key-value observing to another
@@ -248,7 +248,7 @@ var _notifyGenericObservers = function ( that, metadata, changed ) {
 */
 
 NS.ObservableProps = {
-    /*
+    /**
         Property (private): O.ObservableProps#_kvo_depth
         Type: Number
     
@@ -256,7 +256,7 @@ NS.ObservableProps = {
     */
     _kvo_depth: 0,
     
-    /*
+    /**
         Method: O.Observable#initObservers
         
         Initialises any observed paths on the object (observed keys do not
@@ -268,7 +268,7 @@ NS.ObservableProps = {
         _setupTeardownPaths( this, 'addObserverForPath' );
     },
     
-    /*
+    /**
         Method: O.Observable#destroyObservers
         
         Removes any observed paths from the object (observed keys do not require
@@ -280,7 +280,7 @@ NS.ObservableProps = {
         _setupTeardownPaths( this, 'removeObserverForPath' );
     },
     
-    /*
+    /**
         Method: O.ObservableProps#hasObservers
         
         Returns true if any property on the object is currently being observed.
@@ -295,7 +295,7 @@ NS.ObservableProps = {
         return false;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#beginPropertyChanges
 
         Call this before changing a set of properties (and then call
@@ -312,7 +312,7 @@ NS.ObservableProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#endPropertyChanges
 
         Call this after changing a set of properties (having called
@@ -348,7 +348,7 @@ NS.ObservableProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#propertyDidChange
         
         Overrides the method in <O.ComputedProps>. Invalidates any cached
@@ -409,7 +409,7 @@ NS.ObservableProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#addObserverForKey
 
         Registers an object and a method to be called on that object whenever a
@@ -439,7 +439,7 @@ NS.ObservableProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#removeObserverForKey
 
         Removes an object/method pair from the list of those to be called when
@@ -476,7 +476,7 @@ NS.ObservableProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#addObserverForPath
 
         Registers an object and a method to be called on that object whenever
@@ -521,7 +521,7 @@ NS.ObservableProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableProps#removeObserverForPath
 
         Removes an observer for a path added with <addObserverForPath>.

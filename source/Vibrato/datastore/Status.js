@@ -8,7 +8,7 @@
 
 /*global O */
 
-/*
+/**
     Enum: O.Status
     
     EMPTY        - The record has no data loaded.

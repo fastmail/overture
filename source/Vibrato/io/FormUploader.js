@@ -18,7 +18,7 @@ var hidden = {
     left: -1000
 };
 
-/*
+/**
     Class: O.FormUploader
     
     A class suitable for uploading FormData objects. The concrete class may be
@@ -26,7 +26,7 @@ var hidden = {
     <O.FormUploader-IFrameTransport> if not. Either way, the interface is
     identical so you can ignore the underlying implementation.
 */
-/*
+/**
     Constructor: O.FormUploader
     
     Parameters:
@@ -35,14 +35,14 @@ var hidden = {
              by the FormUploader instance as these events occur.
 */
 
-/*
+/**
     Class: O.FormUploader-IFrameTransport
     
     An IO-compatible class that submits form data to a hidden iframe, allowing
     background file uploading.
 */
 NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
-    /*
+    /**
         Property (private): O.FormUploader-IFrameTransport#_io
         Type: Object
         
@@ -50,7 +50,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     */
     _io: {},
     
-    /*
+    /**
         Constructor: O.FormUploader-IFrameTransport
 
         Parameters:
@@ -62,7 +62,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         this._io = io;
     },
     
-    /*
+    /**
         Property (private): O.FormUploader-IFrameTransport#_isSuccess
         Type: Boolean
         
@@ -70,7 +70,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     */
     _isSuccess: false,
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#isSuccess
             Determines whether a request completed successfully.
         
@@ -81,7 +81,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return this._isSuccess;
     },
     
-    /*
+    /**
         Property (private): O.FormUploader-IFrameTransport#_isRunning
         Type: Boolean
         
@@ -89,7 +89,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     */
     _isRunning: false,
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#isRunning
         
         Determines whether a request is currently in progress.
@@ -101,7 +101,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return this._isRunning;
     },
     
-    /*
+    /**
         Property (private): O.FormUploader-IFrameTransport#_response
         Type: String
         
@@ -109,7 +109,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     */
     _response: '',
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#getResponse
             Get the response to the request.
         
@@ -120,7 +120,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return this._response;
     },
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#getResponseType
         
         Returns:
@@ -130,7 +130,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return 'application/json';
     },
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#getStatus
         
         Returns the HTTP status code representing the status of the request.
@@ -142,7 +142,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return this._isRunning ? 0 : this._isSuccess ? 200 : 400;
     },
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#send
         
         If a request is currently active, it is first aborted. A new request is
@@ -201,7 +201,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method (private): O.FormUploader-IFrameTransport#_formFrameDidLoad
         
         Callback for when the iframe to which the form was submitted has loaded.
@@ -220,7 +220,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         this._complete();
     },
     
-    /*
+    /**
         Method: O.FormUploader-IFrameTransport#abort
         
         Aborts the currently active request. No further callbacks will be made
@@ -239,7 +239,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method (private): O.FormUploader-IFrameTransport#_complete
         
         Removes event listeners and releases references to objects associated
@@ -255,7 +255,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     }
 });
 
-/*
+/**
     Class: FormData
     
     Implementation of the FormData object for browsers that don't natively

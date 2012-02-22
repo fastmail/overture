@@ -12,7 +12,7 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Module: Storage
 
     The Storage module provides classes for persistant storage in the client.
@@ -23,7 +23,7 @@ var dummyStorage = {
     getItem: function () {}
 };
 
-/*
+/**
     Class: O.LocalStorage
     
     Extends: O.Object
@@ -37,7 +37,7 @@ var LocalStorage = NS.Class({
     
     Extends: NS.Object,
     
-    /*
+    /**
         Constructor: O.LocalStorage
 
         Parameters:

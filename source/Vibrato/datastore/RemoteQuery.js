@@ -22,7 +22,7 @@ var Status = NS.Status,
 
 var qid = 0;
 
-/*
+/**
     Class: O.RemoteQuery
     
     Extends: O.Object
@@ -72,7 +72,7 @@ var RemoteQuery = NS.Class({
         return this.get( 'className' ) + '-query-' + ( qid += 1 );
     }.property(),
     
-    /*
+    /**
         Property: O.RemoteQuery#className
         Type: String
 
@@ -80,7 +80,7 @@ var RemoteQuery = NS.Class({
     */
     className: 'RemoteQuery',
 
-    /*
+    /**
         Property: O.RemoteQuery#sort
         Type: String
 
@@ -88,7 +88,7 @@ var RemoteQuery = NS.Class({
     */
     sort: '',
 
-    /*
+    /**
         Property: O.RemoteQuery#filter
         Type: String
 
@@ -96,7 +96,7 @@ var RemoteQuery = NS.Class({
     */
     filter: '',
 
-    /*
+    /**
         Property: O.RemoteQuery#state
         Type: String
 
@@ -104,7 +104,7 @@ var RemoteQuery = NS.Class({
     */
     state: '',
 
-    /*
+    /**
         Property: O.RemoteQuery#type
         Type: O.Class
 
@@ -112,7 +112,7 @@ var RemoteQuery = NS.Class({
     */
     type: NS.Record,
 
-    /*
+    /**
         Property: O.RemoteQuery#status
         Type: O.Status
 
@@ -123,7 +123,7 @@ var RemoteQuery = NS.Class({
     */
     status: EMPTY,
 
-    /*
+    /**
         Method: O.RemoteQuery#setObsolete
 
         Sets the OBSOLETE bit on the query's status value.
@@ -135,7 +135,7 @@ var RemoteQuery = NS.Class({
         return this.set( 'status', this.get( 'status' ) | OBSOLETE );
     },
 
-    /*
+    /**
         Method: O.RemoteQuery#setLoading
 
         Sets the LOADING bit on the query's status value.
@@ -147,7 +147,7 @@ var RemoteQuery = NS.Class({
         return this.set( 'status', this.get( 'status' ) | LOADING );
     },
 
-    /*
+    /**
         Constructor: O.RemoteQuery
 
         Parameters:
@@ -162,7 +162,7 @@ var RemoteQuery = NS.Class({
         this.get( 'store' ).addQuery( this );
     },
 
-    /*
+    /**
         Method: O.RemoteQuery#destroy
 
         Sets the status to DESTROYED, deregisters the query with the store and
@@ -176,7 +176,7 @@ var RemoteQuery = NS.Class({
         RemoteQuery.parent.destroy.call( this );
     },
 
-    /*
+    /**
         Method: O.RemoteQuery#refresh
 
         Update the query with any changes on the server.
@@ -206,7 +206,7 @@ var RemoteQuery = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.RemoteQuery#reset
 
         Resets the list, throwing away the id list, resetting the state string
@@ -234,7 +234,7 @@ var RemoteQuery = NS.Class({
         return this;
     }.observes( 'sort', 'filter' ),
 
-    /*
+    /**
         Method: O.RemoteQuery#getObjectAt
 
         Returns the record at the index given in the array, if loaded. It will
@@ -269,7 +269,7 @@ var RemoteQuery = NS.Class({
             null;
     },
 
-    /*
+    /**
         Method: O.RemoteQuery#fetchDataForObjectAt
         
         This method is called by <getObjectAt> before getting the id of the
@@ -282,7 +282,7 @@ var RemoteQuery = NS.Class({
     */
     fetchDataForObjectAt: function ( index ) {},
 
-    /*
+    /**
         Property: O.RemoteQuery#length
         Type: (Number|null)
 
@@ -291,7 +291,7 @@ var RemoteQuery = NS.Class({
     */
     length: null,
 
-    /*
+    /**
         Method: O.RemoteQuery#indexOf
 
         Finds the index of an id in the query. Since the entire list may not be
@@ -323,7 +323,7 @@ var RemoteQuery = NS.Class({
         return index;
     },
     
-    /*
+    /**
         Method: O.RemoteQuery#getIdsForObjectsInRange
 
         Makes a callback with a subset of the ids for records in this query.
@@ -367,7 +367,7 @@ var RemoteQuery = NS.Class({
         return false;
     },
 
-    /*
+    /**
         Method: O.RemoteQuery#getIdsForAllObjects
         
         Get a callback with an array of the id properties for all records in the
@@ -389,7 +389,7 @@ var RemoteQuery = NS.Class({
         return this.getIdsForObjectsInRange( 0, 0x7fffffff, callback );
     },
 
-    /*
+    /**
         Method (private): O.RemoteQuery#_adjustIdFetches
 
         Modifies the id range to be returned in the callback to
@@ -436,7 +436,7 @@ var RemoteQuery = NS.Class({
         }
     }.on( 'query:updated' ),
 
-    /*
+    /**
         Method (private): O.RemoteQuery#_idsWereFetched
 
         This processes any waiting callbacks after a fetch has completed. There
@@ -454,7 +454,7 @@ var RemoteQuery = NS.Class({
         }
     }.queue( 'before' ).on( 'query:idsLoaded' ),
     
-    /*
+    /**
         Method: O.RemoteQuery#sourceWillFetchQuery
         
         The source should call this method just before it fetches the query. By
@@ -475,7 +475,7 @@ var RemoteQuery = NS.Class({
         return refresh;
     },
     
-    /*
+    /**
         Method: O.RemoteQuery#sourceDidFetchQuery
         
         The source should call this method with the data returned from fetching

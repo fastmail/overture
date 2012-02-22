@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Class: O.AggregateSource
     
     An O.AggregateSource instance can be used to collect several <O.Source>
@@ -29,14 +29,14 @@ var AggregateSource = NS.Class({
         AggregateSource.parent.init.call( this, options );
     },
     
-    /*
+    /**
         Property: O.AggregateSource#sources
         Type: Array.<O.Source>
         
         List of sources to pass requests to. Will be tried in order.
     */
     
-    /*
+    /**
         Method: O.AggregateSource#addSource
         
         Parameters:
@@ -51,7 +51,7 @@ var AggregateSource = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.AggregateSource#removeSource
         
         Parameters:

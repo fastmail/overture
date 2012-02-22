@@ -11,7 +11,7 @@
 "use strict";
 
 ( function ( NS ) {
-/*
+/**
     Class: O.GlobalKeyboardShortcuts
     
     Extends: O.Object
@@ -22,7 +22,7 @@ var GlobalKeyboardShortcuts = NS.Class({
     
     Extends: NS.Object,
     
-    /*
+    /**
         Property: O.GlobalKeyboardShortcuts#isEnabled
         Type: Boolean
         Default: true
@@ -32,7 +32,7 @@ var GlobalKeyboardShortcuts = NS.Class({
     */
     isEnabled: true,
     
-    /*
+    /**
         Property (private): O.GlobalKeyboardShortcuts#_shortcuts
         Type: Object
         
@@ -40,14 +40,14 @@ var GlobalKeyboardShortcuts = NS.Class({
     */
     _shortcuts: {},
     
-    /*
+    /**
         Constructor: O.GlobalKeyboardShortcuts
     */
     init: function () {
         NS.RootViewController.queueResponder( this );
     },
 
-    /*
+    /**
         Method: O.GlobalKeyboardShortcuts#destroy
 
         Destructor.
@@ -56,7 +56,7 @@ var GlobalKeyboardShortcuts = NS.Class({
         NS.RootViewController.removeResponder( this );
     },
     
-    /*
+    /**
         Method: O.GlobalKeyboardShortcuts#register
         
         Add a global keyboard shortcut. If a shortcut has already been
@@ -78,7 +78,7 @@ var GlobalKeyboardShortcuts = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.GlobalKeyboardShortcuts#deregister
         
         Remove a global keyboard shortcut. Must use identical arguments to those
@@ -100,7 +100,7 @@ var GlobalKeyboardShortcuts = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method (private): O.GlobalKeyboardShortcuts#_trigger
         
         Keypress event handler. Triggers any registered callback.

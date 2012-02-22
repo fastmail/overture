@@ -17,7 +17,7 @@ var bindingKey = '__binding__' + Date.now(),
     uuid = 0;
 
 NS.BoundProps = {
-    /*
+    /**
         Method: O.BoundProps#initBindings
         
         Initialises bound properties. Creates a new Binding object if the
@@ -50,7 +50,7 @@ NS.BoundProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.BoundProps#destroyBindings
         
         Disconnect and destroy all bindings connected to this object. You should
@@ -74,7 +74,7 @@ NS.BoundProps = {
         return this;
     },
 
-    /*
+    /**
         Method: O.BoundProps#registerBinding
         
         Call this whenever you add a binding to an object after initialisation,
@@ -88,7 +88,7 @@ NS.BoundProps = {
         return this;
     },
 
-    /*
+    /**
         Method: O.BoundProps#deregisterBinding
         
         Call this if you destroy a binding to this object before the object
@@ -104,7 +104,7 @@ NS.BoundProps = {
         return this;
     },
 
-    /*
+    /**
         Method: O.BoundProps#suspendBindings
         
         Suspend all bindings to the object.
@@ -123,7 +123,7 @@ NS.BoundProps = {
         return this;
     },
 
-    /*
+    /**
         Method: O.BoundProps#resumeBindings
         
         Resume (and sync if necessary) all bindings to the object.

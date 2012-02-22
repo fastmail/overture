@@ -10,7 +10,7 @@
 
 "use strict";
 
-/*
+/**
     Module: IO
 
     The IO module provides classes for two-way communication with a server.
@@ -18,7 +18,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Class: O.IO
     
     Extends: O.Object
@@ -27,7 +27,7 @@
     transport mechanisms and concurrent connections.
 */
 
-/*
+/**
     Property (private): O.IO-key
     Type: Object
 
@@ -44,21 +44,21 @@ var IO = NS.Class({
     
     Extends: NS.Object,
     
-    /*
+    /**
         Property (private): O.IO#_queue
         Type: Array
         
         Queue of request objects waiting for current transactions to finish.
     */
     
-    /*
+    /**
         Property (private): O.IO#_transportPool
         Type: Array
         
         Pool of idle XHR/other-transport-type objects.
     */
     
-    /*
+    /**
         Property: O.IO#_recent
         Type: (Object|null)
         
@@ -66,7 +66,7 @@ var IO = NS.Class({
     */
     _recent: null,
     
-    /*
+    /**
         Property: O.IO#activeConnections
         Type: Number
         
@@ -76,7 +76,7 @@ var IO = NS.Class({
     
     // Handling of multiple send() calls.
     
-    /*
+    /**
         Property: O.IO#link
         Type: Number
         Default: O.IO.QUEUE
@@ -92,7 +92,7 @@ var IO = NS.Class({
     */
     link: QUEUE,
     
-    /*
+    /**
         Property: O.IO#maxConnections
         Type: Number
         Default: 1
@@ -105,7 +105,7 @@ var IO = NS.Class({
     
     // General properties
     
-    /*
+    /**
         Property: O.IO#timeout
         Type: Number
         Default: 0
@@ -116,7 +116,7 @@ var IO = NS.Class({
     */
     timeout: 0,
     
-    /*
+    /**
         Property: O.IO#transport
         Type: O.Class
         Default: <O.XHR>
@@ -126,7 +126,7 @@ var IO = NS.Class({
     */
     transport: NS.XHR,
     
-    /*
+    /**
         Property: O.IO#method
         Type: String
         Default: 'GET'
@@ -136,7 +136,7 @@ var IO = NS.Class({
     */
     method: 'GET',
     
-    /*
+    /**
         Property: O.IO#url
         Type: String
         Default: The current location path (i.e. the URL before the ? or #).
@@ -146,7 +146,7 @@ var IO = NS.Class({
     */
     url: document.location.pathname,
     
-    /*
+    /**
         Property: O.IO#contentType
         Type: String
         Default: 'application/x-www-form-urlencoded'
@@ -156,7 +156,7 @@ var IO = NS.Class({
     */
     contentType: 'application/x-www-form-urlencoded',
     
-    /*
+    /**
         Property: O.IO#headers
         Type: Object
         Default:
@@ -169,7 +169,7 @@ var IO = NS.Class({
         `{headerName: headerValue}`.
     */
     
-    /*
+    /**
         Constructor: O.IO
         
         Parameters:
@@ -188,7 +188,7 @@ var IO = NS.Class({
         IO.parent.init.call( this, options );
     },
     
-    /*
+    /**
         Method (private): O.IO#_onEvent
         
         Fires the onX method of the request object if present as well as the
@@ -210,13 +210,13 @@ var IO = NS.Class({
         NS.RunLoop.end();
     },
     
-    /*
+    /**
         Event: io:begin
         
         This event is fired on the IO instance when a transaction is initiated.
      */
     
-    /*
+    /**
         Method: O.IO#send
      
         If the number of active requests is equal to the maximum allowed number
@@ -330,13 +330,13 @@ var IO = NS.Class({
         }
     },
     
-    /*
+    /**
         Event: io:abort
         
         This event is fired on the IO instance when a transaction is aborted.
     */
     
-    /*
+    /**
         Method: O.IO#abort
         
         Aborts an in-progress transaction.
@@ -357,14 +357,14 @@ var IO = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Event: io:uploadProgress
         
         This event *may* be fired by the IO instance as a FormData object is
         uploaded; but only if the browser supports XHR2.
     */
     
-    /*
+    /**
         Method: O.IO#uploadProgress
         
         This method is called by the transport object to report on the upload
@@ -378,14 +378,14 @@ var IO = NS.Class({
         this._onEvent( 'uploadProgress', transport._io_request, event );
     },
     
-    /*
+    /**
         Event: io:loading
         
         This event is fired on the IO instance when the response body begins to
         download.
     */
     
-    /*
+    /**
         Method: O.IO#loading
         
         This method is called by the transport object when loading of the
@@ -400,7 +400,7 @@ var IO = NS.Class({
         this._onEvent( 'loading', transport._io_request );
     },
     
-    /*
+    /**
         Event: io:progress
         
         This event may be fired on the IO instance periodically whilst the
@@ -413,7 +413,7 @@ var IO = NS.Class({
         this._onEvent( 'progress', transport._io_request, event );
     },
     
-    /*
+    /**
         Event: io:success
 
         This event is fired on the IO instance when the transaction is
@@ -425,7 +425,7 @@ var IO = NS.Class({
         data   - The data returned by the response.
     */
     
-    /*
+    /**
         Method: O.IO#success
         
         This method is called by the transport object when the response body has
@@ -443,7 +443,7 @@ var IO = NS.Class({
         this._complete( transport );
     },
     
-    /*
+    /**
         Event: io:failure
 
         This event is fired on the IO instance when a transaction completes
@@ -451,7 +451,7 @@ var IO = NS.Class({
         code is supplied as the status property of the event.
     */
     
-    /*
+    /**
         Method: O.IO#failure
         
         This method is called by the transport object when a transaction has
@@ -467,13 +467,13 @@ var IO = NS.Class({
         this._complete( transport );
     },
     
-    /*
+    /**
         Event: io:timeout
         
         This event is fired on the IO instance when a transaction times out.
     */
     
-    /*
+    /**
         Method (protected): O.IO#_timeout
         
         This method is called when a transaction times out. Unless overriden, it
@@ -487,14 +487,14 @@ var IO = NS.Class({
         this.abort( transport, true );
     },
     
-    /*
+    /**
         Event: io:end
         
         This is the final event to be fired for a transaction and will always
         fire no matter if the event was successful, failed or aborted.
     */
     
-    /*
+    /**
         Method (private): O.IO#_complete
     
         Cleans up any state set by the IO methods on the Transport object and

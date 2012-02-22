@@ -24,7 +24,7 @@ var instanceOf = function ( value, type ) {
     return value instanceof type;
 };
 
-/*
+/**
     Class: O.RecordAttribute
 
     Represents an attribute on a record.
@@ -43,7 +43,7 @@ var RecordAttribute = NS.Class({
         metadata.attrs.erase( key );
     },
     
-    /*
+    /**
         Constructor: O.RecordAttribute
         
         Parameters:
@@ -53,7 +53,7 @@ var RecordAttribute = NS.Class({
         NS.extend( this, options );
     },
     
-    /*
+    /**
         Property (private): O.RecordAttribute#isProperty
         Type: Boolean
         Default: true
@@ -61,7 +61,7 @@ var RecordAttribute = NS.Class({
         Record attributes are computed properties.
     */
     isProperty: true,
-    /*
+    /**
         Property (private): O.RecordAttribute#isVolatile
         Type: Boolean
         Default: false
@@ -69,7 +69,7 @@ var RecordAttribute = NS.Class({
         Record attributes should be cached.
     */
     isVolatile: false,
-    /*
+    /**
         Property (private): O.RecordAttribute#isSilent
         Type: Boolean
         Default: true
@@ -78,7 +78,7 @@ var RecordAttribute = NS.Class({
     */
     isSilent: true,
     
-    /*
+    /**
         Property: O.RecordAttribute#noSync
         Type: Boolean
         Default: false
@@ -87,7 +87,7 @@ var RecordAttribute = NS.Class({
     */
     noSync: false,
     
-    /*
+    /**
         Property: O.RecordAttribute#type
         Type: Constructor
         Default: null
@@ -97,7 +97,7 @@ var RecordAttribute = NS.Class({
     */
     type: null,
     
-    /*
+    /**
         Property: O.RecordAttribute#isNullable
         Type: Boolean
         Default: true
@@ -106,7 +106,7 @@ var RecordAttribute = NS.Class({
     */
     isNullable: true,
     
-    /*
+    /**
         Method: O.RecordAttribute#willSet
         
         Parameters:
@@ -137,7 +137,7 @@ var RecordAttribute = NS.Class({
         return true;
     },
     
-    /*
+    /**
         Property: O.RecordAttribute#defaultValue
         Type: *
         Default: undefined
@@ -150,7 +150,7 @@ var RecordAttribute = NS.Class({
     */
     defaultValue: undefined,
     
-    /*
+    /**
         Method: O.RecordAttribute#validate
         
         Parameters:
@@ -167,7 +167,7 @@ var RecordAttribute = NS.Class({
     */
     validate: null,
 
-    /*
+    /**
         Property: O.RecordAttribute#validityDependencies
         Type: Array.<String>|null
         Default: null
@@ -177,7 +177,7 @@ var RecordAttribute = NS.Class({
     */
     validityDependencies: null,
     
-    /*
+    /**
         Method: O.RecordAttribute#call
         
         Parameters:
@@ -230,7 +230,7 @@ var RecordAttribute = NS.Class({
 
 NS.RecordAttribute = RecordAttribute;
 
-/*
+/**
     Function: O.Record.attr
     
     A factory function for creating a new <O.RecordAttribute> instance. This

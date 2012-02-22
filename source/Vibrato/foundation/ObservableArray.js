@@ -12,7 +12,7 @@
 
 ( function ( NS, undefined ) {
     
-/*
+/**
     Class: O.ObservableArray
     
     Extends: O.Object
@@ -30,7 +30,7 @@ var ObservableArray = NS.Class({
     
     Mixin: [ NS.ObservableRange, NS.Enumerable, NS.MutableEnumerable ],
     
-    /*
+    /**
         Constructor: O.ObservableArray
 
         Parameters:
@@ -42,7 +42,7 @@ var ObservableArray = NS.Class({
         this._length = this._array.length;
     },
     
-    /*
+    /**
         Property: O.ObservableArray#[]
         Type: Array
         
@@ -86,7 +86,7 @@ var ObservableArray = NS.Class({
         return this._array;
     }.property(),
     
-    /*
+    /**
         Method: O.ObservableArray#getObjectAt
      
         Returns the value at the index given in the array.
@@ -101,7 +101,7 @@ var ObservableArray = NS.Class({
         return this._array[ index ];
     },
     
-    /*
+    /**
         Property: O.ObservableArray#length
         Type: Number
         
@@ -115,7 +115,7 @@ var ObservableArray = NS.Class({
         return this._length;
     }.property().nocache(),
     
-    /*
+    /**
         Method: O.ObservableArray#setObjectAt
         
         Sets the value at a given index in the array.
@@ -138,7 +138,7 @@ var ObservableArray = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableArray#replaceObjectsAt
         
         Removes a given number of objects from the array, starting at the index
@@ -176,7 +176,7 @@ var ObservableArray = NS.Class({
     
     // :: Mutation methods =====================================================
     
-    /*
+    /**
         Method: O.ObservableArray#sort
         
         ECMAScript Array#sort.
@@ -194,7 +194,7 @@ var ObservableArray = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.ObservableArray#reverse
         
         ECMAScript Array#reverse.
@@ -210,7 +210,7 @@ var ObservableArray = NS.Class({
     
     // :: Accessor methods =====================================================
     
-    /*
+    /**
         Method: O.ObservableArray#concat
         
         ECMAScript Array#concat.
@@ -231,7 +231,7 @@ var ObservableArray = NS.Class({
         return Array.prototype.concat.apply( this._array, args );
     },
     
-    /*
+    /**
         Method: O.ObservableArray#join
         
         ECMAScript Array#join.
@@ -248,7 +248,7 @@ var ObservableArray = NS.Class({
         return this._array.join( separator );
     },
     
-    /*
+    /**
         Method: O.ObservableArray#slice
         
         ECMAScript Array#slice.

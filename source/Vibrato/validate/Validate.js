@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Mixin: O.Validate
     
     Mixin to use when an object can be in either a valid or an invalid state,
@@ -22,7 +22,7 @@
 */
 
 var Validate = {
-    /*
+    /**
         Method: O.Validate#initValidate
         
         Initialises any validators to run at the appropriate times. You should
@@ -39,14 +39,14 @@ var Validate = {
         }
     },
     
-    /*
+    /**
         Property: O.Validate#isValid
         Type: Boolean
         
         False if the validators last rejected the object's state
     */
     isValid: true,
-    /*
+    /**
         Property: O.Validate#
         Type: Object.<String,Function>
         
@@ -56,7 +56,7 @@ var Validate = {
         value indicating whether the validation succeeded.
     */
     validators: {},
-    /*
+    /**
         Property: O.Validate#validateOn
         Type: Object.<String,Array.<String>>
         
@@ -64,7 +64,7 @@ var Validate = {
         when the property changes.
     */
     validateOn: {},
-    /*
+    /**
         Property: O.Validate#validityError
         Type: String
         
@@ -73,7 +73,7 @@ var Validate = {
     */
     validityError: '',
     
-    /*
+    /**
         Method (private): O.Validate#_validate
         
         Runs the validation methods defined for a particular event or property

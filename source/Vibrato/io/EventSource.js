@@ -16,7 +16,7 @@ var CONNECTING = 0;
 var OPEN = 1;
 var CLOSED = 2;
 
-/*
+/**
     Class: O.EventSource
     
     Extends: O.Object
@@ -31,7 +31,7 @@ var EventSource = win.EventSource ? O.Class({
     
     Extends: NS.Object,
     
-    /*
+    /**
         Property: O.EventSource#readyState
         Type: Number
         
@@ -44,7 +44,7 @@ var EventSource = win.EventSource ? O.Class({
     */
     readyState: CLOSED,
     
-    /*
+    /**
         Property: O.EventSource#url
         Type: String
         
@@ -52,7 +52,7 @@ var EventSource = win.EventSource ? O.Class({
     */
     url: '',
     
-    /*
+    /**
         Constructor: O.EventSource
         
         Parameters:
@@ -86,7 +86,7 @@ var EventSource = win.EventSource ? O.Class({
         NS.RunLoop.end();
     },
     
-    /*
+    /**
         Method (private): O.EventSource#_check
         
         Checks the computer hasn't been asleep. If it has, it restarts the
@@ -103,7 +103,7 @@ var EventSource = win.EventSource ? O.Class({
                 NS.RunLoop.invokeAfterDelay( this._check, 60000, this );
         }
     },
-    /*
+    /**
         Method (private): O.EventSource#_startStopCheck
         
         Sets up the timer to check if the computer has been asleep.
@@ -123,7 +123,7 @@ var EventSource = win.EventSource ? O.Class({
         }
     }.observes( 'readyState' ),
     
-    /*
+    /**
         Method: O.EventSource#open
         
         If there is no current connection to the event source server,
@@ -146,7 +146,7 @@ var EventSource = win.EventSource ? O.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.EventSource#close
         
         Close the connection to the event source server, if not already closed.
@@ -323,19 +323,19 @@ var EventSource = win.EventSource ? O.Class({
     }
 });
 
-/*
+/**
     Constant: O.EventSource.CONNECTING
     Type: Number
     
     <O.EventSource#readyState> when establishing a connection to the server.
 */
-/*
+/**
     Constant: O.EventSource.OPEN
     Type: Number
     
     <O.EventSource#readyState> when a connection is open and receiving events.
 */
-/*
+/**
     Constant: O.EventSource.CLOSED
     Type: Number
     

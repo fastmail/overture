@@ -19,7 +19,7 @@ var Status = NS.Status,
     NON_EXISTENT = Status.NON_EXISTENT,
     LOADING = Status.LOADING;
 
-/*
+/**
     Class: O.RemotePagedQuery
     
     Extends: O.RemoteQuery
@@ -35,7 +35,7 @@ var RemotePagedQuery = NS.Class({
     
     Extends: NS.RemoteQuery,
     
-    /*
+    /**
         Property: O.RemotePagedQuery#className
         Type: String
         
@@ -43,7 +43,7 @@ var RemotePagedQuery = NS.Class({
     */
     className: 'RemotePagedQuery',
     
-    /*
+    /**
         Property: O.RemotePagedQuery#search
         Type: String
         
@@ -51,7 +51,7 @@ var RemotePagedQuery = NS.Class({
     */
     search: '',
     
-    /*
+    /**
         Property: O.RemotePagedQuery#complete
         Type: Boolean
         
@@ -59,7 +59,7 @@ var RemotePagedQuery = NS.Class({
     */
     complete: false,
     
-    /*
+    /**
         Property: O.RemotePagedQuery#windowSize
         Type: Number
         
@@ -67,7 +67,7 @@ var RemotePagedQuery = NS.Class({
     */
     windowSize: 30,
     
-    /*
+    /**
         Property: O.RemotePagedQuery#triggerPoint
         Type: Number
         
@@ -77,7 +77,7 @@ var RemotePagedQuery = NS.Class({
     */
     triggerPoint: 1,
     
-    /*
+    /**
         Method: O.RemotePagedQuery#reset
         
         Resets the list, throwing away the id list and setting the status to
@@ -102,7 +102,7 @@ var RemotePagedQuery = NS.Class({
         return this;
     }.observes( 'search', 'sort', 'filter' ),
     
-    /*
+    /**
         Method: O.RemotePagedQuery#getObjectAt
         
         Returns the record at the index given in the array, if loaded. If the
@@ -123,7 +123,7 @@ var RemotePagedQuery = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.RemotePagedQuery#fetchNextWindow
         
         Fetches the next window of records in the query, if not yet complete.
@@ -175,7 +175,7 @@ var RemotePagedQuery = NS.Class({
         return this.getIdsForObjectsInRange( 0, MAX_INT, callback );
     },
     
-    /*
+    /**
         Method: O.RemotePagedQuery#removeItems
         
         Remove a set of ids from the query.
@@ -234,7 +234,7 @@ var RemotePagedQuery = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.RemotePagedQuery#sourceDidFetchQuery
         
         The source should call this when it fetches the next window of the id
@@ -287,7 +287,7 @@ var RemotePagedQuery = NS.Class({
             .fire( 'query:idsLoaded' );
     },
     
-    /*
+    /**
         Method: O.RemotePagedQuery#indexOf
         
         Finds the index of an id in the currently loaded query.

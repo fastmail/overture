@@ -10,7 +10,7 @@
 
 "use strict";
 
-/*
+/**
     Module: DOM
     
     The DOM module provides helper functions and classes for dealing with the
@@ -19,14 +19,14 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Namespace: O.Element
 
     The O.Element namespace contains a number of helper functions for dealing
     with DOM elements.
 */
  
-/*
+/**
     Property (private): Element-directProperties
     Type: Object
     
@@ -44,7 +44,7 @@ var directProperties = {
     value: 'value'
 };
 
-/*
+/**
     Property (private): Element-booleanProperties
     Type: Object
     
@@ -59,7 +59,7 @@ var booleanProperties = {
     selected: 1
 };
 
-/*
+/**
     Property (private): Element-cssNoPx
     Type: Object
     
@@ -70,7 +70,7 @@ var cssNoPx = {
     zIndex: 1
 };
 
-/*
+/**
     Property (private): Element-styleNames
     Type: Object
     
@@ -112,7 +112,7 @@ var setStyles = function ( el, styles ) {
     return el;
 };
 
-/*
+/**
     Method: Element#get
     
     Get a property or attribute of the element.
@@ -132,7 +132,7 @@ window.Element.prototype.get = function ( key ) {
         this.getAttribute( key );
 };
 
-/*
+/**
     Method: Element#set
     
     Sets a property or attribute on the element.
@@ -160,7 +160,7 @@ window.Element.prototype.set = function ( key, value ) {
     return this;
 };
     
-/*
+/**
     Property (private): O.Element-splitter
     Type: RegExp
     
@@ -168,7 +168,7 @@ window.Element.prototype.set = function ( key, value ) {
 */
 var splitter = /(#|\.)/;
 
-/*
+/**
     Property (private): O.Element-doc
     Type: Document
     
@@ -176,7 +176,7 @@ var splitter = /(#|\.)/;
 */
 var doc = document;
 
-/*
+/**
     Property (private): O.Element-ieEventModel
     Type: Boolean
     
@@ -286,7 +286,7 @@ getPosition = function ( el, ancestor ) {
 };
 
 var Element = {
-    /*
+    /**
         Function: O.Element.forView
         
         Sets the view to which newly created elements should be associated. This
@@ -309,7 +309,7 @@ var Element = {
         return oldView;
     },
     
-    /*
+    /**
         Function: O.Element.create
         
         Creates and returns a new element, setting any supplied properties and
@@ -337,7 +337,7 @@ var Element = {
     */
     create: create,
     
-    /*
+    /**
         Function: O.Element.setAttributes
         
         Sets each attribute in the hash on the given element.
@@ -354,7 +354,7 @@ var Element = {
     */
     setAttributes: setAttributes,
     
-    /*
+    /**
         Function: O.Element.appendChildren
         
         Appends an array of children or views to an element
@@ -368,7 +368,7 @@ var Element = {
     */
     appendChildren: appendChildren,
     
-    /*
+    /**
         Function: O.Element.hasClass
         
         Determines if an element has a particular class name.
@@ -384,7 +384,7 @@ var Element = {
         return el.className.contains( className, ' ' );
     },
     
-    /*
+    /**
         Function: O.Element.addClass
         
         Adds a class to the element if not already there.
@@ -404,7 +404,7 @@ var Element = {
         return this;
     },
     
-    /*
+    /**
         Function: O.Element.removeClass
         
         Removes a class from the element if present.
@@ -426,7 +426,7 @@ var Element = {
         return this;
     },
     
-    /*
+    /**
         Function: O.Element.setStyle
     
         Sets a CSS style on the element.
@@ -441,7 +441,7 @@ var Element = {
     */
     setStyle: setStyle,
     
-    /*
+    /**
         Function: O.Element.setStyles
     
         Set a hash of CSS styles on the element.
@@ -455,7 +455,7 @@ var Element = {
     */
     setStyles: setStyles,
     
-    /*
+    /**
         Function: O.Element.contains
         
         Tests whether one element is a descendent of or is the same node as
@@ -476,7 +476,7 @@ var Element = {
         return !relation || !!( relation & DOCUMENT_POSITION_CONTAINED_BY );
     },
     
-    /*
+    /**
         Function: O.Element.nearest
      
         Looks for the nearest element which is accepted by the test function or
@@ -515,7 +515,7 @@ var Element = {
         return el;
     },
     
-    /*
+    /**
         Function: O.Element.getPosition
     
         Find the position of the top left corner of the element in pixels,

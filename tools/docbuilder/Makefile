@@ -25,7 +25,7 @@ docs: $(DOCS_STYLES) $(DOCS_SCRIPTS) $(DOCS) $(PATH_TO_DOC_OUTPUT)/index.html
 
 $(PATH_TO_DOC_OUTPUT)/%.js: $(PATH_TO_DOC)/scripts/%.js
 	mkdir -p $(@D)
-	node ../tools/jstools.js compress $< $@
+	node $(PATH_TO_DOC)/../jstools.js compress $< $@
 
 $(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json
 	node $(PATH_TO_DOC)/engine/writeSearchIndex.js $^ $@

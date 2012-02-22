@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Class: O.Record-AttributeErrors
     
     Extends: O.Object
@@ -25,7 +25,7 @@ var AttributeErrors = NS.Class({
     
     _numErrors: 0,
     
-    /*
+    /**
         Constructor: O.Record-AttributeErrors
         
         Parameters:
@@ -63,7 +63,7 @@ var AttributeErrors = NS.Class({
         this.endPropertyChanges();
     },
 
-    /*
+    /**
         Method: O.Record-AttributeErrors#attrDidChange
         
         Called when an attribute changes on the record for which another
@@ -94,7 +94,7 @@ var AttributeErrors = NS.Class({
         this.endPropertyChanges();
     },
 
-    /*
+    /**
         Method: O.Record-AttributeErrors#setRecordValidity
         
         Updates the internal count of how many attributes are invalid and sets
@@ -124,7 +124,7 @@ var AttributeErrors = NS.Class({
     }.observes( '*' )
 });
 
-/*
+/**
     Class: O.Record
     
     Extends: O.Object
@@ -136,7 +136,7 @@ var Record = NS.Class({
     
     Extends: NS.Object,
     
-    /*
+    /**
         Constructor: O.Record
         
         Parameters:
@@ -149,14 +149,14 @@ var Record = NS.Class({
         this.storeKey = storeKey;
     },
     
-    /*
+    /**
         Property: O.Record#store
         Type: (O.Store|undefined)
         
         The store this record is associated with.
     */
     
-    /*
+    /**
         Property: O.Record#storeKey
         Type: (String|undefined)
         
@@ -164,7 +164,7 @@ var Record = NS.Class({
         across those of different types.
     */
     
-    /*
+    /**
         Property: O.Record#status
         Type: O.Status
     
@@ -182,7 +182,7 @@ var Record = NS.Class({
             store.getStatus( this.get( 'storeKey' ) ) : NS.Status.READY;
     }.property().nocache(),
     
-    /*
+    /**
         Method: O.Record#is
         
         Checks whether record has a particular status. You can also supply a
@@ -200,7 +200,7 @@ var Record = NS.Class({
         return !!( this.get( 'status' ) & state );
     },
     
-    /*
+    /**
         Method: O.Record#setObsolete
         
         Adds <O.Status.OBSOLETE> to the current status value.
@@ -214,7 +214,7 @@ var Record = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Record#setLoading
         
         Adds <O.Status.LOADING> to the current status value.
@@ -228,7 +228,7 @@ var Record = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Property: O.Record#id
         Type: String
         
@@ -241,7 +241,7 @@ var Record = NS.Class({
             this.get( this.constructor.primaryKey );
     }.property().nocache(),
     
-    /*
+    /**
         Method: O.Record#saveToStore
         
         Adds the record to the given store. Will then be committed back by the
@@ -262,7 +262,7 @@ var Record = NS.Class({
         return store.newRecord( this.constructor, this );
     },
     
-    /*
+    /**
         Method: O.Record#discardChanges
         
         Reverts the attributes in the record to the last committed state. If
@@ -283,7 +283,7 @@ var Record = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.Record#refresh
         
         Fetch/refetch the data from the source. Will have no effect if the
@@ -298,7 +298,7 @@ var Record = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Record#destroy
         
         Destroy the record. This will inform the store, which will commit it to
@@ -309,7 +309,7 @@ var Record = NS.Class({
         if ( store ) { store.destroyRecord( this.get( 'storeKey' ) ); }
     },
     
-    /*
+    /**
         Method: O.Record#storeWillUnload
         
         This should only be called by the store, when it unloads the record's
@@ -319,7 +319,7 @@ var Record = NS.Class({
         Record.parent.destroy.call( this );
     },
     
-    /*
+    /**
         Property (private): O.Record#_noSync
         Type: Boolean
         
@@ -327,7 +327,7 @@ var Record = NS.Class({
     */
     _noSync: false,
     
-    /*
+    /**
         Method: O.Record#stopSync
         
         Any changes after this has been invoked will not by synced to the
@@ -341,7 +341,7 @@ var Record = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Method: O.Record#startSync
         
         If syncing has been stopped by a call to <O.Record#stopSync>, this
@@ -355,7 +355,7 @@ var Record = NS.Class({
         return this;
     },
     
-    /*
+    /**
         Property: O.Record#isValid
         Type: Boolean
         
@@ -368,7 +368,7 @@ var Record = NS.Class({
         return !this.get( 'errorForAttribute' )._numErrors;
     }.property(),
     
-    /*
+    /**
         Method: O.Record#errorToSet
         
         Checks whether it will be an error to set the attribute with the given
@@ -388,7 +388,7 @@ var Record = NS.Class({
         return attr.validate ? attr.validate( value, key, this ) : '';
     },
     
-    /*
+    /**
         Property: O.Record#errorForAttribute
         Type: O.Object
         
@@ -402,14 +402,14 @@ var Record = NS.Class({
     }.property()
 });
 
-/*
+/**
     Property: O.Record.className
     Type: String
     
     Any Record subclass MUST define this property with the name of the class to
     allow for introspection and so the source knows what record type to fetch.
 */
-/*
+/**
     Property: O.Record.primaryKey
     Type: String
     

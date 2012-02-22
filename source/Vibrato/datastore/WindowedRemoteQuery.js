@@ -18,7 +18,7 @@ var Status = NS.Status,
     LOADING = Status.LOADING,
     OBSOLETE = Status.OBSOLETE;
 
-/*
+/**
     Enum: O.WindowedRemoteQuery-WindowState
     
     The state of each window in the query is represented as follows:
@@ -200,7 +200,7 @@ var windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
     return ( j !== -1 );
 };
 
-/*
+/**
     Class: O.WindowedRemoteQuery
     
     Extends: O.RemoteQuery
@@ -221,7 +221,7 @@ var WindowedRemoteQuery = NS.Class({
     
     className: 'WindowedRemoteQuery',
     
-    /*
+    /**
         Property: O.WindowedRemoteQuery#windowSize
         Type: Number
         
@@ -235,7 +235,7 @@ var WindowedRemoteQuery = NS.Class({
             Math.floor( ( length - 1 ) / this.get( 'windowSize' ) ) + 1;
     }.property( 'length' ),
     
-    /*
+    /**
         Property: O.WindowedRemoteQuery#triggerPoint
         Type: Number
         
@@ -245,7 +245,7 @@ var WindowedRemoteQuery = NS.Class({
     */
     triggerPoint: 10,
     
-    /*
+    /**
         Property: O.WindowedRemoteQuery#optimiseFetching
         Type: Boolean
         
@@ -255,7 +255,7 @@ var WindowedRemoteQuery = NS.Class({
     */
     optimiseFetching: false,
     
-    /*
+    /**
         Property: O.WindowedRemoteQuery#prefetch
         Type: Number
         
@@ -264,7 +264,7 @@ var WindowedRemoteQuery = NS.Class({
     */
     prefetch: 1,
     
-    /*
+    /**
         Property (private): O.WindowedRemoteQuery#_isAnExplicitIdFetch
         Type: Boolean
         
@@ -396,7 +396,7 @@ var WindowedRemoteQuery = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.WindowedRemoteQuery#fetchWindow
         
         Fetches all records in the window with the index given. e.g. if the
@@ -466,7 +466,7 @@ var WindowedRemoteQuery = NS.Class({
         }
     },
     
-    /*
+    /**
         Method: O.WindowedRemoteQuery#recalculateFetchedWindows
         
         Recalculates whether the ids and records are fetched for windows,
@@ -745,7 +745,7 @@ this.get( 'type' ), changed );
         }
     },
     
-    /*
+    /**
         Method: O.WindowedRemoteQuery#clientDidGenerateUpdate
         
         Call this to update the list with what you think the server will do
@@ -775,7 +775,7 @@ this.get( 'type' ), changed );
         return this;
     },
     
-    /*
+    /**
         Method: O.WindowedRemoteQuery#sourceDidFetchUpdate
         
         The source should call this when it fetches a delta update for the
@@ -1002,7 +1002,7 @@ this.get( 'type' ), changed );
         };
     }(),
     
-    /*
+    /**
         Method: O.WindowedRemoteQuery#sourceDidFetchIdList
         
         The source should call this when it fetches a portion of the id list for

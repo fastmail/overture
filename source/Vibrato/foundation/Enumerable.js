@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/*
+/**
     Mixin: O.Enumerable
     
     The Enumerable mixin adds a number of iteration and accessor methods to any
@@ -24,7 +24,7 @@ NS.Enumerable = {
     
     // :: Accessor methods =====================================================
     
-    /*
+    /**
         Method: O.Enumerable#first
         
         Returns:
@@ -34,7 +34,7 @@ NS.Enumerable = {
         return this.getObjectAt( 0 );
     },
     
-    /*
+    /**
         Method: O.Enumerable#last
     
         Returns:
@@ -44,7 +44,7 @@ NS.Enumerable = {
         return this.getObjectAt( this.get( 'length' ) - 1 );
     },
     
-    /*
+    /**
         Method: O.Enumerable#indexOf
         
         Returns the index in the enumerable of the first occurrence of an item.
@@ -68,7 +68,7 @@ NS.Enumerable = {
         return -1;
     },
     
-    /*
+    /**
         Method: O.Enumerable#lastIndexOf
         
         Returns the index in the enumerable of the last occurrence of an item.
@@ -92,7 +92,7 @@ NS.Enumerable = {
         return -1;
     },
     
-    /*
+    /**
         Method: O.Enumerable#contains
         
         Tests whether the item is in the enumerable.
@@ -109,7 +109,7 @@ NS.Enumerable = {
     
     // :: Iteration methods ====================================================
     
-    /*
+    /**
         Method: O.Enumerable#forEach
         
         Applies the given function to each item in the enumerable. The function
@@ -134,7 +134,7 @@ NS.Enumerable = {
         return this;
     },
     
-    /*
+    /**
         Method: O.Enumerable#filter
         
         Tests each item in the enumerable with a given function and returns an
@@ -164,7 +164,7 @@ NS.Enumerable = {
         return results;
     },
     
-    /*
+    /**
         Method: O.Enumerable#map
         
         Applies the given function to each item in the enumerable and returns an
@@ -191,7 +191,7 @@ NS.Enumerable = {
         return results;
     },
     
-    /*
+    /**
         Method: O.Enumerable#reduce
         
         ECMAScript 5 reduce method.
@@ -226,7 +226,7 @@ NS.Enumerable = {
         return acc;
     },
     
-    /*
+    /**
         Method: O.Enumerable#every
         
         Applies the given function to each item in the enumerable until it finds
@@ -254,7 +254,7 @@ NS.Enumerable = {
         return true;
     },
     
-    /*
+    /**
         Method: O.Enumerable#some
         
         Applies the given function to each item in the enumerable until it finds

@@ -25,7 +25,7 @@ var canTransform = !!NS.UA.cssProps.transform,
     canTransform3d = !!NS.UA.cssProps.transform3d,
     isFirefox = NS.UA.firefox;
 
-/*
+/**
     Class: O.View
 
     Extends: O.Object
@@ -196,7 +196,7 @@ var View = NS.Class({
 
     Extends: NS.Object,
 
-    /*
+    /**
         Property: O.View#isRendered
         Type: Boolean
 
@@ -204,7 +204,7 @@ var View = NS.Class({
     */
     isRendered: false,
 
-    /*
+    /**
         Property: O.View#isInDocument
         Type: Boolean
 
@@ -212,7 +212,7 @@ var View = NS.Class({
     */
     isInDocument: false,
 
-    /*
+    /**
         Property: O.View#parentView
         Type: O.View|null
 
@@ -220,7 +220,7 @@ var View = NS.Class({
     */
     parentView: null,
 
-    /*
+    /**
         Property: O.View#childViews
         Type: Array.<O.View>
 
@@ -237,7 +237,7 @@ var View = NS.Class({
         }
     },
 
-    /*
+    /**
         Property: O.View#id
         Type: String
 
@@ -250,7 +250,7 @@ var View = NS.Class({
 
     // --- Layer ---
 
-    /*
+    /**
         Property: O.View#className
         Type: String|undefined
         Default: undefined
@@ -284,7 +284,7 @@ var View = NS.Class({
         }
     },
 
-    /*
+    /**
         Property: O.View#layerTag
         Type: String
         Default: 'div'
@@ -293,7 +293,7 @@ var View = NS.Class({
     */
     layerTag: 'div',
 
-    /*
+    /**
         Property: O.View#layer
         Type: Element
 
@@ -311,7 +311,7 @@ var View = NS.Class({
         return layer;
     }.property(),
 
-    /*
+    /**
         Method: O.View#didCreateLayer
 
         Called immediately after the layer is created. By default does nothing.
@@ -326,7 +326,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#didCreateLayer
 
         Called immediately before the layer is destroyed.
@@ -342,7 +342,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#didCreateLayer
 
         Called immediately before the layer is appended to the document.
@@ -359,7 +359,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#didCreateLayer
 
         Called immediately after the layer is appended to the document.
@@ -383,7 +383,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#didCreateLayer
 
         Called immediately before the layer is removed from the document.
@@ -405,7 +405,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#didCreateLayer
 
         Called immediately after the layer is removed from the document.
@@ -424,7 +424,7 @@ var View = NS.Class({
 
     // --- Event triage ---
 
-    /*
+    /**
         Property: O.View#nextEventTarget
         Type: O.Events|null
 
@@ -435,7 +435,7 @@ var View = NS.Class({
         return this.get( 'parentView' );
     }.property( 'parentView' ),
 
-    /*
+    /**
         Method: O.View#handleEvent
 
         Handler for native DOM events where this view class is registered as the
@@ -460,7 +460,7 @@ var View = NS.Class({
 
     // --- Behaviour ---
 
-    /*
+    /**
         Property: O.View#isDraggable
         Type: Boolean
         Default: false
@@ -471,7 +471,7 @@ var View = NS.Class({
     */
     isDraggable: false,
 
-    /*
+    /**
         Property: O.View#allowTextSelection
         Type: Boolean
         Default: false
@@ -490,7 +490,7 @@ var View = NS.Class({
 
     // --- Layout ---
 
-    /*
+    /**
         Property: O.View#positioning
         Type: String
         Default: 'absolute'
@@ -500,7 +500,7 @@ var View = NS.Class({
    */
     positioning: 'absolute',
 
-    /*
+    /**
         Property: O.View#clipToBounds
         Type: Boolean
         Default: false
@@ -510,7 +510,7 @@ var View = NS.Class({
    */
     clipToBounds: false,
 
-    /*
+    /**
         Property: O.View#showScrollbarX
         Type: Boolean
         Default: false
@@ -521,7 +521,7 @@ var View = NS.Class({
     */
     showScrollbarX: false,
 
-    /*
+    /**
         Property: O.View#showScrollbarY
         Type: Boolean
         Default: false
@@ -532,7 +532,7 @@ var View = NS.Class({
     */
     showScrollbarY: false,
 
-    /*
+    /**
         Property: O.View#layout
         Type: Object
 
@@ -573,7 +573,7 @@ var View = NS.Class({
         height: '100%'
     },
 
-    /*
+    /**
         Property: O.View#opacity
         Type: Number|undefined
 
@@ -584,7 +584,7 @@ var View = NS.Class({
     */
     opacity: undefined,
 
-    /*
+    /**
         Property: O.View#zIndex
         Type: Number|undefined
 
@@ -593,7 +593,7 @@ var View = NS.Class({
     */
     zIndex: undefined,
 
-    /*
+    /**
         Property: O.View#layerStyles
         Type: Object
 
@@ -701,7 +701,7 @@ var View = NS.Class({
             Object.toCSSString( this.get( 'layerStyles' ) );
     },
 
-    /*
+    /**
         Method: O.View#render
 
         Ensure the view is rendered. Has no effect if the view is already
@@ -721,7 +721,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method (protected): O.View#_render
 
         Draw the initial state of the view. You should override this method to
@@ -738,7 +738,7 @@ var View = NS.Class({
 
     // --- Dimensions ---
 
-    /*
+    /**
         Method: O.View#parentViewDidResize
 
         Called automatically whenever the parent view resizes, including when
@@ -778,7 +778,7 @@ var View = NS.Class({
         }
     },
 
-    /*
+    /**
         Property: O.View#scrollLeft
         Type: Number
 
@@ -786,7 +786,7 @@ var View = NS.Class({
     */
     scrollLeft: 0,
 
-    /*
+    /**
         Property: O.View#scrollTop
         Type: Number
 
@@ -794,7 +794,7 @@ var View = NS.Class({
     */
     scrollTop: 0,
 
-    /*
+    /**
         Property: O.View#pxLeft
         Type: Number
 
@@ -814,7 +814,7 @@ var View = NS.Class({
         return offset;
     }.property( 'isInDocument', 'layout', 'parentView' ),
 
-    /*
+    /**
         Property: O.View#pxTop
         Type: Number
 
@@ -834,7 +834,7 @@ var View = NS.Class({
         return offset;
     }.property( 'isInDocument', 'layout', 'parentView' ),
 
-    /*
+    /**
         Property: O.View#pxWidth
         Type: Number
 
@@ -848,7 +848,7 @@ var View = NS.Class({
         return this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetWidth : 0;
     }.property( 'pxDimensions' ),
 
-    /*
+    /**
         Property: O.View#pxHeight
         Type: Number
 
@@ -863,7 +863,7 @@ var View = NS.Class({
             this.get( 'layer' ).offsetHeight : 0;
     }.property( 'pxDimensions' ),
 
-    /*
+    /**
         Property: O.View#pxDimensions
         Type: Object
 
@@ -879,7 +879,7 @@ var View = NS.Class({
         };
     }.property( 'layout', 'layer' ),
 
-    /*
+    /**
         Property: O.View#visibleRect
         Type: Object
 
@@ -902,7 +902,7 @@ var View = NS.Class({
 
     // --- Insertion and deletion ---
 
-    /*
+    /**
         Method: O.View#insertView
 
         Insert a new child view. If the view already has a parent view, it will
@@ -954,7 +954,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#replaceView
 
         Replaces one child view with another. If the new view already has a
@@ -1000,7 +1000,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#removeView
 
         Removes a child view from this view. Has no effect if the view passed as
@@ -1034,7 +1034,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#compareViewTreePosition
 
         Returns a constant giving the relative position in the view tree (as
@@ -1114,7 +1114,7 @@ var View = NS.Class({
 
     _isSleeping: false,
 
-    /*
+    /**
         Method: O.View#sleep
 
         Suspends bindings on this view and all child views. May be overrident to
@@ -1138,7 +1138,7 @@ var View = NS.Class({
         return this;
     },
 
-    /*
+    /**
         Method: O.View#awaken
 
         Resumes bindings on this view and all child views; the inverse of

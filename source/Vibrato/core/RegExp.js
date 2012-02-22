@@ -8,7 +8,7 @@
 
 "use strict";
 
-/*
+/**
     Property: RegExp.email
     Type: RegExp
     
@@ -16,7 +16,7 @@
 */
 RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,4})\b/i;
 
-/*
+/**
     Property: RegExp.url
     Type: RegExp
     

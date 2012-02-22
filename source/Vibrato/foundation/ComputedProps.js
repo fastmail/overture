@@ -12,7 +12,7 @@
 
 ( function ( NS, undefined ) {
 
-/*
+/**
     Module: Foundation
     
     The Foundation module provides the basic objects and mixins for key-value
@@ -106,7 +106,7 @@ var teardownComputed = function ( metadata, key ) {
 };
 
 Function.implement({
-    /*
+    /**
         Method: Function#property
         
         Marks a function as a property getter/setter. If a call to
@@ -138,7 +138,7 @@ Function.implement({
         return this;
     },
     
-    /*
+    /**
         Method: Function#nocache
         
         Marks a getter method such that its value is not cached.
@@ -151,7 +151,7 @@ Function.implement({
         return this;
     },
     
-    /*
+    /**
         Method: Function#doNotNotify
         
         Marks a computed property so that when it is set,
@@ -166,7 +166,7 @@ Function.implement({
     }
 });
 
-/*
+/**
     Function: O.getFromPath
 
     Follows a path string (e.g. 'mailbox.messages.howMany') to retrieve the
@@ -204,7 +204,7 @@ var getFromPath = NS.getFromPath = function ( path, root ) {
     return root;
 };
 
-/*
+/**
     Mixin: O.ComputedProps
 
     The ComputedProps mixin provides a generic get/set method for accessing
@@ -219,7 +219,7 @@ var getFromPath = NS.getFromPath = function ( path, root ) {
     versions of this method.
 */
 
-/*
+/**
     Function (private): O.ComputedProps-computeDependentKeys
     
     Finds all keys which have a dependency on the given key (note
@@ -255,7 +255,7 @@ var computeDependentKeys = function ( cache, key, results ) {
 };
 
 NS.ComputedProps = {
-    /*
+    /**
         Method: O.ComputedProps#propertiesDependentOnKey
         
         Returns an array of the name of all computed properties
@@ -274,7 +274,7 @@ NS.ComputedProps = {
                 computeDependentKeys( metadata.dependents, key, [] ) );
     },
     
-    /*
+    /**
         Method: O.ComputedProps#propertyDidChange
         
         Invalidates any cached values depending on the property.
@@ -297,7 +297,7 @@ NS.ComputedProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ComputedProps#computedPropertyDidChange
         
         Invalidates the cached value for a property then calls
@@ -316,7 +316,7 @@ NS.ComputedProps = {
         return this.propertyDidChange( key, oldValue );
     },
 
-    /*
+    /**
         Method: O.ComputedProps#clearPropertyCache
 
         Deletes the cache of computed property values.
@@ -332,7 +332,7 @@ NS.ComputedProps = {
         return this;
     },
     
-    /*
+    /**
         Method: O.ComputedProps#set
         
         Sets the value of the named property on this object to the value given.
@@ -371,7 +371,7 @@ NS.ComputedProps = {
         return silent ? this : this.propertyDidChange( key, oldValue, value );
     },
     
-    /*
+    /**
         Method: O.ComputedProps#get
         
         Gets the value of the named property on this object. If there is an
@@ -404,7 +404,7 @@ NS.ComputedProps = {
         return value;
     },
     
-    /*
+    /**
         Method: O.ComputedProps#getFromPath
         
         Gets the value at the given path string relative to the object on which
@@ -420,7 +420,7 @@ NS.ComputedProps = {
         return getFromPath( path, this );
     },
     
-    /*
+    /**
         Method (protected): O.ComputedProps#getUnknownProperty
         
         Called by the get function if an unknown key is retrieved. By default
@@ -436,7 +436,7 @@ NS.ComputedProps = {
         return undefined;
     },
     
-    /*
+    /**
         Method: O.ComputedProps#increment
         
         Adds the value of the delta argument to the value stored in the property
@@ -453,7 +453,7 @@ NS.ComputedProps = {
         return this.set( key, this.get( key ) + delta );
     },
     
-    /*
+    /**
         Method: O.ComputedProps#toggle
         
         Sets the value of the given key to the boolean negation of its previous
