@@ -19,8 +19,8 @@ var LightboxPhotoView = NS.Class({
     Mixin: NS.AnimatableView,
     
     hideControls: true,
-    isActive: O.bind( 'lightbox.isActive' ),
-    curIndex: O.bind( 'lightbox.index' ),
+    isActive: NS.bind( 'lightbox.isActive' ),
+    curIndex: NS.bind( 'lightbox.index' ),
     
     frameThickness: 30,
     
@@ -85,22 +85,11 @@ var LightboxPhotoView = NS.Class({
     
     _render: function ( layer ) {
         var Element = NS.Element,
-            el = Element.create,
-            index = this.get( 'index' ),
-            total = this.get( 'lightbox' ).get( 'total' ),
-            href = location.href;
+            el = Element.create;
         
         Element.appendChildren( layer, [
             this.get( 'thumbImage' ),
-            index ?
-                el( 'a.prev', { href: href }, [
-                    el( 'span.navLink', [ NS.loc( 'Previous' ) ] )
-                ]) : null,
-            index + 1 < total ?
-                el( 'a.next', { href: href }, [
-                    el( 'span.navLink', [ NS.loc( 'Next' ) ] )
-                ]) : null,
-            el( 'a.close', { href: href }, [
+            this._close = el( 'a.close', { href: location.href }, [
                 el( 'span.navLink', [ NS.loc( 'Close' ) ] )
             ])
         ]);
@@ -250,27 +239,12 @@ var LightboxPhotoView = NS.Class({
     // Event handling
     
     onClick: function ( event ) {
-        var lightbox = this.get( 'lightbox' ),
-            index = this.get( 'index' ),
-            target = event.target;
-        
-        if ( target.className === 'navLink' ) {
-            target = target.parentNode;
+        var lightbox = this.get( 'lightbox' );
+                
+        if ( NS.Element.contains( this._close, event.target ) ) {
+            lightbox.close();
         }
         
-        switch ( target.className ) {
-            case 'next':
-                lightbox.set( 'index', index + 1 );
-                break;
-            case 'prev':
-                lightbox.set( 'index', index - 1 );
-                break;
-            case 'close':
-                lightbox.close();
-                break;
-            default:
-                lightbox.set( 'index', index );
-        }
         event.preventDefault();
         event.stopPropagation();
     }.on( 'click' )
@@ -301,12 +275,27 @@ var LightboxView = NS.Class({
     total: 0,
 
     className: function () {
+        var index = this.get( 'index' ),
+            total = this.get( 'total' );
         return 'LightboxView' +
-            ( this.get( 'isActive' ) ? ' active' : '' );
-    }.property( 'isActive' ),
+            ( this.get( 'isActive' ) ? ' active' : '' ) +
+            ( index ? '' : ' first' ) +
+            ( index + 1 === total ? ' last' : '' );
+    }.property( 'isActive', 'index' ),
     
     _render: function ( layer ) {
-        layer.appendChild( NS.Element.create( 'div.background' ) );
+        var Element = NS.Element,
+            el = Element.create;
+            
+        Element.appendChildren( layer, [
+            el( 'div.background' ),
+            el( 'a.prev.navLink', { href: location.href }, [
+                NS.loc( 'Previous' )
+            ]),
+            el( 'a.next.navLink', { href: location.href }, [
+                NS.loc( 'Next' )
+            ])
+        ]);
         LightboxView.parent._render.call( this, layer );
     },
     
@@ -347,10 +336,17 @@ var LightboxView = NS.Class({
         }
     }.on( 'keydown' ),
     
-    closeOnClick: function ( event ) {
-        if ( event.target.parentNode === this.get( 'layer' ) ) {
+    onClick: function ( event ) {
+        if ( event.button || event.metaKey || event.ctrlKey ) { return; }
+        var action = event.target.className;
+        if ( /prev/.test( action ) ) {
+            this.increment( 'index', -1 );
+        } else if ( /next/.test( action ) ) {
+            this.increment( 'index', 1 );
+        } else {
             this.close();
         }
+        event.stopPropagation();
     }.on( 'click' ),
 
     close: function () {
