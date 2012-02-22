@@ -20,9 +20,9 @@
 
 var loc = window.location;
 var getHash = function () {
-    var href = loc.href,
-        i = href.indexOf( '#' );
-    return  i > -1 ? href.slice( i ) : '';
+    var hash = loc.hash,
+        i = hash.indexOf( '#' );
+    return  i > -1 ? hash.slice( i ) : '';
 };
 
 /*
