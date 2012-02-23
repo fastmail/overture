@@ -287,7 +287,7 @@ NS.AnimatableView = {
         });
     }.property(),
     
-    _updateLayerStyles: function () {
+    updateLayerStyles: function () {
         if ( this.isDestroyed ) { return; }
         
         var oldStyles = this._layerStyles,

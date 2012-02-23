@@ -687,18 +687,31 @@ var View = NS.Class({
         if ( this.get( 'isRendered' ) ) {
              if ( !this._layerStyles ) {
                  this._layerStyles = oldStyles;
-                 NS.RunLoop.queueFn( 'after', this._updateLayerStyles, this );
+                 NS.RunLoop.queueFn( 'after', this.updateLayerStyles, this );
              }
         }
     }.observes( 'layerStyles' ),
 
-    _updateLayerStyles: function () {
+    /*
+        Method: O.View#updateLayerStyles
+
+        Applies the current layer styles to the layer. Will be called
+        automatically at the end of the run loop whenever the layerStyles
+        property changes, but may be called explicitly if you need to flush
+        changes to the layer immediately.
+
+        Returns:
+            {O.View} Returns self.
+    */
+    updateLayerStyles: function () {
         if ( this.isDestroyed ) { return; }
 
-        delete this._layerStyles;
+        if ( this._layerStyles ) {
+            delete this._layerStyles;
 
-        this.get( 'layer' ).style.cssText =
-            Object.toCSSString( this.get( 'layerStyles' ) );
+            this.get( 'layer' ).style.cssText =
+                Object.toCSSString( this.get( 'layerStyles' ) );
+        }
     },
 
     /**
