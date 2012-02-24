@@ -22,12 +22,15 @@ var ButtonView = NS.Class({
     type: 'button',
     
     target: null,
-    action: 'click',
+    action: null,
     
     activate: function () {
         if ( !this.get( 'disabled' ) ) {
-            ( this.get( 'target' ) || this ).fire(
-                this.get( 'action' ), { originView: this } );
+            var action = this.get( 'action' ),
+                target = this.get( 'target' ) || this;
+            if ( action ) {
+                target.fire( action, { originView: this } );
+            }
         }
     },
     
