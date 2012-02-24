@@ -502,7 +502,11 @@ var Language = NS.Class({
                 // Find the end of the macro call.
                 while ( true ) {
                     end = translation.indexOf( ']', searchIndex );
-                    // Check the '[' character isn't escaped.
+                    // Invalid translation string. Return literally.
+                    if ( end === -1 ) {
+                        return string;
+                    }
+                    // Check the ']' character isn't escaped.
                     j = end;
                     while ( j-- ) {
                         if ( translation[ j ] !== '~' ) {
