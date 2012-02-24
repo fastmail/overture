@@ -265,7 +265,7 @@ var LightboxView = NS.Class({
     },
     
     index: function ( index ) {
-        return index ? index.limit( 0, this.get( 'total' ) - 1 ) : 0;
+        return index ? index.mod( this.get( 'total' ) ) : 0;
     }.property(),
     
     getSrcFor: function ( image, width ) {
@@ -275,26 +275,23 @@ var LightboxView = NS.Class({
     total: 0,
 
     className: function () {
-        var index = this.get( 'index' ),
-            total = this.get( 'total' );
         return 'LightboxView' +
-            ( this.get( 'isActive' ) ? ' active' : '' ) +
-            ( index ? '' : ' first' ) +
-            ( index + 1 === total ? ' last' : '' );
-    }.property( 'isActive', 'index' ),
+            ( this.get( 'isActive' ) ? ' active' : '' );
+    }.property( 'isActive' ),
     
     _render: function ( layer ) {
         var Element = NS.Element,
-            el = Element.create;
+            el = Element.create,
+            showNav = this.get( 'total' ) > 1;
             
         Element.appendChildren( layer, [
             el( 'div.background' ),
-            el( 'a.prev.navLink', { href: location.href }, [
+            showNav ? el( 'a.prev.navLink', { href: location.href }, [
                 NS.loc( 'Previous' )
-            ]),
-            el( 'a.next.navLink', { href: location.href }, [
+            ]) : null,
+            showNav ? el( 'a.next.navLink', { href: location.href }, [
                 NS.loc( 'Next' )
-            ])
+            ]) : null
         ]);
         LightboxView.parent._render.call( this, layer );
     },
