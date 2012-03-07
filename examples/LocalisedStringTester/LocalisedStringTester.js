@@ -12,9 +12,9 @@ var LST = new O.Application({
         positioning: 'relative',
         layout: {},
         
-        string: 'There [*2,_1,is %n thing,are %n things,is nothing] to know about localised strings.',
+        string: 'There [*2,_1,is %n thing,are %n things,is nothing] to know about [_2] strings.',
         arg1: '3',
-        arg2: '',
+        arg2: 'localised',
         arg3: '',
         
         output: function () {

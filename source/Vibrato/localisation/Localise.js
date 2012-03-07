@@ -205,75 +205,88 @@ var Language = NS.Class({
     macros: {
         // Japanese, Vietnamese, Korean.
         // Case 1: everything.
+        // Case 2: is 0 (optional; case 1 used if not supplied).
         '*1': function ( n, singular, zero ) {
-            return ( ( !n && zero ) || singular ).interpolate( n );
+            return ( !n && zero !== undefined ? zero : singular
+            ).interpolate( n );
         },
         // Most Western languages.
         // Case 1: is 1.
         // Case 2: everything else.
-        // Case 3: is 0 (optional; plural used otherwise).
+        // Case 3: is 0 (optional; plural used if not supplied).
         '*2': function ( n, singular, plural, zero ) {
             return ( n === 1 ? singular :
-                ( !n && zero ) || plural ).interpolate( n );
+                !n && zero !== undefined ? zero : plural
+            ).interpolate( n );
         },
         // French and Brazilian Portugese.
         // Case 1: is 0 or 1.
         // Case 2: everything else.
-        // Case 3: is 0 (optional, uses singular if not supplied).
+        // Case 3: is 0 (optional; singular used if not supplied).
         '*2a': function ( n, singular, plural, zero ) {
             return ( n > 1 ? plural :
-                ( !n && zero ) || singular ).interpolate( n );
+                !n && zero !== undefined ? zero : singular
+            ).interpolate( n );
         },
         // Hungarian
         // Case 1: is 0,*3,*6,*8,*20,*30,*60,*80,*00,*000000, *000000+.
         // Case 2: everything else
         //        (*1,*2,*4,*5,*7,*9,*10,*40,*50,*70,*90,*000,*0000,*00000).
-        // Case 3: is O (optional, will use case 1 if not supplied)
+        // Case 3: is 0 (optional; case 1 used if not supplied)
         '*2b': function ( n, form1, form2, zero ) {
-            return ( !n ? zero || form1 :
+            return ( !n ? zero !== undefined ? zero : form1 :
                 ( /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test( n + '' ) ) ?
-                form1 : form2 ).interpolate( n );
+                form1 : form2
+            ).interpolate( n );
         },
         // Latvian.
         // Case 1: is 0.
         // Case 2: ends in 1, does not end in 11.
         // Case 3: everything else.
         '*3a': function ( n, zero, plural1, plural2 ) {
-            return ( n === 0 ? zero :
-                ( n % 10 === 1 && n % 100 !== 11 ) ? plural1 : plural2
+            return (
+                !n ? zero :
+                n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
             ).interpolate( n );
         },
         // Romanian.
         // Case 1: is 1.
         // Case 2: is 0 or ends in 01-19.
         // Case 3: everything else.
+        // Case 4: is 0 (optional; case 2 used if not supplied)
         '*3b': function ( n, singular, plural1, plural2, zero ) {
             var mod100 = n % 100;
-            return ( ( n === 1 ) ? singular :
-                ( n === 0 || ( 1 <= mod100 && mod100 <= 19 ) ) ?
-                plural1 : plural2
+            return (
+                !n && zero !== undefined ? zero :
+                n === 1 ? singular :
+                !n || ( 1 <= mod100 && mod100 <= 19 ) ? plural1 : plural2
             ).interpolate( n );
         },
         // Lithuanian.
         // Case 1: ends in 1, not 11.
         // Case 2: ends in 0 or ends in 10-20.
         // Case 3: everything else.
-        '*3c': function ( n, form1, form2, form3 ) {
+        // Case 4: is 0 (optional; case 2 used if not supplied)
+        '*3c': function ( n, form1, form2, form3, zero ) {
             var mod10 = n % 10,
                 mod100 = n % 100;
-            return ( ( mod10 === 1 && mod100 !== 11 ) ? form1 :
-                ( mod10 === 0 || ( 10 <= mod100 && mod100 <= 20 ) ) ?
-                form2 : form3
+            return (
+                !n && zero !== undefined ? zero :
+                mod10 === 1 && mod100 !== 11 ? form1 :
+                mod10 === 0 || ( 10 <= mod100 && mod100 <= 20 ) ? form2 : form3
             ).interpolate( n );
         },
         // Russian, Ukranian, Serbian, Croation.
         // Case 1: ends in 1, does not end in 11.
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
-        '*3d': function ( n, form1, form2, form3 ) {
+        // Case 4: is 0 (optional; case 3 used if not supplied)
+        '*3d': function ( n, form1, form2, form3, zero ) {
             var mod10 = n % 10,
                 mod100 = n % 100;
-            return ( ( mod10 === 1 && mod100 !== 11 ) ? form1 :
+            return (
+                !n && zero !== undefined ? zero :
+                mod10 === 1 && mod100 !== 11 ? form1 :
                 2 <= mod10 && mod10 <= 4 && ( mod100 < 12 || mod100 > 14 ) ?
                 form2 : form3
             ).interpolate( n );
@@ -282,8 +295,11 @@ var Language = NS.Class({
         // Case 1: is 1.
         // Case 2: is 2-4.
         // Case 3: everything else.
-        '*3e': function ( n, singular, plural1, plural2 ) {
-            return ( n === 1 ? singular :
+        // Case 4: is 0 (optional; case 3 used if not supplied)
+        '*3e': function ( n, singular, plural1, plural2, zero ) {
+            return (
+                !n && zero !== undefined ? zero :
+                n === 1 ? singular :
                 2 <= n && n <= 4 ? plural1 : plural2
             ).interpolate( n );
         },
@@ -291,10 +307,13 @@ var Language = NS.Class({
         // Case 1: is 1.
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
-        '*3f': function ( n, singular, plural1, plural2 ) {
+        // Case 4: is 0 (optional; case 3 used if not supplied)
+        '*3f': function ( n, singular, plural1, plural2, zero ) {
             var mod10 = n % 10,
                 mod100 = n % 100;
-            return ( n === 1 ? singular :
+            return (
+                !n && zero !== undefined ? zero :
+                n === 1 ? singular :
                 2 <= mod10 && mod10 <= 4 && ( mod100 < 12 || mod100 > 14 ) ?
                 plural1 : plural2
             ).interpolate( n );
@@ -304,9 +323,12 @@ var Language = NS.Class({
         // Case 2: ends in 02.
         // Case 3: ends in 03 or 04.
         // Case 4: everything else.
-        '*4a': function ( n, end01, end02, end03or04, plural ) {
+        // Case 5: is 0 (optional; case 4 used if not supplied)
+        '*4a': function ( n, end01, end02, end03or04, plural, zero ) {
             var mod100 = n % 100;
-            return ( mod100 === 1 ? end01 :
+            return (
+                !n && zero !== undefined ? zero :
+                mod100 === 1 ? end01 :
                 mod100 === 2 ? end02 :
                 mod100 === 3 || mod100 === 4 ? end03or04 : plural
             ).interpolate( n );
@@ -316,10 +338,13 @@ var Language = NS.Class({
         // Case 2: is 2 or 12.
         // Case 3: is 3-19.
         // Case 4: everything else.
-        '*4b': function ( n, form1, form2, form3, form4 ) {
-            return ( ( n === 1 || n === 11 ) ? form1 :
-                ( n === 2 || n === 12 ) ? form2 :
-                ( 3 <= n && n <= 19 ) ? form3 : form4
+        // Case 5: is 0 (optional; case 4 used if not supplied)
+        '*4b': function ( n, form1, form2, form3, form4, zero ) {
+            return (
+                !n && zero !== undefined ? zero :
+                n === 1 || n === 11 ? form1 :
+                n === 2 || n === 12 ? form2 :
+                3 <= n && n <= 19 ? form3 : form4
             ).interpolate( n );
         },
         // Gaeilge (Irish).
@@ -328,11 +353,14 @@ var Language = NS.Class({
         // Case 3: is 3-6.
         // Case 4: is 7-10.
         // Case 5: everything else.
-        '*5': function ( n, singular, doubular, plural1, plural2, plural3 ) {
-            return ( ( n === 1 ) ? singular :
-                ( n === 2 ) ? doubular :
-                ( 3 <= n && n <= 6 ) ? plural1 :
-                ( 7 <= n && n <= 10 ) ? plural2 : plural3
+        // Case 5: is 0 (optional; case 5 used if not supplied)
+        '*5': function ( n, singular, doubular, form1, form2, form3, zero ) {
+            return (
+                !n && zero !== undefined ? zero :
+                n === 1 ? singular :
+                n === 2 ? doubular :
+                3 <= n && n <= 6 ? form1 :
+                7 <= n && n <= 10 ? form2 : form3
             ).interpolate( n );
         },
         // Arabic.
@@ -344,16 +372,17 @@ var Language = NS.Class({
         // Case 6: everything else.
         '*6': function ( n, zero, singular, doubular, pl1, pl2, pl3 ) {
             var mod100 = n % 100;
-            return ( ( n === 0 ) ? zero :
-                ( n === 1 ) ? singular :
-                ( n === 2 ) ? doubular :
-                ( 3 <= mod100 && mod100 <= 10 ) ? pl1 :
-                ( 11 <= mod100 && mod100 <= 99 ) ? pl2 : pl3
+            return (
+                !n ? zero :
+                n === 1 ? singular :
+                n === 2 ? doubular :
+                3 <= mod100 && mod100 <= 10 ? pl1 :
+                11 <= mod100 && mod100 <= 99 ? pl2 : pl3
             ).interpolate( n );
         },
         
         quant: function ( n, singular, plural, zero ) {
-            return ( n === 0 && zero ) ? zero :
+            return ( !n && zero !== undefined ) ? zero :
                    ( n === 1 ) ? '1 ' + singular :
                    ( n + ' ' ) + ( plural || ( singular + 's' ) );
         },
