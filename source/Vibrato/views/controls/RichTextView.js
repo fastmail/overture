@@ -660,11 +660,7 @@ var RichTextView = NS.Class({
 RichTextView.pathToDocument = 'document.html';
 
 RichTextView.isSupported = !!(
-    ( 'contentEditable' in document.body ) && document.createRange &&
-    !(
-        11.6 <= NS.UA.opera && NS.UA.opera < 12 && NS.UA.isMac &&
-        location.href.indexOf( 'mail-beta' ) === -1
-    )
+    ( 'contentEditable' in document.body ) && document.createRange
 );
 
 NS.RichTextView = RichTextView;
