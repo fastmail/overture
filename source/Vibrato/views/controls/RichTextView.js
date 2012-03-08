@@ -458,12 +458,12 @@ var RichTextView = NS.Class({
                     return;
                 }
                 var url = this.get( 'value' ),
-                    isEmail = emailRegExp.test( url );
-                if ( isEmail ) {
-                    url = 'mailto:' + url;
+                    email = emailRegExp.exec( url );
+                if ( email ) {
+                    url = 'mailto:' + email[0];
                 }
                 else {
-                    if ( !( /^http(s)?:\/\//.test( url ) ) ) {
+                    if ( !( /^https?:\/\//.test( url ) ) ) {
                         url = 'http://' + url;
                     }
                 }
