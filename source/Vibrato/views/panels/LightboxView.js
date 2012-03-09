@@ -331,6 +331,7 @@ var LightboxView = NS.Class({
                 this.increment( 'index', -1 );
                 break;
         }
+        event.stopPropagation();
     }.on( 'keydown' ),
     
     onClick: function ( event ) {
