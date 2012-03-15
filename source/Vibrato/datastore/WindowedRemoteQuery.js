@@ -3,7 +3,7 @@
 // Module: DataStore                                                          \\
 // Requires: Core, Foundation, Status.js, RemoteQuery.js                      \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2011 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 /*global O */
