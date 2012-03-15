@@ -162,14 +162,26 @@ var RemotePagedQuery = NS.Class({
 
     getIdsForAllObjects: function ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
-        var MAX_INT = 0x7fffffff;
-        var windowSize = this.get( 'windowSize' );
-        if ( !this.get( 'complete' ) && windowSize !== MAX_INT ) {
-            this._windowSize = windowSize;
-            this.set( 'windowSize', MAX_INT );
-            this.fetchNextWindow();
-            ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) ).push(
-                [ 0, MAX_INT, callback ] );
+        var MAX_INT = 0x7fffffff,
+            windowSize = this.get( 'windowSize' );
+        if ( !this.get( 'complete' ) ) {
+            if ( windowSize !== MAX_INT ) {
+                this._windowSize = windowSize;
+                this.set( 'windowSize', MAX_INT );
+                // Can't just call fetchNextWindow() and push the callback onto
+                // _awaitingIdFetch, as if we already loading the next window,
+                // the new loading request will be ignored and then when the
+                // current request loads it will see the window size of max int
+                // and think it has finished loading everything. So instead call
+                // fetchQuery explicity and callback after that has finished.
+                this.get( 'source' ).fetchQuery( this, function () {
+                    this.getIdsForObjectsInRange( 0, MAX_INT, callback );
+                }.bind( this ) );
+            } else {
+                ( this._awaitingIdFetch ||
+                    ( this._awaitingIdFetch = [] ) ).push(
+                        [ 0, MAX_INT, callback ] );
+            }
             return true;
         }
         return this.getIdsForObjectsInRange( 0, MAX_INT, callback );
