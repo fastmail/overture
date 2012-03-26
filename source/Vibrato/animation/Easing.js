@@ -51,7 +51,7 @@ var cubicBezier = function ( p1x, p1y, p2x, p2y ) {
         // This is y given t on the bezier curve.
         return t * ( cY + t * ( bY + t * aY ) );
     }.extend({
-        cssName: 'cubic-bezier(' + p1x + ',' + p1y + ',' + p1y + ',' + p2y + ')'
+        cssName: 'cubic-bezier(' + p1x + ',' + p1y + ',' + p2x + ',' + p2y + ')'
     });
 };
 
