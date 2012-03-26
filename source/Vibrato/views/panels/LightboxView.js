@@ -11,142 +11,101 @@
 "use strict";
 
 ( function ( NS ) {
-
-var LightboxPhotoView = NS.Class({
+    
+var LightboxItemView = NS.Class({
     
     Extends: NS.View,
     
     Mixin: NS.AnimatableView,
     
-    hideControls: true,
-    isActive: NS.bind( 'lightbox.isActive' ),
-    curIndex: NS.bind( 'lightbox.index' ),
+    lightbox: null,
+    index: 0,
+    activeIndex: -1,
     
     frameThickness: 30,
     
-    init: function ( lightbox, index, image ) {
-        this.lightbox = lightbox;
-        this.index = index;
-        this._image = image;
-        
-        LightboxPhotoView.parent.init.call( this );
-        
-        this.redraw();
-        
-        if ( index === this.get( 'curIndex' ) ) {
-            this.get( 'highResImage' );
-        }
-        
-        lightbox.insertView( this );
+    init: function ( options ) {
+        LightboxItemView.parent.init.call( this, options );
     },
     
+    position: function () {
+        return this.get( 'index' ) - this.get( 'activeIndex' );
+    }.property( 'activeIndex' ),
+
+    isActive: NS.bind( 'lightbox.isActive', null, NS.Transform.toBoolean ),
+    hideControls: true,
+        
     className: function () {
-        return 'LightboxPhotoView' +
+        return 'LightboxItemView' +
             ( this.get( 'hideControls' ) ? ' hideControls' : '' );
     }.property( 'hideControls' ),
-    
-    thumbImage: function () {
-        return NS.Element.create( 'img', {
-            src: this._image.thumb.src,
-            alt: ''
-        });
-    }.property(),
-    
-    _highResShowing: false,
-    
-    highResLoaded: false,
-    
-    highResImage: function () {
-        var img = NS.Element.create( 'img', { alt: '' } );
-        img.onload = function () {
-            this.set( 'highResLoaded', true );
-            img = img.onload = null;
-        }.bind( this );
-        img.src =
-            this.get( 'lightbox' )
-                .getSrcFor( this._image, this.get( 'centreLayout' ).width );
-        return img;
-    }.property(),
-    
-    switchToHighRes: function () {
-        if ( !this.get( 'isDestroyed' ) && !this._isAnimating &&
-                !Math.abs( this.get( 'index' ) - this.get( 'curIndex' ) ) ) {
-            this.get( 'layer' ).replaceChild(
-                this.get( 'highResImage' ), this.get( 'thumbImage' ) );
-            this._highResShowing = true;
-        }
-    }.observes( 'highResLoaded' ),
-    
-    switchToLowRes: function () {
-        this.get( 'layer' ).replaceChild(
-            this.get( 'thumbImage' ), this.get( 'highResImage' ) );
-        this._highResShowing = false;
-    },
-    
+        
     _render: function ( layer ) {
         var Element = NS.Element,
             el = Element.create;
         
         Element.appendChildren( layer, [
-            this.get( 'thumbImage' ),
+            this.renderContent(),
             this._close = el( 'a.close', { href: location.href }, [
                 el( 'span.navLink', [ NS.loc( 'Close' ) ] )
             ])
         ]);
     },
     
-    manageImages: function ( obj ) {
-        var position = Math.abs( this.get( 'index' ) - this.get( 'curIndex' ) ),
-            currentIsHighRes = this._highResShowing,
-            highResLoaded = this.get( 'highResLoaded' ),
-            highResShowing = this._highResShowing;
-        
-        if ( !position ) {
-            if ( highResLoaded ) {
-                if ( !highResShowing ) {
-                    this.switchToHighRes();
-                }
-            } else {
-                this.get( 'highResImage' );
-            }
-        } else {
-            // Remove at end of animation
-            if ( highResShowing && !obj ) {
-                this.switchToLowRes();
-            }
-        }
-    }.observes( 'curIndex' ),
-        
     redraw: function () {
-        var position = this.get( 'index' ) - this.get( 'curIndex' ),
+        var position = this.get( 'position' ),
             layout =
                 !position ?
                     this.get( 'isActive' ) ? 'centreLayout' : 'thumbLayout' :
                 position > 0 ?
                     'rightLayout' : 'leftLayout';
-        this.set( 'hideControls', !!position )
-            .set( 'animateLayerDuration',
-                position === 'thumbLayout' ? 300 : 500 )
+        
+        this.set( 'animateLayerDuration', layout === 'thumbLayout' ? 350: 500 )
+            .set( 'hideControls', !!position )
             .set( 'layout', this.get( layout ) );
-    }.observes( 'curIndex', 'isActive', 'dimensions' ),
-
+    }.observes( 'isActive', 'position', 'dimensions' ),
+    
     // --- Animation ---
-    willAnimate: function () {
-        this._isAnimating = true;
-        this.get( 'lightbox' ).increment( 'animating', 1 );
-    },
+    
     didAnimate: function () {
-        this._isAnimating = false;
-        this.manageImages();
-        this.get( 'lightbox' ).increment( 'animating', -1 );
+        this.increment( 'animating', -1 );
+        if ( !this.get( 'position' ) && !this.get( 'isActive' ) ) {
+            this.get( 'lightbox' ).removeFromDocument();
+        }
     },
-
+    
     // --- Layout ---
     
+    thumbPosition: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    },
+        
+    contentDimensions: {
+        width: 300,
+        height: 300
+    },
+    
+    didAppendLayerToDocument: function () {
+        // Must flush CSS changes -> force reflow/redraw.
+        if ( !this.get( 'position' ) ) {
+            this.get( 'layer' ).getBoundingClientRect();
+        }
+        LightboxItemView.parent.didAppendLayerToDocument.call( this );
+    },
+    
+    parentViewDidResize: function ( didJustAddToDocument ) {
+        if ( !didJustAddToDocument ) {
+            this.computedPropertyDidChange( 'dimensions' );
+        }
+    },
+    
     dimensions: function () {
-        var image = this._image,
-            width = image.width,
-            height = image.height,
+        var content = this.get( 'contentDimensions' ),
+            width = content.width,
+            height = content.height,
             frame = this.get( 'frameThickness' ),
             
             lightbox = this.get( 'lightbox' ),
@@ -171,14 +130,14 @@ var LightboxPhotoView = NS.Class({
             width: Math.max( width, 150 ),
             height: Math.max( height, 100 )
         };
-    }.property( 'lightbox.pxDimensions' ),
+    }.property( 'contentDimensions', 'frameThickness' ),
     
     thumbLayout: function () {
         var dimensions = this.get( 'dimensions' ),
             width = dimensions.width,
             height = dimensions.height,
             frame = this.get( 'frameThickness' ),
-            thumb = this._image.thumb.getBoundingClientRect();
+            thumb = this.get( 'thumbPosition' );
         
         return {
             width: width,
@@ -190,7 +149,7 @@ var LightboxPhotoView = NS.Class({
                 ( thumb.bottom - thumb.top - height - frame ) / 2 ),
             scale: ( thumb.right - thumb.left ) / ( width + frame )
         };
-    }.property( 'dimensions' ),
+    }.property( 'dimensions', 'thumbPosition' ),
     
     centreLayout: function () {
         var dimensions = this.get( 'dimensions' ),
@@ -236,18 +195,108 @@ var LightboxPhotoView = NS.Class({
         };
     }.property( 'dimensions' ),
     
-    // Event handling
+    // --- Event handling ---
+    
+    close: function () {
+        this.get( 'lightbox' ).close();
+    },
     
     onClick: function ( event ) {
-        var lightbox = this.get( 'lightbox' );
+        var lightbox = this.get( 'parentView' );
                 
         if ( NS.Element.contains( this._close, event.target ) ) {
-            lightbox.close();
+            event.preventDefault();
+            this.close();
         }
         
-        event.preventDefault();
         event.stopPropagation();
     }.on( 'click' )
+});
+
+var LightboxPhotoView = NS.Class({
+    
+    Extends: LightboxItemView,
+    
+    className: function () {
+        return 'LightboxItemView LightboxPhotoView' +
+            ( this.get( 'hideControls' ) ? ' hideControls' : '' );
+    }.property( 'hideControls' ),
+    
+    didAnimate: function () {
+        LightboxPhotoView.parent.didAnimate.call( this );
+        if ( this._highResShowing && this.get( 'position' ) ) {
+            this.switchToLowRes();
+        }
+    },
+    
+    thumbImage: function () {
+        return NS.Element.create( 'img', {
+            src: this.get( 'imgThumb' ).src,
+            alt: ''
+        });
+    }.property(),
+    
+    getSrcForWidth: function ( width ) {
+        var src = this.get( 'imgSrc' );
+        return src + ( src.indexOf( '?' ) > -1 ? '&' : '?' ) +
+            'width=' + width;
+    },
+    
+    _highResShowing: false,
+    
+    highResLoaded: false,
+    
+    highResImage: function () {
+        var img = NS.Element.create( 'img', { alt: '' } );
+        img.onload = function () {
+            NS.RunLoop.begin();
+            this.set( 'highResLoaded', true );
+            img = img.onload = null;
+            NS.RunLoop.end();
+        }.bind( this );
+        img.src =
+            this.getSrcForWidth( this.get( 'centreLayout' ).width );
+        return img;
+    }.property(),
+    
+    switchToHighRes: function () {
+        if ( this.get( 'isRendered' ) &&
+                !this.get( 'position' ) &&
+                !this._highResShowing ) {
+            var img = this.get( 'highResImage' );
+            if ( this.get( 'highResLoaded' ) ) {
+                this.get( 'layer' ).replaceChild(
+                    img, this.get( 'thumbImage' ) );
+                this._highResShowing = true;
+            }
+        }
+    }.observes( 'position', 'highResLoaded' ),
+    
+    switchToLowRes: function () {
+        this.get( 'layer' ).replaceChild(
+            this.get( 'thumbImage' ), this.get( 'highResImage' ) );
+        this._highResShowing = false;
+    },
+    
+    renderContent: function () {
+        if ( !this.get( 'position' ) ) {
+            this.get( 'highResImage' );
+        }
+        return this.get( 'thumbImage' );
+    },
+
+    // --- Layout ---
+    
+    thumbPosition: function () {
+        return this.get( 'imgThumb' ).getBoundingClientRect();
+    }.property(),
+    
+    contentDimensions: function () {
+        return {
+            width: this.get( 'imgWidth' ),
+            height: this.get( 'imgHeight' )
+        };
+    }.property()
 });
 
 var LightboxView = NS.Class({
@@ -255,9 +304,7 @@ var LightboxView = NS.Class({
     Extends: NS.View,
     
     isActive: false,
-    
-    animating: 0,
-
+        
     init: function ( app, options ) {
         LightboxView.parent.init.call( this, options );
         this._rootView = app.views.mainWindow;
@@ -265,57 +312,133 @@ var LightboxView = NS.Class({
     },
     
     index: function ( index ) {
-        return index ? index.mod( this.get( 'total' ) ) : 0;
+        index = index ? index.mod( this.get( 'total' ) ) : 0;
+        this.get( 'childViews' ).forEach( function ( view ) {
+            view.set( 'activeIndex', index );
+        });
+        return index;
     }.property(),
     
-    getSrcFor: function ( image, width ) {
-        return image.src;
-    },
-    
     total: 0,
-
+    
     className: function () {
         return 'LightboxView' +
-            ( this.get( 'isActive' ) ? ' active' : '' );
-    }.property( 'isActive' ),
+            ( this.get( 'isActive' ) ? ' active' : '' ) +
+            ( this.get( 'total' ) < 2 ? ' hideControls' : '' );
+    }.property( 'isActive', 'total' ),
     
     _render: function ( layer ) {
         var Element = NS.Element,
-            el = Element.create,
-            showNav = this.get( 'total' ) > 1;
-            
+            el = Element.create;
+        
         Element.appendChildren( layer, [
             el( 'div.background' ),
-            showNav ? el( 'a.prev.navLink', { href: location.href }, [
+            el( 'a.prev.navLink', { href: location.href }, [
                 NS.loc( 'Previous' )
-            ]) : null,
-            showNav ? el( 'a.next.navLink', { href: location.href }, [
+            ]),
+            el( 'a.next.navLink', { href: location.href }, [
                 NS.loc( 'Next' )
-            ]) : null
+            ])
         ]);
         LightboxView.parent._render.call( this, layer );
     },
     
-    open: function ( images, startIndex ) {
+    // add/remove
+    
+    add: function ( view, activeIndex ) {
+        this.increment( 'total', 1 );
+        
+        if ( activeIndex !== undefined ) {
+            this.set( 'index', activeIndex );
+        }
+        
+        view.set( 'lightbox', this )
+            .set( 'index', this.get( 'total' ) - 1 )
+            .set( 'activeIndex', this.get( 'index' ) );
+        
+        this.insertView( view );
+    },
+    
+    remove: function ( view ) {
+        this.removeView( view )
+            .increment( 'total', -1 )
+            .increment( 'index', 0 );
+    },
+    
+    // Open/close
+    
+    open: function ( lightboxViews, startIndex ) {
+        // Get list of item views.
+        if ( !( lightboxViews instanceof Array ) ) {
+            lightboxViews = [ lightboxViews ];
+        }
+        
         // Set index/total
-        this.set( 'total', images.length )
-            .set( 'index', startIndex );
-                
-        // Create views for contents. Those that need to, will automatically
-        // insert themselves.
-        this._views = images.map( function ( image, index ) {
-            return new LightboxPhotoView( this, index, image );
-        }, this );
+        this.set( 'total', lightboxViews.length )
+            .set( 'index', startIndex || ( startIndex = 0 ) );
+        
+        var l = lightboxViews.length,
+            view;
+        while ( l-- ) {
+            view = lightboxViews[l];
+            view.set( 'lightbox', this )
+                .set( 'index', l )
+                .set( 'activeIndex', startIndex );
+            
+            this.insertView( view );
+        }
+        
+        // Disable keyboard shortcuts
+        this._kbEnabled = this._shortcuts.get( 'isEnabled' );
+        this._shortcuts.set( 'isEnabled', false );
         
         // Insert view
         this._rootView.insertView( this );
-        
+
         // Capture events
         NS.RootViewController.queueResponder( this );
 
         // Now, fade in gradient background and views.
         this.set( 'isActive', true );
     },
+    
+    close: function () {
+        // Reenable keyboard shortcuts
+        this._shortcuts.set( 'isEnabled', this._kbEnabled );
+        
+        // Stop capturing events
+        NS.RootViewController.removeResponder( this );
+        
+        // Fade out gradient background and views.
+        // Item view will call removeFromDocument after animation.
+        this.set( 'isActive', false );
+    },
+    
+    removeFromDocument: function () {
+        this._rootView.removeView( this );
+        
+        var children = this.get( 'childViews' ),
+            l = children.length,
+            view;
+        
+        while ( l-- ) {
+            view = children[l];
+            this.removeView( view );
+            view.set( 'lightbox', null );
+        }
+    },
+    
+    // Dimensions
+    
+    pxWidth: function () {
+        return this._rootView.get( 'pxWidth' );
+    }.property().nocache(),
+    
+    pxHeight: function () {
+        return this._rootView.get( 'pxHeight' );
+    }.property().nocache(),
+    
+    // Actions
 
     keyboardShortcuts: function ( event ) {
         switch ( NS.DOMEvent.lookupKey( event ) ) {
@@ -345,43 +468,11 @@ var LightboxView = NS.Class({
             this.close();
         }
         event.stopPropagation();
-    }.on( 'click' ),
-
-    close: function () {
-        // Stop capturing events
-        NS.RootViewController.removeResponder( this );
-        
-        // Fade out gradient background and views.
-        this.set( 'isActive', false );
-    },
-    
-    removeFromDocument: function () {
-        if ( !this.get( 'animating' ) &&
-                !this.get( 'isActive' ) &&
-                this.get( 'isInDocument' ) ) {
-            
-            this._rootView.removeView( this );
-            
-            var children = this._views,
-                l = children.length,
-                child;
-            while ( l-- ) {
-                child = children[l];
-                this.removeView( child );
-                child.destroy();
-            }
-        }
-    }.observes( 'animating' ),
-    
-    pxWidth: function () {
-        return this._rootView.get( 'pxWidth' );
-    }.property().nocache(),
-    
-    pxHeight: function () {
-        return this._rootView.get( 'pxHeight' );
-    }.property().nocache()
+    }.on( 'click' )
 });
 
+NS.LightboxItemView = LightboxItemView;
+NS.LightboxPhotoView = LightboxPhotoView;
 NS.LightboxView = LightboxView;
 
 }( O ) );
