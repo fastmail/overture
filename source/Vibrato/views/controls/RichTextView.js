@@ -457,13 +457,19 @@ var RichTextView = NS.Class({
                         NS.DOMEvent.lookupKey( event ) !== 'enter' ) {
                     return;
                 }
-                var url = this.get( 'value' ),
+                var url = this.get( 'value' ).trim(),
+                    email;
+                // If it appears to start with a url protocol,
+                // pass it through verbatim.
+                if ( !( /[a-z][\w\-]+:/i.test( url ) ) ) {
+                    // Otherwise, look for an email address,
+                    // and add a mailto: handler, if found.
                     email = emailRegExp.exec( url );
-                if ( email ) {
-                    url = 'mailto:' + email[0];
-                }
-                else {
-                    if ( !( /^https?:\/\//.test( url ) ) ) {
+                    if ( email ) {
+                        url = 'mailto:' + email[0];
+                    }
+                    // Or an http:// prefix if not.
+                    else {
                         url = 'http://' + url;
                     }
                 }
