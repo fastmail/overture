@@ -684,11 +684,9 @@ var View = NS.Class({
                 'opacity', 'zIndex' ),
 
     _layerStylesDidChange: function ( _, __, oldStyles ) {
-        if ( this.get( 'isRendered' ) ) {
-             if ( !this._layerStyles ) {
-                 this._layerStyles = oldStyles;
-                 NS.RunLoop.queueFn( 'after', this.updateLayerStyles, this );
-             }
+        if ( !this._layerStyles && this.get( 'isRendered' ) ) {
+            this._layerStyles = oldStyles;
+            NS.RunLoop.queueFn( 'after', this.updateLayerStyles, this );
         }
     }.observes( 'layerStyles' ),
 
@@ -770,14 +768,15 @@ var View = NS.Class({
 
         // If this this view has fixed dimensions then no change has occurred.
         var layout = this.get( 'layout' ),
-            didChange = [ layout.width, layout.height ].some(
-                function ( dimension ) {
-                    return ( dimension === undefined ||
-                        ( typeof dimension === 'string' &&
-                        dimension.slice( -1 ) === '%' ) );
-                }
-            );
-        if ( !didChange ) { return; }
+            width = layout.width,
+            height = layout.height;
+        if ( width !== undefined && height !== undefined &&
+            ( typeof width !== 'string' ||
+                width.charAt( width.length - 1 ) !== '%' ) &&
+            ( typeof height !== 'string' ||
+                height.charAt( height.length - 1 ) !== '%' ) ) {
+             return;
+        }
 
         this.computedPropertyDidChange( 'pxDimensions' );
 
