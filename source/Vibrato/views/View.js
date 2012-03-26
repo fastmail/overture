@@ -22,7 +22,6 @@ var POSITION_SAME = 0x00,
     POSITION_CONTAINED_BY = 0x10;
 
 var canTransform = !!NS.UA.cssProps.transform,
-    canTransform3d = !!NS.UA.cssProps.transform3d,
     isFirefox = NS.UA.firefox;
 
 /**
@@ -648,8 +647,7 @@ var View = NS.Class({
 
         if ( hasTransform ) {
             if ( canTransform ) {
-                styles.transform = 'matrix(' + transform.join( ',' ) + ')' +
-                    ( canTransform3d ? ' translateZ(0)' : '' );
+                styles.transform = 'matrix(' + transform.join( ',' ) + ')';
             }
             // <IE8>
             else {

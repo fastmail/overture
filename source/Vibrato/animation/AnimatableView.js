@@ -53,6 +53,8 @@ var CSSStyleAnimationController = {
     document.addEventListener( type, CSSStyleAnimationController, true );
 });
 
+var canTransform3d = !!NS.UA.cssProps.transform3d;
+
 var CSSStyleAnimation = NS.Class({
     
     init: function ( options ) {
@@ -93,6 +95,9 @@ var CSSStyleAnimation = NS.Class({
             value = styles[ property ];
             if ( value !== current[ property ] ) {
                 animating.push( property );
+                if ( property === 'transform' && canTransform3d ) {
+                    value += ' translateZ(0)';
+                }
                 setStyle( el, property, value );
             }
         }
@@ -117,6 +122,10 @@ var CSSStyleAnimation = NS.Class({
             animating.splice( index, 1 );
             if ( !animating.length ) { this.stop(); }
         }
+        if ( property === 'transform' && canTransform3d ) {
+            NS.Element.setStyle(
+                this.element, 'transform', this.current.transform );
+        }
     },
     
     stop: function () {
@@ -125,6 +134,8 @@ var CSSStyleAnimation = NS.Class({
             this.animating.length = 0;
             
             CSSStyleAnimationController.deregister( this.element, this );
+            
+            NS.Element.setStyle( this.element, 'transition', 'none' );
             
             var object = this.object;
             if ( object.didAnimate ) {
