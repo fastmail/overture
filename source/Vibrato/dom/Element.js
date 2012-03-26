@@ -102,14 +102,14 @@ var setStyle = function ( el, style, value ) {
         }
         el.style[ style ] = value;
     }
-    return el;
+    return this;
 };
 
 var setStyles = function ( el, styles ) {
     for ( var prop in styles ) {
         setStyle( el, prop, styles[ prop ] );
     }
-    return el;
+    return this;
 };
 
 /**
