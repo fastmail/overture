@@ -144,9 +144,9 @@ var Record = NS.Class({
             storeKey - {String} The unique id for this record in the store.
     */
     init: function ( store, storeKey ) {
-        Record.parent.init.call( this );
         this.store = store;
         this.storeKey = storeKey;
+        Record.parent.init.call( this );
     },
     
     /**
