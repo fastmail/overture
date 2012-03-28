@@ -467,6 +467,7 @@ var LightboxView = NS.Class({
         } else {
             this.close();
         }
+        event.preventDefault();
         event.stopPropagation();
     }.on( 'click' )
 });
