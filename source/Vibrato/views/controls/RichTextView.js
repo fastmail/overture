@@ -666,7 +666,8 @@ var RichTextView = NS.Class({
 RichTextView.pathToDocument = 'document.html';
 
 RichTextView.isSupported = !!(
-    ( 'contentEditable' in document.body ) && document.createRange
+    ( 'contentEditable' in document.body ) && document.createRange &&
+    ( !NS.UA.isIOS || NS.UA.version >= 6 )
 );
 
 NS.RichTextView = RichTextView;
