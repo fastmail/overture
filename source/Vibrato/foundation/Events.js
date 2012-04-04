@@ -107,10 +107,11 @@ NS.Events = {
             {O.Events} Returns self.
     */
     once: function ( type, fn ) {
-        this.on( type, function once ( event ) {
+        var once = function ( event ) {
             fn.call( this, event );
             this.detach( type, once );
-        });
+        };
+        this.on( type, once );
         return this;
     },
     

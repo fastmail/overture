@@ -112,10 +112,11 @@ var RichTextView = NS.Class({
         
         // Editor
         var iframe = el( 'iframe', {
-            src: RichTextView.pathToDocument
+            src: RichTextView.pathToDocument,
+            // IE8 ignores the CSS telling it not to give the iframe a border.
+            frameborder: 0
         });
-        
-        iframe.addEventListener( 'load', function onload () {
+        var onload = function () {
             var win = iframe.contentWindow,
                 editor = win.editor;
             if ( !editor ) {
@@ -142,7 +143,9 @@ var RichTextView = NS.Class({
                 }
                 NS.RunLoop.end();
             }
-        }, false );
+        };
+        
+        iframe.addEventListener( 'load', onload, false );
         
         NS.Element.appendChildren( layer, [
             el( 'div.toolbar', [
@@ -666,7 +669,7 @@ var RichTextView = NS.Class({
 RichTextView.pathToDocument = 'document.html';
 
 RichTextView.isSupported = !!(
-    ( 'contentEditable' in document.body ) && document.createRange &&
+    ( 'contentEditable' in document.body ) &&
     ( !NS.UA.isIOS || NS.UA.version >= 6 )
 );
 
