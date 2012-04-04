@@ -452,6 +452,10 @@ var RichTextView = NS.Class({
             didAppendLayerToDocument: function () {
                 this._input.set( 'selection', this.get( 'value' ).length )
                            .focus();
+                // IE8 doesn't fire this event for some reason.
+                if ( NS.UA.msie === 8 ) {
+                    this._input.fire( 'focus' );
+                }
                 return NS.View.prototype.didAppendLayerToDocument.call( this );
             },
             addLink: function ( event ) {
