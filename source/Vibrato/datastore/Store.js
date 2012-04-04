@@ -971,11 +971,21 @@ var Store = NS.Class({
     _notifyRecordOfChanges: function ( storeKey, changedKeys ) {
         var record = this._skToRecord[ storeKey ],
             data = this._skToData[ storeKey ],
-            l = changedKeys.length;
+            l = changedKeys.length,
+            key, attribute, errorForAttribute;
         if ( record ) {
             record.beginPropertyChanges();
             while ( l-- ) {
-                record.computedPropertyDidChange( changedKeys[l] );
+                key = changedKeys[l];
+                record.computedPropertyDidChange( key );
+                attribute = record[ key ];
+                if ( attribute && attribute.validate ) {
+                    if ( !errorForAttribute ) {
+                        errorForAttribute = record.get( 'errorForAttribute' );
+                    }
+                    errorForAttribute.set( key,
+                        attribute.validate( data[ key ], key, record ) );
+                }
             }
             record.endPropertyChanges();
         }

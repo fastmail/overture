@@ -211,10 +211,10 @@ var RecordAttribute = NS.Class({
                     } else {
                         hash[ key ] = attrValue;
                         record.computedPropertyDidChange( key );
-                    }
-                    if ( this.validate ) {
-                        record.get( 'errorForAttribute' ).set( key,
-                            this.validate( value, key, record ) );
+                        if ( this.validate ) {
+                            record.get( 'errorForAttribute' ).set( key,
+                                this.validate( value, key, record ) );
+                        }
                     }
                 }
                 return value;

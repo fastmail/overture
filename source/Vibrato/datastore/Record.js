@@ -43,8 +43,7 @@ var AttributeErrors = NS.Class({
         attrs.forEach( function ( attr ) {
             var attribute = record[ attr ],
                 error = attribute.validate ?
-                    attribute.validate( record.get( attr ), attr, record ) :
-                    '',
+                    attribute.validate( record.get( attr ), attr, record ) : '',
                 dependencies = attribute.validityDependencies,
                 l, key;
             this.set( attr, error );
