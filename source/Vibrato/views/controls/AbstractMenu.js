@@ -79,7 +79,11 @@ NS.AbstractMenu = {
     selectFocussed: function ( event ) {
         var focussed = this._am_focussed;
         if ( focussed && !this.isItemHidden( focussed ) ) {
-            this.didSelectItem( focussed );
+            // Invoke in next event loop, as otherwise the click event could be
+            // triggered on whatever is below the menu (as it fires after it's
+            // hidden), which can cause unexpected interactions.
+            NS.RunLoop.invokeInNextEventLoop(
+                this.didSelectItem.bind( this, focussed ) );
             if ( event ) { event.preventDefault(); }
         }
     },
