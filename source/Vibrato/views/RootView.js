@@ -52,7 +52,6 @@ var RootViewController = {
     },
     
     handleEvent: function ( event, view ) {
-        NS.RunLoop.begin();
         var responders = this._responders,
             l = responders.length;
         
@@ -68,8 +67,7 @@ var RootViewController = {
                 break;
             }
         }
-        NS.RunLoop.end();
-    }
+    }.invokeInRunLoop()
 };
 RootViewController.pushResponder( RootViewController );
 
@@ -128,7 +126,6 @@ var RootView = NS.Class({
     }.property( 'pxDimensions' ),
     
     handleEvent: function ( event ) {
-        NS.RunLoop.begin();
         var type = event.type;
         
         // We observe mousemove when mousedown.
@@ -148,8 +145,7 @@ var RootView = NS.Class({
         else {
             RootViewController.handleEvent( event );
         }
-        NS.RunLoop.end();
-    }
+    }.invokeInRunLoop()
 });
 
 // Expose Globals:

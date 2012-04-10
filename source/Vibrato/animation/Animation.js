@@ -44,9 +44,7 @@ var nextFrame = function ( time ) {
     if ( l ) {
         // Request first to get in shortest time.
         requestAnimFrame( nextFrame );
-        
-        RunLoop.begin();
-        
+                
         while ( l-- ) {
             objAnimations = anims[l];
             i = objAnimations.length;
@@ -75,10 +73,8 @@ var nextFrame = function ( time ) {
                 object.endPropertyChanges();
             }
         }
-        
-        RunLoop.end();
     }
-};
+}.invokeInRunLoop();
 
 var meta = NS.meta;
 

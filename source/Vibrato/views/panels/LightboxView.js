@@ -249,11 +249,9 @@ var LightboxPhotoView = NS.Class({
     highResImage: function () {
         var img = NS.Element.create( 'img', { alt: '' } );
         img.onload = function () {
-            NS.RunLoop.begin();
             this.set( 'highResLoaded', true );
             img = img.onload = null;
-            NS.RunLoop.end();
-        }.bind( this );
+        }.invokeInRunLoop().bind( this );
         img.src =
             this.getSrcForWidth( this.get( 'centreLayout' ).width );
         return img;

@@ -202,13 +202,11 @@ var IO = NS.Class({
                       the event object for the event.
     */
     _onEvent: function ( type, request, details ) {
-        NS.RunLoop.begin();
         var onEvent = 'on' + type.capitalise();
         if ( request[ onEvent ] ) { request[ onEvent ]( details ); }
         ( details || ( details = {} ) ).request = request;
         this.fire( 'io:' + type, details );
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
     
     /**
         Event: io:begin

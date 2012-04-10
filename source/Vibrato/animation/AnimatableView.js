@@ -38,15 +38,13 @@ var CSSStyleAnimationController = {
         var animation = this.animations[ NS.guid( event.target ) ],
             property = event.propertyName;
         if ( animation ) {
-            NS.RunLoop.begin();
             event.stopPropagation();
             animation.transitionEnd(
                 Object.keyOf( NS.UA.cssProps, property ) || property,
                 event.elapsedTime
             );
-            NS.RunLoop.end();
         }
-    }
+    }.invokeInRunLoop()
 };
 [ 'transitionend', 'webkitTransitionEnd',
         'oTransitionEnd', ' MSTransitionEnd' ].forEach( function ( type ) {

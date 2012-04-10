@@ -120,10 +120,8 @@ var DragController = new NS.Object({
     },
     
     handleEvent: function ( event ) {
-        NS.RunLoop.begin();
         this.fire( event.type, event );
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
     
     // Non-native API version
     _onMousedown: function ( event ) {

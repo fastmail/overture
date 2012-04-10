@@ -452,10 +452,8 @@ var View = NS.Class({
             event - {Event} The DOM event object.
     */
     handleEvent: function ( event ) {
-        NS.RunLoop.begin();
         this.fire( event.type, event );
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
 
     // --- Behaviour ---
 

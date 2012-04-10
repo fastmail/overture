@@ -122,7 +122,6 @@ var RichTextView = NS.Class({
             if ( !editor ) {
                 win.onEditorLoad = onload;
             } else {
-                NS.RunLoop.begin();
                 richTextView.set( 'editor', editor
                     .addStyles( richTextView.get( 'styles' ) )
                     .setHTML( richTextView._value )
@@ -141,9 +140,8 @@ var RichTextView = NS.Class({
                 if ( richTextView.get( 'isFocussed' ) ) {
                     editor.focus();
                 }
-                NS.RunLoop.end();
             }
-        };
+        }.invokeInRunLoop();
         
         iframe.addEventListener( 'load', onload, false );
         

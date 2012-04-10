@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, setTimeout, clearTimeout, setInterval, clearInterval */
+/*global O, setTimeout, clearTimeout, setInterval, clearInterval, console */
 
 "use strict";
 
@@ -17,128 +17,10 @@
     
     The run loop allows data to propagate through the app in stages, preventing
     multiple changes to an object firing off the same observers several times.
-    To use, simply call <O.RunLoop.begin> at the beginning of any root event
-    handler (i.e. one triggered by the browser itself, not synthetically) and
-    <O.RunLoop.end> at the end.
+    To use, wrap the entry point functions in a call to <O.RunLoop.invoke>.
 */
 
-Function.implement({
-    /**
-        Method: Function#queue
-        
-        Parameters:
-            queue - {String} The name of the queue to add calls to this function
-                    to.
-        
-        Returns:
-            {Function} Returns wrapper that passes calls to
-            <O.RunLoop.queueFn>.
-    */
-    queue: function ( queue ) {
-        var fn = this;
-        return function () {
-            NS.RunLoop.queueFn( queue, fn, this );
-            return this;
-        };
-    }
-});
-
-NS.RunLoop = {
-    /**
-        Method: O.RunLoop.invokeInNextEventLoop
-        
-        Use this to invoke a function in a new browser event loop, immediately
-        after this event loop has finished.
-        
-        Parameters:
-            fn   - {Function} The function to invoke.
-            bind - {Object} (optional) The object to make the 'this' parameter
-                   when the function is invoked.
-        
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    invokeInNextEventLoop: function ( fn, bind ) {
-        setTimeout( function () {
-            NS.RunLoop.begin();
-            fn.call( bind );
-            NS.RunLoop.end();
-        }, 0 );
-        return this;
-    },
-    
-    /**
-        Method: O.RunLoop.invokeAfterDelay
-        
-        Use this to invoke a function after a specified delay. The function will
-        be called inside a new RunLoop, and optionally bound to a supplied
-        object.
-        
-        Parameters:
-            fn    - {Function} The function to invoke after a delay.
-            delay - {Number} The delay in milliseconds.
-            bind  - {Object} (optional) The object to make the 'this' parameter
-                    when the function is invoked.
-        
-        Returns:
-            {InvocationToken} Returns a token that can be passed to the
-            <O.RunLoop.cancel> method before the function is invoked, in order
-            to cancel the scheduled invocation.
-    */
-    invokeAfterDelay: function ( fn, delay, bind ) {
-        return setTimeout( function () {
-            NS.RunLoop.begin();
-            fn.call( bind );
-            NS.RunLoop.end();
-        }, delay );
-    },
-    
-    /**
-        Method: O.RunLoop.invokePeriodically
-        
-        Use this to invoke a function periodically, with a set time between
-        invocations.
-        
-        Parameters:
-            fn    - {Function} The function to invoke periodically.
-            delay - {Number} The period in milliseconds between invocations.
-            bind  - {Object} (optional) The object to make the 'this' parameter
-                    when the function is invoked.
-        
-        Returns:
-            {InvocationToken} Returns a token that can be passed to the
-            <O.RunLoop.cancel> method to cancel all future invocations scheduled
-            by this call.
-    */
-    invokePeriodically: function ( fn, period, bind ) {
-        return setInterval( function () {
-            NS.RunLoop.begin();
-            fn.call( bind );
-            NS.RunLoop.end();
-        }, period );
-    },
-    
-    /**
-        Method: O.RunLoop.cancel
-        
-        Use this to cancel the future invocations of functions scheduled with
-        the <O.RunLoop.invokeAfterDelay> or <O.RunLoop.invokePeriodically>
-        methods.
-        
-        Parameters:
-            token - {InvocationToken} The InvocationToken returned by the
-                    call to invokeAfterDelay or invokePeriodically that you wish
-                    to cancel.
-        
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    cancel: function ( token ) {
-        clearTimeout( token );
-        clearInterval( token );
-        return this;
-    },
-    
+var RunLoop = {
     /**
         Property (private): NS.RunLoop._queueOrder
         Type: Array.<String>
@@ -164,8 +46,7 @@ NS.RunLoop = {
         Property (private): NS.RunLoop._depth
         Type: Number
         
-        Number of calls to <O.RunLoop.begin> without a matching call to
-        <O.RunLoop.end>.
+        Number of calls to <O.RunLoop.invoke> currently in stack.
     */
     _depth: 0,
     
@@ -199,6 +80,27 @@ NS.RunLoop = {
     },
     
     /**
+        Method: O.RunLoop.flushAllQueues
+        
+        Calls O.RunLoop#flushQueue on each queue in the order specified in
+        _queueOrder, starting at the first queue again whenever the queue
+        indicates something has changed.
+        
+        Parameters:
+            queue - {String} name of the queue to flush.
+        
+        Returns:
+            {Boolean} Were any functions actually invoked?
+    */
+    flushAllQueues: function () {
+        var order = this._queueOrder,
+            i = 0, l = order.length;
+        while ( i < l ) {
+            i = this.flushQueue( order[i] ) ? 0 : i + 1;
+        }
+    },
+    
+    /**
         Method: O.RunLoop.queueFn
         
         Add a [function, object] tuple to a queue, ensuring it is not added
@@ -227,38 +129,188 @@ NS.RunLoop = {
     },
     
     /**
-        Method: O.RunLoop.begin
+        Method: O.RunLoop.invoke
         
-        Start a run loop.
+        Invoke a function inside the run loop. Note, to pass arguments you must
+        supply a bind; use `null` if you would like the global scope.
+        
+        Parameters:
+            fn   - {Function} The function to invoke
+            bind - {Object} (optional) The object to bind `this` to when calling
+                   the function.
+            args - {Array} (optional) The arguments to pass to the function.
         
         Returns:
             {O.RunLoop} Returns self.
     */
-    begin: function () {
+    invoke: function ( fn, bind, args ) {
         this._depth += 1;
-        return this;
-    },
-    
-    /**
-        Method: O.RunLoop.begin
-        
-        End a run loop. Flushes the queues if all nested calls to begin have now
-        been ended.
-        
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    end: function () {
+        try {
+            // IE8 will throw an error if args is undefined
+            // when calling fn.apply for some reason.
+            // Avoiding apply/call when not needed is also probably more
+            // efficient.
+            if ( args ) {
+                fn.apply( bind, args );
+            } else if ( bind ) {
+                fn.call( bind );
+            } else {
+                fn();
+            }
+        } catch ( error ) {
+            RunLoop.didError( error );
+        }
         if ( this._depth === 1 ) {
-            var order = this._queueOrder,
-                i = 0, l = order.length;
-            while ( i < l ) {
-                i = this.flushQueue( order[i] ) ? 0 : i + 1;
+            try {
+                this.flushAllQueues();
+            } catch ( error ) {
+                RunLoop.didError( error );
             }
         }
         this._depth -= 1;
         return this;
+    },
+    
+    /**
+        Method: O.RunLoop.invokeInNextEventLoop
+        
+        Use this to invoke a function in a new browser event loop, immediately
+        after this event loop has finished.
+        
+        Parameters:
+            fn   - {Function} The function to invoke.
+            bind - {Object} (optional) The object to make the 'this' parameter
+                   when the function is invoked.
+        
+        Returns:
+            {O.RunLoop} Returns self.
+    */
+    invokeInNextEventLoop: function ( fn, bind ) {
+        setTimeout( function () {
+            RunLoop.invoke( fn, bind );
+        }, 0 );
+        return this;
+    },
+    
+    /**
+        Method: O.RunLoop.invokeAfterDelay
+        
+        Use this to invoke a function after a specified delay. The function will
+        be called inside a new RunLoop, and optionally bound to a supplied
+        object.
+        
+        Parameters:
+            fn    - {Function} The function to invoke after a delay.
+            delay - {Number} The delay in milliseconds.
+            bind  - {Object} (optional) The object to make the 'this' parameter
+                    when the function is invoked.
+        
+        Returns:
+            {InvocationToken} Returns a token that can be passed to the
+            <O.RunLoop.cancel> method before the function is invoked, in order
+            to cancel the scheduled invocation.
+    */
+    invokeAfterDelay: function ( fn, delay, bind ) {
+        return setTimeout( function () {
+            RunLoop.invoke( fn, bind );
+        }, delay );
+    },
+    
+    /**
+        Method: O.RunLoop.invokePeriodically
+        
+        Use this to invoke a function periodically, with a set time between
+        invocations.
+        
+        Parameters:
+            fn     - {Function} The function to invoke periodically.
+            period - {Number} The period in milliseconds between invocations.
+            bind   - {Object} (optional) The object to make the 'this' parameter
+                     when the function is invoked.
+        
+        Returns:
+            {InvocationToken} Returns a token that can be passed to the
+            <O.RunLoop.cancel> method to cancel all future invocations scheduled
+            by this call.
+    */
+    invokePeriodically: function ( fn, period, bind ) {
+        return setInterval( function () {
+            RunLoop.invoke( fn, bind );
+        }, period );
+    },
+    
+    /**
+        Method: O.RunLoop.cancel
+        
+        Use this to cancel the future invocations of functions scheduled with
+        the <O.RunLoop.invokeAfterDelay> or <O.RunLoop.invokePeriodically>
+        methods.
+        
+        Parameters:
+            token - {InvocationToken} The InvocationToken returned by the
+                    call to invokeAfterDelay or invokePeriodically that you wish
+                    to cancel.
+        
+        Returns:
+            {O.RunLoop} Returns self.
+    */
+    cancel: function ( token ) {
+        clearTimeout( token );
+        clearInterval( token );
+        return this;
+    },
+    
+    /**
+        Method: O.RunLoop.didError
+        
+        This method is invoked if an uncaught error is thrown in a run loop.
+        Overwrite this method to do something more useful then just log the
+        error to the console.
+        
+        Parameters:
+            error - {Error} The error object.
+    */
+    didError: function ( error ) {
+        console.log( error.name, error.message, error.stack );
     }
 };
+
+NS.RunLoop = RunLoop;
+
+Function.implement({
+    /**
+        Method: Function#queue
+        
+        Parameters:
+            queue - {String} The name of the queue to add calls to this function
+                    to.
+        
+        Returns:
+            {Function} Returns wrapper that passes calls to
+            <O.RunLoop.queueFn>.
+    */
+    queue: function ( queue ) {
+        var fn = this;
+        return function () {
+            RunLoop.queueFn( queue, fn, this );
+            return this;
+        };
+    },
+    
+    /**
+        Method: Function#invokeInRunLoop
+        
+        Wraps any calls to this function inside a call to <O.RunLoop.invoke>.
+        
+        Returns:
+            {Function} Returns wrapped function.
+    */
+    invokeInRunLoop: function () {
+        var fn = this;
+        return function () {
+            RunLoop.invoke( fn, this, arguments );
+        };
+    }
+});
 
 }( O ) );

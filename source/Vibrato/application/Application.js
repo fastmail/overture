@@ -135,19 +135,20 @@ var Application = NS.Class({
         
         Application.parent.init.apply( this, arguments );
         
-        window.onhashchange = function () {
-            var hash = getHash();
-
-            if ( hash !== this._currentHash ) {
-                O.RunLoop.begin();
-                this._currentHash = hash;
-                this.restoreStateFromUrl();
-                O.RunLoop.end();
-            }
-        }.bind( this );
+        window.addEventListener( 'hashchange', this, false );
+        
         this.setTitle();
         this.restoreStateFromUrl();
     },
+    
+    handleEvent: function () {
+        var hash = getHash();
+
+        if ( hash !== this._currentHash ) {
+            this._currentHash = hash;
+            this.restoreStateFromUrl();
+        }
+    }.invokeInRunLoop(),
     
     /**
         Method: O.Application#restoreStateFromUrl

@@ -80,11 +80,9 @@ var EventSource = win.EventSource ? O.Class({
     },
     
     handleEvent: function ( event ) {
-        NS.RunLoop.begin();
         this.set( 'readyState', this._eventSource.readyState );
         this.fire( event.type, event );
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
     
     /**
         Method (private): O.EventSource#_check
@@ -207,7 +205,6 @@ var EventSource = win.EventSource ? O.Class({
     
     // --- io ---
     loading: function ( xhr ) {
-        NS.RunLoop.begin();
         // Must start with text/event-stream (i.e. indexOf must === 0)
         // If it doesn't, fail the connection.
         if ( xhr.getResponseType().indexOf( 'text/event-stream' ) ) {
@@ -216,20 +213,15 @@ var EventSource = win.EventSource ? O.Class({
             this._openConnection();
             this._processData( xhr.getResponse() );
         }
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
     success: function ( xhr ) {
-        NS.RunLoop.begin();
         this._openConnection();
         this._processData( xhr.getResponse() + '\n\n' );
         this._reconnect();
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
     failure: function ( xhr ) {
-        NS.RunLoop.begin();
         this._failConnection();
-        NS.RunLoop.end();
-    },
+    }.invokeInRunLoop(),
     // -- end io ---
     
     _openConnection: function () {
