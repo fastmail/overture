@@ -287,7 +287,7 @@ var RichTextView = NS.Class({
                         label: NS.loc( 'Quote' ),
                         icon: 'incQuote',
                         activate: function () {
-                            richTextView.incQuoteLevel();
+                            richTextView.increaseQuoteLevel();
                         }
                     }),
                     new ButtonView({
@@ -296,7 +296,7 @@ var RichTextView = NS.Class({
                         label: NS.loc( 'Unquote' ),
                         icon: 'decQuote',
                         activate: function () {
-                            richTextView.decQuoteLevel();
+                            richTextView.decreaseQuoteLevel();
                         }
                     }),
                     el( 'span.divider' ),
@@ -573,8 +573,8 @@ var RichTextView = NS.Class({
     
     setTextAlignment: execCommand( 'setTextAlignment' ),
     
-    incQuoteLevel: execCommand( 'incQuoteLevel' ),
-    decQuoteLevel: execCommand( 'decQuoteLevel' ),
+    increaseQuoteLevel: execCommand( 'increaseQuoteLevel' ),
+    decreaseQuoteLevel: execCommand( 'decreaseQuoteLevel' ),
     
     makeUnorderedList: execCommand( 'makeUnorderedList' ),
     makeOrderedList: execCommand( 'makeOrderedList' ),
@@ -605,7 +605,7 @@ var RichTextView = NS.Class({
     path: '',
     
     setPath: function ( event ) {
-        this.set( 'path', event.data );
+        this.set( 'path', event.path );
         event.stopPropagation();
     }.on( 'pathChange' ),
     
