@@ -211,13 +211,15 @@ Object.extend({
             key, value;
         for ( key in object ) {
             value = object[ key ];
-            result += key.hyphenate();
-            result += ':';
-            result += value;
-            if ( typeof value === 'number' && !cssNoPx[ key ] ) {
-                result += 'px';
+            if ( value !== undefined ) {
+                result += key.hyphenate();
+                result += ':';
+                result += value;
+                if ( typeof value === 'number' && !cssNoPx[ key ] ) {
+                    result += 'px';
+                }
+                result += ';';
             }
-            result += ';';
         }
         return result;
     },
