@@ -53,18 +53,26 @@ var RootViewController = {
     
     handleEvent: function ( event, view ) {
         var responders = this._responders,
-            l = responders.length;
+            l = responders.length,
+            responder;
         
         if ( !view ) {
             view = this.getViewFromNode( event.target );
         }
         event.targetView = view;
+        event.phase = 'beforeViews';
         
         while ( l-- ) {
-            var responder = responders[l];
-            if ( responder === this ) { responder = view; }
+            responder = responders[l];
+            if ( responder === this ) {
+                responder = view;
+                event.phase = 'views';
+            }
             if ( responder && responder.fire( event.type, event ) ) {
                 break;
+            }
+            if ( responders[l] === this ) {
+                event.phase = 'afterViews';
             }
         }
     }.invokeInRunLoop()

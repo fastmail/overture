@@ -12,6 +12,18 @@
 
 ( function ( NS ) {
 
+var ModalViewEventHandler = NS.Class({
+    
+    Extends: NS.Object,
+    
+    stopKeyPropagation: function ( event ) {
+        if ( event.phase === 'views' || !NS.Element.contains(
+                this._view.get( 'layer' ), event.target ) ) {
+            event.stopPropagation();
+        }
+    }.on( 'keypress' )
+});
+
 var ModalView = NS.Class({
     
     Extends: NS.View,
@@ -34,12 +46,20 @@ var ModalView = NS.Class({
     
     title: '',
     
+    eventHandler: function () {
+        return new ModalViewEventHandler({ _view: this });
+    }.property(),
+    
+    nextEventTarget: function () {
+        return this.get( 'eventHandler' );
+    }.property(),
+    
     didAppendLayerToDocument: function () {
-        NS.RootViewController.pushResponder( this );
+        NS.RootViewController.pushResponder( this.get( 'eventHandler' ) );
         return ModalView.parent.didAppendLayerToDocument.call( this );
     },
     willRemoveLayerFromDocument: function () {
-        NS.RootViewController.removeResponder( this );
+        NS.RootViewController.removeResponder( this.get( 'eventHandler' ) );
         return ModalView.parent.willRemoveLayerFromDocument.call( this );
     },
     
@@ -65,11 +85,7 @@ var ModalView = NS.Class({
         if ( !relativeNode ) { relativeNode = this._container; }
         return ModalView.parent.insertView.call(
             this, view, relativeNode, where );
-    },
-    
-    _stopEvent: function ( event ) {
-        event.stopPropagation();
-    }.on( 'keypress' )
+    }
 });
 
 NS.ModalView = ModalView;
