@@ -2,7 +2,6 @@
 
 var less = require( 'less' );
 var fs = require( 'fs' );
-var sys = require('sys');
 
 var CleanCSS = {
   colors: {
