@@ -3,7 +3,7 @@
 // Module: IEPatches                                                          \\
 // Requires: Array.js                                                         \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2011 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 /*global window, document, Element, HTMLInputElement, HTMLTextAreaElement */
@@ -32,7 +32,10 @@ var translate = {
 
 var toCopy = 'altKey ctrlKey metaKey shiftKey clientX clientY charCode keyCode'.split( ' ' );
 
-function DOMEvent ( event ) {
+var returnTrue = function () { return true; };
+var returnFalse = function () { return false; };
+
+var DOMEvent = window.DOMEvent = function ( event ) {
     var type = event.type,
         doc = document,
         target = event.srcElement || doc,
@@ -65,10 +68,7 @@ function DOMEvent ( event ) {
     this.relatedTarget = event.fromElement === target ?
         event.toElement : event.fromElement;
     this._event = event;
-}
-
-function returnTrue() { return true; }
-function returnFalse() { return false; }
+};
 
 DOMEvent.prototype = {
     isEvent: true,
