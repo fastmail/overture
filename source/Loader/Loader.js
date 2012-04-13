@@ -2,7 +2,7 @@
 // File: Loader.js                                                            \\
 // Module: Loader                                                             \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2011 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 /*global window, document, location, setTimeout, XMLHttpRequest, O, localStorage */
@@ -31,6 +31,8 @@ var LS_V_PREFIX = 'OResource-v-';
 var slice = Array.prototype.slice;
 
 var isLocal = location.protocol === 'file:';
+
+var fullLibLoaded = false;
 
 var loader = {
     
@@ -228,38 +230,6 @@ var loader = {
             data = info.data,
             script;
         
-        var onload = function () {
-            if ( script ) {
-                head.removeChild( script );
-                script.onload = script.onreadystatechange = null;
-            }
-            
-            var RunLoop = NS.RunLoop,
-                callbacks = info.callbacks,
-                i, l, callback;
-            
-            if ( RunLoop ) { RunLoop.begin(); }
-
-            if ( loader.fire ) {
-                loader.fire( 'loader:didLoadModule', { module: module } );
-            } else if ( NS.Events ) {
-                NS.extend( loader, NS.Events );
-            }
-
-            if ( callbacks ) {
-                for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
-                    callback = callbacks[i];
-                    if ( !( callback.refCount -= 1 ) ) {
-                        callback.fn.call( callback.bind );
-                    }
-                }
-            }
-            info.callbacks = null;
-
-            if ( RunLoop ) { RunLoop.end(); }
-            info.status = EXECUTED;
-        };
-        
         if ( data ) {
             if ( this.debug ) {
                 script = doc.createElement( 'script' );
@@ -267,16 +237,53 @@ var loader = {
                 script.charset = 'utf-8';
                 script.src = info.path;
                 script.async = false;
-                script.onload = script.onreadystatechange = onload;
+                script.onload = script.onreadystatechange = function () {
+                    head.removeChild( script );
+                    script.onload = script.onreadystatechange = null;
+                    loader._afterModuleExecute( module, info );
+                };
                 head.appendChild( script );
             } else {
-                NS.execute( data );
-                onload();
+                // If inside an event handler from a different context (i.e. an
+                // iframe), Opera will sometimes get into a weird internal state
+                // if you execute the code immediately, so delay to the next
+                // event loop.
+                setTimeout( function () {
+                    NS.execute( data );
+                    loader._afterModuleExecute( module, info );
+                }, 0 );
             }
             delete info.data;
         } else {
-            onload();
+            this._afterModuleExecute( module, info );
         }
+    },
+    
+    _afterModuleExecute: function ( module, info ) {
+        var callbacks = info.callbacks,
+            i, l, callback;
+        
+        if ( !fullLibLoaded && NS.meta ) {
+            NS.extend( loader, NS.Events );
+            loader._afterModuleExecute =
+                loader._afterModuleExecute.invokeInRunLoop();
+            fullLibLoaded = true;
+        }
+        
+        if ( this.fire ) {
+            this.fire( 'loader:didLoadModule', { module: module } );
+        }
+        
+        if ( callbacks ) {
+            for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
+                callback = callbacks[i];
+                if ( !( callback.refCount -= 1 ) ) {
+                    callback.fn.call( callback.bind );
+                }
+            }
+        }
+        info.callbacks = null;
+        info.status = EXECUTED;
     }
 };
 
