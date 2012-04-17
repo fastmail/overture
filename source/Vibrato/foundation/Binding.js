@@ -502,11 +502,17 @@ var Binding = NS.Class({
         If the observed property has changed, this method applies any transforms
         and propagates the data to the other object.
         
+        Parameters:
+            force - {Boolean} If true, sync the binding even if it hasn't
+                    changed.
+        
         Returns:
             {Boolean} Did the binding actually make a change?
     */
-    sync: function () {
-        if ( !this._needsSync || this._isSuspended ) { return false; }
+    sync: function ( force ) {
+        if ( !force && ( !this._needsSync || this._isSuspended ) ) {
+            return false;
+        }
         
         this._needsSync = false;
         
@@ -544,10 +550,11 @@ NS.Binding = Binding;
         }).from( path, root );
     
     Parameters:
-        path      - The path to bind from
-        root      - (optional) The root object on the path to bind from. If not
-                    specified, will be the object the property is bound to.
-        transform - (optional) A transform to apply.
+        path      - {String} The path to bind from
+        root      - {Object} (optional) The root object on the path to bind
+                    from. If not specified, will be the object the property is
+                    bound to.
+        transform - {Function} (optional) A transform to apply.
     
     Returns:
         {O.Binding} The new binding.
