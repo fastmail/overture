@@ -543,10 +543,12 @@ var RemoteQuery = NS.Class({
             }
         }
 
-        this.set( 'status', READY )
+        this.beginPropertyChanges()
+            .set( 'status', READY )
             .set( 'length', total )
             .rangeDidChange( firstChange, total === oldTotal ?
-                lastChangeNew + 1 : Math.max( oldTotal || 0, total ) );
+                lastChangeNew + 1 : Math.max( oldTotal || 0, total ) )
+            .endPropertyChanges();
         
         if ( oldTotal !== null ) {
             this.fire( 'query:updated', {
