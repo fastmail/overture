@@ -233,7 +233,6 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     abort: function () {
         if ( this._isRunning ) {
             this._isRunning = false;
-            this._iframe.contentWindow.stop();
             this._complete();
         }
         return this;
