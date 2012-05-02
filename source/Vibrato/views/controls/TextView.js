@@ -49,7 +49,13 @@ var TextView = NS.Class({
                 start = isNumber ? selection : selection.start,
                 end = isNumber ?
                     selection : ( selection.end || selection.start );
-            input.setSelectionRange( start, end );
+            // Firefox will throw an error if the input is not actually in the
+            // document when trying to set the selection. There might be other
+            // situations where it does so as well, so just using a try/catch to
+            // guard against all.
+            try {
+                input.setSelectionRange( start, end );
+            } catch ( e ) {}
         } else {
             return {
                 start: input.selectionStart,
