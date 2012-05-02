@@ -48,7 +48,6 @@ var sk = 1;
 var generateStoreKey = function () {
     return sk++;
 };
-var qid = 0;
 
 var set = function ( status ) {
     return function ( storeKey ) {
@@ -864,6 +863,8 @@ var Store = NS.Class({
     updateHash: function ( storeKey, data, changeIsDirty ) {
         var status = this.getStatus( storeKey ),
             _skToData = this._skToData,
+            _skToCommitted = this._skToCommitted,
+            _skToChanged = this._skToChanged,
             current = _skToData[ storeKey ] || ( _skToData[ storeKey ] = {} ),
             changedKeys = [],
             seenChange = false,
@@ -882,10 +883,10 @@ var Store = NS.Class({
                 console.log( CANNOT_WRITE_TO_UNREADY_RECORD_ERROR );
                 return false;
             }
-            committed = this._skToCommitted[ storeKey ] ||
-                ( this._skToCommitted[ storeKey ] = NS.clone( current ) );
-            changed = this._skToChanged[ storeKey ] ||
-                ( this._skToChanged[ storeKey ] = {} );
+            committed = _skToCommitted[ storeKey ] ||
+                ( _skToCommitted[ storeKey ] = NS.clone( current ) );
+            changed = _skToChanged[ storeKey ] ||
+                ( _skToChanged[ storeKey ] = {} );
                 
             for ( key in data ) {
                 value = data[ key ];
@@ -917,8 +918,11 @@ var Store = NS.Class({
                 }
             } else {
                 this.setStatus( storeKey, status & ~DIRTY );
-                delete this._skToCommitted[ storeKey ];
-                delete this._skToChanged[ storeKey ];
+                delete _skToCommitted[ storeKey ];
+                delete _skToChanged[ storeKey ];
+                if ( this.isNested ) {
+                    delete _skToData[ storeKey ];
+                }
             }
         } else {
             for ( key in data ) {
