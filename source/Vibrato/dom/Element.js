@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, window, document, Node */
+/*global O, Element, document */
 
 "use strict";
 
@@ -25,6 +25,9 @@
     The O.Element namespace contains a number of helper functions for dealing
     with DOM elements.
 */
+
+// Vars used to store references to fns so they can call each other.
+var create, setStyle, setStyles, setAttributes, appendChildren, getPosition;
  
 /**
     Property (private): Element-directProperties
@@ -57,6 +60,54 @@ var booleanProperties = {
     disabled: 1,
     multiple: 1,
     selected: 1
+};
+
+/**
+    Method: Element#get
+    
+    Get a property or attribute of the element.
+    
+    Parameters:
+        key - {String} The name of the property/attribute to get.
+    
+    Returns:
+        {String|Boolean} The attribute or property.
+*/
+Element.prototype.get = function ( key ) {
+    var prop = directProperties[ key ];
+    return prop ?
+        this[ prop ] :
+    booleanProperties[ key ] ?
+        !!this[ key ] :
+        this.getAttribute( key );
+};
+
+/**
+    Method: Element#set
+    
+    Sets a property or attribute on the element.
+    
+    Parameters:
+        key   - {String} The name of the property/attribute to set.
+        value - {String|Boolean} The value to set for that property.
+    
+    Returns:
+        {Element} Returns self.
+*/
+Element.prototype.set = function ( key, value ) {
+    var prop = directProperties[ key ];
+    if ( prop ) {
+        this[ prop ] = ( value == null ? '' : '' + value );
+    } else if ( booleanProperties[ key ] ) {
+        this[ key ] = !!value;
+    } else if ( key === 'styles' ) {
+        setStyles( this, value );
+    } else if ( value == null ) {
+        this.removeAttribute( key );
+    } else {
+        this.setAttribute( key, '' + value );
+    }
+    return this;
 };
 
 /**
@@ -94,80 +145,6 @@ var styleNames = function () {
     return styleNames;
 }();
 
-var setStyle = function ( el, style, value ) {
-    if ( value !== undefined ) {
-        style = ( styleNames[ style ] || style ).camelCase();
-        if ( typeof value === 'number' && !cssNoPx[ style ] ) {
-            value += 'px';
-        }
-        el.style[ style ] = value;
-    }
-    return this;
-};
-
-var setStyles = function ( el, styles ) {
-    for ( var prop in styles ) {
-        setStyle( el, prop, styles[ prop ] );
-    }
-    return this;
-};
-
-/**
-    Method: Element#get
-    
-    Get a property or attribute of the element.
-    
-    Parameters:
-        key - {String} The name of the property/attribute to get.
-    
-    Returns:
-        {String|Boolean} The attribute or property.
-*/
-window.Element.prototype.get = function ( key ) {
-    var prop = directProperties[ key ];
-    return prop ?
-        this[ prop ] :
-    booleanProperties[ key ] ?
-        !!this[ key ] :
-        this.getAttribute( key );
-};
-
-/**
-    Method: Element#set
-    
-    Sets a property or attribute on the element.
-    
-    Parameters:
-        key   - {String} The name of the property/attribute to set.
-        value - {String|Boolean} The value to set for that property.
-    
-    Returns:
-        {Element} Returns self.
-*/
-window.Element.prototype.set = function ( key, value ) {
-    var prop = directProperties[ key ];
-    if ( prop ) {
-        this[ prop ] = ( value == null ? '' : '' + value );
-    } else if ( booleanProperties[ key ] ) {
-        this[ key ] = !!value;
-    } else if ( key === 'styles' ) {
-        setStyles( this, value );
-    } else if ( value == null ) {
-        this.removeAttribute( key );
-    } else {
-        this.setAttribute( key, '' + value );
-    }
-    return this;
-};
-    
-/**
-    Property (private): O.Element-splitter
-    Type: RegExp
-    
-    RegExp for splitting tag#id.class.class2 etc. into the different parts.
-*/
-var splitter = /(#|\.)/;
-
 /**
     Property (private): O.Element-doc
     Type: Document
@@ -184,108 +161,11 @@ var doc = document;
 */
 var ieEventModel = !!doc.addEventListener.isFake;
 
-var DOCUMENT_POSITION_CONTAINED_BY = Node.DOCUMENT_POSITION_CONTAINED_BY;
+var DOCUMENT_POSITION_CONTAINED_BY = 16; // Node.DOCUMENT_POSITION_CONTAINED_BY;
 
 var view = null;
 
-var setAttributes, appendChildren, getPosition;
-
-var create = function ( tag, props, children ) {
-    
-    if ( props instanceof Array ) {
-        children = props;
-        props = null;
-    }
-    
-    var i, j, l;
-    
-    if ( splitter.test( tag ) ) {
-        var parts = tag.split( splitter ),
-            name;
-        tag = parts[0];
-        if ( !props ) { props = {}; }
-        for ( i = 1, j = 2, l = parts.length; j < l; i += 2, j += 2 ) {
-            name = parts[j];
-            if ( parts[i] === '#' ) {
-                props.id = name;
-            } else {
-                props.className = props.className ?
-                    props.className + ' ' + name : name;
-            }
-        }
-    }
-    
-    var el = doc.createElement( tag );
-    if ( ieEventModel && ( tag === 'input' ||
-            tag === 'select' || tag === 'textarea' ) ) {
-        el.addEventListener( tag === 'select' ?
-            'change' : 'propertychange', NS.RootViewController, false );
-    }
-    if ( props ) {
-        setAttributes( el, props );
-    }
-    if ( children ) {
-        appendChildren( el, children );
-    }
-    return el;
-};
-
-setAttributes = function ( el, props ) {
-    var prop, value;
-    for ( prop in props ) {
-        value = props[ prop ];
-        if ( value !== undefined ) {
-            if ( value instanceof NS.Binding ) {
-                value.to( prop, el ).connect();
-                if ( view ) { view.registerBinding( value ); }
-            } else {
-                el.set( prop, value );
-            }
-        }
-    }
-    return el;
-};
-
-appendChildren = function ( el, children ) {
-    var i, l, node;
-    for ( i = 0, l = children.length; i < l; i += 1 ) {
-        node = children[i];
-        if ( node ) {
-            if ( node instanceof Array ) {
-                appendChildren( el, node );
-            }
-            else if ( node instanceof NS.View ) {
-                view.insertView( node, el );
-            } else {
-                if ( typeof node === 'string' ) {
-                    node = doc.createTextNode( node );
-                }
-                el.appendChild( node );
-            }
-        }
-    }
-    return el;
-};
-
-getPosition = function ( el, ancestor ) {
-    var rect = el.getBoundingClientRect(),
-        position = {
-            top: rect.top,
-            left: rect.left
-        };
-    while ( el = el.parentNode ) {
-        position.top += el.scrollTop || 0;
-        position.left += el.scrollLeft || 0;
-    }
-    if ( ancestor ) {
-        rect = getPosition( ancestor );
-        position.top -= rect.top;
-        position.left -= rect.left;
-    }
-    return position;
-};
-
-var Element = {
+NS.Element = {
     /**
         Function: O.Element.forView
         
@@ -335,7 +215,46 @@ var Element = {
         Returns:
             {Element} The new element.
     */
-    create: create,
+    create: create = function ( tag, props, children ) {
+        var i, l, parts, name, el;
+        
+        if ( props instanceof Array ) {
+            children = props;
+            props = null;
+        }
+        
+        // Parse id/class names out of tag.
+        if ( /[#.]/.test( tag ) ) {
+            parts = tag.split( /([#.])/ );
+            tag = parts[0];
+            if ( !props ) { props = {}; }
+            for ( i = 1, l = parts.length; i + 1 < l; i += 2 ) {
+                name = parts[ i + 1 ];
+                if ( parts[i] === '#' ) {
+                    props.id = name;
+                } else {
+                    props.className = props.className ?
+                        props.className + ' ' + name : name;
+                }
+            }
+        }
+        
+        // Create element, set props and add children
+        el = doc.createElement( tag );
+        
+        if ( ieEventModel && ( tag === 'input' ||
+                tag === 'select' || tag === 'textarea' ) ) {
+            el.addEventListener( tag === 'select' ?
+                'change' : 'propertychange', NS.RootViewController, false );
+        }
+        if ( props ) {
+            setAttributes( el, props );
+        }
+        if ( children ) {
+            appendChildren( el, children );
+        }
+        return el;
+    },
     
     /**
         Function: O.Element.setAttributes
@@ -352,7 +271,21 @@ var Element = {
         Returns:
             {Element} The element.
     */
-    setAttributes: setAttributes,
+    setAttributes: setAttributes = function ( el, props ) {
+        var prop, value;
+        for ( prop in props ) {
+            value = props[ prop ];
+            if ( value !== undefined ) {
+                if ( value instanceof NS.Binding ) {
+                    value.to( prop, el ).connect();
+                    if ( view ) { view.registerBinding( value ); }
+                } else {
+                    el.set( prop, value );
+                }
+            }
+        }
+        return el;
+    },
     
     /**
         Function: O.Element.appendChildren
@@ -366,7 +299,26 @@ var Element = {
         Returns:
             {Element} The element.
     */
-    appendChildren: appendChildren,
+    appendChildren: appendChildren = function ( el, children ) {
+        var i, l, node;
+        for ( i = 0, l = children.length; i < l; i += 1 ) {
+            node = children[i];
+            if ( node ) {
+                if ( node instanceof Array ) {
+                    appendChildren( el, node );
+                }
+                else if ( node instanceof NS.View ) {
+                    view.insertView( node, el );
+                } else {
+                    if ( typeof node === 'string' ) {
+                        node = doc.createTextNode( node );
+                    }
+                    el.appendChild( node );
+                }
+            }
+        }
+        return el;
+    },
     
     /**
         Function: O.Element.hasClass
@@ -439,7 +391,16 @@ var Element = {
         Returns:
             {O.Element} Returns self.
     */
-    setStyle: setStyle,
+    setStyle: setStyle = function ( el, style, value ) {
+        if ( value !== undefined ) {
+            style = ( styleNames[ style ] || style ).camelCase();
+            if ( typeof value === 'number' && !cssNoPx[ style ] ) {
+                value += 'px';
+            }
+            el.style[ style ] = value;
+        }
+        return this;
+    },
     
     /**
         Function: O.Element.setStyles
@@ -453,7 +414,12 @@ var Element = {
         Returns:
             {O.Element} Returns self.
     */
-    setStyles: setStyles,
+    setStyles: setStyles = function ( el, styles ) {
+        for ( var prop in styles ) {
+            setStyle( el, prop, styles[ prop ] );
+        }
+        return this;
+    },
     
     /**
         Function: O.Element.contains
@@ -533,9 +499,23 @@ var Element = {
             given ancestor or the whole page. Has two properties:
             `{ top: Number, left: Number }`.
     */
-    getPosition: getPosition
+    getPosition: getPosition = function ( el, ancestor ) {
+        var rect = el.getBoundingClientRect(),
+            position = {
+                top: rect.top,
+                left: rect.left
+            };
+        while ( el = el.parentNode ) {
+            position.top += el.scrollTop || 0;
+            position.left += el.scrollLeft || 0;
+        }
+        if ( ancestor ) {
+            rect = getPosition( ancestor );
+            position.top -= rect.top;
+            position.left -= rect.left;
+        }
+        return position;
+    }
 };
-
-NS.Element = Element;
 
 }( O ) );
