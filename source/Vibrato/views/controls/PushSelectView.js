@@ -10,7 +10,7 @@
 
 "use strict";
 
-( function ( NS ) {
+( function ( NS, undefined ) {
     
 var PushSelectView = NS.Class({
     
@@ -44,7 +44,9 @@ var PushSelectView = NS.Class({
     
     _selectOption: function ( event ) {
         var i = event.target.get( 'data-index' );
-        this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
+        if ( i != null ) {
+            this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
+        }
     }.on( 'click' ),
     
     // --- Keep render in sync with state ---
