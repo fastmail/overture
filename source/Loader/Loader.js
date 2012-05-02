@@ -5,9 +5,11 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global window, document, location, setTimeout, XMLHttpRequest, O, localStorage */
+/*global window, document, location, setTimeout, XMLHttpRequest, localStorage */
 
 "use strict";
+
+var O = this.O || {};
 
 ( function ( NS, XMLHttpRequest ) {
 
@@ -27,8 +29,6 @@ var UNREQUESTED = 0,
 var ls = localStorage;
 var LS_PREFIX = 'OResource-';
 var LS_V_PREFIX = 'OResource-v-';
-
-var slice = Array.prototype.slice;
 
 var isLocal = location.protocol === 'file:';
 
@@ -292,7 +292,7 @@ NS.require = function ( modules, fn, bind ) {
     return loader.require( modules, fn, bind );
 };
 
-}( typeof O !== 'undefined' ? O : ( window.O = {} ), XMLHttpRequest ) );
+}( O, XMLHttpRequest ) );
 
 O.execute = ( function () {
     var isGlobal = function ( original, Object ) {

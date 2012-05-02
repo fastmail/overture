@@ -6,11 +6,11 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, window */
+/*global O */
 
 "use strict";
 
-( function ( NS, win ) {
+( function ( NS, global ) {
 
 var CONNECTING = 0;
 var OPEN = 1;
@@ -27,7 +27,7 @@ var CLOSED = 2;
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
-var EventSource = win.EventSource ? O.Class({
+var EventSource = global.EventSource ? O.Class({
     
     Extends: NS.Object,
     
@@ -133,7 +133,7 @@ var EventSource = win.EventSource ? O.Class({
     open: function () {
         if ( this.get( 'readyState' ) === CLOSED ) {
             var eventSource = this._eventSource =
-                new win.EventSource( this.get( 'url' ) );
+                new global.EventSource( this.get( 'url' ) );
             
             this._eventTypes.forEach( function ( type ) {
                 eventSource.addEventListener( type, this, false );
@@ -201,7 +201,7 @@ var EventSource = win.EventSource ? O.Class({
     
     _reconnectAfter: 30000,
     _lastEventId: '',
-    _poll: !!win.ie,
+    _poll: !!global.ie,
     
     // --- io ---
     loading: function ( xhr ) {
@@ -342,4 +342,4 @@ EventSource.extend({
 
 NS.EventSource = EventSource;
 
-}( O, window ) );
+}( O, this ) );

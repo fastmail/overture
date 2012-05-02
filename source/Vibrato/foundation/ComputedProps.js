@@ -6,11 +6,11 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, window */
+/*global O */
 
 "use strict";
 
-( function ( NS, undefined ) {
+( function ( NS, global, undefined ) {
 
 /**
     Module: Foundation
@@ -185,7 +185,7 @@ Function.implement({
 */
 var isNum = /^\d+$/;
 var getFromPath = NS.getFromPath = function ( path, root ) {
-    if ( !root ) { root = window; }
+    if ( !root ) { root = global; }
     var currentPosition = 0,
         pathLength = path.length,
         nextDot,
@@ -470,4 +470,4 @@ NS.ComputedProps = {
     }
 };
     
-}( O ) );
+}( O, this ) );
