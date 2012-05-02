@@ -5,7 +5,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global module */
+/*global O, module */
 
 "use strict";
 
@@ -23,7 +23,9 @@
     The only new global variable introduced by the library. All Classes and
     Functions are stored under this namespace.
 */
-var O = this.O || {};
+if ( !this.O ) {
+    this.O = {};
+}
 
 // For Node.
 if ( typeof module === 'object' ) {

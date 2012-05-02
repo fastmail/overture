@@ -9,8 +9,6 @@
 
 "use strict";
 
-var O = this.O || {};
-
 ( function ( NS, XMLHttpRequest ) {
 
 /*
@@ -292,7 +290,7 @@ NS.require = function ( modules, fn, bind ) {
     return loader.require( modules, fn, bind );
 };
 
-}( O, XMLHttpRequest ) );
+}( this.O || ( this.O = {} ), XMLHttpRequest ) );
 
 O.execute = ( function () {
     var isGlobal = function ( original, Object ) {
