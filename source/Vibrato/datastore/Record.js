@@ -37,16 +37,21 @@ var AttributeErrors = NS.Class({
 
         var attrs = NS.meta( record ).attrs,
             metadata = NS.meta( this ),
-            dependents = metadata.dependents = NS.clone( metadata.dependents );
+            dependents = metadata.dependents = NS.clone( metadata.dependents ),
+            attr, attribute, error, dependencies, l, key;
         
         this.beginPropertyChanges();
-        attrs.forEach( function ( attr ) {
-            var attribute = record[ attr ],
-                error = attribute.validate ?
-                    attribute.validate( record.get( attr ), attr, record ) : '',
-                dependencies = attribute.validityDependencies,
-                l, key;
+        for ( attr in attrs ) {
+            // Check if attribute has been removed (e.g. in a subclass).
+            if ( !attrs[ attr ] ) { continue; }
+            
+            attribute = record[ attr ];
+            error = attribute.validate ?
+                attribute.validate( record.get( attr ), attr, record ) : '';
+            dependencies = attribute.validityDependencies;
+            
             this.set( attr, error );
+            
             if ( dependencies ) {
                 l = dependencies.length;
                 while ( l-- ) {
@@ -58,7 +63,7 @@ var AttributeErrors = NS.Class({
                     dependents[ key ].push( attr );
                 }
             }
-        }, this );
+        }
         this.endPropertyChanges();
     },
 

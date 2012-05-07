@@ -34,13 +34,13 @@ var RecordAttribute = NS.Class({
     __setupProperty__: function ( metadata, key ) {
         var attrs = metadata.attrs;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
-            attrs = metadata.attrs = attrs ? attrs.slice() : [];
+            attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
         }
-        attrs.push( key );
+        attrs[ key ] = this.key || key;
     },
     
     __teardownProperty__: function ( metadata, key ) {
-        metadata.attrs.erase( key );
+        metadata.attrs[ key ] = null;
     },
     
     /**
@@ -105,6 +105,16 @@ var RecordAttribute = NS.Class({
         If false, attempts to set null for the value will throw an error.
     */
     isNullable: true,
+    
+    /**
+        Property: O.RecordAttribute#key
+        Type: {String|null}
+        Default: null
+        
+        The key to use on the JSON object for this attribute. If not set, will
+        use the same key as the property name on the record.
+    */
+    key: null,
     
     /**
         Method: O.RecordAttribute#willSet
@@ -174,6 +184,9 @@ var RecordAttribute = NS.Class({
 
         Other attributes the validity depends on. The attribute will be
         revalidated if any of these attributes change.
+        
+        NB. This is a list of the names of the attributes as used on the 
+        objects, not necessarily that of the underlying key.
     */
     validityDependencies: null,
     
@@ -197,19 +210,20 @@ var RecordAttribute = NS.Class({
             hash = store ?
                 store.getHash( storeKey ) :
                 record._hash || ( record._hash = {} ),
-            currentValue, attrValue, update, type;
+            jsonKey, currentValue, attrValue, update, type;
         if ( hash ) {
-            currentValue = hash[ key ];
+            jsonKey = this.key || key;
+            currentValue = hash[ jsonKey ];
             if ( value !== undefined && this.willSet( value, key ) ) {
                 attrValue = value && value.toJSON ? value.toJSON() : value;
                 if ( attrValue !== currentValue ) {
                     if ( store ) {
                         update = {};
-                        update[ key ] = attrValue;
+                        update[ jsonKey ] = attrValue;
                         store.updateHash( storeKey, update,
                             !( this.noSync || record._noSync ) );
                     } else {
-                        hash[ key ] = attrValue;
+                        hash[ jsonKey ] = attrValue;
                         record.computedPropertyDidChange( key );
                         if ( this.validate ) {
                             record.get( 'errorForAttribute' ).set( key,

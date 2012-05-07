@@ -297,23 +297,23 @@ var Store = NS.Class({
             {O.Record} The new record instance of the type given.
     */
     newRecord: function ( Type, data, id ) {
-        var record, storeKey;
+        var record, storeKey, attrs, key, jsonKey, defaultValue;
         if ( data instanceof Type ) {
             record = data;
             data = record._hash;
             delete record._hash;
             // Fill in any missing defaults
-            O.meta( record ).attrs.forEach( function ( attr ) {
-                if ( !( attr in data ) ) {
-                    var defaultValue = record[ attr ].defaultValue;
+            attrs = O.meta( record ).attrs;
+            for ( key in attrs ) {
+                jsonKey = attrs[ key ];
+                if ( jsonKey && !( jsonKey in data ) ) {
+                    defaultValue = record[ key ].defaultValue;
                     if ( defaultValue !== undefined ) {
-                        if ( defaultValue && defaultValue.toJSON ) {
-                            defaultValue = defaultValue.toJSON();
-                        }
-                        data[ attr ] = defaultValue;
+                        data[ jsonKey ] = defaultValue && defaultValue.toJSON ?
+                            defaultValue.toJSON() : defaultValue;
                     }
                 }
-            });
+            }
         }
         if ( !id ) {
             id = data[ Type.primaryKey ];
@@ -946,7 +946,7 @@ var Store = NS.Class({
         Reverts the data hash for a given record to the last committed state.
         
         Parameters:
-            storeKey      - {String} The store key for the record.
+            storeKey - {String} The store key for the record.
         
         Returns:
             {O.Store} Returns self.
