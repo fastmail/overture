@@ -14,7 +14,6 @@
 
 var Status = NS.Status,
     EMPTY = Status.EMPTY,
-    LOADING = Status.LOADING,
     READY = Status.READY,
     DESTROYED = Status.DESTROYED;
 
@@ -147,7 +146,7 @@ var LocalQuery = NS.Class({
         
         Recalculates the results that should be included in the query to ensure
         it reflects any changes to the store. Normally this method is called
-        automatically be the store whenever necessary.
+        automatically by the store whenever necessary.
         
         Returns:
             {O.LocalQuery} Returns self.
