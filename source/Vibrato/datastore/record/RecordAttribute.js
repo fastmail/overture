@@ -197,7 +197,7 @@ var RecordAttribute = NS.Class({
             record - {O.Record} The record the attribute is being set on or got
                      from.
             value  - {*} The value being set (undefined if just a 'get').
-            key    - {String} The name of the attribute.
+            key    - {String} The name of the attribute on the record.
         
         Gets/sets the attribute.
         

@@ -34,7 +34,7 @@ var Source = NS.Class({
             options - {Object} (optional) Any properties in this object will be
                       added to the new O.Object instance before initialisation
                       (so you can pass it getter/setter functions or observing
-                      methods). If you don't specify this, you're source isn't
+                      methods). If you don't specify this, your source isn't
                       going to do much!
     */
     init: function ( options ) {
@@ -136,10 +136,10 @@ var Source = NS.Class({
         
         Parameters:
             Type     - {O.Class} The record type.
-            ids      - {(Array.<String>|Object)} An array of record ids, or
-                       alternatively some custom object, which will be passed
-                       straight through to the record fetcher for that type
-                       defined in <O.Source#recordFetchers>.
+            ids      - {(Array.<String>|Object|null)} Either an array of record
+                       ids to fetch, a custom object describing a query, or
+                       null, indicating that all records of this type should be
+                       fetched.
             callback - {Function} (optional) A callback to make after the record
                        fetch completes (successfully or unsuccessfully).
         
@@ -199,7 +199,7 @@ var Source = NS.Class({
         
         Parameters:
             Type     - {O.Class} The record type.
-            ids      - {Array.<(String>|Object)>} An array of record ids, or
+            ids      - {(Array.<String>|Object|null)} An array of record ids, or
                        alternatively some custom object, which will be passed
                        straight through to the record refresher for that type
                        defined in <O.Source#recordRefreshers>.

@@ -261,7 +261,7 @@ var Record = NS.Class({
     */
     saveToStore: function ( store ) {
         if ( this.get( 'store' ) ) {
-            throw "Record already belongs to a store.";
+            throw new Error( "Record already belongs to a store." );
         }
         return store.newRecord( this.constructor, this );
     },
@@ -276,7 +276,8 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     discardChanges: function () {
-        if ( this.get( 'status' ) === (O.Status.READY|O.Status.NEW) ) {
+        var Status = O.Status;
+        if ( this.get( 'status' ) === (Status.READY|Status.NEW) ) {
             this.destroy();
         } else {
             var store = this.get( 'store' );

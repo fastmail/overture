@@ -94,7 +94,7 @@ var Store = NS.Class({
     
     /**
         Constructor: O.Store
-                
+        
         Parameters:
             source - {O.Source} The source for this store.
     */
@@ -131,7 +131,7 @@ var Store = NS.Class({
         this._idToQuery = {};
         // Map Type -> list of local queries
         this._liveQueries = {};
-        // Set of remove queries.
+        // Set of remote queries.
         this._remoteQueries = [];
         // List of types needing a refresh.
         this._queryTypesNeedRefresh = [];
@@ -182,8 +182,8 @@ var Store = NS.Class({
         Method: O.Store#getStoreKey
         
         Returns the store key for a particular record type and record id. This
-        is guaranteed to be the same for that tuple throughout the life of the
-        client.
+        is guaranteed to be the same for that tuple until the record is unloaded
+        from the store.
         
         Parameters:
             Type - {O.Class} The constructor for the record type.
@@ -220,7 +220,8 @@ var Store = NS.Class({
         
         Returns:
             {(String|undefined)} Returns the id for the record, of undefined if
-            the store key was not found.
+            the store key was not found or does not have an id (normally because
+            the server assigns ids and the record has not yet been committed).
     */
     getIdFromStoreKey: function ( storeKey ) {
         var Type = this._skToType[ storeKey ];
@@ -249,14 +250,16 @@ var Store = NS.Class({
             oldId = _skToId[ storeKey ],
             update = {};
         
-        _skToId[ storeKey ] = id;
-        if ( oldId ) {
-            delete _idToSk[ oldId ];
+        if ( id !== oldId ) {
+            _skToId[ storeKey ] = id;
+            if ( oldId ) {
+                delete _idToSk[ oldId ];
+            }
+            _idToSk[ id ] = storeKey;
+            
+            update[ primaryKey ] = id;
+            this.updateHash( storeKey, update, false );
         }
-        _idToSk[ id ] = storeKey;
-        
-        update[ primaryKey ] = id;
-        this.updateHash( storeKey, update, false );
         
         return this;
     },
@@ -334,7 +337,8 @@ var Store = NS.Class({
         
         Parameters:
             Type       - {O.Class} The record type.
-            id         - {String} The record id.
+            id         - {String} The record id, or the store key prefixed with
+                         a '#'.
             doNotFetch - {Boolean} If true, the record data will not be fetched
                          from the server if it is not already loaded.
         
@@ -342,7 +346,8 @@ var Store = NS.Class({
             {O.Record} Returns the requested record.
     */
     getRecord: function ( Type, id, doNotFetch ) {
-        var storeKey = this.getStoreKey( Type, id ),
+        var storeKey = ( id[0] === '#' ) ?
+                id.slice( 1 ) : this.getStoreKey( Type, id ),
             record = this.materialiseRecord( storeKey, Type );
         
         // If the caller is already handling the fetching, they can
@@ -770,7 +775,7 @@ var Store = NS.Class({
             // Maintain NEW flag as we have to wait for commit to finish (so we
             // have an id) before we can destroy it.
             this.setStatus( storeKey,
-                DESTROYED|DIRTY|( status & ( OBSOLETE|NEW ) ) );
+                DESTROYED|DIRTY|( status & (OBSOLETE|NEW) ) );
             if ( this.autoCommit ) {
                 this.commitChanges();
             }
@@ -793,7 +798,7 @@ var Store = NS.Class({
         var status = this.getStatus( storeKey );
 
         // Nothing to do if already loading or new, destroyed or non-existant.
-        if ( status & ( LOADING|NEW|DESTROYED|NON_EXISTENT ) ) {
+        if ( status & (LOADING|NEW|DESTROYED|NON_EXISTENT) ) {
             return this;
         }
         var Type = this._skToType[ storeKey ],
