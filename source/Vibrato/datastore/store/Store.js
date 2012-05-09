@@ -982,6 +982,9 @@ var Store = NS.Class({
             while ( l-- ) {
                 attrKey = changedKeys[l];
                 propKey = attrs[ attrKey ];
+                // Server may return more data than is defined in the record;
+                // ignore the rest.
+                if ( !propKey ) { continue; }
                 attribute = record[ propKey ];
                 record.computedPropertyDidChange( propKey );
                 if ( attribute.validate ) {
