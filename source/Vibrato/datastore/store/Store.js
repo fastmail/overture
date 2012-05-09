@@ -293,35 +293,30 @@ var Store = NS.Class({
         Parameters:
             Type - {O.Class} The record type.
             data - {Object|O.Record} The initial data for the record.
-            id   - {String} (optional) The id to assign the record. Leave this
-            blank if only the server assigns ids.
         
         Returns:
             {O.Record} The new record instance of the type given.
     */
-    newRecord: function ( Type, data, id ) {
-        var record, storeKey, attrs, key, jsonKey, defaultValue;
+    newRecord: function ( Type, data ) {
+        var record, storeKey, attrs, attrKey, propKey, defaultValue;
         if ( data instanceof Type ) {
             record = data;
             data = record._hash;
             delete record._hash;
             // Fill in any missing defaults
-            attrs = O.meta( record ).attrs;
-            for ( key in attrs ) {
-                jsonKey = attrs[ key ];
-                if ( jsonKey && !( jsonKey in data ) ) {
-                    defaultValue = record[ key ].defaultValue;
+            attrs = NS.meta( record, true ).attrs;
+            for ( attrKey in attrs ) {
+                propKey = attrs[ attrKey ];
+                if ( propKey && !( attrKey in data ) ) {
+                    defaultValue = record[ propKey ].defaultValue;
                     if ( defaultValue !== undefined ) {
-                        data[ jsonKey ] = defaultValue && defaultValue.toJSON ?
+                        data[ attrKey ] = defaultValue && defaultValue.toJSON ?
                             defaultValue.toJSON() : defaultValue;
                     }
                 }
             }
         }
-        if ( !id ) {
-            id = data[ Type.primaryKey ];
-        }
-        storeKey = this.getStoreKey( Type, id );
+        storeKey = this.getStoreKey( Type, data[ Type.primaryKey ] );
         this.createRecord( storeKey, data );
         return record ?
             record.set( 'store', this ).set( 'storeKey', storeKey ) :
@@ -979,21 +974,23 @@ var Store = NS.Class({
     */
     _notifyRecordOfChanges: function ( storeKey, changedKeys ) {
         var record = this._skToRecord[ storeKey ],
-            data = this._skToData[ storeKey ],
             l = changedKeys.length,
-            key, attribute, errorForAttribute;
+            attrs, attrKey, propKey, attribute, errorForAttribute;
         if ( record ) {
+            attrs = NS.meta( record, true ).attrs;
             record.beginPropertyChanges();
             while ( l-- ) {
-                key = changedKeys[l];
-                record.computedPropertyDidChange( key );
-                attribute = record[ key ];
-                if ( attribute && attribute.validate ) {
+                attrKey = changedKeys[l];
+                propKey = attrs[ attrKey ];
+                attribute = record[ propKey ];
+                record.computedPropertyDidChange( propKey );
+                if ( attribute.validate ) {
                     if ( !errorForAttribute ) {
                         errorForAttribute = record.get( 'errorForAttribute' );
                     }
-                    errorForAttribute.set( key,
-                        attribute.validate( data[ key ], key, record ) );
+                    errorForAttribute.set( propKey, attribute.validate(
+                        record.get( propKey ), propKey, record )
+                    );
                 }
             }
             record.endPropertyChanges();

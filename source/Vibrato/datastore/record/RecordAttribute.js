@@ -31,16 +31,16 @@ var instanceOf = function ( value, type ) {
 */
 var RecordAttribute = NS.Class({
     
-    __setupProperty__: function ( metadata, key ) {
+    __setupProperty__: function ( metadata, propKey ) {
         var attrs = metadata.attrs;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
         }
-        attrs[ key ] = this.key || key;
+        attrs[ this.key || propKey ] = propKey;
     },
     
-    __teardownProperty__: function ( metadata, key ) {
-        metadata.attrs[ key ] = null;
+    __teardownProperty__: function ( metadata, propKey ) {
+        metadata.attrs[ this.key || propKey ] = null;
     },
     
     /**
@@ -119,10 +119,6 @@ var RecordAttribute = NS.Class({
     /**
         Method: O.RecordAttribute#willSet
         
-        Parameters:
-            value - {*} The value being set.
-            key   - {String} The name of the attribute.
-        
         This function is used to check the value being set is permissible. By
         default, it checks that the value is not null (or the <#isNullable>
         property is true), and that the value is of the correct type (if the
@@ -132,16 +128,20 @@ var RecordAttribute = NS.Class({
         You could override this function to, for example, only allow values that
         pass a strict validation to be set.
         
+        Parameters:
+            propValue - {*} The value being set.
+            propKey   - {String} The name of the attribute.
+        
         Returns:
             {Boolean} May the value be set?
     */
-    willSet: function ( value, key ) {
-        if ( value === null ) {
+    willSet: function ( propValue, propKey ) {
+        if ( propValue === null ) {
             if ( !this.isNullable ) {
                 return false;
             }
         }
-        else if ( this.type && !instanceOf( value, this.type ) ) {
+        else if ( this.type && !instanceOf( propValue, this.type ) ) {
             throw "Incorrect value type for record attribute";
         }
         return true;
@@ -163,12 +163,13 @@ var RecordAttribute = NS.Class({
     /**
         Method: O.RecordAttribute#validate
         
-        Parameters:
-            value  - {*} The value being set.
-            key    - {String} The name of the attribute.
-            record - {O.Record} The record the value is being set on.
-        
         Tests whether the value to be set is valid.
+        
+        Parameters:
+            propValue   - {*} The value being set. This is the real value, not
+                          the serialised version for JSON (if different).
+            propKey     - {String} The name of the attribute on the record.
+            record      - {O.Record} The record on which the value is being set.
         
         Returns:
             {String} A string describing the error if this is not a valid value
@@ -183,61 +184,66 @@ var RecordAttribute = NS.Class({
         Default: null
 
         Other attributes the validity depends on. The attribute will be
-        revalidated if any of these attributes change.
+        revalidated if any of these attributes change. Note, chained
+        dependencies are not automatically calculated; you must explicitly state
+        all dependencies.
         
-        NB. This is a list of the names of the attributes as used on the 
-        objects, not necessarily that of the underlying key.
+        NB. This is a list of the names of the attributes as used on the
+        objects, not necessarily that of the underlying keys used in the JSON
+        hash.
     */
     validityDependencies: null,
     
     /**
         Method: O.RecordAttribute#call
         
-        Parameters:
-            record - {O.Record} The record the attribute is being set on or got
-                     from.
-            value  - {*} The value being set (undefined if just a 'get').
-            key    - {String} The name of the attribute on the record.
-        
         Gets/sets the attribute.
+        
+        Parameters:
+            record    - {O.Record} The record the attribute is being set on or
+                        got from.
+            propValue - {*} The value being set (undefined if just a 'get').
+            propKey   - {String} The name of the attribute on the record.
         
         Returns:
             {*} The attribute.
     */
-    call: function ( record, value, key ) {
+    call: function ( record, propValue, propKey ) {
         var store = record.get( 'store' ),
             storeKey = store ? record.get( 'storeKey' ) : '',
             hash = store ?
                 store.getHash( storeKey ) :
                 record._hash || ( record._hash = {} ),
-            jsonKey, currentValue, attrValue, update, type;
+            attrKey, attrValue, currentAttrValue, update, type;
         if ( hash ) {
-            jsonKey = this.key || key;
-            currentValue = hash[ jsonKey ];
-            if ( value !== undefined && this.willSet( value, key ) ) {
-                attrValue = value && value.toJSON ? value.toJSON() : value;
-                if ( attrValue !== currentValue ) {
+            attrKey = this.key || propKey;
+            currentAttrValue = hash[ attrKey ];
+            if ( propValue !== undefined &&
+                    this.willSet( propValue, propKey ) ) {
+                attrValue = propValue && propValue.toJSON ?
+                    propValue.toJSON() : propValue;
+                if ( attrValue !== currentAttrValue ) {
                     if ( store ) {
                         update = {};
-                        update[ jsonKey ] = attrValue;
+                        update[ attrKey ] = attrValue;
                         store.updateHash( storeKey, update,
                             !( this.noSync || record._noSync ) );
                     } else {
-                        hash[ jsonKey ] = attrValue;
-                        record.computedPropertyDidChange( key );
+                        hash[ attrKey ] = attrValue;
+                        record.computedPropertyDidChange( propKey );
                         if ( this.validate ) {
-                            record.get( 'errorForAttribute' ).set( key,
-                                this.validate( value, key, record ) );
+                            record.get( 'errorForAttribute' ).set( propKey,
+                                this.validate( propValue, propKey, record ) );
                         }
                     }
                 }
-                return value;
+                return propValue;
             }
             type = this.type;
         }
-        return currentValue !== undefined ?
+        return currentAttrValue !== undefined ?
             type && type.fromJSON ?
-                type.fromJSON( currentValue ) : currentValue :
+                type.fromJSON( currentAttrValue ) : currentAttrValue :
             this.defaultValue;
     }
 });

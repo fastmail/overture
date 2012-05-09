@@ -23,8 +23,14 @@ var AttributeErrors = NS.Class({
 
     Extends: NS.Object,
     
-    _numErrors: 0,
-    
+    /**
+        Property: O.Record-AttributeErrors#errorCount
+        Type: Number
+        
+        The number of attributes on the record in an error state.
+    */
+    errorCount: 0,
+
     /**
         Constructor: O.Record-AttributeErrors
         
@@ -33,38 +39,44 @@ var AttributeErrors = NS.Class({
     */
     init: function ( record ) {
         AttributeErrors.parent.init.call( this );
-        this._record = record;
 
-        var attrs = NS.meta( record ).attrs,
-            metadata = NS.meta( this ),
+        var attrs = NS.meta( record, true ).attrs,
+            metadata = NS.meta( this, false ),
             dependents = metadata.dependents = NS.clone( metadata.dependents ),
-            attr, attribute, error, dependencies, l, key;
+            errorCount = 0,
+            attrKey, propKey, attribute, error, dependencies, l, key;
         
-        this.beginPropertyChanges();
-        for ( attr in attrs ) {
+        for ( attrKey in attrs ) {
             // Check if attribute has been removed (e.g. in a subclass).
-            if ( !attrs[ attr ] ) { continue; }
-            
-            attribute = record[ attr ];
-            error = attribute.validate ?
-                attribute.validate( record.get( attr ), attr, record ) : '';
-            dependencies = attribute.validityDependencies;
-            
-            this.set( attr, error );
-            
-            if ( dependencies ) {
-                l = dependencies.length;
-                while ( l-- ) {
-                    key = dependencies[l];
-                    if ( !dependents[ key ] ) {
-                        dependents[ key ] = [];
-                        record.addObserverForKey( key, this, 'attrDidChange' );
+            if ( propKey = attrs[ attrKey ] ) {
+                // Validate current value and set error on this object.
+                attribute = record[ propKey ];
+                error = this[ propKey ] = attribute.validate ?
+                  attribute.validate( record.get( propKey ), propKey, record ) :
+                  '';
+
+                // Keep an error count
+                if ( error ) { errorCount += 1; }
+
+                // Add observers for validity dependencies.
+                dependencies = attribute.validityDependencies;
+                if ( dependencies ) {
+                    l = dependencies.length;
+                    while ( l-- ) {
+                        key = dependencies[l];
+                        if ( !dependents[ key ] ) {
+                            dependents[ key ] = [];
+                            record.addObserverForKey(
+                                key, this, 'attrDidChange' );
+                        }
+                        dependents[ key ].push( propKey );
                     }
-                    dependents[ key ].push( attr );
                 }
             }
         }
-        this.endPropertyChanges();
+        
+        this.errorCount = errorCount;
+        this._record = record;
     },
 
     /**
@@ -78,21 +90,22 @@ var AttributeErrors = NS.Class({
             attr - {String} The name of the attribute which has changed.
     */
     attrDidChange: function ( _, attr ) {
-        var metadata = NS.meta( this ),
+        var metadata = NS.meta( this, false ),
             changed = metadata.changed = {},
             dependents = metadata.dependents[ attr ],
             l = dependents.length,
             record = this._record,
-            key, attribute;
+            propKey, attribute;
 
         this.beginPropertyChanges();
         while ( l-- ) {
-            key = dependents[l];
-            attribute = record[ key ];
-            changed[ key ] = {
-                oldValue: this[ key ],
-                newValue: this[ key ] = ( attribute.validate ?
-                    attribute.validate( record.get( key ), key, record ) : '' )
+            propKey = dependents[l];
+            attribute = record[ propKey ];
+            changed[ propKey ] = {
+                oldValue: this[ propKey ],
+                newValue: this[ propKey ] = ( attribute.validate ?
+                  attribute.validate( record.get( propKey ), propKey, record ) :
+                  '' )
             };
         }
         this.endPropertyChanges();
@@ -110,23 +123,40 @@ var AttributeErrors = NS.Class({
             changed - {Object} A map of validity string changes.
     */
     setRecordValidity: function ( _, changed ) {
-        var numErrors = this._numErrors,
+        var errorCount = this.get( 'errorCount' ),
             key, vals, wasValid, isValid;
         for ( key in changed ) {
             vals = changed[ key ];
             wasValid = !vals.oldValue;
             isValid = !vals.newValue;
             if ( wasValid && !isValid ) {
-                numErrors += 1;
+                errorCount += 1;
             }
             else if ( isValid && !wasValid ) {
-                numErrors -= 1;
+                errorCount -= 1;
             }
         }
-        this._numErrors = numErrors;
-        this._record.set( 'isValid', !numErrors );
+        this.set( 'errorCount', errorCount )
+            ._record.set( 'isValid', !errorCount );
     }.observes( '*' )
 });
+
+// Sets up the id property to be dependent on the primary key.
+var initType = function ( Type ) {
+    var primaryKey = Type.primaryKey,
+        metadata, dependents;
+    if ( primaryKey !== 'id' ) {
+        metadata = NS.meta( Type.prototype, false );
+        dependents = metadata.dependents;
+        if ( !metadata.hasOwnProperty( 'dependents' ) ) {
+            dependents = metadata.dependents = NS.clone( dependents );
+            metadata.allDependents = {};
+        }
+        ( dependents[ primaryKey ] ||
+            ( dependents[ primaryKey ] = [] ) ).push( 'id' );
+    }
+    Type.isInited = true;
+};
 
 /**
     Class: O.Record
@@ -148,6 +178,12 @@ var Record = NS.Class({
             storeKey - {String} The unique id for this record in the store.
     */
     init: function ( store, storeKey ) {
+        // Need to make sure special 'id' property triggers observers whenever
+        // it changes
+        var Type = this.constructor;
+        if ( !Type.isInited ) {
+            initType( Type );
+        }
         this.store = store;
         this.storeKey = storeKey;
         Record.parent.init.call( this );
@@ -236,14 +272,16 @@ var Record = NS.Class({
         Property: O.Record#id
         Type: String
         
-        The record id.
+        The record id. It's fine to override this with an attribute, provided it
+        is the primary key. If the primary key for the record is not called
+        'id', you must not override this property.
     */
     id: function () {
         var store = this.get( 'store' );
         return store ?
             store.getIdFromStoreKey( this.get( 'storeKey' ) ) :
             this.get( this.constructor.primaryKey );
-    }.property().nocache(),
+    }.property(),
     
     /**
         Method: O.Record#saveToStore
@@ -367,10 +405,8 @@ var Record = NS.Class({
         Are all the attributes are in a valid state?
     */
     isValid: function ( value ) {
-        if ( value !== undefined ) {
-            return value;
-        }
-        return !this.get( 'errorForAttribute' )._numErrors;
+        return ( value !== undefined ) ? value :
+            !this.get( 'errorForAttribute' ).get( 'errorCount' );
     }.property(),
     
     /**
