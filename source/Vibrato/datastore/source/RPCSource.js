@@ -83,7 +83,7 @@ var RPCSource = NS.Class({
     */
     url: '/',
     
-    _inFlightRequest: null,
+    _inFlightRemoteCalls: null,
     _inFlightCallbacks: null,
     
     /**
@@ -152,14 +152,15 @@ var RPCSource = NS.Class({
                 message: 'Data from server is not JSON.',
                 details: 'Data:\n' + event.data +
                     '\n\nin reponse to request:\n' +
-                    JSON.stringify( this._inFlightRequest, null, 2 )
+                    JSON.stringify( this._inFlightRemoteCalls, null, 2 )
             });
             data = [];
         }
         
-        this.receive( data, this._inFlightCallbacks, this._inFlightRequest );
+        this.receive(
+            data, this._inFlightCallbacks, this._inFlightRemoteCalls );
         
-        this._inFlightRequest = this._inFlightCallbacks = null;
+        this._inFlightRemoteCalls = this._inFlightCallbacks = null;
     },
     
     /**
@@ -172,7 +173,7 @@ var RPCSource = NS.Class({
     */
     ioDidFail: function ( event ) {
         if ( !this.get( 'willRetry' ) ) {
-            this._inFlightRequest = this._inFlightCallbacks = null;
+            this._inFlightRemoteCalls = this._inFlightCallbacks = null;
         }
     },
     
@@ -218,13 +219,20 @@ var RPCSource = NS.Class({
     */
     send: function () {
         if ( !this.get( 'isSending' ) ) {
-            var request = this._inFlightRequest || this.makeRequest()[0];
-            if ( request.length ) {
-                this.set( 'isSending', true )
-                    .get( 'io' ).send({
-                        data: JSON.stringify( request )
-                    });
+            var remoteCalls = this._inFlightRemoteCalls,
+                request;
+            if ( !this._inFlightRemoteCalls ) {
+                request = this.makeRequest();
+                remoteCalls = request[0];
+                if ( !remoteCalls.length ) { return; }
+                this._inFlightRemoteCalls = remoteCalls;
+                this._inFlightCallbacks = request[1];
             }
+                
+            this.set( 'isSending', true )
+                .get( 'io' ).send({
+                    data: JSON.stringify( request )
+                });
         }
     }.queue( 'after' ),
     
@@ -242,7 +250,7 @@ var RPCSource = NS.Class({
             request   - {Array} The array of method calls that was executed on
                         the server.
     */
-    receive: function ( data, callbacks, request ) {
+    receive: function ( data, callbacks, remoteCalls ) {
         var handlers = this.response,
             i, l, response, handler;
         for ( i = 0, l = data.length; i < l; i += 1 ) {
@@ -254,7 +262,7 @@ var RPCSource = NS.Class({
                 NS.RunLoop.didError({
                     name: 'O.RPCSource#receive',
                     message: 'Unknown response received: ' + response[0],
-                    details: 'Request was: ' + JSON.stringify( request )
+                    details: 'Request was: ' + JSON.stringify( remoteCalls )
                 });
             }
         }
@@ -310,9 +318,6 @@ var RPCSource = NS.Class({
         this._recordsToFetch = {};
         this._recordsToRefresh = {};
         this._queriesToFetch = {};
-        
-        this._inFlightRequest = sendQueue;
-        this._inFlightCallbacks = callbacks;
         
         return [ sendQueue, callbacks ];
     },
