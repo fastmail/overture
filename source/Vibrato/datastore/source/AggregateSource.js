@@ -47,7 +47,7 @@ var AggregateSource = NS.Class({
             {O.AggregateSource} Returns self.
     */
     addSource: function ( source ) {
-        this.sources.push( source );
+        this.get( 'sources' ).push( source );
         return this;
     },
     
@@ -62,37 +62,37 @@ var AggregateSource = NS.Class({
             {O.AggregateSource} Returns self.
     */
     removeSource: function ( source ) {
-        this.sources.erase( source );
+        this.get( 'sources' ).erase( source );
         return this;
     },
     
-    send: function () {
-        this.sources.forEach( function ( source ) {
-            source.send();
+    fetchRecord: function ( Type, id, callback ) {
+        return this.get( 'sources' ).some( function ( source ) {
+            return source.fetchRecord( Type, id, callback );
         });
     },
     
-    fetchRecords: function ( Type, ids, callback ) {
-        return this.sources.some( function ( source ) {
-            return source.fetchRecords( Type, ids, callback );
+    fetchAllRecords: function ( Type, callback ) {
+        return this.get( 'sources' ).some( function ( source ) {
+            return source.fetchAllRecords( Type, callback );
         });
     },
     
-    refreshRecords: function ( Type, ids, callback ) {
-        return this.sources.some( function ( source ) {
-            return source.refreshRecords( Type, ids, callback );
+    refreshRecord: function ( Type, id, callback ) {
+        return this.get( 'sources' ).some( function ( source ) {
+            return source.refreshRecord( Type, id, callback );
         });
     },
     
     commitChanges: function ( changes ) {
-        this.sources.forEach( function ( source ) {
+        this.get( 'sources' ).forEach( function ( source ) {
             source.commitChanges( changes );
         });
         return this;
     },
     
     fetchQuery: function ( query, callback ) {
-        return this.sources.some( function ( source ) {
+        return this.get( 'sources' ).some( function ( source ) {
             return source.fetchQuery( query, callback );
         });
     }

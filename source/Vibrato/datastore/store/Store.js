@@ -1598,7 +1598,7 @@ var Store = NS.Class({
             var Type = query.get( 'type' ),
                 type = Type.className;
             // Fetch the data for it.
-            source.fetchRecords( Type );
+            source.fetchAllRecords( Type );
             ( this._liveQueries[ type ] ||
                 ( this._liveQueries[ type ] = [] ) ).push( query );
         } else if ( query instanceof NS.RemoteQuery ) {
