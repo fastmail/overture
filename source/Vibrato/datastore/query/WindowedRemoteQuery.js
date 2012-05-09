@@ -311,8 +311,7 @@ var WindowedRemoteQuery = NS.Class({
             // searching.
             if ( index < 0 ) {
                 // First check if the list is loaded
-                var length = this.get( 'length' ),
-                    windows = this._windows,
+                var windows = this._windows,
                     l = this.get( 'windowCount' );
                 if ( l !== null ) {
                     while ( l-- ) {
@@ -381,8 +380,7 @@ var WindowedRemoteQuery = NS.Class({
         var windowSize = this.get( 'windowSize' ),
             trigger = this.get( 'triggerPoint' ),
             windowIndex = Math.floor( index / windowSize ),
-            withinWindowIndex = index % windowSize,
-            id;
+            withinWindowIndex = index % windowSize;
         
         this.fetchWindow( windowIndex, true );
         

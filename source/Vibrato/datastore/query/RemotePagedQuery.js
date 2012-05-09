@@ -15,8 +15,6 @@
 var Status = NS.Status,
     EMPTY = Status.EMPTY,
     READY = Status.READY,
-    DESTROYED = Status.DESTROYED,
-    NON_EXISTENT = Status.NON_EXISTENT,
     LOADING = Status.LOADING;
 
 /**
