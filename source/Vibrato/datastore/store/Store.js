@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, console */
+/*global O */
 
 "use strict";
 
@@ -34,15 +34,15 @@ var OBSOLETE     = 256; // Source may have changes not yet loaded.
 
 // Error messages.
 var CANNOT_CREATE_EXISTING_RECORD_ERROR =
-        'Error: Cannot create existing record',
+        'O.Store Error: Cannot create existing record',
     CANNOT_WRITE_TO_UNREADY_RECORD_ERROR =
-        'Warning: Cannot write to unready record',
+        'O.Store Error: Cannot write to unready record',
     FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR =
-        'Error: Record loaded which has status destroyed or non-existent',
+        'O.Store Error: Record loaded which has status destroyed or non-existent',
     SOURCE_COMMIT_CREATE_MISMATCH_ERROR =
-        'Error: Source committed a create on a record not marked new',
+        'O.Store Error: Source committed a create on a record not marked new',
     SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
-        'Error: Source commited a destroy on a record not marked destroyed';
+        'O.Store Error: Source commited a destroy on a record not marked destroyed';
 
 var sk = 1;
 var generateStoreKey = function () {
@@ -717,7 +717,9 @@ var Store = NS.Class({
             Type = this._skToType[ storeKey ];
         
         if ( status !== EMPTY && status !== DESTROYED ) {
-            console.log( CANNOT_CREATE_EXISTING_RECORD_ERROR );
+            NS.RunLoop.didError({
+                name: CANNOT_CREATE_EXISTING_RECORD_ERROR
+            });
             return null;
         }
         
@@ -880,7 +882,9 @@ var Store = NS.Class({
         }
         if ( changeIsDirty ) {
             if ( !( status & READY ) ) {
-                console.log( CANNOT_WRITE_TO_UNREADY_RECORD_ERROR );
+                NS.RunLoop.didError({
+                    name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR
+                });
                 return false;
             }
             committed = _skToCommitted[ storeKey ] ||
@@ -1058,7 +1062,9 @@ var Store = NS.Class({
             }
             // Can't fetch a destroyed or non-existent record.
             else if ( !( status & EMPTY ) ) {
-                console.log( FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR );
+                NS.RunLoop.didError({
+                    name: FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR
+                });
             }
             // Anything else is new.
             else {
@@ -1303,7 +1309,9 @@ var Store = NS.Class({
                 this.setIdForStoreKey( storeKey, skToId[ storeKey ] );
                 this.setStatus( storeKey, status & ~( NEW|COMMITTING ) );
             } else {
-                console.log( SOURCE_COMMIT_CREATE_MISMATCH_ERROR );
+                NS.RunLoop.didError({
+                    name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR
+                });
             }
         }
         return this;
@@ -1465,7 +1473,9 @@ var Store = NS.Class({
             storeKey = storeKeys[l];
             status = this.getStatus( storeKey );
             if ( !( status & DESTROYED ) ) {
-                console.log( SOURCE_COMMIT_DESTROY_MISMATCH_ERROR );
+                NS.RunLoop.didError({
+                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
+                });
             }
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
@@ -1500,7 +1510,9 @@ var Store = NS.Class({
             storeKey = storeKeys[l];
             status = this.getStatus( storeKey );
             if ( !( status & DESTROYED ) ) {
-                console.log( SOURCE_COMMIT_DESTROY_MISMATCH_ERROR );
+                NS.RunLoop.didError({
+                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
+                });
             }
             this.setStatus( storeKey, DESTROYED|DIRTY );
             _destroyed[ storeKey ] = 1;
