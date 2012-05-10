@@ -21,6 +21,9 @@ var CollectionView = NS.Class({
     positioning: 'relative',
     layout: {},
     
+    _dirtyStart: -1,
+    _dirtyEnd: -1,
+    
     init: function ( options ) {
         this._observedRange = { start: 0 };
         this._renderedTotal = 0;
@@ -136,7 +139,7 @@ var CollectionView = NS.Class({
             newViews = [],
             oldViews = [],
             frag = document.createDocumentFragment(),
-            view, parent, children, i, l;
+            view, i, l;
         
         // Step 1. Remove existing views from DOM.
         for ( i = start, l = Math.min( end, this._renderedTotal );
@@ -181,7 +184,7 @@ var CollectionView = NS.Class({
         }
         
         // Step 4. Let any observers know we've got new children.
-        if ( start !== end ) {
+        if ( start < end ) {
             this.computedPropertyDidChange( 'childViews' );
         }
         
