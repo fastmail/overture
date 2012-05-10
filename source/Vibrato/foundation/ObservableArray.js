@@ -169,8 +169,10 @@ var ObservableArray = NS.Class({
         if ( oldLength !== newLength ) {
             this._length = newLength;
             this.propertyDidChange( 'length', oldLength, newLength );
+            this.rangeDidChange( index, Math.max( oldLength, newLength ) );
+        } else {
+            this.rangeDidChange( index, index + numberRemoved );
         }
-        this.rangeDidChange( index, Math.max( oldLength, newLength ) );
         return removed || [];
     },
     
