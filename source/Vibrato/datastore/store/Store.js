@@ -101,7 +101,7 @@ var Store = NS.Class({
     init: function ( source ) {
         // Map store key -> record
         this._skToRecord = {};
-        // Map store key -> data hash
+        // Map store key -> data
         this._skToData = {};
         // Map store key -> status
         this._skToStatus = {};
@@ -113,9 +113,9 @@ var Store = NS.Class({
         this._typeToIdToSk = {};
         // Map store key -> property key -> bool (isChanged)
         this._skToChanged = {};
-        // Map store key -> last committed data hash
+        // Map store key -> last committed data
         this._skToCommitted = {};
-        // Map store key -> last committed data hash (whilst committing)
+        // Map store key -> last committed data (whilst committing)
         this._skToRollback = {};
         
         // Map store key -> last access timestamp for memory manager
@@ -258,7 +258,7 @@ var Store = NS.Class({
             _idToSk[ id ] = storeKey;
             
             update[ primaryKey ] = id;
-            this.updateHash( storeKey, update, false );
+            this.updateData( storeKey, update, false );
         }
         
         return this;
@@ -287,8 +287,8 @@ var Store = NS.Class({
         Method: O.Store#newRecord
         
         Creates a new record of the given type and marks it to be committed next
-        time <O.Store#commitChanges> is called. `data` can be a plain JSON hash
-        or a record instance not associated with a store.
+        time <O.Store#commitChanges> is called. `data` can be a plain JSON
+        object or a record instance not associated with a store.
         
         Parameters:
             Type - {O.Class} The record type.
@@ -301,8 +301,8 @@ var Store = NS.Class({
         var record, storeKey, attrs, attrKey, propKey, defaultValue;
         if ( data instanceof Type ) {
             record = data;
-            data = record._hash;
-            delete record._hash;
+            data = record._data;
+            delete record._data;
             // Fill in any missing defaults
             attrs = NS.meta( record, true ).attrs;
             for ( attrKey in attrs ) {
@@ -348,7 +348,7 @@ var Store = NS.Class({
         // If the caller is already handling the fetching, they can
         // set doNotFetch to true.
         if ( !doNotFetch && this.getStatus( storeKey ) === EMPTY ) {
-            this.fetchHash( storeKey );
+            this.fetchData( storeKey );
         }
         // Add timestamp for memory manager.
         this._skToLastAccess[ storeKey ] = Date.now();
@@ -477,9 +477,9 @@ var Store = NS.Class({
             this.unloadRecord( storeKey );
         }
         for ( storeKey in _skToChanged ) {
-            this.setHash( storeKey, _skToCommitted[ storeKey ] );
+            this.setData( storeKey, _skToCommitted[ storeKey ] );
             this.setStatus( storeKey, READY|(
-                this.getStatus( storeKey ) & ( OBSOLETE|LOADING|COMMITTING )
+                this.getStatus( storeKey ) & (OBSOLETE|LOADING|COMMITTING)
             ) );
         }
         this._skToChanged = {};
@@ -628,7 +628,7 @@ var Store = NS.Class({
         var record = this._skToRecord[ storeKey ],
             status = this.getStatus( storeKey );
         // Only unload unwatched clean empty, ready or destroyed records.
-        if ( ( status & ~( EMPTY|READY|DESTROYED ) ) ||
+        if ( ( status & ~(EMPTY|READY|DESTROYED) ) ||
                 ( record && record.hasObservers() ) ) {
             return false;
         }
@@ -698,7 +698,7 @@ var Store = NS.Class({
         Method: O.Store#createRecord
         
         Creates a new record with the given store key. The existing status for
-        the store key must be <O.Status.EMPTY>. An initial data hash may be
+        the store key must be <O.Status.EMPTY>. An initial data object may be
         passed as a second argument. The new record will be committed back to
         the server the next time <O.Store#commitChanges> runs.
         
@@ -724,7 +724,7 @@ var Store = NS.Class({
         }
         
         this._skToData[ storeKey ] = data || {};
-        this._skToStatus[ storeKey ] = READY|NEW;
+        this._skToStatus[ storeKey ] = (READY|NEW);
         
         this._created[ storeKey ] = 1;
         
@@ -756,14 +756,14 @@ var Store = NS.Class({
     destroyRecord: function ( storeKey ) {
         var status = this.getStatus( storeKey );
         // If created -> just remove from created.
-        if ( status === ( READY|NEW ) ) {
+        if ( status === (READY|NEW) ) {
             delete this._created[ storeKey ];
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
         } else {
             // Discard changes if dirty.
             if ( status & DIRTY ) {
-                this.setHash( storeKey, this._skToCommitted[ storeKey ] );
+                this.setData( storeKey, this._skToCommitted[ storeKey ] );
                 delete this._skToCommitted[ storeKey ];
                 delete this._skToChanged[ storeKey ];
             }
@@ -781,7 +781,7 @@ var Store = NS.Class({
     },
     
     /**
-        Method: O.Store#fetchHash
+        Method: O.Store#fetchData
         
         Fetches the data for a given record from the server.
         
@@ -791,7 +791,7 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    fetchHash: function ( storeKey ) {
+    fetchData: function ( storeKey ) {
         var status = this.getStatus( storeKey );
 
         // Nothing to do if already loading or new, destroyed or non-existant.
@@ -811,9 +811,9 @@ var Store = NS.Class({
     },
     
     /**
-        Method: O.Store#getHash
+        Method: O.Store#getData
         
-        Returns the current data hash in memory for the given record
+        Returns the current data object in memory for the given record
         
         Parameters:
             storeKey - {String} The store key for the record.
@@ -821,18 +821,18 @@ var Store = NS.Class({
         Returns:
             {Object|undefined} The record data, if loaded.
     */
-    getHash: function ( storeKey ) {
+    getData: function ( storeKey ) {
         return this._skToData[ storeKey ];
     },
     
     /**
-        Method: O.Store#setHash
+        Method: O.Store#setData
         
-        Sets the data hash for a given record.
+        Sets the data object for a given record.
         
         Parameters:
             storeKey      - {String} The store key for the record.
-            data          - {Object} The new data hash for the record.
+            data          - {Object} The new data object for the record.
             changeIsDirty - {Boolean} Should the change be committed back to the
                             server?
         
@@ -841,18 +841,18 @@ var Store = NS.Class({
             changeIsDirty flag is set but the current data is not yet loaded
             into memory.
     */
-    setHash: function ( storeKey, data, changeIsDirty ) {
-        return this.updateHash( storeKey, data, changeIsDirty );
+    setData: function ( storeKey, data, changeIsDirty ) {
+        return this.updateData( storeKey, data, changeIsDirty );
     },
     
     /**
-        Method: O.Store#updateHash
+        Method: O.Store#updateData
         
-        Updates the data hash for a given record with the supplied attributes.
+        Updates the data object for a given record with the supplied attributes.
         
         Parameters:
             storeKey      - {String} The store key for the record.
-            data          - {Object} A hash of new attribute values for the
+            data          - {Object} An object of new attribute values for the
                             record.
             changeIsDirty - {Boolean} Should the change be committed back to the
                             server?
@@ -862,7 +862,7 @@ var Store = NS.Class({
             changeIsDirty flag is set but the current data is not yet loaded
             into memory.
     */
-    updateHash: function ( storeKey, data, changeIsDirty ) {
+    updateData: function ( storeKey, data, changeIsDirty ) {
         var status = this.getStatus( storeKey ),
             _skToData = this._skToData,
             _skToCommitted = this._skToCommitted,
@@ -877,7 +877,7 @@ var Store = NS.Class({
             _skToData[ storeKey ] = current = NS.clone( current );
         }
         
-        if ( status === ( READY|NEW ) ) {
+        if ( status === (READY|NEW) ) {
             changeIsDirty = false;
         }
         if ( changeIsDirty ) {
@@ -945,9 +945,9 @@ var Store = NS.Class({
     },
 
     /**
-        Method: O.Store#revertHash
+        Method: O.Store#revertData
         
-        Reverts the data hash for a given record to the last committed state.
+        Reverts the data object for a given record to the last committed state.
         
         Parameters:
             storeKey - {String} The store key for the record.
@@ -955,10 +955,10 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    revertHash: function ( storeKey ) {
+    revertData: function ( storeKey ) {
         var committed = this._skToCommitted[ storeKey ];
         if ( committed ) {
-            this.updateHash( storeKey, committed, true );
+            this.updateData( storeKey, committed, true );
         }
         return this;
     },
@@ -1019,7 +1019,7 @@ var Store = NS.Class({
         
         Parameters:
             Type    - {O.Class} The record type.
-            records - {Array.<Object>} Array of data hashes.
+            records - {Array.<Object>} Array of data objects.
         
         Returns:
             {O.Store} Returns self.
@@ -1036,7 +1036,7 @@ var Store = NS.Class({
         
         Parameters:
             Type    - {O.Class} The record type.
-            records - {Array.<Object>} Array of data hashes.
+            records - {Array.<Object>} Array of data objects.
        
         Returns:
             {O.Store} Returns self.
@@ -1068,7 +1068,7 @@ var Store = NS.Class({
             }
             // Anything else is new.
             else {
-                this.setHash( storeKey, data );
+                this.setData( storeKey, data );
                 this.setStatus( storeKey, READY );
                 this._skToLastAccess[ storeKey ] = now;
             }
@@ -1125,13 +1125,13 @@ var Store = NS.Class({
         
         Callback made by the <O.Source> object associated with this store when
         it has fetched some updates to records which may be loaded in the store.
-        An update is a subset of a normal data hash for the given record type,
+        An update is a subset of a normal data object for the given record type,
         containing only the attributes which have changed since the previous
         state.
         
         Parameters:
             Type    - {O.Class} The record type.
-            updates - {Object} A hash mapping record id to a data hash of
+            updates - {Object} An object mapping record id to an object of
                       changed attributes.
         
         Returns:
@@ -1197,7 +1197,7 @@ var Store = NS.Class({
                     if ( !clean ) {
                         _skToChanged[ storeKey ] = newChanged;
                         _skToCommitted[ storeKey ] = update;
-                        this.setHash( storeKey, newData );
+                        this.setData( storeKey, newData );
                         this.setStatus( storeKey, READY|DIRTY );
                         continue;
                     }
@@ -1205,7 +1205,7 @@ var Store = NS.Class({
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
             }
-            this.updateHash( storeKey, update );
+            this.updateData( storeKey, update );
             this.setStatus( storeKey, READY );
         }
         return this._recordSetWasModified( Type );
@@ -1239,7 +1239,7 @@ var Store = NS.Class({
                 this.setStatus( storeKey, NON_EXISTENT );
             } else {
                 if ( status & DIRTY ) {
-                    this.setHash( storeKey, _skToCommitted[ storeKey ] );
+                    this.setData( storeKey, _skToCommitted[ storeKey ] );
                     delete _skToCommitted[ storeKey ];
                     delete _skToChanged[ storeKey ];
                 }
@@ -1275,7 +1275,7 @@ var Store = NS.Class({
             storeKey = this.getStoreKey( Type, idList[l] );
             status = this.getStatus( storeKey );
             if ( status & DIRTY ) {
-                this.setHash( storeKey, _skToCommitted[ storeKey ] );
+                this.setData( storeKey, _skToCommitted[ storeKey ] );
                 delete _skToCommitted[ storeKey ];
                 delete _skToChanged[ storeKey ];
             }
@@ -1446,7 +1446,7 @@ var Store = NS.Class({
             if ( !( status & COMMITTING ) ) {
                 this.setObsolete( storeKey );
             } else {
-                this.setStatus( storeKey, ( status & ~COMMITTING ) | DIRTY );
+                this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
             }
         }
         return this._recordSetWasModified();
@@ -1552,7 +1552,7 @@ var Store = NS.Class({
                 this.unloadRecord( storeKey );
             // Newly destroyed or updated -> revert to ready + obsolete
             } else {
-                this.setHash( storeKey, _skToRollback[ storeKey ] );
+                this.setData( storeKey, _skToRollback[ storeKey ] );
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
                 delete _skToRollback[ storeKey ];

@@ -93,7 +93,8 @@ var RecordAttribute = NS.Class({
         Default: null
         
         If a type is set and it has a fromJSON method, this will be used to
-        convert values from the underlying hash when the attribute is fetched.
+        convert values from the underlying data object when the attribute is
+        fetched.
     */
     type: null,
     
@@ -152,9 +153,10 @@ var RecordAttribute = NS.Class({
         Type: *
         Default: undefined
         
-        If the attribute is not set on the underlying hash, the defaultValue
-        will be returned instead. This will also be used to add this attribute
-        to the hash if a new record is created and the attribute is not set.
+        If the attribute is not set on the underlying data object, the
+        defaultValue will be returned instead. This will also be used to add
+        this attribute to the data object if a new record is created and the
+        attribute is not set.
         
         The value should be of the type specified in <O.RecordAttribute#type>.
     */
@@ -190,7 +192,7 @@ var RecordAttribute = NS.Class({
         
         NB. This is a list of the names of the attributes as used on the
         objects, not necessarily that of the underlying keys used in the JSON
-        hash.
+        data object.
     */
     validityDependencies: null,
     
@@ -211,13 +213,13 @@ var RecordAttribute = NS.Class({
     call: function ( record, propValue, propKey ) {
         var store = record.get( 'store' ),
             storeKey = store ? record.get( 'storeKey' ) : '',
-            hash = store ?
-                store.getHash( storeKey ) :
-                record._hash || ( record._hash = {} ),
+            data = store ?
+                store.getData( storeKey ) :
+                record._data || ( record._data = {} ),
             attrKey, attrValue, currentAttrValue, update, type;
-        if ( hash ) {
+        if ( data ) {
             attrKey = this.key || propKey;
-            currentAttrValue = hash[ attrKey ];
+            currentAttrValue = data[ attrKey ];
             if ( propValue !== undefined &&
                     this.willSet( propValue, propKey ) ) {
                 attrValue = propValue && propValue.toJSON ?
@@ -226,10 +228,10 @@ var RecordAttribute = NS.Class({
                     if ( store ) {
                         update = {};
                         update[ attrKey ] = attrValue;
-                        store.updateHash( storeKey, update,
+                        store.updateData( storeKey, update,
                             !( this.noSync || record._noSync ) );
                     } else {
-                        hash[ attrKey ] = attrValue;
+                        data[ attrKey ] = attrValue;
                         record.computedPropertyDidChange( propKey );
                         if ( this.validate ) {
                             record.get( 'errorForAttribute' ).set( propKey,
@@ -260,7 +262,7 @@ NS.RecordAttribute = RecordAttribute;
     
     When subclassing O.Record, use this function to create a value for any
     properties on the record which correspond to properties on the underlying
-    data hash. This will automatically set things up so they are fetched from
+    data object. This will automatically set things up so they are fetched from
     the store and synced to the source.
     
     Parameters:

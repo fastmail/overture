@@ -133,8 +133,8 @@ NS.Events = {
         
         Parameters:
             type      - {String} The name of the event being fired.
-            event     - {Object} (optional) An event object or hash of values to
-                        be added to the event object.
+            event     - {Object} (optional) An event object or object of values
+                        to be added to the event object.
             defaultFn - {Function} (optional) This function is called after all
                         event handlers have completed, providing none of them
                         called the preventDefault method on the event object.

@@ -174,9 +174,9 @@ var ListViewController = NS.Class({
         var selected = this.get( 'selectedIds' ),
             selectionLength = this.get( 'selectionLength' ),
             removed = event.removed || [],
-            added = event.added.reduce( function ( hash, id ) {
-                hash[ id ] = true;
-                return hash;
+            added = event.added.reduce( function ( set, id ) {
+                set[ id ] = true;
+                return set;
             }, {} ),
             l = removed.length,
             id;

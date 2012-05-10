@@ -109,7 +109,7 @@ var Source = NS.Class({
         
         Each subarray inside the 'create' array should be of the same length,
         with the store key at position 0 in the first array, for example,
-        corresponding to the data hash at position 0 in the second. The same
+        corresponding to the data object at position 0 in the second. The same
         applies to the update and destroy arrays.
         
         A changedMap, is a map of attribute names to a boolean value indicating

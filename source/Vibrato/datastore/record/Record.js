@@ -282,7 +282,7 @@ var Record = NS.Class({
             store.getIdFromStoreKey( this.get( 'storeKey' ) ) :
             this.get( this.constructor.primaryKey );
     }.property(),
-    
+
     /**
         Method: O.Record#saveToStore
         
@@ -320,7 +320,7 @@ var Record = NS.Class({
         } else {
             var store = this.get( 'store' );
             if ( store ) {
-                store.revertHash( this.get( 'storeKey' ) );
+                store.revertData( this.get( 'storeKey' ) );
             }
         }
         return this;
@@ -337,7 +337,7 @@ var Record = NS.Class({
     */
     refresh: function () {
         var store = this.get( 'store' );
-        if ( store ) { store.fetchHash( this.get( 'storeKey' ) ); }
+        if ( store ) { store.fetchData( this.get( 'storeKey' ) ); }
         return this;
     },
     

@@ -493,7 +493,7 @@ var RPCSource = NS.Class({
         
         Each subarray inside the 'create' array should be of the same length,
         with the store key at position 0 in the first array, for example,
-        corresponding to the data hash at position 0 in the second. The same
+        corresponding to the data object at position 0 in the second. The same
         applies to the update and destroy arrays.
         
         A changedMap, is a map of attribute names to a boolean value indicating
@@ -530,8 +530,8 @@ var RPCSource = NS.Class({
         
         In a RPC source, this method considers each type in the changes. If that
         type has a handler defined in <O.RPCSource#recordCommitters>, then this
-        will be called with the create/update/destroy hash as the sole argument,
-        otherwise it will look for separate handlers in
+        will be called with the create/update/destroy object as the sole
+        argument, otherwise it will look for separate handlers in
         <O.RPCSource#recordCreators>, <O.RPCSource#recordUpdaters> and
         <O.RPCSource#recordDestroyers>. If handled by one of these, the method
         will remove the type from the changes object.

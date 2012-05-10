@@ -47,7 +47,7 @@ var NestedStore = NS.Class({
     init: function ( store ) {
         // Own record store
         this._skToRecord = {};
-        // Copy on write, shared data hash store
+        // Copy on write, shared data object store
         this._skToData = Object.create( store._skToData );
         // Copy on write, shared status store.
         this._skToStatus = Object.create( store._skToStatus );
@@ -123,7 +123,7 @@ var NestedStore = NS.Class({
             parent.createRecord( storeKey, _skToData[ storeKey ] );
         }
         for ( storeKey in _skToChanged ) {
-            parent.updateHash( storeKey, _skToData[ storeKey ], true );
+            parent.updateData( storeKey, _skToData[ storeKey ], true );
         }
         for ( storeKey in _destroyed ) {
             parent.destroyRecord( storeKey );
@@ -174,8 +174,8 @@ var NestedStore = NS.Class({
         this._parentStore.setLoading( storeKey );
     },
 
-    fetchHash: function ( storeKey ) {
-        this._parentStore.fetchHash( storeKey );
+    fetchData: function ( storeKey ) {
+        this._parentStore.fetchData( storeKey );
         return this;
     },
     
@@ -205,7 +205,7 @@ var NestedStore = NS.Class({
             if ( status & DESTROYED ) {
                 if ( !( previous & DESTROYED ) ) {
                     // Ready dirty -> ready clean.
-                    this.setHash( storeKey, this._skToCommitted[ storeKey ] );
+                    this.setData( storeKey, this._skToCommitted[ storeKey ] );
                     delete this._skToCommitted[ storeKey ];
                     delete this._skToChanged[ storeKey ];
                 }
@@ -232,9 +232,9 @@ var NestedStore = NS.Class({
     /**
         Method: O.NestedStore#parentDidChangeData
         
-        Called by the parent store whenever it makes a change to the data hash
+        Called by the parent store whenever it makes a change to the data object
         for a record. The nested store uses this to update its own copy of the
-        data hash if it has diverged from that of the parent (either rebasing
+        data object if it has diverged from that of the parent (either rebasing
         changes on top of the new parent state or discarding changes, depending
         on the value of <O.Store#rebaseConflicts>).
         
@@ -249,7 +249,7 @@ var NestedStore = NS.Class({
                 _skToCommitted = this._skToCommitted,
                 parent = this._parentStore,
                 rebase = this.rebaseConflicts,
-                newBase = parent.getHash( storeKey ),
+                newBase = parent.getData( storeKey ),
                 oldData = _skToData[ storeKey ],
                 oldChanged = _skToChanged[ storeKey ],
                 newData = {},
@@ -276,7 +276,7 @@ var NestedStore = NS.Class({
             if ( !clean ) {
                 _skToChanged[ storeKey ] = newChanged;
                 _skToCommitted[ storeKey ] = NS.clone( newBase );
-                this.setHash( storeKey, newData );
+                this.setData( storeKey, newData );
                 return;
             }
             delete _skToData[ storeKey ];

@@ -259,7 +259,7 @@ NS.Element = {
     /**
         Function: O.Element.setAttributes
         
-        Sets each attribute in the hash on the given element.
+        Sets each attribute in the object on the given element.
         
         Parameters:
             el    - {Element} The element to set the attributes on.
@@ -405,11 +405,11 @@ NS.Element = {
     /**
         Function: O.Element.setStyles
     
-        Set a hash of CSS styles on the element.
+        Set a collection of CSS styles on the element.
         
         Parameters:
             el    - {Element} The element to set the style on.
-            styles - {Object} A hash of styles/values to set.
+            styles - {Object} A map of styles->values to set.
         
         Returns:
             {O.Element} Returns self.
