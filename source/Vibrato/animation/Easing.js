@@ -13,7 +13,7 @@
 ( function ( NS ) {
 
 var cubicBezier = function ( p1x, p1y, p2x, p2y ) {
-    // Calculate constants in parametric bezier forumlar
+    // Calculate constants in parametric bezier formular
     // http://www.moshplant.com/direct-or/bezier/math.html
     var cX = 3 * p1x,
         bX = 3 * ( p2x - p1x ) - cX,
