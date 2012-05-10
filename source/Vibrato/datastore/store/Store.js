@@ -1436,11 +1436,12 @@ var Store = NS.Class({
             if ( status & DIRTY ) {
                 changed = {};
                 current = _skToData[ storeKey ];
+                delete _skToChanged[ storeKey ];
                 for ( key in current ) {
                     if ( current[ key ] !== committed[ key ] ) {
                         changed[ key ] = true;
+                        _skToChanged[ storeKey ] = changed;
                     }
-                    _skToChanged[ storeKey ] = changed;
                 }
             }
             if ( !( status & COMMITTING ) ) {
@@ -1449,7 +1450,7 @@ var Store = NS.Class({
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
             }
         }
-        return this._recordSetWasModified();
+        return this;
     },
     
     /**
@@ -1550,6 +1551,7 @@ var Store = NS.Class({
             if ( status & NEW ) {
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
+                this._recordSetWasModified( _skToType[ storeKey ] );
             // Newly destroyed or updated -> revert to ready + obsolete
             } else {
                 this.setData( storeKey, _skToRollback[ storeKey ] );
@@ -1558,7 +1560,6 @@ var Store = NS.Class({
                 delete _skToRollback[ storeKey ];
                 this.setStatus( storeKey, READY|OBSOLETE );
             }
-            this._recordSetWasModified( _skToType[ storeKey ] );
         }
         return this;
     },
