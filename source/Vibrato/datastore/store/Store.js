@@ -46,7 +46,7 @@ var CANNOT_CREATE_EXISTING_RECORD_ERROR =
 
 var sk = 1;
 var generateStoreKey = function () {
-    return sk++;
+    return '' + ( sk++ );
 };
 
 var set = function ( status ) {
@@ -54,6 +54,14 @@ var set = function ( status ) {
         return this.setStatus(
             storeKey, this.getStatus( storeKey ) | status );
     };
+};
+
+var filter = function ( filter, storeKey ) {
+    return filter( this._skToData[ storeKey ] );
+};
+var sort = function ( sort, a, b ) {
+    var _skToData = this._skToData;
+    return sort( _skToData[ a ], _skToData[ b ] );
 };
 
 /**
@@ -493,7 +501,6 @@ var Store = NS.Class({
         this._created = {};
         this._destroyed = {};
         
-        this._recordSetWasModified();
         return this;
     },
      
@@ -531,6 +538,10 @@ var Store = NS.Class({
             record = this._skToRecord[ storeKey ];
         if ( previousStatus !== status ) {
             this._skToStatus[ storeKey ] = status;
+            // wasReady !== isReady
+            if ( ( previousStatus ^ status ) & READY ) {
+                this._recordDidChange( storeKey );
+            }
             if ( record ) {
                 record.propertyDidChange( 'status', previousStatus, status );
             }
@@ -713,8 +724,7 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     createRecord: function ( storeKey, data ) {
-        var status = this.getStatus( storeKey ),
-            Type = this._skToType[ storeKey ];
+        var status = this.getStatus( storeKey );
         
         if ( status !== EMPTY && status !== DESTROYED ) {
             NS.RunLoop.didError({
@@ -723,16 +733,15 @@ var Store = NS.Class({
             return null;
         }
         
-        this._skToData[ storeKey ] = data || {};
-        this._skToStatus[ storeKey ] = (READY|NEW);
-        
         this._created[ storeKey ] = 1;
+        this._skToData[ storeKey ] = data || {};
+        
+        this.setStatus( storeKey, READY|NEW );
         
         if ( this.autoCommit ) {
             this.commitChanges();
         }
-        this._recordSetWasModified( Type );
-        
+
         return this;
     },
 
@@ -777,7 +786,7 @@ var Store = NS.Class({
                 this.commitChanges();
             }
         }
-        return this._recordSetWasModified( this._skToType[ storeKey ] );
+        return this;
     },
     
     /**
@@ -833,16 +842,22 @@ var Store = NS.Class({
         Parameters:
             storeKey      - {String} The store key for the record.
             data          - {Object} The new data object for the record.
-            changeIsDirty - {Boolean} Should the change be committed back to the
-                            server?
         
         Returns:
-            {Boolean} Was the data actually written? Will be false if the
-            changeIsDirty flag is set but the current data is not yet loaded
-            into memory.
+            {O.Store} Returns self.
     */
-    setData: function ( storeKey, data, changeIsDirty ) {
-        return this.updateData( storeKey, data, changeIsDirty );
+    setData: function ( storeKey, data ) {
+        if ( this.getStatus( storeKey ) & EMPTY ) {
+            this._skToData[ storeKey ] = data;
+            var changedKeys = Object.keys( data );
+            this._notifyRecordOfChanges( storeKey, changedKeys );
+            this._nestedStores.forEach( function ( store ) {
+                store.parentDidSetData( storeKey, changedKeys );
+            });
+        } else {
+            this.updateData( storeKey, data, false );
+        }
+        return this;
     },
     
     /**
@@ -867,26 +882,24 @@ var Store = NS.Class({
             _skToData = this._skToData,
             _skToCommitted = this._skToCommitted,
             _skToChanged = this._skToChanged,
-            current = _skToData[ storeKey ] || ( _skToData[ storeKey ] = {} ),
+            current = _skToData[ storeKey ],
             changedKeys = [],
             seenChange = false,
             key, value, oldValue, committed, changed;
+        
+        if ( !( status & READY ) ) {
+            NS.RunLoop.didError({
+                name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR
+            });
+            return false;
+        }
         
         // Copy-on-write for nested stores.
         if ( this.isNested && !_skToData.hasOwnProperty( storeKey ) ) {
             _skToData[ storeKey ] = current = NS.clone( current );
         }
         
-        if ( status === (READY|NEW) ) {
-            changeIsDirty = false;
-        }
-        if ( changeIsDirty ) {
-            if ( !( status & READY ) ) {
-                NS.RunLoop.didError({
-                    name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR
-                });
-                return false;
-            }
+        if ( changeIsDirty && status !== READY|NEW ) {
             committed = _skToCommitted[ storeKey ] ||
                 ( _skToCommitted[ storeKey ] = NS.clone( current ) );
             changed = _skToChanged[ storeKey ] ||
@@ -940,7 +953,10 @@ var Store = NS.Class({
         }
         
         this._notifyRecordOfChanges( storeKey, changedKeys );
-        this._recordSetWasModified( this._skToType[ storeKey ] );
+        this._nestedStores.forEach( function ( store ) {
+            store.parentDidUpdateData( storeKey, changedKeys );
+        });
+        this._recordDidChange( storeKey );
         return true;
     },
 
@@ -1002,9 +1018,6 @@ var Store = NS.Class({
             }
             record.endPropertyChanges();
         }
-        this._nestedStores.forEach( function ( store ) {
-            store.parentDidChangeData( storeKey, changedKeys );
-        });
         return this;
     },
     
@@ -1205,10 +1218,11 @@ var Store = NS.Class({
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
             }
-            this.updateData( storeKey, update );
+            
+            this.updateData( storeKey, update, false );
             this.setStatus( storeKey, READY );
         }
-        return this._recordSetWasModified( Type );
+        return this;
     },
     
     /**
@@ -1247,7 +1261,7 @@ var Store = NS.Class({
                 this.unloadRecord( storeKey );
             }
         }
-        return this._recordSetWasModified( Type );
+        return this;
     },
     
     /**
@@ -1282,7 +1296,7 @@ var Store = NS.Class({
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
         }
-        return this._recordSetWasModified( Type );
+        return this;
     },
     
     // ---
@@ -1542,7 +1556,6 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            _skToType = this._skToType,
             storeKey, status;
         while ( l-- ) {
             storeKey = storeKeys[l];
@@ -1551,7 +1564,6 @@ var Store = NS.Class({
             if ( status & NEW ) {
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
-                this._recordSetWasModified( _skToType[ storeKey ] );
             // Newly destroyed or updated -> revert to ready + obsolete
             } else {
                 this.setData( storeKey, _skToRollback[ storeKey ] );
@@ -1567,7 +1579,59 @@ var Store = NS.Class({
     // === Queries =============================================================
     
     /**
-        Method: O.Store#getAllLoadedRecords
+        Method: O.Store#find
+        
+        Returns the list of store keys for a particular type, optionally
+        filtered and/or sorted. The query object passed should contain:
+        
+        type   - {O.Class} The constructor for the record type being queried.
+        filter - {Function} (optional) An acceptance function. This will be
+                 passed the raw data object (*not* a record instance) and should
+                 return true if the record should be included, or false
+                 otherwise.
+        sort   - {Function} (optional) A comparator function. This will be
+                 passed the raw data objects (*not* record instances) for two
+                 records. It should return -1 if the first record should come
+                 before the second, 1 if the inverse is true, or 0 if they
+                 should have the same position.
+        
+        Parameters:
+            query - {Object} The type/filter/sort to use.
+        
+        Returns:
+            {Array.<String>} An array of store keys.
+    */
+    find: function ( query ) {
+        var _skToId = this._typeToSkToId[ query.type.className ] || {},
+            _skToStatus = this._skToStatus,
+            acceptor = query.filter,
+            comparator = query.sort,
+            results = [],
+            storeKey, filterFn, sortFn;
+        
+        for ( storeKey in _skToId ) {
+            if ( _skToStatus[ storeKey ] & READY ) {
+                results.push( storeKey );
+            }
+        }
+        
+        if ( acceptor ) {
+            filterFn = filter.bind( this, acceptor );
+            results = results.filter( filterFn );
+            results.filterFn = filterFn;
+        }
+        
+        if ( comparator ) {
+            sortFn = sort.bind( this, comparator );
+            results.sort( sortFn );
+            results.sortFn = sortFn;
+        }
+        
+        return results;
+    },
+    
+    /**
+        Method (deprecated): O.Store#getAllLoadedRecords
         
         Materialises and returns an array of record objects for all records of a
         particular type currently loaded in memory.
@@ -1580,17 +1644,9 @@ var Store = NS.Class({
             type.
     */
     getAllLoadedRecords: function ( Type ) {
-        var records = [],
-            _skToId = this._typeToSkToId[ Type.className ] || {},
-            _skToStatus = this._skToStatus,
-            storeKey;
-
-        for ( storeKey in _skToId ) {
-            if ( _skToStatus[ storeKey ] & READY ) {
-                records.push( this.materialiseRecord( storeKey, Type ) );
-            }
-        }
-        return records;
+        return this.find({ type: Type }).map( function ( storeKey ) {
+            return this.materialiseRecord( storeKey, Type );
+        }.bind( this ) );
     },
     
     /**
@@ -1601,7 +1657,7 @@ var Store = NS.Class({
         manually.
         
         Parameters:
-            query - {(O.LocalQuery|O.RemoteQuery)}
+            query - {(O.LiveQuery|O.RemoteQuery)}
                     The query object.
         
         Returns:
@@ -1610,7 +1666,7 @@ var Store = NS.Class({
     addQuery: function ( query ) {
         var source = this._source;
         this._idToQuery[ query.get( 'id' ) ] = query;
-        if ( query instanceof NS.LocalQuery ) {
+        if ( query instanceof NS.LiveQuery ) {
             var Type = query.get( 'type' ),
                 type = Type.className;
             // Fetch the data for it.
@@ -1632,7 +1688,7 @@ var Store = NS.Class({
         manually.
         
         Parameters:
-            query - {(O.LocalQuery|O.RemoteQuery)}
+            query - {(O.LiveQuery|O.RemoteQuery)}
                     The query object.
         
         Returns:
@@ -1640,8 +1696,15 @@ var Store = NS.Class({
     */
     removeQuery: function ( query ) {
         delete this._idToQuery[ query.get( 'id' ) ];
-        if ( query instanceof NS.LocalQuery ) {
-            this._liveQueries[ query.get( 'type' ).className ].erase( query );
+        if ( query instanceof NS.LiveQuery ) {
+            var _liveQueries = this._liveQueries,
+                typeName = query.get( 'type' ).className,
+                typeQueries = _liveQueries[ typeName ];
+            if ( typeQueries.length > 1 ) {
+                typeQueries.erase( query );
+            } else {
+                delete _liveQueries[ typeName ];
+            }
         } else if ( query instanceof NS.RemoteQuery ) {
             this._remoteQueries.erase( query );
         }
@@ -1659,7 +1722,7 @@ var Store = NS.Class({
                          constructor.
         
         Returns:
-            {(O.LocalQuery|O.RemoteQuery)} The requested query.
+            {(O.LiveQuery|O.RemoteQuery)} The requested query.
     */
     getQuery: function ( id, QueryClass, query ) {
         return ( id && this._idToQuery[ id ] ) ||
@@ -1684,6 +1747,27 @@ var Store = NS.Class({
     },
     
     /**
+        Method (protected): O.Store#_recordDidChange
+        
+        Registers a record has changed in a way that might affect any live 
+        queries on that type.
+        
+        Parameters:
+            storeKey - {String} The store key of the record.
+    */
+    _recordDidChange: function ( storeKey ) {
+        var typeName = this._skToType[ storeKey ].className,
+            _recordChanges;
+        if ( this._liveQueries[ typeName ] ) {
+            _recordChanges = this._recordChanges ||
+                ( this._recordChanges = {} );
+            ( _recordChanges[ typeName ] ||
+                ( _recordChanges[ typeName ] = [] ) ).include( storeKey );
+        }
+        NS.RunLoop.queueFn( 'before', this.refreshLiveQueries, this );
+    },
+    
+    /**
         Method: O.Store#refreshLiveQueries
         
         Refreshes the contents of all registered instances of <O.LiveQuery>
@@ -1694,52 +1778,22 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     refreshLiveQueries: function () {
-        var dirty = this._queryTypesNeedRefresh,
-            queries = this._liveQueries,
-            l = dirty.length,
-            live, k;
+        var _recordChanges = this._recordChanges,
+            _liveQueries = this._liveQueries,
+            typeName, typeChanges, typeQueries,
+            l;
         
-        while ( l-- ) {
-            live = queries[ dirty[l] ];
-            if ( live ) {
-                k = live.length;
-                while ( k-- ) {
-                    live[k].refresh();
-                }
+        for ( typeName in _recordChanges ) {
+            typeChanges = _recordChanges[ typeName ];
+            typeQueries = _liveQueries[ typeName ];
+            l = typeQueries.length;
+            
+            while ( l-- ) {
+                typeQueries[l].storeDidChangeRecords( typeChanges );
             }
         }
-        // And reset the set of dirty types
-        dirty.length = 0;
-        return this;
-    },
-    
-    /**
-        Method: O.Store#_recordSetWasModified
         
-        Called whenever the set of loaded records changes for a particular type,
-        so the store can schedule an update to any local queries.
-        
-        Parameters:
-            Type - {O.Class} The record type for which the loaded data has
-                   changed.
-        
-        Returns:
-            {O.Store} Returns self.
-    */
-    _recordSetWasModified: function ( Type ) {
-        var _queryTypesNeedRefresh = this._queryTypesNeedRefresh,
-            typeName;
-        if ( Type ) {
-            _queryTypesNeedRefresh.include( Type.className );
-        } else {
-            for ( typeName in this._liveQueries ) {
-                _queryTypesNeedRefresh.include( typeName );
-            }
-        }
-        this._nestedStores.forEach( function ( store ) {
-            store._recordSetWasModified( Type );
-        });
-        NS.RunLoop.queueFn( 'before', this.refreshLiveQueries, this );
+        this._recordChanges = null;
         return this;
     }
 });

@@ -15,6 +15,7 @@
 // Same as O.Status, inlined here for efficiency:
 // Core states:
 var EMPTY      =   1;
+var READY      =   2;
 var DESTROYED  =   4;
 // Properties
 var LOADING    =  16; // Request made to source to fetch record or updates.
@@ -114,7 +115,6 @@ var NestedStore = NS.Class({
         var _created = this._created,
             _destroyed = this._destroyed,
             _skToData = this._skToData,
-            _skToType = this._skToType,
             _skToChanged = this._skToChanged,
             parent = this._parentStore,
             storeKey;
@@ -219,6 +219,10 @@ var NestedStore = NS.Class({
         }
         
         if ( previous !== status ) {
+            // wasReady !== isReady
+            if ( ( previous ^ status ) & READY ) {
+                this._recordDidChange( storeKey );
+            }
             var record = this._skToRecord[ storeKey ];
             if ( record ) {
                 record.propertyDidChange( 'status', previous, status );
@@ -230,7 +234,26 @@ var NestedStore = NS.Class({
     },
     
     /**
-        Method: O.NestedStore#parentDidChangeData
+        Method: O.NestedStore#parentDidSetData
+        
+        Called by the parent store when it sets the inital data for an empty
+        record. The nested store can't have any changes as a nested store cannot
+        load data independently of its parent, so all we need to do is notify
+        any records.
+        
+        Parameters:
+            storeKey    - {String} The store key for the record.
+            changedKeys - {Object} A list of keys which have changed.
+    */
+    parentDidSetData: function ( storeKey, changedKeys ) {
+        this._notifyRecordOfChanges( storeKey, changedKeys );
+        this._nestedStores.forEach( function ( store ) {
+            store.parentDidSetData( storeKey, changedKeys );
+        });
+    },
+    
+    /**
+        Method: O.NestedStore#parentDidUpdateData
         
         Called by the parent store whenever it makes a change to the data object
         for a record. The nested store uses this to update its own copy of the
@@ -242,7 +265,7 @@ var NestedStore = NS.Class({
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
     */
-    parentDidChangeData: function ( storeKey, changedKeys ) {
+    parentDidUpdateData: function ( storeKey, changedKeys ) {
         if ( this._skToData.hasOwnProperty( storeKey ) ) {
             var _skToData = this._skToData,
                 _skToChanged = this._skToChanged,
@@ -258,7 +281,7 @@ var NestedStore = NS.Class({
                 key;
 
             changedKeys = [];
-            
+
             for ( key in oldData ) {
                 if ( rebase && ( key in oldChanged ) ) {
                     if ( oldData[ key ] !== newBase[ key ] ) {
@@ -287,6 +310,10 @@ var NestedStore = NS.Class({
             delete this._skToStatus[ storeKey ];
         }
         this._notifyRecordOfChanges( storeKey, changedKeys );
+        this._nestedStores.forEach( function ( store ) {
+            store.parentDidUpdateData( storeKey, changedKeys );
+        });
+        this._recordDidChange( storeKey );
     },
     
     // === A nested store is not directly connected to a source ================
