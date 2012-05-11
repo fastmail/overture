@@ -108,11 +108,16 @@ var ObservableArray = NS.Class({
         The length of the array.
     */
     length: function ( value ) {
-        if ( typeof value === 'number' ) {
+        var length = this._length;
+        if ( typeof value === 'number' && value !== length ) {
             this._array.length = value;
             this._length = value;
+            if ( value < length ) {
+                this.rangeDidChange( value, length );
+            }
+            length = value;
         }
-        return this._length;
+        return length;
     }.property().nocache(),
     
     /**
