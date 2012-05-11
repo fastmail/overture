@@ -100,25 +100,11 @@ var RemotePagedQuery = NS.Class({
         return this;
     }.observes( 'search', 'sort', 'filter' ),
     
-    /**
-        Method: O.RemotePagedQuery#getObjectAt
-        
-        Returns the record at the index given in the array, if loaded. If the
-        index is in triggerPoint range of the end of the query, it will
-        automatically try to load the next window.
-        
-        Parameters:
-            index - {Number} The index to return the record at.
-        
-        Returns:
-            {(O.Record|null|undefined)} If the requested index is negative or
-            past the end of the array, undefined will be returned. Otherwise the
-            record will be returned, or null if the id is not yet loaded.
-    */
     fetchDataForObjectAt: function ( index ) {
         if ( index >= this.get( 'length' ) - this.triggerPoint ) {
             this.fetchNextWindow();
         }
+        return true;
     },
     
     /**

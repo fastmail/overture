@@ -260,12 +260,13 @@ var RemoteQuery = NS.Class({
         }
         
         if ( !doNotFetch ) {
-            this.fetchDataForObjectAt( index );
+            doNotFetch = this.fetchDataForObjectAt( index );
         }
 
         var id = this._list[ index ];
         return id ?
-            this.get( 'store' ).getRecord( this.get( 'type' ), id ) :
+            this.get( 'store' )
+                .getRecord( this.get( 'type' ), id, doNotFetch ) :
             null;
     },
 
@@ -279,8 +280,15 @@ var RemoteQuery = NS.Class({
 
         Parameters:
             index - {Number} The index of the record being requested.
+        
+        Returns:
+            {Boolean} Has the data for the object been fetched? If true, the
+            store will be explicitly told not to fetch the data, as the fetching
+            is being handled by the query.
     */
-    fetchDataForObjectAt: function ( index ) {},
+    fetchDataForObjectAt: function ( index ) {
+        return false;
+    },
 
     /**
         Property: O.RemoteQuery#length

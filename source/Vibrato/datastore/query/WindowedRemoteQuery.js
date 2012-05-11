@@ -392,6 +392,7 @@ var WindowedRemoteQuery = NS.Class({
         if ( withinWindowIndex + trigger >= windowSize ) {
             this.fetchWindow( windowIndex + 1, true );
         }
+        return true;
     },
     
     /**
