@@ -11,6 +11,9 @@
 "use strict";
 
 ( function ( NS, undefined ) {
+
+var splice = Array.prototype.splice;
+var slice = Array.prototype.slice;
     
 /**
     Class: O.ObservableArray
@@ -161,14 +164,16 @@ var ObservableArray = NS.Class({
         var oldLength = this._length,
             array = this._array,
             removed, newLength, i, l;
-        if ( !newItems ) { newItems = []; }
+        
+        newItems = newItems ? slice.apply( newItems ) : [];
+        
         if ( oldLength <= index ) {
             for ( i = 0, l = newItems.length; i < l; i += 1 ) {
                 array[ index + i ] = newItems[i];
             }
         } else {
             newItems.unshift( index, numberRemoved );
-            removed = array.splice.apply( array, newItems );
+            removed = splice.apply( array, newItems );
         }
         newLength = array.length;
         if ( oldLength !== newLength ) {
@@ -276,4 +281,4 @@ var ObservableArray = NS.Class({
 
 NS.ObservableArray = ObservableArray;
 
-}( O ));
+}( O ) );
