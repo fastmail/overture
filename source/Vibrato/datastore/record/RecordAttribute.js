@@ -143,7 +143,7 @@ var RecordAttribute = NS.Class({
             }
         }
         else if ( this.type && !instanceOf( propValue, this.type ) ) {
-            throw "Incorrect value type for record attribute";
+            throw new Error( "Incorrect value type for record attribute" );
         }
         return true;
     },

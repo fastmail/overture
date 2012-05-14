@@ -272,7 +272,7 @@ var IO = NS.Class({
                     this.abort( this._recent );
                     break;
                 default:
-                    throw "Invalid O.IO link type.";
+                    throw new Error( "Invalid O.IO link type." );
             }
         }
         
