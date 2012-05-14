@@ -84,6 +84,9 @@ var NestedStore = NS.Class({
         // List of nested stores
         this._nestedStores = [];
         
+        // Waiting for an id
+        this._awaitingId = {};
+        
         store.addNested( this );
         
         this._source = store._source;

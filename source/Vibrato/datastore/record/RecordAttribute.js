@@ -136,7 +136,7 @@ var RecordAttribute = NS.Class({
         Returns:
             {Boolean} May the value be set?
     */
-    willSet: function ( propValue, propKey ) {
+    willSet: function ( propValue, propKey, record ) {
         if ( propValue === null ) {
             if ( !this.isNullable ) {
                 return false;
@@ -212,20 +212,18 @@ var RecordAttribute = NS.Class({
     */
     call: function ( record, propValue, propKey ) {
         var store = record.get( 'store' ),
-            storeKey = store ? record.get( 'storeKey' ) : '',
-            data = store ?
-                store.getData( storeKey ) :
-                record._data || ( record._data = {} ),
+            storeKey = record.get( 'storeKey' ),
+            data = storeKey ? store.getData( storeKey ) : record._data,
             attrKey, attrValue, currentAttrValue, update, type;
         if ( data ) {
             attrKey = this.key || propKey;
             currentAttrValue = data[ attrKey ];
             if ( propValue !== undefined &&
-                    this.willSet( propValue, propKey ) ) {
+                    this.willSet( propValue, propKey, record ) ) {
                 attrValue = propValue && propValue.toJSON ?
                     propValue.toJSON() : propValue;
                 if ( attrValue !== currentAttrValue ) {
-                    if ( store ) {
+                    if ( storeKey ) {
                         update = {};
                         update[ attrKey ] = attrValue;
                         store.updateData( storeKey, update,

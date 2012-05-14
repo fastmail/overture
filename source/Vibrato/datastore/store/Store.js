@@ -147,8 +147,13 @@ var Store = NS.Class({
         // List of nested stores
         this._nestedStores = [];
         
+        // Waiting for an id
+        this._awaitingId = {};
+        
         this._source = source;
     },
+    
+    // === Nested Stores =======================================================
     
     /**
         Method: O.Store#addNested
@@ -186,16 +191,19 @@ var Store = NS.Class({
         return this;
     },
     
+    // === Get/set Ids =========================================================
+    
     /**
         Method: O.Store#getStoreKey
         
         Returns the store key for a particular record type and record id. This
         is guaranteed to be the same for that tuple until the record is unloaded
-        from the store.
+        from the store. If no id is supplied, a new store key is always
+        returned.
         
         Parameters:
             Type - {O.Class} The constructor for the record type.
-            id   - {String} The id of the record.
+            id   - {String} (optional) The id of the record.
         
         Returns:
             {String} Returns the store key for that record type and id.
@@ -267,9 +275,105 @@ var Store = NS.Class({
             
             update[ primaryKey ] = id;
             this.updateData( storeKey, update, false );
+            this.updateDataLinkedToId( storeKey, id );
         }
         
         return this;
+    },
+    
+    /**
+        Method: O.Store#attrMapsToStoreKey
+        
+        Called by a record when it sets a relationship to a record which does
+        not yet have an id. When the id is set by the source, the store will
+        then automatically update the data object with the id.
+        
+        Parameters:
+            toStoreKey   - {String} The store key of the record without an id.
+            fromStoreKey - {String} The store key of the record with the
+                           relationship to the record in the first parameter.
+            attrKey      - {String} The key for the attribute in which the
+                           relationship is stored.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    attrMapsToStoreKey: function ( toStoreKey, fromStoreKey, attrKey ) {
+        ( this._awaitingId[ toStoreKey ] ||
+            ( this._awaitingId[ toStoreKey ] = [] )
+        ).push([ fromStoreKey, attrKey ]);
+        return this;
+    },
+    
+    /**
+        Method: O.Store#attrNoLongerMapsToStoreKey
+        
+        Called by a record when it removes a relationship to a record which does
+        not yet have an id.
+        
+        Parameters:
+            toStoreKey   - {String} The store key of the record without an id.
+            fromStoreKey - {String} The store key of the record which had the
+                           relationship to the record in the first parameter.
+            attrKey      - {String} The key for the attribute in which the
+                           relationship was stored.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    attrNoLongerMapsToStoreKey: function ( toStoreKey, fromStoreKey, attrKey ) {
+        var waiting = this._awaitingId[ toStoreKey ],
+            l = waiting ? waiting.length: 0,
+            pair;
+        
+        while ( l-- ) {
+            pair = waiting[l];
+            if ( pair[0] === fromStoreKey && pair[1] === attrKey ) {
+                waiting.splice( l, 1 );
+                break;
+            }
+        }
+    },
+    
+    /**
+        Method: O.Store#updateDataLinkedToId
+        
+        Updates the data objects which have a relationship to a record which now
+        has an id, replacing the store key with the actual id.
+        
+        Parameters:
+            storeKey - {String} The store key of the record.
+            id       - {String} The new id for the record.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    updateDataLinkedToId: function ( storeKey, id ) {
+        var waiting = this._awaitingId[ storeKey ],
+            _skToData = this._skToData,
+            l, storeKeyId, pair, data, value, attrKey, index;
+        if ( waiting ) {
+            delete this._awaitingId[ storeKey ];
+            l = waiting.length;
+            storeKeyId = '#' + storeKey;
+            while ( l-- ) {
+                pair = waiting[l];
+                attrKey = pair[1];
+                data = _skToData[ pair[0] ];
+                value = data[ attrKey ];
+                if ( value instanceof Array ) {
+                    index = value.indexOf( storeKeyId );
+                    if ( index > -1 ) {
+                        value[ index ] = id;
+                    }
+                } else if ( value === storeKeyId ) {
+                    data[ attrKey ] = id;
+                }
+            }
+        }
+        this._nestedStores.forEach( function ( store ) {
+            store.updateDataLinkedToId( storeKey, id );
+        });
     },
     
     // === Client API ==========================================================
@@ -289,46 +393,6 @@ var Store = NS.Class({
     getRecordStatus: function ( Type, id ) {
         var _idToSk = this._typeToIdToSk[ Type.className ];
         return _idToSk ? this.getStatus( _idToSk[ id ] ) : EMPTY;
-    },
-    
-    /**
-        Method: O.Store#newRecord
-        
-        Creates a new record of the given type and marks it to be committed next
-        time <O.Store#commitChanges> is called. `data` can be a plain JSON
-        object or a record instance not associated with a store.
-        
-        Parameters:
-            Type - {O.Class} The record type.
-            data - {Object|O.Record} The initial data for the record.
-        
-        Returns:
-            {O.Record} The new record instance of the type given.
-    */
-    newRecord: function ( Type, data ) {
-        var record, storeKey, attrs, attrKey, propKey, defaultValue;
-        if ( data instanceof Type ) {
-            record = data;
-            data = record._data;
-            delete record._data;
-            // Fill in any missing defaults
-            attrs = NS.meta( record, true ).attrs;
-            for ( attrKey in attrs ) {
-                propKey = attrs[ attrKey ];
-                if ( propKey && !( attrKey in data ) ) {
-                    defaultValue = record[ propKey ].defaultValue;
-                    if ( defaultValue !== undefined ) {
-                        data[ attrKey ] = defaultValue && defaultValue.toJSON ?
-                            defaultValue.toJSON() : defaultValue;
-                    }
-                }
-            }
-        }
-        storeKey = this.getStoreKey( Type, data[ Type.primaryKey ] );
-        this.createRecord( storeKey, data );
-        return record ?
-            record.set( 'store', this ).set( 'storeKey', storeKey ) :
-            this.materialiseRecord( storeKey, Type );
     },
     
     /**
@@ -603,6 +667,23 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     setObsolete: set( OBSOLETE ),
+    
+    /**
+        Method: O.Store#setRecordForStoreKey
+        
+        Sets the record instance for a store key.
+        
+        Parameters:
+            storeKey - {String} The store key of the record.
+            record   - {O.Record} The record.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    setRecordForStoreKey: function ( storeKey, record ) {
+        this._skToRecord[ storeKey ] = record;
+        return this;
+    },
     
     /**
         Method: O.Store#materialiseRecord
@@ -1749,7 +1830,7 @@ var Store = NS.Class({
     /**
         Method (protected): O.Store#_recordDidChange
         
-        Registers a record has changed in a way that might affect any live 
+        Registers a record has changed in a way that might affect any live
         queries on that type.
         
         Parameters:

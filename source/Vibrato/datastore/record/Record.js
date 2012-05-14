@@ -175,7 +175,10 @@ var Record = NS.Class({
         
         Parameters:
             store    - {Store} The store to link to this record.
-            storeKey - {String} The unique id for this record in the store.
+            storeKey - {String} (optional) The unique id for this record in the
+                       store. If ommitted, a new record will be created, which
+                       can then be committed to the store using the
+                       <O.Record#saveToStore> method.
     */
     init: function ( store, storeKey ) {
         // Need to make sure special 'id' property triggers observers whenever
@@ -184,6 +187,9 @@ var Record = NS.Class({
         if ( !Type.isInited ) {
             initType( Type );
         }
+        if ( !storeKey ) {
+            this._data = {};
+        }
         this.store = store;
         this.storeKey = storeKey;
         Record.parent.init.call( this );
@@ -191,7 +197,7 @@ var Record = NS.Class({
     
     /**
         Property: O.Record#store
-        Type: (O.Store|undefined)
+        Type: O.Store
         
         The store this record is associated with.
     */
@@ -217,9 +223,9 @@ var Record = NS.Class({
         defined in <O.Status>.
     */
     status: function () {
-        var store = this.get( 'store' );
-        return store ?
-            store.getStatus( this.get( 'storeKey' ) ) : NS.Status.READY;
+        var storeKey = this.get( 'storeKey' );
+        return storeKey ?
+            this.get( 'store' ).getStatus( storeKey ) : NS.Status.READY;
     }.property().nocache(),
     
     /**
@@ -249,8 +255,8 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     setObsolete: function () {
-        var store = this.get( 'store' );
-        if ( store ) { store.setObsolete( this.get( 'storeKey' ) ); }
+        var storeKey = this.get( 'storeKey' );
+        if ( storeKey ) { this.get( 'store' ).setObsolete( storeKey ); }
         return this;
     },
     
@@ -263,8 +269,8 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     setLoading: function () {
-        var store = this.get( 'store' );
-        if ( store ) { store.setLoading( this.get( 'storeKey' ) ); }
+        var storeKey = this.get( 'storeKey' );
+        if ( storeKey ) { this.get( 'store' ).setLoading( storeKey ); }
         return this;
     },
     
@@ -277,31 +283,64 @@ var Record = NS.Class({
         'id', you must not override this property.
     */
     id: function () {
-        var store = this.get( 'store' );
-        return store ?
-            store.getIdFromStoreKey( this.get( 'storeKey' ) ) :
+        var storeKey = this.get( 'storeKey' );
+        return storeKey ?
+            this.get( 'store' ).getIdFromStoreKey( storeKey ) :
             this.get( this.constructor.primaryKey );
     }.property(),
+    
+    toJSON: function () {
+        return this.get( 'id' ) || '#' + this.get( 'storeKey' );
+    },
 
     /**
         Method: O.Record#saveToStore
         
-        Adds the record to the given store. Will then be committed back by the
-        store according to the store's policy. Note, only a record not currently
-        attached to a store can do this; an error will be thrown if this method
-        is called for a record already in a store.
-        
-        Parameters:
-            store - {O.Store} The store to put the record in.
+        Saves the record to the store. Will then be committed back by the store
+        according to the store's policy. Note, only a record not currently
+        created in its store can do this; an error will be thrown if this method
+        is called for a record already created in the store.
         
         Returns:
             {O.Record} Returns self.
     */
-    saveToStore: function ( store ) {
-        if ( this.get( 'store' ) ) {
-            throw new Error( "Record already belongs to a store." );
+    saveToStore: function () {
+        if ( this.get( 'storeKey' ) ) {
+            throw new Error( "Record already created in store." );
         }
-        return store.newRecord( this.constructor, this );
+        var Type = this.constructor,
+            data = this._data,
+            store = this.get( 'store' ),
+            storeKey = store.getStoreKey( Type, data[ Type.primaryKey ] ),
+            attrs = NS.meta( this, true ).attrs,
+            attrKey, propKey, attribute, defaultValue;
+        
+        delete this._data;
+        
+        // Fill in any missing defaults
+        for ( attrKey in attrs ) {
+            propKey = attrs[ attrKey ];
+            if ( propKey ) {
+                attribute = this[ propKey ];
+                if ( !( attrKey in data ) ) {
+                    defaultValue = attribute.defaultValue;
+                    if ( defaultValue !== undefined ) {
+                        data[ attrKey ] = defaultValue && defaultValue.toJSON ?
+                            defaultValue.toJSON() : defaultValue;
+                    }
+                }
+                if ( attribute.willCreateInStore ) {
+                    attribute.willCreateInStore( this, propKey, storeKey );
+                }
+            }
+        }
+        
+        // Save to store
+        store.createRecord( storeKey, data )
+             .setRecordForStoreKey( storeKey, this );
+             
+        // And save store reference on record instance.
+        return this.set( 'storeKey', storeKey );
     },
     
     /**
@@ -318,9 +357,9 @@ var Record = NS.Class({
         if ( this.get( 'status' ) === (Status.READY|Status.NEW) ) {
             this.destroy();
         } else {
-            var store = this.get( 'store' );
-            if ( store ) {
-                store.revertData( this.get( 'storeKey' ) );
+            var storeKey = this.get( 'storeKey' );
+            if ( storeKey ) {
+                this.get( 'store' ).revertData( storeKey );
             }
         }
         return this;
@@ -336,8 +375,8 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     refresh: function () {
-        var store = this.get( 'store' );
-        if ( store ) { store.fetchData( this.get( 'storeKey' ) ); }
+        var storeKey = this.get( 'storeKey' );
+        if ( storeKey ) { this.get( 'store' ).fetchData( storeKey ); }
         return this;
     },
     
@@ -348,8 +387,8 @@ var Record = NS.Class({
         the source.
     */
     destroy: function () {
-        var store = this.get( 'store' );
-        if ( store ) { store.destroyRecord( this.get( 'storeKey' ) ); }
+        var storeKey = this.get( 'storeKey' );
+        if ( storeKey ) { this.get( 'store' ).destroyRecord( storeKey ); }
     },
     
     /**
