@@ -283,14 +283,24 @@ NS.ObservableProps = {
     /**
         Method: O.ObservableProps#hasObservers
         
-        Returns true if any property on the object is currently being observed.
+        Returns true if any property on the object is currently being observed
+        by another object.
         
         Returns:
             {Boolean} Does the object have any observers?
     */
     hasObservers: function () {
-        for ( var key in meta( this, true ).observers ) {
-            return true;
+        var observers = meta( this, true ).observers,
+            key, keyObservers, l, object;
+        for ( key in observers ) {
+            keyObservers = observers[ key ];
+            l = keyObservers.length;
+            while ( l-- ) {
+                object = keyObservers[l].object;
+                if ( object && object !== this ) {
+                    return true;
+                }
+            }
         }
         return false;
     },
