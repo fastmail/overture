@@ -86,7 +86,7 @@ var ObservableArray = NS.Class({
                 this.rangeDidChange( start, end );
             }
         }
-        return this._array;
+        return this._array.slice();
     }.property(),
     
     /**

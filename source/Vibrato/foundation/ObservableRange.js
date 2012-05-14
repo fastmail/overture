@@ -65,7 +65,7 @@ NS.ObservableRange = {
                 observer.object[ observer.method ]( this, start, end );
             }
         }
-        this.propertyDidChange( '[]' );
+        this.computedPropertyDidChange( '[]' );
         return this;
     },
     
