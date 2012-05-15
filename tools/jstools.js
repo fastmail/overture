@@ -19,7 +19,7 @@ var concatenate = function ( inputs, output, minify ) {
     inputs.forEach( function ( input ) {
         data += fs.readFileSync( input, 'utf8' );
     });
-    data = data.replace( /"use strict"[;,]\n?/g, function () {
+    data = data.replace( /^\s*"use strict"[;,]\n?/gm, function () {
         strict = true;
         return '';
     });

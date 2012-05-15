@@ -7,8 +7,7 @@ var less = require( 'less' );
 var csstools = require( './csstools.js' );
 
 var replaceFileNames = function ( names, input, output ) {
-    var map = {},
-        locales = {};
+    var map = {};
     names.forEach( function ( name ) {
         name = name.replace( /.*\//, '' );
         var hyphen = name.lastIndexOf( '-' );
@@ -40,7 +39,7 @@ var addModuleList = function ( variable, modules, input, output ) {
 };
 
 var stripStrict = function ( string ) {
-    return string.replace( /"use strict"[;,]\n?/g, '' );
+    return string.replace( /^\s*"use strict"[;,]\n?/m, '' );
 };
 
 Array.prototype.include = function ( item ) {
