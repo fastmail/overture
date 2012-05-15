@@ -351,23 +351,37 @@ var Store = NS.Class({
     updateDataLinkedToId: function ( storeKey, id ) {
         var waiting = this._awaitingId[ storeKey ],
             _skToData = this._skToData,
-            l, storeKeyId, pair, data, value, attrKey, index;
+            _skToCommitted = this._skToCommitted,
+            l, storeKeyId, pair, data, value, fromStoreKey, attrKey, index;
         if ( waiting ) {
             delete this._awaitingId[ storeKey ];
             l = waiting.length;
             storeKeyId = '#' + storeKey;
             while ( l-- ) {
                 pair = waiting[l];
+                fromStoreKey = pair[0];
                 attrKey = pair[1];
-                data = _skToData[ pair[0] ];
-                value = data[ attrKey ];
-                if ( value instanceof Array ) {
-                    index = value.indexOf( storeKeyId );
-                    if ( index > -1 ) {
-                        value[ index ] = id;
+                data = _skToData[ fromStoreKey ];
+                if ( data && ( value = data[ attrKey ] ) ) {
+                    if ( value instanceof Array ) {
+                        index = value.indexOf( storeKeyId );
+                        if ( index > -1 ) {
+                            value[ index ] = id;
+                        }
+                    } else if ( value === storeKeyId ) {
+                        data[ attrKey ] = id;
                     }
-                } else if ( value === storeKeyId ) {
-                    data[ attrKey ] = id;
+                }
+                data = _skToCommitted[ fromStoreKey ];
+                if ( data && ( value = data[ attrKey ] ) ) {
+                    if ( value instanceof Array ) {
+                        index = value.indexOf( storeKeyId );
+                        if ( index > -1 ) {
+                            value[ index ] = id;
+                        }
+                    } else if ( value === storeKeyId ) {
+                        data[ attrKey ] = id;
+                    }
                 }
             }
         }
