@@ -12,6 +12,8 @@
 
 ( function ( NS, undefined ) {
 
+var slice = Array.prototype.slice;
+
 /**
     Mixin: O.MutableEnumerable
     
@@ -35,7 +37,8 @@ NS.MutableEnumerable = {
             {Number} The new length of the array.
     */
     push: function () {
-        this.replaceObjectsAt( this.get( 'length' ), 0, arguments );
+        var newItems = slice.call( arguments );
+        this.replaceObjectsAt( this.get( 'length' ), 0, newItems );
         return this.get( 'length' );
     },
 
@@ -65,7 +68,8 @@ NS.MutableEnumerable = {
             {Number} The new length of the array.
     */
     unshift: function () {
-        this.replaceObjectsAt( 0, 0, arguments );
+        var newItems = slice.call( arguments );
+        this.replaceObjectsAt( 0, 0, newItems );
         return this.get( 'length' );
     },
 
@@ -98,7 +102,7 @@ NS.MutableEnumerable = {
             {Array} The items removed from the array.
     */
     splice: function ( index, numberRemoved ) {
-        var newItems = Array.prototype.slice.apply( arguments, 2 );
+        var newItems = slice.call( arguments, 2 );
         return this.replaceObjectsAt( index, numberRemoved, newItems );
     }
 };
