@@ -292,13 +292,18 @@ NS.require = function ( modules, fn, bind ) {
 
 }( this.O || ( this.O = {} ), XMLHttpRequest ) );
 
-O.execute = ( function () {
+O.execute = ( function ( global ) {
     var isGlobal = function ( original, Object ) {
         try {
-            // Does `Object` resolve to a local variable, or to a global,
-            // built-in `Object`, reference to which we passed as a first
-            // argument?
-            return ( 1, eval )( 'Object' ) === original;
+            // Indirect eval is our preferred method for execution in the global
+            // scope. But we need to check it works correctly in the current
+            // engine:
+            // 1. Does `Object` resolve to a local variable, or to the global,
+            //    built-in `Object` reference?
+            // 2. Is the this parameter bound correctly to the global object 
+            //    when the eval code is strict (Opera bug)?
+            return ( ( 1, eval )( 'Object' ) === original ) &&
+                ( ( 1, eval )( '"use strict";this' ) === global );
         }
         catch ( e ) {
             // If indirect eval errors out (as allowed per ES3), then just bail
@@ -326,4 +331,4 @@ O.execute = ( function () {
             head.appendChild( script );
             head.removeChild( script );
         };
-}() );
+}( this ) );
