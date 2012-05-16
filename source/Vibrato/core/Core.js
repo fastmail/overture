@@ -397,11 +397,12 @@ NS.Class = function ( params ) {
 /**
     Function: O.sortByProperties
     
-    Creates a comparison function which takes two objects and
-    returns -1/0/1 to indicate whether the first object is before or after the
-    other. Comparison is made by considering each of the properties in the array
-    in turn on the two objects until the objects have non-equal values for a
-    property.
+    Creates a comparison function which takes two objects and returns -1/0/1 to
+    indicate whether the first object is before or after the other. Comparison
+    is made by considering each of the properties in the array in turn on the
+    two objects until the objects have non-equal values for a property. If the
+    property values are integer like strings, they will first be converted to
+    numbers for comparison. Other strings will be compared case-insensitively.
     
     Parameters:
         properties - {Array.<String>} The properties to sort the objects by, in
@@ -420,15 +421,21 @@ NS.sortByProperties = function ( properties ) {
     var l = properties.length;
     
     return function ( a, b ) {
-        var hasGet = !!a.get;
-        for ( var i = 0; i < l; i += 1 ) {
-            var prop = properties[i],
-                aVal = hasGet ? a.get( prop ) : a[ prop ],
-                bVal = hasGet ? b.get( prop ) : b[ prop ];
+        var hasGet = !!a.get,
+            i, prop, aVal, bVal;
+        for ( i = 0; i < l; i += 1 ) {
+            prop = properties[i];
+            aVal = hasGet ? a.get( prop ) : a[ prop ];
+            bVal = hasGet ? b.get( prop ) : b[ prop ];
             
-            if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
-                aVal = parseInt( aVal, 10 );
-                bVal = parseInt( bVal, 10 );
+            if ( typeof aVal === 'string' && typeof bVal === 'string' ) {
+                if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
+                    aVal = parseInt( aVal, 10 );
+                    bVal = parseInt( bVal, 10 );
+                } else {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
             }
             if ( aVal < bVal ) {
                 return -1;
