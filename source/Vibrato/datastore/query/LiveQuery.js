@@ -39,6 +39,10 @@ var findPositionFor = function ( array, comparator, item ) {
     return lower;
 };
 
+var numerically = function ( a, b ) {
+    return a - b;
+};
+
 /**
     Class: O.LiveQuery
     
@@ -272,7 +276,7 @@ var LiveQuery = NS.Class({
         addedLength = added.length;
         
         if ( removedLength ) {
-            removedIndexes.sort();
+            removedIndexes.sort( numerically );
             l = removedLength;
             removed = new Array( removedLength );
             while ( l-- ) {
@@ -291,7 +295,7 @@ var LiveQuery = NS.Class({
                 addedIndexes = added.map(
                     findPositionFor.bind( null, storeKeys, sort )
                 );
-                addedIndexes.sort();
+                addedIndexes.sort( numerically );
                 added = addedIndexes.map( function ( index ) {
                     return storeKeys[ index ];
                 });
