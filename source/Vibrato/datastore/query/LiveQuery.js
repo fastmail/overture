@@ -291,6 +291,10 @@ var LiveQuery = NS.Class({
                 addedIndexes = added.map(
                     findPositionFor.bind( null, storeKeys, sort )
                 );
+                addedIndexes.sort();
+                added = addedIndexes.map( function ( index ) {
+                    return storeKeys[ index ];
+                });
             } else {
                 addedIndexes = added.map( function ( _, i ) {
                     return oldLength + i;
