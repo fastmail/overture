@@ -229,7 +229,7 @@ var LiveQuery = NS.Class({
             sort = this._sort,
             storeKeys = this._storeKeys,
             added = [], addedIndexes,
-            removed = [], removedIndexes = [],
+            removed, removedIndexes = [],
             oldLength = this.get( 'length' ),
             store = this.get( 'store' ),
             storeKeyToId = function ( storeKey ) {
@@ -245,7 +245,7 @@ var LiveQuery = NS.Class({
             shouldBeInQuery = ( store.getStatus( storeKey ) & READY ) &&
                 ( !filter || filter( storeKey ) );
             // If in query
-            if ( index > - 1 ) {
+            if ( index > -1 ) {
                 // And should be in query
                 if ( shouldBeInQuery ) {
                     // If there's a sort
@@ -271,34 +271,50 @@ var LiveQuery = NS.Class({
         removedLength = removedIndexes.length;
         addedLength = added.length;
         
-        if ( addedLength || removedLength ) {
-            if ( removedLength ) {
-                removedIndexes.sort();
-                l = removedLength;
-                while ( l-- ) {
-                    index = removedIndexes[l];
-                    removed[l] = storeKeys[ index ];
-                    storeKeys.splice( index, 1 );
-                }
+        if ( removedLength ) {
+            removedIndexes.sort();
+            l = removedLength;
+            removed = new Array( removedLength );
+            while ( l-- ) {
+                index = removedIndexes[l];
+                removed[l] = storeKeys[ index ];
+                storeKeys.splice( index, 1 );
             }
-            
-            if ( addedLength ) {
-                storeKeys.push.apply( storeKeys, added );
-                if ( sort ) {
-                    storeKeys.sort( sort );
-                    addedIndexes = added.map(
-                        findPositionFor.bind( null, storeKeys, sort )
-                    );
-                } else {
-                    addedIndexes = added.map( function ( _, i ) {
-                        return oldLength + i;
-                    });
-                }
-            } else {
-                addedIndexes = [];
-            }
+        } else {
+            removed = [];
+        }
         
-            length = oldLength + added.length - removed.length;
+        if ( addedLength ) {
+            storeKeys.push.apply( storeKeys, added );
+            if ( sort ) {
+                storeKeys.sort( sort );
+                addedIndexes = added.map(
+                    findPositionFor.bind( null, storeKeys, sort )
+                );
+            } else {
+                addedIndexes = added.map( function ( _, i ) {
+                    return oldLength + i;
+                });
+            }
+        } else {
+            addedIndexes = [];
+        }
+        
+        l = Math.min( addedLength, removedLength );
+        while ( l-- ) {
+            if ( added[l] === removed[l] &&
+                    addedIndexes[l] === removedIndexes[l] ) {
+                added.splice( l, 1 );
+                addedIndexes.splice( l, 1 );
+                removed.splice( l, 1 );
+                removedIndexes.splice( l, 1 );
+                addedLength -= 1;
+                removedLength -= 1;
+            }
+        }
+        
+        if ( addedLength || removedLength ) {
+            length = oldLength + addedLength - removedLength;
             maxLength = Math.max( length, oldLength );
             
             this.beginPropertyChanges()
