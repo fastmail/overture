@@ -22,7 +22,7 @@ var AutoCompleteSource = NS.Class({
         return new RegExp( '\b' + value, 'i' );
     },
     renderSuggestion: function ( suggestion, searchTerm ) {
-        return suggestion;
+        return suggestion.escapeHTML();
     },
     acceptSuggestion: function ( suggestion, current ) {
         return suggestion;
@@ -53,13 +53,13 @@ var AutoCompleteView = NS.Class({
     },
     
     didCreateLayer: function ( layer ) {
-	    AutoCompleteView.parent.didCreateLayer.call( this, layer );
-	    layer.addEventListener( 'mouseover', this, false );
-	    layer.addEventListener( 'mouseout', this, false );
+        AutoCompleteView.parent.didCreateLayer.call( this, layer );
+        layer.addEventListener( 'mouseover', this, false );
+        layer.addEventListener( 'mouseout', this, false );
     },
     
     willDestroyLayer: function ( layer ) {
-	    layer.removeEventListener( 'mouseout', this, false );
+        layer.removeEventListener( 'mouseout', this, false );
         layer.removeEventListener( 'mouseover', this, false );
         AutoCompleteView.parent.willDestroyLayer.call( this, layer );
     },
@@ -94,7 +94,7 @@ var AutoCompleteView = NS.Class({
     },
     
     // Fire keydown event to trigger AbstractMenu key bindings.
-    // However, also be sure to stop propagation as otherwise if the 
+    // However, also be sure to stop propagation as otherwise if the
     // autocomplete view is actually a child of the input view you get an
     // infinite loop!
     inputDidKeydown: function ( event ) {
