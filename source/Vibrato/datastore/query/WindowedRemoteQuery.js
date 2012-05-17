@@ -661,7 +661,7 @@ var WindowedRemoteQuery = NS.Class({
             
             // Mark records that need an update.
             this.get( 'store' ).sourceHasUpdatesForRecords(
-this.get( 'type' ), changed );
+                this.get( 'type' ), changed );
         }
         // Anything from the firstChange index onwards may have changed, so we
         // have to recalculate which windows that cover indexes from this point

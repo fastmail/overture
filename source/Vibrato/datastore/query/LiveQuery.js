@@ -153,10 +153,8 @@ var LiveQuery = NS.Class({
         this._filter = results.filterFn;
         
         this.length = results.length;
-        this.type = options.type;
-        this.store = store;
-        
-        LiveQuery.parent.init.call( this );
+
+        LiveQuery.parent.init.call( this, options );
         
         store.addQuery( this );
     },
