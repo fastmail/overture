@@ -126,14 +126,16 @@ var AttributeErrors = NS.Class({
         var errorCount = this.get( 'errorCount' ),
             key, vals, wasValid, isValid;
         for ( key in changed ) {
-            vals = changed[ key ];
-            wasValid = !vals.oldValue;
-            isValid = !vals.newValue;
-            if ( wasValid && !isValid ) {
-                errorCount += 1;
-            }
-            else if ( isValid && !wasValid ) {
-                errorCount -= 1;
+            if ( key !== 'errorCount' ) {
+                vals = changed[ key ];
+                wasValid = !vals.oldValue;
+                isValid = !vals.newValue;
+                if ( wasValid && !isValid ) {
+                    errorCount += 1;
+                }
+                else if ( isValid && !wasValid ) {
+                    errorCount -= 1;
+                }
             }
         }
         this.set( 'errorCount', errorCount )
