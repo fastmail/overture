@@ -12,6 +12,22 @@
 
 ( function ( NS ) {
 
+var delta = function ( update ) {
+    var records = update.records,
+        changes = update.changes,
+        i, l = records.length,
+        delta = new Array( l ),
+        data, filteredObj;
+    
+    for ( i = 0; i < l; i += 1 ) {
+        data = records[i];
+        filteredObj = Object.filter( data, changes[i] );
+        filteredObj.id = data.id;
+        delta[i] = filteredObj;
+    }
+    return delta;
+};
+
 /**
     Class: O.RPCSource
     
@@ -351,14 +367,17 @@ var RPCSource = NS.Class({
         
         Parameters:
             Type     - {O.Class} The record type.
+            state    - {(String|undefined)} The state to update from.
             callback - {Function} (optional) A callback to make after the fetch
                        completes.
         
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords: function ( Type, callback ) {
-        return this.fetchRecords( Type, null, callback );
+    fetchAllRecords: function ( Type, state, callback ) {
+        return state ?
+            this.refreshRecords( Type, null, state, callback ) :
+            this.fetchRecords( Type, null, callback );
     },
     
     /**
@@ -379,11 +398,14 @@ var RPCSource = NS.Class({
             {Boolean} Returns true if the source handled the fetch.
     */
     fetchRecords: function ( Type, ids, callback ) {
-        var typeName = Type.className;
-        if ( !this.recordFetchers[ typeName ] ) {
+        var typeName = Type.className,
+            handler = this.recordFetchers[ typeName ];
+        if ( !handler ) {
             return false;
         }
-        if ( ids instanceof Array ) {
+        if ( typeof handler === 'string' ) {
+            this.callMethod( handler );
+        } else if ( ids instanceof Array ) {
             var reqs = this._recordsToFetch,
                 set = reqs[ typeName ] || ( reqs[ typeName ] = {} ),
                 l = ids.length;
@@ -393,7 +415,7 @@ var RPCSource = NS.Class({
         } else {
             // Pass through object requests straight through to the
             // handler.
-            this.recordFetchers[ typeName ].call( this, ids );
+            handler.call( this, ids );
         }
         if ( callback ) {
             this._callbackQueue.push( callback );
@@ -419,7 +441,7 @@ var RPCSource = NS.Class({
             {Boolean} Returns true if the source handled the refresh.
     */
     refreshRecord: function ( Type, id, callback ) {
-        return this.refreshRecords( Type, [ id ], callback );
+        return this.refreshRecords( Type, [ id ], null, callback );
     },
     
     /**
@@ -441,11 +463,14 @@ var RPCSource = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
-    refreshRecords: function ( Type, ids, callback ) {
+    refreshRecords: function ( Type, ids, state, callback ) {
         var typeName = Type.className,
-            handler;
-        if ( handler = this.recordRefreshers[ typeName ] ) {
-            if ( ids instanceof Array ) {
+            handler = this.recordRefreshers[ typeName ];
+        if ( handler ) {
+            if ( typeof handler === 'string' ) {
+                this.callMethod( handler, { state: state });
+            }
+            else if ( ids instanceof Array ) {
                 var reqs = this._recordsToRefresh,
                     set = reqs[ typeName ] || ( reqs[ typeName ] = {} ),
                     l = ids.length;
@@ -455,11 +480,12 @@ var RPCSource = NS.Class({
             } else {
                 // Pass through object requests straight through to the
                 // handler.
-                handler.call( this, ids );
+                handler.call( this, ids, state );
             }
             if ( callback ) {
                 this._callbackQueue.push( callback );
             }
+            this.send();
         } else {
             // If we don't have a way to refresh just the mutable bits,
             // just re-fetch the whole thing.
@@ -546,7 +572,8 @@ var RPCSource = NS.Class({
         var types = Object.keys( changes ),
             l = types.length,
             precedence = this.commitPrecedence,
-            type, handler, handled, change, args;
+            type, handler, handled,
+            change, create, update, destroy;
         
         if ( precedence ) {
             types.sort( function ( a, b ) {
@@ -559,28 +586,35 @@ var RPCSource = NS.Class({
             change = changes[ type ];
             handler = this.recordCommitters[ type ];
             handled = false;
+            create = change.create;
+            update = change.update;
+            destroy = change.destroy;
             if ( handler ) {
-                handler.call( this, change );
+                if ( typeof handler === 'string' ) {
+                    this.callMethod( handler, {
+                        create: Object.zip( create.storeKeys, create.records ),
+                        update: Object.zip( update.storeKeys, delta( update ) ),
+                        destroy: Object.zip( destroy.storeKeys, destroy.ids )
+                    });
+                } else {
+                    handler.call( this, change );
+                }
                 handled = true;
             } else {
                 handler = this.recordCreators[ type ];
                 if ( handler ) {
-                    args = change.create;
-                    handler.call( this,
-                        args.storeKeys, args.records );
+                    handler.call( this, create.storeKeys, create.records );
                     handled = true;
                 }
                 handler = this.recordUpdaters[ type ];
                 if ( handler ) {
-                    args = change.update;
                     handler.call( this,
-                        args.storeKeys, args.records, args.changes );
+                        update.storeKeys, update.records, update.changes );
                     handled = true;
                 }
                 handler = this.recordDestroyers[ type ];
                 if ( handler ) {
-                    args = change.destroy;
-                    handler.call( this, args.storeKeys, args.ids );
+                    handler.call( this, destroy.storeKeys, destroy.ids );
                     handled = true;
                 }
             }
@@ -729,6 +763,49 @@ var RPCSource = NS.Class({
         'this' and the query as the sole argument.
     */
     queryFetchers: {},
+    
+    didCommit: function ( Type, args ) {
+        var store = this.get( 'store' ),
+            list;
+
+        if ( args.created ) {
+            store.sourceDidCommitCreate( args.created );
+        }
+        if ( ( list = args.updated ) && list.length ) {
+            store.sourceDidCommitUpdate( list );
+        }
+        if ( ( list = args.destroyed ) && list.length ) {
+            store.sourceDidCommitDestroy( list );
+        }
+        if ( ( list = args.notCreated ) && list.length ) {
+            store.sourceDidNotCreate( list );
+        }
+        if ( ( list = args.notUpdated ) && list.length ) {
+            store.sourceDidNotUpdate( list );
+        }
+        if ( ( list = args.notDestroyed ) && list.length ) {
+            store.sourceDidNotDestroy( list );
+        }
+        if ( ( list = args.error ) && list.length ) {
+            store.sourceDidError( list );
+        }
+        if ( args.newState ) {
+            store.sourceCommitDidChangeState(
+                Type, args.oldState, args.newState );
+        }
+    },
+    
+    didFetchAll: function ( Type, args ) {
+        this.get( 'store' ).sourceDidFetchAllRecords( Type,
+            args.list, args.state );
+    },
+    
+    didFetchAllUpdates: function ( Type, args ) {
+        this.get( 'store' ).sourceDidFetchAllRecordUpdates( Type,
+            args.added, args.changed, args.removed,
+            args.oldState, args.newState
+        );
+    },
     
     /**
         Property: O.RPCSource#response

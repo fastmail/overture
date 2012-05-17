@@ -216,6 +216,23 @@ var LiveQuery = NS.Class({
     },
     
     /**
+        Method: O.LiveQuery#refresh
+     
+        Asks the store to refresh the data for the type used in this query.
+        
+        Parameters:
+            force - {Boolean} (optional) If true, the store will refresh the 
+                    data even if it thinks it is up to date.
+        
+        Returns:
+            {O.LiveQuery} Returns self.
+    */
+    refresh: function ( force ) {
+        this.get( 'store' ).fetchAll( this.get( 'type' ), force );
+        return this;
+    },
+    
+    /**
         Method: O.LiveQuery#storeDidChangeRecords
      
         Callback made by the store when there are changes that affect the query.

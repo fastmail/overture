@@ -42,7 +42,9 @@ var CANNOT_CREATE_EXISTING_RECORD_ERROR =
     SOURCE_COMMIT_CREATE_MISMATCH_ERROR =
         'O.Store Error: Source committed a create on a record not marked new',
     SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
-        'O.Store Error: Source commited a destroy on a record not marked destroyed';
+        'O.Store Error: Source commited a destroy on a record not marked destroyed',
+    SOURCE_COMMIT_ON_UNKNOWN_STATE  =
+        'O.Store Error: Source committed on unknown state';
 
 var sk = 1;
 var generateStoreKey = function () {
@@ -153,7 +155,13 @@ var Store = NS.Class({
         // Type -> [ store key ] of changed records.
         this._typeToChangedSks = {};
         
+        this._typeToStatus = {};
+        this._typeToClientState = {};
+        this._typeToServerState = {};
+        
         this._source = source;
+        
+        source.set( 'store', this );
     },
     
     // === Nested Stores =======================================================
@@ -484,23 +492,29 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            storeKey, data, type, changed, id, status, entry,
+            storeKey, data, typeName, changed, id, status, entry,
             newSkToChanged = {},
             newDestroyed = {},
             changes = {};
         
-        var getEntry = function ( type ) {
-            return changes[ type ] || ( changes[ type ] = {
-                create: { storeKeys: [], records: [] },
-                update: { storeKeys: [], records: [], changes: [] },
-                destroy: { storeKeys: [], ids: [] }
-            });
-        };
+        var getEntry = function ( typeName ) {
+            entry = changes[ typeName ];
+            if ( !entry ) {
+                entry = changes[ typeName ] = {
+                    create: { storeKeys: [], records: [] },
+                    update: { storeKeys: [], records: [], changes: [] },
+                    destroy: { storeKeys: [], ids: [] },
+                    state: this._typeToClientState[ typeName ]
+                };
+                this._typeToStatus[ typeName ] |= COMMITTING;
+            }
+            return entry;
+        }.bind( this );
             
         for ( storeKey in _created ) {
             data = _skToData[ storeKey ];
-            type = _skToType[ storeKey ].className;
-            entry = getEntry( type ).create;
+            typeName = _skToType[ storeKey ].className;
+            entry = getEntry( typeName ).create;
             entry.storeKeys.push( storeKey );
             entry.records.push( data );
             this.setCommitting( storeKey );
@@ -508,7 +522,7 @@ var Store = NS.Class({
         for ( storeKey in _skToChanged ) {
             status = _skToStatus[ storeKey ];
             data = _skToData[ storeKey ];
-            type = _skToType[ storeKey ].className;
+            typeName = _skToType[ storeKey ].className;
             changed = _skToChanged[ storeKey ];
             if ( status & COMMITTING ) {
                 newSkToChanged[ storeKey ] = changed;
@@ -516,22 +530,22 @@ var Store = NS.Class({
             }
             _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
             delete _skToCommitted[ storeKey ];
-            entry = getEntry( type ).update;
+            entry = getEntry( typeName ).update;
             entry.storeKeys.push( storeKey );
             entry.records.push( data );
             entry.changes.push( changed );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
         for ( storeKey in _destroyed ) {
-            type = _skToType[ storeKey ].className;
-            id = _typeToSkToId[ type ][ storeKey ];
+            typeName = _skToType[ storeKey ].className;
+            id = _typeToSkToId[ typeName ][ storeKey ];
             // This means it's new and committing, so wait for commit to finish
             // first.
             if ( _skToStatus[ storeKey ] & NEW ) {
                 newDestroyed[ storeKey ] = 1;
                 continue;
             }
-            entry = getEntry( type ).destroy;
+            entry = getEntry( typeName ).destroy;
             entry.storeKeys.push( storeKey );
             entry.ids.push( id );
             this.setStatus( storeKey, DESTROYED|COMMITTING );
@@ -888,6 +902,97 @@ var Store = NS.Class({
     },
     
     /**
+        Method: O.Store#sourceStateDidChange
+        
+        Call this method to notify the store of a change in the state of a
+        particular record type in the source. The store will wait for any
+        loading or committing of this type to finish, then check its state. If
+        it doesn't match, it will then request updates.
+        
+        Parameters:
+            Type     - {O.Class} The record type.
+            newState - {String} The new state on the server
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceStateDidChange: function ( Type, newState ) {
+        var typeName = Type.className,
+            clientState = this._typeToClientState[ typeName ],
+            status = this._typeToStatus[ typeName ] || EMPTY,
+            _remoteQueries = this._remoteQueries,
+            l = _remoteQueries.length,
+            remoteQuery;
+        
+        if ( newState !== clientState ) {
+            if ( !( status & (COMMITTING|LOADING) ) ) {
+                while ( l-- ) {
+                    remoteQuery = _remoteQueries[l];
+                    if ( remoteQuery.get( 'type' ) === Type ) {
+                        remoteQuery.setObsolete();
+                    }
+                }
+                // If all records fetched for this type, refresh.
+                if ( status & READY ) {
+                    this.fetchAll( Type, true );
+                }
+            } else {
+                this._typeToServerState[ typeName ] = newState;
+            }
+        }
+        
+        return this;
+    },
+    
+    /**
+        Method (private): O.Store#_checkServerStatus
+        
+        Called internally when a type finishes loading or committing, to check
+        if there's a server state update to process.
+        
+        Parameters:
+            Type     - {O.Class} The record type.
+    */
+    _checkServerStatus: function ( Type ) {
+        var typeName = Type.className,
+            serverState;
+        if ( !( this._typeToStatus[ typeName ] & (LOADING|COMMITTING) ) ) {
+            serverState = this._typeToServerState[ typeName ];
+            if ( serverState ) {
+                if ( serverState !== this._typeToServerState[ typeName ] ) {
+                    this.fetchAll( Type, true );
+                }
+                delete this._typeToServerState[ typeName ];
+            }
+        }
+    },
+    
+    /**
+        Method: O.Store#fetchAll
+        
+        Fetches all records of a given type from the server, or if already
+        fetched updates the set of records.
+        
+        Parameters:
+            Type  - {O.Class} The type of records to fetch.
+            force - {Boolean} (optional) Fetch even if we have a state string.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    fetchAll: function ( Type, force ) {
+        var typeName = Type.className,
+            status = this._typeToStatus[ typeName ],
+            state = this._typeToClientState[ typeName ];
+        
+        if ( !( status & LOADING ) && ( !state || force ) ) {
+            this._source.fetchAllRecords( Type, state );
+            this._typeToStatus[ typeName ] = status | LOADING;
+        }
+        return this;
+    },
+    
+    /**
         Method: O.Store#fetchData
         
         Fetches the data for a given record from the server.
@@ -1131,13 +1236,101 @@ var Store = NS.Class({
         Parameters:
             Type    - {O.Class} The record type.
             records - {Array.<Object>} Array of data objects.
+            state   - {String} (optional) State of server for this type.
         
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchAllRecords: function ( Type, records ) {
-        return this.sourceDidFetchRecords( Type, records, true );
+    sourceDidFetchAllRecords: function ( Type, records, state ) {
+        var typeName = Type.className;
+        this.sourceDidFetchRecords( Type, records, true );
+        if ( state ) {
+            this._typeToClientState[ typeName ] = state;
+        }
+        this._typeToStatus[ typeName ] = READY;
+        return this;
     },
+    
+    /**
+        Method: O.Store#sourceDidFetchAllRecordUpdates
+        
+        Callback made by the <O.Source> object associated with this store when
+        it fetches all changes that have been made to records of a particular
+        type since the client last did a fetch.
+        
+        Parameters:
+            Type     - {O.Class} The record type.
+            added    - {Array} List of data objects for records added to the
+                       source since oldState.
+            changed  - {Array} List of data objects for records which have been
+                       modified in the source since oldState.
+            removed  - {Array} List of ids for records which have been destroyed
+                       in the store since oldState.
+            oldState - {String} The state these changes are from.
+            newState - {String} The state these changes are to.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceDidFetchAllRecordUpdates:
+            function ( Type, added, changed, removed, oldState, newState ) {
+        var typeName = Type.className;
+        this._typeToStatus[ typeName ] &= ~LOADING;
+        if ( this._typeToClientState[ typeName ] === oldState ) {
+            if ( added ) {
+                this.sourceDidFetchRecords( added );
+            }
+            if ( changed ) {
+                this.sourceDidFetchRecordUpdates( changed );
+            }
+            if ( removed ) {
+                this.sourceDidDestroyRecords( removed );
+            }
+            this._typeToClientState[ typeName ] = newState;
+            this._checkServerStatus( Type, newState );
+        } else {
+            this.sourceStateDidChange( Type, newState );
+        }
+        return this;
+    },
+    
+    /**
+        Method: O.Store#sourceCommitDidChangeState
+        
+        Callback made by the <O.Source> object associated with this store when
+        it finishes committing a record type which uses state tokens to stay in
+        sync with the server.
+        
+        Parameters:
+            Type     - {O.Class} The record type.
+            oldState - {String} The state before the commit.
+            newState - {String} The state after the commit.
+        
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceCommitDidChangeState: function ( Type, oldState, newState ) {
+        var typeName = Type.className,
+            _typeToClientState = this._typeToClientState;
+        
+        this._typeToStatus[ typeName ] &= ~COMMITTING;
+        
+        if ( _typeToClientState[ typeName ] === oldState ) {
+            _typeToClientState[ typeName ] = newState;
+            this._checkServerStatus( Type, newState );
+        } else {
+            O.RunLoop.didError({
+                name: SOURCE_COMMIT_ON_UNKNOWN_STATE
+            });
+            _typeToClientState[ typeName ] = null;
+            delete this._typeToServerState[ typeName ];
+            this.fetchAll( Type );
+        }
+        
+        return this;
+    },
+    
+    // ---
     
     /**
         Method: O.Store#sourceDidFetchRecords
@@ -1767,8 +1960,7 @@ var Store = NS.Class({
         if ( query instanceof NS.LiveQuery ) {
             var Type = query.get( 'type' ),
                 type = Type.className;
-            // Fetch the data for it.
-            source.fetchAllRecords( Type );
+            this.fetchAll( Type );
             ( this._liveQueries[ type ] ||
                 ( this._liveQueries[ type ] = [] ) ).push( query );
         } else if ( query instanceof NS.RemoteQuery ) {

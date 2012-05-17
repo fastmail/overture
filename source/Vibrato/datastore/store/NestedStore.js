@@ -179,7 +179,12 @@ var NestedStore = NS.Class({
     setLoading: function ( storeKey ) {
         this._parentStore.setLoading( storeKey );
     },
-
+    
+    fetchAll: function ( storeKey ) {
+        this._parentStore.fetchAll( storeKey );
+        return this;
+    },
+    
     fetchData: function ( storeKey ) {
         this._parentStore.fetchData( storeKey );
         return this;

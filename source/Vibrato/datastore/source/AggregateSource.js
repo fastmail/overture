@@ -47,6 +47,7 @@ var AggregateSource = NS.Class({
             {O.AggregateSource} Returns self.
     */
     addSource: function ( source ) {
+        source.set( 'store', this.get( 'store' ) );
         this.get( 'sources' ).push( source );
         return this;
     },
@@ -66,15 +67,22 @@ var AggregateSource = NS.Class({
         return this;
     },
     
+    storeWasSet: function () {
+        var store = this.get( 'store' );
+        this.sources.forEach( function ( source ) {
+            source.set( 'store', store );
+        });
+    }.observes( 'store' ),
+    
     fetchRecord: function ( Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchRecord( Type, id, callback );
         });
     },
     
-    fetchAllRecords: function ( Type, callback ) {
+    fetchAllRecords: function ( Type, state, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
-            return source.fetchAllRecords( Type, callback );
+            return source.fetchAllRecords( Type, state, callback );
         });
     },
     
