@@ -87,6 +87,9 @@ var NestedStore = NS.Class({
         // Waiting for an id
         this._awaitingId = {};
         
+        // Type -> [ store key ] of changed records.
+        this._typeToChangedSks = {};
+        
         store.addNested( this );
         
         this._source = store._source;
@@ -167,7 +170,7 @@ var NestedStore = NS.Class({
     getStatus: function ( storeKey ) {
         var status = this._skToStatus[ storeKey ] || EMPTY;
         return this._skToData.hasOwnProperty( storeKey ) ?
-            status : status & ~( NEW|COMMITTING|DIRTY );
+            status : status & ~(NEW|COMMITTING|DIRTY);
     },
     
     setObsolete: function ( storeKey ) {
@@ -200,8 +203,8 @@ var NestedStore = NS.Class({
     parentDidChangeStatus: function ( storeKey, previous, status ) {
         var _skToStatus = this._skToStatus;
         
-        previous = previous & ~( NEW|COMMITTING|DIRTY );
-        status = status & ~( NEW|COMMITTING|DIRTY );
+        previous = previous & ~(NEW|COMMITTING|DIRTY);
+        status = status & ~(NEW|COMMITTING|DIRTY);
         
         if ( _skToStatus.hasOwnProperty( storeKey ) ) {
             previous = _skToStatus[ storeKey ];
@@ -217,7 +220,7 @@ var NestedStore = NS.Class({
                 delete _skToStatus[ storeKey ];
             } else {
                 _skToStatus[ storeKey ] = status =
-                    previous|( status & ( OBSOLETE|LOADING ) );
+                    previous|( status & (OBSOLETE|LOADING) );
             }
         }
         
@@ -309,7 +312,7 @@ var NestedStore = NS.Class({
             delete _skToChanged[ storeKey ];
             delete _skToCommitted[ storeKey ];
             this.setStatus( storeKey,
-                parent.getStatus( storeKey ) & ~( NEW|COMMITTING|DIRTY ) );
+                parent.getStatus( storeKey ) & ~(NEW|COMMITTING|DIRTY) );
             delete this._skToStatus[ storeKey ];
         }
         this._notifyRecordOfChanges( storeKey, changedKeys );

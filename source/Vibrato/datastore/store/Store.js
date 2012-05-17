@@ -150,6 +150,9 @@ var Store = NS.Class({
         // Waiting for an id
         this._awaitingId = {};
         
+        // Type -> [ store key ] of changed records.
+        this._typeToChangedSks = {};
+        
         this._source = source;
     },
     
@@ -1726,7 +1729,7 @@ var Store = NS.Class({
     },
     
     /**
-        Method (deprecated): O.Store#getAllLoadedRecords
+        Method: O.Store#getAllLoadedRecords
         
         Materialises and returns an array of record objects for all records of a
         particular type currently loaded in memory.
@@ -1741,7 +1744,7 @@ var Store = NS.Class({
     getAllLoadedRecords: function ( Type ) {
         return this.find({ type: Type }).map( function ( storeKey ) {
             return this.materialiseRecord( storeKey, Type );
-        }.bind( this ) );
+        }, this );
     },
     
     /**
@@ -1809,15 +1812,22 @@ var Store = NS.Class({
     /**
         Method: O.Store#getQuery
         
+        Get a named query. When the same query is used in different places in
+        the code, use this method to get the query rather than directly calling
+        new Query(...). If the query is already created it will be returned,
+        otherwise it will be created and returned. If no QueryClass is supplied
+        and the id does not correspond to an existing query then `null` will be
+        returned.
+        
         Parameters:
             id         - {String} The id of the requested query.
-            QueryClass - {O.Class} The query class to use if the query is not
-                         already created.
-            query      - {(Object|null)} The parameter to pass to the QueryClass
-                         constructor.
+            QueryClass - {O.Class} (optional) The query class to use if the
+                         query is not already created.
+            query      - {(Object|null)} (optional) The parameter to pass to the
+                         QueryClass constructor.
         
         Returns:
-            {(O.LiveQuery|O.RemoteQuery)} The requested query.
+            {(O.LiveQuery|O.RemoteQuery|null)} The requested query.
     */
     getQuery: function ( id, QueryClass, query ) {
         return ( id && this._idToQuery[ id ] ) ||
@@ -1852,12 +1862,10 @@ var Store = NS.Class({
     */
     _recordDidChange: function ( storeKey ) {
         var typeName = this._skToType[ storeKey ].className,
-            _recordChanges;
+            _typeToChangedSks = this._typeToChangedSks;
         if ( this._liveQueries[ typeName ] ) {
-            _recordChanges = this._recordChanges ||
-                ( this._recordChanges = {} );
-            ( _recordChanges[ typeName ] ||
-                ( _recordChanges[ typeName ] = [] ) ).include( storeKey );
+            ( _typeToChangedSks[ typeName ] ||
+                ( _typeToChangedSks[ typeName ] = [] ) ).include( storeKey );
         }
         NS.RunLoop.queueFn( 'before', this.refreshLiveQueries, this );
     },
@@ -1873,13 +1881,13 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     refreshLiveQueries: function () {
-        var _recordChanges = this._recordChanges,
+        var _typeToChangedSks = this._typeToChangedSks,
             _liveQueries = this._liveQueries,
             typeName, typeChanges, typeQueries,
             l;
         
-        for ( typeName in _recordChanges ) {
-            typeChanges = _recordChanges[ typeName ];
+        for ( typeName in _typeToChangedSks ) {
+            typeChanges = _typeToChangedSks[ typeName ];
             typeQueries = _liveQueries[ typeName ];
             l = typeQueries.length;
             
@@ -1888,7 +1896,7 @@ var Store = NS.Class({
             }
         }
         
-        this._recordChanges = null;
+        this._typeToChangedSks = {};
         return this;
     }
 });
