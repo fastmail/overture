@@ -56,8 +56,9 @@ var RecordArray = NS.Class({
           {O.Record} The record at index i in this array.
   */
   getObjectAt: function ( index ) {
-      var id = this.get( 'storeKeys' )[ index ];
-      return this.get( 'store' ).getRecord( this.get( 'type' ), id );
+      var storeKey = this.get( 'storeKeys' )[ index ];
+      return this.get( 'store' )
+                 .materialiseRecord( storeKey, this.get( 'type' ) );
   }
 });
 
