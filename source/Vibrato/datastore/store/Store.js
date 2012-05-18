@@ -438,6 +438,7 @@ var Store = NS.Class({
             {O.Record} Returns the requested record.
     */
     getRecord: function ( Type, id, doNotFetch ) {
+        if ( !Type || !id ) { return null; }
         var storeKey = ( id[0] === '#' ) ?
                 id.slice( 1 ) : this.getStoreKey( Type, id ),
             record = this.materialiseRecord( storeKey, Type );
@@ -450,6 +451,53 @@ var Store = NS.Class({
         // Add timestamp for memory manager.
         this._skToLastAccess[ storeKey ] = Date.now();
         return record;
+    },
+    
+    /**
+        Method: O.Store#getOne
+        
+        Returns the first loaded record that matches an acceptor function.
+        
+        Parameters:
+            Type   - {O.Class} The constructor for the record type to find.
+            filter - {Function} (optional) An acceptance function. This will be
+                     passed the raw data object (*not* a record instance) and
+                     should return true if the record is the desired one, or
+                     false otherwise.
+        
+        Returns:
+            {(O.Record|null)} The matching record, or null if none found.
+    */
+    getOne: function ( Type, filter ) {
+        var storeKey = this.findOne( Type, filter );
+        return storeKey ? this.materialiseRecord( storeKey ) : null;
+    },
+    
+    /**
+        Method: O.Store#getAll
+        
+        Returns a record array of records with data loaded for a particular
+        type, optionally filtered and/or sorted.
+        
+        Parameters:
+            Type   - {O.Class} The constructor for the record type being
+                     queried.
+            filter - {Function} (optional) An acceptance function. This will be
+                     passed the raw data object (*not* a record instance) and
+                     should return true if the record should be included, or
+                     false otherwise.
+            sort   - {Function} (optional) A comparator function. This will be
+                     passed the raw data objects (*not* record instances) for
+                     two records. It should return -1 if the first record should
+                     come before the second, 1 if the inverse is true, or 0 if
+                     they should have the same position.
+        
+        Returns:
+            {O.RecordArray} A record array of results.
+    */
+    getAll: function ( Type, filter, sort ) {
+        var storeKeys = this.findAll( Type, filter, sort );
+        return new NS.RecordArray( this, Type, storeKeys );
     },
     
     /**
@@ -1870,33 +1918,30 @@ var Store = NS.Class({
     // === Queries =============================================================
     
     /**
-        Method: O.Store#find
+        Method: O.Store#findAll
         
-        Returns the list of store keys for a particular type, optionally
-        filtered and/or sorted. The query object passed should contain:
-        
-        type   - {O.Class} The constructor for the record type being queried.
-        filter - {Function} (optional) An acceptance function. This will be
-                 passed the raw data object (*not* a record instance) and should
-                 return true if the record should be included, or false
-                 otherwise.
-        sort   - {Function} (optional) A comparator function. This will be
-                 passed the raw data objects (*not* record instances) for two
-                 records. It should return -1 if the first record should come
-                 before the second, 1 if the inverse is true, or 0 if they
-                 should have the same position.
+        Returns the list of store keys with data loaded for a particular type,
+        optionally filtered and/or sorted.
         
         Parameters:
-            query - {Object} The type/filter/sort to use.
+            Type   - {O.Class} The constructor for the record type being
+                     queried.
+            filter - {Function} (optional) An acceptance function. This will be
+                     passed the raw data object (*not* a record instance) and
+                     should return true if the record should be included, or
+                     false otherwise.
+            sort   - {Function} (optional) A comparator function. This will be
+                     passed the raw data objects (*not* record instances) for
+                     two records. It should return -1 if the first record should
+                     come before the second, 1 if the inverse is true, or 0 if
+                     they should have the same position.
         
         Returns:
             {Array.<String>} An array of store keys.
     */
-    find: function ( query ) {
-        var _skToId = this._typeToSkToId[ query.type.className ] || {},
+    findAll: function ( Type, acceptor, comparator ) {
+        var _skToId = this._typeToSkToId[ Type.className ] || {},
             _skToStatus = this._skToStatus,
-            acceptor = query.filter,
-            comparator = query.sort,
             results = [],
             storeKey, filterFn, sortFn;
         
@@ -1922,8 +1967,43 @@ var Store = NS.Class({
     },
     
     /**
-        Method: O.Store#getAllLoadedRecords
+        Method: O.Store#findOne
         
+        Returns the store key of the first loaded record that matches an
+        acceptor function.
+        
+        Parameters:
+            Type   - {O.Class} The constructor for the record type to find.
+            filter - {Function} (optional) An acceptance function. This will be
+                     passed the raw data object (*not* a record instance) and
+                     should return true if the record is the desired one, or
+                     false otherwise.
+        
+        Returns:
+            {(String|null)} The store key for a matching record, or null if none
+            found.
+    */
+    findOne: function ( Type, acceptor ) {
+        var _skToId = this._typeToSkToId[ Type.className ] || {},
+            _skToStatus = this._skToStatus,
+            filterFn = acceptor && filter.bind( this, acceptor ),
+            storeKey;
+        
+        for ( storeKey in _skToId ) {
+            if ( ( _skToStatus[ storeKey ] & READY ) &&
+                    ( !filterFn || filterFn( storeKey ) ) ) {
+                return storeKey;
+            }
+        }
+        
+        return null;
+    },
+    
+    /**
+        Method (deprecated): O.Store#getAllLoadedRecords
+        
+        This method is deprecated. Please use <O.Store#getAll> instead.
+
         Materialises and returns an array of record objects for all records of a
         particular type currently loaded in memory.
         
@@ -1935,7 +2015,8 @@ var Store = NS.Class({
             type.
     */
     getAllLoadedRecords: function ( Type ) {
-        return this.find({ type: Type }).map( function ( storeKey ) {
+        console.log( "O.Store#getAllLoadedRecords is deprecated" );
+        return this.findAll( Type ).map( function ( storeKey ) {
             return this.materialiseRecord( storeKey, Type );
         }, this );
     },

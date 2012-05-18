@@ -48,6 +48,8 @@ var numerically = function ( a, b ) {
     
     Extends: O.Object
     
+    Includes: O.ObserverableRange, O.Enumerable
+    
     A LiveQuery instance can be treated as an observable array which
     automatically updates its contents to reflect a certain query on the store.
     A query consists of a particular type, a filter function and a sort order.
@@ -141,12 +143,13 @@ var LiveQuery = NS.Class({
     */
     init: function ( options ) {
         var sort = options.sort,
-            store = options.store || this.store;
+            store = options.store || this.store,
+            results;
         
         if ( sort && !( sort instanceof Function ) ) {
-            options.sort = NS.sortByProperties( sort );
+            sort = options.sort = NS.sortByProperties( sort );
         }
-        var results = store.find( options );
+        results = store.findAll( options.type, options.filter, sort );
         
         this._storeKeys = results;
         this._sort = results.sortFn;
@@ -221,7 +224,7 @@ var LiveQuery = NS.Class({
         Asks the store to refresh the data for the type used in this query.
         
         Parameters:
-            force - {Boolean} (optional) If true, the store will refresh the 
+            force - {Boolean} (optional) If true, the store will refresh the
                     data even if it thinks it is up to date.
         
         Returns:
