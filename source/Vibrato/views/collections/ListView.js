@@ -43,8 +43,7 @@ var ListViewController = NS.Class({
     },
     
     viewWasSet: function ( _, __, oldView, newView ) {
-        var content = this.get( 'content' ),
-            range = this.get( 'view' );
+        var content = this.get( 'content' );
         if ( content ) {
             if ( oldView ) {
                 content.removeObserverForRange(
@@ -286,7 +285,7 @@ var ListView = NS.Class({
     }.property().nocache(),
     
     content: null,
-    contentLength: O.bind( 'content.length' ),
+    contentLength: NS.bind( 'content.length' ),
     
     itemRenderer: NS.ItemRenderer,
     
@@ -616,11 +615,11 @@ var ListViewKBWidgetView = NS.Class({
     className: 'ListViewKBWidgetView',
     layout: {},
     
-    max: O.bind( 'parentView.contentLength' ),
-    itemHeight: O.bind( 'parentView.itemHeight' ),
-    controller: O.bind( 'parentView.controller' ),
-    content: O.bind( 'parentView.content' ),
-    scrollView: O.bind( 'parentView.scrollView' ),
+    max: NS.bind( 'parentView.contentLength' ),
+    itemHeight: NS.bind( 'parentView.itemHeight' ),
+    controller: NS.bind( 'parentView.controller' ),
+    content: NS.bind( 'parentView.content' ),
+    scrollView: NS.bind( 'parentView.scrollView' ),
     
     _top: 0,
     

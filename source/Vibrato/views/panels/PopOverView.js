@@ -12,9 +12,9 @@
 
 ( function ( NS ) {
 
-var PopOverEventHandler = O.Class({
+var PopOverEventHandler = NS.Class({
     
-    Extends: O.Object,
+    Extends: NS.Object,
     
     inPopOver: function ( event ) {
         var view = event.targetView,
@@ -65,7 +65,7 @@ var PopOverView = NS.Class({
     
     _render: function ( layer ) {
         layer.appendChild( NS.Element.create( 'b', {
-            className: O.bind( 'calloutClass', this )
+            className: NS.bind( 'calloutClass', this )
         }) );
         PopOverView.parent._render.call( this, layer );
     },

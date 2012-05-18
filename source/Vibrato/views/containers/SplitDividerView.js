@@ -20,15 +20,15 @@ var SplitDividerView = NS.Class({
     
     thickness: 10,
     
-    length: new O.Binding({
+    length: new NS.Binding({
         isTwoWay: true
     }).from( 'parentView.staticPaneLength' ),
     
-    min: O.bind( 'parentView.minStaticPaneLength' ),
-    max: O.bind( 'parentView.maxStaticPaneLength' ),
+    min: NS.bind( 'parentView.minStaticPaneLength' ),
+    max: NS.bind( 'parentView.maxStaticPaneLength' ),
     
-    direction: O.bind( 'parentView.direction' ),
-    flex: O.bind( 'parentView.flex' ),
+    direction: NS.bind( 'parentView.direction' ),
+    flex: NS.bind( 'parentView.flex' ),
     
     anchor: function () {
         var flexTL = this.get( 'flex' ) === NS.SplitView.TOP_LEFT,

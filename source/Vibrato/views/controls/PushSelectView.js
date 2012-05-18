@@ -31,7 +31,7 @@ var PushSelectView = NS.Class({
         
         return el( 'div',
             this.get( 'options' ).map( function ( option, i ) {
-                return el( 'span', O.extend({
+                return el( 'span', NS.extend({
                     className: ( option.className || '' ) +
                         ( option.value === selected ? ' selected' : '' ),
                     'data-index': i
@@ -60,7 +60,7 @@ var PushSelectView = NS.Class({
     
     updateLayer: function ( _, __, oldValue, newValue ) {
         if ( this.get( 'isRendered' ) ) {
-            var Element = O.Element,
+            var Element = NS.Element,
                 childNodes = this.get( 'layer' ).firstChild.childNodes;
             this.get( 'options' ).forEach( function ( option, i ) {
                 if ( option.value === oldValue ) {

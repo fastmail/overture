@@ -24,7 +24,7 @@ var ExpandoView = NS.Class({
         return 'ExpandoView' + ( this.get( 'isCollapsed' ) ? '' : ' expanded' );
     }.property( 'isCollapsed' ),
     
-    isCollapsed: new O.Binding({
+    isCollapsed: new NS.Binding({
         isTwoWay: true
     }).from( 'parentView.isCollapsed' ),
     
@@ -74,8 +74,8 @@ var TreeItemView = NS.Class({
         var treeView = this.get( 'treeView' ),
             data = this.get( 'content' );
         
-        this.registerBinding( new O.Binding({
-                transform: O.Transform.toBoolean
+        this.registerBinding( new NS.Binding({
+                transform: NS.Transform.toBoolean
             }).from( treeView.get( 'subContentProp' ) + '.length', data )
               .to( 'hasSubtree', this )
               .connect()

@@ -106,7 +106,7 @@ var AutoCompleteView = NS.Class({
         event.stopPropagation();
     }.on( 'keydown' ),
     
-    filterValue: O.bind( 'inputView.value' ),
+    filterValue: NS.bind( 'inputView.value' ),
     filterValueDidChange: function ( _, __, ___, value ) {
         if ( this._isActive ) {
             if ( value.length >= this.get( 'minChars' ) ) {

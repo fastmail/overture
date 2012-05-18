@@ -12,9 +12,9 @@
 
 ( function ( NS, undefined ) {
 
-var ToOneAttribute = O.Class({
+var ToOneAttribute = NS.Class({
     
-    Extends: O.RecordAttribute,
+    Extends: NS.RecordAttribute,
     
     willCreateInStore: function ( record, propKey, storeKey ) {
         var propValue = record.get( propKey );
