@@ -244,7 +244,10 @@ var LiveQuery = NS.Class({
         
         Parameters:
             storeKeysOfChanged - {Array} List of store keys that have changed
-            which are of the type included in this query.
+                                 which are of the type included in this query.
+        
+        Returns:
+            {Boolean} Was there a change in the query results?
     */
     storeDidChangeRecords: function ( storeKeysOfChanged ) {
         var filter = this._filter,
@@ -366,7 +369,9 @@ var LiveQuery = NS.Class({
                     added: added.map( storeKeyToId ),
                     addedIndexes: addedIndexes
                 });
+                return true;
         }
+        return false;
     },
     
     /**
