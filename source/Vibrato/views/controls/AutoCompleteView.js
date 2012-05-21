@@ -13,11 +13,12 @@
 ( function ( NS ) {
 
 var AutoCompleteSource = NS.Class({
-    init: function ( options ) {
-        NS.extend( this, options );
-    },
+    
+    Extends: NS.Object,
+    
     maxResults: 10,
     suggestions: [],
+    
     getTestRegExp: function ( value ) {
         return new RegExp( '\b' + value, 'i' );
     },
@@ -171,8 +172,8 @@ var AutoCompleteView = NS.Class({
             for ( i = 0, l = sources.length; i < l; i += 1 ) {
                 source = sources[i];
                 count = 0;
-                max = source.maxResults;
-                suggestions = source.suggestions;
+                max = source.get( 'maxResults' );
+                suggestions = source.get( 'suggestions' );
                 accept = source.getTestFn( value );
                 
                 for ( j = 0, m = suggestions.get( 'length' );
