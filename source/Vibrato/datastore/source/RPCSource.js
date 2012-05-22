@@ -220,7 +220,7 @@ var RPCSource = NS.Class({
                        request completes successfully.
     */
     callMethod: function ( name, args, callback ) {
-        this._sendQueue.push([ name, args ]);
+        this._sendQueue.push([ name, args || {} ]);
         if ( callback ) {
             this._callbackQueue.push( callback );
         }
