@@ -146,7 +146,7 @@ var RichTextView = NS.Class({
         iframe.addEventListener( 'load', onload, false );
         
         NS.Element.appendChildren( layer, [
-            el( 'div.toolbar', [
+            el( 'div.ToolbarView', [
                 el( 'div.left', [
                     new ButtonView({
                         type: NS.bind( 'isBold', this, toTristate ),

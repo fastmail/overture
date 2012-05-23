@@ -16,7 +16,7 @@ var ToolbarView = NS.Class({
     
     Extends: NS.View,
     
-    className: 'toolbar',
+    className: 'ToolbarView',
     
     config: 'standard',
     
