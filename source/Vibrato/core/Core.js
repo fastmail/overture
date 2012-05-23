@@ -29,7 +29,7 @@ if ( !this.O ) {
 
 // For Node.
 if ( typeof module === 'object' ) {
-    module.exports = O;
+    O = module.exports = {};
 }
 
 ( function ( NS ) {
