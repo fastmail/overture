@@ -43,8 +43,11 @@ var GlobalKeyboardShortcuts = NS.Class({
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
-    init: function () {
-        NS.RootViewController.queueResponder( this );
+    init: function ( options ) {
+        GlobalKeyboardShortcuts.parent.init.call( this, options );
+        var RootViewController = NS.RootViewController;
+        RootViewController.kbShortcuts = this;
+        RootViewController.queueResponder( this );
     },
 
     /**
@@ -53,7 +56,12 @@ var GlobalKeyboardShortcuts = NS.Class({
         Destructor.
     */
     destroy: function () {
-        NS.RootViewController.removeResponder( this );
+        var RootViewController = NS.RootViewController;
+        if ( RootViewController.kbShortcuts === this ) {
+            delete NS.RootViewController.kbShortcuts;
+        }
+        RootViewController.removeResponder( this );
+        GlobalKeyboardShortcuts.parent.destroy.call( this );
     },
     
     /**
