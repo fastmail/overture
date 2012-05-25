@@ -282,7 +282,7 @@ var WindowedRemoteQuery = NS.Class({
         this._preemptiveUpdates = [];
         
         this._isAnExplicitIdFetch = false;
-        this._refreshRequested = false;
+        this._refresh = false;
     },
 
     _fetchUpdates: true,
