@@ -228,9 +228,7 @@ var CollectionView = NS.Class({
     // --- Can't add views by hand; just bound to content ---
     
     insertView: null,
-    
     replaceView: null,
-
     removeView: null
 });
 
