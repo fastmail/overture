@@ -326,7 +326,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didCreateLayer
+        Method: O.View#willDestroyLayer
 
         Called immediately before the layer is destroyed.
 
@@ -342,7 +342,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didCreateLayer
+        Method: O.View#didAppendLayerToDocument
 
         Called immediately before the layer is appended to the document.
 
@@ -359,7 +359,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didCreateLayer
+        Method: O.View#didAppendLayerToDocument
 
         Called immediately after the layer is appended to the document.
 
@@ -383,7 +383,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didCreateLayer
+        Method: O.View#willRemoveLayerFromDocument
 
         Called immediately before the layer is removed from the document.
 
@@ -405,7 +405,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didCreateLayer
+        Method: O.View#didRemoveLayerFromDocument
 
         Called immediately after the layer is removed from the document.
 
