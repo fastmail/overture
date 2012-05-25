@@ -11,12 +11,12 @@
 
 ( function ( NS ) {
 
-var SelectionController = O.Class({
+var SelectionController = NS.Class({
     
-    Extends: O.Object,
+    Extends: NS.Object,
     
     view: null,
-    content: O.bind( 'view.content' ),
+    content: NS.bind( 'view.content' ),
     
     _selectionId: 0,
     _lastSelectedIndex: 0,

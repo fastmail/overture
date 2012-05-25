@@ -12,17 +12,17 @@
 
 ( function ( NS ) {
 
-var ListView = O.Class({
+var ListView = NS.Class({
     
-    Extends: O.UnorderedCollectionView,
+    Extends: NS.UnorderedCollectionView,
     
-    Mixin: O.TrueVisibleRect,
+    Mixin: NS.TrueVisibleRect,
     
     _batchSize: 10,
     _triggerInPx: 200,
     itemHeight: 100,
 
-    contentLength: O.bind( 'content.length' ),
+    contentLength: NS.bind( 'content.length' ),
     
     init: function ( options ) {
         this._renderRange = { start: 0, end: 0 };
@@ -44,7 +44,7 @@ var ListView = O.Class({
         do {
             scrollView = scrollView.get( 'parentView' );
         } while ( scrollView &&
-            !( scrollView instanceof O.ScrollView ) );
+            !( scrollView instanceof NS.ScrollView ) );
         return scrollView || null;
     }.property( 'parentView' ),
  
@@ -90,7 +90,7 @@ var ListView = O.Class({
         // to the new maximum scrollTop, no scroll event is fired. Therefore we
         // have to simulate this firing in the next event loop.
         if ( length < oldLength ) {
-            O.RunLoop.invokeInNextEventLoop(
+            NS.RunLoop.invokeInNextEventLoop(
                 this.fire.bind( this, 'scroll', null, null )
             );
         }
