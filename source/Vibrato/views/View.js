@@ -979,6 +979,7 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     replaceView: function ( view, oldView ) {
+        if ( view === oldView ) { return this; }
         var children = this.get( 'childViews' ),
             i = children.indexOf( oldView ),
             oldParent = view.get( 'parentView' );
