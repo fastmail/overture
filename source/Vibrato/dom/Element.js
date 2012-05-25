@@ -300,6 +300,7 @@ NS.Element = {
             {Element} The element.
     */
     appendChildren: appendChildren = function ( el, children ) {
+        if ( !( children instanceof Array ) ) { children = [ children ]; }
         var i, l, node;
         for ( i = 0, l = children.length; i < l; i += 1 ) {
             node = children[i];
