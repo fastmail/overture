@@ -54,6 +54,8 @@ SplitView = NS.Class({
         });
     }.property(),
     
+    positioning: 'absolute',
+    layout: NS.View.LAYOUT_FILL_PARENT,
     _render: function ( layer ) {
         var tlview = this.get( topLeftView ),
             brview = this.get( bottomRightView ),

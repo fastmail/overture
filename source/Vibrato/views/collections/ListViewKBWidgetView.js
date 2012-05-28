@@ -18,6 +18,7 @@ var ListViewKBWidgetView = NS.Class({
     Extends: NS.View,
         
     className: 'ListViewKBWidgetView',
+    positioning: 'absolute',
     layout: function () {
         var itemHeight = this.get( 'itemHeight' );
         return {

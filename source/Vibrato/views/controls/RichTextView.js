@@ -52,9 +52,6 @@ var RichTextView = NS.Class({
     
     Extends: NS.View,
     
-    positioning: 'relative',
-    layout: {},
-    
     layerTag: 'div',
     
     isFocussed: false,
@@ -444,8 +441,6 @@ var RichTextView = NS.Class({
         var richTextView = this;
         return new NS.View({
             className: 'URLPopOver',
-            positioning: 'relative',
-            layout: {},
             value: '',
             didAppendLayerToDocument: function () {
                 this._input.set( 'selection', this.get( 'value' ).length )

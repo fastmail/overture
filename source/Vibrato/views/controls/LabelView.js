@@ -17,8 +17,6 @@ var LabelView = NS.Class({
     Extends: NS.View,
     
     layerTag: 'label',
-    layout: {},
-    positioning: 'relative',
     
     value: '',
     tooltip: '',

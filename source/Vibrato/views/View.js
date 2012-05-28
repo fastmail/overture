@@ -303,9 +303,8 @@ var View = NS.Class({
             id: this.get( 'id' ),
             className: this.get( 'className' ),
             styles: this.get( 'layerStyles' ),
-            unselectable: this.get( 'allowTextSelection' ) ? 'off' : 'on'
+            unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on'
         });
-
         this.didCreateLayer( layer );
         return layer;
     }.property(),
@@ -490,12 +489,12 @@ var View = NS.Class({
     /**
         Property: O.View#positioning
         Type: String
-        Default: 'absolute'
+        Default: 'relative'
 
         What type of positioning to use to layout the DOM node of this view.
-        Will normally be either 'absolute' (the default) or 'relative'.
+        Will normally be either 'relative' (the default) or 'absolte'.
    */
-    positioning: 'absolute',
+    positioning: 'relative',
 
     /**
         Property: O.View#clipToBounds
@@ -532,6 +531,7 @@ var View = NS.Class({
     /**
         Property: O.View#layout
         Type: Object
+        Default: {}
 
         The CSS properties to use to layout an object. Any number values are
         presumed to be in 'px', any string values are presumed to have an
@@ -563,16 +563,12 @@ var View = NS.Class({
         or if the view is relatively positioned and laid out by the browser,
         this property may be an empty object.
     */
-    layout: {
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%'
-    },
+    layout: {},
 
     /**
         Property: O.View#opacity
-        Type: Number|undefined
+        Type: (Number|undefined)
+        Default: undefined
 
         Opacity of the view. 1.0 is opaque, 0.0 is transparent. If undefined
         (default), no opacity property is set on the view; this normally is the
@@ -583,7 +579,8 @@ var View = NS.Class({
 
     /**
         Property: O.View#zIndex
-        Type: Number|undefined
+        Type: (Number|undefined)
+        Default: undefined
 
         The zIndex of the view. Must be an integer. Not set if undefined
         (default), allowing the browser's default z-index values to be used.
@@ -1192,6 +1189,13 @@ var View = NS.Class({
 });
 
 // Expose Globals:
+
+View.LAYOUT_FILL_PARENT = {
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%'
+};
 
 View.POSITION_SAME = POSITION_SAME;
 View.POSITION_DISCONNECTED = POSITION_DISCONNECTED;

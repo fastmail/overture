@@ -17,7 +17,7 @@ var SplitDividerView = NS.Class({
     Extends: NS.View,
     
     Mixin: NS.Draggable,
-    
+
     thickness: 10,
     
     length: new NS.Binding({
@@ -37,6 +37,8 @@ var SplitDividerView = NS.Class({
             ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
     }.property( 'flex', 'direction' ),
         
+    positioning: 'absolute',
+    
     layout: function () {
         var thickness = this.get( 'thickness' ),
             styles;

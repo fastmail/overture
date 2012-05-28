@@ -29,6 +29,8 @@ var ListView = NS.Class({
         ListView.parent.init.call( this, options );
     },
     
+    positioning: 'absolute',
+
     layout: function () {
         return {
              top: 0,

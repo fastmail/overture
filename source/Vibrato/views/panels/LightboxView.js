@@ -39,6 +39,8 @@ var LightboxItemView = NS.Class({
         return 'LightboxItemView' +
             ( this.get( 'hideControls' ) ? ' hideControls' : '' );
     }.property( 'hideControls' ),
+
+    positioning: 'absolute',
         
     _render: function ( layer ) {
         var Element = NS.Element,
@@ -202,13 +204,10 @@ var LightboxItemView = NS.Class({
     },
     
     onClick: function ( event ) {
-        var lightbox = this.get( 'parentView' );
-                
         if ( NS.Element.contains( this._close, event.target ) ) {
             event.preventDefault();
             this.close();
         }
-        
         event.stopPropagation();
     }.on( 'click' )
 });
@@ -324,6 +323,9 @@ var LightboxView = NS.Class({
             ( this.get( 'isActive' ) ? ' active' : '' ) +
             ( this.get( 'total' ) < 2 ? ' hideControls' : '' );
     }.property( 'isActive', 'total' ),
+    
+    positioning: 'absolute',
+    layout: NS.View.LAYOUT_FILL_PARENT,
     
     _render: function ( layer ) {
         var Element = NS.Element,

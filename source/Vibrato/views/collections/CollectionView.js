@@ -18,9 +18,6 @@ var CollectionView = NS.Class({
     
     itemView: NS.ItemView,
     
-    positioning: 'relative',
-    layout: {},
-    
     _dirtyStart: -1,
     _dirtyEnd: -1,
     

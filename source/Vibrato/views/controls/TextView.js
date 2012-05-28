@@ -26,8 +26,6 @@ var TextView = NS.Class({
     },
     
     allowTextSelection: true,
-    positioning: 'relative',
-    layout: {},
     
     type: function () {
         return this.get( 'multiline' ) ?

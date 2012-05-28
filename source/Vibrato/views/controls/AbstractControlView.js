@@ -17,8 +17,6 @@ var AbstractControlView = NS.Class({
     Extends: NS.View,
     
     layerTag: 'label',
-    layout: {},
-    positioning: 'relative',
     
     didAppendLayerToDocument: function () {
         var key = this.get( 'shortcut' );

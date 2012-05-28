@@ -16,6 +16,16 @@ var InfoBubbleView = NS.Class({
     
     Extends: NS.View,
 
+    init: function () {
+        InfoBubbleView.parent.init.apply( this, arguments );
+        this.get( 'rootView' ).insertView( this );
+    },
+    
+    destroy: function () {
+        this.get( 'rootView' ).removeView( this );
+        InfoBubbleView.parent.destroy.call( this );
+    },
+    
     className: function () {
         return 'InfoBubbleView ' + this.get( 'alignToThe' ) +
             ( this.get( 'isHidden' ) || !this.get( 'alignWithView' ) ?
@@ -29,15 +39,7 @@ var InfoBubbleView = NS.Class({
     alignToThe: 'top',
     text: '',
     
-    init: function () {
-        InfoBubbleView.parent.init.apply( this, arguments );
-        this.get( 'rootView' ).insertView( this );
-    },
-    
-    destroy: function () {
-        this.get( 'rootView' ).removeView( this );
-        InfoBubbleView.parent.destroy.call( this );
-    },
+    positioning: 'absolute',
     
     layout: function () {
         var view = this.get( 'alignWithView' );

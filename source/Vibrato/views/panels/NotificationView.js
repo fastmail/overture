@@ -23,7 +23,7 @@ var NotificationView = NS.Class({
     
     isShowing: false,
 
-    layout: {},
+    positioning: 'absolute',
     
     className: function () {
         return 'NotificationView' +

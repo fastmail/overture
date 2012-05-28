@@ -16,6 +16,7 @@ var ExpandoView = NS.Class({
     
     Extends: NS.View,
     
+    positioning: 'absolute',
     layout: {
         top: 0
     },
@@ -48,9 +49,6 @@ var TreeItemView = NS.Class({
     Extends: NS.View,
     
     layerTag: 'li',
-    
-    layout: {},
-    positioning: 'relative',
     
     parentTreeItemView: function () {
         return this.get( 'parentView' ).get( 'treeItemView' );

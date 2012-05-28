@@ -63,6 +63,9 @@ var PopOverView = NS.Class({
             ( this.get( 'showCallout' ) ? ' calloutShown' : '' );
     }.property( 'showCallout' ),
     
+    positioning: 'absolute',
+    layout: NS.View.LAYOUT_FILL_PARENT,
+    
     _render: function ( layer ) {
         layer.appendChild( NS.Element.create( 'b', {
             className: NS.bind( 'calloutClass', this )

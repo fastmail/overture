@@ -35,8 +35,6 @@ var MenuView = NS.Class({
     },
     
     className: 'MenuView',
-    positioning: 'relative',
-    layout: {},
     
     showFilter: false,
     

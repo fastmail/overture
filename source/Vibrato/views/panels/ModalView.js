@@ -42,6 +42,8 @@ var ModalView = NS.Class({
         return this;
     },
     
+    positioning: 'absolute',
+    layout: NS.View.LAYOUT_FILL_PARENT,
     zIndex: 5000,
     
     title: '',

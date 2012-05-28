@@ -36,7 +36,7 @@ var AutoCompleteView = NS.Class({
     
     Mixin: NS.AbstractMenu,
     
-    layout: {},
+    positioning: 'absolute',
     className: 'AutoCompleteView',
     
     minChars: 1,

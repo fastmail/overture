@@ -46,6 +46,9 @@ var ScrollView = NS.Class({
     clipToBounds: true,
     showScrollbarY: true,
     
+    positioning: 'absolute',
+    layout: NS.View.LAYOUT_FILL_PARENT,
+    
     keys: {},
     
     didAppendLayerToDocument: function () {
