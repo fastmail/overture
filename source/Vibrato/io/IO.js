@@ -195,16 +195,20 @@ var IO = NS.Class({
         general io:X event on the IO object.
         
         Parameters:
-            type    - {String} The type of event in lowercase, e.g. 'success'.
-            request - {Object} request The request object supplied in the call
-                      to send().
-            details - {Object} (optional) An object of properties to be added to
-                      the event object for the event.
+            type      - {String} The type of event in lowercase, e.g. 'success'.
+            request   - {Object} request The request object supplied in the call
+                        to send().
+            transport - {(O.XHR|O.FormUploader)} The transport handling the
+                        request.
+            details   - {Object} (optional) An object of properties to be added
+                        to the event object for the event.
     */
-    _onEvent: function ( type, request, details ) {
+    _onEvent: function ( type, request, transport, details ) {
         var onEvent = 'on' + type.capitalise();
+        if ( !details ) { details = {}; }
+        details.request = request;
+        details.transport = transport;
         if ( request[ onEvent ] ) { request[ onEvent ]( details ); }
-        ( details || ( details = {} ) ).request = request;
         this.fire( 'io:' + type, details );
     }.invokeInRunLoop(),
     
@@ -312,7 +316,7 @@ var IO = NS.Class({
         transport.send( method, url, data, headers );
         
         // Notify listeners
-        this._onEvent( 'begin', request );
+        this._onEvent( 'begin', request, transport );
         
         // Closure allows access to transport object only by class methods.
         return function ( k ) { if ( k === key ) { return transport; } };
@@ -349,7 +353,9 @@ var IO = NS.Class({
             token( key ) : token || this._recent;
         if ( transport ) {
             transport.abort();
-            if ( !_silent ) { this._onEvent( 'abort', transport._io_request ); }
+            if ( !_silent ) {
+                this._onEvent( 'abort', transport._io_request, transport );
+            }
             this._complete( transport );
         }
         return this;
@@ -373,7 +379,8 @@ var IO = NS.Class({
     */
     uploadProgress: function ( transport, event ) {
         this.resetTimeout( transport );
-        this._onEvent( 'uploadProgress', transport._io_request, event );
+        this._onEvent( 'uploadProgress',
+            transport._io_request, transport, event );
     },
     
     /**
@@ -395,7 +402,7 @@ var IO = NS.Class({
     */
     loading: function ( transport ) {
         this.resetTimeout( transport );
-        this._onEvent( 'loading', transport._io_request );
+        this._onEvent( 'loading', transport._io_request, transport );
     },
     
     /**
@@ -408,7 +415,7 @@ var IO = NS.Class({
     
     progress: function ( transport, event ) {
         this.resetTimeout( transport );
-        this._onEvent( 'progress', transport._io_request, event );
+        this._onEvent( 'progress', transport._io_request, transport, event );
     },
     
     /**
@@ -433,7 +440,7 @@ var IO = NS.Class({
             transport - {Transport} The transport object.
     */
     success: function ( transport ) {
-        this._onEvent( 'success', transport._io_request, {
+        this._onEvent( 'success', transport, transport._io_request, {
             status: transport.getStatus(),
             type: transport.getResponseType(),
             data: transport.getResponse()
@@ -459,7 +466,7 @@ var IO = NS.Class({
             transport - {Transport} The transport object.
     */
     failure: function ( transport ) {
-        this._onEvent( 'failure', transport._io_request, {
+        this._onEvent( 'failure', transport._io_request, transport, {
             status: transport.getStatus()
         });
         this._complete( transport );
@@ -481,7 +488,7 @@ var IO = NS.Class({
             transport - {Transport} The transport object.
     */
     _timeout: function ( transport ) {
-        this._onEvent( 'timeout', transport._io_request );
+        this._onEvent( 'timeout', transport._io_request, transport );
         this.abort( transport, true );
     },
     
@@ -517,7 +524,7 @@ var IO = NS.Class({
             this.send( this._queue.shift() );
         }
         
-        this._onEvent( 'end', request );
+        this._onEvent( 'end', request, transport );
     }
 });
 
