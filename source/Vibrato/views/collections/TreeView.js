@@ -121,7 +121,7 @@ var TreeItemView = NS.Class({
     }.property( 'parentTreeItemView' ),
     
     className: function () {
-        return 'TreeItemView depth' + this.get( 'depth' ) + ' ' +
+        return 'TreeItemView depth' + this.get( 'depth' ) +
             ( this.get( 'isSelected' ) ? ' selected' : '' ) +
             ( this.get( 'isHidden' ) ? ( this.get( 'visibleChildren' ) ?
                 ' hiddenButChildren' : ' hidden' ) : '' );
