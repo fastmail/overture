@@ -42,7 +42,7 @@ NS.BoundProps = {
                 // Set it to undefined. If the initial value to be synced
                 // is undefined, nothing will be synced, but we don't want to
                 // leave the Binding object itself as the value; instead we want
-                // to the value to be undefined.
+                // the value to be undefined.
                 this[ key ] = undefined;
                 this[ key + 'Binding' ] = binding.to( key, this ).connect();
             }
