@@ -20,6 +20,7 @@ var ListView = NS.Class({
     
     _batchSize: 10,
     _triggerInPx: 200,
+    
     itemHeight: 100,
 
     contentLength: NS.bind( 'content.length' ),
@@ -84,7 +85,7 @@ var ListView = NS.Class({
         }
     },
     
-    contentLengthDidChange: function ( _, __, oldLength, length ) {
+    _simulateScroll: function ( _, __, oldLength, length ) {
         // Convert null/undefined length to 0.
         if ( !length ) { length = 0; }
         // In IE or Opera, if the scrollTop of the containing overflowed div was
