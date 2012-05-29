@@ -45,7 +45,7 @@ var SelectionController = NS.Class({
     contentWasUpdated: function ( event ) {
         // If an id has been removed, it may no
         // longer belong to the selection
-        var selected = this._selectedIds,
+        var _selectedIds = this._selectedIds,
             selectionLength = this.get( 'selectionLength' ),
             removed = event.removed || [],
             added = event.added.reduce( function ( set, id ) {
@@ -57,9 +57,9 @@ var SelectionController = NS.Class({
         
         while ( l-- ) {
             id = removed[l];
-            if ( selected[ id ] && !added[ id ] ) {
+            if ( _selectedIds[ id ] && !added[ id ] ) {
                 selectionLength -= 1;
-                delete selected[ id ];
+                delete _selectedIds[ id ];
             }
         }
         
@@ -79,11 +79,17 @@ var SelectionController = NS.Class({
         return !!this._selectedIds[ id ];
     },
     
-    selectedIdsDidChange: function () {
+    updateViews: function () {
         var itemViews = this.getFromPath( 'view.childViews' ),
-            l = itemViews ? itemViews.length : 0;
+            l = itemViews ? itemViews.length : 0,
+            _selectedIds = this._selectedIds,
+            view, id;
         while ( l-- ) {
-            itemViews[l].computedPropertyDidChange( 'isSelected' );
+            view = itemViews[l];
+            id = view.getFromPath( 'content.id' );
+            if ( id ) {
+                view.set( 'isSelected', !!_selectedIds[ id ] );
+            }
         }
     }.observes( 'selectedIds' ),
     
@@ -99,20 +105,20 @@ var SelectionController = NS.Class({
         // Make sure we've got a boolean
         isSelected = !!isSelected;
 
-        var selected = this._selectedIds,
+        var _selectedIds = this._selectedIds,
             howManyChanged = 0,
             l = ids.length,
             id, wasSelected;
 
         while ( l-- ) {
             id = ids[l];
-            wasSelected = !!selected[ id ];
+            wasSelected = !!_selectedIds[ id ];
             if ( isSelected !== wasSelected ) {
                 if ( isSelected ) {
-                    selected[ id ] = true;
+                    _selectedIds[ id ] = true;
                 }
                 else {
-                    delete selected[ id ];
+                    delete _selectedIds[ id ];
                 }
                 howManyChanged += 1;
             }
