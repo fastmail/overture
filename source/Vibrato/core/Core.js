@@ -422,26 +422,33 @@ NS.sortByProperties = function ( properties ) {
     
     return function ( a, b ) {
         var hasGet = !!a.get,
-            i, prop, aVal, bVal;
+            i, prop, aVal, bVal, type;
         for ( i = 0; i < l; i += 1 ) {
             prop = properties[i];
             aVal = hasGet ? a.get( prop ) : a[ prop ];
             bVal = hasGet ? b.get( prop ) : b[ prop ];
+            type = typeof aVal;
             
-            if ( typeof aVal === 'string' && typeof bVal === 'string' ) {
-                if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
-                    aVal = parseInt( aVal, 10 );
-                    bVal = parseInt( bVal, 10 );
-                } else {
-                    aVal = aVal.toLowerCase();
-                    bVal = bVal.toLowerCase();
+            // Must be the same type
+            if ( type === typeof bVal ) {
+                if ( type === 'boolean' && aVal !== bVal ) {
+                    return aVal ? -1 : 1;
                 }
-            }
-            if ( aVal < bVal ) {
-                return -1;
-            }
-            if ( aVal > bVal ) {
-                return 1;
+                if ( type === 'string' ) {
+                    if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
+                        aVal = parseInt( aVal, 10 );
+                        bVal = parseInt( bVal, 10 );
+                    } else {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+                }
+                if ( aVal < bVal ) {
+                    return -1;
+                }
+                if ( aVal > bVal ) {
+                    return 1;
+                }
             }
         }
         return 0;
