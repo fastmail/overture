@@ -19,8 +19,9 @@ var AutoCompleteSource = NS.Class({
     maxResults: 10,
     suggestions: [],
     
-    getTestRegExp: function ( value ) {
-        return new RegExp( '\b' + value, 'i' );
+    getTestFn: function ( value ) {
+        var regexp = new RegExp( '\\b' + value.escapeRegExp(), 'i' );
+        return regexp.test.bind( regexp );
     },
     renderSuggestion: function ( suggestion, searchTerm ) {
         return suggestion.escapeHTML();
