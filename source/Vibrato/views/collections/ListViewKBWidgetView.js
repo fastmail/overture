@@ -11,32 +11,18 @@
 "use strict";
 
 ( function ( NS, undefined ) {
- 
 
 var ListViewKBWidgetView = NS.Class({
     
     Extends: NS.View,
         
-    className: 'ListViewKBWidgetView',
-    positioning: 'absolute',
-    layout: function () {
-        var itemHeight = this.get( 'itemHeight' );
-        return {
-            top: itemHeight * this.get( 'index' ),
-            height: itemHeight
-        };
-    }.property( 'itemHeight', 'index' ),
-    
     listView: null,
-    
-    max: NS.bind( 'listView.contentLength' ),
-    itemHeight: NS.bind( 'listView.itemHeight' ),
+
     selectionController: NS.bind( 'listView.selectionController' ),
-    content: NS.bind( 'listView.content' ),
-    
-    _top: 0,
-    
+    itemHeight: NS.bind( 'listView.itemHeight' ),
+
     index: 0,
+    
     keys: {
         j: 'goNext',
         k: 'goPrev',
@@ -46,31 +32,15 @@ var ListViewKBWidgetView = NS.Class({
         enter: 'trigger'
     },
     
-    init: function ( options ) {
-        ListViewKBWidgetView.parent.init.call( this, options );
-        var content = this.get( 'content' );
-        if ( content ) {
-            content.on( 'query:updated', this, 'contentWasUpdated' );
-        }
-    },
-    
-    destroy: function () {
-        var content = this.get( 'content' );
-        if ( content ) {
-            content.detach( 'query:updated', this, 'contentWasUpdated' );
-        }
-        ListViewKBWidgetView.parent.destroy.call( this );
-    },
-    
-    contentDidChange: function ( _, __, oldVal, newVal ) {
-        this.set( 'index', 0 );
-        if ( oldVal ) {
-            oldVal.detach( 'query:updated', this, 'contentWasUpdated' );
-        }
-        if ( newVal ) {
-            newVal.on( 'query:updated', this, 'contentWasUpdated' );
-        }
-    }.observes( 'content' ),
+    className: 'ListViewKBWidgetView',
+    positioning: 'absolute',
+    layout: function () {
+        var itemHeight = this.get( 'itemHeight' );
+        return {
+            top: itemHeight * this.get( 'index' ),
+            height: itemHeight
+        };
+    }.property( 'itemHeight', 'index' ),
     
     didAppendLayerToDocument: function () {
         var keys = this.get( 'keys' ),
@@ -94,29 +64,6 @@ var ListViewKBWidgetView = NS.Class({
         }
         return ListViewKBWidgetView.parent.
             willRemoveLayerFromDocument.call( this );
-    },
-    
-    maxDidChange: function ( _, __, ___, max ) {
-        if ( this.get( 'index' ) >= max ) {
-            this.set( 'index', max - 1 );
-        }
-    }.observes( 'max' ),
-    
-    contentWasUpdated: function ( updates ) {
-        var index = this.get( 'index' ),
-            removed = updates.removedIndexes,
-            added = updates.addedIndexes,
-            l = removed.length,
-            i;
-        while ( l-- ) {
-            if ( removed[l] < index ) { index -= 1; }
-        }
-        for ( i = 0, l = added.length; i < l; i += 1 ) {
-            if ( added[i] <= index ) { index += 1; }
-            // Guaranteed in ascending order.
-            else { break; }
-        }
-        this.set( 'index', index.limit( 0, this.get( 'max' ) - 1 ) );
     },
     
     distanceFromVisRect: function () {
@@ -160,35 +107,24 @@ var ListViewKBWidgetView = NS.Class({
     },
     
     goNext: function () {
-        this.go( this.get( 'index' ) + 1 );
+        this.increment( 'index', 1 );
     },
     goPrev: function () {
-        this.go( this.get( 'index' ) - 1 );
+        this.increment( 'index', -1 );
     },
-    go: function ( index ) {
-        if ( 0 <= index && index < this.get( 'max' ) ) {
-            this.set( 'index', index );
-            // Check it's visible
-            if ( this.get( 'isInDocument' ) ) {
-                var distance = this.get( 'distanceFromVisRect' );
-                if ( distance ) {
-                    this.scrollIntoView( distance < 0 ? -0.6 : 0.6 );
-                }
-            }
-        }
-    },
-    trigger: function () {},
     select: function ( event ) {
         var index = this.get( 'index' ),
             selectionController = this.get( 'selectionController' ),
-            record = selectionController.get( 'content' ).getObjectAt( index );
+            list = this.getFromPath( 'listView.content' ),
+            record = list && list.getObjectAt( index );
         // Check it's next to a loaded record.
         if ( record ) {
             selectionController.selectIndex( index,
                 !selectionController.isIdSelected( record.get( 'id' ) ),
                 event.shiftKey );
         }
-    }
+    },
+    trigger: function () {}
 });
 
 NS.ListViewKBWidgetView = ListViewKBWidgetView;

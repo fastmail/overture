@@ -510,7 +510,7 @@ var WindowedRemoteQuery = NS.Class({
             // Always remove WINDOWS_RECORDS_READY flag; this is recalculated
             // lazily when the window is fetched.
             status = ( windows[ windowIndex ] || 0 ) & ~WINDOW_RECORDS_READY;
-            // But the window might be ready, so add the WIDNOW_READY flag and
+            // But the window might be ready, so add the WINDOW_READY flag and
             // then remove it if we find a gap in the window.
             status |= WINDOW_READY;
             while ( listIndex >= target ) {
