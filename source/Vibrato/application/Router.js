@@ -50,12 +50,12 @@ var Router = NS.Class({
     title: document.title,
 
     /**
-        Property (private): O.Router#_current
+        Property: O.Router#currentPath
         Type: String
         
         The last URL set by the app.
     */
-    _current: '',
+    currentPath: '',
     
     /**
         Property: O.Router#useHash
@@ -112,7 +112,7 @@ var Router = NS.Class({
         var location = win.location,
             path = this.useHash ?
                 getHash( location ) : getUrl( location, this.baseUrl );
-        this._current = path;
+        this.set( 'currentPath', path );
         this.restoreStateFromUrl( path );
         win.addEventListener(
             this.useHash ? 'hashchange' : 'popstate', this, false );
@@ -141,8 +141,8 @@ var Router = NS.Class({
             path = this.useHash ?
                 getHash( location ) : getUrl( location, this.baseUrl );
 
-        if ( path !== this._current ) {
-            this._current = path;
+        if ( path !== this.get( 'currentPath' ) ) {
+            this.set( 'currentPath', path );
             this.restoreStateFromUrl( path );
         }
     }.invokeInRunLoop(),
@@ -182,8 +182,8 @@ var Router = NS.Class({
     encodeStateToUrl: function () {
         var state = this.get( 'encodedState' ),
             win = this._win;
-        if ( this._current !== state ) {
-            this._current = state;
+        if ( this.get( 'currentPath' ) !== state ) {
+            this.set( 'currentPath', state );
             if ( this.useHash ) {
                 win.location.hash = '#/' + state;
             } else {
