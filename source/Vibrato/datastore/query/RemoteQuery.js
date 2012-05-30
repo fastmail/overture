@@ -300,7 +300,7 @@ var RemoteQuery = NS.Class({
     length: null,
 
     /**
-        Method: O.RemoteQuery#indexOf
+        Method: O.RemoteQuery#indexOfId
 
         Finds the index of an id in the query. Since the entire list may not be
         loaded, this data may have to be loaded from the server so you should
@@ -317,7 +317,7 @@ var RemoteQuery = NS.Class({
         Returns:
             {Number} The index of the id, or -1 if not found.
     */
-    indexOf: function ( id, from, callback ) {
+    indexOfId: function ( id, from, callback ) {
         var index = this._list.indexOf( id, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {

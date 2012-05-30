@@ -183,9 +183,9 @@ var LiveQuery = NS.Class({
     */
     '[]': function () {
         var store = this.get( 'store' ),
-            type = this.get( 'type' );
+            Type = this.get( 'type' );
         return this._storeKeys.map( function ( storeKey ) {
-            return store.materialiseRecord( storeKey, type );
+            return store.materialiseRecord( storeKey, Type );
         });
     }.property(),
     
@@ -196,6 +196,38 @@ var LiveQuery = NS.Class({
         The number of records in the query.
     */
     length: 0,
+    
+    /**
+        Method: O.LiveQuery#indexOfId
+
+        Finds the index of an id in the query. If the id is not found, the index
+        returned will be -1.
+
+        Parameters:
+            id       - {String} The record id to find.
+            from     - {Number} The first index to start the search from.
+                       Specify 0 to search the whole list.
+            callback - {Function} (optional) A callback to make with the id. For
+                       compatibility with <O.RemoteQuery>.
+
+        Returns:
+            {Number} The index of the id, or -1 if not found.
+    */
+    indexOfId: function ( id, from, callback ) {
+        var Type = this.get( 'type' ),
+            store = this.get( 'store' ),
+            index = -1,
+            storeKey;
+        
+        if ( store.getRecordStatus( Type, id ) & READY ) {
+            storeKey = store.getStoreKey( Type, id );
+            index = this._storeKeys.indexOf( storeKey, from );
+        }
+        if ( callback ) {
+            callback( index );
+        }
+        return index;
+    },
     
     /**
         Method: O.LiveQuery#getObjectAt

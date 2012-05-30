@@ -284,7 +284,7 @@ var RemotePagedQuery = NS.Class({
     },
     
     /**
-        Method: O.RemotePagedQuery#indexOf
+        Method: O.RemotePagedQuery#indexOfId
         
         Finds the index of an id in the currently loaded query.
         
@@ -298,7 +298,7 @@ var RemotePagedQuery = NS.Class({
         Returns:
             {Number} The index of the id, or -1 if not found.
     */
-    indexOf: function ( id, from, callback ) {
+    indexOfId: function ( id, from, callback ) {
         var index = this._list.indexOf( id, from );
         if ( callback ) { callback( index ); }
         return index;

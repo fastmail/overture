@@ -87,7 +87,7 @@ var SingleSelectionController = NS.Class({
             list = this.get( 'content' );
         if ( id && !this._ignore ) {
             if ( list ) {
-                list.indexOf( id, 0, function ( index ) {
+                list.indexOfId( id, 0, function ( index ) {
                     if ( this.get( 'id' ) === id ) {
                         this._ignore = true;
                         this.set( 'index', index );
@@ -115,7 +115,7 @@ var SingleSelectionController = NS.Class({
         var id = this.get( 'id' ),
             index;
         if ( id ) {
-            index = newVal.indexOf( id );
+            index = newVal.indexOfId( id );
         }
         this.set( 'index', index > -1 ? index : 0 );
     }.observes( 'content' ),

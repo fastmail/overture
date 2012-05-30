@@ -304,7 +304,7 @@ var WindowedRemoteQuery = NS.Class({
         WindowedRemoteQuery.parent.reset.call( this, _, _key );
     }.observes( 'sort', 'filter' ),
     
-    indexOf: function ( id, from, callback ) {
+    indexOfId: function ( id, from, callback ) {
         var index = this._list.indexOf( id, from );
         if ( callback ) {
             // If we have a callback and haven't found it yet, we need to keep
