@@ -24,10 +24,7 @@ var getHash = function ( location ) {
     return  i > -1 ? href.slice( i + 2 ) : '';
 };
 var getUrl = function ( location, base ) {
-    var url = location.pathname,
-        start = url.indexOf( base );
-    
-    return start > -1 ? url.slice( start ) : '';
+    return location.pathname.slice( base.length );
 };
 /**
     Class: O.Router
