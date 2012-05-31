@@ -122,20 +122,24 @@ var SingleSelectionController = NS.Class({
     
     contentWasUpdated: function ( updates ) {
         var index = updates.added.indexOf( this.get( 'id' ) ),
-            removed = updates.removedIndexes,
-            added = updates.addedIndexes,
-            change = 0, i, l;
-        if ( index === -1 ) {
+            removedIndexes = updates.removedIndexes,
+            addedIndexes = updates.addedIndexes,
+            change = 0,
+            i, l;
+        
+        if ( index > -1 ) {
+            index = addedIndexes[ index ];
+        } else {
             index = this.get( 'index' );
-            for ( i = 0, l = removed.length; i < l; i += 1 ) {
-                if ( removed[i] < index ) { change += 1; }
+            for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
+                if ( removedIndexes[i] < index ) { change += 1; }
                 // Guaranteed in ascending order.
                 else { break; }
             }
             index -= change;
             change = 0;
-            for ( i = 0, l = added.length; i < l; i += 1 ) {
-                if ( added[i] <= index ) { change += 1; }
+            for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
+                if ( addedIndexes[i] <= index ) { change += 1; }
                 // Guaranteed in ascending order.
                 else { break; }
             }
