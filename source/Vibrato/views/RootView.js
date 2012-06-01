@@ -88,8 +88,8 @@ var RootView = NS.Class({
     
     layer: null,
     
-    init: function ( node ) {
-        RootView.parent.init.call( this );
+    init: function ( node, options ) {
+        RootView.parent.init.call( this, options );
         
         var nodeIsDocument = node.nodeType === Node.DOCUMENT_NODE,
             doc = nodeIsDocument ? node : node.ownerDocument,
