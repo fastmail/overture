@@ -129,7 +129,8 @@ var NestedStore = NS.Class({
             parent.createRecord( storeKey, _skToData[ storeKey ] );
         }
         for ( storeKey in _skToChanged ) {
-            parent.updateData( storeKey, _skToData[ storeKey ], true );
+            parent.updateData( storeKey, Object.filter(
+                _skToData[ storeKey ], _skToChanged[ storeKey ] ), true );
         }
         for ( storeKey in _destroyed ) {
             parent.destroyRecord( storeKey );
