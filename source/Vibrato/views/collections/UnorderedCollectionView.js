@@ -98,14 +98,14 @@ var UnorderedCollectionView = NS.Class({
     },
     
     redraw: function () {
-        var content = this.get( 'content' ) || [],
+        var list = this.get( 'content' ) || [],
             ItemView = this.get( 'itemView' ),
             selectionController = this.get( 'selectionController' ),
             
             // Limit to this range in the content array.
             renderRange = this._renderRange,
             start = Math.max( 0, renderRange.start ),
-            end = Math.min( content.get( 'length' ), renderRange.end ),
+            end = Math.min( list.get( 'length' ), renderRange.end ),
             
             // Set of already rendered views.
             rendered = this._rendered,
@@ -119,17 +119,18 @@ var UnorderedCollectionView = NS.Class({
         
         // Get list to be rendered.
         for ( i = start, l = end; i < l; i += 1 ) {
-            item = content.getObjectAt( i );
-            id = item ? item.get( 'id' ) : 'null:' + i;
+            item = list.getObjectAt( i );
+            id = item ? NS.guid( item ) : 'null:' + i;
             view = rendered[ id ];
             
             if ( view ) {
                 view.set( 'index', i );
             } else {
                 view = new ItemView({
-                    index: i,
-                    content: item,
                     parentView: this,
+                    content: item,
+                    index: i,
+                    list: list,
                     selectionController: selectionController
                 });
                 if ( isInDocument ) {

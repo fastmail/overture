@@ -108,6 +108,7 @@ var CollectionView = NS.Class({
         return view || new ( this.get( 'itemView' ) )({
             parentView: collectionView,
             content: content,
+            list: list,
             index: index
         });
     },
