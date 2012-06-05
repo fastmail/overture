@@ -349,9 +349,9 @@ var IO = NS.Class({
                     recent request is aborted.
     */
     abort: function ( token, _silent ) {
-        var transport = ( token instanceof Function ) ?
-            token( key ) : token || this._recent;
-        if ( transport ) {
+        var transport = token ? ( token instanceof Function ) ?
+            token( key ) : token : this._recent;
+        if ( transport && transport._io_request ) {
             transport.abort();
             if ( !_silent ) {
                 this._onEvent( 'abort', transport._io_request, transport );
