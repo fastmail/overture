@@ -107,7 +107,7 @@ var XHR = NS.Class({
     getHeader: function ( name ) {
       try {
           return this.xhr.getResponseHeader( name );
-      } catch ( e ) {}
+      } catch ( error ) {}
       return '';
     },
     
@@ -124,7 +124,7 @@ var XHR = NS.Class({
         // responseText before it is in readyState 4.
         try {
             return this.xhr.responseText;
-        } catch ( e ) {}
+        } catch ( error ) {}
         return '';
     },
     

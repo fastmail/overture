@@ -273,7 +273,11 @@ var RPCSource = NS.Class({
             response = data[i];
             handler = handlers[ response[0] ];
             if ( handler ) {
-                handler.call( this, response[1] );
+                try {
+                    handler.call( this, response[1] );
+                } catch ( error ) {
+                    NS.RunLoop.didError( error );
+                }
             } else {
                 NS.RunLoop.didError({
                     name: 'O.RPCSource#receive',

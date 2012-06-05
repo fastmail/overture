@@ -53,12 +53,23 @@ var TextView = NS.Class({
             // guard against all.
             try {
                 input.setSelectionRange( start, end );
-            } catch ( e ) {}
+            } catch ( error ) {}
         } else {
-            return {
-                start: input.selectionStart,
-                end: input.selectionEnd
-            };
+            // Firefox sometimes throws an error if you try to read the
+            // selection. Again, probably if the input is not actually in the
+            // document.
+            try {
+                selection = {
+                    start: input.selectionStart,
+                    end: input.selectionEnd
+                };
+            } catch ( error ) {
+                selection = {
+                    start: 0,
+                    end: 0
+                };
+            }
+            return selection;
         }
     }.property().nocache(),
     

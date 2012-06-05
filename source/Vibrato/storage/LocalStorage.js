@@ -57,12 +57,16 @@ var LocalStorage = NS.Class({
         // If we exceed the storage quota, an error will be thrown.
         try {
             this._store.setItem( this._name + key, JSON.stringify( value ) );
-        } catch ( e ) {}
+        } catch ( error ) {}
         LocalStorage.parent.set.call( this, key, value );
     },
     
     getUnknownProperty: function ( key ) {
-        var item = this._store.getItem( this._name + key );
+        var item;
+        // Firefox sometimes throws and error
+        try {
+            item = this._store.getItem( this._name + key );
+        } catch ( error ) {}
         return item ? ( this[ key ] = JSON.parse( item ) ) : this[ key ];
     }
 });

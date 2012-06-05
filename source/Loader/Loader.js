@@ -169,7 +169,7 @@ var loader = {
                             try {
                                 ls.setItem( LS_V_PREFIX + module, path );
                                 ls.setItem( LS_PREFIX + module, data );
-                            } catch ( e ) {}
+                            } catch ( error ) {}
                         }
                         loader._moduleDidLoad( module, data );
                     } else {
@@ -305,7 +305,7 @@ O.execute = ( function ( global ) {
             return ( ( 1, eval )( 'Object' ) === original ) &&
                 ( ( 1, eval )( '"use strict";this' ) === global );
         }
-        catch ( e ) {
+        catch ( error ) {
             // If indirect eval errors out (as allowed per ES3), then just bail
             // out with `false`
             return false;
