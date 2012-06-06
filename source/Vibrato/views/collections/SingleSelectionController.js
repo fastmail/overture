@@ -145,7 +145,9 @@ var SingleSelectionController = NS.Class({
             }
             index += change;
         }
-        this.set( 'index', index );
+        this.set( 'index', Math.min( index,
+            ( this.getFromPath( 'content.length' ) || 1 ) - 1
+        ));
     }
 });
 
