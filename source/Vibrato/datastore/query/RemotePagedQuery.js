@@ -264,7 +264,7 @@ var RemotePagedQuery = NS.Class({
         var list = this._list,
             oldLength = list.length,
             listLength = oldLength,
-            start = this.indexOf( args.anchor ) + 1 || listLength;
+            start = this.indexOfId( args.anchor ) + 1 || listLength;
         
         // Append only; remove anything beyond the point of the anchor.
         if ( listLength > start ) {
