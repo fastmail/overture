@@ -323,7 +323,7 @@ NS.AnimatableView = {
         else {
             layerAnimation.stop();
             layerAnimation.current = newStyles;
-            setStyle( layer, 'transition', 'none' );
+            setStyle( layer, 'transition-property', 'none' );
             for ( property in newStyles ) {
                 value = newStyles[ property ];
                 if ( value !== oldStyles[ property ] ) {

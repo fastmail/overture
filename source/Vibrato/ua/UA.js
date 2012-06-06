@@ -102,6 +102,10 @@ NS.UA = {
                 prefix + test.name : null;
         }
     }
+    css = cssProps.transition;
+    [ 'delay', 'timing', 'duration', 'property' ].forEach( function ( prop ) {
+        cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
+    });
     el = null;
 }() );
 
