@@ -287,12 +287,13 @@ var Record = NS.Class({
     id: function () {
         var storeKey = this.get( 'storeKey' );
         return storeKey ?
-            this.get( 'store' ).getIdFromStoreKey( storeKey ) :
+            this.get( 'store' ).getIdFromStoreKey( storeKey ) ||
+            ( '#' + storeKey ):
             this.get( this.constructor.primaryKey );
     }.property(),
     
     toJSON: function () {
-        return this.get( 'id' ) || '#' + this.get( 'storeKey' );
+        return this.get( 'id' );
     },
 
     /**

@@ -214,13 +214,12 @@ var LiveQuery = NS.Class({
             {Number} The index of the id, or -1 if not found.
     */
     indexOfId: function ( id, from, callback ) {
-        var Type = this.get( 'type' ),
-            store = this.get( 'store' ),
+        var record = this.get( 'store' ).getRecord( this.get( 'type' ), id ),
             index = -1,
             storeKey;
         
-        if ( store.getRecordStatus( Type, id ) & READY ) {
-            storeKey = store.getStoreKey( Type, id );
+        if ( record.is( READY ) ) {
+            storeKey = record.get( 'storeKey' );
             index = this._storeKeys.indexOf( storeKey, from );
         }
         if ( callback ) {
@@ -290,7 +289,8 @@ var LiveQuery = NS.Class({
             oldLength = this.get( 'length' ),
             store = this.get( 'store' ),
             storeKeyToId = function ( storeKey ) {
-                return store.getIdFromStoreKey( storeKey );
+                return store.getIdFromStoreKey( storeKey ) ||
+                    ( '#' + storeKey );
             },
             l, storeKey, index, shouldBeInQuery,
             addedLength, removedLength, length, maxLength;
@@ -431,7 +431,7 @@ var LiveQuery = NS.Class({
         var store = this.get( 'store' );
         callback( this._storeKeys.slice( start, end )
                                  .map( function ( storeKey ) {
-            return store.getIdFromStoreKey( storeKey );
+            return store.getIdFromStoreKey( storeKey ) || ( '#' + storeKey );
         }), start, end );
         return false;
     },

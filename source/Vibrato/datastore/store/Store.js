@@ -873,8 +873,8 @@ var Store = NS.Class({
         passed as a second argument. The new record will be committed back to
         the server the next time <O.Store#commitChanges> runs.
         
-        You will not normally use this method; use the higher level
-        <O.Store#newRecord> method instead.
+        You will not normally use this method; instead just create a new record
+        using `new ORecordSubclass()` and then call <O.Record#saveToStore>.
         
         Parameters:
             storeKey - {String} The store key of the new record.
