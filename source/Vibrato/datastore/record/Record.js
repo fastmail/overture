@@ -314,7 +314,9 @@ var Record = NS.Class({
         var Type = this.constructor,
             data = this._data,
             store = this.get( 'store' ),
-            storeKey = store.getStoreKey( Type, data[ Type.primaryKey ] ),
+            idPropKey = Type.primaryKey,
+            idAttrKey = this[ idPropKey ].key || idPropKey,
+            storeKey = store.getStoreKey( Type, data[ idAttrKey ] ),
             attrs = NS.meta( this, true ).attrs,
             attrKey, propKey, attribute, defaultValue;
         

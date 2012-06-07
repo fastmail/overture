@@ -271,7 +271,8 @@ var Store = NS.Class({
     setIdForStoreKey: function ( storeKey, id ) {
         var Type = this._skToType[ storeKey ],
             typeName = Type.className,
-            primaryKey = Type.primaryKey,
+            idPropKey = Type.primaryKey,
+            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             _skToId = this._typeToSkToId[ typeName ],
             _idToSk = this._typeToIdToSk[ typeName ],
             oldId = _skToId[ storeKey ],
@@ -284,7 +285,7 @@ var Store = NS.Class({
             }
             _idToSk[ id ] = storeKey;
             
-            update[ primaryKey ] = id;
+            update[ idAttrKey ] = id;
             this.updateData( storeKey, update, false );
             this.updateDataLinkedToId( storeKey, id );
         }
@@ -1395,7 +1396,8 @@ var Store = NS.Class({
     */
     sourceDidFetchRecords: function ( Type, records, _all ) {
         var l = records.length,
-            idKey = Type.primaryKey,
+            idPropKey = Type.primaryKey,
+            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             now = Date.now(),
             seen = {},
             updates = {},
@@ -1403,7 +1405,7 @@ var Store = NS.Class({
         
         while ( l-- ) {
             data = records[l];
-            id = data[ idKey ];
+            id = data[ idAttrKey ];
             seen[ id ] = true;
             storeKey = this.getStoreKey( Type, id );
             status = this.getStatus( storeKey );
