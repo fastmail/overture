@@ -103,7 +103,10 @@ var SingleSelectionController = NS.Class({
     }.observes( 'id' ),
     
     contentDidChange: function ( _, __, oldVal, newVal ) {
-        var range = this._range;
+        var range = this._range,
+            id = this.get( 'id' ),
+            index, record;
+        
         if ( oldVal ) {
             oldVal.detach( 'query:updated', this, 'contentWasUpdated' );
             oldVal.removeObserverForRange( range, this, 'idAtIndexDidChange' );
@@ -112,20 +115,27 @@ var SingleSelectionController = NS.Class({
             newVal.addObserverForRange( range, this, 'idAtIndexDidChange' );
             newVal.on( 'query:updated', this, 'contentWasUpdated' );
         }
-        var id = this.get( 'id' ),
-            index;
-        if ( id ) {
+        
+        if ( id && newVal ) {
             index = newVal.indexOfId( id );
         }
-        this.set( 'index', index > -1 ? index : 0 );
+        index = index > -1 ? index : 0;
+        
+        if ( index === this.get( 'index' ) ) {
+            record = newVal && newVal.getObjectAt( index );
+            this.set( 'id', record ? record.get( 'id' ) : null );
+        } else {
+            this.set( 'index', index );
+        }
     }.observes( 'content' ),
     
     contentWasUpdated: function ( updates ) {
         var index = updates.added.indexOf( this.get( 'id' ) ),
             removedIndexes = updates.removedIndexes,
             addedIndexes = updates.addedIndexes,
+            content = this.get( 'content' ),
             change = 0,
-            i, l;
+            i, l, record;
         
         if ( index > -1 ) {
             index = addedIndexes[ index ];
@@ -145,9 +155,14 @@ var SingleSelectionController = NS.Class({
             }
             index += change;
         }
-        this.set( 'index', Math.min( index,
-            ( this.getFromPath( 'content.length' ) || 1 ) - 1
-        ));
+        index = Math.min( index,
+            ( ( content && content.get( 'length' ) ) || 1 ) - 1 );
+        if ( index === this.get( 'index' ) ) {
+            record = content && content.getObjectAt( index );
+            this.set( 'id', record ? record.get( 'id' ) : null );
+        } else {
+            this.set( 'index', index );
+        }
     }
 });
 
