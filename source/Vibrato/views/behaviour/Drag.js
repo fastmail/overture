@@ -33,11 +33,6 @@ native implementation (and indeed the spec) is extremely buggy. Problems (as of
    implementations are likely to change as well.
 5. In Firefox, setDragImage only works with visible elements.
 
-In Chrome (tested in v15.0.874.121), the latest HTML DnD API looks like it's
-supported, but if you query the items property of the dataTransfer object, it
-always has zero items. Therefore the deprecated API is used if present instead
-of the latest API.
-
 If you want to initiate a drag with data for an external app (e.g. a file download), you can still do this, by:
 
 1. Setting a draggable="true" attribute on the HTML element to be dragged.
@@ -391,10 +386,6 @@ var Drag = NS.Class({
         }
         if ( this.isNative ) {
             var dataTransfer = this.event.dataTransfer;
-            // Deprecated HTML5 DnD interface
-            if ( dataTransfer.types ) {
-                return dataTransfer.types;
-            }
             // Current HTML5 DnD interface
             var items = dataTransfer.items,
                 types = [],
@@ -412,6 +403,10 @@ var Drag = NS.Class({
                     types.push( 'Files' );
                 }
                 return types;
+            }
+            // Deprecated HTML5 DnD interface
+            if ( dataTransfer.types ) {
+                return dataTransfer.types;
             }
         }
         return [];
@@ -483,13 +478,13 @@ var Drag = NS.Class({
                     types.forEach( function ( type ) {
                         if ( type.contains( '/' ) ) {
                             var data = dataSource.getDragDataOfType( type );
-                            // Deprecated HTML5 DnD interface
-                            if ( dataTransfer.setData ) {
-                                dataTransfer.setData( type, data );
-                            }
                             // Current HTML5 DnD interface
-                            else if ( dataTransfer.items ) {
+                            if ( dataTransfer.items ) {
                                 dataTransfer.items.add( data, type );
+                            }
+                            // Deprecated HTML5 DnD interface
+                            else if ( dataTransfer.setData ) {
+                                dataTransfer.setData( type, data );
                             }
                             dataIsSet = true;
                         }
