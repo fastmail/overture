@@ -440,7 +440,7 @@ var IO = NS.Class({
             transport - {Transport} The transport object.
     */
     success: function ( transport ) {
-        this._onEvent( 'success', transport, transport._io_request, {
+        this._onEvent( 'success', transport._io_request, transport, {
             status: transport.getStatus(),
             type: transport.getResponseType(),
             data: transport.getResponse()
