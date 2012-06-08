@@ -87,6 +87,19 @@ var Router = NS.Class({
     encodedState: '',
     
     /**
+        Property: O.Router#replaceState
+        Type: Boolean
+        Default: false
+        
+        If set to true, the next change of encodedState will cause the current
+        history entry to be relaced, rather than appending a new history entry.
+        The property will then automatically be set back to false. Set this to
+        true if you decode an invalid URL path to ensure it doesn't remain in
+        the browser history.
+    */
+    replaceState: false,
+    
+    /**
         Property: O.Router#routes
         Type: Array
         
@@ -178,17 +191,37 @@ var Router = NS.Class({
     */
     encodeStateToUrl: function () {
         var state = this.get( 'encodedState' ),
-            win = this._win;
+            replaceState = this.get( 'replaceState' ),
+            win = this._win,
+            location, href, i;
         if ( this.get( 'currentPath' ) !== state ) {
             this.set( 'currentPath', state );
             if ( this.useHash ) {
-                win.location.hash = '#/' + state;
+                location = win.location;
+                if ( replaceState ) {
+                    href = location.href;
+                    i = href.indexOf( '#' );
+                    if ( i > -1 ) { href = href.slice( 0, i ); }
+                    location.replace( href + '#/' + state );
+                } else {
+                    location.hash = '#/' + state;
+                }
             } else {
-                win.history.pushState(
-                    null, this.get( 'title' ), this.get( 'baseUrl' ) + state );
+                win.history[ replaceState ? 'replaceState' : 'pushState' ](
+                    null,
+                    this.get( 'title' ),
+                    this.getUrlForEncodedState( state )
+                );
+            }
+            if ( replaceState ) {
+                this.set( 'replaceState', false );
             }
         }
-    }.queue( 'after' ).observes( 'encodedState' )
+    }.queue( 'after' ).observes( 'encodedState' ),
+    
+    getUrlForEncodedState: function ( state ) {
+        return this.get( 'baseUrl' ) + state;
+    }
 });
 
 NS.Router = Router;
