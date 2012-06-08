@@ -106,11 +106,20 @@ var ListViewKBWidgetView = NS.Class({
         }
     },
     
+    go: function ( delta ) {
+        this.increment( 'index', delta );
+        if ( this.get( 'isInDocument' ) ) {
+            var distance = this.get( 'distanceFromVisRect' );
+            if ( distance ) {
+                this.scrollIntoView( distance < 0 ? -0.6 : 0.6 );
+            }
+        }
+    },
     goNext: function () {
-        this.increment( 'index', 1 );
+        this.go( 1 );
     },
     goPrev: function () {
-        this.increment( 'index', -1 );
+        this.go( -1 );
     },
     select: function ( event ) {
         var index = this.get( 'index' ),
