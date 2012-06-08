@@ -53,14 +53,12 @@ NS.AbstractMenu = {
         return items.getObjectAt( i );
     },
 
-    focusPrevious: function ( event ) {
+    focusPrevious: function () {
         this.focusItem( this.getAdjacentItem( -1 ) );
-        if ( event ) { event.preventDefault(); }
     },
 
-    focusNext: function ( event ) {
+    focusNext: function () {
         this.focusItem( this.getAdjacentItem( 1 ) );
-        if ( event ) { event.preventDefault(); }
     },
 
     focusItem: function ( item ) {
@@ -76,23 +74,17 @@ NS.AbstractMenu = {
         }
     },
 
-    selectFocussed: function ( event ) {
+    selectFocussed: function () {
         var focussed = this._am_focussed;
         if ( focussed && !this.isItemHidden( focussed ) ) {
-            // Invoke in next event loop, as otherwise the click event could be
-            // triggered on whatever is below the menu (as it fires after it's
-            // hidden), which can cause unexpected interactions.
-            NS.RunLoop.invokeInNextEventLoop(
-                this.didSelectItem.bind( this, focussed ) );
-            if ( event ) { event.preventDefault(); }
+            this.didSelectItem( focussed );
         }
     },
     
     // Hide after event loop so that the keypress event is still routed to this
     // view. Otherwise it could activate a global keyboard shortcut.
-    hideInNextEventLoop: function ( event ) {
+    hideInNextEventLoop: function () {
         NS.RunLoop.invokeInNextEventLoop( this.hide, this );
-        if ( event ) { event.preventDefault(); }
     },
     
     _keyBindings: {
@@ -106,6 +98,7 @@ NS.AbstractMenu = {
         var key = NS.DOMEvent.lookupKey( event ),
             bindings = this._keyBindings;
         if ( bindings[ key ] ) {
+            event.preventDefault();
             this[ bindings[ key ] ]( event, key );
         }
     }.on( 'keydown' ),
@@ -128,7 +121,7 @@ NS.AbstractMenu = {
                 this.selectFocussed( event );
             }
         }
-    }.on( 'mousedown' )
+    }.on( 'mouseup' )
 };
 
 }( O ) );

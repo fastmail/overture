@@ -116,10 +116,10 @@ var MenuView = NS.Class({
         return item.isHidden;
     },
     didBlurItem: function ( item ) {
-        NS.Element.removeClass( item.li, 'isFocussed' );
+        NS.Element.removeClass( item.li, 'focussed' );
     },
     didFocusItem: function ( item ) {
-        NS.Element.addClass( item.li, 'isFocussed' );
+        NS.Element.addClass( item.li, 'focussed' );
     },
     didSelectItem: function ( item ) {
         item.onSelect();
@@ -164,8 +164,8 @@ var MenuView = NS.Class({
     },
     
     onShortcut: function ( event, key ) {
-        this._shortcuts[ key ].onSelect();
-        this.hideInNextEventLoop( event );
+        event.preventDefault();
+        this.didSelectItem( this._shortcuts[ key ] );
     },
     
     _syncFilterValue: function () {

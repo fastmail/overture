@@ -119,6 +119,10 @@ var AutoCompleteView = NS.Class({
         }
     }.observes( 'filterValue' ),
     
+    acceptSuggestion: function ( event ) {
+        this._selectClicked( event );
+    }.on( 'mousedown' ),
+    
     // ---
     
     _keyBindings: {
