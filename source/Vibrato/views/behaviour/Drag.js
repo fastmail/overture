@@ -342,22 +342,22 @@ var Drag = NS.Class({
     _setCursor: function ( set ) {
         var stylesheet = this._stylesheet,
             cursor = 'default';
-        switch ( this.get( 'dropEffect' ) ) {
-            case NONE:
-                cursor = 'no-drop';
-                break;
-            case COPY:
-                cursor = 'copy';
-                break;
-            case LINK:
-                cursor = 'alias';
-                break;
-        }
         if ( stylesheet ) {
             stylesheet.parentNode.removeChild( stylesheet );
             this._stylesheet = null;
         }
         if ( set ) {
+            switch ( this.get( 'dropEffect' ) ) {
+                case NONE:
+                    cursor = 'no-drop';
+                    break;
+                case COPY:
+                    cursor = 'copy';
+                    break;
+                case LINK:
+                    cursor = 'alias';
+                    break;
+            }
             var doc = document,
                 head = doc.documentElement.firstChild,
                 data = '*{cursor:default !important;cursor:' +
@@ -504,14 +504,6 @@ var Drag = NS.Class({
         return this;
     },
     endDrag: function () {
-        if ( this._dragCursor ) {
-            document.body.removeChild( this._dragCursor );
-            this._dragCursor = null;
-        }
-        if ( this._scrollInterval ) {
-            NS.RunLoop.cancel( this._scrollInterval );
-            this._scrollInterval = null;
-        }
         var dropTarget = this.get( 'dropTarget' ),
             dragSource = this.get( 'dragSource' );
         if ( dropTarget ) {
@@ -520,9 +512,20 @@ var Drag = NS.Class({
         if ( dragSource ) {
             dragSource.set( 'isDragging', false ).dragEnded( this );
         }
-        this.fire( 'dragEnded' );
+        
+        if ( this._dragCursor ) {
+            document.body.removeChild( this._dragCursor );
+            this._dragCursor = null;
+        }
+        if ( this._scrollInterval ) {
+            NS.RunLoop.cancel( this._scrollInterval );
+            this._scrollInterval = null;
+        }
         this._setCursor( false );
+        
+        this.fire( 'dragEnded' );
         DragController.deregister( this );
+        
         return this;
     },
     
