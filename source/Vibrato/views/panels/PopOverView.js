@@ -83,6 +83,7 @@ var PopOverView = NS.Class({
         - withEdge: 'left'/'right'/'centre'
         - offsetLeft
         - offsetTop
+        - onHide: fn
     */
     show: function ( options ) {
         this.hide();
@@ -95,10 +96,11 @@ var PopOverView = NS.Class({
             parent = options.atNode ?
                 alignWithView : alignWithView.get( 'parentView' ),
             position, offset;
-        
         if ( withEdge === 'left' ) { withEdge = null; }
         this.set( 'align', withEdge || 'left' );
         
+        this._onHide = options.onHide;
+
         // Want nearest parent scroll view (or root view if none).
         while ( !( parent instanceof NS.RootView ) &&
                 !( parent instanceof NS.ScrollView ) ) {
@@ -134,6 +136,9 @@ var PopOverView = NS.Class({
     hide: function () {
         var parent = this.get( 'parentView' );
         if ( parent ) {
+            if ( this._onHide ) {
+                this._onHide();
+            }
             var view = this._contentView;
             this._contentView = null;
             NS.RootViewController.removeResponder( this.get( 'eventHandler' ) );
