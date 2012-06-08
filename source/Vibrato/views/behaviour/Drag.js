@@ -459,23 +459,27 @@ var Drag = NS.Class({
     startDrag: function () {
         DragController.register( this );
         this.fire( 'dragStarted' );
-        var dragSource = this.get( 'dragSource' );
+        var dragSource = this.get( 'dragSource' ),
+            allowedEffects, dataTransfer, dataSource, dataIsSet;
         // No drag source if drag started in another window/app.
         if ( dragSource ) {
             dragSource.set( 'isDragging', true ).dragStarted( this );
             
+            allowedEffects = dragSource.get( 'allowedDragEffects' );
+            this.set( 'allowedEffects', allowedEffects );
+            
             // Native DnD support.
             if ( this.isNative ) {
-                var dataTransfer = this.event.dataTransfer,
-                    dataSource = this.get( 'dataSource' ) || dragSource,
-                    dataIsSet = false;
+                dataTransfer = this.event.dataTransfer;
+                dataSource = this.get( 'dataSource' ) || dragSource;
+                dataIsSet = false;
                 
                 dataTransfer.effectAllowed =
                     effectToString[ this.get( 'allowedEffects' ) ];
                 
                 if ( dataSource.get( 'isDragDataSource' ) ) {
-                    var types = dataSource.get( 'dragDataTypes' );
-                    types.forEach( function ( type ) {
+                    dataSource.get( 'dragDataTypes' )
+                              .forEach( function ( type ) {
                         if ( type.contains( '/' ) ) {
                             var data = dataSource.getDragDataOfType( type );
                             // Current HTML5 DnD interface
