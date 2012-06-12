@@ -100,8 +100,11 @@ var ToolbarView = NS.Class({
         this.set( 'childViews', childViews );
     },
     
-    _configDidChange: function ( _, key, oldConfig, config ) {
-        if ( !this.get( 'isRendered' ) ) { return; }
+    _configDidChange: function ( _, key, oldConfig ) {
+        var config = this.get( 'config' );
+        if ( config === oldConfig || !this.get( 'isRendered' ) ) {
+            return;
+        }
         
         var oldViews = this.get( 'childViews' ),
             isInDocument = this.get( 'isInDocument' ),
