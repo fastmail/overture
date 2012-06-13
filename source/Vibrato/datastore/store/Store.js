@@ -1060,7 +1060,12 @@ var Store = NS.Class({
             return this;
         }
         var Type = this._skToType[ storeKey ],
-            id = this._typeToSkToId[ Type.className ][ storeKey ];
+            typeName = Type.className,
+            id = this._typeToSkToId[ typeName ][ storeKey ];
+        // Ignore if all data for type is loading.
+        if ( this._typeToStatus[ typeName ] & LOADING ) {
+            return this;
+        }
         if ( status & EMPTY ) {
             this._source.fetchRecord( Type, id );
             this.setStatus( storeKey, EMPTY|LOADING );
