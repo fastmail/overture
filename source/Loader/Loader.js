@@ -271,6 +271,7 @@ var loader = {
         if ( this.fire ) {
             this.fire( 'loader:didLoadModule', { module: module } );
         }
+        info.status = EXECUTED;
         
         if ( callbacks ) {
             for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
@@ -281,7 +282,6 @@ var loader = {
             }
         }
         info.callbacks = null;
-        info.status = EXECUTED;
     }
 };
 
