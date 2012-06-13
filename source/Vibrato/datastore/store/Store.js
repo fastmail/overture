@@ -960,7 +960,7 @@ var Store = NS.Class({
         
         Parameters:
             Type     - {O.Class} The record type.
-            newState - {String} The new state on the server
+            newState - {String} The new state on the server.
         
         Returns:
             {O.Store} Returns self.
