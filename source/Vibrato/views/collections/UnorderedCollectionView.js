@@ -22,9 +22,8 @@ var UnorderedCollectionView = NS.Class({
         end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
     },
     
-    // Map id -> view instance
-    _rendered: {},
     _needsUpdate: false,
+    _currentColour: true,
 
     selectionController: null,
     content: null,
@@ -36,6 +35,7 @@ var UnorderedCollectionView = NS.Class({
     
     init: function ( options ) {
         UnorderedCollectionView.parent.init.call( this, options );
+        this._rendered = {};
         var selectionController = this.get( 'selectionController' );
         if ( selectionController ) {
             selectionController.set( 'view', this );
@@ -98,6 +98,9 @@ var UnorderedCollectionView = NS.Class({
     },
     
     redraw: function () {
+        if ( this.isDestroyed ) {
+            return;
+        }
         var list = this.get( 'content' ) || [],
             ItemView = this.get( 'itemView' ),
             selectionController = this.get( 'selectionController' ),
@@ -109,7 +112,7 @@ var UnorderedCollectionView = NS.Class({
             
             // Set of already rendered views.
             rendered = this._rendered,
-            newRendered = this._rendered = {},
+            currentColour = this._currentColour,
             added = [],
             
             layer = this.get( 'layer' ),
@@ -138,15 +141,15 @@ var UnorderedCollectionView = NS.Class({
                     added.push( view );
                 }
                 frag.appendChild( view.render().get( 'layer' ) );
+                rendered[ id ] = view;
             }
-            newRendered[ id ] = view;
+            view._ucv_gc = currentColour;
         }
         
         // Remove ones which have gone.
         for ( id in rendered ) {
-            if ( !newRendered[ id ] ) {
-                view = rendered[ id ];
-            
+            view = rendered[ id ];
+            if ( view._ucv_gc !== currentColour ) {
                 if ( isInDocument ) {
                     view.willRemoveLayerFromDocument();
                 }
@@ -155,6 +158,7 @@ var UnorderedCollectionView = NS.Class({
                     view.didRemoveLayerFromDocument();
                 }
                 view.set( 'parentView', null ).destroy();
+                delete rendered[ id ];
             }
         }
         
@@ -166,6 +170,7 @@ var UnorderedCollectionView = NS.Class({
         
         this.computedPropertyDidChange( 'childViews' );
         this._needsUpdate = false;
+        this._currentColour = !currentColour;
     },
     
     // --- Can't add views by hand; just bound to content ---
