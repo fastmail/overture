@@ -750,7 +750,7 @@ var Localisation = {
         
         Parameters:
             text     - {String} The string to localise.
-            var_args - {...(String|Number|Object)} The arguments to interpolate.
+            var_args - {...(String|Number)} The arguments to interpolate.
         
         Returns:
             {String} The localised string.

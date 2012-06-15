@@ -121,6 +121,27 @@ String.implement({
     },
     
     /**
+        Function: String#splitAndInterpolate
+        
+        Splits the string at each [_N] (where N is a single-digit number), and
+        inserts the Nth argument into the array at this point.
+        
+        Parameters:
+            var_args - {...(String|Number|Object)} The arguments to interpolate.
+        
+        Returns:
+            {Array} The split string parts interspersed with the arguments.
+    */
+    splitAndInterpolate: function () {
+        var parts = this.split( /\[_(\d)\]/ ),
+            i, l;
+        for ( i = 1, l = parts.length; i < l; i += 2 ) {
+            parts[i] = arguments[ parts[i] - 1 ];
+        }
+        return parts;
+    },
+    
+    /**
         Method: String#escapeHTML
         
         Returns the string with the characters <,>,& replaced by HTML entities.
