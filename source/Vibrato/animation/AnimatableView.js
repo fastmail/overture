@@ -251,7 +251,7 @@ var StyleAnimation = NS.Class({
             
             el = this.element,
             setStyle = NS.Element.setStyle,
-            property, value, start, end, delta, transition, animator;
+            property, value, start, end, delta, animator;
         
         while ( l-- ) {
             property = animated[l];
@@ -303,7 +303,6 @@ NS.AnimatableView = {
         
         var oldStyles = this._layerStyles,
             newStyles = this.get( 'layerStyles' ),
-            deltaStyles = {},
             layer = this.get( 'layer' ),
             layerAnimation = this.get( 'layerAnimation' ),
             setStyle = NS.Element.setStyle,
@@ -331,6 +330,7 @@ NS.AnimatableView = {
                 }
             }
         }
+        return this;
     }
 };
 

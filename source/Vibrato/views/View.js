@@ -268,19 +268,31 @@ var View = NS.Class({
             // already in the DOM, we want to make sure not to update it more
             // than once per RunLoop, so need to invoke once after bindings.
             if ( this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'after', this._updateClassName, this );
+                NS.RunLoop.queueFn( 'after', this.updateClassName, this );
             } else {
-                this._updateClassName();
+                this.updateClassName();
             }
         }
     }.observes( 'className' ),
+    
+    /**
+        Method: O.View#updateClassName
 
-    _updateClassName: function () {
+        Sets the className property on the underlying layer element node to the
+        className property of the view. Called automatically at the end of the
+        run loop whenever the view property changes, but can be called manually
+        if you need to flush the changes earlier.
+
+        Returns:
+            {O.View} Returns self.
+    */
+    updateClassName: function () {
         // If invoked at end of RunLoop, could have been destroyed since the
         // request to change class name was made.
         if ( !this.isDestroyed ) {
             this.get( 'layer' ).className = this.get( 'className' );
         }
+        return this;
     },
 
     /**
@@ -349,11 +361,16 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     willAppendLayerToDocument: function () {
+        if ( this._layerStyles ) {
+            this.updateLayerStyles();
+        }
+        
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
             children[l].willAppendLayerToDocument();
         }
+        
         return this;
     },
 
@@ -417,6 +434,7 @@ var View = NS.Class({
         while ( l-- ) {
             children[l].didRemoveLayerFromDocument();
         }
+        
         return this;
     },
 
@@ -676,10 +694,15 @@ var View = NS.Class({
                 'clipToBounds','showScrollbarX', 'showScrollbarY',
                 'opacity', 'zIndex' ),
 
+    _layerStyles: null,
     _layerStylesDidChange: function ( _, __, oldStyles ) {
         if ( !this._layerStyles && this.get( 'isRendered' ) ) {
             this._layerStyles = oldStyles;
-            NS.RunLoop.queueFn( 'after', this.updateLayerStyles, this );
+            // If the view is in the document, update at the end of the run
+            // loop. If not, will be updated just before appending to document.
+            if ( this.get( 'isInDocument' ) ) {
+                NS.RunLoop.queueFn( 'after', this.updateLayerStyles, this );
+            }
         }
     }.observes( 'layerStyles' ),
 
@@ -690,7 +713,7 @@ var View = NS.Class({
         automatically at the end of the run loop whenever the layerStyles
         property changes, but may be called explicitly if you need to flush
         changes to the layer immediately.
-
+        
         Returns:
             {O.View} Returns self.
     */
@@ -698,11 +721,11 @@ var View = NS.Class({
         if ( this.isDestroyed ) { return; }
 
         if ( this._layerStyles ) {
-            delete this._layerStyles;
-
+            this._layerStyles = null;
             this.get( 'layer' ).style.cssText =
                 Object.toCSSString( this.get( 'layerStyles' ) );
         }
+        return this;
     },
 
     /**
