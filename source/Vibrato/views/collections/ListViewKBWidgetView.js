@@ -50,7 +50,7 @@ var ListViewKBWidgetView = NS.Class({
             shortcuts.register( key, this, keys[ key ] );
         }
         if ( this.get( 'distanceFromVisRect' ) ) {
-            this.scrollIntoView();
+            this.scrollIntoView( 0, false );
         }
         return ListViewKBWidgetView.parent
                 .didAppendLayerToDocument.call( this );
@@ -84,7 +84,7 @@ var ListViewKBWidgetView = NS.Class({
         return 0;
     }.property().nocache(),
     
-    scrollIntoView: function ( offset ) {
+    scrollIntoView: function ( offset, withAnimation ) {
         var scrollView = this.getFromPath( 'listView.scrollView' );
         if ( scrollView ) {
             var scrollHeight = scrollView.get( 'pxHeight' ),
@@ -101,7 +101,7 @@ var ListViewKBWidgetView = NS.Class({
                     ( ( itemHeight - scrollHeight ) >> 1 ) +
                     ( offset || 0 )
                 ),
-                true
+                withAnimation
             );
         }
     },
@@ -111,7 +111,7 @@ var ListViewKBWidgetView = NS.Class({
         if ( this.get( 'isInDocument' ) ) {
             var distance = this.get( 'distanceFromVisRect' );
             if ( distance ) {
-                this.scrollIntoView( distance < 0 ? -0.6 : 0.6 );
+                this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
             }
         }
     },
