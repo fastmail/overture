@@ -302,10 +302,10 @@ var LightboxView = NS.Class({
     
     isActive: false,
         
-    init: function ( app, options ) {
+    init: function ( parentView, options ) {
         LightboxView.parent.init.call( this, options );
-        this._rootView = app.views.mainWindow;
-        this._shortcuts = app.keyboardShortcuts;
+        this._rootView = parentView;
+        this._shortcuts = NS.RootViewController.kbShortcuts;
     },
     
     index: function ( index ) {
