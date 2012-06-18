@@ -137,6 +137,9 @@ var RecordAttribute = NS.Class({
             {Boolean} May the value be set?
     */
     willSet: function ( propValue, propKey, record ) {
+        if ( !record.get( 'isEditable' ) ) {
+            return false;
+        }
         if ( propValue === null ) {
             if ( !this.isNullable ) {
                 return false;

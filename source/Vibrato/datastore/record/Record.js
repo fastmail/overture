@@ -393,7 +393,9 @@ var Record = NS.Class({
     */
     destroy: function () {
         var storeKey = this.get( 'storeKey' );
-        if ( storeKey ) { this.get( 'store' ).destroyRecord( storeKey ); }
+        if ( storeKey && this.get( 'isEditable' ) ) {
+            this.get( 'store' ).destroyRecord( storeKey );
+        }
     },
     
     /**
@@ -441,6 +443,15 @@ var Record = NS.Class({
         this._noSync = false;
         return this;
     },
+    
+    /**
+        Property: O.Record#isEditable
+        Type: Boolean
+        Default: True
+        
+        May the contact be edited/deleted?
+    */
+    isEditable: true,
     
     /**
         Property: O.Record#isValid
