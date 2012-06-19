@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document */
+/*global document */
 
 "use strict";
 
@@ -35,4 +35,4 @@ NS.Stylesheet = {
     }
 };
 
-}( O ) );
+}( this.O ) );

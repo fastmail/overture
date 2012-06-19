@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, window, document */
+/*global window, document */
 
 "use strict";
 
@@ -291,4 +291,4 @@ if ( !window.FormData ) {
     window.FormData.isFake = true;
 }
 
-}( O ) );
+}( this.O ) );

@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -79,4 +77,4 @@ var SplitDividerView = NS.Class({
 
 NS.SplitDividerView = SplitDividerView;
 
-}( O ) ); // End SplitView closure.
+}( this.O ) );

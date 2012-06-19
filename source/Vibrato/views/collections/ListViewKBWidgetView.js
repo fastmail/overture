@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document */
+/*global document */
 
 "use strict";
 
@@ -138,4 +138,4 @@ var ListViewKBWidgetView = NS.Class({
 
 NS.ListViewKBWidgetView = ListViewKBWidgetView;
 
-}( O ) );
+}( this.O ) );

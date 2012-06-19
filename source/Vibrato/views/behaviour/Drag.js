@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document */
+/*global document */
 
 "use strict";
 
@@ -682,4 +682,4 @@ NS.Drag.MOVE = MOVE;
 NS.Drag.LINK = LINK;
 NS.Drag.ALL = ALL;
 
-}( O ) );
+}( this.O ) );

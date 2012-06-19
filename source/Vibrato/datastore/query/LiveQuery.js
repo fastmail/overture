@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -460,4 +458,4 @@ var LiveQuery = NS.Class({
 
 NS.LiveQuery = LiveQuery;
 
-}( O ) );
+}( this.O ) );

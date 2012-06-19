@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, global ) {
@@ -27,7 +25,7 @@ var CLOSED = 2;
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
-var EventSource = global.EventSource ? O.Class({
+var EventSource = global.EventSource ? NS.Class({
     
     Extends: NS.Object,
     
@@ -115,7 +113,7 @@ var EventSource = global.EventSource ? O.Class({
             }
         } else {
             if ( tick ) {
-                O.RunLoop.cancel( tick );
+                NS.RunLoop.cancel( tick );
                 this._tick = null;
             }
         }
@@ -160,7 +158,7 @@ var EventSource = global.EventSource ? O.Class({
         }
         return this;
     }
-}) : O.Class({
+}) : NS.Class({
     
     Extends: NS.Object,
     
@@ -342,4 +340,4 @@ EventSource.extend({
 
 NS.EventSource = EventSource;
 
-}( O, this ) );
+}( this.O, this ) );

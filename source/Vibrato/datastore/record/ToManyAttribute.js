@@ -189,4 +189,4 @@ NS.Record.toMany = function ( options ) {
     return new ToManyAttribute( options );
 };
 
-}( O ) );
+}( this.O ) );

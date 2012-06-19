@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, OperaMail */
+/*global OperaMail */
 
 "use strict";
 
@@ -307,4 +307,4 @@ var RemotePagedQuery = NS.Class({
 
 NS.RemotePagedQuery = RemotePagedQuery;
 
-}( O ) );
+}( this.O ) );

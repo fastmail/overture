@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, setTimeout, clearTimeout, setInterval, clearInterval, console */
+/*global setTimeout, clearTimeout, setInterval, clearInterval, console */
 
 "use strict";
 
@@ -313,4 +313,4 @@ Function.implement({
     }
 });
 
-}( O ) );
+}( this.O ) );

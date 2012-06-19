@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -107,4 +105,4 @@ var Validate = {
 
 NS.Validate = Validate;
 
-}( O ) );
+}( this.O ) );

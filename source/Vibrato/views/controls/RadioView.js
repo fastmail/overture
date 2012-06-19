@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -51,4 +49,4 @@ var RadioView = NS.Class({
 
 NS.RadioView = RadioView;
 
-}( O ) );
+}( this.O ) );

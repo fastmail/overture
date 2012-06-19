@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, navigator, document */
+/*global navigator, document */
 
 "use strict";
 
@@ -109,4 +109,4 @@ NS.UA = {
     el = null;
 }() );
 
-}( O ) );
+}( this.O ) );

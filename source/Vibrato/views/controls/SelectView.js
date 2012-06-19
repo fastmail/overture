@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -82,4 +80,4 @@ var SelectView = NS.Class({
 
 NS.SelectView = SelectView;
 
-}( O ) );
+}( this.O ) );

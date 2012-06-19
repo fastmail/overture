@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, Element, document */
+/*global Element, document */
 
 "use strict";
 
@@ -519,4 +519,4 @@ NS.Element = {
     }
 };
 
-}( O ) );
+}( this.O ) );

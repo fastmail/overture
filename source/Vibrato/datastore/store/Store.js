@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 /**
@@ -1373,7 +1371,7 @@ var Store = NS.Class({
             _typeToClientState[ typeName ] = newState;
             this._checkServerStatus( Type, newState );
         } else {
-            O.RunLoop.didError({
+            NS.RunLoop.didError({
                 name: SOURCE_COMMIT_ON_UNKNOWN_STATE
             });
             _typeToClientState[ typeName ] = null;
@@ -2183,4 +2181,4 @@ var Store = NS.Class({
 
 NS.Store = Store;
 
-}( O ) );
+}( this.O ) );

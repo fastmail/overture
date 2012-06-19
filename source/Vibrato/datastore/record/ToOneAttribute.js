@@ -71,4 +71,4 @@ NS.Record.toOne = function ( options ) {
     return new ToOneAttribute( options );
 };
 
-}( O ) );
+}( this.O ) );

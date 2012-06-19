@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -572,4 +570,4 @@ var RemoteQuery = NS.Class({
 
 NS.RemoteQuery = RemoteQuery;
 
-}( O ) );
+}( this.O ) );

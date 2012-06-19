@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -67,4 +65,4 @@ NS.Easing = {
     easeInOut: cubicBezier( 0.42, 0, 0.58, 1 )
 };
 
-}( O ) );
+}( this.O ) );

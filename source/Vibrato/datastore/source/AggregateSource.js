@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -108,4 +106,4 @@ var AggregateSource = NS.Class({
 
 NS.AggregateSource = AggregateSource;
 
-}( O ) );
+}( this.O ) );

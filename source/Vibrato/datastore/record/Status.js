@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 /**
     Enum: O.Status
     
@@ -23,7 +21,7 @@
     OBSOLETE     - Changes may have been made to the record in the source which
                    have not yet been fetched.
 */
-O.Status = {
+this.O.Status = {
     // Core states:
     EMPTY:        1,
     READY:        2,

@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -217,4 +215,4 @@ SplitView.extend({
 
 NS.SplitView = SplitView;
 
-}( O ) ); // End SplitView closure.
+}( this.O ) );

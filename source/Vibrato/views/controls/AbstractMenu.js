@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -124,4 +122,4 @@ NS.AbstractMenu = {
     }.on( 'mouseup' )
 };
 
-}( O ) );
+}( this.O ) );

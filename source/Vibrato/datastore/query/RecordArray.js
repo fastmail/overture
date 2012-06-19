@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -64,4 +62,4 @@ var RecordArray = NS.Class({
 
 NS.RecordArray = RecordArray;
 
-}( O ) );
+}( this.O ) );

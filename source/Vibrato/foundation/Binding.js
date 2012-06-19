@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -565,4 +563,4 @@ NS.bind = function ( path, root, transform ) {
     }).from( path, root );
 };
 
-}( O ) );
+}( this.O ) );

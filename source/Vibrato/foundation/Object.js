@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -23,7 +21,7 @@ var meta = NS.meta;
     It adds support for computed properties, bound properties, observable
     properties and subscribing/firing events.
 */
-NS.Object = O.Class({
+NS.Object = NS.Class({
     
     Mixin: [ NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.Events ],
     
@@ -67,4 +65,4 @@ NS.Object = O.Class({
     }
 });
 
-}( O ) );
+}( this.O ) );

@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document, location */
+/*global document, location */
 
 "use strict";
 
@@ -93,4 +93,4 @@ var NotificationView = NS.Class({
 
 NS.NotificationView = NotificationView;
 
-}( O ) );
+}( this.O ) );

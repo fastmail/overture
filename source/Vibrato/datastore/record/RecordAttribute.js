@@ -280,4 +280,4 @@ NS.Record.attr = function ( type, options ) {
     return new RecordAttribute( options );
 };
 
-}( O ) );
+}( this.O ) );

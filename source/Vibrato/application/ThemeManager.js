@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document */
+/*global document */
 
 "use strict";
 
@@ -132,7 +132,7 @@ var ThemeManager = NS.Class({
                     NS.loc( img ) || img ) +
             ')';
         });
-        O.Stylesheet.create( theme + '-' + id, data );
+        NS.Stylesheet.create( theme + '-' + id, data );
         active[ id ] = ( active[ id ] || 0 ) + 1;
         
         return this;
@@ -181,4 +181,4 @@ var ThemeManager = NS.Class({
 
 NS.ThemeManager = ThemeManager;
 
-}( O ) );
+}( this.O ) );

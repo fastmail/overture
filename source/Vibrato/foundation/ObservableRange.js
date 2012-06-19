@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 /**
@@ -138,4 +136,4 @@ NS.ObservableRange = {
     }
 };
 
-}( O ) );
+}( this.O ) );

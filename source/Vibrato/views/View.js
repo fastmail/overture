@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, Node */
+/*global Node */
 
 "use strict";
 
@@ -1229,4 +1229,4 @@ View.POSITION_CONTAINED_BY = POSITION_CONTAINED_BY;
 
 NS.View = View;
 
-}( O ) );
+}( this.O ) );

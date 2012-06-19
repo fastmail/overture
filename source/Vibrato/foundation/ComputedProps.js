@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, global, undefined ) {
@@ -470,4 +468,4 @@ NS.ComputedProps = {
     }
 };
     
-}( O, this ) );
+}( this.O, this ) );

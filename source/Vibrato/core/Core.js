@@ -5,7 +5,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, module */
+/*global module */
 
 "use strict";
 
@@ -17,22 +17,18 @@
     the default types and class creation functionality.
 */
 
+( function ( NS ) {
+
 /**
     Namespace: O
-    
+
     The only new global variable introduced by the library. All Classes and
     Functions are stored under this namespace.
 */
-if ( !this.O ) {
-    this.O = {};
-}
-
 // For Node.
 if ( typeof module === 'object' ) {
-    O = module.exports = {};
+    module.exports = NS;
 }
-
-( function ( NS ) {
 
 /**
     Method: O.meta
@@ -492,4 +488,4 @@ Function.prototype.extend = function ( methods, force ) {
     return this;
 };
 
-}( O ) );
+}( this.O || ( this.O = {} ) ) );

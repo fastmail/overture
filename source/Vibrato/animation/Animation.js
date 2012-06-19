@@ -6,13 +6,11 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, window */
+/*global window */
 
 "use strict";
 
 ( function ( NS, win ) {
-
-var RunLoop = NS.RunLoop;
 
 var requestAnimFrame =
     win.requestAnimationFrame       ||
@@ -179,4 +177,4 @@ NS.Animation = NS.Class({
     }
 });
 
-}( O, window ) );
+}( this.O, window ) );

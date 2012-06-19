@@ -5,7 +5,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document */
+/*global document */
 
 "use strict";
 
@@ -187,4 +187,4 @@ var SelectionController = NS.Class({
 
 NS.SelectionController = SelectionController;
 
-}( O ) );
+}( this.O ) );

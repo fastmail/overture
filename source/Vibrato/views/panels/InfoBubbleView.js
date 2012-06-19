@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -76,4 +74,4 @@ var InfoBubbleView = NS.Class({
 
 NS.InfoBubbleView = InfoBubbleView;
 
-}( O ) );
+}( this.O ) );

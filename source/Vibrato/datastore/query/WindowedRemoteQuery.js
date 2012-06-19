@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -1147,7 +1145,7 @@ var WindowedRemoteQuery = NS.Class({
             idRequests = [],
             optimiseFetching = this.get( 'optimiseFetching' ),
             ranges = optimiseFetching ?
-                ( O.meta( this, true ).rangeObservers || [] ).map(
+                ( NS.meta( this, true ).rangeObservers || [] ).map(
                     function ( observer ) {
                 return observer.range;
             }) : null,
@@ -1228,4 +1226,4 @@ var WindowedRemoteQuery = NS.Class({
 
 NS.WindowedRemoteQuery = WindowedRemoteQuery;
 
-}( O ) );
+}( this.O ) );

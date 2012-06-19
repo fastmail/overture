@@ -358,7 +358,7 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     discardChanges: function () {
-        var Status = O.Status;
+        var Status = NS.Status;
         if ( this.get( 'status' ) === (Status.READY|Status.NEW) ) {
             this.destroy();
         } else {
@@ -515,4 +515,4 @@ var Record = NS.Class({
 
 NS.Record = Record;
 
-}( O ) );
+}( this.O ) );

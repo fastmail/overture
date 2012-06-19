@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document, window, history, location */
+/*global document, window, history, location */
 
 "use strict";
 
@@ -226,4 +226,4 @@ var Router = NS.Class({
 
 NS.Router = Router;
 
-}( O ) );
+}( this.O ) );

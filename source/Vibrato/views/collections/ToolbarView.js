@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -160,4 +158,4 @@ var ToolbarView = NS.Class({
 
 NS.ToolbarView = ToolbarView;
 
-}( O ) );
+}( this.O ) );

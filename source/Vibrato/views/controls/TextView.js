@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, document */
+/*global document */
 
 "use strict";
 
@@ -234,4 +234,4 @@ var TextView = NS.Class({
 
 NS.TextView = TextView;
 
-}( O ) );
+}( this.O ) );

@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -281,4 +279,4 @@ var ObservableArray = NS.Class({
 
 NS.ObservableArray = ObservableArray;
 
-}( O ) );
+}( this.O ) );

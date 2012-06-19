@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, XMLHttpRequest, FormData */
+/*global XMLHttpRequest, FormData */
 
 "use strict";
 
@@ -261,4 +261,4 @@ var XHR = NS.Class({
 
 NS.XHR = XHR;
 
-}( O ) );
+}( this.O ) );

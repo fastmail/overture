@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -45,4 +43,4 @@ NS.DropTarget = {
     drop: function ( drag ) {}
 };
 
-}( O ) );
+}( this.O ) );

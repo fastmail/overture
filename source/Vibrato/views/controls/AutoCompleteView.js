@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -234,4 +232,4 @@ var AutoCompleteView = NS.Class({
 NS.AutoCompleteSource = AutoCompleteSource;
 NS.AutoCompleteView = AutoCompleteView;
 
-}( O ) );
+}( this.O ) );

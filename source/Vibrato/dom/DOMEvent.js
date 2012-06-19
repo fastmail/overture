@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -97,4 +95,4 @@ var DOMEvent = {
 
 NS.DOMEvent = DOMEvent;
 
-}( O ) );
+}( this.O ) );

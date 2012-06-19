@@ -6,11 +6,9 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
-( function () {
+( function ( NS ) {
 
 Date.extend({
     /**
@@ -80,7 +78,7 @@ Date.implement({
             {String} Localised day name.
     */
     getDayName: function ( abbreviate ) {
-        var names = O && O.i18n && O.i18n.get(
+        var names = NS.i18n && NS.i18n.get(
                 ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' ),
             day = this.getDay();
         return names ? names[ day ] : day;
@@ -101,7 +99,7 @@ Date.implement({
             {String} Localised month name.
     */
     getMonthName: function ( abbreviate) {
-        var names = O && O.i18n && O.i18n.get(
+        var names = NS.i18n && NS.i18n.get(
                 ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' ),
             day = this.getMonth();
         return names ? names[ day ] : day;
@@ -200,8 +198,8 @@ Date.implement({
                 return date.getMonthName();
             case 'c':
                 // The locale's appropriate date and time representation.
-                return ( O && O.i18n ) ?
-                    O.i18n.date( date, 'fullDateAndTime' ) :
+                return NS.i18n ?
+                    NS.i18n.date( date, 'fullDateAndTime' ) :
                     date.toLocaleString();
             case 'C':
                 // Century number (00-99).
@@ -242,8 +240,8 @@ Date.implement({
             case 'p':
                 // Localised equivalent of AM or PM.
                 str = date.getHours() < 12 ? 'am' : 'pm';
-                return ( O && O.i18n ) ?
-                    O.i18n.get( str + 'Designator' ) : str.toUpperCase();
+                return NS.i18n ?
+                    NS.i18n.get( str + 'Designator' ) : str.toUpperCase();
             case 'r':
                 // The time in AM/PM notation: '%I:%M:%S %p'.
                 return date.format( '%I:%M:%S %p' );
@@ -294,14 +292,12 @@ Date.implement({
                       ) / 7, nopad );
             case 'x':
                 // The locale's appropriate date representation.
-                return ( O && O.i18n ) ?
-                    O.i18n.date( date, 'date' ) :
-                    date.format( '%d/%m/%y' );
+                return NS.i18n ?
+                    NS.i18n.date( date, 'date' ) : date.format( '%d/%m/%y' );
             case 'X':
                 // The locale's appropriate time representation.
-                return ( O && O.i18n ) ?
-                    O.i18n.date( date, 'time' ) :
-                    date.format( '%H:%M' );
+                return NS.i18n ?
+                    NS.i18n.date( date, 'time' ) : date.format( '%H:%M' );
             case 'y':
                 // Year without century (00-99).
                 return date.getFullYear().toString().slice( 2 );
@@ -321,4 +317,4 @@ Date.implement({
     }
 });
 
-}() );
+}( this.O ) );

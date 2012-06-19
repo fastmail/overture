@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, location*/
+/*global location*/
 
 "use strict";
 
@@ -476,4 +476,4 @@ NS.LightboxItemView = LightboxItemView;
 NS.LightboxPhotoView = LightboxPhotoView;
 NS.LightboxView = LightboxView;
 
-}( O ) );
+}( this.O ) );

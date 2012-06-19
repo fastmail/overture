@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -76,4 +74,4 @@ var PushSelectView = NS.Class({
 
 NS.PushSelectView = PushSelectView;
 
-}( O ) );
+}( this.O ) );

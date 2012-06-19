@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -33,4 +31,4 @@ var LabelView = NS.Class({
 
 NS.LabelView = LabelView;
 
-}( O ) );
+}( this.O ) );

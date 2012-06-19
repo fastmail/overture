@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, window */
+/*global window */
 
 "use strict";
 
@@ -73,4 +73,4 @@ var LocalStorage = NS.Class({
 
 NS.LocalStorage = LocalStorage;
 	
-}( O ) );
+}( this.O ) );

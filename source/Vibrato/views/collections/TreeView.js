@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, OperaMail */
+/*global OperaMail */
 
 "use strict";
 
@@ -252,4 +252,4 @@ NS.ExpandoView = ExpandoView;
 NS.TreeItemView = TreeItemView;
 NS.TreeView = TreeView;
 
-}( O ) );
+}( this.O ) );
