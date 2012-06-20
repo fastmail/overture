@@ -300,7 +300,7 @@ O.execute = ( function ( global ) {
             // engine:
             // 1. Does `Object` resolve to a local variable, or to the global,
             //    built-in `Object` reference?
-            // 2. Is the this parameter bound correctly to the global object 
+            // 2. Is the this parameter bound correctly to the global object
             //    when the eval code is strict (Opera bug)?
             return ( ( 1, eval )( 'Object' ) === original ) &&
                 ( ( 1, eval )( '"use strict";this' ) === global );
@@ -311,11 +311,18 @@ O.execute = ( function ( global ) {
             return false;
         }
     }( Object, 1 );
+    
+    // Due to a bug in FF3, we can't just make this the O.execute method, as 
+    // it will incorrectly bind `this` to the `O` object. But if we call it as a 
+    // function instead of a method, `this` is set to the global object.
+    var evaluate = function ( code ) {
+        ( 1, eval )( code );
+    };
 
     return isGlobal ?
         /*jshint evil: true */
         function ( code ) {
-            ( 1, eval )( code );
+            evaluate( code );
         } : window.execScript ?
         function ( code ) {
             window.execScript( code );
