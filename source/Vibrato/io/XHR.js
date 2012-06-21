@@ -6,11 +6,13 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global XMLHttpRequest, FormData */
+/*global XMLHttpRequest, FormData, location */
 
 "use strict";
 
 ( function ( NS ) {
+
+var isLocal = location.protocol === 'file:';
 
 /**
     Class: O.XHR
@@ -227,8 +229,12 @@ var XHR = NS.Class({
         xhr.onreadystatechange = function () {};
         
         var status = xhr.status;
-        // IE8 translates response code 204 to 1223
-        this._status = ( status === 1223 ) ? 204 : status;
+        this._status =
+            // IE8 translates response code 204 to 1223
+            ( status === 1223 ) ? 204 :
+            // Local requests will have a 0 response
+            ( !status && isLocal ) ? 200 :
+            status;
 
         if ( this.isSuccess() ) {
             if ( io.success ) { io.success( this ); }
