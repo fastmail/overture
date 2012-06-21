@@ -182,7 +182,6 @@ var IO = NS.Class({
         this._queue = [];
         this._transportPool = [];
         this.headers = {
-            'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'text/javascript, text/html, application/json, */*'
         };
         IO.parent.init.call( this, options );
