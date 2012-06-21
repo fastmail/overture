@@ -17,7 +17,7 @@ NS.AnimatableProps = {
         animation.animate( value );
         return this;
     },
-    
+
     getAnimationForKey: function ( key ) {
         return this.get( key + 'Animation' ) || new NS.Animation({
             object: this,

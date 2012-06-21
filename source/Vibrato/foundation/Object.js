@@ -14,20 +14,20 @@ var meta = NS.meta;
 
 /**
     Class: O.Object
-    
+
     Includes: O.ComputedProps, O.BoundProps, O.ObservableProps, O.Events
-    
+
     This is the root class for almost every object in the rest of the library.
     It adds support for computed properties, bound properties, observable
     properties and subscribing/firing events.
 */
 NS.Object = NS.Class({
-    
+
     Mixin: [ NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.Events ],
-    
+
     /**
         Constructor: O.Object
-        
+
         Parameters:
             options - {Object} (optional) Any properties in this object will be
                       added to the new O.Object instance before initialisation
@@ -46,10 +46,10 @@ NS.Object = NS.Class({
         }
         metadata.isInitialised = true;
     },
-    
+
     /**
         Method: O.Object#destroy
-        
+
         Removes any connections to other objects (e.g. path observers and
         bindings) so the object will be available for garbage collection.
     */

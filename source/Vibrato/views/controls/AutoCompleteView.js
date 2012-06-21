@@ -11,12 +11,12 @@
 ( function ( NS ) {
 
 var AutoCompleteSource = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     maxResults: 10,
     suggestions: [],
-    
+
     getTestFn: function ( value ) {
         var regexp = new RegExp( '\\b' + value.escapeRegExp(), 'i' );
         return regexp.test.bind( regexp );
@@ -30,19 +30,19 @@ var AutoCompleteSource = NS.Class({
 });
 
 var AutoCompleteView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     Mixin: NS.AbstractMenu,
-    
+
     positioning: 'absolute',
     className: 'AutoCompleteView',
-    
+
     minChars: 1,
     sources: [],
-        
+
     // ---
-    
+
     init: function ( options ) {
         AutoCompleteView.parent.init.call( this, options );
         var view = this.get( 'inputView' ),
@@ -51,19 +51,19 @@ var AutoCompleteView = NS.Class({
             this.inputViewDidChange( _, _, _, view );
         }
     },
-    
+
     didCreateLayer: function ( layer ) {
         AutoCompleteView.parent.didCreateLayer.call( this, layer );
         layer.addEventListener( 'mouseover', this, false );
         layer.addEventListener( 'mouseout', this, false );
     },
-    
+
     willDestroyLayer: function ( layer ) {
         layer.removeEventListener( 'mouseout', this, false );
         layer.removeEventListener( 'mouseover', this, false );
         AutoCompleteView.parent.willDestroyLayer.call( this, layer );
     },
-    
+
     inputView: null,
     inputViewDidChange: function ( _, __, oldView, newView ) {
         if ( oldView ) {
@@ -87,12 +87,12 @@ var AutoCompleteView = NS.Class({
             this.showSuggestions();
         }
     },
-    
+
     inputDidLoseFocus: function () {
         this._isActive = false;
         this.hideSuggestions();
     },
-    
+
     // Fire keydown event to trigger AbstractMenu key bindings.
     // However, also be sure to stop propagation as otherwise if the
     // autocomplete view is actually a child of the input view you get an
@@ -105,7 +105,7 @@ var AutoCompleteView = NS.Class({
     stopPropagation: function ( event ) {
         event.stopPropagation();
     }.on( 'keydown' ),
-    
+
     filterValue: NS.bind( 'inputView.value' ),
     filterValueDidChange: function ( _, __, ___, value ) {
         if ( this._isActive ) {
@@ -116,20 +116,20 @@ var AutoCompleteView = NS.Class({
             }
         }
     }.observes( 'filterValue' ),
-    
+
     acceptSuggestion: function ( event ) {
         this._selectClicked( event );
     }.on( 'mousedown' ),
-    
+
     // ---
-    
+
     _keyBindings: {
         up: 'focusPrevious',
         down: 'focusNext',
         tab: 'selectFocussed',
         enter: 'selectFocussed'
     },
-    
+
     // filterItem: function ( item, pattern ) {},
     // isItemHidden: function ( item ) { return false; },
     didBlurItem: function ( item ) {
@@ -142,7 +142,7 @@ var AutoCompleteView = NS.Class({
         var inputView = this.get( 'inputView' ),
             current = inputView.get( 'value' ),
             result = item.source.acceptSuggestion( item.suggestion, current );
-        
+
         if ( result !== current ) {
             inputView
                 .set( 'value', result )
@@ -156,12 +156,12 @@ var AutoCompleteView = NS.Class({
         return ( el && el !== layer ) ? this.get( 'items' )[ el._index ] : null;
     },
     // hide: function () {},
-    
+
     // ---
-    
+
     showSuggestions: function () {
         var value = this.get( 'filterValue' );
-        
+
         if ( this._lastFilterValue !== value ) {
             var sources = this.get( 'sources' ),
                 items = [],
@@ -171,14 +171,14 @@ var AutoCompleteView = NS.Class({
                 ul = el( 'ul' ),
                 i, l, source, count, max, suggestions, accept,
                 j, m, suggestion, element;
-            
+
             for ( i = 0, l = sources.length; i < l; i += 1 ) {
                 source = sources[i];
                 count = 0;
                 max = source.get( 'maxResults' );
                 suggestions = source.get( 'suggestions' );
                 accept = source.getTestFn( value );
-                
+
                 for ( j = 0, m = suggestions.get( 'length' );
                         j < m && count < max; j += 1 ) {
                     if ( accept( suggestion = suggestions.getObjectAt( j ) ) ) {
@@ -197,21 +197,21 @@ var AutoCompleteView = NS.Class({
                     }
                 }
             }
-            
+
             if ( this._ul ) {
                 layer.replaceChild( ul, this._ul );
             } else {
                 layer.appendChild( ul );
             }
-            
+
             this._ul = ul;
             this._lastFilterValue = value;
-            
+
             this.set( 'items', items );
-            
+
             this.focusItem( items[0] );
         }
-        
+
         if ( !this.get( 'items' ).length ) {
             this.hideSuggestions();
         } else if ( !this._isShowing ) {
@@ -221,7 +221,7 @@ var AutoCompleteView = NS.Class({
             this._isShowing = true;
         }
     },
-    
+
     hideSuggestions: function () {
         this.get( 'layer' ).style.display = 'none';
         this.focusItem( null );

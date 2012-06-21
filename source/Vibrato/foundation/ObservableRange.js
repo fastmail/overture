@@ -10,7 +10,7 @@
 
 /**
     Mixin: O.ObservableRange
-    
+
     The ObservableRange mixin adds support for observing an (integer-based)
     numerical range of keys to an observable object. The object is expected
     to have the ObservableProps mixin applied and have a length property.
@@ -23,18 +23,18 @@ var meta = NS.meta;
 NS.ObservableRange = {
     /**
         Method: O.ObservableRange#rangeDidChange
-     
+
         Notifies observers that are observing a range which intersects the range
         that has changed. Also notifies any observers observing an individual
         number (via <O.ObservableProps#addObserverForKey>) and any observers
         looking out for a change to `[]` (enumerable content did change).
-        
+
         Parameters:
             start - {Number} The index of the first value in the range to have
                     changed (indexed from 0).
             end   - {Number} The index of one past the last value in the range
                     to have changed.
-        
+
         Returns:
             {O.ObservableRange} Returns self.
     */
@@ -66,7 +66,7 @@ NS.ObservableRange = {
         this.computedPropertyDidChange( '[]' );
         return this;
     },
-    
+
     /**
         Method: O.ObservableRange#addObserverForRange
 
@@ -77,7 +77,7 @@ NS.ObservableRange = {
         Negative values for start or end are allowed, and are treated as offsets
         from the end of the current length of this object, with -1 being the
         last item.
-        
+
         Parameters:
             range  - {Object} The range to observe. May have either, both or
                      none of start and end properties. These are numerical
@@ -89,7 +89,7 @@ NS.ObservableRange = {
                      end: 2} will only fire if index 1 changes.
             object - {Object} The object on which to call the callback method.
             method - {String} The name of the callback method.
-        
+
         Returns:
             {O.ObservableRange} Returns self.
     */
@@ -102,7 +102,7 @@ NS.ObservableRange = {
         });
         return this;
     },
-    
+
     /**
         Method: O.ObservableRange#removeObserverForRange
 
@@ -111,13 +111,13 @@ NS.ObservableRange = {
         for addObserverForRange, not just have the same properties (these could
         have changed due to the support for live updating of the observed range.
         See <O.ObservableRange#addObserverForRange> description).
-        
+
         Parameters:
             range  - {Object} The range which is being observed.
             object - {Object} The object which is observing it.
             method - {String} The name of the callback method on the observer
                      object.
-        
+
         Returns:
             {O.ObservableRange} Returns self.
     */

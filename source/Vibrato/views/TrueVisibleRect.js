@@ -11,7 +11,7 @@
 ( function ( NS ) {
 
 NS.TrueVisibleRect = {
-            
+
     visibleRect: function () {
         // Ignore any changes whilst not in the DOM
         if ( !this.get( 'isInDocument' ) ) {
@@ -30,7 +30,7 @@ NS.TrueVisibleRect = {
             bottom = Math.min( y + height, parent.y + parent.height ),
             across = Math.max( right - left, 0 ),
             down = Math.max( bottom - top, 0 );
-            
+
         return {
             x: left - x + this.get( 'scrollLeft' ),
             y: top - y + this.get( 'scrollTop' ),

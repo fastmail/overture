@@ -12,7 +12,7 @@
 
 /**
     Module: Foundation
-    
+
     The Foundation module provides the basic objects and mixins for key-value
     coding and observation as well as bindings and a run loop.
 */
@@ -71,7 +71,7 @@ var teardownComputed = function ( metadata, key ) {
     var dependencies = this.dependencies,
         dependents = metadata.dependents,
         l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
-    
+
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
         dependents = metadata.dependents = NS.clone( dependents );
         metadata.allDependents = {};
@@ -106,23 +106,23 @@ var teardownComputed = function ( metadata, key ) {
 Function.implement({
     /**
         Method: Function#property
-        
+
         Marks a function as a property getter/setter. If a call to
         <O.ComputedProps#get> or <O.ComputedProps#set> is made and the
         current value of the property is this method, the method will be called
         rather than just returned/overwritten itself.
-        
+
         Normally, properties will only be dependent on other properties on the
         same object. You may also specify paths though, e.g. 'obj.obj2.prop' and
         this will also work, however if you do this the object (and all other
         objects in the path) *MUST* also include the <O.ObservableProps> mixin.
-        
+
         Parameters:
             var_args - {...String} All arguments are treated as the names of
                        properties this value depends on; if any of these are
                        changed, the cached value for this property will be
                        invalidated.
-        
+
         Returns:
             {Function} Returns self.
     */
@@ -135,12 +135,12 @@ Function.implement({
         }
         return this;
     },
-    
+
     /**
         Method: Function#nocache
-        
+
         Marks a getter method such that its value is not cached.
-        
+
         Returns:
             {Function} Returns self.
     */
@@ -148,13 +148,13 @@ Function.implement({
         this.isVolatile = true;
         return this;
     },
-    
+
     /**
         Method: Function#doNotNotify
-        
+
         Marks a computed property so that when it is set,
         <O.ComputedProps#propertyDidChange> is not automatically called.
-        
+
         Returns:
             {Function} Returns self.
     */
@@ -173,11 +173,11 @@ Function.implement({
     as the root object. At each stage of the path, if the current object
     supports a 'get' function, that will be used to retrieve the next stage,
     otherwise it will just be read directly as a property.
-    
+
     Parameters:
         path - {String} The path to retrieve the value from.
         root - {Object} The root object the path is relative to.
-    
+
     Returns:
         {*} Returns the value at the end of the path.
 */
@@ -219,11 +219,11 @@ var getFromPath = NS.getFromPath = function ( path, root ) {
 
 /**
     Function (private): O.ComputedProps-computeDependentKeys
-    
+
     Finds all keys which have a dependency on the given key (note
     this is not just direct dependencies, but could be via intermediate
     properties).
-    
+
     Parameters:
         cache   - {Object} An object mapping property names to the keys that are
                   directly dependent on them.
@@ -232,7 +232,7 @@ var getFromPath = NS.getFromPath = function ( path, root ) {
         results - {Array.<String>} This array will be populated with the
                   dependent keys. Non-recursive calls to this function should
                   supply an empty array here.
-    
+
     Returns:
         {Array.<String>} The results array.
 */
@@ -255,13 +255,13 @@ var computeDependentKeys = function ( cache, key, results ) {
 NS.ComputedProps = {
     /**
         Method: O.ComputedProps#propertiesDependentOnKey
-        
+
         Returns an array of the name of all computed properties
         which depend on the given key.
-        
+
         Parameters:
             key - {String} The name of the key to fetch the dependents of.
-        
+
         Returns:
             {Array} Returns the list of dependents (may be empty).
     */
@@ -271,17 +271,17 @@ NS.ComputedProps = {
             ( metadata.allDependents[ key ] =
                 computeDependentKeys( metadata.dependents, key, [] ) );
     },
-    
+
     /**
         Method: O.ComputedProps#propertyDidChange
-        
+
         Invalidates any cached values depending on the property.
-        
+
         Parameters:
             key      - {String} The name of the property which has changed.
             oldValue - {*} (optional) The old value of the property.
             newValue - {*} (optional) The new value of the property.
-        
+
         Returns:
             {O.ComputedProps} Returns self.
     */
@@ -294,16 +294,16 @@ NS.ComputedProps = {
         }
         return this;
     },
-    
+
     /**
         Method: O.ComputedProps#computedPropertyDidChange
-        
+
         Invalidates the cached value for a property then calls
         propertyDidChange.
-        
+
         Parameters:
             key - {String} The name of the computed property which has changed.
-        
+
         Returns:
             {O.ComputedProps} Returns self.
     */
@@ -329,21 +329,21 @@ NS.ComputedProps = {
         meta( this, false ).cache = {};
         return this;
     },
-    
+
     /**
         Method: O.ComputedProps#set
-        
+
         Sets the value of the named property on this object to the value given.
         If that property is actually a computed property, the new value is
         passed as an argument to that method. This will automatically call
         `propertyDidChange()` to invalidate cached values that depend on this
         property (and notify observers about the change in the case of
         <O.ObservableProps> objects).
-        
+
         Parameters:
             key   - {String} The name of the property to set.
             value - {*} The new value of the property.
-        
+
         Returns:
             {O.ComputedProps} Returns self.
     */
@@ -368,20 +368,20 @@ NS.ComputedProps = {
         }
         return silent ? this : this.propertyDidChange( key, oldValue, value );
     },
-    
+
     /**
         Method: O.ComputedProps#get
-        
+
         Gets the value of the named property on this object. If there is an
         accessor function for this property it will call that rather than just
         returning the function. Values will be cached for efficient subsequent
         retrieval unless the accessor function is marked volatile. If the key
         supplied does not corresond to a property defined on the object, the
         value of getUnknownProperty( key ) is returned instead.
-        
+
         Parameters:
             key - {String} The name of the property to fetch.
-        
+
         Returns:
             {*} The value of the property.
     */
@@ -401,65 +401,65 @@ NS.ComputedProps = {
         }
         return value;
     },
-    
+
     /**
         Method: O.ComputedProps#getFromPath
-        
+
         Gets the value at the given path string relative to the object on which
         the method was called.
-        
+
         Parameters:
             path - {String} The path (e.g. 'widget.view.height');
-        
+
         Returns:
             {*} The value at that path relative to this object.
     */
     getFromPath: function ( path ) {
         return getFromPath( path, this );
     },
-    
+
     /**
         Method (protected): O.ComputedProps#getUnknownProperty
-        
+
         Called by the get function if an unknown key is retrieved. By default
         returns undefined, but can be overridden to return anything.
-        
+
         Parameters:
             key - {String} The name of the property to fetch.
-        
+
         Returns:
             {undefined}
     */
     getUnknownProperty: function ( key ) {
         return undefined;
     },
-    
+
     /**
         Method: O.ComputedProps#increment
-        
+
         Adds the value of the delta argument to the value stored in the property
         with the given key.
-        
+
         Parameters:
             key   - {String} The name of the numerical property.
             delta - {Number} The amount to add to the current value.
-        
+
         Returns:
             {O.ComputedProps} Returns self.
     */
     increment: function ( key, delta ) {
         return this.set( key, this.get( key ) + delta );
     },
-    
+
     /**
         Method: O.ComputedProps#toggle
-        
+
         Sets the value of the given key to the boolean negation of its previous
         value.
-        
+
         Parameters:
             key - {String} The name of the property to toggle.
-        
+
         Returns:
             {O.ComputedProps} Returns self.
     */
@@ -467,5 +467,5 @@ NS.ComputedProps = {
         return this.set( key, !this.get( key ) );
     }
 };
-    
+
 }( this.O, this ) );

@@ -9,7 +9,7 @@
 "use strict";
 
 ( function ( NS, undefined ) {
-    
+
 var Status = NS.Status,
     EMPTY = Status.EMPTY,
     READY = Status.READY,
@@ -22,22 +22,22 @@ var qid = 0;
 
 /**
     Class: O.RemoteQuery
-    
+
     Extends: O.Object
-    
+
     Includes: O.Enumerable, O.ObservableRange
-    
+
     A remote query is conceptually an array of records, where the contents of
     the array is calculated by a server rather than the client. In its simplest
     form, you would use remote query like this:
-    
+
         var query = new O.RemoteQuery({
             store: TodoApp.store
             type: TodoApp.TodoItem,
             filter: 'done',
             sort: 'dateAscending'
         });
-    
+
     Your data source connected to the store must support the fetchQuery method
     (either directly or via a handler in the queryFetchers property). This
     should fetch the list of record ids that are the result of the query and
@@ -47,29 +47,29 @@ var qid = 0;
     loaded, any observers will fetch the records they want from the query. This
     will in turn get them from the store, which will request any unloaded
     records from the source as normal.
-    
+
     The sort and filter properties may have arbitrary value and type. They are
     there so your fetchQuery handler in source knows what to fetch. If they are
     changed, the query is refetched. The sort and filter properties in the
     object passed to the sourceDidFetchQuery callback must be identical to the
     current values in the query for the data to be accepted.
-    
+
     The server may also return a state string, which represents the current
     state of the query. The source may then send this to the server if the query
     is refreshed; if there have been no changes, the server can then avoid
     sending back unneccessary data.
-    
+
 */
 var RemoteQuery = NS.Class({
 
     Extends: NS.Object,
 
     Mixin: [ NS.Enumerable, NS.ObservableRange ],
-    
+
     id: function () {
         return this.get( 'className' ) + '-query-' + ( qid += 1 );
     }.property(),
-    
+
     /**
         Property: O.RemoteQuery#className
         Type: String
@@ -225,7 +225,7 @@ var RemoteQuery = NS.Class({
                 .set( 'length', null );
         }
         this.rangeDidChange( 0, length );
-        
+
         if ( _key ) {
             this.get( 'source' ).fetchQuery( this );
         }
@@ -256,7 +256,7 @@ var RemoteQuery = NS.Class({
         if ( length === null || index < 0 || index >= length ) {
             return undefined;
         }
-        
+
         if ( !doNotFetch ) {
             doNotFetch = this.fetchDataForObjectAt( index );
         }
@@ -270,7 +270,7 @@ var RemoteQuery = NS.Class({
 
     /**
         Method: O.RemoteQuery#fetchDataForObjectAt
-        
+
         This method is called by <getObjectAt> before getting the id of the
         index given from the internal list and fetching the record from the
         store. By default this method does nothing, but subclasses may wish to
@@ -278,7 +278,7 @@ var RemoteQuery = NS.Class({
 
         Parameters:
             index - {Number} The index of the record being requested.
-        
+
         Returns:
             {Boolean} Has the data for the object been fetched? If true, the
             store will be explicitly told not to fetch the data, as the fetching
@@ -328,7 +328,7 @@ var RemoteQuery = NS.Class({
         }
         return index;
     },
-    
+
     /**
         Method: O.RemoteQuery#getIdsForObjectsInRange
 
@@ -359,32 +359,32 @@ var RemoteQuery = NS.Class({
     */
     getIdsForObjectsInRange: function ( start, end, callback ) {
         var length = this.get( 'length' );
-        
+
         if ( length === null ) {
             ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) ).push(
                 [ start, end, callback ] );
             return true;
         }
-        
+
         if ( start < 0 ) { start = 0 ; }
         if ( end > length ) { end = length; }
         callback( this._list.slice( start, end ), start, end );
-        
+
         return false;
     },
 
     /**
         Method: O.RemoteQuery#getIdsForAllObjects
-        
+
         Get a callback with an array of the id properties for all records in the
         query.
-        
+
         Parameters:
             callback - {Function} This will be called with the array of ids as
                        the first argument, the index of the first returned
                        result as the second argument, and one past the index
                        of the last result as the third argument.
-        
+
         Returns:
             {Boolean} Is the data still loading? (i.e. this is true if the
             callback was not fired synchronously, but rather will be called
@@ -459,16 +459,16 @@ var RemoteQuery = NS.Class({
             }, this );
         }
     }.queue( 'before' ).on( 'query:idsLoaded' ),
-    
+
     /**
         Method: O.RemoteQuery#sourceWillFetchQuery
-        
+
         The source should call this method just before it fetches the query. By
         default this function just sets the loading flag on the query, but
         subclasses may like to return an object reflecting exactly the what the
         source should fetch (see <O.WindowedRemoteQuery#sourceWillFetchQuery)
         for example.
-        
+
         Returns:
             {Boolean} Does the list need refreshing or just fetching (the two
             cases may be the same, but can be handled separately if the server
@@ -480,21 +480,21 @@ var RemoteQuery = NS.Class({
         this.setLoading();
         return refresh;
     },
-    
+
     /**
         Method: O.RemoteQuery#sourceDidFetchQuery
-        
+
         The source should call this method with the data returned from fetching
         the query. The single argument is an object which should contain the
         following properties:
-        
+
         sort   - {String} The sort used for the query.
         filter - {String} The filter used for the query.
         idList - {Array.<String>} The ids of the records represented by this
                  query.
         state  - {String} (optional) A string representing the state of the
                  query on the server at the time of the fetch.
-        
+
         Parameters:
             args - {Object} See description above.
     */
@@ -555,7 +555,7 @@ var RemoteQuery = NS.Class({
             .rangeDidChange( firstChange, total === oldTotal ?
                 lastChangeNew + 1 : Math.max( oldTotal || 0, total ) )
             .endPropertyChanges();
-        
+
         if ( oldTotal !== null ) {
             this.fire( 'query:updated', {
                 removed: removedIds,

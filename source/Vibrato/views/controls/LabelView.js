@@ -9,21 +9,21 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 var LabelView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     layerTag: 'label',
-    
+
     value: '',
     tooltip: '',
-    
+
     _render: function ( layer ) {
         layer.title = this.get( 'tooltip' );
         layer.textContent = this.get( 'value' );
     },
-    
+
     updateLayer: function () {
         this._render( this.get( 'layer' ) );
     }.observes( 'value', 'tooltip' )

@@ -11,17 +11,17 @@
 ( function ( NS ) {
 
 var ButtonView = NS.Class({
-    
+
     Extends: NS.AbstractControlView,
-    
+
     layerTag: 'button',
-    
+
     icon: '',
     type: 'button',
-    
+
     target: null,
     action: null,
-    
+
     activate: function () {
         if ( !this.get( 'disabled' ) ) {
             var action = this.get( 'action' ),
@@ -31,19 +31,19 @@ var ButtonView = NS.Class({
             }
         }
     },
-    
+
     // --- Render ---
 
     className: function () {
         var icon = this.get( 'icon' );
         return 'ButtonView ' + this.get( 'type' ) + ( icon ? ' ' + icon : '' );
     }.property( 'icon', 'type' ),
-    
+
     _render: function ( layer ) {
         layer.disabled = this.get( 'disabled' );
         layer.title = this.get( 'tooltip' );
         layer.tabIndex = -1;
-    
+
         var el = NS.Element.create;
         if ( this.get( 'icon' ) ) {
             layer.appendChild( el( 'i' ) );
@@ -53,16 +53,16 @@ var ButtonView = NS.Class({
         }) );
         this._domControl = layer;
     },
-    
+
     // --- Keep state in sync with render ---
-    
+
     _activateOnClick: function ( event ) {
         if ( event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
         this.activate();
     }.on( 'click' ),
-    
+
     _activateOnEnter: function ( event ) {
         if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
             this.activate();

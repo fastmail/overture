@@ -13,7 +13,7 @@
 // Fix by Steven Levithan:
 // http://blog.stevenlevithan.com/archives/cross-browser-split
 if ('a~b'.split(/(~)/).length !== 3) {
-    
+
 	String.prototype._$$split =
 	    String.prototype._$$split || String.prototype.split;
 

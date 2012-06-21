@@ -11,9 +11,9 @@
 Number.implement({
     /**
         Method: Number#limit
-        
+
         Limits the number to be within the given range.
-        
+
         Parameters:
             min - {Number} The minimum allowed value.
             max - {Number} The maximum allowed value.
@@ -25,12 +25,12 @@ Number.implement({
     limit: function ( min, max ) {
         return this < min ? min : this > max ? max : this;
     },
-    
+
     /**
         Method: Number#mod
-        
+
         Returns the number mod n.
-        
+
         Parameters:
             n - {Number}
 

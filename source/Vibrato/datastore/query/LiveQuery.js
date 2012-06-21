@@ -20,7 +20,7 @@ var findPositionFor = function ( array, comparator, item ) {
     var upper = array.length,
         lower = 0,
         middle, itemAtMiddle;
-    
+
     // Binary search.
     while ( lower < upper ) {
         middle = ( lower + upper ) >> 1;
@@ -43,11 +43,11 @@ var numerically = function ( a, b ) {
 
 /**
     Class: O.LiveQuery
-    
+
     Extends: O.Object
-    
+
     Includes: O.ObserverableRange, O.Enumerable
-    
+
     A LiveQuery instance can be treated as an observable array which
     automatically updates its contents to reflect a certain query on the store.
     A query consists of a particular type, a filter function and a sort order.
@@ -55,11 +55,11 @@ var numerically = function ( a, b ) {
     retrieving the query from the store.
  */
 var LiveQuery = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     Mixin: [ NS.ObservableRange, NS.Enumerable ],
-    
+
     /**
         Property: O.LiveQuery#id
         Type: String
@@ -69,7 +69,7 @@ var LiveQuery = NS.Class({
     id: function () {
         return this.get( 'className' ) + '-query-' + ( qid += 1 );
     }.property(),
-    
+
     /**
         Property (private): O.LiveQuery#_filter
         Type: (Function|null)
@@ -77,7 +77,7 @@ var LiveQuery = NS.Class({
         The function to filter data objects with.
     */
     _filter: null,
-    
+
     /**
         Property (private): O.LiveQuery#_sort
         Type: (Function|null)
@@ -85,38 +85,38 @@ var LiveQuery = NS.Class({
         The function to sort the data objects with.
     */
     _sort: null,
-    
+
     /**
         Property: O.LiveQuery#store
         Type: O.Store
 
         The store to query for records.
     */
-    
+
     /**
         Property: O.LiveQuery#type
         Type: O.Class.<Record>
-        
+
         The Record class constructor function for the type of the instances to
         include in this query.
     */
-    
+
     /**
         Property: O.LiveQuery#status
         Type: O.Status
-        
+
         Status of the query: READY|DESTROYED
     */
     status: READY,
-    
+
     /**
         Property: O.LiveQuery#className
         Type: String
-        
+
         The string 'LiveQuery'. For introspection.
     */
     className: 'LiveQuery',
-    
+
     /**
         Constructor: O.LiveQuery
 
@@ -143,26 +143,26 @@ var LiveQuery = NS.Class({
         var sort = options.sort,
             store = options.store || this.store,
             results;
-        
+
         if ( sort && !( sort instanceof Function ) ) {
             sort = options.sort = NS.sortByProperties( sort );
         }
         results = store.findAll( options.type, options.filter, sort );
-        
+
         this._storeKeys = results;
         this._sort = results.sortFn;
         this._filter = results.filterFn;
-        
+
         this.length = results.length;
 
         LiveQuery.parent.init.call( this, options );
-        
+
         store.addQuery( this );
     },
-    
+
     /**
         Method: O.LiveQuery#destroy
-        
+
         Call this method when you have finished with a local query to ensure it
         does not continue monitoring the store for changes and can be garbage
         collected.
@@ -172,11 +172,11 @@ var LiveQuery = NS.Class({
         this.get( 'store' ).removeQuery( this );
         LiveQuery.parent.destroy.call( this );
     },
-    
+
     /**
         Property: O.LiveQuery#[]
         Type: Array
-        
+
         A standard array of record objects for the records in this query.
     */
     '[]': function () {
@@ -186,15 +186,15 @@ var LiveQuery = NS.Class({
             return store.materialiseRecord( storeKey, Type );
         });
     }.property(),
-    
+
     /**
         Property: O.LiveQuery#length
         Type: Number
-        
+
         The number of records in the query.
     */
     length: 0,
-    
+
     /**
         Method: O.LiveQuery#indexOfId
 
@@ -215,7 +215,7 @@ var LiveQuery = NS.Class({
         var record = this.get( 'store' ).getRecord( this.get( 'type' ), id ),
             index = -1,
             storeKey;
-        
+
         if ( record.is( READY ) ) {
             storeKey = record.get( 'storeKey' );
             index = this._storeKeys.indexOf( storeKey, from );
@@ -225,15 +225,15 @@ var LiveQuery = NS.Class({
         }
         return index;
     },
-    
+
     /**
         Method: O.LiveQuery#getObjectAt
-     
+
         Returns the record at the index given in the query.
-        
+
         Parameters:
             index - {Number} The index of the record to return.
-        
+
         Returns:
             {O.Record} The record at index i in this array.
     */
@@ -246,16 +246,16 @@ var LiveQuery = NS.Class({
         }
         return record;
     },
-    
+
     /**
         Method: O.LiveQuery#refresh
-     
+
         Asks the store to refresh the data for the type used in this query.
-        
+
         Parameters:
             force - {Boolean} (optional) If true, the store will refresh the
                     data even if it thinks it is up to date.
-        
+
         Returns:
             {O.LiveQuery} Returns self.
     */
@@ -263,18 +263,18 @@ var LiveQuery = NS.Class({
         this.get( 'store' ).fetchAll( this.get( 'type' ), force );
         return this;
     },
-    
+
     /**
         Method: O.LiveQuery#storeDidChangeRecords
-     
+
         Callback made by the store when there are changes that affect the query.
         The query calculate the changes to make and fire any necessary
         observers/events.
-        
+
         Parameters:
             storeKeysOfChanged - {Array} List of store keys that have changed
                                  which are of the type included in this query.
-        
+
         Returns:
             {Boolean} Was there a change in the query results?
     */
@@ -292,7 +292,7 @@ var LiveQuery = NS.Class({
             },
             l, storeKey, index, shouldBeInQuery,
             addedLength, removedLength, length, maxLength;
-        
+
         l = storeKeysOfChanged.length;
         while ( l-- ) {
             storeKey = storeKeysOfChanged[l];
@@ -322,10 +322,10 @@ var LiveQuery = NS.Class({
                 }
             }
         }
-        
+
         removedLength = removedIndexes.length;
         addedLength = added.length;
-        
+
         if ( removedLength ) {
             removedIndexes.sort( numerically );
             l = removedLength;
@@ -338,7 +338,7 @@ var LiveQuery = NS.Class({
         } else {
             removed = [];
         }
-        
+
         if ( addedLength ) {
             storeKeys.push.apply( storeKeys, added );
             if ( sort ) {
@@ -358,7 +358,7 @@ var LiveQuery = NS.Class({
         } else {
             addedIndexes = [];
         }
-        
+
         l = Math.min( addedLength, removedLength );
         while ( l-- ) {
             if ( added[l] === removed[l] &&
@@ -371,11 +371,11 @@ var LiveQuery = NS.Class({
                 removedLength -= 1;
             }
         }
-        
+
         if ( addedLength || removedLength ) {
             length = oldLength + addedLength - removedLength;
             maxLength = Math.max( length, oldLength );
-            
+
             this.beginPropertyChanges()
                 .set( 'length', length )
                 .rangeDidChange(
@@ -403,13 +403,13 @@ var LiveQuery = NS.Class({
         }
         return false;
     },
-    
+
     /**
         Method: O.LiveQuery#getIdsForObjectsInRange
-        
+
         Get a callback with an array of the id properties for all objects in the
         range given.
-        
+
         Parameters:
             start    - {Number} The index of the first object to get an id for.
             end      - {Number} One past the index of the last object to get an
@@ -418,7 +418,7 @@ var LiveQuery = NS.Class({
                        the first argument, the index of the first returned
                        result as the second argument, and one past the index
                        of the last result as the third argument.
-        
+
         Returns:
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
@@ -436,16 +436,16 @@ var LiveQuery = NS.Class({
 
     /**
         Method: O.LiveQuery#getIdsForAllObjects
-        
+
         Get a callback with an array of the id properties for all objects in the
         array.
-        
+
         Parameters:
             callback - {Function} This will be called with the array of ids as
                        the first argument, the index of the first returned
                        result as the second argument, and one past the index
                        of the last result as the third argument.
-        
+
         Returns:
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).

@@ -6,13 +6,13 @@
 // -------------------------------------------------------------------------- \\
 
 ( function ( undefined ) {
-    
+
 // Note: Does not inclue the `if ( i in this ) {}` check these function should
 // have, as IE8 will return false if this[i] is undefined (at least if the array
 // was defined with a literal, e.g. `[ undefined, undefined ]`).
-    
+
 var fns = {
-    
+
     /**
      * @method indexOf
      * @namespace Array
@@ -31,7 +31,7 @@ var fns = {
         }
         return -1;
     },
-    
+
     /**
      * @method lastIndexOf
      * @namespace Array
@@ -51,7 +51,7 @@ var fns = {
         }
         return -1;
     },
-    
+
     /**
      * @method forEach
      * @namespace Array
@@ -68,7 +68,7 @@ var fns = {
             fn.call( bind, this[i], i, this );
         }
     },
-    
+
     /**
      * @method map
      * @namespace Array
@@ -83,7 +83,7 @@ var fns = {
         }
         return results;
     },
-    
+
     /**
      * @method reduce
      * @namespace Array
@@ -97,11 +97,11 @@ var fns = {
         var i = 0,
             l = this.length,
             acc;
-        
+
         if ( !l && arguments.length === 1 ) {
             throw new TypeError();
         }
-        
+
         if ( arguments.length >= 2 ) {
             acc = initial;
         } else {
@@ -113,7 +113,7 @@ var fns = {
         }
         return acc;
     },
-    
+
     /**
      * @method filter
      * @namespace Array
@@ -131,7 +131,7 @@ var fns = {
         }
         return results;
     },
-    
+
     /**
      * @method some
      * @namespace Array
@@ -147,7 +147,7 @@ var fns = {
         }
         return false;
     },
-    
+
     /**
      * @method every
      * @namespace Array

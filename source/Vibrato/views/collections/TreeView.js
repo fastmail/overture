@@ -13,24 +13,24 @@
 ( function ( NS ) {
 
 var ExpandoView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     positioning: 'absolute',
     layout: {
         top: 0
     },
-    
+
     className: function () {
         return 'ExpandoView' + ( this.get( 'isCollapsed' ) ? '' : ' expanded' );
     }.property( 'isCollapsed' ),
-    
+
     isCollapsed: new NS.Binding({
         isTwoWay: true
     }).from( 'parentView.isCollapsed' ),
-    
+
     label: '',
-    
+
     _render: function ( layer ) {
         var label = this.get( 'label' );
         layer.appendChild( NS.Element.create( 'span', {
@@ -38,18 +38,18 @@ var ExpandoView = NS.Class({
         }) );
         layer.title = label;
     },
-    
+
     toggleCollapsed: function () {
         this.toggle( 'isCollapsed' );
     }.on( 'click' )
 });
 
 var TreeItemView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     layerTag: 'li',
-    
+
     parentTreeItemView: function () {
         return this.get( 'parentView' ).get( 'treeItemView' );
     }.property(),
@@ -57,28 +57,28 @@ var TreeItemView = NS.Class({
     treeView: function () {
         return this.get( 'parentView' ).get( 'treeView' );
     }.property(),
-    
+
     init: function () {
         TreeItemView.parent.init.apply( this, arguments );
-        
+
         // Inform parent it's got a new visible child
         var parent = this.get( 'parentTreeItemView' );
         if ( parent ) { parent.increment( 'visibleChildren', 1 ); }
-        
+
         // And then check whether we're really hidden.
         this.visibilityMayHaveChanged();
-        
+
         // Setup binding to detect change in subtree presence:
         var treeView = this.get( 'treeView' ),
             data = this.get( 'content' );
-        
+
         this.registerBinding( new NS.Binding({
                 transform: NS.Transform.toBoolean
             }).from( treeView.get( 'subContentProp' ) + '.length', data )
               .to( 'hasSubtree', this )
               .connect()
         );
-        
+
         // And register with the tree view.
         treeView.register( this );
     },
@@ -90,9 +90,9 @@ var TreeItemView = NS.Class({
         this.get( 'treeView' ).deregister( this );
         TreeItemView.parent.destroy.call( this );
     },
-    
+
     // --- Visibility ---
-    
+
     isHidden: false,
     visibleChildren: 0,
     _isVisible: true,
@@ -107,26 +107,26 @@ var TreeItemView = NS.Class({
             this._isVisible = isVisible;
         }
     }.observes( 'isHidden', 'visibleChildren' ),
-    
+
     // ---
-    
+
     isSelected: false,
     isCollapsed: false,
-    
+
     hasSubtree: false,
-    
+
     depth: function () {
         var parent = this.get( 'parentTreeItemView' );
         return parent ? parent.get( 'depth' ) + 1 : 0;
     }.property( 'parentTreeItemView' ),
-    
+
     className: function () {
         return 'TreeItemView depth' + this.get( 'depth' ) +
             ( this.get( 'isSelected' ) ? ' selected' : '' ) +
             ( this.get( 'isHidden' ) ? ( this.get( 'visibleChildren' ) ?
                 ' hiddenButChildren' : ' hidden' ) : '' );
     }.property( 'isSelected', 'isHidden', 'visibleChildren', 'depth' ),
-    
+
     _expandCollapse: function ( _, __, ___, isCollapsed ) {
         if ( this.get( 'hasSubtree' ) ) {
             var subview = this.get( 'subView' );
@@ -137,7 +137,7 @@ var TreeItemView = NS.Class({
             }
         }
     }.observes( 'isCollapsed' ),
-    
+
     subView: function () {
         return new NS.CollectionView({
             layerTag: 'ul',
@@ -148,11 +148,11 @@ var TreeItemView = NS.Class({
             treeItemView: this
         });
     }.property(),
-    
+
     expandoView: function () {
         return new ExpandoView();
     }.property(),
-    
+
     hasSubtreeDidChange: function () {
         if ( this.get( 'isRendered' ) ) {
             var action = this.get( 'hasSubtree' ) ? 'insertView' : 'removeView';
@@ -164,16 +164,16 @@ var TreeItemView = NS.Class({
             }
         }
     }.observes( 'hasSubtree' ),
-    
+
     _render: function ( layer ) {
         var data = this.get( 'content' ),
             treeView = this.get( 'treeView' ),
             ContentView = treeView.get( 'contentView' );
-                
+
         this.insertView( new ContentView({
             content: data
         }) );
-        
+
         if ( this.get( 'hasSubtree' ) ) {
             if ( treeView.get( 'isCollapsible' ) ) {
                 this.insertView( this.get( 'expandoView' ) );
@@ -186,27 +186,27 @@ var TreeItemView = NS.Class({
 });
 
 var TreeView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     className: 'TreeView',
-    
+
     subContentProp: 'subfolders',
-    
+
     itemView: TreeItemView,
     contentView: NS.View,
-    
+
     isCollapsible: true,
-    
+
     init: function () {
         TreeView.parent.init.apply( this, arguments );
         this.treeItemViews = [];
         this._treeItemIndex = {};
     },
-    
+
     _selectedView: null,
     selectedItem: null,
-    
+
     selectedItemDidChange: function () {
         var item = this.get( 'selectedItem' ),
             selected = ( item &&
@@ -221,12 +221,12 @@ var TreeView = NS.Class({
             this._selectedView = selected;
         }
     }.observes( 'selectedItem' ),
-    
+
     register: function ( view ) {
         var item = view.get( 'content' );
         this._treeItemIndex[ item.get( 'storeKey' ) ] = view;
         this.get( 'treeItemViews' ).push( view );
-        
+
         if ( this.get( 'selectedItem' ) === item ) {
             this._selectedView = view.set( 'isSelected', true );
         }
@@ -236,7 +236,7 @@ var TreeView = NS.Class({
         var viewlist = this.get( 'treeItemViews' );
         viewlist.splice( viewlist.indexOf( view ), 1 );
     },
-    
+
     _render: function () {
         this.insertView( new NS.CollectionView({
             layerTag: 'ul',

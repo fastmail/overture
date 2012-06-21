@@ -14,7 +14,7 @@ var slice = Array.prototype.slice;
 
 /**
     Mixin: O.MutableEnumerable
-    
+
     The MutableEnumerable mixin adds a number of mutation methods to any class
     with a 'replaceObjectsAt' method and a 'get' method that supports 'length'.
     The API mirrors that of the native Array type.
@@ -25,12 +25,12 @@ NS.MutableEnumerable = {
 
     /**
         Method: O.MutableEnumerable#push
-    
+
         ECMAScript Array#push.
-    
+
         Parameters:
             var_args - {...*} The items to add to the end of the array.
-    
+
         Returns:
             {Number} The new length of the array.
     */
@@ -42,9 +42,9 @@ NS.MutableEnumerable = {
 
     /**
         Method: O.MutableEnumerable#pop
-    
+
         ECMAScript Array#pop.
-    
+
         Returns:
             {*} The removed last value from the array.
     */
@@ -56,12 +56,12 @@ NS.MutableEnumerable = {
 
     /**
         Method: O.MutableEnumerable#unshift
-    
+
         ECMAScript Array#unshift.
-    
+
         Parameters:
             var_args - {...*} The items to add to the beginning of the array.
-    
+
         Returns:
             {Number} The new length of the array.
     */
@@ -73,9 +73,9 @@ NS.MutableEnumerable = {
 
     /**
         Method: O.MutableEnumerable#shift
-    
+
         ECMAScript Array#shift.
-    
+
         Returns:
             {*} The removed first value from the array.
     */
@@ -86,16 +86,16 @@ NS.MutableEnumerable = {
 
     /**
         Method: O.MutableEnumerable#splice
-    
+
         ECMAScript Array#splice.
-    
+
         Parameters:
             index         - {Number} The index to start removing/inserting items
                             at.
             numberRemoved - {Number} The number of items to remove.
             var_args      - {...*} The items to insert starting from position
                             index.
-    
+
         Returns:
             {Array} The items removed from the array.
     */

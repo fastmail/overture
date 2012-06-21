@@ -18,9 +18,9 @@ var Status = NS.Status,
 
 /**
     Enum: O.WindowedRemoteQuery-WindowState
-    
+
     The state of each window in the query is represented as follows:
-    
+
     WINDOW_EMPTY             - Initial state. The window has not even been
                                requested.
     WINDOW_REQUESTED         - The ids in the window have been requested
@@ -200,85 +200,85 @@ var windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
 
 /**
     Class: O.WindowedRemoteQuery
-    
+
     Extends: O.RemoteQuery
-        
+
     A windowed remote query represents a potentially very large array of records
     calculated by the server. Records are loaded in blocks (windows); for
     example, with a window size of 30, accessing any record at indexes 0--29
     will cause all records within that range to be loaded, but does not
     necessarily load anything else.
-    
+
     The class also supports an efficient modification sequence system for
     calculating, transfering and applying delta updates as the results of the
     query changes.
 */
 var WindowedRemoteQuery = NS.Class({
-    
+
     Extends: NS.RemoteQuery,
-    
+
     className: 'WindowedRemoteQuery',
-    
+
     /**
         Property: O.WindowedRemoteQuery#windowSize
         Type: Number
-        
+
         The number of records that make up one window.
     */
     windowSize: 30,
-    
+
     windowCount: function () {
         var length = this.get( 'length' );
         return ( length === null ) ? length :
             Math.floor( ( length - 1 ) / this.get( 'windowSize' ) ) + 1;
     }.property( 'length' ),
-    
+
     /**
         Property: O.WindowedRemoteQuery#triggerPoint
         Type: Number
-        
+
         If the record at an index less than this far from the end of a window is
         requested, the adjacent window will also be loaded (prefetching based on
         locality)
     */
     triggerPoint: 10,
-    
+
     /**
         Property: O.WindowedRemoteQuery#optimiseFetching
         Type: Boolean
-        
+
         If true, if a requested window is no longer either observed or adjacent
         to an observed window at the time <sourceWillFetchQuery> is called, the
         window is not actually requested.
     */
     optimiseFetching: false,
-    
+
     /**
         Property: O.WindowedRemoteQuery#prefetch
         Type: Number
-        
+
         The number of windows either side of an explicitly requested window, for
         which ids should be fetched.
     */
     prefetch: 1,
-    
+
     /**
         Property (private): O.WindowedRemoteQuery#_isAnExplicitIdFetch
         Type: Boolean
-        
+
         This is set to true when an explicit request is made to fetch ids (e.g.
         through <O.RemoteQuery#getIdsForObjectsInRange>). This prevents the
         query from optimising away the request when it corresponds to a
         non-observed range in the query.
     */
-    
+
     init: function ( options ) {
         WindowedRemoteQuery.parent.init.call( this, options );
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];
         this._preemptiveUpdates = [];
-        
+
         this._isAnExplicitIdFetch = false;
         this._refresh = false;
     },
@@ -290,18 +290,18 @@ var WindowedRemoteQuery = NS.Class({
         }
         return WindowedRemoteQuery.parent.refresh.call( this, force, callback );
     },
-    
+
     reset: function ( _, _key ) {
         this._windows.length =
         this._indexOfRequested.length =
         this._waitingPackets.length =
         this._preemptiveUpdates.length = 0;
-        
+
         this._isAnExplicitIdFetch = false;
-        
+
         WindowedRemoteQuery.parent.reset.call( this, _, _key );
     }.observes( 'sort', 'filter' ),
-    
+
     indexOfId: function ( id, from, callback ) {
         var index = this._list.indexOf( id, from );
         if ( callback ) {
@@ -336,7 +336,7 @@ var WindowedRemoteQuery = NS.Class({
         }
         return index;
     },
-    
+
     getIdsForObjectsInRange: function ( start, end, callback ) {
         var length = this.get( 'length' ),
             complete = true;
@@ -344,7 +344,7 @@ var WindowedRemoteQuery = NS.Class({
         if ( length !== null ) {
             if ( start < 0 ) { start = 0 ; }
             if ( end > length ) { end = length; }
-            
+
             var windowSize = this.get( 'windowSize' ),
                 i = Math.floor( start / windowSize ),
                 l = Math.floor( ( end - 1 ) / windowSize ) + 1;
@@ -359,7 +359,7 @@ var WindowedRemoteQuery = NS.Class({
         } else {
             complete = false;
         }
-        
+
         if ( complete ) {
             callback( this._list.slice( start, end ), start, end );
         }
@@ -369,7 +369,7 @@ var WindowedRemoteQuery = NS.Class({
         }
         return !complete;
     },
-    
+
     // Fetches all ids and records in window.
     // If within trigger distance of window edge, fetches adjacent window as
     // well.
@@ -379,9 +379,9 @@ var WindowedRemoteQuery = NS.Class({
             trigger = this.get( 'triggerPoint' ),
             windowIndex = Math.floor( index / windowSize ),
             withinWindowIndex = index % windowSize;
-        
+
         this.fetchWindow( windowIndex, true );
-        
+
         // If within trigger distance of end of window, load next window
         // Otherwise, just fetch Ids for next window.
         if ( withinWindowIndex < trigger ) {
@@ -392,17 +392,17 @@ var WindowedRemoteQuery = NS.Class({
         }
         return true;
     },
-    
+
     /**
         Method: O.WindowedRemoteQuery#fetchWindow
-        
+
         Fetches all records in the window with the index given. e.g. if the
         window size is 30, calling this with index 1 will load all records
         between positions 30 and 59 (everything 0-indexed).
-        
+
         Parameters:
             index - {Number} The index of the window to load.
-        
+
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
@@ -415,14 +415,14 @@ var WindowedRemoteQuery = NS.Class({
         if ( status & OBSOLETE ) {
             this.refresh();
         }
-        
+
         if ( prefetch === undefined ) {
             prefetch = this.get( 'prefetch' );
         }
-        
+
         i = Math.max( 0, index - prefetch );
         l = Math.min( index + prefetch + 1, this.get( 'windowCount' ) || 0 );
-        
+
         for ( ; i < l; i += 1 ) {
             status = windows[i] || 0;
             if ( status === WINDOW_EMPTY ) {
@@ -446,7 +446,7 @@ var WindowedRemoteQuery = NS.Class({
         }
         return this;
     },
-    
+
     // When Ids known:
     checkIfWindowIsFetched: function ( index ) {
         var store = this.get( 'store' ),
@@ -462,18 +462,18 @@ var WindowedRemoteQuery = NS.Class({
             return true;
         }
     },
-    
+
     /**
         Method: O.WindowedRemoteQuery#recalculateFetchedWindows
-        
+
         Recalculates whether the ids and records are fetched for windows,
         for all windows with an index equal or greater than that of the window
         containing the start index given.
-        
+
         Although the information on whether the records for a window are loaded
         is reset, it is not recalculated; this will be done on demand when a
         fetch is made for the window.
-        
+
         Parameters:
             start - {Number} The index of the first record to have changed (i.e.
                     invalidate all window information starting from the window
@@ -483,7 +483,7 @@ var WindowedRemoteQuery = NS.Class({
     recalculateFetchedWindows: function ( start, length ) {
         if ( !start ) { start = 0; }
         if ( length === undefined ) { length = this.get( 'length' ); }
-        
+
         var windowSize = this.get( 'windowSize' ),
             windows = this._windows,
             list = this._list,
@@ -492,13 +492,13 @@ var WindowedRemoteQuery = NS.Class({
             // And last list index
             listIndex = length - 1,
             target, status;
-        
+
         // Convert start from list index to window index.
         start = Math.floor( start / windowSize );
-        
+
         // Truncate any non-existant windows.
         windows.length = windowIndex + 1;
-        
+
         // Unless there's something defined for all properties between
         // listIndex and windowIndex we must remove the WINDOW_READY flag.
         // We always remove WINDOWS_RECORDS_READY flag, and calculate this when
@@ -525,9 +525,9 @@ var WindowedRemoteQuery = NS.Class({
         }
         return this;
     },
-    
+
     // ---- Updates:
-    
+
     _normaliseUpdate: function ( update ) {
         var list = this._list,
             removedIds = update.removed || [],
@@ -538,7 +538,7 @@ var WindowedRemoteQuery = NS.Class({
             addedIndexes = [],
             added = update.added || [],
             i, l, item;
-        
+
         for ( i = 0, l = added.length; i < l; i += 1 ) {
             item = added[i];
             addedIndexes.push( item[0] );
@@ -546,7 +546,7 @@ var WindowedRemoteQuery = NS.Class({
         }
         update.addedIndexes = addedIndexes;
         update.addedIds = addedIds;
-        
+
         sortLinkedArrays( removedIndexes, removedIds );
         for ( i = 0; removedIndexes[i] === -1; i += 1 ) {
             // Do nothing (we just want to find the first index of known
@@ -562,21 +562,21 @@ var WindowedRemoteQuery = NS.Class({
         update.truncateAtFirstGap = !!i;
         update.removedIndexes = removedIndexes;
         update.removedIds = removedIds;
-        
+
         if ( update.changed ) {
             update.changed.sort();
         } else {
             update.changed = [];
         }
-        
+
         if ( !update.total ) {
             update.total = this.get( 'length' ) -
                 removedIndexes.length + addedIndexes.length;
         }
-        
+
         return update;
     },
-    
+
     _applyUpdate: function ( args, preemptive ) {
         var removedIndexes = args.removedIndexes,
             removedIds = args.removedIds,
@@ -591,16 +591,16 @@ var WindowedRemoteQuery = NS.Class({
             newLength = args.total,
             firstChange = oldLength,
             i, l, index, id, listLength;
-        
+
         // --- Remove items from list ---
-        
+
         l = removedLength;
         while ( l-- ) {
             index = removedIndexes[l];
             list.splice( index, 1 );
             if ( index < firstChange ) { firstChange = index; }
         }
-        
+
         if ( args.truncateAtFirstGap ) {
             // Truncate the list so it does not contain any gaps; anything after
             // the first gap may be incorrect as a record may have been removed
@@ -610,9 +610,9 @@ var WindowedRemoteQuery = NS.Class({
             list.length = i;
             if ( i < firstChange ) { firstChange = i; }
         }
-        
+
         // --- Add items to list ---
-        
+
         // If the index is past the end of the array, you can't use splice
         // (unless you set the length of the array first), so use standard
         // assignment.
@@ -629,9 +629,9 @@ var WindowedRemoteQuery = NS.Class({
             }
             if ( index < firstChange ) { firstChange = index; }
         }
-        
+
         // --- Check upto ---
-        
+
         // upto is the last item id the updates are to. Anything after here
         // may have changed, but won't be in the updates, so we need to truncate
         // the list to ensure it doesn't get into an inconsistent state.
@@ -647,11 +647,11 @@ var WindowedRemoteQuery = NS.Class({
                 return this.reset();
             }
         }
-        
+
         // --- Recalculate fetched windows ---
-        
+
         // --- Process updates ---
-        
+
         // Do we have item changes (ignored for preemptive)?
         if ( !preemptive && changed.length ) {
             // Observers should be observing the state of all the records
@@ -659,10 +659,10 @@ var WindowedRemoteQuery = NS.Class({
             // know if there's an update and allow them to fetch it immediately.
             // Otherwise, we'll fetch the updates the next time that window is
             // accessed.
-            
+
             // Recheck each window for updates when fetching.
             this.recalculateFetchedWindows( 0, newLength );
-            
+
             // Mark records that need an update.
             this.get( 'store' ).sourceHasUpdatesForRecords(
                 this.get( 'type' ), changed );
@@ -676,13 +676,13 @@ var WindowedRemoteQuery = NS.Class({
         else if ( recalculateFetchedWindows ) {
             this.recalculateFetchedWindows( firstChange, newLength );
         }
-        
+
         // --- Broadcast changes ---
-        
+
         this.set( 'status', this.get( 'status' ) & ~( OBSOLETE|LOADING ) )
             .set( 'length', newLength )
             .rangeDidChange( firstChange, Math.max( oldLength, newLength ) );
-        
+
         // For selection purposes, list view will need to know the ids of those
         // which were removed. Also, keyboard indicator will need to know the
         // indexes of those removed or added.
@@ -692,21 +692,21 @@ var WindowedRemoteQuery = NS.Class({
             added: addedIds,
             addedIndexes: addedIndexes
         });
-        
+
         // --- And process any waiting data packets ---
-        
+
         this._applyWaitingPackets();
-        
+
         return this;
     },
-    
+
     _applyWaitingPackets: function () {
         var didDropPackets = false,
             waitingPackets = this._waitingPackets,
             l = waitingPackets.length,
             state = this.get( 'state' ),
             packet;
-        
+
         while ( l-- ) {
             packet = waitingPackets.shift();
             // If these values aren't now the same, the packet must
@@ -723,7 +723,7 @@ var WindowedRemoteQuery = NS.Class({
             this._fetchObservedWindows();
         }
     },
-    
+
     _fetchObservedWindows: function () {
         var ranges = NS.meta( this ).rangeObservers,
             length = this.get( 'length' ),
@@ -747,16 +747,16 @@ var WindowedRemoteQuery = NS.Class({
             }
         }
     },
-    
+
     /**
         Method: O.WindowedRemoteQuery#clientDidGenerateUpdate
-        
+
         Call this to update the list with what you think the server will do
         after an action has committed. The change will be applied immediately,
         making the UI more responsive, and be checked against what actually
         happened next time an update arrives. If it turns out to be wrong the
         list will be reset, but in most cases it should appear more efficient.
-        
+
         removed - {Array.<String>} (optional) The ids of all records to delete.
         added   - {Array.<Array>} (optional) A list of [ index, id ] pairs, in
                   ascending order of index, for all records to be inserted.
@@ -764,10 +764,10 @@ var WindowedRemoteQuery = NS.Class({
                   updated; these are then removed from the changed list the next
                   time, and any extras are added (as they have been erroneously
                   updated and so now must be updated by the server).
-        
+
         Parameters:
             update - {Object} The removed/added/changed updates to make.
-        
+
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
@@ -777,13 +777,13 @@ var WindowedRemoteQuery = NS.Class({
         this._preemptiveUpdates.push( update );
         return this;
     },
-    
+
     /**
         Method: O.WindowedRemoteQuery#sourceDidFetchUpdate
-        
+
         The source should call this when it fetches a delta update for the
         query. The args object should contain the following properties:
-        
+
         newState - {String} The state this delta updates the remote query to.
         oldState - {String} The state this delta updates the remote query from.
         sort     - {String} The sort presumed in this delta.
@@ -801,10 +801,10 @@ var WindowedRemoteQuery = NS.Class({
                   updates; any information past this id must be discarded, and
                   if the id can't be found the list must be reset.
         total   - {Number} (optional) The total number of records in the list.
-        
+
         Parameters:
             update - {Object} The delta update (see description above).
-        
+
         Returns:
             {O.Source} Returns self.
     */
@@ -817,7 +817,7 @@ var WindowedRemoteQuery = NS.Class({
             }
             return true;
         };
-        
+
         var updateIsEqual = function ( u1, u2 ) {
             return u1.total === u2.total &&
                 equalArrays( u1.addedIndexes, u2.addedIndexes ) &&
@@ -825,7 +825,7 @@ var WindowedRemoteQuery = NS.Class({
                 equalArrays( u1.removedIndexes, u2.removedIndexes ) &&
                 equalArrays( u1.removedIds, u2.removedIds );
         };
-        
+
         var findUncommon = function ( a1, a2 ) {
             var result = [],
                 i = 0, j = 0,
@@ -852,7 +852,7 @@ var WindowedRemoteQuery = NS.Class({
             }
             return result;
         };
-        
+
         return function ( update ) {
             var state = this.get( 'state' );
             // Check we've not already got this update.
@@ -870,10 +870,10 @@ var WindowedRemoteQuery = NS.Class({
                 return;
             }
             this.set( 'state', update.newState );
-        
+
             var preemptives = this._preemptiveUpdates,
                 l = preemptives.length;
-        
+
             if ( !l ) {
                 this._applyUpdate( this._normaliseUpdate( update ) );
             } else {
@@ -885,7 +885,7 @@ var WindowedRemoteQuery = NS.Class({
                     composed[i] = composeUpdates(
                         composed[ i - 1 ], preemptives[i] );
                 }
-            
+
                 // 2. Normalise the update from the server. This is trickier
                 // than normal, as we need to determine what the indexes of the
                 // removed ids were in the previous state.
@@ -909,7 +909,7 @@ var WindowedRemoteQuery = NS.Class({
                     removedIds = [],
                     list = this._list,
                     id, index, changed;
-                
+
                 for ( i = 0, l = removed.length; i < l; i += 1 ) {
                     id = removed[i];
                     index = allPreemptives.removedIds.indexOf( id );
@@ -941,12 +941,12 @@ var WindowedRemoteQuery = NS.Class({
                     removedIndexes.push.apply( removedIndexes, _indexes );
                     removedIds.push.apply( removedIds, _ids );
                 }
-                
+
                 sortLinkedArrays( removedIndexes, removedIds );
-            
+
                 normalisedUpdate.removedIndexes = removedIndexes;
                 normalisedUpdate.removedIds = removedIds;
-            
+
                 // 3. We now have a normalised update from the server. We
                 // compare this to each composed state of our preemptive
                 // updates. If it matches any completely, we guessed correctly
@@ -978,7 +978,7 @@ var WindowedRemoteQuery = NS.Class({
                         updateIsEqual( normalisedUpdate, composed[i] ) ) {
                             l = i;
                     }
-                    
+
                     preemptives.splice( 0, l + 1 );
                     changed = findUncommon(
                         composed[l].changed, normalisedUpdate.changed );
@@ -1004,24 +1004,24 @@ var WindowedRemoteQuery = NS.Class({
             }
         };
     }(),
-    
+
     /**
         Method: O.WindowedRemoteQuery#sourceDidFetchIdList
-        
+
         The source should call this when it fetches a portion of the id list for
         this query. The args object should contain:
-        
+
         state    - {String} The state of the server when this slice was taken.
         sort     - {String} The sort used.
         filter   - {String} The filter used.
         idList   - {Array.<String>} The list of ids.
         position - {Number} The index in the query of the first id in idList.
         total    - {Number} The total number of records in the query.
-        
+
         Parameters:
             args - {Object} The portion of the overall id list. See above for
                    details.
-        
+
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
@@ -1033,7 +1033,7 @@ var WindowedRemoteQuery = NS.Class({
                 this.get( 'filter' ) !== args.filter ) {
             return;
         }
-        
+
         // If the state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
         var state = this.get( 'state' );
@@ -1052,7 +1052,7 @@ var WindowedRemoteQuery = NS.Class({
             total = args.total,
             list = this._list,
             end;
-        
+
         // Need to adjust for preemptive updates
         var preemptives = this._preemptiveUpdates,
             l = preemptives.length;
@@ -1063,7 +1063,7 @@ var WindowedRemoteQuery = NS.Class({
                 addedIds = allPreemptives.addedIds,
                 removedIndexes = allPreemptives.removedIndexes,
                 i, index;
-            
+
             l = removedIndexes.length;
             while ( l-- ) {
                 index = removedIndexes[l] - position;
@@ -1089,20 +1089,20 @@ var WindowedRemoteQuery = NS.Class({
             }
             total = allPreemptives.total;
         }
-        
+
         // Calculate end index, as length will be destroyed later
         end = position + length;
-        
+
         // Set the length to the beginning of the splice to ensure it will work.
         // Otherwise the splice will add the elements in at the position of the
         // current end of the array!
         if ( list.length < position ) {
             list.length = position;
         }
-        
+
         ids.unshift( position, length );
         Array.prototype.splice.apply( list, ids );
-        
+
         // Have we fetched any windows?
         var windowSize = this.get( 'windowSize' ),
             windowIndex = Math.floor( position / windowSize ),
@@ -1124,14 +1124,14 @@ var WindowedRemoteQuery = NS.Class({
         if ( length && end === total && length === ( total % windowSize ) ) {
             this._windows[ windowIndex ] |= WINDOW_READY;
         }
-        
+
         // All that's left is to inform observers of the changes.
         return this.set( 'status', READY )
                    .set( 'length', total )
                    .rangeDidChange( position, end )
                    .fire( 'query:idsLoaded' );
     },
-    
+
     sourceWillFetchQuery: function () {
         // If optimise and no longer observed -> remove request
         // Move from requested -> loading
@@ -1151,12 +1151,12 @@ var WindowedRemoteQuery = NS.Class({
             }) : null,
             prefetch = this.get( 'prefetch' ),
             i, l, status, inUse, rPrev, iPrev, start;
-        
+
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];
         this._refresh = false;
         this._fetchUpdates = true;
-        
+
         for ( i = 0, l = windows.length; i < l; i += 1 ) {
             status = windows[i];
             if ( status & (WINDOW_REQUESTED|WINDOW_RECORDS_REQUESTED) ) {
@@ -1204,11 +1204,11 @@ var WindowedRemoteQuery = NS.Class({
             }
             windows[i] = status;
         }
-        
+
         if ( refreshRequested ) {
             this.setLoading();
         }
-        
+
         return {
             ids: idRequests,
             records: recordRequests,

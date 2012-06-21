@@ -12,17 +12,17 @@
 
 /**
     Mixin: O.Validate
-    
+
     Mixin to use when an object can be in either a valid or an invalid state,
     with a set of functions to apply to determine which state it is in.
-    
+
     Any object including O.Validate must also inclue <O.ObservableProps>.
 */
 
 var Validate = {
     /**
         Method: O.Validate#initValidate
-        
+
         Initialises any validators to run at the appropriate times. You should
         call this during the init method of your object including O.Validate.
     */
@@ -36,18 +36,18 @@ var Validate = {
             }
         }
     },
-    
+
     /**
         Property: O.Validate#isValid
         Type: Boolean
-        
+
         False if the validators last rejected the object's state
     */
     isValid: true,
     /**
         Property: O.Validate#
         Type: Object.<String,Function>
-        
+
         A map of names to functions that validate the object. The functions will
         be called with this object as the `this` parameter, and the `value`
         property of the object as the sole argument. They must return a boolean
@@ -57,7 +57,7 @@ var Validate = {
     /**
         Property: O.Validate#validateOn
         Type: Object.<String,Array.<String>>
-        
+
         A map of properties to observe to an array of validator names to be run
         when the property changes.
     */
@@ -65,19 +65,19 @@ var Validate = {
     /**
         Property: O.Validate#validityError
         Type: String
-        
+
         A string describing the error causing validation to fail. This should be
         set by the validator if it fails.
     */
     validityError: '',
-    
+
     /**
         Method (private): O.Validate#_validate
-        
+
         Runs the validation methods defined for a particular event or property
         change, setting the isValid property to reflect the new state of the
         object.
-        
+
         Parameters:
             obj - {(Event|*)} (optional) If an event is fired, the type property
                   of this object is used to determine the set of validators to
@@ -93,7 +93,7 @@ var Validate = {
             value = this.get( 'value' ),
             isValid = true,
             i, l;
-        
+
         for ( i = 0, l = toUse.length; i < l; i += 1 ) {
             isValid = isValid && validators[ toUse[i] ].call( this, value );
             // If state is invalid, no point in validating further.

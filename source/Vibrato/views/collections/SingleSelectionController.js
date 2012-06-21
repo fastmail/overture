@@ -12,9 +12,9 @@
 ( function ( NS ) {
 
 var SingleSelectionController = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     init: function ( options ) {
         SingleSelectionController.parent.init.call( this, options );
         var content = this.get( 'content' ),
@@ -31,7 +31,7 @@ var SingleSelectionController = NS.Class({
             this.set( 'index', 0 );
         }
     },
-    
+
     destroy: function () {
         var content = this.get( 'content' );
         if ( content ) {
@@ -43,19 +43,19 @@ var SingleSelectionController = NS.Class({
     },
 
     content: null,
-    
+
     id: null,
     index: -1,
-    
+
     _ignore: false,
-    
+
     idAtIndexDidChange: function () {
         var record = this.get( 'content' ).getObjectAt( this.get( 'index' ) );
         if ( !this.get( 'id' ) ) {
             this.set( 'id', record ? record.get( 'id' ) : null );
         }
     },
-    
+
     _indexDidChange: function () {
         var list = this.get( 'content' ),
             length = list ? list.get( 'length' ) : 0,
@@ -81,7 +81,7 @@ var SingleSelectionController = NS.Class({
             }
         }
     }.observes( 'index' ),
-    
+
     _idDidChange: function () {
         var id = this.get( 'id' ),
             list = this.get( 'content' );
@@ -101,12 +101,12 @@ var SingleSelectionController = NS.Class({
             }
         }
     }.observes( 'id' ),
-    
+
     contentDidChange: function ( _, __, oldVal, newVal ) {
         var range = this._range,
             id = this.get( 'id' ),
             index, record;
-        
+
         if ( oldVal ) {
             oldVal.detach( 'query:updated', this, 'contentWasUpdated' );
             oldVal.removeObserverForRange( range, this, 'idAtIndexDidChange' );
@@ -115,12 +115,12 @@ var SingleSelectionController = NS.Class({
             newVal.addObserverForRange( range, this, 'idAtIndexDidChange' );
             newVal.on( 'query:updated', this, 'contentWasUpdated' );
         }
-        
+
         if ( id && newVal ) {
             index = newVal.indexOfId( id );
         }
         index = index > -1 ? index : 0;
-        
+
         if ( index === this.get( 'index' ) ) {
             record = newVal && newVal.getObjectAt( index );
             this.set( 'id', record ? record.get( 'id' ) : null );
@@ -128,7 +128,7 @@ var SingleSelectionController = NS.Class({
             this.set( 'index', index );
         }
     }.observes( 'content' ),
-    
+
     contentWasUpdated: function ( updates ) {
         var index = updates.added.indexOf( this.get( 'id' ) ),
             removedIndexes = updates.removedIndexes,
@@ -136,7 +136,7 @@ var SingleSelectionController = NS.Class({
             content = this.get( 'content' ),
             change = 0,
             i, l, record;
-        
+
         if ( index > -1 ) {
             index = addedIndexes[ index ];
         } else {

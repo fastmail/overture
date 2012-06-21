@@ -11,11 +11,11 @@
 ( function ( NS ) {
 
 var ScrollAnimation = NS.Class({
-    
+
     Extends: NS.Animation,
-    
+
     duration: 250,
-    
+
     prepare: function ( coordinates ) {
         var object = this.object,
             startX = this.startX = object.get( 'scrollLeft' ),
@@ -24,10 +24,10 @@ var ScrollAnimation = NS.Class({
             endY = this.endY = coordinates.y || 0,
             deltaX = this.deltaX = endX - startX,
             deltaY = this.deltaY = endY - startY;
-        
+
         return !!( deltaX || deltaY );
     },
-    
+
     drawFrame: function ( position ) {
         var x = position < 1 ?
                 this.startX + ( position * this.deltaX ) : this.endY,
@@ -38,17 +38,17 @@ var ScrollAnimation = NS.Class({
 });
 
 var ScrollView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     clipToBounds: true,
     showScrollbarY: true,
-    
+
     positioning: 'absolute',
     layout: NS.View.LAYOUT_FILL_PARENT,
-    
+
     keys: {},
-    
+
     didAppendLayerToDocument: function () {
         // Scroll is reset to 0 by the browser whenever it is removed from the
         // DOM, so we need to set it to what it should be.
@@ -67,7 +67,7 @@ var ScrollView = NS.Class({
         }
         return ScrollView.parent.didAppendLayerToDocument.call( this );
     },
-    
+
     willRemoveLayerFromDocument: function () {
         // Remove keyboard shortcuts:
         var keys = this.get( 'keys' ),
@@ -79,13 +79,13 @@ var ScrollView = NS.Class({
         this.get( 'layer' ).removeEventListener( 'scroll', this, false );
         return ScrollView.parent.willRemoveLayerFromDocument.call( this );
     },
-    
+
     scrollAnimation: function ( ) {
         return new ScrollAnimation({
             object: this
         });
     }.property(),
-    
+
     _onScroll: function ( event ) {
         var layer = this.get( 'layer' ),
             left = layer.scrollLeft,
@@ -96,7 +96,7 @@ var ScrollView = NS.Class({
             .endPropertyChanges();
         event.stopPropagation();
     }.on( 'scroll' ),
-    
+
     scrollPage: function () {
         return this.scrollBy( 0, this.get( 'pxHeight' ) - 50, true );
     },
@@ -109,19 +109,19 @@ var ScrollView = NS.Class({
     reverseScrollLine: function () {
         return this.scrollBy( 0, -40 );
     },
-    
+
     scrollBy: function ( x, y, withAnimation ) {
         var left = this.get( 'scrollLeft' ),
             top = this.get( 'scrollTop' );
         x += left;
         y += top;
-        
+
         this.scrollTo( x, y, withAnimation );
-        
+
         return top !== this.get( 'scrollTop' ) ||
             left !== this.get( 'scrollLeft' );
     },
-    
+
     scrollTo: function ( x, y, withAnimation ) {
         if ( withAnimation ) {
             this.get( 'scrollAnimation' ).animate({
@@ -130,11 +130,11 @@ var ScrollView = NS.Class({
             });
             return this;
         }
-        
+
         // Can't have negative scroll values.
         if ( x < 0 ) { x = 0; }
         if ( y < 0 ) { y = 0; }
-        
+
         // Can only scroll when in the document; we'll scroll
         // on attachment anyway so just store the values otherwise.
         if ( this.get( 'isInDocument' ) ) {
@@ -146,13 +146,13 @@ var ScrollView = NS.Class({
             if ( x ) { x = layer.scrollLeft; }
             if ( y ) { y = layer.scrollTop; }
         }
-        
+
         return this.beginPropertyChanges()
               .set( 'scrollLeft', x )
               .set( 'scrollTop', y )
             .endPropertyChanges();
     },
-    
+
     scrollToView: function ( view, offset, withAnimation ) {
         var position = NS.Element.getPosition(
             view.get( 'layer' ), this.get( 'layer' ) );
@@ -162,7 +162,7 @@ var ScrollView = NS.Class({
         return this.scrollTo(
             position.left + offset.x, position.top + offset.y, withAnimation );
     },
-    
+
     visibleRect: function () {
         return {
             x: this.get( 'scrollLeft' ),

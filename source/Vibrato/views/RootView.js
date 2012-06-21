@@ -32,9 +32,9 @@ var RootViewController = {
         }
         return view;
     },
-    
+
     _responders: [],
-    
+
     // First responder: will be notified of event before views.
     pushResponder: function ( responder ) {
         this._responders.push( responder );
@@ -50,18 +50,18 @@ var RootViewController = {
         this._responders.erase( responder );
         return this;
     },
-    
+
     handleEvent: function ( event, view ) {
         var responders = this._responders,
             l = responders.length,
             responder;
-        
+
         if ( !view ) {
             view = this.getViewFromNode( event.target );
         }
         event.targetView = view;
         event.phase = 'beforeViews';
-        
+
         while ( l-- ) {
             responder = responders[l];
             if ( responder === this ) {
@@ -80,22 +80,22 @@ var RootViewController = {
 RootViewController.pushResponder( RootViewController );
 
 var RootView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     isInDocument: true,
     isRendered: true,
-    
+
     layer: null,
-    
+
     init: function ( node, options ) {
         RootView.parent.init.call( this, options );
-        
+
         var nodeIsDocument = node.nodeType === Node.DOCUMENT_NODE,
             doc = nodeIsDocument ? node : node.ownerDocument,
             win = doc.defaultView,
             events, l;
-        
+
         events = [ 'click', 'mousedown', 'mouseup',
             'keypress', 'keydown', 'keyup', 'dragstart', 'selectstart' ];
         for ( l = events.length; l--; ) {
@@ -114,10 +114,10 @@ var RootView = NS.Class({
         for ( l = events.length; l--; ) {
             win.addEventListener( events[l], this, false );
         }
-        
+
         this.layer = nodeIsDocument ? node.body : node;
     },
-    
+
     pxLeft: 0,
     pxTop: 0,
 
@@ -126,16 +126,16 @@ var RootView = NS.Class({
         return layer.nodeName === 'BODY' ?
             layer.parentNode.clientWidth : layer.offsetWidth;
     }.property( 'pxDimensions' ),
-    
+
     pxHeight: function () {
         var layer = this.get( 'layer' );
         return layer.nodeName === 'BODY' ?
             layer.parentNode.clientHeight : layer.offsetHeight;
     }.property( 'pxDimensions' ),
-    
+
     handleEvent: function ( event ) {
         var type = event.type;
-        
+
         // We observe mousemove when mousedown.
         if ( type === 'mousedown' ) {
             this.get( 'layer' ).ownerDocument
@@ -144,7 +144,7 @@ var RootView = NS.Class({
             this.get( 'layer' ).ownerDocument
                 .removeEventListener( 'mousemove', this, false );
         }
-        
+
         // Window resize events: just notify parent has resized.
         if ( type === 'resize' || type === 'orientationchange' ) {
             this.parentViewDidResize();

@@ -11,18 +11,18 @@
 ( function ( NS ) {
 
 var MenuView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     Mixin: NS.AbstractMenu,
-    
+
     init: function ( options ) {
         MenuView.parent.init.call( this, options );
         var items = this.get( 'items' ),
             shortcuts = this._shortcuts = {},
             keyBindings = this._keyBindings =
                 Object.create( this._keyBindings );
-        
+
         items.forEach( function ( item ) {
             var shortcut = item.shortcut;
             if ( shortcut ) {
@@ -31,23 +31,23 @@ var MenuView = NS.Class({
             }
         });
     },
-    
+
     className: 'MenuView',
-    
+
     showFilter: false,
-    
+
     didCreateLayer: function ( layer ) {
         MenuView.parent.didCreateLayer.call( this, layer );
         layer.addEventListener( 'mouseover', this, false );
         layer.addEventListener( 'mouseout', this, false );
     },
-    
+
     willDestroyLayer: function ( layer ) {
         layer.removeEventListener( 'mouseout', this, false );
         layer.removeEventListener( 'mouseover', this, false );
         MenuView.parent.willDestroyLayer.call( this, layer );
     },
-    
+
     didAppendLayerToDocument: function () {
         MenuView.parent.didAppendLayerToDocument.call( this );
         if ( this.get( 'showFilter' ) ) {
@@ -56,16 +56,16 @@ var MenuView = NS.Class({
         }
         return this;
     },
-    
+
     didRemoveLayerFromDocument: function () {
         this.focusItem( null );
         return MenuView.parent.didRemoveLayerFromDocument.call( this );
     },
-    
+
     _render: function ( layer ) {
         var Element = NS.Element,
             el = Element.create;
-        
+
         Element.appendChildren( layer, [
             this.get( 'showFilter' ) ? el( 'div', [
                 this._input = el( 'input', {
@@ -91,9 +91,9 @@ var MenuView = NS.Class({
             }) )
         ]);
     },
-    
+
     // --- AbstractMenu support ---
-    
+
     filterItem: function ( item, pattern ) {
         var Element = NS.Element,
             addClass = Element.addClass,
@@ -129,21 +129,21 @@ var MenuView = NS.Class({
             ( el = el.parentNode ) && el !== layer ) {/* Empty */}
         return ( el && el !== layer ) ? this.get( 'items' )[ el._index ] : null;
     },
-    
+
     hide: function () {
         var parent = this.get( 'parentView' );
         if ( parent ) { parent.hide(); }
     },
-    
+
     // --- End AbstractMenu support ---
-    
+
     _keyBindings: {
         esc: 'onEscape',
         enter: 'selectFocussed',
         up: 'focusPrevious',
         down: 'focusNext'
     },
-    
+
     onEscape: function ( event ) {
         var input = this._input;
         if ( input && input.value ) {
@@ -160,12 +160,12 @@ var MenuView = NS.Class({
         }
         if ( event ) { event.preventDefault(); }
     },
-    
+
     onShortcut: function ( event, key ) {
         event.preventDefault();
         this.didSelectItem( this._shortcuts[ key ] );
     },
-    
+
     _syncFilterValue: function () {
         if ( this._input ) {
             this.set( 'filterValue', this._input.value );

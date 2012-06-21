@@ -40,28 +40,28 @@ var ua = navigator.userAgent.toLowerCase(),
 NS.UA = {
     // Platform
     platform: platform,
-    
+
     isMac: platform === 'mac',
     isWin: platform === 'win',
     isLinux: platform === 'linux',
     isIOS: platform === 'ios',
-    
+
     // Browser
     browser: browser,
     version: version,
-    
+
     chrome: browser === 'chrome' ? version : 0,
     firefox: browser === 'firefox' ? version : 0,
     msie: browser === 'msie' ? version : 0,
     opera: browser === 'opera' ? version : 0,
     safari: browser === 'safari' ? version : 0,
-    
+
     // Rendering engine
     gecko: /gecko\//.test( ua ),
     presto: /presto/.test( ua ),
     trident: /trident/.test( ua ),
     webkit: /webkit/.test( ua ),
-    
+
     // CSS names
     cssProps: cssProps,
     cssPrefix: cssPrefixes[ browser ]
@@ -89,7 +89,7 @@ NS.UA = {
         },
         prefix = cssPrefixes[ browser ],
         prop, test, css;
-    
+
     for ( prop in props ) {
         test = props[ prop ];
         css = test.name + ':' + test.value;

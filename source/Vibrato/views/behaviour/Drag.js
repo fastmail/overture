@@ -11,7 +11,7 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 /* Issues with drag.
 
 This system hooks into the native HTML5 drag and drop event system to allow data
@@ -39,7 +39,7 @@ If you want to initiate a drag with data for an external app (e.g. a file downlo
 2. Either then setting the data as normal in the dragStarted method (if the view
    includes O.Draggable), or by handling the dragstart event. If the latter,
    you should set the following properties:
-   
+
    event.dataTransfer.setData( type, data );
    event.dataTransfer.setDragImage( el, offsetX, offsetY );
 
@@ -64,7 +64,7 @@ var NONE = 0,
         'linkMove',
         'all'
     ];
-    
+
     // To detect if natively supported:
     // (function () {
     //     var el = document.createElement( 'div' ),
@@ -90,7 +90,7 @@ var DragController = new NS.Object({
     target: null,
     ignore: true,
     drag: null,
-    
+
     register: function ( drag ) {
         if ( this.drag ) {
             this.drag.endDrag();
@@ -102,7 +102,7 @@ var DragController = new NS.Object({
             this.drag = null;
         }
     },
-    
+
     getDragViewFromNode: function ( node ) {
         var view = NS.RootViewController.getViewFromNode( node );
         while ( view ) {
@@ -113,11 +113,11 @@ var DragController = new NS.Object({
         }
         return view;
     },
-    
+
     handleEvent: function ( event ) {
         this.fire( event.type, event );
     }.invokeInRunLoop(),
-    
+
     // Non-native API version
     _onMousedown: function ( event ) {
         var target = event.target;
@@ -171,7 +171,7 @@ var DragController = new NS.Object({
             this.drag.endDrag();
         }
     }.on( 'keydown' ),
-    
+
     // Native API version:
     _onDragstart: function ( event ) {
         // Ignore any implicit drags; only use native API when draggable="true"
@@ -262,14 +262,14 @@ var DragController = new NS.Object({
 NS.RootViewController.pushResponder( DragController );
 
 var Drag = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     nextEventTarget: DragController,
-    
+
     init: function ( options ) {
         Drag.parent.init.call( this, options );
-        
+
         var event = options.event;
         this.cursorLocation = {
             x: event.clientX,
@@ -281,17 +281,17 @@ var Drag = NS.Class({
         this._setCursor( true );
         this.startDrag();
     },
-    
+
     isNative: false,
-    
+
     dragSource: null,
     allowedEffects: ALL,
-    
+
     dataSource: null,
 
     dropTarget: null,
     dropEffect: MOVE,
-    
+
     dragImage: null,
     dragImageOffset: function ( offset ) {
         if ( offset ) {
@@ -304,10 +304,10 @@ var Drag = NS.Class({
         return this._dragImageOffset;
     }.property(),
     _dragImageOffset: { x: 5, y: 5 },
-    
+
     cursorLocation: { x: 0, y: 0 },
     startLocation: { x: 0, y: 0 },
-    
+
     // Drag image
     _dragImageDidChange: function ( _, __, oldImage, image ) {
         if ( this.isNative ) {
@@ -337,7 +337,7 @@ var Drag = NS.Class({
         dragImage.style.left = ( cursor.x + offset.x ) + 'px';
         dragImage.style.top = ( cursor.y + offset.y ) + 'px';
     }.observes( 'cursorLocation', 'dragImageOffset' ),
-    
+
     // Cursor type
     _setCursor: function ( set ) {
         var stylesheet = this._stylesheet,
@@ -364,7 +364,7 @@ var Drag = NS.Class({
                     cursor + ' !important;}',
                 style = this._stylesheet =
                     NS.Element.create( 'style', { type: 'text/css' });
-            
+
             if ( style.styleSheet ) {
                 // IE8: must append to document BEFORE adding styles
                 // or you get the IE7 CSS parser!
@@ -377,7 +377,7 @@ var Drag = NS.Class({
             }
         }
     }.observes( 'dropEffect' ),
-    
+
     // Data handlers:
     dataTypes: function () {
         var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
@@ -454,7 +454,7 @@ var Drag = NS.Class({
             }
         }
     },
-    
+
     // General:
     startDrag: function () {
         DragController.register( this );
@@ -464,19 +464,19 @@ var Drag = NS.Class({
         // No drag source if drag started in another window/app.
         if ( dragSource ) {
             dragSource.set( 'isDragging', true ).dragStarted( this );
-            
+
             allowedEffects = dragSource.get( 'allowedDragEffects' );
             this.set( 'allowedEffects', allowedEffects );
-            
+
             // Native DnD support.
             if ( this.isNative ) {
                 dataTransfer = this.event.dataTransfer;
                 dataSource = this.get( 'dataSource' ) || dragSource;
                 dataIsSet = false;
-                
+
                 dataTransfer.effectAllowed =
                     effectToString[ this.get( 'allowedEffects' ) ];
-                
+
                 if ( dataSource.get( 'isDragDataSource' ) ) {
                     dataSource.get( 'dragDataTypes' )
                               .forEach( function ( type ) {
@@ -494,7 +494,7 @@ var Drag = NS.Class({
                         }
                     });
                 }
-                
+
                 // Need something to keep the drag alive
                 if ( !dataIsSet ) {
                     dataTransfer.setData( 'x-private', '' );
@@ -512,7 +512,7 @@ var Drag = NS.Class({
         if ( dragSource ) {
             dragSource.set( 'isDragging', false ).dragEnded( this );
         }
-        
+
         if ( this._dragCursor ) {
             document.body.removeChild( this._dragCursor );
             this._dragCursor = null;
@@ -522,17 +522,17 @@ var Drag = NS.Class({
             this._scrollInterval = null;
         }
         this._setCursor( false );
-        
+
         this.fire( 'dragEnded' );
         DragController.deregister( this );
-        
+
         return this;
     },
-    
+
     // Do the actual drag.
     move: function ( event ) {
         this.event = event;
-        
+
         // Find which view is currently under the cursor. If none, presume we've
         // moved the cursor over the drag image, so we're probably still over
         // the current drop.
@@ -541,41 +541,41 @@ var Drag = NS.Class({
         if ( !view ) {
             view = this.get( 'dropTarget' );
         }
-        
+
         // Update cursor location
         this.set( 'cursorLocation', {
             x: x = event.clientX,
             y: y = event.clientY
         });
-        
+
         // Check if we're over any hotspots that should trigger a scroll.
         this._check( view, x, y );
-        
+
         // Recalculate drop target and update.
         this._update( view );
-        
+
         return this;
     },
-    
+
     _scrollBounds: null,
     _scrollView: null,
     _scrollBy: null,
     _scrollInterval: null,
     _lastTargetView: null,
-    
+
     _check: function ( view, x, y ) {
         var scroll = this._scrollBounds,
             scrollView = this._scrollView,
             outsideTriggerRegionWidth = 15,
             bounds, deltaX, deltaY;
-        
+
         // If we don't have any containing scroll container bounds, recalculate.
         if ( !scroll ||
                 x < scroll.l || x > scroll.r || y < scroll.t || y > scroll.b ) {
             scroll = null;
             if ( this._lastTargetView !== view ) {
                 this._lastTargetView = scrollView = view;
-                
+
                 while ( scrollView &&
                         !( scrollView instanceof NS.ScrollView ) ) {
                     scrollView = scrollView.get( 'parentView' );
@@ -616,22 +616,22 @@ var Drag = NS.Class({
             }
         }
     },
-    
+
     _scroll: function () {
         var scrollView = this._scrollView,
             scrollBy = this._scrollBy;
-        
+
         if ( scrollView.scrollBy( scrollBy.x, scrollBy.y ) ) {
             var cursor = this.get( 'cursorLocation' ),
                 target = document.elementFromPoint( cursor.x, cursor.y );
             this._update( NS.RootViewController.getViewFromNode( target ) );
         }
     },
-    
+
     _update: function ( view ) {
         var currentDrop = this.get( 'dropTarget' ),
             dragSource = this.get( 'dragSource' );
-        
+
         // Find the current drop Target
         while ( view ) {
             if ( view === currentDrop || (
@@ -641,7 +641,7 @@ var Drag = NS.Class({
             }
             view = view.get( 'parentView' ) || null;
         }
-        
+
         // Update targets on status
         if ( view !== currentDrop ) {
             if ( currentDrop ) {
@@ -656,13 +656,13 @@ var Drag = NS.Class({
         if ( currentDrop ) {
             currentDrop.dropMoved( this );
         }
-        
+
         // Update source on status
         if ( dragSource ) {
             dragSource.dragMoved( this );
         }
     },
-    
+
     // And drop
     drop: function ( event ) {
         this.event = event;

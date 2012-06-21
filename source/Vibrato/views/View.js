@@ -274,7 +274,7 @@ var View = NS.Class({
             }
         }
     }.observes( 'className' ),
-    
+
     /**
         Method: O.View#updateClassName
 
@@ -364,13 +364,13 @@ var View = NS.Class({
         if ( this._layerStyles ) {
             this.updateLayerStyles();
         }
-        
+
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
             children[l].willAppendLayerToDocument();
         }
-        
+
         return this;
     },
 
@@ -434,7 +434,7 @@ var View = NS.Class({
         while ( l-- ) {
             children[l].didRemoveLayerFromDocument();
         }
-        
+
         return this;
     },
 
@@ -713,7 +713,7 @@ var View = NS.Class({
         automatically at the end of the run loop whenever the layerStyles
         property changes, but may be called explicitly if you need to flush
         changes to the layer immediately.
-        
+
         Returns:
             {O.View} Returns self.
     */

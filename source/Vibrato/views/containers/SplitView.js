@@ -9,29 +9,29 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 var VERTICAL = 1,
     HORIZONTAL = 2,
     TOP_LEFT = 4,
     BOTTOM_RIGHT = 8,
-    
+
     topLeftView = 'topLeftView',
     bottomRightView = 'bottomRightView',
     dividerView = 'dividerView',
     auto = 'auto',
 
 SplitView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     // These must not change after init or behaviour is undefined.
     direction: VERTICAL,
     flex: TOP_LEFT,
-    
+
     staticPaneLength: 200,
     minStaticPaneLength: 0,
     maxStaticPaneLength: 32767,
-    
+
     childViews: function () {
         var children = [],
             tl = this.get( topLeftView ),
@@ -41,7 +41,7 @@ SplitView = NS.Class({
         children.push( this.get( dividerView ) );
         return children;
     }.property( topLeftView, bottomRightView, dividerView ),
-    
+
     // This can be overriden by simply
     // setting the property in the anonymous
     // subclass.
@@ -51,7 +51,7 @@ SplitView = NS.Class({
             parentView: this
         });
     }.property(),
-    
+
     positioning: 'absolute',
     layout: NS.View.LAYOUT_FILL_PARENT,
     _render: function ( layer ) {
@@ -95,14 +95,14 @@ SplitView = NS.Class({
                         flexPane === BOTTOM_RIGHT ? auto : staticLength
                 }
             });
-            
+
         if ( tlview ) {
             tlpane.appendChild( tlview.render().get( 'layer' ) );
         }
         if ( brview ) {
             brpane.appendChild( brview.render().get( 'layer' ) );
         }
-        
+
         // The flex pane is probably more important, so for the benefit of
         // screen readers, let's insert it higher in the HTML structure.
         var leftFirst = ( flexPane === TOP_LEFT );
@@ -110,21 +110,21 @@ SplitView = NS.Class({
         layer.appendChild( leftFirst ? brpane : tlpane );
         layer.appendChild( this.get( dividerView ).render().get( 'layer' ) );
     },
-    
+
     dynamicCSSPropTL: function () {
         var flex = this.get( 'flex' ) === TOP_LEFT;
         return this.get( 'direction' ) === VERTICAL ?
             ( flex ? 'right' : 'width' ) :
             ( flex ? 'bottom' : 'height' );
     }.property(),
-    
+
     dynamicCSSPropBR: function () {
         var flex = this.get( 'flex' ) === BOTTOM_RIGHT;
         return this.get( 'direction' ) === VERTICAL ?
             ( flex ? 'left' : 'width' ) :
             ( flex ? 'top' : 'height' );
     }.property(),
-    
+
     _lengthDidChange: function () {
         if ( !this.get( 'isRendered' ) ) { return; }
         var thickness = this.get( 'staticPaneLength' );
@@ -132,13 +132,13 @@ SplitView = NS.Class({
             this.get( 'dynamicCSSPropTL' ) ] = thickness + 'px';
         this._bottomRightViewContainer.style[
             this.get( 'dynamicCSSPropBR' ) ] = thickness + 'px';
-        
+
         var tlView = this.get( topLeftView ),
             brView = this.get( bottomRightView );
         if ( tlView ) { tlView.parentViewDidResize(); }
         if ( brView ) { brView.parentViewDidResize(); }
     }.observes( 'staticPaneLength' ),
-    
+
     _viewDidChange: function ( _, key, oldView, view ) {
         if ( view ) {
             view.set( 'parentView', this );
@@ -186,7 +186,7 @@ SplitView = NS.Class({
 
     // Must set a specific view
     insertView: null,
-    
+
     replaceView: function ( view, oldView ) {
         if ( oldView === this.get( topLeftView ) ) {
             this.set( topLeftView, view );

@@ -9,19 +9,19 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 var CheckboxView = NS.Class({
-    
+
     Extends: NS.AbstractControlView,
-        
+
     activate: function () {
         this.toggle( 'value' );
     },
-    
+
     // --- Render ---
-    
+
     className: 'CheckboxView',
-    
+
     _render: function ( layer ) {
         var el = NS.Element.create;
         layer.title = this.get( 'tooltip' );
@@ -35,15 +35,15 @@ var CheckboxView = NS.Class({
             text: this.get( 'label' )
         }) );
     },
-    
+
     // --- Keep state in sync with render ---
-        
+
     _syncChecked: function ( event ) {
         this.set( 'value', this._domControl.checked );
     }.on( 'change' ),
-    
+
     // --- Keep render in sync with state ---
-    
+
     updateLayer: function () {
         if ( this.get( 'isRendered' ) ) {
             this._domControl.checked = this.get( 'value' );

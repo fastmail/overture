@@ -11,45 +11,45 @@
 ( function ( NS ) {
 
 var InfoBubbleView = NS.Class({
-    
+
     Extends: NS.View,
 
     init: function () {
         InfoBubbleView.parent.init.apply( this, arguments );
         this.get( 'rootView' ).insertView( this );
     },
-    
+
     destroy: function () {
         this.get( 'rootView' ).removeView( this );
         InfoBubbleView.parent.destroy.call( this );
     },
-    
+
     className: function () {
         return 'InfoBubbleView ' + this.get( 'alignToThe' ) +
             ( this.get( 'isHidden' ) || !this.get( 'alignWithView' ) ?
                 ' hidden' : '' );
     }.property( 'alignWithView', 'alignToThe', 'isHidden' ),
-    
+
     zIndex: 5000,
-    
+
     isHidden: true,
     alignWithView: null,
     alignToThe: 'top',
     text: '',
-    
+
     positioning: 'absolute',
-    
+
     layout: function () {
         var view = this.get( 'alignWithView' );
         if ( !view ) { return {}; }
-        
+
         var bounds = view.get( 'layer' ).getBoundingClientRect(),
             layout = {
                 left: parseInt( bounds.left, 10 ),
                 top: parseInt( bounds.top, 10 )
             },
             alignToThe = this.get( 'alignToThe' );
-            
+
         if ( alignToThe === 'right' ) {
             // IE8 doesn't support bounds.width
             layout.left += parseInt( bounds.right - bounds.left, 10 );
@@ -60,7 +60,7 @@ var InfoBubbleView = NS.Class({
         }
         return layout;
     }.property( 'alignWithView', 'alignToThe' ),
-    
+
     _render: function ( layer ) {
         var el = NS.Element.create;
         layer.appendChild( el( 'span', [

@@ -16,7 +16,7 @@ var delta = function ( update ) {
         i, l = records.length,
         delta = new Array( l ),
         data, filteredObj;
-    
+
     for ( i = 0; i < l; i += 1 ) {
         data = records[i];
         filteredObj = Object.filter( data, changes[i] );
@@ -28,17 +28,17 @@ var delta = function ( update ) {
 
 /**
     Class: O.RPCSource
-    
+
     Extends: O.Source
-    
+
     An RPCSource makes remote procedure calls via a JSON protocol, allowing
     multiple fetches and commits to be batched into a single HTTP request for
     efficiency, with requests for the same type of object grouped together.
-    
+
     A request consists of a JSON array, with each element in the array being
     itself an array of two elements, the first a method name and the second an
     object consisting of named arguments:
-    
+
         [
             [ 'method', {
                 arg1: 'foo',
@@ -49,17 +49,17 @@ var delta = function ( update ) {
                 bar: 42
             }]
         ]
-    
+
     The response is expected to be in the same format, with methods from
     <O.RPCSource#response> available to the server to call.
 */
 var RPCSource = NS.Class({
-    
+
     Extends: NS.Source,
-    
+
     /**
         Constructor: O.RPCSource
-        
+
         Parameters:
             options - {Object} (optional) Any properties in this object will be
                       added to the new O.Object instance before initialisation
@@ -72,7 +72,7 @@ var RPCSource = NS.Class({
         this._sendQueue = [];
         // List of callback functions to be executed after the next request.
         this._callbackQueue = [];
-        
+
         // Map of Type name -> Id -> true
         // for all records to be fetched for that type.
         this._recordsToFetch = {};
@@ -81,54 +81,54 @@ var RPCSource = NS.Class({
         this._recordsToRefresh = {};
         // Map of id -> RemoteQuery for all queries to be fetched.
         this._queriesToFetch = {};
-        
+
         // Map of Type name -> true for types which have been fetched.
         // using an RPCSource.getData type function.
         this._typeFetched = {};
-        
+
         RPCSource.parent.init.call( this, options );
     },
-    
+
     /**
         Property: O.RPCSource#url
         Type: String
-        
+
         The url to use for communicating with the server.
     */
     url: '/',
-    
+
     _inFlightRemoteCalls: null,
     _inFlightCallbacks: null,
-    
+
     /**
         Property: O.RPCSource#isSending
         Type: Boolean
-        
+
         Is a request currently in flight?
     */
     isSending: false,
-    
+
     /**
         Property: O.RPCSource#willRetry
         Type: Boolean
-        
+
         If true, retry the request if the connection fails or times out.
     */
     willRetry: true,
-    
+
     /**
         Property: O.RPCSource#timeout
         Type: Number
-        
+
         Time in milliseconds at which to time out the request. Set to 0 for no
         timeout.
     */
     timeout: 30000,
-    
+
     /**
         Property: O.RPCSource#io
         Type: O.IO
-        
+
         The IO object for communicating with the server.
     */
     io: function () {
@@ -142,13 +142,13 @@ var RPCSource = NS.Class({
           .on( 'io:timeout', this, 'ioDidFail' )
           .on( 'io:end', this, 'ioDidEnd' );
     }.property(),
-    
+
     /**
         Method: O.RPCSource#ioDidSucceed
-        
+
         Callback when the IO succeeds. Parses the JSON and passes it on to
         <O.RPCSource#receive>.
-        
+
         Parameters:
             event - {IOEvent}
     */
@@ -158,7 +158,7 @@ var RPCSource = NS.Class({
         try {
             data = JSON.parse( event.data );
         } catch ( error ) {}
-        
+
         // Check it's in the correct format
         if ( !( data instanceof Array ) ) {
             NS.RunLoop.didError({
@@ -170,18 +170,18 @@ var RPCSource = NS.Class({
             });
             data = [];
         }
-        
+
         this.receive(
             data, this._inFlightCallbacks, this._inFlightRemoteCalls );
-        
+
         this._inFlightRemoteCalls = this._inFlightCallbacks = null;
     },
-    
+
     /**
         Method: O.RPCSource#ioDidSucceed
-        
+
         Callback when the IO fails.
-        
+
         Parameters:
             event - {IOEvent}
     */
@@ -190,12 +190,12 @@ var RPCSource = NS.Class({
             this._inFlightRemoteCalls = this._inFlightCallbacks = null;
         }
     },
-    
+
     /**
         Method: O.RPCSource#ioDidSucceed
-        
+
         Callback when the IO ends.
-        
+
         Parameters:
             event - {IOEvent}
     */
@@ -204,13 +204,13 @@ var RPCSource = NS.Class({
         this.set( 'isSending', false )
             .send();
     },
-    
+
     /**
         Method: O.RPCSource#callMethod
-        
+
         Add a method call to be sent on the next request and trigger a request
         to be sent at the end of the current run loop.
-        
+
         Parameters:
             name     - {String} The name of the method to call.
             args     - {Object} The arguments for the method.
@@ -225,10 +225,10 @@ var RPCSource = NS.Class({
         this.send();
         return this;
     },
-    
+
     /**
         Method: O.RPCSource#send
-        
+
         Send any queued method calls at the end of the current run loop.
     */
     send: function () {
@@ -242,20 +242,20 @@ var RPCSource = NS.Class({
                 this._inFlightRemoteCalls = remoteCalls;
                 this._inFlightCallbacks = request[1];
             }
-                
+
             this.set( 'isSending', true )
                 .get( 'io' ).send({
                     data: JSON.stringify( request )
                 });
         }
     }.queue( 'after' ),
-    
+
     /**
         Method: O.RPCSource#receive
-        
+
         After completing a request, this method is be called to process the
         response returned by the server.
-        
+
         Parameters:
             data      - {Array} The array of method calls to execute in response
                         to the request.
@@ -289,14 +289,14 @@ var RPCSource = NS.Class({
             NS.RunLoop.queueFn( 'after', callbacks[i] );
         }
     },
-    
+
     /**
         Method: O.RPCSource#makeRequest
-        
+
         This will make calls to O.RPCSource#(record|query)(Fetchers|Refreshers)
         to add any final API calls to the send queue, then return a tuple of the
         queue of method calls and the list of callbacks.
-        
+
         Returns:
             {Array} Tuple of method calls and callbacks.
     */
@@ -307,7 +307,7 @@ var RPCSource = NS.Class({
             _recordsToRefresh = this._recordsToRefresh,
             _queriesToFetch = this._queriesToFetch,
             type, id, req, handler;
-        
+
         // Query Fetches
         for ( id in _queriesToFetch ) {
             req = _queriesToFetch[ id ];
@@ -316,63 +316,63 @@ var RPCSource = NS.Class({
                 handler.call( this, req );
             }
         }
-        
+
         // Record Refreshers
         for ( type in _recordsToRefresh ) {
             this.recordRefreshers[ type ].call(
                 this, Object.keys( _recordsToRefresh[ type ] ) );
         }
-        
+
         // Record fetches
         for ( type in _recordsToFetch ) {
             this.recordFetchers[ type ].call(
                 this, Object.keys( _recordsToFetch[ type ] ) );
         }
-                
+
         // Any future requests will be added to a new queue.
         this._sendQueue = [];
         this._callbackQueue = [];
-        
+
         this._recordsToFetch = {};
         this._recordsToRefresh = {};
         this._queriesToFetch = {};
-        
+
         return [ sendQueue, callbacks ];
     },
-    
+
     // ---
-    
+
     /**
         Method: O.RPCSource#fetchRecord
-        
+
         Fetches a particular record from the source. Just passes the call on to
         <O.RPCSource#fetchRecords>.
-        
+
         Parameters:
             Type     - {O.Class} The record type.
             id       - {String} The record id.
             callback - {Function} (optional) A callback to make after the record
                        fetch completes (successfully or unsuccessfully).
-        
+
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
     fetchRecord: function ( Type, id, callback ) {
         return this.fetchRecords( Type, [ id ], callback );
     },
-    
+
     /**
         Method: O.RPCSource#fetchAllRecords
-        
+
         Fetches all records of a particular type from the source. Just passes
         the call on to <O.RPCSource#fetchRecords>.
-        
+
         Parameters:
             Type     - {O.Class} The record type.
             state    - {(String|undefined)} The state to update from.
             callback - {Function} (optional) A callback to make after the fetch
                        completes.
-        
+
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
@@ -381,12 +381,12 @@ var RPCSource = NS.Class({
             this.refreshRecords( Type, null, state, callback ) :
             this.fetchRecords( Type, null, callback );
     },
-    
+
     /**
         Method: O.RPCSource#fetchRecords
-        
+
         Fetches a set of records of a particular type from the source.
-        
+
         Parameters:
             Type     - {O.Class} The record type.
             ids      - {(Array.<String>|Object|null)} Either an array of record
@@ -395,7 +395,7 @@ var RPCSource = NS.Class({
                        fetched.
             callback - {Function} (optional) A callback to make after the record
                        fetch completes (successfully or unsuccessfully).
-        
+
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
@@ -425,34 +425,34 @@ var RPCSource = NS.Class({
         this.send();
         return true;
     },
-    
+
     /**
         Method: O.RPCSource#refreshRecord
-        
+
         Fetches any new data for a record since the last fetch if a handler for
         the type is defined in <O.RPCSource#recordRefreshers>, or refetches the
         whole record if not.
-        
+
         Parameters:
             Type     - {O.Class} The record type.
             id       - {String} The record id.
             callback - {Function} (optional) A callback to make after the record
                        refresh completes (successfully or unsuccessfully).
-        
+
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
     refreshRecord: function ( Type, id, callback ) {
         return this.refreshRecords( Type, [ id ], null, callback );
     },
-    
+
     /**
         Method: O.RPCSource#refreshRecords
-        
+
         Fetches any new data for a set of records since the last fetch if a
         handler for the type is defined in <O.RPCSource#recordRefreshers>, or
         refetches the whole records again if not.
-        
+
         Parameters:
             Type     - {O.Class} The record type.
             ids      - {(Array.<String>|Object|null)} An array of record ids, or
@@ -461,7 +461,7 @@ var RPCSource = NS.Class({
                        defined in <O.RPCSource#recordRefreshers>.
             callback - {Function} (optional) A callback to make after the record
                        fetch completes (successfully or unsuccessfully).
-        
+
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
@@ -495,41 +495,41 @@ var RPCSource = NS.Class({
         }
         return true;
     },
-    
+
     /**
         Property: O.RPCSource#commitPrecedence
         Type: Object.<String,Number>|null
         Default: null
-        
+
         This is on optional mapping of type names to a number indicating the
         order in which they are to be committed. Types with lower numbers will
         be committed first.
     */
     commitPrecedence: null,
-    
+
     /**
         Method: O.RPCSource#commitChanges
-        
+
         Commits a set of creates/updates/destroys to the source. These are
         specified in a single object, which has record type names as keys and an
         object with create/update/destroy properties as values. Those properties
         have the following types:
-        
+
         create  - `[ [ storeKeys... ], [ dataHashes... ] ]`
         update  - `[ [ storeKeys... ], [ dataHashes... ], [changedMap... ] ]`
         destroy - `[ [ storeKeys... ], [ ids... ] ]`
-        
+
         Each subarray inside the 'create' array should be of the same length,
         with the store key at position 0 in the first array, for example,
         corresponding to the data object at position 0 in the second. The same
         applies to the update and destroy arrays.
-        
+
         A changedMap, is a map of attribute names to a boolean value indicating
         whether that value has actually changed. Any properties in the data
         which are not in the changed map are presumed unchanged.
-        
+
         An example call might look like:
-        
+
             source.commitChanges({
                 MyType: {
                     create: [
@@ -550,12 +550,12 @@ var RPCSource = NS.Class({
                     ...
                 }
             });
-        
+
         Any types that are handled by the source are removed from the changes
         object (`delete changes[ typeName ]`); any unhandled types are left
         behind, so the object may be passed to several sources, with each
         handling their own types.
-        
+
         In a RPC source, this method considers each type in the changes. If that
         type has a handler defined in <O.RPCSource#recordCommitters>, then this
         will be called with the create/update/destroy object as the sole
@@ -563,10 +563,10 @@ var RPCSource = NS.Class({
         <O.RPCSource#recordCreators>, <O.RPCSource#recordUpdaters> and
         <O.RPCSource#recordDestroyers>. If handled by one of these, the method
         will remove the type from the changes object.
-        
+
         Parameters:
             changes - {Object} The creates/updates/destroys to commit.
-        
+
         Returns:
             {O.RPCSource} Returns self.
     */
@@ -576,13 +576,13 @@ var RPCSource = NS.Class({
             precedence = this.commitPrecedence,
             type, handler, handled,
             change, create, update, destroy;
-        
+
         if ( precedence ) {
             types.sort( function ( a, b ) {
                 return ( precedence[b] || -1 ) - ( precedence[a] || -1 );
             });
         }
-        
+
         while ( l-- ) {
             type = types[l];
             change = changes[ type ];
@@ -626,15 +626,15 @@ var RPCSource = NS.Class({
         }
         return this;
     },
-    
+
     /**
         Method: O.RPCSource#fetchQuery
-        
+
         Fetches the data for a remote query from the source.
-        
+
         Parameters:
             query - {O.RemoteQuery} The query to fetch.
-        
+
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
@@ -643,62 +643,62 @@ var RPCSource = NS.Class({
             return false;
         }
         var id = query.get( 'id' );
-        
+
         this._queriesToFetch[ id ] = query;
-        
+
         if ( callback ) {
             this._callbackQueue.push( callback );
         }
         this.send();
         return true;
     },
-    
+
     /**
         Property: O.RPCSource#recordFetchers
         Type: Object.<String,Function>
-        
+
         A map of type names to functions which will fetch records of that type.
         The functions will be called with the source as 'this' and a list of ids
         or an object (passed straight through from your program) as the sole
         argument.
     */
     recordFetchers: {},
-    
+
     /**
         Property: O.RPCSource#recordRefreshers
         Type: Object.<String,Function>
-        
+
         A map of type names to functions which will refresh records of that
         type. The functions will be called with the source as 'this' and a list
         of ids or an object (passed straight through from your program) as the
         sole argument.
     */
     recordRefreshers: {},
-    
+
     /**
         Property: O.RPCSource#recordCommitters
         Type: Object.<String,Function>
-        
+
         A map of type names to functions which will commit all creates, updates
         and destroys requested for a particular record type.
     */
     recordCommitters: {},
-    
+
     /**
         Property: O.RPCSource#recordCreators
         Type: Object.<String,Function>
-        
+
         A map of type names to functions which will commit creates for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
-        
+
         storeKeys - {Array.<String>} A list of store keys.
         data      - {Array.<Object>} A list of the corresponding data object for
                     each store key.
-        
+
         Once the request has been made, the following callbacks must be made to
         the <O.Store> instance as appropriate:
-        
+
         * <O.Store#sourceDidCommitCreate> if there are any commited creates.
         * <O.Store#sourceDidNotCreate> if there are any temporarily rejected
           creates.
@@ -706,15 +706,15 @@ var RPCSource = NS.Class({
           creates.
     */
     recordCreators: {},
-    
+
     /**
         Property: O.RPCSource#recordUpdaters
         Type: Object.<String,Function>
-        
+
         A map of type names to functions which will commit updates for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
-        
+
         storeKeys - {Array.<String>} A list of store keys.
         data      - {Array.<Object>} A list of the corresponding data object for
                     each store key.
@@ -722,10 +722,10 @@ var RPCSource = NS.Class({
                     attribute names to a boolean value indicating whether that
                     value has actually changed. Any properties in the data has
                     not in the changed map may be presumed unchanged.
-        
+
         Once the request has been made, the following callbacks must be made to
         the <O.Store> instance as appropriate:
-        
+
         * <O.Store#sourceDidCommitUpdate> if there are any commited updates.
         * <O.Store#sourceDidNotUpdate> if there are any temporarily rejected
           updates.
@@ -733,21 +733,21 @@ var RPCSource = NS.Class({
           updates.
     */
     recordUpdaters: {},
-    
+
     /**
         Property: O.RPCSource#recordDestroyers
         Type: Object.<String,Function>
-        
+
         A map of type names to functions which will commit destroys for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
-        
+
         storeKeys - {Array.<String>} A list of store keys.
         ids       - {Array.<String>} A list of the corresponding record ids.
-        
+
         Once the request has been made, the following callbacks must be made to
         the <O.Store> instance as appropriate:
-        
+
         * <O.Store#sourceDidCommitDestroy> if there are any commited destroys.
         * <O.Store#sourceDidNotDestroy> if there are any temporarily rejected
           updates.
@@ -755,17 +755,17 @@ var RPCSource = NS.Class({
           updates.
     */
     recordDestroyers: {},
-    
+
     /**
         Property: O.RPCSource#queryFetchers
         Type: Object.<String,Function>
-        
+
         A map of query type names to functions which will fetch the requested
         contents of that query. The function will be called with the source as
         'this' and the query as the sole argument.
     */
     queryFetchers: {},
-    
+
     didCommit: function ( Type, args ) {
         var store = this.get( 'store' ),
             list;
@@ -796,23 +796,23 @@ var RPCSource = NS.Class({
                 Type, args.oldState, args.newState );
         }
     },
-    
+
     didFetchAll: function ( Type, args ) {
         this.get( 'store' ).sourceDidFetchAllRecords( Type,
             args.list, args.state );
     },
-    
+
     didFetchAllUpdates: function ( Type, args ) {
         this.get( 'store' ).sourceDidFetchAllRecordUpdates( Type,
             args.added, args.changed, args.removed,
             args.oldState, args.newState
         );
     },
-    
+
     /**
         Property: O.RPCSource#response
         Type: Object.<String,Function>
-        
+
         A map of method names to functions which the server can call in a
         response to return data to the client.
     */

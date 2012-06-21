@@ -11,7 +11,7 @@
 /**
     Property: RegExp.email
     Type: RegExp
-    
+
     A regular expression for detecting an email address.
 */
 RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,4})\b/i;
@@ -19,7 +19,7 @@ RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,4})\b/i;
 /**
     Property: RegExp.url
     Type: RegExp
-    
+
     A regular expression for detecting a url. Regexp by John Gruber, see
     <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
 */

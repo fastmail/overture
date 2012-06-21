@@ -11,22 +11,22 @@
 "use strict";
 
 ( function ( NS, undefined ) {
-    
+
 var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
-    
+
 var TextView = NS.Class({
-    
+
     Extends: NS.AbstractControlView,
-    
+
     Mixin: NS.Validate,
-    
+
     init: function () {
         TextView.parent.init.apply( this, arguments );
         this.initValidate();
     },
-    
+
     allowTextSelection: true,
-    
+
     type: function () {
         return this.get( 'multiline' ) ?
             this.get( 'expanding' ) ? 'expanding' : 'multiline' : 'text';
@@ -37,9 +37,9 @@ var TextView = NS.Class({
     highlight: false,
     placeholder: '',
     value: '',
-    
+
     isFocussed: false,
-    
+
     selection: function ( selection ) {
         var input = this._domControl;
         if ( selection !== undefined ) {
@@ -72,11 +72,11 @@ var TextView = NS.Class({
             return selection;
         }
     }.property().nocache(),
-    
+
     activate: function () {
         this.focus();
     },
-    
+
     didAppendLayerToDocument: function () {
         // Restore scroll positions:
         if ( this.get( 'multiline' ) ) {
@@ -96,16 +96,16 @@ var TextView = NS.Class({
         }
         return TextView.parent.willRemoveLayerFromDocument.call( this );
     },
-    
+
     // --- Render ---
-    
+
     className: function () {
         return 'TextView ' + this.get( 'type' ) +
             ( this.get( 'highlight' ) ? ' highlight' : '' ) +
             ( this.get( 'isFocussed' ) ? ' focussed' : '' ) +
             ( this.get( 'isValid' ) ? '' : ' invalid' );
     }.property( 'type', 'highlight', 'isFocussed', 'isValid' ),
-    
+
     _render: function ( layer ) {
         var el = NS.Element.create,
             value = this.get( 'value' ),
@@ -118,7 +118,7 @@ var TextView = NS.Class({
                     value: value
                 }),
             placeholder = this.get( 'placeholder' );
-            
+
         if ( placeholder ) {
             if ( nativePlaceholder ) {
                 input.placeholder = placeholder;
@@ -141,15 +141,15 @@ var TextView = NS.Class({
         layer.appendChild( input );
         layer.title = this.get( 'tooltip' );
     },
-    
+
     // --- Keep state in sync with render ---
-    
+
     _syncValue: function () {
         this._settingFromInput = true;
         this.set( 'value', this._domControl.value );
         this._settingFromInput = false;
     }.on( 'input' ),
-    
+
     _onFocus: function () {
         if ( this._placeholderShowing ) {
             var input = this._domControl;
@@ -159,7 +159,7 @@ var TextView = NS.Class({
         }
         this.set( 'isFocussed', true );
     }.on( 'focus' ),
-    
+
     _onBlur: function () {
         var value = this.get( 'value' );
         if ( !value && !nativePlaceholder ) {
@@ -173,20 +173,20 @@ var TextView = NS.Class({
         }
         this.set( 'isFocussed', false );
     }.on( 'blur' ),
-    
+
     _onScroll: function ( event ) {
         var input = this._domControl,
             left = input.scrollLeft,
             top = input.scrollTop;
-        
+
         this.beginPropertyChanges()
             .set( 'scrollLeft', left )
             .set( 'scrollTop', top )
         .endPropertyChanges();
-        
+
         event.stopPropagation();
     }.on( 'scroll' ),
-    
+
     _onKeypress: function ( event ) {
         // Stop event from getting to KB shortcuts handler.
         event.stopPropagation();
@@ -202,9 +202,9 @@ var TextView = NS.Class({
             this.blur();
         }
     }.on( 'keypress' ),
-    
+
     // --- Keep render in sync with state ---
-    
+
     valueDidChange: function () {
         var value = this.get( 'value' );
         if ( !this._settingFromInput && this.get( 'isRendered' ) ) {
@@ -218,7 +218,7 @@ var TextView = NS.Class({
             this._mirror.textContent = value;
         }
     }.observes( 'value' ),
-    
+
     placeholderDidChange: function () {
         if ( this.get( 'isRendered' ) ) {
             var placeholder = this.get( 'placeholder' ),

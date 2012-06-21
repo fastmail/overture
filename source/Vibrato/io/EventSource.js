@@ -16,43 +16,43 @@ var CLOSED = 2;
 
 /**
     Class: O.EventSource
-    
+
     Extends: O.Object
-    
+
     Subscribe to push events on the server using this wrapper around the W3C
     EventSource object: <http://dev.w3.org/html5/eventsource/>
-    
+
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
 var EventSource = global.EventSource ? NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     /**
         Property: O.EventSource#readyState
         Type: Number
-        
+
         A number describing the ready state of the event source, corresponding
         to those in the W3C spec:
-        
+
         0 - CONNECTING
         1 - OPEN
         2 - CLOSED
     */
     readyState: CLOSED,
-    
+
     /**
         Property: O.EventSource#url
         Type: String
-        
+
         The url to connect to in order to receive events
     */
     url: '',
-    
+
     /**
         Constructor: O.EventSource
-        
+
         Parameters:
             options - {Object} (optional) Any properties in this object will be
                       added to the new O.EventSource instance before
@@ -64,7 +64,7 @@ var EventSource = global.EventSource ? NS.Class({
         this._eventTypes = [ 'open', 'message', 'error' ];
         this.open();
     },
-    
+
     on: function ( type ) {
         var types = this._eventTypes,
             eventSource = this._eventSource;
@@ -76,15 +76,15 @@ var EventSource = global.EventSource ? NS.Class({
         }
         EventSource.parent.on.apply( this, arguments );
     },
-    
+
     handleEvent: function ( event ) {
         this.set( 'readyState', this._eventSource.readyState );
         this.fire( event.type, event );
     }.invokeInRunLoop(),
-    
+
     /**
         Method (private): O.EventSource#_check
-        
+
         Checks the computer hasn't been asleep. If it has, it restarts the
         connection.
     */
@@ -101,7 +101,7 @@ var EventSource = global.EventSource ? NS.Class({
     },
     /**
         Method (private): O.EventSource#_startStopCheck
-        
+
         Sets up the timer to check if the computer has been asleep.
     */
     _startStopCheck: function () {
@@ -118,13 +118,13 @@ var EventSource = global.EventSource ? NS.Class({
             }
         }
     }.observes( 'readyState' ),
-    
+
     /**
         Method: O.EventSource#open
-        
+
         If there is no current connection to the event source server,
         establishes a new connection.
-        
+
         Returns:
             {O.EventSource} Returns self.
     */
@@ -132,21 +132,21 @@ var EventSource = global.EventSource ? NS.Class({
         if ( this.get( 'readyState' ) === CLOSED ) {
             var eventSource = this._eventSource =
                 new global.EventSource( this.get( 'url' ) );
-            
+
             this._eventTypes.forEach( function ( type ) {
                 eventSource.addEventListener( type, this, false );
             }, this );
-            
+
             this.set( 'readyState', eventSource.readyState );
         }
         return this;
     },
-    
+
     /**
         Method: O.EventSource#close
-        
+
         Close the connection to the event source server, if not already closed.
-        
+
         Returns:
             {O.EventSource} Returns self.
     */
@@ -159,11 +159,11 @@ var EventSource = global.EventSource ? NS.Class({
         return this;
     }
 }) : NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     readyState: CONNECTING,
-    
+
     init: function () {
         EventSource.parent.init.apply( this, arguments );
         this._xhr = new NS.XHR( this );
@@ -180,7 +180,7 @@ var EventSource = global.EventSource ? NS.Class({
         if ( this._poll ) {
             headers[ 'X-Nginx-PushStream-Mode' ] = 'long-polling';
         }
-        
+
         this.set( 'readyState', CONNECTING );
         this._data = '';
         this._eventName = '';
@@ -196,11 +196,11 @@ var EventSource = global.EventSource ? NS.Class({
         }
         return this;
     },
-    
+
     _reconnectAfter: 30000,
     _lastEventId: '',
     _poll: !!global.ie,
-    
+
     // --- io ---
     loading: function ( xhr ) {
         // Must start with text/event-stream (i.e. indexOf must === 0)
@@ -221,7 +221,7 @@ var EventSource = global.EventSource ? NS.Class({
         this._failConnection();
     }.invokeInRunLoop(),
     // -- end io ---
-    
+
     _openConnection: function () {
         if ( this.get( 'readyState' ) === CONNECTING ) {
             this.set( 'readyState', OPEN );
@@ -245,7 +245,7 @@ var EventSource = global.EventSource ? NS.Class({
         var lastIndex = this._lastNewLineIndex,
             newLine = /\u000d\u000a?|\u000a/g,
             match;
-        
+
         // One leading U+FEFF BYTE ORDER MARK character must be ignored if any
         // are present.
         if ( !lastIndex && text.charAt( 0 ) === '\ufeff' ) {
@@ -316,19 +316,19 @@ var EventSource = global.EventSource ? NS.Class({
 /**
     Constant: O.EventSource.CONNECTING
     Type: Number
-    
+
     <O.EventSource#readyState> when establishing a connection to the server.
 */
 /**
     Constant: O.EventSource.OPEN
     Type: Number
-    
+
     <O.EventSource#readyState> when a connection is open and receiving events.
 */
 /**
     Constant: O.EventSource.CLOSED
     Type: Number
-    
+
     <O.EventSource#readyState> when there is no connection and it is not being
     reestablished.
 */

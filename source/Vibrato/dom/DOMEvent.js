@@ -12,14 +12,14 @@
 
 /**
     Namespace: O.DOMEvent
-    
+
     O.DOMEvent contains functions for use with DOM event objects
 */
 var DOMEvent = {
     /**
         Property: O.DomEvent.keys
         Type: Object
-        
+
         Maps the names of special keys to their key code.
     */
     keys: {
@@ -43,13 +43,13 @@ var DOMEvent = {
         'capslock': 20,
         'numlock': 144
     },
-    
+
     /**
         Function: O.DomEvent.lookupKey
-        
+
         Determines which key was pressed to generate the event supplied as an
         argument.
-        
+
         Parameters:
             event       - {KeyEvent} The W3C DOM event object.
             noModifiers - Unless true, alt-/ctrl-/meta-/shift- will be prepended
@@ -57,7 +57,7 @@ var DOMEvent = {
                           down. They will always be in alphabetical order, e.g.
                           If the user pressed 'g' whilst holding down shift and
                           alt, the return value would be 'alt-shift-g'.
-        
+
         Returns:
             {String} The key pressed (in lowercase if a letter).
     */
@@ -75,7 +75,7 @@ var DOMEvent = {
                 event.which !== 0 && event.charCode !== 0,
             str = String.fromCharCode( code ).toLowerCase(),
             key = ( !preferAsci && Object.keyOf( DOMEvent.keys, code ) ) || str;
-        
+
         // Function keys
         if ( !preferAsci && 111 < code && code < 124 ) {
             key = 'f' + ( code - 111 );
@@ -88,7 +88,7 @@ var DOMEvent = {
             if ( event.metaKey ) { modifiers += 'meta-'; }
             if ( event.shiftKey ) { modifiers += 'shift-'; }
         }
-        
+
         return modifiers + key;
     }
 };

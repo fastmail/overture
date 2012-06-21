@@ -14,7 +14,7 @@
 
 /*
     Usage
-    
+
     new CSSStyleAnimation({ element: el }).animate({
         opacity: 0,
         height: '300px',
@@ -22,7 +22,7 @@
     }, 300, ease ).wait( 40 ).animate({
         opacity: 1
     }, 250, ease );
-    
+
     Will animate from current values
 */
 
@@ -54,18 +54,18 @@ var CSSStyleAnimationController = {
 var canTransform3d = !!NS.UA.cssProps.transform3d;
 
 var CSSStyleAnimation = NS.Class({
-    
+
     init: function ( options ) {
         NS.extend( this, options );
     },
-    
+
     isRunning: false,
-    
+
     object: {},
-    
+
     ease: NS.Easing.ease,
     duration: 300,
-    
+
     animate: function ( styles, duration, ease ) {
         if ( this.isRunning ) {
             this.stop();
@@ -76,19 +76,19 @@ var CSSStyleAnimation = NS.Class({
         if ( ease != null ) {
             this.ease = ease;
         }
-        
+
         var el = this.element,
             current = this.current,
             animating = this.animating = [],
             object = this.object,
             setStyle = NS.Element.setStyle,
             property, value;
-        
+
         this.current = styles;
-        
+
         setStyle( el, 'transition',
             'all ' + this.duration + 'ms ' + this.ease.cssName );
-        
+
         for ( property in styles ) {
             value = styles[ property ];
             if ( value !== current[ property ] ) {
@@ -99,20 +99,20 @@ var CSSStyleAnimation = NS.Class({
                 setStyle( el, property, value );
             }
         }
-        
+
         if ( animating.length ) {
             this.isRunning = true;
-            
+
             if ( object.willAnimate ) {
                 object.willAnimate( this );
             }
-            
+
             CSSStyleAnimationController.register( el, this );
         }
-        
+
         return this;
     },
-    
+
     transitionEnd: function ( property, elapsedTime ) {
         var animating = this.animating,
             index = animating.indexOf( property );
@@ -125,16 +125,16 @@ var CSSStyleAnimation = NS.Class({
                 this.element, 'transform', this.current.transform );
         }
     },
-    
+
     stop: function () {
         if ( this.isRunning ) {
             this.isRunning = false;
             this.animating.length = 0;
-            
+
             CSSStyleAnimationController.deregister( this.element, this );
-            
+
             NS.Element.setStyle( this.element, 'transition', 'none' );
-            
+
             var object = this.object;
             if ( object.didAnimate ) {
                 object.didAnimate( this );
@@ -149,7 +149,7 @@ NS.CSSStyleAnimation = CSSStyleAnimation;
 /*
     If the browser doesn't support CSS Transitions, fall back to manual. We
     don't bother implementing everything though. Unsupported:
-    
+
     Non-px units for length.
     Colours.
     String values.
@@ -190,7 +190,7 @@ var styleAnimators = {
 
 var supported = {
     display: 1,
-    
+
     top: 1,
     right: 1,
     bottom: 1,
@@ -198,28 +198,28 @@ var supported = {
 
     width: 1,
     height: 1,
-    
+
     transform: 1,
-    
+
     opacity: 1
 };
 
 var StyleAnimation = NS.Class({
-    
+
     Extends: NS.Animation,
-    
+
     current: {},
-    
+
     prepare: function ( styles ) {
         var animated = this.animated = [],
             from = this.from = this.current,
             current = this.current = NS.clone( from ),
             delta = this.delta = {},
-            
+
             property, start, end, animator;
-        
+
         this.to = styles;
-        
+
         for ( property in styles ) {
             start = from[ property ] || 0;
             end = styles[ property ] || 0;
@@ -239,33 +239,33 @@ var StyleAnimation = NS.Class({
         }
         return !!animated.length;
     },
-    
+
     drawFrame: function ( position, time ) {
         var animated = this.animated,
             l = animated.length,
-            
+
             from = this.from,
             to = this.to,
             difference = this.delta,
             current = this.current,
-            
+
             el = this.element,
             setStyle = NS.Element.setStyle,
             property, value, start, end, delta, animator;
-        
+
         while ( l-- ) {
             property = animated[l];
-            
+
             // Calculate new value.
             start = from[ property ] || 0;
             end = to[ property ] || 0;
             delta = difference[ property ];
             animator = styleAnimators[ property ];
-            
+
             value = current[ property ] = animator ?
                 animator.calcValue( position, delta, start, end ) :
                 position < 1 ? start + ( position * delta ) : end;
-            
+
             // And set.
             setStyle( el, property, value );
         }
@@ -279,7 +279,7 @@ NS.AnimatableView = {
     animateLayer: true,
     animateLayerDuration: 300,
     animateLayerEasing: NS.Easing.ease,
-    
+
     animating: 0,
     willAnimate: function () {
         this.increment( 'animating', 1 );
@@ -287,7 +287,7 @@ NS.AnimatableView = {
     didAnimate: function () {
         this.increment( 'animating', -1 );
     },
-    
+
     layerAnimation: function () {
         var Animation = NS.UA.cssProps.transition ?
             CSSStyleAnimation : StyleAnimation;
@@ -297,19 +297,19 @@ NS.AnimatableView = {
             current: this._layerStyles || this.get( 'layerStyles' )
         });
     }.property(),
-    
+
     updateLayerStyles: function () {
         if ( this.isDestroyed ) { return; }
-        
+
         var oldStyles = this._layerStyles,
             newStyles = this.get( 'layerStyles' ),
             layer = this.get( 'layer' ),
             layerAnimation = this.get( 'layerAnimation' ),
             setStyle = NS.Element.setStyle,
             property, value;
-        
+
         delete this._layerStyles;
-                
+
         // Animate
         if ( this.get( 'animateLayer' ) ) {
             layerAnimation.animate(

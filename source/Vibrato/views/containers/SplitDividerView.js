@@ -11,34 +11,34 @@
 ( function ( NS ) {
 
 var SplitDividerView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     Mixin: NS.Draggable,
-    
+
     className: 'SplitDividerView',
 
     thickness: 10,
-    
+
     length: new NS.Binding({
         isTwoWay: true
     }).from( 'parentView.staticPaneLength' ),
-    
+
     min: NS.bind( 'parentView.minStaticPaneLength' ),
     max: NS.bind( 'parentView.maxStaticPaneLength' ),
-    
+
     direction: NS.bind( 'parentView.direction' ),
     flex: NS.bind( 'parentView.flex' ),
-    
+
     anchor: function () {
         var flexTL = this.get( 'flex' ) === NS.SplitView.TOP_LEFT,
             isVertical = this.get( 'direction' ) === NS.SplitView.VERTICAL;
         return isVertical ?
             ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
     }.property( 'flex', 'direction' ),
-    
+
     positioning: 'absolute',
-    
+
     layout: function () {
         var thickness = this.get( 'thickness' ),
             styles;
@@ -59,13 +59,13 @@ var SplitDividerView = NS.Class({
             this.get( 'length' ) - ( thickness / 2 );
         return styles;
     }.property( 'direction', 'anchor', 'thickness', 'length' ),
-    
+
     dragStarted: function ( drag ) {
         this._length = this.get( 'length' );
         this._dir = ( this.get( 'direction' ) === NS.SplitView.VERTICAL ) ?
             'x' : 'y';
     },
-    
+
     dragMoved: function ( drag ) {
         var dir = this._dir,
             delta = drag.get( 'cursorLocation' )[ dir ] -

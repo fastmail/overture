@@ -16,7 +16,7 @@ var isLocal = location.protocol === 'file:';
 
 /**
     Class: O.XHR
-    
+
     Wrapper class for the native XMLHTTPRequest object in the browser. Hooks
     into the more fully featured I/O class but can be used on its own
 */
@@ -24,7 +24,7 @@ var XHR = NS.Class({
     /**
         Property (private): O.XHR#_io
         Type: Object
-        
+
         Reference to object on which callbacks are made.
     */
     _io: {
@@ -33,15 +33,15 @@ var XHR = NS.Class({
         // success: function () {},
         // failure: function () {}
     },
-    
+
     /**
         Property (private): O.XHR#_isRunning
         Type: Boolean
-        
+
         Is a request in progress?
     */
     _isRunning: false,
-    
+
     /**
         Constructor: O.XHR
 
@@ -65,13 +65,13 @@ var XHR = NS.Class({
             }, false );
         }
     },
-    
+
     /**
         Method: O.XHR#isSuccess
-        
+
         Determines whether a request completed successfully, as determined by
         the HTTP status code returned.
-        
+
         Returns:
             {Boolean} Was the request successful?
     */
@@ -81,28 +81,28 @@ var XHR = NS.Class({
         // remote requests when there's no internet connection.
         return ( status >= 200 && status < 300 );
     },
-    
+
     /**
         Method: O.XHR#isRunning
-        
+
         Determines whether a request is currently in progress.
-        
+
         Returns:
             {Boolean} Is there a request still in progress?
     */
     isRunning: function () {
         return !!this._isRunning;
     },
-    
+
     /**
         Method: O.XHR#getHeader
-        
+
         Returns the contents of the response header corresponding to the name
         supplied as a parameter to the method.
-        
+
         Parameters:
             name - {String} The name of the header to be fetched.
-        
+
         Returns:
             {String} The text of the header or the empty string if not found.
     */
@@ -112,12 +112,12 @@ var XHR = NS.Class({
       } catch ( error ) {}
       return '';
     },
-    
+
     /**
         Method: O.XHR#getResponse
-        
+
         Returns the full text of the response to the request.
-        
+
         Returns:
             {String} The response text.
     */
@@ -129,39 +129,39 @@ var XHR = NS.Class({
         } catch ( error ) {}
         return '';
     },
-    
+
     /**
         Method: O.XHR#getResponseType
-        
+
         Returns the MIME type of the response, according to the Content-type
         header set by the server.
-        
+
         Returns:
             {String} The MIME type of the response.
     */
     getResponseType: function () {
         return this.getHeader( 'Content-type' );
     },
-    
+
     /**
         Method: O.XHR#getStatus
-        
+
         Returns the HTTP status code returned by the server in response to the
         request.
-        
+
         Returns:
             {Number} The HTTP status code
     */
     getStatus: function () {
         return this._status;
     },
-    
+
     /**
         Method: O.XHR#send
-        
+
         If a request is currently active, it is first aborted. A new request is
         then made to the server, using the parameters supplied.
-        
+
         Parameters:
             method  - {String} The HTTP method to use ('GET' or 'POST').
             url     - {String} The URL to which the request is to be made. This
@@ -173,7 +173,7 @@ var XHR = NS.Class({
             headers - {Object} (Optional) A set of key:value pairs corresponding
                       to header names and their values which will be sent with
                       the request.
-        
+
         Returns:
             {O.XHR} Returns self.
     */
@@ -182,16 +182,16 @@ var XHR = NS.Class({
             this.abort();
         }
         this._isRunning = true;
-        
+
         var xhr = this.xhr,
             that = this;
-        
+
         // Let the browser set this automatically, otherwise it might be missing
         // the boundary marker.
         if ( data instanceof FormData ) {
             delete headers[ 'Content-type' ];
         }
-            
+
         xhr.open( method, url, true );
         for ( var name in headers || {} ) {
             if ( headers.hasOwnProperty( name ) ) {
@@ -202,16 +202,16 @@ var XHR = NS.Class({
             that._xhrStateDidChange( this );
         };
         xhr.send( data );
-        
+
         return this;
     },
-    
+
     /**
         Method (private): O.XHR#_xhrStateDidChange
-        
+
         Determines the state of the XMLHttpRequest object and fires the
         appropriate callbacks when it is loading/finished.
-        
+
         Parameters:
             xhr - {XMLHttpRequest} The object whose state has changed.
     */
@@ -224,10 +224,10 @@ var XHR = NS.Class({
             if ( io.loading ) { io.loading( this ); }
             return;
         }
-        
+
         this._isRunning = false;
         xhr.onreadystatechange = function () {};
-        
+
         var status = xhr.status;
         this._status =
             // IE8 translates response code 204 to 1223
@@ -243,14 +243,14 @@ var XHR = NS.Class({
             if ( io.failure ) { io.failure( this ); }
         }
     },
-    
+
     /**
         Method: O.XHR#abort
-        
+
         Aborts the currently active request. No further callbacks will be made
         for that request. If there is no active request, calling this method has
         no effect.
-        
+
         Returns:
             {O.XHR} Returns self.
     */

@@ -11,9 +11,9 @@
 ( function ( NS ) {
 
 var ModalViewEventHandler = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     stopKeyPropagation: function ( event ) {
         if ( event.phase === 'views' || !NS.Element.contains(
                 this._view.get( 'layer' ), event.target ) ) {
@@ -23,11 +23,11 @@ var ModalViewEventHandler = NS.Class({
 });
 
 var ModalView = NS.Class({
-    
+
     Extends: NS.View,
 
     className: 'ModalView',
-    
+
     didCreateLayer: function ( layer ) {
         layer.set( 'style', Object.toCSSString({
             position: 'absolute',
@@ -39,21 +39,21 @@ var ModalView = NS.Class({
         }) );
         return this;
     },
-    
+
     positioning: 'absolute',
     layout: NS.View.LAYOUT_FILL_PARENT,
     zIndex: 5000,
-    
+
     title: '',
-    
+
     eventHandler: function () {
         return new ModalViewEventHandler({ _view: this });
     }.property(),
-    
+
     nextEventTarget: function () {
         return this.get( 'eventHandler' );
     }.property(),
-    
+
     didAppendLayerToDocument: function () {
         NS.RootViewController.pushResponder( this.get( 'eventHandler' ) );
         return ModalView.parent.didAppendLayerToDocument.call( this );
@@ -62,7 +62,7 @@ var ModalView = NS.Class({
         NS.RootViewController.removeResponder( this.get( 'eventHandler' ) );
         return ModalView.parent.willRemoveLayerFromDocument.call( this );
     },
-    
+
     _render: function ( layer ) {
         var el = NS.Element.create,
             container = this._container = el( 'div', {
@@ -73,14 +73,14 @@ var ModalView = NS.Class({
                 })
             ]),
             children = this.get( 'childViews' );
-        
+
         for ( var i = 0, l = children.length; i < l; i += 1 ) {
             container.appendChild( children[i].render().get( 'layer' ) );
         }
-        
+
         layer.appendChild( container );
     },
-    
+
     insertView: function ( view, relativeNode, where ) {
         if ( !relativeNode ) { relativeNode = this._container; }
         return ModalView.parent.insertView.call(

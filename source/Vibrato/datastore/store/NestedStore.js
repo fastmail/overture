@@ -24,21 +24,21 @@ var OBSOLETE   = 256; // Source may have changes not yet loaded.
 
 /**
     Class: O.NestedStore
-    
+
     A Nested Store may be used to buffer changes before committing them to the
     parent store. The changes may be discarded instead of committing without
     ever affecting the parent store.
 */
 var NestedStore = NS.Class({
-    
+
     Extends: NS.Store,
-    
+
     autoCommit: false,
     isNested: true,
-    
+
     /**
         Constructor: O.NestedStore
-        
+
         Parameters:
             store - {O.Store} The parent store (this may be another nested
                     store).
@@ -50,25 +50,25 @@ var NestedStore = NS.Class({
         this._skToData = Object.create( store._skToData );
         // Copy on write, shared status store.
         this._skToStatus = Object.create( store._skToStatus );
-        
+
         // Share store key -> Type
         this._skToType = store._skToType;
         // Share Type -> store key -> id
         this._typeToSkToId = store._typeToSkToId;
         // Share Type -> id -> store key
         this._typeToIdToSk = store._typeToIdToSk;
-        
+
         // Own changed map
         this._skToChanged = {};
         // Own previous attributes.
         this._skToCommitted = {};
-        
+
         // Share last access timestamp for
         this._skToLastAccess = store._skToLastAccess;
-        
+
         this._created = {};
         this._destroyed = {};
-        
+
         // Own queries
         // Map id -> query
         this._idToQuery = {};
@@ -78,40 +78,40 @@ var NestedStore = NS.Class({
         this._remoteQueries = [];
         // List of types needing a refresh.
         this._queryTypesNeedRefresh = [];
-        
+
         // List of nested stores
         this._nestedStores = [];
-        
+
         // Waiting for an id
         this._awaitingId = {};
-        
+
         // Type -> [ store key ] of changed records.
         this._typeToChangedSks = {};
-        
+
         store.addNested( this );
-        
+
         this._source = store._source;
         this._parentStore = store;
     },
-    
+
     /**
         Method: O.NestedStore#destroy
-        
+
         Removes the connection to the parent store so this store may be garbage
         collected.
     */
     destroy: function () {
         this._parentStore.removeNested( this );
     },
-    
+
     // === Client API ==========================================================
-    
+
     /**
         Method: O.Store#commitChanges
-        
+
         Commits any outstanding changes (created/updated/deleted records) to the
         parent store.
-        
+
         Returns:
             {O.NestedStore} Returns self.
     */
@@ -122,7 +122,7 @@ var NestedStore = NS.Class({
             _skToChanged = this._skToChanged,
             parent = this._parentStore,
             storeKey;
-        
+
         for ( storeKey in _created ) {
             parent.createRecord( storeKey, _skToData[ storeKey ] );
         }
@@ -133,7 +133,7 @@ var NestedStore = NS.Class({
         for ( storeKey in _destroyed ) {
             parent.destroyRecord( storeKey );
         }
-        
+
         this._skToData = Object.create( parent._skToData );
         this._skToStatus = Object.create( parent._skToStatus );
         this._skToChanged = {};
@@ -143,62 +143,62 @@ var NestedStore = NS.Class({
 
         return this;
     },
-    
+
     /**
         Method: O.Store#discardChanges
-        
+
         Discards any outstanding changes (created/updated/deleted records),
         reverting the store to the same state as its parent.
-        
+
         Returns:
             {O.NestedStore} Returns self.
     */
     discardChanges: function () {
         NestedStore.parent.discardChanges.call( this );
-        
+
         var parent = this._parentStore;
-        
+
         this._skToData = Object.create( parent._skToData );
         this._skToStatus = Object.create( parent._skToStatus );
 
         return this;
     },
-     
+
     // === Low level (primarily internal) API: uses storeKey ===================
-    
+
     getStatus: function ( storeKey ) {
         var status = this._skToStatus[ storeKey ] || EMPTY;
         return this._skToData.hasOwnProperty( storeKey ) ?
             status : status & ~(NEW|COMMITTING|DIRTY);
     },
-    
+
     setObsolete: function ( storeKey ) {
         this._parentStore.setObsolete( storeKey );
     },
     setLoading: function ( storeKey ) {
         this._parentStore.setLoading( storeKey );
     },
-    
+
     fetchAll: function ( storeKey ) {
         this._parentStore.fetchAll( storeKey );
         return this;
     },
-    
+
     fetchData: function ( storeKey ) {
         this._parentStore.fetchData( storeKey );
         return this;
     },
-    
+
     // === Notifications from parent store =====================================
-    
+
     /**
         Method: O.NestedStore#parentDidChangeStatus
-        
+
         Called by the parent store whenever it changes the status of a record.
         The nested store uses this to update its own status value for that
         record (if it has diverged from the parent) and to notify any O.Record
         instances belonging to it of the change.
-        
+
         Parameters:
             storeKey - {String} The store key for the record.
             previous - {O.Status} The previous status value.
@@ -206,10 +206,10 @@ var NestedStore = NS.Class({
     */
     parentDidChangeStatus: function ( storeKey, previous, status ) {
         var _skToStatus = this._skToStatus;
-        
+
         previous = previous & ~(NEW|COMMITTING|DIRTY);
         status = status & ~(NEW|COMMITTING|DIRTY);
-        
+
         if ( _skToStatus.hasOwnProperty( storeKey ) ) {
             previous = _skToStatus[ storeKey ];
             if ( status & DESTROYED ) {
@@ -227,7 +227,7 @@ var NestedStore = NS.Class({
                     previous|( status & (OBSOLETE|LOADING) );
             }
         }
-        
+
         if ( previous !== status ) {
             // wasReady !== isReady
             if ( ( previous ^ status ) & READY ) {
@@ -242,15 +242,15 @@ var NestedStore = NS.Class({
             });
         }
     },
-    
+
     /**
         Method: O.NestedStore#parentDidSetData
-        
+
         Called by the parent store when it sets the inital data for an empty
         record. The nested store can't have any changes as a nested store cannot
         load data independently of its parent, so all we need to do is notify
         any records.
-        
+
         Parameters:
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
@@ -261,16 +261,16 @@ var NestedStore = NS.Class({
             store.parentDidSetData( storeKey, changedKeys );
         });
     },
-    
+
     /**
         Method: O.NestedStore#parentDidUpdateData
-        
+
         Called by the parent store whenever it makes a change to the data object
         for a record. The nested store uses this to update its own copy of the
         data object if it has diverged from that of the parent (either rebasing
         changes on top of the new parent state or discarding changes, depending
         on the value of <O.Store#rebaseConflicts>).
-        
+
         Parameters:
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
@@ -325,9 +325,9 @@ var NestedStore = NS.Class({
         });
         this._recordDidChange( storeKey );
     },
-    
+
     // === A nested store is not directly connected to a source ================
-    
+
     sourceDidFetchAllRecords: null,
     sourceDidFetchRecords: null,
     sourceHasUpdatesForRecords: null,

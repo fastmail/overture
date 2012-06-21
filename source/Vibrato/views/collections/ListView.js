@@ -13,23 +13,23 @@
 ( function ( NS ) {
 
 var ListView = NS.Class({
-    
+
     Extends: NS.UnorderedCollectionView,
-    
+
     Mixin: NS.TrueVisibleRect,
-    
+
     _batchSize: 10,
     _triggerInPx: 200,
-    
+
     itemHeight: 100,
 
     contentLength: NS.bind( 'content.length' ),
-    
+
     init: function ( options ) {
         this._renderRange = { start: 0, end: 0 };
         ListView.parent.init.call( this, options );
     },
-    
+
     positioning: 'absolute',
 
     layout: function () {
@@ -41,7 +41,7 @@ var ListView = NS.Class({
                  ( this.get( 'contentLength' ) || 0 )
         };
     }.property( 'itemHeight', 'contentLength' ),
- 
+
     scrollView: function () {
         var scrollView = this;
         do {
@@ -50,7 +50,7 @@ var ListView = NS.Class({
             !( scrollView instanceof NS.ScrollView ) );
         return scrollView || null;
     }.property( 'parentView' ),
- 
+
     contentWasUpdated: function ( event ) {
         var scrollView = this.get( 'scrollView' );
         if ( scrollView ) {
@@ -62,7 +62,7 @@ var ListView = NS.Class({
                 addedIndexes = event.addedIndexes,
                 change = 0,
                 i, l;
- 
+
             if ( top < 3 && addedIndexes[0] < 3 ) {
                 change = -( top + 1 );
             }
@@ -84,7 +84,7 @@ var ListView = NS.Class({
             }
         }
     },
-    
+
     _simulateScroll: function ( _, __, oldLength, length ) {
         // Convert null/undefined length to 0.
         if ( !length ) { length = 0; }
@@ -98,7 +98,7 @@ var ListView = NS.Class({
             );
         }
     }.observes( 'contentLength' ),
-    
+
     visibleRectDidChange: function () {
         // We only care about changes when we're visible.
         if ( this.get( 'isInDocument' ) ) {
@@ -114,7 +114,7 @@ var ListView = NS.Class({
                 end = ~~( ( y + visible.height + extension ) / height ) *
                     batchSize + batchSize,
                 _renderRange = this._renderRange;
-            
+
             if ( start !== _renderRange.start || end !== _renderRange.end ) {
                 _renderRange.start = start;
                 _renderRange.end = end;

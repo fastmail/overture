@@ -15,7 +15,7 @@ var RadioView = NS.Class({
     Extends: NS.AbstractControlView,
 
     // --- Render ---
-    
+
     className: 'RadioView',
 
     _render: function ( layer ) {
@@ -33,11 +33,11 @@ var RadioView = NS.Class({
     },
 
     // --- Keep state in sync with render ---
-    
+
     activate: function () {
         this.set( 'value', true );
     }.on( 'click' ),
-    
+
     // --- Keep render in sync with state ---
 
     updateLayer: function () {

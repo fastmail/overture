@@ -13,16 +13,16 @@
 ( function ( NS, undefined ) {
 
 var ListViewKBWidgetView = NS.Class({
-    
+
     Extends: NS.View,
-        
+
     listView: null,
 
     selectionController: NS.bind( 'listView.selectionController' ),
     itemHeight: NS.bind( 'listView.itemHeight' ),
 
     index: 0,
-    
+
     keys: {
         j: 'goNext',
         k: 'goPrev',
@@ -31,7 +31,7 @@ var ListViewKBWidgetView = NS.Class({
         o: 'trigger',
         enter: 'trigger'
     },
-    
+
     className: 'ListViewKBWidgetView',
     positioning: 'absolute',
     layout: function () {
@@ -41,7 +41,7 @@ var ListViewKBWidgetView = NS.Class({
             height: itemHeight
         };
     }.property( 'itemHeight', 'index' ),
-    
+
     didAppendLayerToDocument: function () {
         var keys = this.get( 'keys' ),
             shortcuts = NS.RootViewController.kbShortcuts,
@@ -65,7 +65,7 @@ var ListViewKBWidgetView = NS.Class({
         return ListViewKBWidgetView.parent.
             willRemoveLayerFromDocument.call( this );
     },
-    
+
     distanceFromVisRect: function () {
         var scrollView = this.getFromPath( 'listView.scrollView' );
         if ( scrollView ) {
@@ -73,17 +73,17 @@ var ListViewKBWidgetView = NS.Class({
                 layout = this.get( 'layout' ),
                 top = layout.top,
                 above = top - scrollTop;
-            
+
             if ( above < 0 ) { return above; }
-            
+
             var scrollHeight = scrollView.get( 'pxHeight' ),
                 below = top + layout.height - scrollTop - scrollHeight;
-            
+
             if ( below > 0 ) { return below; }
         }
         return 0;
     }.property().nocache(),
-    
+
     scrollIntoView: function ( offset, withAnimation ) {
         var scrollView = this.getFromPath( 'listView.scrollView' );
         if ( scrollView ) {
@@ -91,7 +91,7 @@ var ListViewKBWidgetView = NS.Class({
                 layout = this.get( 'layout' ),
                 itemHeight = layout.height,
                 top = layout.top;
-            
+
             if ( offset && -1 <= offset && offset <= 1 ) {
                 offset = ( offset * ( scrollHeight - itemHeight ) ) >> 1;
             }
@@ -105,7 +105,7 @@ var ListViewKBWidgetView = NS.Class({
             );
         }
     },
-    
+
     go: function ( delta ) {
         this.increment( 'index', delta );
         if ( this.get( 'isInDocument' ) ) {

@@ -16,13 +16,13 @@ var splitter =
 String.implement({
     /**
         Method: String#interpolate
-        
+
         Format a string by substituting in arguments. The method can also add
         padding to make the insertion a fixed width and restrict the number of
         decimal places in a number.
-        
+
         A placeholder is denoted by a `%` sign, which followed by:
-        
+
         1. (optional) *Sign*: `+` means always show sign.
         2. (optional) *Padding*: `'c` where `c` is any character. Default is
            space.
@@ -34,41 +34,41 @@ String.implement({
         6. (optional) *Argument*: `$` + Number of argument (indexed from 1) to
            use.
         7. *Type*: %, n, s, @.
-        
+
         If no specific argument is used, the index of a placeholder is used to
         determine which argument to use. The possible argument types are String,
         Number or Object; these must match the placeholder types of 's', 'n' and
         '@' respectively. A literal % is inserted by %%. Objects are converted
         to strings via their toString() method.
-        
+
         e.g. If the string is `"%+'*-16.3$2n"` and argument 2 is `123.456789`,
         then the output is: `"+123.456********"`.
-        
+
         Parameters:
             var_args - {...(String|Number|Object)} The arguments to interpolate.
-        
+
         Returns:
             {String} The formatted string.
     */
     interpolate: function () {
         // Reset RegExp.
         splitter.lastIndex = 0;
-        
+
         var output = '',
             i = 0,
             argIndex = 1,
             part, data, toInsert, padLength, padChar, padding;
-            
+
         while ( ( part = splitter.exec( this ) ) ) {
             // Add everything between last placeholder and this placeholder
             output += this.slice( i, part.index );
             // And set i to point to the next character after the placeholder
             i = part.index + part[0].length;
-            
+
             // Find argument to subsitute in; either the one specified in
             // (6) or the index of this placeholder.
             data = arguments[ ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
-            
+
             // Generate the string form of the data from the type specified
             // in (7).
             switch ( part[7] ) {
@@ -90,7 +90,7 @@ String.implement({
                     toInsert = data.toString();
                     break;
             }
-            
+
             // (4) Check minimum width
             padLength = ( part[4] || 0 ) - toInsert.length;
             if ( padLength > 0 ) {
@@ -107,28 +107,28 @@ String.implement({
                     toInsert = padding + toInsert;
                 }
             }
-            
+
             // And add the string to the output
             output += toInsert;
-            
+
             // Keep track of the arg index to use.
             argIndex += 1;
         }
         // Add any remaining string
         output += this.slice( i );
-        
+
         return output;
     },
-    
+
     /**
         Function: String#splitAndInterpolate
-        
+
         Splits the string at each [_N] (where N is a single-digit number), and
         inserts the Nth argument into the array at this point.
-        
+
         Parameters:
             var_args - {...(String|Number|Object)} The arguments to interpolate.
-        
+
         Returns:
             {Array} The split string parts interspersed with the arguments.
     */
@@ -140,12 +140,12 @@ String.implement({
         }
         return parts;
     },
-    
+
     /**
         Method: String#escapeHTML
-        
+
         Returns the string with the characters <,>,& replaced by HTML entities.
-        
+
         Returns:
             {String} The escaped string.
     */
@@ -154,38 +154,38 @@ String.implement({
                    .split( '<' ).join( '&lt;'  )
                    .split( '>' ).join( '&gt;'  );
     },
-    
+
     /**
         Method: String#escapeRegExp
-        
+
         Escape any characters with special meaning when passed to the RegExp
         constructor.
-        
+
         Returns:
             {String} The escaped string.
     */
     escapeRegExp: function () {
         return this.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
     },
-    
+
     /**
         Method: String#capitalise
-        
+
         Returns this string with the first letter converted to a capital.
-        
+
         Returns:
             {String} The capitalised string.
     */
     capitalise: function () {
         return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
     },
-    
+
     /**
         Method: String#capitalise
-        
+
         Returns this string with any sequence of a hyphen followed by a
         lower-case letter replaced by the capitalised letter.
-        
+
         Returns:
             {String} The camel-cased string.
     */
@@ -194,13 +194,13 @@ String.implement({
             return letter.toUpperCase();
         });
     },
-    
+
     /**
         Method: String#hyphenate
-        
+
         Returns this string with any captials converted to lower case and
         preceded by a hyphen.
-        
+
         Returns:
             {String} The hyphenated string.
     */
@@ -209,18 +209,18 @@ String.implement({
             return ( '-' + letter.toLowerCase() );
         });
     },
-    
+
     /**
         Method: String#contains
-        
+
         Tests whether the string contains the value supplied. If a seperator is
         given, the value must have at either end one of: the beginning of the
         string, the end of the string or the separator.
-        
+
         Parameters:
             string - {String} The value to search for.
             separator - {String} (optional) The separator string.
-        
+
         Returns:
             {Boolean} Does this string contain the given string?
     */
@@ -230,14 +230,14 @@ String.implement({
                 separator + string + separator ) :
             this.indexOf( string ) ) > -1;
     },
-    
+
     /**
         Method: String#trim
-        
+
         Returns the string with any white space at the beginning and end
         removed. Implementation by Stven Levithan:
         <http://blog.stevenlevithan.com/archives/faster-trim-javascript>
-        
+
         Returns:
             {String} The trimmed string.
     */
@@ -248,16 +248,16 @@ String.implement({
         while ( ws.test( str.charAt( i -= 1 ) ) ) {/* Empty! */}
         return str.slice( 0, i + 1 );
     },
-    
+
     /**
         Method: String#hash
-        
+
         Hashes the string to return a number which should (in theory at least)
         be statistically randomly distributed over any set of inputs, and each
         change in a bit of input should result in a change in roughly 50% of the
         bits in the output. Algorithm from:
         <http://www.azillionmonkeys.com/qed/hash.html>
-        
+
         Returns:
             {Number} The hash. This is a *signed* 32-bit int.
     */
@@ -289,13 +289,13 @@ String.implement({
 
         return hash;
     },
-    
+
     /**
         Method: String#md5
-        
+
         Calculates the MD5 hash of the string.
         See <http://en.wikipedia.org/wiki/MD5>.
-        
+
         Returns:
             {String} The 128 bit hash in the form of a hexadecimal string.
     */
@@ -306,7 +306,7 @@ String.implement({
             4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
             6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
         ];
-        
+
         var k = [
             0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
             0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -364,19 +364,19 @@ String.implement({
             }
             blocks[i] |= 0x80 << k;
             i += 1;
-            
+
             padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
             for ( ; i < padding ; i += 1 ) {
                 blocks[i] = 0;
             }
-            
+
             // Each char is 8 bits.
             blocks[i] = length << 3;
             blocks[ i + 1 ] = length >>> 29;
-            
+
             return blocks;
         };
-        
+
         // Add unsigned 32 bit ints with overflow.
         var add = function ( a, b ) {
             var lsw = ( a & 0xffff ) + ( b & 0xffff ),
@@ -412,7 +412,7 @@ String.implement({
                 b = h1;
                 c = h2;
                 d = h3;
-                
+
                 for ( i = 0; i < 64; i += 1 ) {
                     if ( i < 16 ) {
                         f = ( b & c ) | ( (~b) & d );

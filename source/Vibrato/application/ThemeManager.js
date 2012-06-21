@@ -14,17 +14,17 @@
 
 /**
     Class: O.ThemeManager
-    
+
     Extends: O.Object
-    
+
     The O.ThemeManager class manages the themes for an application. A theme
     consists of stylesheets and images. These can be loaded in stages and
     hotswapped if themes are changed.
 */
 var ThemeManager = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     init: function ( options ) {
         ThemeManager.parent.init.call( this, options );
         this._images = { all: {} };
@@ -39,13 +39,13 @@ var ThemeManager = NS.Class({
         The name of the currently active theme.
     */
     theme: '',
-    
+
     /**
         Method (private): O.ThemeManager#_themeDidChange
-    
+
         Triggered whenever the theme changes. Replaces the stylesheets in the
         document from the old theme with equivalents from the new one.
-    
+
         Parameters:
             _        - {*} Unused.
             __       - {*} Unused.
@@ -64,13 +64,13 @@ var ThemeManager = NS.Class({
             }
         }
     }.observes( 'theme' ),
-    
+
     /**
         Method: O.ThemeManager#imageDidLoad
-    
+
         Registers an image with the theme manager, making it available via
         <#getImageSrc> or in any stylesheets injected later into the page.
-    
+
         Parameters:
             theme - {String} The name of the theme this image belongs to.
                     If applicable to all themes, use the string 'all'.
@@ -83,13 +83,13 @@ var ThemeManager = NS.Class({
         themeImages[ id ] = data;
         return this;
     },
-    
+
     /**
         Method: O.ThemeManager#stylesheetDidLoad
-    
+
         Registers an stylesheet with the theme manager, making it available to
         be injected by a call to <#addStylesheet>.
-    
+
         Parameters:
             theme - {String} The name of the theme this image belongs to.
                     If applicable to all themes, use the string 'all'.
@@ -105,26 +105,26 @@ var ThemeManager = NS.Class({
 
     /**
         Method: O.ThemeManager#addStylesheet
-    
+
         Injects a new stylesheet into the page. Will first substitute in the
         data for all images it has loaded into memory.
-    
+
         Parameters:
             id    - {String} The id to give the stylesheet.
             theme - {String} (optional) The theme to choose; defaults to the
                     currently set theme.
-    
+
         Returns:
             {O.ThemeManager} Returns self.
     */
     addStylesheet: function ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
-        
+
         var data = this._styles[ theme ][ id ],
             images = this._images[ theme ],
             themeIndependentImages = this._images.all,
             active = this._activeStylesheets;
-        
+
         // Substitute in images.
         data = data.replace( /url\(([^)]+)\)/g, function ( url, img ) {
             return 'url(' +
@@ -134,39 +134,39 @@ var ThemeManager = NS.Class({
         });
         NS.Stylesheet.create( theme + '-' + id, data );
         active[ id ] = ( active[ id ] || 0 ) + 1;
-        
+
         return this;
     },
-    
+
     /**
         Method: O.ThemeManager#removeStylesheet
-    
+
         Removes a previously added stylesheet from the page.
-    
+
         Parameters:
             id   - {String} The id of the stylesheet to remove.
-    
+
         Returns:
             {O.ThemeManager} Returns self.
     */
     removeStylesheet: function ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
-        
+
         var sheet = document.getElementById( theme + '-' + id );
         sheet.parentNode.removeChild( sheet );
         this._activeStylesheets[ id ] -= 1;
-        
+
         return this;
     },
-    
+
     /**
         Method: O.ThemeManager#getImageSrc
-    
+
         Gets the (data) url for a loaded image.
-    
+
         Parameters:
             id - {String} The id of the image.
-    
+
         Returns:
             {(String|null)} A data URI for the requested image if the data is
             available, otherwise null.

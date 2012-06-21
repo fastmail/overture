@@ -25,18 +25,18 @@ var dummyStorage = {
 
 /**
     Class: O.LocalStorage
-    
+
     Extends: O.Object
-    
+
     LocalStorage provides an observable object interface to the local/session
     storage facilities provided by modern browsers. Essentially, you can treat
     it as an instance of <O.Object> whose values persists between page reloads
     (and between browser sessions if not set to session-only).
 */
 var LocalStorage = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     /**
         Constructor: O.LocalStorage
 
@@ -52,7 +52,7 @@ var LocalStorage = NS.Class({
         this._store = window.location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? window.sessionStorage : window.localStorage;
     },
-    
+
     set: function ( key, value ) {
         // If we exceed the storage quota, an error will be thrown.
         try {
@@ -60,7 +60,7 @@ var LocalStorage = NS.Class({
         } catch ( error ) {}
         LocalStorage.parent.set.call( this, key, value );
     },
-    
+
     getUnknownProperty: function ( key ) {
         var item;
         // Firefox sometimes throws and error

@@ -9,17 +9,17 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 var SelectView = NS.Class({
-    
+
     Extends: NS.AbstractControlView,
-    
+
     options: [],
-    
+
     // --- Render ---
-    
+
     className: 'SelectView',
-    
+
     _render: function ( layer ) {
         var el = NS.Element.create;
         layer.appendChild(
@@ -29,7 +29,7 @@ var SelectView = NS.Class({
             this._domControl = this._renderSelect( this.get( 'options' ) )
         );
     },
-    
+
     _renderSelect: function ( options ) {
         var selected = this.get( 'value' ),
             el = NS.Element.create,
@@ -44,16 +44,16 @@ var SelectView = NS.Class({
             );
         return select;
     },
-    
+
     // --- Keep state in sync with render ---
-    
+
     _syncSelected: function ( event ) {
         var i = this._domControl.selectedIndex;
         this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
     }.on( 'change' ),
-    
+
     // --- Keep render in sync with state ---
-    
+
     optionsDidChange: function () {
         if ( this.get( 'isRendered' ) ) {
             var select = this._renderSelect( this.get( 'options' ) );
@@ -61,13 +61,13 @@ var SelectView = NS.Class({
             this._domControl = select;
         }
     }.observes( 'options' ),
-    
+
     updateLayer: function () {
         if ( this.get( 'isRendered' ) ) {
             var value = this.get( 'value' ),
                 options = this.get( 'options' ),
                 l = options.length;
-            
+
             while ( l-- ) {
                 if ( options[l].value === value ) {
                     this._domControl.value = l + '';

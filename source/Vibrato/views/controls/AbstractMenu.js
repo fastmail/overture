@@ -28,7 +28,7 @@ NS.AbstractMenu = {
             pattern = new RegExp( '\\b' + value, 'i' ),
             items = this.get( 'items' ),
             l = items.get( 'length' );
-        
+
         while ( l-- ) {
             this.filterItem( items.getObjectAt( l ), pattern );
         }
@@ -78,20 +78,20 @@ NS.AbstractMenu = {
             this.didSelectItem( focussed );
         }
     },
-    
+
     // Hide after event loop so that the keypress event is still routed to this
     // view. Otherwise it could activate a global keyboard shortcut.
     hideInNextEventLoop: function () {
         NS.RunLoop.invokeInNextEventLoop( this.hide, this );
     },
-    
+
     _keyBindings: {
         esc: 'hideInNextEventLoop',
         enter: 'selectFocussed',
         up: 'focusPrevious',
         down: 'focusNext'
     },
-    
+
     _triggerKeyBinding: function ( event ) {
         var key = NS.DOMEvent.lookupKey( event ),
             bindings = this._keyBindings;
@@ -100,7 +100,7 @@ NS.AbstractMenu = {
             this[ bindings[ key ] ]( event, key );
         }
     }.on( 'keydown' ),
-    
+
     _focusOnHover: function ( event ) {
         var item = this.getItemFromElement( event.target );
         if ( item ) {
@@ -110,7 +110,7 @@ NS.AbstractMenu = {
     _defocusOnLeave: function () {
         this.focusItem( null );
     }.on( 'mouseout' ),
-    
+
     _selectClicked: function ( event ) {
         if ( NS.Element.contains( this.get( 'layer' ), event.target ) ) {
             var item = this.getItemFromElement( event.target );

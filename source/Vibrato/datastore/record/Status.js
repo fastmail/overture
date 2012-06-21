@@ -8,7 +8,7 @@
 
 /**
     Enum: O.Status
-    
+
     EMPTY        - The record has no data loaded.
     READY        - The record has data loaded and may be used.
     DESTROYED    - The record is destroyed.
@@ -27,7 +27,7 @@ this.O.Status = {
     READY:        2,
     DESTROYED:    4,
     NON_EXISTENT: 8,
-    
+
     // Properties:
     LOADING:     16,
     COMMITTING:  32,

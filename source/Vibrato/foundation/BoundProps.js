@@ -17,13 +17,13 @@ var bindingKey = '__binding__' + Date.now(),
 NS.BoundProps = {
     /**
         Method: O.BoundProps#initBindings
-        
+
         Initialises bound properties. Creates a new Binding object if the
         binding is inherited, then connects it to the appropriate key and does
         an initial sync. You should never call this directly, but rather iterate
         through the keys of `O.meta( this ).inits`, calling
         `this[ 'init' + key ]()` for all keys which map to a truthy value.
-        
+
         Returns:
             {O.BoundProps} Returns self.
     */
@@ -47,15 +47,15 @@ NS.BoundProps = {
         }
         return this;
     },
-    
+
     /**
         Method: O.BoundProps#destroyBindings
-        
+
         Disconnect and destroy all bindings connected to this object. You should
         never call this directly, but rather iterate through the keys of
         `O.meta( this ).inits`, calling `this[ 'destroy' + key ]()` for all keys
         which map to a truthy value.
-        
+
         Returns:
             {O.BoundProps} Returns self.
     */
@@ -74,10 +74,10 @@ NS.BoundProps = {
 
     /**
         Method: O.BoundProps#registerBinding
-        
+
         Call this whenever you add a binding to an object after initialisation,
         otherwise suspend/remove/destroy will not work correctly.
-        
+
         Returns:
             {O.BoundProps} Returns self.
     */
@@ -88,10 +88,10 @@ NS.BoundProps = {
 
     /**
         Method: O.BoundProps#deregisterBinding
-        
+
         Call this if you destroy a binding to this object before the object
         itself is destroyed.
-        
+
         Returns:
             {O.BoundProps} Returns self.
     */
@@ -104,9 +104,9 @@ NS.BoundProps = {
 
     /**
         Method: O.BoundProps#suspendBindings
-        
+
         Suspend all bindings to the object.
-        
+
         Returns:
             {O.BoundProps} Returns self.
     */
@@ -123,9 +123,9 @@ NS.BoundProps = {
 
     /**
         Method: O.BoundProps#resumeBindings
-        
+
         Resume (and sync if necessary) all bindings to the object.
-        
+
         Returns:
             {O.BoundProps} Returns self.
     */

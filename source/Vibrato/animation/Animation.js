@@ -38,11 +38,11 @@ var nextFrame = function ( time ) {
         l = anims.length,
         objAnimations, i,
         hasMultiple, animation, object, animTime, duration;
-    
+
     if ( l ) {
         // Request first to get in shortest time.
         requestAnimFrame( nextFrame );
-                
+
         while ( l-- ) {
             objAnimations = anims[l];
             i = objAnimations.length;
@@ -77,20 +77,20 @@ var nextFrame = function ( time ) {
 var meta = NS.meta;
 
 NS.Animation = NS.Class({
-    
+
     init: function ( options ) {
         NS.extend( this, options );
     },
-    
+
     object: null,
     property: 'value',
-    
+
     ease: NS.Easing.ease,
     duration: 300,
-    
+
     startTime: 0,
     isRunning: false,
-    
+
     animate: function ( value, duration, ease ) {
         if ( this.isRunning ) {
             this.stop();
@@ -101,23 +101,23 @@ NS.Animation = NS.Class({
         if ( ease != null ) {
             this.ease = ease;
         }
-        
+
         // Prepare any values. Check we've actually got something to animate.
         if ( !this.prepare( value ) ) {
             return this;
         }
-        
+
         var object = this.object,
             metadata = meta( object ),
             objAnimations = metadata.animations || ( metadata.animations = [] );
-        
+
         this.startTime = Date.now();
-        
+
         // Start loop if no current animations
         if ( !animations.length ) {
             requestAnimFrame( nextFrame );
         }
-        
+
         // And add objectAnimations to animation queue
         if ( !objAnimations.length ) {
             animations.push( objAnimations );
@@ -132,7 +132,7 @@ NS.Animation = NS.Class({
         }
         return this;
     },
-    
+
     prepare: function ( obj ) {
         if ( typeof obj === 'object' ) {
             this.startValue = obj.startValue;
@@ -142,26 +142,26 @@ NS.Animation = NS.Class({
             this.endValue = obj;
         }
         this.deltaValue = this.endValue - this.startValue;
-        
+
         return !!this.deltaValue;
     },
-    
+
     drawFrame: function ( position, time ) {
         // And interpolate to find new value.
         var value = position < 1 ?
             this.startValue + ( position * this.deltaValue ) :
             this.endValue;
-        
+
         this.object.set( this.property, value );
     },
-    
+
     stop: function () {
         if ( this.isRunning ) {
             // Remove from animation lists.
             var object = this.object,
                 objAnimations = meta( object ).animations;
             objAnimations.erase( this );
-            
+
             if ( !objAnimations.length ) {
                 animations.erase( objAnimations );
             }
@@ -172,7 +172,7 @@ NS.Animation = NS.Class({
                 object.didAnimate( this );
             }
         }
-        
+
         return this;
     }
 });

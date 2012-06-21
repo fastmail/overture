@@ -17,7 +17,7 @@ var setupObserver = function ( metadata, method ) {
         observers = metadata.observers,
         l = observes.length,
         key, keyObservers, pathObservers;
-        
+
     while ( l-- ) {
         key = observes[l];
         if ( key.indexOf( '.' ) === -1 ) {
@@ -52,7 +52,7 @@ var teardownObserver = function ( metadata, method ) {
         observers = metadata.observers,
         l = observes.length,
         key, keyObservers, observer, j, pathObservers;
-        
+
     while ( l-- ) {
         key = observes[l];
         if ( key.indexOf( '.' ) === -1 ) {
@@ -88,15 +88,15 @@ var teardownObserver = function ( metadata, method ) {
 Function.implement({
     /**
         Method: Function#observes
-        
+
         Defines the list of properties (on the same object) or paths (relative
         to this object) that this method is interested in. Whenever one of these
         properties changes, the method will automatically be called.
-        
+
         Parameters:
             var_args - {...String} All arguments are treated as the names of
                        properties this method should observe.
-        
+
         Returns:
             {Function} Returns self.
      */
@@ -117,7 +117,7 @@ Function.implement({
     Method (private): O.ObservableProps-_setupTeardownPaths
 
     Adds or removes path observers for methods on an object.
-    
+
     Parameters:
         obj    - {Object} The object to setup/teardown path observers for.
         method - {String} Either 'addObserverForPath' or 'removeObserverForPath'
@@ -141,7 +141,7 @@ var _setupTeardownPaths = function ( obj, method ) {
 
     Notifies any observers of a particular key and also removes old path
     observers and adds them to the new object.
-    
+
     Parameters:
         that     - {O.ObservableProps} The object on which the property has
                    changed.
@@ -214,10 +214,10 @@ var _notifyObserversOfKey =
 
 /**
     Method (private): O.ObservableProps-_notifyGenericObservers
-    
+
     Notifies any observers interested (registered as observing key '*') that
     at least one property has changed on this object.
-    
+
     Parameters:
         that     - {O.ObservableProps} The object on which the property has
                    changed.
@@ -239,7 +239,7 @@ var _notifyGenericObservers = function ( that, metadata, changed ) {
 
 /**
     Mixin: O.ObservableProps
-    
+
     The O.ObservableProps mixin adds support for key-value observing to another
     class. Public properties should only be accessed and modified via the
     get/set methods inherited from <O.ComputedProps>.
@@ -249,14 +249,14 @@ NS.ObservableProps = {
     /**
         Property (private): O.ObservableProps#_kvo_depth
         Type: Number
-    
+
         The number of calls to beginPropertyChanges in the stack.
     */
     _kvo_depth: 0,
-    
+
     /**
         Method: O.Observable#initObservers
-        
+
         Initialises any observed paths on the object (observed keys do not
         require initialisation. You should never call this directly, but rather
         iterate through the keys of `O.meta( this ).inits`, calling
@@ -265,10 +265,10 @@ NS.ObservableProps = {
     initObservers: function () {
         _setupTeardownPaths( this, 'addObserverForPath' );
     },
-    
+
     /**
         Method: O.Observable#destroyObservers
-        
+
         Removes any observed paths from the object (observed keys do not require
         destruction. You should never call this directly, but rather iterate
         through the keys of `O.meta( this ).inits`, calling
@@ -277,13 +277,13 @@ NS.ObservableProps = {
     destroyObservers: function () {
         _setupTeardownPaths( this, 'removeObserverForPath' );
     },
-    
+
     /**
         Method: O.ObservableProps#hasObservers
-        
+
         Returns true if any property on the object is currently being observed
         by another object.
-        
+
         Returns:
             {Boolean} Does the object have any observers?
     */
@@ -302,7 +302,7 @@ NS.ObservableProps = {
         }
         return false;
     },
-    
+
     /**
         Method: O.ObservableProps#beginPropertyChanges
 
@@ -311,7 +311,7 @@ NS.ObservableProps = {
         changes more than once, observers of that property will only be notified
         once of the change. No observer will be called until
         the matching <endPropertyChanges> call is made.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -319,7 +319,7 @@ NS.ObservableProps = {
         this._kvo_depth += 1;
         return this;
     },
-    
+
     /**
         Method: O.ObservableProps#endPropertyChanges
 
@@ -327,7 +327,7 @@ NS.ObservableProps = {
         <beginPropertyChanges> before) to ensure that if a dependent property
         changes more than once, observers of that property will only be notified
         once of the change.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -355,21 +355,21 @@ NS.ObservableProps = {
         this._kvo_depth -= 1;
         return this;
     },
-    
+
     /**
         Method: O.ObservableProps#propertyDidChange
-        
+
         Overrides the method in <O.ComputedProps>. Invalidates any cached
         values depending on the property and notifies any observers about the
         change. Will also notify any observers of dependent values about the
         change.
-        
+
         Parameters:
             key      - {String} The name of the property which has changed.
             oldValue - {*} The old value for the property.
             newValue - {*} (optional) The new value for the property. Only there
                        if it's not a computed property.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -383,7 +383,7 @@ NS.ObservableProps = {
             l = dependents.length,
             cache = metadata.cache,
             prop;
-        
+
         while ( l-- ) {
             prop = dependents[l];
             if ( !changed[ prop ] ) {
@@ -393,12 +393,12 @@ NS.ObservableProps = {
             }
             delete cache[ prop ];
         }
-        
+
         changed[ key ] = {
             oldValue: changed[ key ] ? changed[ key ].oldValue : oldValue,
             newValue: newValue
         };
-        
+
         if ( this._kvo_depth ) {
             metadata.changed = changed;
         } else {
@@ -413,10 +413,10 @@ NS.ObservableProps = {
                 _notifyGenericObservers( this, metadata, changed );
             }
         }
-        
+
         return this;
     },
-    
+
     /**
         Method: O.ObservableProps#addObserverForKey
 
@@ -427,12 +427,12 @@ NS.ObservableProps = {
         also observe '*' to be notified of any changes to the object; in this
         case the observer will only be supplied with the first argument: this
         object.
-        
+
         Parameters:
             key    - {String} The property to observer.
             object - {Object} The object on which to call the callback method.
             method - {String} The name of the callback method.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -446,20 +446,20 @@ NS.ObservableProps = {
         keyObservers.push({ object: object, method: method });
         return this;
     },
-    
+
     /**
         Method: O.ObservableProps#removeObserverForKey
 
         Removes an object/method pair from the list of those to be called when
         the property changes. Must use identical arguments to a previous call to
         <addObserverForKey>.
-        
+
         Parameters:
             key    - {String} The property which is being observed.
             object - {Object} The object which is observing it.
             method - {String} The name of the callback method on the observer
                      object.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -483,7 +483,7 @@ NS.ObservableProps = {
         }
         return this;
     },
-    
+
     /**
         Method: O.ObservableProps#addObserverForPath
 
@@ -492,12 +492,12 @@ NS.ObservableProps = {
         that if you observe `foo.bar.x` and `bar` changes, you will receive a
         callback, and the observer will be deregistered from the old `bar`, and
         registered on the new one.
-        
+
         Parameters:
             path   - {String} The path to observe.
             object - {Object} The object on which to call the callback method.
             method - {String} The name of the callback method.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -516,7 +516,7 @@ NS.ObservableProps = {
                 keyObservers = observers[ key ] = keyObservers ?
                     keyObservers.slice() : [];
             }
-                    
+
             keyObservers.push({
                 path: restOfPath,
                 object: object,
@@ -528,18 +528,18 @@ NS.ObservableProps = {
         }
         return this;
     },
-    
+
     /**
         Method: O.ObservableProps#removeObserverForPath
 
         Removes an observer for a path added with <addObserverForPath>.
-        
+
         Parameters:
             path   - {String} The path which is being observed.
             object - {Object} The object which is observing it.
             method - {String} The name of the callback method on the observer
                      object.
-        
+
         Returns:
             {O.ObservableProps} Returns self.
     */
@@ -554,7 +554,7 @@ NS.ObservableProps = {
                 restOfPath = path.slice( nextDot + 1 ),
                 observers = meta( this, false ).observers[ key ],
                 observer, l;
-                
+
             if ( observers ) {
                 l = observers.length;
                 while ( l-- ) {
@@ -574,5 +574,5 @@ NS.ObservableProps = {
         return this;
     }
 };
-    
+
 }( this.O ) );

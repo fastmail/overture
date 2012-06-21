@@ -12,7 +12,7 @@
 
 /**
     Module: DOM
-    
+
     The DOM module provides helper functions and classes for dealing with the
     DOM.
 */
@@ -28,11 +28,11 @@
 
 // Vars used to store references to fns so they can call each other.
 var create, setStyle, setStyles, setAttributes, appendChildren, getPosition;
- 
+
 /**
     Property (private): Element-directProperties
     Type: Object
-    
+
     Any names that match keys in this map will be set as direct properties
     rather than as attributes on the element.
 */
@@ -50,7 +50,7 @@ var directProperties = {
 /**
     Property (private): Element-booleanProperties
     Type: Object
-    
+
     Any names that match keys in this map will be set as direct properties and
     have their value converted to a boolean.
 */
@@ -64,12 +64,12 @@ var booleanProperties = {
 
 /**
     Method: Element#get
-    
+
     Get a property or attribute of the element.
-    
+
     Parameters:
         key - {String} The name of the property/attribute to get.
-    
+
     Returns:
         {String|Boolean} The attribute or property.
 */
@@ -84,13 +84,13 @@ Element.prototype.get = function ( key ) {
 
 /**
     Method: Element#set
-    
+
     Sets a property or attribute on the element.
-    
+
     Parameters:
         key   - {String} The name of the property/attribute to set.
         value - {String|Boolean} The value to set for that property.
-    
+
     Returns:
         {Element} Returns self.
 */
@@ -113,7 +113,7 @@ Element.prototype.set = function ( key, value ) {
 /**
     Property (private): Element-cssNoPx
     Type: Object
-    
+
     Keys for CSS properties that take raw numbers as a value.
 */
 var cssNoPx = {
@@ -124,7 +124,7 @@ var cssNoPx = {
 /**
     Property (private): Element-styleNames
     Type: Object
-    
+
     Map of normal CSS names to the name used on the style object.
 */
 var styleNames = function () {
@@ -148,7 +148,7 @@ var styleNames = function () {
 /**
     Property (private): O.Element-doc
     Type: Document
-    
+
     A reference to the document object.
 */
 var doc = document;
@@ -156,7 +156,7 @@ var doc = document;
 /**
     Property (private): O.Element-ieEventModel
     Type: Boolean
-    
+
     Does the browser only support the IE event model?
 */
 var ieEventModel = !!doc.addEventListener.isFake;
@@ -168,18 +168,18 @@ var view = null;
 NS.Element = {
     /**
         Function: O.Element.forView
-        
+
         Sets the view to which newly created elements should be associated. This
         is used to associate bindings with a view and to add child views as
         subviews correctly. This is normally handled automatically by the render
         method in <O.View>, however should you need to use it manually it is
         important to store the previous view (returned by the method) and
         restore it when you are done creating elements for your view.
-        
+
         Parameters:
             view - {(O.View|null)} The view to associate new/appended DOM
                    elements with.
-        
+
         Returns:
             {(O.View|null)} The previous view DOM elements were associated with.
     */
@@ -188,15 +188,15 @@ NS.Element = {
         view = newView;
         return oldView;
     },
-    
+
     /**
         Function: O.Element.create
-        
+
         Creates and returns a new element, setting any supplied properties and
         appending any supplied children. If the browser event system doesn't
         support capturing (just IE<8), then this will also add an event listener
         for change and input events to any form elements.
-        
+
         Parameters:
             tag      - {String} The tag name for the new class. You may also
                        specify class names and an id here using CSS syntax
@@ -211,18 +211,18 @@ NS.Element = {
                        nodes and/or strings of text to append to the element.
                        Text nodes will be created for each string supplied. Null
                        or undefined values will simply be skipped.
-        
+
         Returns:
             {Element} The new element.
     */
     create: create = function ( tag, props, children ) {
         var i, l, parts, name, el;
-        
+
         if ( props instanceof Array ) {
             children = props;
             props = null;
         }
-        
+
         // Parse id/class names out of tag.
         if ( /[#.]/.test( tag ) ) {
             parts = tag.split( /([#.])/ );
@@ -238,10 +238,10 @@ NS.Element = {
                 }
             }
         }
-        
+
         // Create element, set props and add children
         el = doc.createElement( tag );
-        
+
         if ( ieEventModel && ( tag === 'input' ||
                 tag === 'select' || tag === 'textarea' ) ) {
             el.addEventListener( tag === 'select' ?
@@ -255,19 +255,19 @@ NS.Element = {
         }
         return el;
     },
-    
+
     /**
         Function: O.Element.setAttributes
-        
+
         Sets each attribute in the object on the given element.
-        
+
         Parameters:
             el    - {Element} The element to set the attributes on.
             props - {Object} The attributes to add to the element.
                     e.g. `Element.create('input', { type: 'text' });`
                     The special attributes `'text'` and `'html'` allow you to
                     set the textual or html content of the element respectively.
-        
+
         Returns:
             {Element} The element.
     */
@@ -286,16 +286,16 @@ NS.Element = {
         }
         return el;
     },
-    
+
     /**
         Function: O.Element.appendChildren
-        
+
         Appends an array of children or views to an element
-        
+
         Parameters:
             el       - {Element} The element to append to.
             children - {Array.<(Element|O.View)>} The children to append.
-        
+
         Returns:
             {Element} The element.
     */
@@ -320,32 +320,32 @@ NS.Element = {
         }
         return el;
     },
-    
+
     /**
         Function: O.Element.hasClass
-        
+
         Determines if an element has a particular class name.
-        
+
         Parameters:
             el        - {Element} The element to test.
             className - {String} The class name to check.
-        
+
         Returns:
             {Boolean} Does the element have the class?
     */
     hasClass: function ( el, className ) {
         return el.className.contains( className, ' ' );
     },
-    
+
     /**
         Function: O.Element.addClass
-        
+
         Adds a class to the element if not already there.
-        
+
         Parameters:
             el        - {Element} The element to add the class to.
             className - {String} The class name to add.
-        
+
         Returns:
             {O.Element} Returns self.
     */
@@ -356,16 +356,16 @@ NS.Element = {
         }
         return this;
     },
-    
+
     /**
         Function: O.Element.removeClass
-        
+
         Removes a class from the element if present.
-        
+
         Parameters:
             el        - {Element} The element to remove the class from.
             className - {String} The class name to remove.
-        
+
         Returns:
             {O.Element} Returns self.
     */
@@ -378,17 +378,17 @@ NS.Element = {
         }
         return this;
     },
-    
+
     /**
         Function: O.Element.setStyle
-    
+
         Sets a CSS style on the element.
-        
+
         Parameters:
             el    - {Element} The element to set the style on.
             style - {String} The name of the style to set.
             value - {(String|Number)} The value to set the style to.
-        
+
         Returns:
             {O.Element} Returns self.
     */
@@ -402,16 +402,16 @@ NS.Element = {
         }
         return this;
     },
-    
+
     /**
         Function: O.Element.setStyles
-    
+
         Set a collection of CSS styles on the element.
-        
+
         Parameters:
             el    - {Element} The element to set the style on.
             styles - {Object} A map of styles->values to set.
-        
+
         Returns:
             {O.Element} Returns self.
     */
@@ -421,19 +421,19 @@ NS.Element = {
         }
         return this;
     },
-    
+
     /**
         Function: O.Element.contains
-        
+
         Tests whether one element is a descendent of or is the same node as
         another element.
-        
+
         Parameters:
             el             - {Element} The element that might be the parent
                              element
             potentialChild - {Element} The element to test if it is the same as
                              or a descendent of the parent element.
-        
+
         Returns:
             {Boolean} Is the second element equal to or a descendent of the
             first element?
@@ -442,14 +442,14 @@ NS.Element = {
         var relation = el.compareDocumentPosition( potentialChild );
         return !relation || !!( relation & DOCUMENT_POSITION_CONTAINED_BY );
     },
-    
+
     /**
         Function: O.Element.nearest
-     
+
         Looks for the nearest element which is accepted by the test function or
         is of the element type given as the test string. The element given is
         tested first, then its parent, then its parent's parent etc.
-        
+
         Parameters:
             el    - {Element} The element to start searching from.
             test  - {(String|Function)} If a function, this is called on each
@@ -460,7 +460,7 @@ NS.Element = {
             limit - {Element} (optional) An element known to be higher in the
                     hierarchy than the desired element. If this is found in the
                     search path, a null result will be immediately be returned.
-        
+
         Returns:
             {(Element|null)} The nearest matching element, or null if none
             matched.
@@ -481,20 +481,20 @@ NS.Element = {
         }
         return el;
     },
-    
+
     /**
         Function: O.Element.getPosition
-    
+
         Find the position of the top left corner of the element in pixels,
         relative either to the page as a whole or a supplied ancestor of the
         element.
-        
+
         Parameters:
             el       - {Element} The element to determine the position of.
             ancestor - {Element} The top left corner of this element will be
                        treated as co-ordinates (0,0). This must be an ancestor
                        of the given element in the DOM tree.
-        
+
         Returns:
             {Object} The offset in pixels of the element relative to the
             given ancestor or the whole page. Has two properties:

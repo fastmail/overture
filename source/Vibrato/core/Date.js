@@ -13,10 +13,10 @@
 Date.extend({
     /**
         Function: Date.now
-        
+
         ECMAScript 5 Date.now method. Returns the current time as the number of
         milliseconds since 1 January 1970.
-        
+
         Returns:
             {Number} The current time.
     */
@@ -32,28 +32,28 @@ var pad = function ( num, nopad, character ) {
 Date.implement({
     /**
         Method: Date#isToday
-        
+
         Determines if the point of time represented by the date object is today
         in the current time zone.
-        
+
         Returns:
             {Boolean} Is the date today?
     */
     isToday: function () {
         return this.isOnSameDayAs( new Date() );
     },
-    
+
     /**
         Method: Date#isOnSameDayAs
-        
+
         Determines if the two points of time are on the same day. Each date is
         considered in its local time zone, e.g. 10pm GMT on 1/1/2010 would be
         considered the same day as 10pm EST on 1/1/2010, although these are
         different dates if the dates are first converted to the same timezone.
-        
+
         Parameters:
             date - {Date} Date to compare it to.
-        
+
         Returns:
             {Boolean} Is the date today?
     */
@@ -62,18 +62,18 @@ Date.implement({
         return ~~( ( date - ( date.getTimezoneOffset() * 60000 ) ) / aDay ) ===
                ~~( ( this - ( this.getTimezoneOffset() * 60000 ) ) / aDay );
     },
-    
+
     /**
         Method: Date#getDayName
-        
+
         Returns the day of the week for this date in the currently active
         language, provided the Localisation module is loaded. If this isn't
         loaded, it returns the same as Date#getDay().
-        
+
         Parameters:
             abbreviate - {Boolean} If true, the method returns an abbreviated
                          day name instead of the full day name.
-        
+
         Returns:
             {String} Localised day name.
     */
@@ -83,18 +83,18 @@ Date.implement({
             day = this.getDay();
         return names ? names[ day ] : day;
     },
-    
+
     /**
         Method: Date#getMonthName
-        
+
         Returns the month of the year for this date in the currently active
         language, provided the Localisation module is loaded. If this isn't
         loaded, it returns the same as Date::getMonth().
-        
+
         Parameters:
             abbreviate - {Boolean} If true, the method returns an abbreviated
                          month name instead of the full month name.
-        
+
         Returns:
             {String} Localised month name.
     */
@@ -104,12 +104,12 @@ Date.implement({
             day = this.getMonth();
         return names ? names[ day ] : day;
     },
-    
+
     /**
         Method: Date#getDayOfYear
-        
+
         Returns the day of the year for this date, where 1 is the 1st January.
-        
+
         Returns:
             {Number} The day of the year (1--366).
     */
@@ -118,17 +118,17 @@ Date.implement({
         // 86400000 = milliseconds in a day = 24 * 60 * 60 * 1000
         return ~~( ( this - beginningOfYear ) / 86400000 ) + 1;
     },
-    
+
     /**
         Method: Date#format
-        
+
         Formats the date as a string, according to the format pattern given.
         A variable to be substituted starts with a %, then optionally a '-'
         to stop it from being 0-padded to a fixed length (if applicable),
         then a character to indicate the desired part of the date. All patterns
         defined in strftime format are supported
         (http://pubs.opengroup.org/onlinepubs/007908799/xsh/strftime.html).
-        
+
         a - Abbreviated day of the week, e.g. 'Mon'.
         A - Full day of the week, e.g. 'Monday'.
         b - Abbreviated month name, e.g. 'Jan'.
@@ -170,10 +170,10 @@ Date.implement({
         Y - Year with century (0-9999)
         Z - Timezone name or abbreviation.
         % - A '%' character.
-        
+
         Parameters:
             format - {String} The pattern to use as a template for the string.
-        
+
         Returns:
             {String} The formatted date string.
     */

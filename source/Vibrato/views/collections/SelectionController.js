@@ -12,15 +12,15 @@
 ( function ( NS ) {
 
 var SelectionController = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     view: null,
     content: NS.bind( 'view.content' ),
-    
+
     _selectionId: 0,
     _lastSelectedIndex: 0,
-    
+
     init: function ( options ) {
         SelectionController.parent.init.call( this, options );
         var content = this.get( 'content' );
@@ -29,7 +29,7 @@ var SelectionController = NS.Class({
         }
         this._selectedIds = {};
     },
-    
+
     contentDidChange: function ( _, __, oldContent, newContent ) {
         if ( oldContent ) {
             oldContent.detach( 'query:updated', this, 'contentWasUpdated' );
@@ -41,7 +41,7 @@ var SelectionController = NS.Class({
         this.set( 'selectionLength', 0 )
             .propertyDidChange( 'selectedIds' );
     }.observes( 'content' ),
-    
+
     contentWasUpdated: function ( event ) {
         // If an id has been removed, it may no
         // longer belong to the selection
@@ -54,7 +54,7 @@ var SelectionController = NS.Class({
             }, {} ),
             l = removed.length,
             id;
-        
+
         while ( l-- ) {
             id = removed[l];
             if ( _selectedIds[ id ] && !added[ id ] ) {
@@ -62,23 +62,23 @@ var SelectionController = NS.Class({
                 delete _selectedIds[ id ];
             }
         }
-        
+
         this.set( 'selectionLength', selectionLength )
             .propertyDidChange( 'selectedIds' );
     },
-    
+
     // ---
 
     selectionLength: 0,
-    
+
     selectedIds: function () {
         return Object.keys( this._selectedIds );
     }.property().nocache(),
-    
+
     isIdSelected: function ( id ) {
         return !!this._selectedIds[ id ];
     },
-    
+
     updateViews: function () {
         var itemViews = this.getFromPath( 'view.childViews' ),
             l = itemViews ? itemViews.length : 0,
@@ -92,12 +92,12 @@ var SelectionController = NS.Class({
             }
         }
     }.observes( 'selectedIds' ),
-    
+
     // ---
-    
+
     // Can override to provide feedback when waiting for ids to load.
     willLoadSelection: function ( show ) {},
-    
+
     selectIds: function ( ids, isSelected, _selectionId, _start, _end ) {
         if ( _selectionId && _selectionId !== this._selectionId ) {
             return;
@@ -123,16 +123,16 @@ var SelectionController = NS.Class({
                 howManyChanged += 1;
             }
         }
-            
+
         if ( howManyChanged ) {
             this.increment( 'selectionLength',
                     ( isSelected ? howManyChanged : -howManyChanged ) )
                 .propertyDidChange( 'selectedIds' );
         }
-        
+
         this.willLoadSelection( false );
     },
-    
+
     selectIndex: function ( index, isSelected, includeRangeFromLastSelected ) {
         var lastSelectedIndex = this._lastSelectedIndex,
             start = includeRangeFromLastSelected ?
@@ -142,7 +142,7 @@ var SelectionController = NS.Class({
         this._lastSelectedIndex = index;
         return this.selectRange( start, end, isSelected );
     },
-    
+
     selectRange: function ( start, end, isSelected ) {
         var content = this.get( 'content' ),
             selectionId = ( this._selectionId += 1 ),
@@ -152,18 +152,18 @@ var SelectionController = NS.Class({
                     this.selectIds( ids, isSelected, selectionId, start, end );
                 }.bind( this )
             );
-        
+
         if ( loading ) {
             this.willLoadSelection( true );
         }
-        
+
         return this;
     },
-    
+
     selectAll: function ( isSelected ) {
         var content = this.get( 'content' ),
             selectionId = ( this._selectionId += 1 );
-            
+
         if ( isSelected ) {
             var loading = content.getIdsForAllObjects(
                 function ( ids, start, end ) {
@@ -180,7 +180,7 @@ var SelectionController = NS.Class({
                 .propertyDidChange( 'selectedIds' )
                 .willLoadSelection( false );
         }
-    
+
         return this;
     }
 });

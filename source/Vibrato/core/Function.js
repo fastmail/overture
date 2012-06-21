@@ -11,17 +11,17 @@
 Function.implement({
     /**
         Method: Function#bind
-        
+
         ECMAScript 5 bind method. Returns a function which will call the
         original function bound to the given scope.
-        
+
         Parameters:
             scope    - {Object} The object to bind the 'this' parameter to.
             var_args - {...*} Any further arguments will be supplied as
                        arguments to the original function when it is called,
                        followed by any other arguments given at the time of
                        calling.
-        
+
         Returns:
             {Function} The bound function.
     */

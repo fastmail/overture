@@ -49,17 +49,17 @@ var ButtonView = NS.ButtonView;
 var equalTo = NS.Transform.isEqualToValue;
 
 var RichTextView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     layerTag: 'div',
-    
+
     isFocussed: false,
-    
+
     editor: null,
-    
+
     styles: null,
-    
+
     _value: '',
     value: function ( html ) {
         var editor = this.get( 'editor' );
@@ -78,15 +78,15 @@ var RichTextView = NS.Class({
         }
         return html;
     }.property().nocache(),
-    
+
     // --- Render ---
-    
+
     willAppendLayerToDocument: function () {
         NS.Element.removeClass( this._loadingOverlay, 'hidden' );
         return RichTextView.parent
                 .willAppendLayerToDocument.call( this );
     },
-    
+
     willRemoveLayerFromDocument: function () {
         // As soon as the view is removed from the document, any editor
         // reference is no longer valid, as the iframe will have been unloaded.
@@ -100,13 +100,13 @@ var RichTextView = NS.Class({
         return RichTextView.parent
                 .willRemoveLayerFromDocument.call( this );
     },
-    
+
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
-    
+
     _render: function ( layer ) {
         var el = NS.Element.create,
             richTextView = this;
-        
+
         // Editor
         var iframe = el( 'iframe', {
             src: RichTextView.pathToDocument,
@@ -139,9 +139,9 @@ var RichTextView = NS.Class({
                 }
             }
         }.invokeInRunLoop();
-        
+
         iframe.addEventListener( 'load', onload, false );
-        
+
         NS.Element.appendChildren( layer, [
             el( 'div.ToolbarView', [
                 el( 'div.left', [
@@ -329,7 +329,7 @@ var RichTextView = NS.Class({
             this._loadingOverlay = el( 'div.LoadingAnimation' )
         ]);
     },
-    
+
     fontSizeMenuView: function () {
         var richTextView = this;
         return new NS.MenuView({
@@ -350,7 +350,7 @@ var RichTextView = NS.Class({
             })
         });
     }.property(),
-    
+
     showFontSizeMenu: function () {
         popOver.show({
             view: this.get( 'fontSizeMenuView' ),
@@ -359,7 +359,7 @@ var RichTextView = NS.Class({
             offsetTop: 2
         });
     },
-    
+
     fontFaceMenuView: function () {
         var richTextView = this;
         return new NS.MenuView({
@@ -383,7 +383,7 @@ var RichTextView = NS.Class({
             })
         });
     }.property(),
-    
+
     showFontFaceMenu: function () {
         popOver.show({
             view: this.get( 'fontFaceMenuView' ),
@@ -392,9 +392,9 @@ var RichTextView = NS.Class({
             offsetTop: 2
         });
     },
-    
+
     _colourText: true,
-    
+
     textColourMenuView: function () {
         var richTextView = this;
         return new NS.MenuView({
@@ -416,7 +416,7 @@ var RichTextView = NS.Class({
             })
         });
     }.property(),
-    
+
     showTextColourMenu: function () {
         this._colourText = true;
         popOver.show({
@@ -426,7 +426,7 @@ var RichTextView = NS.Class({
             offsetTop: 2
         });
     },
-    
+
     showTextHighlightColourMenu: function () {
         this._colourText = false;
         popOver.show({
@@ -436,7 +436,7 @@ var RichTextView = NS.Class({
             offsetTop: 2
         });
     },
-    
+
     linkOverlayView: function () {
         var richTextView = this;
         return new NS.View({
@@ -508,7 +508,7 @@ var RichTextView = NS.Class({
             }
         });
     }.property(),
-    
+
     showLinkOverlay: function () {
         var view = this.get( 'linkOverlayView' ),
             value = this.getSelectedText().trim();
@@ -523,9 +523,9 @@ var RichTextView = NS.Class({
             offsetLeft: -4
         });
     },
-    
+
     // --- Commands ---
-    
+
     focus: function () {
         var editor = this.get( 'editor' );
         if ( editor ) {
@@ -535,7 +535,7 @@ var RichTextView = NS.Class({
         }
         return this;
     },
-    
+
     blur: function () {
         var editor = this.get( 'editor' );
         if ( editor ) {
@@ -545,75 +545,75 @@ var RichTextView = NS.Class({
         }
         return this;
     },
-        
+
     undo: execCommand( 'undo' ),
     redo: execCommand( 'redo' ),
-    
+
     bold: execCommand( 'bold' ),
     italic: execCommand( 'italic' ),
     underline: execCommand( 'underline' ),
-    
+
     removeBold: execCommand( 'removeBold' ),
     removeItalic: execCommand( 'removeItalic' ),
     removeUnderline: execCommand( 'removeUnderline' ),
-    
+
     makeLink: execCommand( 'makeLink' ),
     removeLink: execCommand( 'removeLink' ),
-    
+
     setFontFace: execCommand( 'setFontFace' ),
     setFontSize: execCommand( 'setFontSize' ),
-    
+
     setTextColour: execCommand( 'setTextColour' ),
     setHighlightColour: execCommand( 'setHighlightColour' ),
-    
+
     setTextAlignment: execCommand( 'setTextAlignment' ),
-    
+
     increaseQuoteLevel: execCommand( 'increaseQuoteLevel' ),
     decreaseQuoteLevel: execCommand( 'decreaseQuoteLevel' ),
-    
+
     makeUnorderedList: execCommand( 'makeUnorderedList' ),
     makeOrderedList: execCommand( 'makeOrderedList' ),
     removeList: execCommand( 'removeList' ),
-    
+
     insertImage: execCommand( 'insertImage' ),
-    
+
     getSelectedText: function () {
         var editor = this.get( 'editor' );
         return editor ? editor.getSelectedText() : '';
     },
-    
+
     // Low level commands
-    
+
     _forEachBlock: execCommand( 'forEachBlock' ),
-    
+
     // --- Command state ---
-    
+
     canUndo: false,
     canRedo: false,
-    
+
     setUndoState: function ( event ) {
         this.set( 'canUndo', event.canUndo )
             .set( 'canRedo', event.canRedo );
         event.stopPropagation();
     }.on( 'undoStateChange' ),
-    
+
     path: '',
-    
+
     setPath: function ( event ) {
         this.set( 'path', event.path );
         event.stopPropagation();
     }.on( 'pathChange' ),
-    
+
     onSelect: function ( event ) {
         // Recalculate state
         this.propertyDidChange( 'path' );
     }.on( 'select' ),
-    
+
     isBold: queryCommandState( 'B', ( />B\b/ ) ),
     isItalic: queryCommandState( 'I', ( />I\b/ ) ),
     isUnderlined: queryCommandState( 'U', ( />U\b/ ) ),
     isLink: queryCommandState( 'A', ( />A\b/ ) ),
-    
+
     alignment: function () {
         var path = this.get( 'path' ),
             results = /\.align\-(\w+)/.exec( path ),
@@ -634,24 +634,24 @@ var RichTextView = NS.Class({
         }
         return alignment;
     }.property( 'path' ),
-    
+
     isUnorderedList: queryCommandState( 'UL', ( />UL\b/ ) ),
     isOrderedList: queryCommandState( 'OL', ( />OL\b/ ) ),
-    
+
     // --- Keep state in sync with render ---
-    
+
     handleEvent: function ( event ) {
         NS.RootViewController.handleEvent( event, this );
     },
-    
+
     _onFocus: function () {
         this.set( 'isFocussed', true );
     }.on( 'focus' ),
-    
+
     _onBlur: function () {
         this.set( 'isFocussed', false );
     }.on( 'blur' ),
-    
+
     _onKeypress: function ( event ) {
         // Stop event from getting to KB shortcuts handler.
         event.stopPropagation();

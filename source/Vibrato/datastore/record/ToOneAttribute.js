@@ -7,15 +7,15 @@
 // -------------------------------------------------------------------------- \\
 
 /*global O */
- 
+
 "use strict";
 
 ( function ( NS, undefined ) {
 
 var ToOneAttribute = NS.Class({
-    
+
     Extends: NS.RecordAttribute,
-    
+
     willCreateInStore: function ( record, propKey, storeKey ) {
         var propValue = record.get( propKey );
         if ( propValue && !propValue.get( 'id' ) ) {
@@ -24,7 +24,7 @@ var ToOneAttribute = NS.Class({
                 storeKey, this.key || propKey );
         }
     },
-    
+
     willSet: function ( propValue, propKey, record ) {
         if ( ToOneAttribute.parent.willSet.call(
                 this, propValue, propKey, record ) ) {
@@ -54,7 +54,7 @@ var ToOneAttribute = NS.Class({
         }
         return false;
     },
-    
+
     call: function ( record, propValue, propKey ) {
         var result = ToOneAttribute.parent.call.call(
             this, record, propValue, propKey );

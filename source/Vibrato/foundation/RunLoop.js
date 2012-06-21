@@ -11,10 +11,10 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 /**
     Class: O.RunLoop
-    
+
     The run loop allows data to propagate through the app in stages, preventing
     multiple changes to an object firing off the same observers several times.
     To use, wrap the entry point functions in a call to <O.RunLoop.invoke>.
@@ -24,15 +24,15 @@ var RunLoop = {
     /**
         Property (private): NS.RunLoop._queueOrder
         Type: Array.<String>
-        
+
         The order in which to flush the queues.
     */
     _queueOrder: [ 'before', 'bindings', 'after' ],
-    
+
     /**
         Property (private): NS.RunLoop._queues
         Type: Object
-        
+
         Collection of queues. Each queue contains [fn, bind] tuples to call at
         <O.RunLoop.end>.
     */
@@ -41,24 +41,24 @@ var RunLoop = {
         bindings: [],
         after: []
     },
-    
+
     /**
         Property (private): NS.RunLoop._depth
         Type: Number
-        
+
         Number of calls to <O.RunLoop.invoke> currently in stack.
     */
     _depth: 0,
-    
+
     /**
         Method: O.RunLoop.flushQueue
-        
+
         Invokes each function in an array of [function, object] tuples, binding
         the this parameter of the function to the object, and empties the array.
-        
+
         Parameters:
             queue - {String} name of the queue to flush.
-        
+
         Returns:
             {Boolean} Were any functions actually invoked?
     */
@@ -66,7 +66,7 @@ var RunLoop = {
         var toInvoke = this._queues[ queue ],
             l = toInvoke.length,
             i, tuple;
-        
+
         if ( l ) {
             this._queues[ queue ] = [];
 
@@ -78,17 +78,17 @@ var RunLoop = {
         }
         return false;
     },
-    
+
     /**
         Method: O.RunLoop.flushAllQueues
-        
+
         Calls O.RunLoop#flushQueue on each queue in the order specified in
         _queueOrder, starting at the first queue again whenever the queue
         indicates something has changed.
-        
+
         Parameters:
             queue - {String} name of the queue to flush.
-        
+
         Returns:
             {Boolean} Were any functions actually invoked?
     */
@@ -99,19 +99,19 @@ var RunLoop = {
             i = this.flushQueue( order[i] ) ? 0 : i + 1;
         }
     },
-    
+
     /**
         Method: O.RunLoop.queueFn
-        
+
         Add a [function, object] tuple to a queue, ensuring it is not added
         again if it is already there.
-        
+
         Parameters:
             queue - {String} The name of the queue to add the tuple to.
             fn    - {Function} The function to add to the array.
             bind  - {(Object|undefined)} The object the function will be bound
                     to when called.
-        
+
         Returns:
             {O.RunLoop} Returns self.
     */
@@ -127,19 +127,19 @@ var RunLoop = {
         toInvoke[l] = [ fn, bind ];
         return this;
     },
-    
+
     /**
         Method: O.RunLoop.invoke
-        
+
         Invoke a function inside the run loop. Note, to pass arguments you must
         supply a bind; use `null` if you would like the global scope.
-        
+
         Parameters:
             fn   - {Function} The function to invoke
             bind - {Object} (optional) The object to bind `this` to when calling
                    the function.
             args - {Array} (optional) The arguments to pass to the function.
-        
+
         Returns:
             {O.RunLoop} Returns self.
     */
@@ -170,18 +170,18 @@ var RunLoop = {
         this._depth -= 1;
         return this;
     },
-    
+
     /**
         Method: O.RunLoop.invokeInNextEventLoop
-        
+
         Use this to invoke a function in a new browser event loop, immediately
         after this event loop has finished.
-        
+
         Parameters:
             fn   - {Function} The function to invoke.
             bind - {Object} (optional) The object to make the 'this' parameter
                    when the function is invoked.
-        
+
         Returns:
             {O.RunLoop} Returns self.
     */
@@ -191,20 +191,20 @@ var RunLoop = {
         }, 0 );
         return this;
     },
-    
+
     /**
         Method: O.RunLoop.invokeAfterDelay
-        
+
         Use this to invoke a function after a specified delay. The function will
         be called inside a new RunLoop, and optionally bound to a supplied
         object.
-        
+
         Parameters:
             fn    - {Function} The function to invoke after a delay.
             delay - {Number} The delay in milliseconds.
             bind  - {Object} (optional) The object to make the 'this' parameter
                     when the function is invoked.
-        
+
         Returns:
             {InvocationToken} Returns a token that can be passed to the
             <O.RunLoop.cancel> method before the function is invoked, in order
@@ -215,19 +215,19 @@ var RunLoop = {
             RunLoop.invoke( fn, bind );
         }, delay );
     },
-    
+
     /**
         Method: O.RunLoop.invokePeriodically
-        
+
         Use this to invoke a function periodically, with a set time between
         invocations.
-        
+
         Parameters:
             fn     - {Function} The function to invoke periodically.
             period - {Number} The period in milliseconds between invocations.
             bind   - {Object} (optional) The object to make the 'this' parameter
                      when the function is invoked.
-        
+
         Returns:
             {InvocationToken} Returns a token that can be passed to the
             <O.RunLoop.cancel> method to cancel all future invocations scheduled
@@ -238,19 +238,19 @@ var RunLoop = {
             RunLoop.invoke( fn, bind );
         }, period );
     },
-    
+
     /**
         Method: O.RunLoop.cancel
-        
+
         Use this to cancel the future invocations of functions scheduled with
         the <O.RunLoop.invokeAfterDelay> or <O.RunLoop.invokePeriodically>
         methods.
-        
+
         Parameters:
             token - {InvocationToken} The InvocationToken returned by the
                     call to invokeAfterDelay or invokePeriodically that you wish
                     to cancel.
-        
+
         Returns:
             {O.RunLoop} Returns self.
     */
@@ -259,14 +259,14 @@ var RunLoop = {
         clearInterval( token );
         return this;
     },
-    
+
     /**
         Method: O.RunLoop.didError
-        
+
         This method is invoked if an uncaught error is thrown in a run loop.
         Overwrite this method to do something more useful then just log the
         error to the console.
-        
+
         Parameters:
             error - {Error} The error object.
     */
@@ -280,11 +280,11 @@ NS.RunLoop = RunLoop;
 Function.implement({
     /**
         Method: Function#queue
-        
+
         Parameters:
             queue - {String} The name of the queue to add calls to this function
                     to.
-        
+
         Returns:
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.queueFn>.
@@ -296,12 +296,12 @@ Function.implement({
             return this;
         };
     },
-    
+
     /**
         Method: Function#invokeInRunLoop
-        
+
         Wraps any calls to this function inside a call to <O.RunLoop.invoke>.
-        
+
         Returns:
             {Function} Returns wrapped function.
     */

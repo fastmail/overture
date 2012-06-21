@@ -9,24 +9,24 @@
 "use strict";
 
 ( function ( NS, undefined ) {
-    
+
 var PushSelectView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     options: [],
-    
+
     // --- Render ---
-        
+
     className: 'PushSelectView',
-    
+
     _render: function ( layer ) {
         layer.appendChild( this._renderSelect() );
     },
     _renderSelect: function () {
         var el = NS.Element.create,
             selected = this.get( 'value' );
-        
+
         return el( 'div',
             this.get( 'options' ).map( function ( option, i ) {
                 return el( 'span', NS.extend({
@@ -37,25 +37,25 @@ var PushSelectView = NS.Class({
             })
         );
     },
-    
+
     // --- Keep state in sync with render ---
-    
+
     _selectOption: function ( event ) {
         var i = event.target.get( 'data-index' );
         if ( i != null ) {
             this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
         }
     }.on( 'click' ),
-    
+
     // --- Keep render in sync with state ---
-    
+
     optionsDidChange: function () {
         if ( this.get( 'isRendered' ) ) {
             var layer = this.get( 'layer' );
             layer.replaceChild( this._renderSelect(), layer.firstChild );
         }
     }.observes( 'options' ),
-    
+
     updateLayer: function ( _, __, oldValue, newValue ) {
         if ( this.get( 'isRendered' ) ) {
             var Element = NS.Element,

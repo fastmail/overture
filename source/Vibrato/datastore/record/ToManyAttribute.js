@@ -7,7 +7,7 @@
 // -------------------------------------------------------------------------- \\
 
 /*global O */
- 
+
 "use strict";
 
 ( function ( NS ) {
@@ -15,57 +15,57 @@
 var slice = Array.prototype.slice;
 
 var RecordArray = NS.Class({
-    
+
     Extends: NS.ObservableArray,
-    
+
     record: null,
     propKey: '',
-    
+
     init: function ( record, propKey, value, type ) {
         this.record = record;
         this.propKey = propKey;
         this.type = type;
         this.store = record.get( 'store' );
-        
+
         RecordArray.parent.init.call( this, value && value.slice() );
-        
+
         record.addObserverForKey( propKey, this, 'updateListFromRecord' );
     },
-    
+
     destroy: function () {
         this.get( 'record' ).removeObserverForKey(
             this.get( 'propKey' ), this, 'updateListFromRecord' );
         RecordArray.parent.destroy.call( this );
     },
-    
+
     toJSON: function () {
         return this._array.slice();
     },
-    
+
     _updatingStore: false,
-    
+
     updateListFromRecord: function () {
         if ( this._updatingStore ) { return; }
         var record = this.get( 'record' ),
             propKey = this.get( 'propKey' ),
             list = record[ propKey ].getRaw( record, propKey );
-        
+
         this.set( '[]', list ? list.slice() : [] );
     },
-    
+
     getObjectAt: function ( index ) {
         var id = RecordArray.parent.getObjectAt.call( this, index );
         return this.get( 'store' ).getRecord( this.get( 'type' ), id );
     },
-    
+
     setObjectAt: function ( index, value ) {
         this.replaceObjectsAt( index, 1, [ value ] );
         return this;
     },
-    
+
     replaceObjectsAt: function ( index, numberRemoved, newItems ) {
         newItems = newItems ? slice.apply( newItems ) : [];
-        
+
         var record = this.get( 'record' ),
             propKey = this.get( 'propKey' ),
             type = this.get( 'type' ),
@@ -77,12 +77,12 @@ var RecordArray = NS.Class({
                 }) ).map( function ( id ) {
                     return store.getRecord( type, id );
                 });
-        
+
         this._updatingStore = true;
         this.checkForIds();
         record[ propKey ].setRaw( record, propKey, this._array.slice() );
         this._updatingStore = false;
-        
+
         if ( storeKey ) {
             oldItems.forEach( function ( foreignRecord ) {
                 if ( !foreignRecord.get( 'id' ) ) {
@@ -97,10 +97,10 @@ var RecordArray = NS.Class({
                 }
             });
         }
-        
+
         return oldItems;
     },
-    
+
     add: function ( record ) {
         var index = this._array.indexOf( record.toJSON() );
         if ( index === -1 ) {
@@ -109,7 +109,7 @@ var RecordArray = NS.Class({
         }
         return this;
     },
-    
+
     remove: function ( record ) {
         var index = this._array.indexOf( record.toJSON() );
         if ( index > -1 ) {
@@ -117,13 +117,13 @@ var RecordArray = NS.Class({
         }
         return this;
     },
-    
+
     willCreateInStore: function ( record, propKey, storeKey ) {
         var array = this._array,
             l = array.length,
             store = this.get( 'store' ),
             id;
-        
+
         while ( l-- ) {
             id = array[l];
             if ( id[0] === '#' ) {
@@ -131,12 +131,12 @@ var RecordArray = NS.Class({
             }
         }
     },
-    
+
     checkForIds: function () {
         var array = this._array,
             l = array.length,
             id, record;
-        
+
         while ( l-- ) {
             id = array[l];
             if ( id[0] === '#' ) {
@@ -151,19 +151,19 @@ var RecordArray = NS.Class({
 });
 
 var ToManyAttribute = NS.Class({
-    
+
     Extends: NS.RecordAttribute,
-    
+
     type: Array,
     recordType: null,
-    
+
     willCreateInStore: function ( record, propKey, storeKey ) {
         var recordArray = record[ '_' + propKey + 'RecordArray' ];
         if ( recordArray ) {
             recordArray.willCreateInStore( record, propKey, storeKey );
         }
     },
-    
+
     call: function ( record, _, propKey ) {
         var arrayKey = '_' + propKey + 'RecordArray';
         return record[ arrayKey ] || ( record[ arrayKey ] =
@@ -171,12 +171,12 @@ var ToManyAttribute = NS.Class({
                 this, record, undefined, propKey ), this.recordType )
         );
     },
-    
+
     getRaw: function ( record, propKey ) {
         return ToManyAttribute.parent.call.call(
             this, record, undefined, propKey );
     },
-    
+
     setRaw: function ( record, propKey, data ) {
         return ToManyAttribute.parent.call.call(
             this, record, data, propKey );

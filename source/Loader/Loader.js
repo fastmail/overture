@@ -14,7 +14,7 @@
 
 /*
     Object: O.Loader
-    
+
     The Loader class handles loading in modules as and when they're
     needed.
 */
@@ -40,7 +40,7 @@ var afterModuleExecute = function ( name ) {
         callbacks = info.callbacks,
         loader = NS.loader,
         i, l, callback;
-    
+
     if ( loader.fire ) {
         NS.loader.fire( 'loader:didLoadModule', { module: name } );
     } else if ( NS.meta ) {
@@ -48,7 +48,7 @@ var afterModuleExecute = function ( name ) {
         afterModuleExecute = afterModuleExecute.invokeInRunLoop();
     }
     info.status = EXECUTED;
-    
+
     if ( callbacks ) {
         for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
             callback = callbacks[i];
@@ -91,10 +91,10 @@ var checkAndExecuteModule = function ( name ) {
 var moduleDidLoad = function ( name, data ) {
     var info = moduleInfo[ name ],
         currentStatus = info.status;
-    
+
     info.data = data;
     info.status = LOADED;
-    
+
     if ( currentStatus & WILL_EXECUTE ) {
         checkAndExecuteModule( name );
     }
@@ -113,7 +113,7 @@ var load = function ( name, executeOnLoad ) {
         if ( executeOnLoad && loader.fire ) {
             loader.fire( 'loader:willLoadModule', { module: name } );
         }
-        
+
         // Check local storage for module data
         if ( loader.cacheModules ) {
             try {
@@ -129,7 +129,7 @@ var load = function ( name, executeOnLoad ) {
                 }
             } catch ( error ) {}
         }
-        
+
         // If not found, request.
         if ( !CORSRequest || loader.debug ) {
             doc = document;
@@ -184,18 +184,18 @@ require = function ( modules, fn, bind ) {
     if ( !( modules instanceof Array ) ) {
          modules = [ modules ];
     }
-    
+
     var allLoaded = true,
         l = modules.length,
         module, info, dependencies, waitObj, j;
-    
+
     while ( l-- ) {
         module = modules[l];
         info = moduleInfo[ module ];
-        
+
         if ( info.status !== EXECUTED ) {
             allLoaded = false;
-            
+
             // Push callback onto stack for module
             if ( fn ) {
                 if ( !waitObj ) {
@@ -211,7 +211,7 @@ require = function ( modules, fn, bind ) {
                 }
                 info.callbacks.push( waitObj );
             }
-            
+
             // Load module dependencies
             if ( dependencies = info.dependencies ) {
                 j = dependencies.length;
@@ -219,35 +219,35 @@ require = function ( modules, fn, bind ) {
                     load( dependencies[j], true );
                 }
             }
-            
+
             // Load this module
             load( module, true );
         }
     }
-    
+
     // Everything already loaded, synchronously callback the fn.
     if ( allLoaded && fn ) { fn.call( bind ); }
-    
+
     return allLoaded;
 };
 
 /*
     Event: loader:willLoadModule
-    
+
     This event is fired immediately before a new module is requested from
     the server.
 */
 
 /*
     Event: loader:didLoadModule
-    
+
     This event is fired immediately after a new module finishes
     loading, before any waiting require() functions are called.
 */
 NS.loader = {
     debug: false,
     cacheModules: false,
-    
+
     register: function ( name, info ) {
         if ( !info.status ) {
             info.status = info.src ? UNREQUESTED : LOADED;
@@ -255,7 +255,7 @@ NS.loader = {
         moduleInfo[ name ] = info;
         return this;
     },
-    
+
     prefetch: function ( name ) {
         var info = moduleInfo[ name ],
             dependencies = info.dependencies,
@@ -294,9 +294,9 @@ O.execute = ( function ( global ) {
             return false;
         }
     }( Object, 1 );
-    
-    // Due to a bug in FF3, we can't just make this the O.execute method, as 
-    // it will incorrectly bind `this` to the `O` object. But if we call it as a 
+
+    // Due to a bug in FF3, we can't just make this the O.execute method, as
+    // it will incorrectly bind `this` to the `O` object. But if we call it as a
     // function instead of a method, `this` is set to the global object.
     var evaluate = function ( code ) {
         ( 1, eval )( code );

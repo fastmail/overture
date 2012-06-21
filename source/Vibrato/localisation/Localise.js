@@ -12,35 +12,35 @@
 
 /**
     Module: Localisation
-    
+
     The Localisation module provides classes for localising an interface.
 */
-    
+
 Date.implement({
     /**
         Method: Date#isOnSameDayAs
-        
+
         Returns the difference in time between the date given in the sole
         argument (or now if not supplied) and this date, in a human friendly,
         localised form. e.g. 5 hours 3 minutes ago.
-        
+
         Parameters:
             date - {Date} Date to compare it to.
-        
+
         Returns:
             {String} Relative date string.
     */
     relativeTo: function ( date ) {
         if ( !date ) { date = new Date(); }
-        
+
         var diffSeconds = ( date - this ) / 1000,
             isFuture = ( diffSeconds < 0 ),
             time;
-        
+
         if ( isFuture ) {
           diffSeconds = -diffSeconds;
         }
-        
+
         if ( diffSeconds < 60 ) {
             time = NS.loc( 'less than a minute' );
         } else if ( diffSeconds < 3600 ) {
@@ -57,7 +57,7 @@ Date.implement({
         } else {
             var years = date.getFullYear() - this.getFullYear(),
                 months = date.getMonth() - this.getMonth();
-            
+
             if ( isFuture ) {
                 years = -years;
                 months = -months;
@@ -69,9 +69,9 @@ Date.implement({
             time = NS.loc( '[*,_1,year,years,] [*,_2,month,months,]',
                         years, months );
         }
-        
+
         time = time.trim();
-        
+
         return isFuture ?
             NS.loc( '[_1] from now', time ) : NS.loc( '[_1] ago', time );
     }
@@ -82,12 +82,12 @@ var slice = Array.prototype.slice,
 
 /**
     Class: O.Language
-    
+
     Language packs for use in localisation are created as instances of the
     O.Language class.
 */
 var Language = NS.Class({
-    
+
     /**
         Constructor: O.Language
 
@@ -115,19 +115,19 @@ var Language = NS.Class({
         }, this );
         NS.merge( this, options );
     },
-    
+
     /**
         Property: O.Language#code
         Type: String
-        
+
         The ISO code for this language.
     */
     code: 'xx',
-    
+
     /**
         Property: O.Language#dayNames
         Type: Array.<String>
-        
+
         Names of days of the week, starting from Sunday at index 0.
     */
     dayNames: [ 'Sunday', 'Monday', 'Tuesday',
@@ -139,7 +139,7 @@ var Language = NS.Class({
         Abbeviated names of days of the week, starting from Sunday at index 0.
     */
     abbreviatedDayNames: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
-    
+
     /**
         Property: O.Language#monthNames
         Type: Array.<String>
@@ -157,7 +157,7 @@ var Language = NS.Class({
     */
     abbreviatedMonthNames: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
-    
+
     /**
         Property: O.Language#decimalPoint
         Type: String
@@ -166,7 +166,7 @@ var Language = NS.Class({
         number.
     */
     decimalPoint: '.',
-    
+
     /**
         Property: O.Language#thousandsSeparator
         Type: String
@@ -174,7 +174,7 @@ var Language = NS.Class({
         The symbol used to divide large numbers up to make them easier to read.
     */
     thousandsSeparator: ',',
-    
+
     /**
         Property: O.Language#amDesignator
         Type: String
@@ -183,7 +183,7 @@ var Language = NS.Class({
         which do not use the 12h clock.
     */
     amDesignator: 'AM',
-    
+
     /**
         Property: O.Language#amDesignator
         Type: String
@@ -192,7 +192,7 @@ var Language = NS.Class({
         which do not use the 12h clock.
     */
     pmDesignator: 'PM',
-    
+
     /**
         Property: O.Language#macros
         Type: Object.<String,Function>
@@ -378,7 +378,7 @@ var Language = NS.Class({
                 11 <= mod100 && mod100 <= 99 ? pl2 : pl3
             ).interpolate( n );
         },
-        
+
         quant: function ( n, singular, plural, zero ) {
             return ( !n && zero !== undefined ) ? zero :
                    ( n === 1 ) ? '1 ' + singular :
@@ -397,7 +397,7 @@ var Language = NS.Class({
             return interpolate.apply( string, slice.call( arguments, 1 ) );
         }
     },
-    
+
     /**
         Property: O.Language#translations
         Type: Object.<String,String>
@@ -406,19 +406,19 @@ var Language = NS.Class({
         string.
     */
     translations: {},
-    
+
     /**
         Property: O.Language#use24hClock
         Type: Boolean
-        
+
         Should the 24h clock be used?
     */
     use24hClock: true,
-    
+
     /**
         Property: O.Language#dateFormats
         Type: Object.<String,String>
-        
+
         A set of string patterns for dates, in the format used with
         <Date#format>.
     */
@@ -434,12 +434,12 @@ var Language = NS.Class({
         shortDayMonth: '%-d %b',
         shortDayMonthYear: '%-d %b ’%y'
     },
-    
+
     /**
         Method: O.Language#translate
-        
+
         Get a localised version of a string.
-        
+
         This method will first look up the string given as its first argument in
         the translations object for this language. If it finds a value it will
         use that, otherwise it will use the original supplied string. The value
@@ -447,7 +447,7 @@ var Language = NS.Class({
         will be called with the rest of the translate arguments (the values to
         be interpolated) as its arguments. If it is a string, values will be
         interpolated as follows:
-        
+
         Square brackets may be used inside strings to call macros; the syntax is
         the same as for Perl's maketext module. A macro is called like this:
         `[name,_1,arg2,arg3]`. Arguments are passed as literal strings, except
@@ -456,23 +456,23 @@ var Language = NS.Class({
         literal comma or close square bracket, precede it by a tilde. Macros are
         defined in the macro object of the language and will be called with the
         language object as the `this` parameter.
-        
+
         For example, using the default quant macro, you may have the following
         translation string for 'n message(s)':
-        
+
             'Test: [*,_1,directory,directories,No directories] found'
-        
+
         * If you were to call lang.translate( 'n message(s)', 0 ) you would get
           'Test: No directory found' as the output.
         * If you were to call lang.translate( 'n message(s)', 1 ) you would get
           'Test: 1 directory found'
         * If you were to call lang.translate( 'n message(s)', 2 ) you would get
           'Test: 2 directories found'
-        
+
         Parameters:
             string   - {String} The string to localise.
             var_args - {...(String|Number|Object)} The arguments to interpolate.
-        
+
         Returns:
             {String} The localised string.
     */
@@ -482,11 +482,11 @@ var Language = NS.Class({
             start, end, length,
             parts, part, partLength,
             i, j, l;
-        
+
         if ( translation === undefined ) {
             translation = string;
         }
-        
+
         // Compile string
         if ( typeof translation === 'string' ) {
             compiled = '';
@@ -548,7 +548,7 @@ var Language = NS.Class({
                 // Split into parts
                 parts = translation.slice( start, end ).split( ',' );
                 l = parts.length;
-                
+
                 if ( compiled ) {
                     compiled += '+';
                 }
@@ -603,26 +603,26 @@ var Language = NS.Class({
                 }
                 start = searchIndex = end + 1;
             }
-            
+
             /*jshint evil: true */
             this.translations[ string ] = translation =
                 new Function( 'return ' + ( compiled || '""' ) + ';' );
             /*jshint evil: false */
         }
-        
+
         return translation.apply( this, slice.call( arguments, 1 ) );
     },
-    
+
     /**
         Method: O.Language#getFormattedDate
-        
+
         Get a date or time formatted according to local conventions.
 
         Parameters:
             date - {Date} The date object to format.
             type - {String} The type of result you want, e.g. 'shortDate',
                    'time', 'fullDateAndTime'.
-        
+
         Returns:
             {String} The localised date.
     */
@@ -636,9 +636,9 @@ var Language = NS.Class({
 
 /**
     Class: O.Localisation
-    
+
     Alias: O.i18n
-    
+
     This static class has methods for localising strings or dates and for
     registering and setting the user interface language.
 */
@@ -646,7 +646,7 @@ var Language = NS.Class({
 /**
     Property (private): O.Localisation-languages
     Type: Object
-    
+
     Stores the loaded <O.Language> instances.
 */
 var languages = {
@@ -656,7 +656,7 @@ var languages = {
 /**
     Property (private): O.Localisation-active
     Type: O.Language
-    
+
     The active language.
 */
 var active = languages.xx;
@@ -669,16 +669,16 @@ var Localisation = {
         The language code for the active language.
     */
     activeLangCode: 'xx',
-    
+
     /**
         Method: O.Localisation.addLanguage
-        
+
         Registers a resource bundle with the class.
-        
+
         Parameters:
             language - {O.Language} The language instance containing translated
                        strings, date formats etc.
-        
+
         Returns:
             {O.Localisation} Returns self.
     */
@@ -686,18 +686,18 @@ var Localisation = {
         languages[ language.code ] = language;
         return this;
     },
-    
+
     /**
         Method: O.Localisation.setLanguage
-        
+
         Sets a different language as the active one. Will only have an effect if
         the resource bundle for this language has already been loaded and
         registered with a call to addLanguage. Future calls to localise() etc.
         will now use the resources from this language.
-        
+
         Parameters:
             langcode - {String} The code for the language to make active.
-        
+
         Returns:
             {O.Localisation} Returns self.
     */
@@ -708,48 +708,48 @@ var Localisation = {
         }
         return this;
     },
-    
+
     /**
         Method: O.Localisation.getLanguage
-        
+
         Returns a previously added language object.
-        
+
         Parameters:
             langcode - {String} The code for the language to fetch.
-        
+
         Returns:
             {Language|null} Returns the language object (null if not present).
     */
     getLanguage: function ( langcode ) {
         return languages[ langcode ] || null;
     },
-    
+
     /**
         Function: O.Localisation.get
-        
+
         Gets a property from the active language.
-        
+
         Parameters:
             key - {String} The name of the property to fetch.
-        
+
         Returns:
             {*} The value for that key.
     */
     get: function ( key ) {
         return active[ key ];
     },
-    
+
     /**
         Function: O.Localisation.localise
-        
+
         Get a localised version of a string.
-        
+
         Alias: O.loc
-        
+
         Parameters:
             text     - {String} The string to localise.
             var_args - {...(String|Number)} The arguments to interpolate.
-        
+
         Returns:
             {String} The localised string.
     */
@@ -761,17 +761,17 @@ var Localisation = {
             return active.translate.apply( active, arguments );
         }
     },
-    
+
     /**
         Function: O.Localisation.date
-        
+
         Get a date or time formatted according to local conventions.
-                
+
         Parameters:
             type - {String} The type of result you want, e.g. 'shortDate',
                    'time', 'fullDateAndTime'.
             date - {...(String|Number|Object)} The arguments to interpolate.
-        
+
         Returns:
             {String} The localised date.
     */

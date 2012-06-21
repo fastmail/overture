@@ -11,23 +11,23 @@
 "use strict";
 
 ( function ( NS ) {
-    
+
 var CollectionView = NS.Class({
-    
+
     Extends: NS.View,
-    
+
     itemView: NS.ItemView,
-    
+
     _dirtyStart: -1,
     _dirtyEnd: -1,
-    
+
     init: function ( options ) {
         this._observedRange = { start: 0 };
         this._renderedTotal = 0;
         this._managedViews = [];
         CollectionView.parent.init.call( this, options );
     },
-    
+
     destroy: function () {
         if ( this.get( 'isRendered' ) ) {
             this.get( 'content' ).removeObserverForRange( this._observedRange,
@@ -35,20 +35,20 @@ var CollectionView = NS.Class({
         }
         CollectionView.parent.destroy.call( this );
     },
-    
+
     childViews: function () {
         return this._managedViews.filter( function ( view ) {
             return !!view;
         });
     }.property(),
-    
+
     awaken: function () {
         CollectionView.parent.awaken.call( this );
         if ( this._dirtyStart < this._dirtyEnd ) {
             this.updateLayer();
         }
     },
-    
+
     contentDidChange: function ( _, __, oldVal, newVal ) {
         if ( this.get( 'isRendered' ) ) {
             var range = this._observedRange;
@@ -68,7 +68,7 @@ var CollectionView = NS.Class({
             );
         }
     }.observes( 'content' ),
-    
+
     contentRangeDidChange: function ( _, start, end ) {
         this._dirtyStart = this._dirtyStart < 0 ?
             start : Math.min( start, this._dirtyStart );
@@ -77,7 +77,7 @@ var CollectionView = NS.Class({
             NS.RunLoop.queueFn( 'after', this.updateLayer, this );
         }
     },
-    
+
     _render: function ( layer ) {
         var content = this.get( 'content' );
         if ( content ) {
@@ -88,11 +88,11 @@ var CollectionView = NS.Class({
                 this._observedRange, this, 'contentRangeDidChange' );
         }
     },
-    
+
     isCorrectRender: function ( index, list, view ) {
         return list && ( list.getObjectAt( index ) === view.get( 'content' ) );
     },
-    
+
     getViewAt: function ( index, list, collectionView, oldViews ) {
         var view = null,
             content = list.getObjectAt( index ),
@@ -112,36 +112,36 @@ var CollectionView = NS.Class({
             index: index
         });
     },
-    
+
     willUpdateLayer: function ( start, end, _ ) {
         return [ start, end ];
     },
     didUpdateLayer: function ( start, end ) {},
-    
+
     updateLayer: function () {
         if ( this.isDestroyed ) {
             return;
         }
         var delegate = this.get( 'delegate' ) || this,
-            
+
             list = this.get( 'content' ),
             length = ( list && list.get( 'length' ) ) || 0,
-            
+
             range = delegate.willUpdateLayer(
                 this._dirtyStart, this._dirtyEnd, list ),
             start = range[0],
             end = range[1],
-            
+
             isInDocument = this.get( 'isInDocument' ),
             layer = this.get( 'layer' ),
-            
+
             managedViews = this._managedViews,
-            
+
             newViews = [],
             oldViews = [],
             frag = document.createDocumentFragment(),
             view, i, l;
-        
+
         // Step 1. Remove existing views from DOM.
         for ( i = start, l = Math.min( end, this._renderedTotal );
                 i < l; i += 1 ) {
@@ -166,7 +166,7 @@ var CollectionView = NS.Class({
                 }
             }
         }
-        
+
         // Step 2. Create new ones.
         if ( list ) {
             for ( i = start, l = Math.min( end, length ); i < l; i += 1 ) {
@@ -177,18 +177,18 @@ var CollectionView = NS.Class({
                 }
             }
         }
-        
+
         // Step 3. Destroy anything not added back.
         l = oldViews.length;
         while ( l-- ) {
             oldViews[l].set( 'parentView', null ).destroy();
         }
-        
+
         // Step 4. Let any observers know we've got new children.
         if ( start < end ) {
             this.computedPropertyDidChange( 'childViews' );
         }
-        
+
         // Step 5. Render the new views
         for ( i = 0, l = newViews.length; i < l; i += 1 ) {
             view = newViews[i];
@@ -197,37 +197,37 @@ var CollectionView = NS.Class({
                 view.willAppendLayerToDocument();
             }
         }
-        
+
         // Step 5. Insert the new views in the right place.
         if ( l ) {
             view = null;
             while ( end < length && !( view = managedViews[ end ] ) ) {
                 end += 1;
             }
-        
+
             if ( view ) {
                 layer.insertBefore( frag, view.get( 'layer' ) );
             } else {
                 layer.appendChild( frag );
             }
         }
-        
+
         // Step 6. Inform the new views of their new status.
         if ( isInDocument ) {
             while ( l-- ) {
                 newViews[l].didAppendLayerToDocument();
             }
         }
-        
+
         // Step 7. Record our state.
         this._dirtyStart = this._dirtyEnd = -1;
         this._renderedTotal = length;
-        
+
         delegate.didUpdateLayer( start, end );
     },
-    
+
     // --- Can't add views by hand; just bound to content ---
-    
+
     insertView: null,
     replaceView: null,
     removeView: null

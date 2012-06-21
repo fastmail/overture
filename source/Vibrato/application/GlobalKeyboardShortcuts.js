@@ -11,33 +11,33 @@
 ( function ( NS ) {
 /**
     Class: O.GlobalKeyboardShortcuts
-    
+
     Extends: O.Object
-    
+
     This class facilitates adding keyboard shortcuts to your application.
 */
 var GlobalKeyboardShortcuts = NS.Class({
-    
+
     Extends: NS.Object,
-    
+
     /**
         Property: O.GlobalKeyboardShortcuts#isEnabled
         Type: Boolean
         Default: true
-        
+
         Callbacks will only fire if this property is true when the instance
         handles the event.
     */
     isEnabled: true,
-    
+
     /**
         Property (private): O.GlobalKeyboardShortcuts#_shortcuts
         Type: Object
-        
+
         The map of shortcut key to `[object, method]` tuples.
     */
     _shortcuts: {},
-    
+
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
@@ -61,13 +61,13 @@ var GlobalKeyboardShortcuts = NS.Class({
         RootViewController.removeResponder( this );
         GlobalKeyboardShortcuts.parent.destroy.call( this );
     },
-    
+
     /**
         Method: O.GlobalKeyboardShortcuts#register
-        
+
         Add a global keyboard shortcut. If a shortcut has already been
         registered for this key, it will be replaced.
-        
+
         Parameters:
             key    - {String} The key to trigger the callback on. Modifier keys
                      (alt, ctrl, meta, shift) should be prefixed in alphabetical
@@ -75,7 +75,7 @@ var GlobalKeyboardShortcuts = NS.Class({
                      lower case. e.g. `ctrl-f`.
             object - {Object} The object to trigger the callback on.
             method - {String} The name of the method to trigger.
-        
+
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
     */
@@ -83,18 +83,18 @@ var GlobalKeyboardShortcuts = NS.Class({
         this._shortcuts[ key ] = [ object, method ];
         return this;
     },
-    
+
     /**
         Method: O.GlobalKeyboardShortcuts#deregister
-        
+
         Remove a global keyboard shortcut. Must use identical arguments to those
         which were used in the call to <O.GlobalKeyboardShortcuts#register>.
-        
+
         Parameters:
             key    - {String} The key on which the callback was triggered.
             object - {Object} The object on which the callback was triggered.
             method - {String} The name of the method that was being triggered.
-            
+
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
    */
@@ -105,12 +105,12 @@ var GlobalKeyboardShortcuts = NS.Class({
         }
         return this;
     },
-    
+
     /**
         Method (private): O.GlobalKeyboardShortcuts#_trigger
-        
+
         Keypress event handler. Triggers any registered callback.
-        
+
         Parameters:
             event - {DOMEvent} The keypress event.
    */

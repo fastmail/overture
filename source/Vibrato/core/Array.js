@@ -11,29 +11,29 @@
 Array.implement({
     /**
         Method: Array#get
-        
+
         Returns the property of the object with the name given as the only
         parameter.
-        
+
         Parameters:
             key - {String} The name of the property to return.
-        
+
         Returns:
             {*} The requested property of this array.
     */
     get: function ( key ) {
         return this[ key ];
     },
-    
+
     /**
         Method: Array#set
-        
+
         Sets the value of a given property on the Array.
-        
+
         Parameters:
             key   - {String} The name of the property to set.
             value - {*} The value to set the property to.
-        
+
         Returns:
             {Array} Returns self.
     */
@@ -41,31 +41,31 @@ Array.implement({
         this[ key ] = value;
         return this;
     },
-    
+
     /**
         Method: Array#getObjectAt
-        
+
         Returns the value at a given index in the array.
-        
+
         Parameters:
             index - {Number} The index of the value to return.
-        
+
         Returns:
             {*} The value at the given index in this array.
     */
     getObjectAt: function ( index ) {
         return this[ index ];
     },
-    
+
     /**
         Method: Array#setObjectAt
-        
+
         Sets the value at a given index in the array.
-        
+
         Parameters:
             index - {Number} The index at which to set the value.
             value - {*} The value to set at the given index.
-        
+
         Returns:
             {Array} Returns self.
     */
@@ -73,36 +73,36 @@ Array.implement({
         this[ index ] = value;
         return this;
     },
-    
+
     /**
         Method: Array#first
-        
+
         Returns:
             {*} The first item in the array.
     */
     first: function () {
         return this[0];
     },
-    
+
     /**
         Method: Array#last
-    
+
         Returns:
             {*} The last item in the array.
     */
     last: function () {
         return this[ this.length - 1 ];
     },
-    
+
     /**
         Method: Array#include
-        
+
         Adds an item to the end of the array if it is not already present (as
         determined by strict '===' equality).
-        
+
         Parameters:
             item - {*} The item to add to the array.
-        
+
         Returns:
             {Array} Returns self.
     */
@@ -115,15 +115,15 @@ Array.implement({
         this[i] = item;
         return this;
     },
-    
+
     /**
         Method: Array#erase
-        
+
         Removes all occurrences of the item from the array.
-        
+
         Parameters:
             item - {*} The item to be removed from the array.
-        
+
         Returns:
             {Array} Returns self.
     */
