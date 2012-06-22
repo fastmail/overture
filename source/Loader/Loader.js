@@ -68,7 +68,13 @@ var executeModule = function ( name ) {
     var info = moduleInfo[ name ],
         data = info.data;
     setTimeout( function () {
-        NS.execute( data );
+        if ( typeof data === 'string' ) {
+            NS.execute( data );
+        } else {
+            var head = document.documentElement.firstChild;
+            head.appendChild( data );
+            head.removeChild( data );
+        }
         afterModuleExecute( name, info );
     }, 0 );
     info.data = null;
@@ -137,13 +143,26 @@ var load = function ( name, executeOnLoad ) {
             script.type = 'text/javascript';
             script.charset = 'utf-8';
             script.async = false;
-            script.src = src;
-            script.onload = script.onreadystatechange = function () {
-                script.parentNode.removeChild( script );
-                script.onload = script.onreadystatechange = null;
-                afterModuleExecute( name, info );
-            };
-            doc.documentElement.firstChild.appendChild( script );
+            if ( script.readyState !== 'uninitialized' ) {
+                script.src = src;
+                script.onload = function () {
+                    script.onload = null;
+                    script.parentNode.removeChild( script );
+                    afterModuleExecute( name, info );
+                };
+                doc.documentElement.firstChild.appendChild( script );
+            } 
+            // IE will load without appending
+            else {
+                script.onreadystatechange = function () {
+                    var readyState = script.readyState;
+                    if ( readyState === 'loaded' || readyState === 'complete' ) {
+                        script.onreadystatechange = null;
+                        moduleDidLoad( name, script );
+                    }
+                };
+                script.src = src;
+            }
         } else {
             xhr = new CORSRequest();
             send = function () {
