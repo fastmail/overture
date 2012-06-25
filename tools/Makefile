@@ -93,6 +93,8 @@ HASH=`$(HASH_FILE) $@ | cut -c 1-8`; \
 COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
 if [ $$TYPE = js ]; then \
 $(MINIFY_JS) $@ $$COMPRESSEDNAME; \
+elif [ $$TYPE = css ]; then \
+$(MINIFY_CSS) $@ $$COMPRESSEDNAME; \
 else \
 cp $@ $$COMPRESSEDNAME; \
 fi; \
