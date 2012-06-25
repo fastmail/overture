@@ -87,7 +87,7 @@ HASH_FILE := sha1sum
 endif
 
 define GZIP_AND_COMPRESS
-gzip -c $@ > $@.gz
+gzip -9c $@ > $@.gz
 TYPE=`echo $@ | cut -d . -f 2-`; \
 HASH=`$(HASH_FILE) $@ | cut -c 1-8`; \
 COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
@@ -98,7 +98,7 @@ $(MINIFY_CSS) $@ $$COMPRESSEDNAME; \
 else \
 cp $@ $$COMPRESSEDNAME; \
 fi; \
-gzip -c $$COMPRESSEDNAME > $$COMPRESSEDNAME.gz
+gzip -9c $$COMPRESSEDNAME > $$COMPRESSEDNAME.gz
 endef
 
 define REMOVE_OLD
