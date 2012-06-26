@@ -332,7 +332,7 @@ String.implement({
             for ( i = 0, l = string.length; i < l; i += 1 ) {
                 c = string.charCodeAt( i );
                 if ( c < 128 ) {
-                    utf8 += string[i];
+                    utf8 += string.charAt( i );
                 } else if ( c < 2048 ) {
                     utf8 += String.fromCharCode( ( c >> 6 ) | 192 );
                     utf8 += String.fromCharCode( ( c & 63 ) | 128 );
