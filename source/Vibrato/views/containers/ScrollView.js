@@ -50,14 +50,16 @@ var ScrollView = NS.Class({
     keys: {},
 
     didAppendLayerToDocument: function () {
-        // Scroll is reset to 0 by the browser whenever it is removed from the
+        // Scroll is reset to 0 some browsers whenever it is removed from the
         // DOM, so we need to set it to what it should be.
         var layer = this.get( 'layer' ),
             left = this.get( 'scrollLeft' ),
             top = this.get( 'scrollTop' );
-        if ( left ) { layer.scrollLeft = left; }
-        if ( top ) { layer.scrollTop = top; }
+
+        layer.scrollLeft = left;
+        layer.scrollTop = top;
         layer.addEventListener( 'scroll', this, false );
+
         // Add keyboard shortcuts:
         var keys = this.get( 'keys' ),
             shortcuts = NS.RootViewController.kbShortcuts,
@@ -65,6 +67,7 @@ var ScrollView = NS.Class({
         for ( key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
         }
+
         return ScrollView.parent.didAppendLayerToDocument.call( this );
     },
 
@@ -76,7 +79,9 @@ var ScrollView = NS.Class({
         for ( key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );
         }
+
         this.get( 'layer' ).removeEventListener( 'scroll', this, false );
+
         return ScrollView.parent.willRemoveLayerFromDocument.call( this );
     },
 
