@@ -151,12 +151,13 @@ var load = function ( name, executeOnLoad ) {
                     afterModuleExecute( name, info );
                 };
                 doc.documentElement.firstChild.appendChild( script );
-            } 
+            }
             // IE will load without appending
             else {
                 script.onreadystatechange = function () {
                     var readyState = script.readyState;
-                    if ( readyState === 'loaded' || readyState === 'complete' ) {
+                    if ( readyState === 'loaded' ||
+                            readyState === 'complete' ) {
                         script.onreadystatechange = null;
                         moduleDidLoad( name, script );
                     }
@@ -185,6 +186,8 @@ var load = function ( name, executeOnLoad ) {
             xhr.onerror = function () {
                 setTimeout( send, wait = Math.min( wait * 2, 32 ) );
             };
+            // IE randomly aborts some requests if this handler isn't set.
+            xhr.onprogress = function () {};
             send();
         }
     } else if ( executeOnLoad && !( status & (WILL_EXECUTE|EXECUTED) ) ) {
