@@ -32,8 +32,8 @@ var moduleInfo = {};
 var require;
 
 var CORSRequest =
-        ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
-        ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
+    ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
+    ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
 
 var afterModuleExecute = function ( name ) {
     var info = moduleInfo[ name ],
@@ -68,13 +68,7 @@ var executeModule = function ( name ) {
     var info = moduleInfo[ name ],
         data = info.data;
     setTimeout( function () {
-        if ( typeof data === 'string' ) {
-            NS.execute( data );
-        } else {
-            var head = document.documentElement.firstChild;
-            head.appendChild( data );
-            head.removeChild( data );
-        }
+        NS.execute( data );
         afterModuleExecute( name, info );
     }, 0 );
     info.data = null;
@@ -112,7 +106,11 @@ var load = function ( name, executeOnLoad ) {
         src = info.src,
         status = info.status,
         loader = NS.loader,
+        useScriptTag = !CORSRequest || ( loader.debug && !window.ie ),
         data, doc, script, xhr, send, wait;
+
+    if ( useScriptTag && !executeOnLoad ) { return; }
+
     if ( status === UNREQUESTED ) {
         // Set new status
         info.status = executeOnLoad ? (LOADING|WILL_EXECUTE) : LOADING;
@@ -137,40 +135,26 @@ var load = function ( name, executeOnLoad ) {
         }
 
         // If not found, request.
-        if ( !CORSRequest || loader.debug ) {
+        if ( useScriptTag ) {
             doc = document;
             script = doc.createElement( 'script' );
             script.type = 'text/javascript';
             script.charset = 'utf-8';
             script.async = false;
-            if ( script.readyState !== 'uninitialized' ) {
-                script.src = src;
-                script.onload = function () {
-                    script.onload = null;
-                    script.parentNode.removeChild( script );
-                    afterModuleExecute( name, info );
-                };
-                doc.documentElement.firstChild.appendChild( script );
-            }
-            // IE will load without appending
-            else {
-                script.onreadystatechange = function () {
-                    var readyState = script.readyState;
-                    if ( readyState === 'loaded' ||
-                            readyState === 'complete' ) {
-                        script.onreadystatechange = null;
-                        moduleDidLoad( name, script );
-                    }
-                };
-                script.src = src;
-            }
+            script.onload = function () {
+                script.onload = null;
+                script.parentNode.removeChild( script );
+                afterModuleExecute( name, info );
+            };
+            script.src = src;
+            doc.documentElement.firstChild.appendChild( script );
         } else {
             xhr = new CORSRequest();
             send = function () {
                 xhr.open( 'GET', src );
                 xhr.send();
             };
-            wait = 1;
+            wait = 1000;
             xhr.onload = function () {
                 xhr.onload = xhr.onerror = null;
                 var data = this.responseText +
@@ -184,11 +168,12 @@ var load = function ( name, executeOnLoad ) {
                 moduleDidLoad( name, data );
             };
             xhr.onerror = function () {
-                setTimeout( send, wait = Math.min( wait * 2, 32 ) );
+                setTimeout( send, wait = Math.min( wait * 2, 32000 ) );
             };
-            // IE randomly aborts some requests if this handler isn't set.
+            // IE randomly aborts some requests if these handlers aren't set.
             xhr.onprogress = function () {};
-            send();
+            xhr.ontimeout = function () {};
+            setTimeout( send, 0 );
         }
     } else if ( executeOnLoad && !( status & (WILL_EXECUTE|EXECUTED) ) ) {
         if ( loader.fire ) {
@@ -298,6 +283,7 @@ NS.require = require;
 }( this.O || ( this.O = {} ), XMLHttpRequest ) );
 
 O.execute = ( function ( global ) {
+    /*jshint evil: true */
     var isGlobal = function ( original, Object ) {
         try {
             // Indirect eval is our preferred method for execution in the global
@@ -323,24 +309,18 @@ O.execute = ( function ( global ) {
     var evaluate = function ( code ) {
         ( 1, eval )( code );
     };
+    /*jshint evil: false */
 
-    return isGlobal ?
-        /*jshint evil: true */
-        function ( code ) {
-            evaluate( code );
-        } : window.execScript ?
-        function ( code ) {
-            window.execScript( code );
-        } :
-        /*jshint evil: false */
-        function ( code ) {
-            var doc = document,
-                head = doc.documentElement.firstChild,
-                script = doc.createElement( 'script' );
-            script.type = 'text/javascript';
-            script.charset = 'utf-8';
-            script.text = code;
-            head.appendChild( script );
-            head.removeChild( script );
-        };
+    return isGlobal ? function ( code ) {
+        evaluate( code );
+    } : window.execScript || function ( code ) {
+        var doc = document,
+            head = doc.documentElement.firstChild,
+            script = doc.createElement( 'script' );
+        script.type = 'text/javascript';
+        script.charset = 'utf-8';
+        script.text = code;
+        head.appendChild( script );
+        head.removeChild( script );
+    };
 }( this ) );
