@@ -145,12 +145,11 @@ var LightboxItemView = NS.Class({
             width: width,
             height: height,
             // IE8 doesn't support bounds.(width|height)
-            transform:
-            'translateX(' + Math.floor( thumb.left +
-                ( thumb.right - thumb.left - width - frame ) / 2 ) + 'px) ' +
-            'translateY(' + Math.floor( thumb.top +
-                ( thumb.bottom - thumb.top - height - frame ) / 2 ) + 'px) ' +
-            'scale(' + ( thumb.right - thumb.left ) / ( width + frame ) + ')'
+            translateX: Math.floor( thumb.left +
+                ( thumb.right - thumb.left - width - frame ) / 2 ),
+            translateY: Math.floor( thumb.top +
+                ( thumb.bottom - thumb.top - height - frame ) / 2 ),
+            scale: ( thumb.right - thumb.left ) / ( width + frame )
         };
     }.property( 'dimensions', 'thumbPosition' ),
 
@@ -163,11 +162,8 @@ var LightboxItemView = NS.Class({
         return {
             width: width,
             height: height,
-            transform:
-            'translateX(' +
-                ( ( dimensions.canvasWidth - width - frame ) >> 1 ) + 'px) ' +
-            'translateY(' +
-                ( ( dimensions.canvasHeight - height - frame ) >> 1 ) + 'px)'
+            translateX: ( dimensions.canvasWidth - width - frame ) >> 1,
+            translateY: ( dimensions.canvasHeight - height - frame ) >> 1
         };
     }.property( 'dimensions' ),
 
@@ -180,11 +176,9 @@ var LightboxItemView = NS.Class({
         return {
             width: dimensions.width,
             height: dimensions.height,
-            transform:
-            'translateX(' + -( width + frame ) + 'px) ' +
-            'translateY(' +
-                ( ( dimensions.canvasHeight - height - frame ) >> 1 ) + 'px) ' +
-            'scale(0.5)'
+            translateX: -( width + frame ),
+            translateY: ( dimensions.canvasHeight - height - frame ) >> 1,
+            scale: 0.5
         };
     }.property( 'dimensions' ),
 
@@ -197,11 +191,9 @@ var LightboxItemView = NS.Class({
         return {
             width: width,
             height: height,
-            transform:
-            'translateX(' + dimensions.canvasWidth + 'px) ' +
-            'translateY(' +
-                ( ( dimensions.canvasHeight - height - frame ) >> 1 ) + 'px) ' +
-            'scale(0.5)'
+            translateX: dimensions.canvasWidth,
+            translateY: ( dimensions.canvasHeight - height - frame ) >> 1,
+            scale: 0.5
         };
     }.property( 'dimensions' ),
 

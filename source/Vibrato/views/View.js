@@ -21,7 +21,7 @@ var POSITION_SAME = 0x00,
     POSITION_CONTAINS = 0x08,
     POSITION_CONTAINED_BY = 0x10;
 
-var cantTransform = !NS.UA.cssProps.transform,
+var canTransform = !!NS.UA.cssProps.transform,
     isFirefox = NS.UA.firefox;
 
 /**
@@ -555,23 +555,27 @@ var View = NS.Class({
         presumed to be in 'px', any string values are presumed to have an
         appropriate unit suffix. May contain any combination of:
 
-            top       - The distance from the top of the parent view to the top
-                        of this view.
-            right     - The distance from the right edge of the parent view to
-                        the right edge of this view.
-            bottom    - The distance from the bottom of the parent view to the
-                        bottom of this view.
-            left      - The distance from the left edge of the parent view to
-                        the left edge of this view.
-                      
-            width     - The width of the view.
-            height    - The height of the view.
-                      
-            transform -  A CSS transformation to apply to the view.
+            top        - The distance from the top of the parent view to the top
+                         of this view.
+            right      - The distance from the right edge of the parent view to
+                         the right edge of this view.
+            bottom     - The distance from the bottom of the parent view to the
+                         bottom of this view.
+            left       - The distance from the left edge of the parent view to
+                         the left edge of this view.
+
+            width      - The width of the view.
+            height     - The height of the view.
+
+            translateX - Similar to the left property.
+            translateY - Similar to the top property.
+            scale      - Scale the view (1.0 is normal scale).
 
         You must not specify more than 2 out of top/bottom/height and
         left/right/width, as the third property will be calculated by the
         browser.
+
+        The translate/scale properties will mostly be used when animating views.
 
         Note, if you choose to position the view solely through the stylesheet,
         or if the view is relatively positioned and laid out by the browser,
@@ -614,6 +618,7 @@ var View = NS.Class({
         var layout = this.get( 'layout' ),
             allowTextSelection = this.get( 'allowTextSelection' ),
             transform = [ 1, 0, 0, 1, 0, 0 ],
+            hasTransform = false,
             styles = {
                 position: this.get( 'positioning' ),
                 zIndex: this.get( 'zIndex' ),
@@ -634,34 +639,54 @@ var View = NS.Class({
         }
 
         for ( property in layout ) {
-            styles[ property ] = layout[ property ];
+            value = layout[ property ];
+            switch ( property ) {
+                case 'translateX':
+                    hasTransform = true;
+                    transform[4] = value;
+                    break;
+                case 'translateY':
+                    hasTransform = true;
+                    transform[5] = value;
+                    break;
+                case 'scale':
+                    hasTransform = true;
+                    transform[0] = transform[3] = value;
+                    break;
+                default:
+                    styles[ property ] = value;
+            }
         }
-        
-        // IE8
-        if ( cantTransform && styles.transform  ) {
-            property = styles.transform;
-            value = /translateX\(\s*(\d+)px/.exec( property );
-            if ( value && ( value = +value[1] ) ) {
-                if ( 'right' in styles ) {
-                    styles.right -= value;
-                } else {
-                    styles.left = ( styles.left || 0 ) + value;
+
+        if ( hasTransform ) {
+            if ( canTransform ) {
+                styles.transform = 'matrix(' + transform.join( ',' ) + ')';
+            }
+            // <IE8>
+            else {
+                value = transform[4];
+                if ( value ) {
+                    if ( 'right' in styles ) {
+                        styles.right -= value;
+                    } else {
+                        styles.left = ( styles.left || 0 ) + value;
+                    }
+                }
+                value = transform[5];
+                if ( value ) {
+                    if ( 'bottom' in styles ) {
+                        styles.bottom -= value;
+                    } else {
+                        styles.top = ( styles.top || 0 ) + value;
+                    }
+                }
+                value = transform[0];
+                if ( value ) {
+                    styles.width *= value;
+                    styles.height *= value;
                 }
             }
-            value = /translateY\(\s*(\d+)px/.exec( property );
-            if ( value && ( value = +value[1] ) ) {
-                if ( 'bottom' in styles ) {
-                    styles.bottom -= value;
-                } else {
-                    styles.top = ( styles.top || 0 ) + value;
-                }
-            }
-            value = /scale\(\s*(.*?)\)/.exec( property );
-            if ( value ) {
-                value = parseFloat( value );
-                styles.width *= value;
-                styles.height *= value;
-            }
+            // </IE8>
         }
 
         return styles;
