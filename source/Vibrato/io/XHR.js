@@ -77,9 +77,11 @@ var XHR = NS.Class({
     */
     isSuccess: function () {
         var status = this._status;
-        // Local (file) requests return 0. However, this is also returned for
-        // remote requests when there's no internet connection.
-        return ( status >= 200 && status < 300 );
+        // IE returns 200 status code when there's no network! But for a real
+        // connection there must have been at least one header, so check that's
+        // not empty
+        return ( status >= 200 && status < 300 ) &&
+            !!this.xhr.getAllResponseHeaders();
     },
 
     /**
