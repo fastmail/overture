@@ -285,7 +285,7 @@ var IO = NS.Class({
                 this._transportPool.pop() : new this.transport( this ),
             method = ( request.method || this.method ).toUpperCase(),
             url = request.url || this.url,
-            data = request.data || '',
+            data = request.data || null,
             headers = request.headers || this.headers;
 
         // Store reference in case we need to abort a request.
