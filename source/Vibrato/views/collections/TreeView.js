@@ -143,7 +143,7 @@ var TreeItemView = NS.Class({
             layerTag: 'ul',
             content: this.get( 'content' ).get(
                 this.get( 'treeView' ).get( 'subContentProp' ) ),
-            itemView: this.constructor,
+            ItemView: this.constructor,
             treeView: this.get( 'treeView' ),
             treeItemView: this
         });
@@ -168,7 +168,7 @@ var TreeItemView = NS.Class({
     _render: function ( layer ) {
         var data = this.get( 'content' ),
             treeView = this.get( 'treeView' ),
-            ContentView = treeView.get( 'contentView' );
+            ContentView = treeView.get( 'ContentView' );
 
         this.insertView( new ContentView({
             content: data
@@ -193,8 +193,8 @@ var TreeView = NS.Class({
 
     subContentProp: 'subfolders',
 
-    itemView: TreeItemView,
-    contentView: NS.View,
+    ItemView: TreeItemView,
+    ContentView: NS.View,
 
     isCollapsible: true,
 
@@ -241,7 +241,7 @@ var TreeView = NS.Class({
         this.insertView( new NS.CollectionView({
             layerTag: 'ul',
             content: this.get( 'content' ),
-            itemView: this.get( 'itemView' ),
+            ItemView: this.get( 'ItemView' ),
             treeView: this,
             treeItemView: null
         }) );

@@ -27,7 +27,7 @@ var UnorderedCollectionView = NS.Class({
 
     selectionController: null,
     content: null,
-    itemView: null,
+    ItemView: null,
 
     childViews: function () {
         return Object.values( this._rendered );
@@ -102,7 +102,7 @@ var UnorderedCollectionView = NS.Class({
             return;
         }
         var list = this.get( 'content' ) || [],
-            ItemView = this.get( 'itemView' ),
+            ItemView = this.get( 'ItemView' ),
             selectionController = this.get( 'selectionController' ),
 
             // Limit to this range in the content array.

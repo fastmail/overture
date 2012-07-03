@@ -117,14 +117,14 @@ var IO = NS.Class({
     timeout: 0,
 
     /**
-        Property: O.IO#transport
+        Property: O.IO#Transport
         Type: O.Class
         Default: <O.XHR>
 
-        The class (implementing the transport interface) to use for each
+        The class (implementing the Transport interface) to use for each
         connection.
     */
-    transport: NS.XHR,
+    Transport: NS.XHR,
 
     /**
         Property: O.IO#method
@@ -282,7 +282,8 @@ var IO = NS.Class({
         this.increment( 'activeConnections', 1 );
 
         var transport = this._transportPool.length ?
-                this._transportPool.pop() : new this.transport( this ),
+                this._transportPool.pop() :
+                new ( this.get( 'Transport' ) )( this ),
             method = ( request.method || this.method ).toUpperCase(),
             url = request.url || this.url,
             data = request.data || null,

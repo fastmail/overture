@@ -16,7 +16,7 @@ var CollectionView = NS.Class({
 
     Extends: NS.View,
 
-    itemView: NS.ItemView,
+    ItemView: NS.ItemView,
 
     _dirtyStart: -1,
     _dirtyEnd: -1,
@@ -105,7 +105,7 @@ var CollectionView = NS.Class({
                 break;
             }
         }
-        return view || new ( this.get( 'itemView' ) )({
+        return view || new ( this.get( 'ItemView' ) )({
             parentView: collectionView,
             content: content,
             list: list,
@@ -198,7 +198,7 @@ var CollectionView = NS.Class({
             }
         }
 
-        // Step 5. Insert the new views in the right place.
+        // Step 6. Insert the new views in the right place.
         if ( l ) {
             view = null;
             while ( end < length && !( view = managedViews[ end ] ) ) {
@@ -212,14 +212,14 @@ var CollectionView = NS.Class({
             }
         }
 
-        // Step 6. Inform the new views of their new status.
+        // Step 7. Inform the new views of their new status.
         if ( isInDocument ) {
             while ( l-- ) {
                 newViews[l].didAppendLayerToDocument();
             }
         }
 
-        // Step 7. Record our state.
+        // Step 8. Record our state.
         this._dirtyStart = this._dirtyEnd = -1;
         this._renderedTotal = length;
 

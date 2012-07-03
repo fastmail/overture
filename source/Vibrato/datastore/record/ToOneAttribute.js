@@ -59,7 +59,7 @@ var ToOneAttribute = NS.Class({
         var result = ToOneAttribute.parent.call.call(
             this, record, propValue, propKey );
         if ( result && typeof result === 'string' ) {
-            result = record.get( 'store' ).getRecord( this.type, result );
+            result = record.get( 'store' ).getRecord( this.Type, result );
         }
         return result || null;
     }

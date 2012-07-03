@@ -12,16 +12,16 @@
 
 ( function ( NS, undefined ) {
 
-var instanceOf = function ( value, type ) {
+var instanceOf = function ( value, Type ) {
     switch ( typeof value ) {
         case 'string':
-            return type === String;
+            return Type === String;
         case 'boolean':
-            return type === Boolean;
+            return Type === Boolean;
         case 'number':
-            return type === Number;
+            return Type === Number;
     }
-    return value instanceof type;
+    return value instanceof Type;
 };
 
 /**
@@ -88,7 +88,7 @@ var RecordAttribute = NS.Class({
     noSync: false,
 
     /**
-        Property: O.RecordAttribute#type
+        Property: O.RecordAttribute#Type
         Type: Constructor
         Default: null
 
@@ -96,7 +96,7 @@ var RecordAttribute = NS.Class({
         convert values from the underlying data object when the attribute is
         fetched.
     */
-    type: null,
+    Type: null,
 
     /**
         Property: O.RecordAttribute#isNullable
@@ -123,7 +123,7 @@ var RecordAttribute = NS.Class({
         This function is used to check the value being set is permissible. By
         default, it checks that the value is not null (or the <#isNullable>
         property is true), and that the value is of the correct type (if the
-        <#type> property is set). An error is thrown if the value is of a
+        <#Type> property is set). An error is thrown if the value is of a
         different type.
 
         You could override this function to, for example, only allow values that
@@ -145,7 +145,7 @@ var RecordAttribute = NS.Class({
                 return false;
             }
         }
-        else if ( this.type && !instanceOf( propValue, this.type ) ) {
+        else if ( this.Type && !instanceOf( propValue, this.Type ) ) {
             throw new Error( "Incorrect value type for record attribute" );
         }
         return true;
@@ -161,7 +161,7 @@ var RecordAttribute = NS.Class({
         this attribute to the data object if a new record is created and the
         attribute is not set.
 
-        The value should be of the type specified in <O.RecordAttribute#type>.
+        The value should be of the type specified in <O.RecordAttribute#Type>.
     */
     defaultValue: undefined,
 
@@ -217,7 +217,7 @@ var RecordAttribute = NS.Class({
         var store = record.get( 'store' ),
             storeKey = record.get( 'storeKey' ),
             data = storeKey ? store.getData( storeKey ) : record._data,
-            attrKey, attrValue, currentAttrValue, update, type;
+            attrKey, attrValue, currentAttrValue, update, Type;
         if ( data ) {
             attrKey = this.key || propKey;
             currentAttrValue = data[ attrKey ];
@@ -242,11 +242,11 @@ var RecordAttribute = NS.Class({
                 }
                 return propValue;
             }
-            type = this.type;
+            Type = this.Type;
         }
         return currentAttrValue !== undefined ?
-            type && type.fromJSON ?
-                type.fromJSON( currentAttrValue ) : currentAttrValue :
+            Type && Type.fromJSON ?
+                Type.fromJSON( currentAttrValue ) : currentAttrValue :
             this.defaultValue;
     }
 });
@@ -267,16 +267,16 @@ NS.RecordAttribute = RecordAttribute;
     the store and synced to the source.
 
     Parameters:
-        type    - {Constructor} The type of the property.
+        Type    - {Constructor} The type of the property.
         options - {Object} Options to pass to the <O.RecordAttribute>
                   constructor.
 
     Returns:
         {O.RecordAttribute} Getter/setter for that record attribute.
 */
-NS.Record.attr = function ( type, options ) {
+NS.Record.attr = function ( Type, options ) {
     if ( !options ) { options = {}; }
-    if ( type && !options.type ) { options.type = type; }
+    if ( Type && !options.Type ) { options.Type = Type; }
     return new RecordAttribute( options );
 };
 

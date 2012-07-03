@@ -27,7 +27,7 @@ var RecordArray = NS.Class({
 
   init: function ( store, Type, storeKeys ) {
       this.store = store;
-      this.type = Type;
+      this.Type = Type;
       this.storeKeys = storeKeys;
       RecordArray.parent.init.call( this );
   },
@@ -56,7 +56,7 @@ var RecordArray = NS.Class({
   getObjectAt: function ( index ) {
       var storeKey = this.get( 'storeKeys' )[ index ];
       return this.get( 'store' )
-                 .materialiseRecord( storeKey, this.get( 'type' ) );
+                 .materialiseRecord( storeKey, this.get( 'Type' ) );
   }
 });
 

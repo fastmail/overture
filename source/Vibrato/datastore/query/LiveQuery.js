@@ -94,7 +94,7 @@ var LiveQuery = NS.Class({
     */
 
     /**
-        Property: O.LiveQuery#type
+        Property: O.LiveQuery#Type
         Type: O.Class.<Record>
 
         The Record class constructor function for the type of the instances to
@@ -123,7 +123,7 @@ var LiveQuery = NS.Class({
         The following options should be configured:
 
         store  - {O.Store} The store to query for records.
-        type   - {O.Class} The constructor for the record type this query is a
+        Type   - {O.Class} The constructor for the record type this query is a
                  collection of.
         filter - {Function} (optional) If supplied, only records which this
                  function returns a truthy value for are included in the
@@ -147,7 +147,7 @@ var LiveQuery = NS.Class({
         if ( sort && !( sort instanceof Function ) ) {
             sort = options.sort = NS.sortByProperties( sort );
         }
-        results = store.findAll( options.type, options.filter, sort );
+        results = store.findAll( options.Type, options.filter, sort );
 
         this._storeKeys = results;
         this._sort = results.sortFn;
@@ -181,7 +181,7 @@ var LiveQuery = NS.Class({
     */
     '[]': function () {
         var store = this.get( 'store' ),
-            Type = this.get( 'type' );
+            Type = this.get( 'Type' );
         return this._storeKeys.map( function ( storeKey ) {
             return store.materialiseRecord( storeKey, Type );
         });
@@ -212,7 +212,7 @@ var LiveQuery = NS.Class({
             {Number} The index of the id, or -1 if not found.
     */
     indexOfId: function ( id, from, callback ) {
-        var record = this.get( 'store' ).getRecord( this.get( 'type' ), id ),
+        var record = this.get( 'store' ).getRecord( this.get( 'Type' ), id ),
             index = -1,
             storeKey;
 
@@ -242,7 +242,7 @@ var LiveQuery = NS.Class({
             record;
         if ( storeKey ) {
             record = this.get( 'store' )
-                         .materialiseRecord( storeKey, this.get( 'type' ) );
+                         .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
         return record;
     },
@@ -260,7 +260,7 @@ var LiveQuery = NS.Class({
             {O.LiveQuery} Returns self.
     */
     refresh: function ( force ) {
-        this.get( 'store' ).fetchAll( this.get( 'type' ), force );
+        this.get( 'store' ).fetchAll( this.get( 'Type' ), force );
         return this;
     },
 

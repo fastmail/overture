@@ -21,10 +21,10 @@ var RecordArray = NS.Class({
     record: null,
     propKey: '',
 
-    init: function ( record, propKey, value, type ) {
+    init: function ( record, propKey, value, Type ) {
         this.record = record;
         this.propKey = propKey;
-        this.type = type;
+        this.Type = Type;
         this.store = record.get( 'store' );
 
         RecordArray.parent.init.call( this, value && value.slice() );
@@ -55,7 +55,7 @@ var RecordArray = NS.Class({
 
     getObjectAt: function ( index ) {
         var id = RecordArray.parent.getObjectAt.call( this, index );
-        return this.get( 'store' ).getRecord( this.get( 'type' ), id );
+        return this.get( 'store' ).getRecord( this.get( 'Type' ), id );
     },
 
     setObjectAt: function ( index, value ) {
@@ -68,14 +68,14 @@ var RecordArray = NS.Class({
 
         var record = this.get( 'record' ),
             propKey = this.get( 'propKey' ),
-            type = this.get( 'type' ),
+            Type = this.get( 'Type' ),
             store = this.get( 'store' ),
             storeKey = record.get( 'storeKey' ),
             oldItems = RecordArray.parent.replaceObjectsAt.call(
                 this, index, numberRemoved, newItems.map( function ( record ) {
                     return record.toJSON();
                 }) ).map( function ( id ) {
-                    return store.getRecord( type, id );
+                    return store.getRecord( Type, id );
                 });
 
         this._updatingStore = true;
@@ -154,7 +154,7 @@ var ToManyAttribute = NS.Class({
 
     Extends: NS.RecordAttribute,
 
-    type: Array,
+    Type: Array,
     recordType: null,
 
     willCreateInStore: function ( record, propKey, storeKey ) {

@@ -975,7 +975,7 @@ var Store = NS.Class({
             if ( !( status & (COMMITTING|LOADING) ) ) {
                 while ( l-- ) {
                     remoteQuery = _remoteQueries[l];
-                    if ( remoteQuery.get( 'type' ) === Type ) {
+                    if ( remoteQuery.get( 'Type' ) === Type ) {
                         remoteQuery.setObsolete();
                     }
                 }
@@ -2044,11 +2044,11 @@ var Store = NS.Class({
         var source = this._source;
         this._idToQuery[ query.get( 'id' ) ] = query;
         if ( query instanceof NS.LiveQuery ) {
-            var Type = query.get( 'type' ),
-                type = Type.className;
+            var Type = query.get( 'Type' ),
+                typeName = Type.className;
             this.fetchAll( Type );
-            ( this._liveQueries[ type ] ||
-                ( this._liveQueries[ type ] = [] ) ).push( query );
+            ( this._liveQueries[ typeName ] ||
+                ( this._liveQueries[ typeName ] = [] ) ).push( query );
         } else if ( query instanceof NS.RemoteQuery ) {
             source.fetchQuery( query );
             this._remoteQueries.push( query );
@@ -2074,7 +2074,7 @@ var Store = NS.Class({
         delete this._idToQuery[ query.get( 'id' ) ];
         if ( query instanceof NS.LiveQuery ) {
             var _liveQueries = this._liveQueries,
-                typeName = query.get( 'type' ).className,
+                typeName = query.get( 'Type' ).className,
                 typeQueries = _liveQueries[ typeName ];
             if ( typeQueries.length > 1 ) {
                 typeQueries.erase( query );

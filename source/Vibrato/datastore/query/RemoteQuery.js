@@ -33,7 +33,7 @@ var qid = 0;
 
         var query = new O.RemoteQuery({
             store: TodoApp.store
-            type: TodoApp.TodoItem,
+            Type: TodoApp.TodoItem,
             filter: 'done',
             sort: 'dateAscending'
         });
@@ -103,12 +103,12 @@ var RemoteQuery = NS.Class({
     state: '',
 
     /**
-        Property: O.RemoteQuery#type
+        Property: O.RemoteQuery#Type
         Type: O.Class
 
         The type of records this query contains.
     */
-    type: NS.Record,
+    Type: NS.Record,
 
     /**
         Property: O.RemoteQuery#status
@@ -264,7 +264,7 @@ var RemoteQuery = NS.Class({
         var id = this._list[ index ];
         return id ?
             this.get( 'store' )
-                .getRecord( this.get( 'type' ), id, doNotFetch ) :
+                .getRecord( this.get( 'Type' ), id, doNotFetch ) :
             null;
     },
 

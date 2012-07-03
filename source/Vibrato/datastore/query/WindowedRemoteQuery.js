@@ -451,7 +451,7 @@ var WindowedRemoteQuery = NS.Class({
     checkIfWindowIsFetched: function ( index ) {
         var store = this.get( 'store' ),
             list = this._list,
-            Type = this.get( 'type' ),
+            Type = this.get( 'Type' ),
             windowSize = this.get( 'windowSize' ),
             i = index * windowSize,
             l = Math.min( i + windowSize, this.get( 'length' ) );
@@ -665,7 +665,7 @@ var WindowedRemoteQuery = NS.Class({
 
             // Mark records that need an update.
             this.get( 'store' ).sourceHasUpdatesForRecords(
-                this.get( 'type' ), changed );
+                this.get( 'Type' ), changed );
         }
         // Anything from the firstChange index onwards may have changed, so we
         // have to recalculate which windows that cover indexes from this point
@@ -986,7 +986,7 @@ var WindowedRemoteQuery = NS.Class({
                         this.recalculateFetchedWindows();
                         this.get( 'store' )
                             .sourceHasUpdatesForRecords(
-                                this.get( 'type' ), changed );
+                                this.get( 'Type' ), changed );
                     }
                     this.set( 'status',
                         this.get( 'status' ) & ~( OBSOLETE|LOADING ) );
