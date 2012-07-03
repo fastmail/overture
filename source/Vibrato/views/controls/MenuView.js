@@ -77,7 +77,7 @@ var MenuView = NS.Class({
                     className: item.className,
                     style: item.style
                 }, [
-                    el( 'span', {
+                    el( 'button', {
                         className: 'label' +
                             ( item.shortcut ? ' hasShortcut' : '' ),
                         text: item.label
