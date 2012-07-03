@@ -10,7 +10,7 @@
 
 ( function ( NS ) {
 
-var delta = function ( update ) {
+var delta = function ( update, primaryKey ) {
     var records = update.records,
         changes = update.changes,
         i, l = records.length,
@@ -20,7 +20,7 @@ var delta = function ( update ) {
     for ( i = 0; i < l; i += 1 ) {
         data = records[i];
         filteredObj = Object.filter( data, changes[i] );
-        filteredObj.id = data.id;
+        filteredObj[ primaryKey ] = data[ primaryKey ];
         delta[i] = filteredObj;
     }
     return delta;
@@ -595,7 +595,9 @@ var RPCSource = NS.Class({
                 if ( typeof handler === 'string' ) {
                     this.callMethod( handler, {
                         create: Object.zip( create.storeKeys, create.records ),
-                        update: Object.zip( update.storeKeys, delta( update ) ),
+                        update: Object.zip(
+                            update.storeKeys, delta( update, change.primaryKey )
+                        ),
                         destroy: Object.zip( destroy.storeKeys, destroy.ids )
                     });
                 } else {

@@ -539,15 +539,17 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            storeKey, data, typeName, changed, id, status, entry,
+            storeKey, data, changed, id, status, entry,
             newSkToChanged = {},
             newDestroyed = {},
             changes = {};
 
-        var getEntry = function ( typeName ) {
+        var getEntry = function ( Type ) {
+            var typeName = Type.className;
             entry = changes[ typeName ];
             if ( !entry ) {
                 entry = changes[ typeName ] = {
+                    primaryKey: Type.primaryKey,
                     create: { storeKeys: [], records: [] },
                     update: { storeKeys: [], records: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
@@ -560,8 +562,7 @@ var Store = NS.Class({
 
         for ( storeKey in _created ) {
             data = _skToData[ storeKey ];
-            typeName = _skToType[ storeKey ].className;
-            entry = getEntry( typeName ).create;
+            entry = getEntry( _skToType[ storeKey ] ).create;
             entry.storeKeys.push( storeKey );
             entry.records.push( data );
             this.setCommitting( storeKey );
@@ -569,7 +570,6 @@ var Store = NS.Class({
         for ( storeKey in _skToChanged ) {
             status = _skToStatus[ storeKey ];
             data = _skToData[ storeKey ];
-            typeName = _skToType[ storeKey ].className;
             changed = _skToChanged[ storeKey ];
             if ( status & COMMITTING ) {
                 newSkToChanged[ storeKey ] = changed;
@@ -577,22 +577,21 @@ var Store = NS.Class({
             }
             _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
             delete _skToCommitted[ storeKey ];
-            entry = getEntry( typeName ).update;
+            entry = getEntry( _skToType[ storeKey ] ).update;
             entry.storeKeys.push( storeKey );
             entry.records.push( data );
             entry.changes.push( changed );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
         for ( storeKey in _destroyed ) {
-            typeName = _skToType[ storeKey ].className;
-            id = _typeToSkToId[ typeName ][ storeKey ];
+            id = _typeToSkToId[ _skToType[ storeKey ].className ][ storeKey ];
             // This means it's new and committing, so wait for commit to finish
             // first.
             if ( _skToStatus[ storeKey ] & NEW ) {
                 newDestroyed[ storeKey ] = 1;
                 continue;
             }
-            entry = getEntry( typeName ).destroy;
+            entry = getEntry( _skToType[ storeKey ] ).destroy;
             entry.storeKeys.push( storeKey );
             entry.ids.push( id );
             this.setStatus( storeKey, DESTROYED|COMMITTING );
