@@ -28,13 +28,19 @@ var PushSelectView = NS.Class({
             selected = this.get( 'value' );
 
         return el( 'div',
-            this.get( 'options' ).map( function ( option, i ) {
-                return el( 'span', NS.extend({
-                    className: ( option.className || '' ) +
-                        ( option.value === selected ? ' selected' : '' ),
-                    'data-index': i
-                }, option, true ) );
-            })
+            this.get( 'options' ).reduce( function ( children, option, i ) {
+                if ( i ) {
+                    children.push( '​' ); // Zero-width space
+                }
+                children.push(
+                    el( 'a', NS.extend({
+                        className: ( option.className || '' ) +
+                            ( option.value === selected ? ' selected' : '' ),
+                        'data-index': i
+                    }, option, true ) )
+                );
+                return children;
+            }, [] )
         );
     },
 
@@ -62,10 +68,10 @@ var PushSelectView = NS.Class({
                 childNodes = this.get( 'layer' ).firstChild.childNodes;
             this.get( 'options' ).forEach( function ( option, i ) {
                 if ( option.value === oldValue ) {
-                    Element.removeClass( childNodes[ i ], 'selected' );
+                    Element.removeClass( childNodes[ i * 2 ], 'selected' );
                 }
                 if ( option.value === newValue ) {
-                    Element.addClass( childNodes[ i ], 'selected' );
+                    Element.addClass( childNodes[ i * 2 ], 'selected' );
                 }
             });
         }
