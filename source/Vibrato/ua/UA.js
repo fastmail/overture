@@ -56,6 +56,8 @@ NS.UA = {
     opera: browser === 'opera' ? version : 0,
     safari: browser === 'safari' ? version : 0,
 
+    operaMobile: /opera mobi/.test( ua ) ? version : 0,
+
     // Rendering engine
     gecko: /gecko\//.test( ua ),
     presto: /presto/.test( ua ),
