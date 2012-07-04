@@ -23,12 +23,34 @@ var PopOverEventHandler = NS.Class({
         return !!view;
     },
 
+    _seenMouseDown: false,
+
+    // If a user clicks outside the menu we want to close it. But we don't want
+    // the mousedown/mouseup/click events to propogate to what's below. The
+    // events fire in that order, and not all are guaranteed to fire (the user
+    // could mousedown and drag their mouse out of the window before releasing
+    // it or vica versa. If there is a drag in between mousedown and mouseup,
+    // the click event won't fire).
+    //
+    // The safest to hide on is click, as we know there are no more events from
+    // this user interaction which we need to capture, and it also means the
+    // user has clicked and released outside the pop over; a decent indication
+    // we should close it. However, if the pop over was triggered on mousedown
+    // we may still see a mouseup and a click event from this initial user
+    // interaction, but these musn't hide the view. Therefore, we make sure
+    // we've seen at least one mousedown event after the popOver view shows
+    // before hiding on click.
     handleMouse: function ( event ) {
+        var type = event.type;
         if ( !this.inPopOver( event ) ) {
-            event.preventDefault();
             event.stopPropagation();
-            if ( event.type === 'mousedown' ) {
-                this._view.hide();
+            if ( type === 'mousedown' ) {
+                this._seenMouseDown = true;
+            } else if ( type === 'click' ) {
+                event.preventDefault();
+                if ( this._seenMouseDown ) {
+                    this._view.hide();
+                }
             }
         }
     }.on( 'click', 'mousedown', 'mouseup' ),
@@ -127,6 +149,7 @@ var PopOverView = NS.Class({
 
     hide: function () {
         var parent = this.get( 'parentView' ),
+            eventHandler = this.get( 'eventHandler' ),
             options = this._options,
             onHide, view, layer;
         if ( parent ) {
@@ -140,7 +163,8 @@ var PopOverView = NS.Class({
                 layer = this.get( 'layer' );
                 layer.removeChild( layer.firstChild );
             }
-            NS.RootViewController.removeResponder( this.get( 'eventHandler' ) );
+            NS.RootViewController.removeResponder( eventHandler );
+            eventHandler._seenMouseDown = false;
             this._options = null;
         }
     },
