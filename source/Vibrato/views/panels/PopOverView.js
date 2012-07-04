@@ -27,7 +27,7 @@ var PopOverEventHandler = NS.Class({
         if ( !this.inPopOver( event ) ) {
             event.preventDefault();
             event.stopPropagation();
-            if ( event.type === 'click' ) {
+            if ( event.type === 'mousedown' ) {
                 this._view.hide();
             }
         }
@@ -37,7 +37,7 @@ var PopOverEventHandler = NS.Class({
         if ( !this.inPopOver( event ) ) {
             event.stopPropagation();
             // Pop over view may be interested in key events:
-            this._view._contentView.fire( event.type, event );
+            this._view._options.view.fire( event.type, event );
             if ( NS.DOMEvent.lookupKey( event ) === 'esc' ) {
                 this._view.hide();
             }
@@ -49,36 +49,17 @@ var PopOverView = NS.Class({
 
     Extends: NS.View,
 
-    align: 'left',
-    showCallout: false,
-    calloutClass: function () {
-        return this.get( 'showCallout' ) ?
-            'callout ' + this.get( 'align' ) : 'hidden';
-    }.property( 'showCallout', 'align' ),
-
-    className: function () {
-        return 'PopOverView' +
-            ( this.get( 'showCallout' ) ? ' calloutShown' : '' );
-    }.property( 'showCallout' ),
+    className: 'PopOverView',
 
     positioning: 'absolute',
-    layout: NS.View.LAYOUT_FILL_PARENT,
-
-    _render: function ( layer ) {
-        layer.appendChild( NS.Element.create( 'b', {
-            className: NS.bind( 'calloutClass', this )
-        }) );
-        PopOverView.parent._render.call( this, layer );
-    },
-
-    _contentView: null,
 
     /*
         Options
         - view -> The view to append to the pop over
         - alignWithView -> the view to align to
         - atNode -> the node within the view to align to
-        - withEdge: 'left'/'right'/'centre'
+        - withEdge -> 'left'/'right'/'centre'
+        - showCallout -> true/false
         - offsetLeft
         - offsetTop
         - onHide: fn
@@ -86,18 +67,18 @@ var PopOverView = NS.Class({
     show: function ( options ) {
         this.hide();
 
+        this._options = options;
+
         // Set layout and insert in the right place
-        var view = this._contentView = options.view,
+        var view = options.view,
             alignWithView = options.alignWithView,
             atNode = options.atNode || alignWithView.get( 'layer' ),
             withEdge = options.withEdge,
             parent = options.atNode ?
                 alignWithView : alignWithView.get( 'parentView' ),
             position, offset;
-        if ( withEdge === 'left' ) { withEdge = null; }
-        this.set( 'align', withEdge || 'left' );
 
-        this._onHide = options.onHide;
+        if ( withEdge === 'left' ) { withEdge = null; }
 
         // Want nearest parent scroll view (or root view if none).
         while ( !( parent instanceof NS.RootView ) &&
@@ -117,10 +98,23 @@ var PopOverView = NS.Class({
             position.left += offset;
         }
 
+        // Set layout
         this.set( 'layout', position );
+
+        // Callout
+        if ( options.showCallout ) {
+            this.get( 'layer' ).appendChild(
+                NS.Element.create( 'b', {
+                    className: 'callout ' + ( withEdge || 'left' )
+                })
+            );
+        }
+
+        // Insert views
         this.insertView( view );
         parent.insertView( this );
 
+        // Adjust positioning if not left-aligned
         if ( withEdge ) {
             offset = this.get( 'layer' ).offsetWidth;
             if ( withEdge === 'centre' ) { offset = ~~( offset >> 1 ); }
@@ -132,16 +126,22 @@ var PopOverView = NS.Class({
     },
 
     hide: function () {
-        var parent = this.get( 'parentView' );
+        var parent = this.get( 'parentView' ),
+            options = this._options,
+            onHide, view, layer;
         if ( parent ) {
-            if ( this._onHide ) {
-                this._onHide();
+            if ( onHide = options.onHide ) {
+                onHide();
             }
-            var view = this._contentView;
-            this._contentView = null;
-            NS.RootViewController.removeResponder( this.get( 'eventHandler' ) );
+            view = options.view;
             parent.removeView( this );
             this.removeView( view );
+            if ( options.showCallout ) {
+                layer = this.get( 'layer' );
+                layer.removeChild( layer.firstChild );
+            }
+            NS.RootViewController.removeResponder( this.get( 'eventHandler' ) );
+            this._options = null;
         }
     },
 

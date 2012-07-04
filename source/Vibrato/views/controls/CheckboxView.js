@@ -14,37 +14,35 @@ var CheckboxView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
-    activate: function () {
-        this.toggle( 'value' );
-    },
-
     // --- Render ---
 
     className: 'CheckboxView',
 
     _render: function ( layer ) {
-        var el = NS.Element.create;
-        layer.title = this.get( 'tooltip' );
         layer.appendChild(
-            this._domControl = el( 'input', {
+            this._domControl = NS.Element.create( 'input', {
                 type: 'checkbox',
                 checked: this.get( 'value' )
             })
         );
-        layer.appendChild( this._domLabel = el( 'span', {
-            text: this.get( 'label' )
-        }) );
+        CheckboxView.parent._render.call( this, layer );
+    },
+
+    // --- Activate ---
+
+    activate: function () {
+        this.toggle( 'value' );
     },
 
     // --- Keep state in sync with render ---
 
-    _syncChecked: function ( event ) {
+    syncBackValue: function ( event ) {
         this.set( 'value', this._domControl.checked );
     }.on( 'change' ),
 
     // --- Keep render in sync with state ---
 
-    updateLayer: function () {
+    syncValue: function () {
         if ( this.get( 'isRendered' ) ) {
             this._domControl.checked = this.get( 'value' );
         }

@@ -21,13 +21,10 @@ var SelectView = NS.Class({
     className: 'SelectView',
 
     _render: function ( layer ) {
-        var el = NS.Element.create;
-        layer.appendChild(
-            this._domLabel = el( 'span', { text: this.get( 'label' ) } )
-        );
-        layer.appendChild(
-            this._domControl = this._renderSelect( this.get( 'options' ) )
-        );
+        var control = this._domControl =
+            this._renderSelect( this.get( 'options' ) );
+        SelectView.parent._render.call( this, layer );
+        layer.appendChild( control );
     },
 
     _renderSelect: function ( options ) {
@@ -47,14 +44,14 @@ var SelectView = NS.Class({
 
     // --- Keep state in sync with render ---
 
-    _syncSelected: function ( event ) {
+    syncBackValue: function ( event ) {
         var i = this._domControl.selectedIndex;
         this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
     }.on( 'change' ),
 
     // --- Keep render in sync with state ---
 
-    optionsDidChange: function () {
+    syncOptions: function () {
         if ( this.get( 'isRendered' ) ) {
             var select = this._renderSelect( this.get( 'options' ) );
             this.get( 'layer' ).replaceChild( select, this._domControl );
@@ -62,7 +59,7 @@ var SelectView = NS.Class({
         }
     }.observes( 'options' ),
 
-    updateLayer: function () {
+    syncValue: function () {
         if ( this.get( 'isRendered' ) ) {
             var value = this.get( 'value' ),
                 options = this.get( 'options' ),

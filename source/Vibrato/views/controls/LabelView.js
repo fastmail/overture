@@ -14,7 +14,7 @@ var LabelView = NS.Class({
 
     Extends: NS.View,
 
-    layerTag: 'label',
+    layerTag: 'span',
 
     value: '',
     tooltip: '',
@@ -24,7 +24,7 @@ var LabelView = NS.Class({
         layer.textContent = this.get( 'value' );
     },
 
-    updateLayer: function () {
+    redraw: function () {
         this._render( this.get( 'layer' ) );
     }.observes( 'value', 'tooltip' )
 });

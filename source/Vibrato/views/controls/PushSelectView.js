@@ -55,14 +55,14 @@ var PushSelectView = NS.Class({
 
     // --- Keep render in sync with state ---
 
-    optionsDidChange: function () {
+    syncOptions: function () {
         if ( this.get( 'isRendered' ) ) {
             var layer = this.get( 'layer' );
             layer.replaceChild( this._renderSelect(), layer.firstChild );
         }
     }.observes( 'options' ),
 
-    updateLayer: function ( _, __, oldValue, newValue ) {
+    syncValue: function ( _, __, oldValue, newValue ) {
         if ( this.get( 'isRendered' ) ) {
             var Element = NS.Element,
                 childNodes = this.get( 'layer' ).firstChild.childNodes;

@@ -14,7 +14,17 @@ var AbstractControlView = NS.Class({
 
     Extends: NS.View,
 
-    layerTag: 'label',
+    isDisabled: false,
+
+    label: '',
+    value: false,
+
+    shortcut: '',
+
+    tooltip: function () {
+        var shortcut = this.get( 'shortcut' );
+        return shortcut ? NS.loc( 'Shortcut: [_1]', shortcut ) : '';
+    }.property( 'shortcut' ),
 
     didAppendLayerToDocument: function () {
         var key = this.get( 'shortcut' );
@@ -34,50 +44,62 @@ var AbstractControlView = NS.Class({
             this );
     },
 
+    layerTag: 'label',
+
     _domControl: null,
-    _domLabel: null,
 
-    label: '',
-    value: false,
-    shortcut: '',
-    disabled: false,
-
-    tooltip: function () {
-        var shortcut = this.get( 'shortcut' );
-        return shortcut ? NS.loc( 'Shortcut: [_1]', shortcut ) : '';
-    }.property( 'shortcut' ),
-
-    activate: function () {},
+    _render: function ( layer ) {
+        var Element = NS.Element,
+            el = Element.create;
+        this._domControl.disabled = this.get( 'isDisabled' );
+        Element.appendChildren( layer, [
+            this._domLabel = el( 'span', [ this.get( 'label' ) ] )
+        ]);
+        layer.title = this.get( 'tooltip' );
+    },
 
     // --- Focus ---
 
     focus: function () {
-        var control = this._domControl;
-        if ( control ) { control.focus(); }
+        if ( this.get( 'isInDocument' ) ) {
+            this._domControl.focus();
+        }
         return this;
     },
 
     blur: function () {
-        var control = this._domControl;
-        if ( control ) { control.blur(); }
+        if ( this.get( 'isInDocument' ) ) {
+            this._domControl.focus();
+        }
         return this;
     },
 
+    // --- Activate ---
+
+    activate: function () {},
+
     // --- Keep render in sync with state ---
 
-    labelDidChange: function () {
+    syncIsDisabled: function () {
         if ( this.get( 'isRendered' ) ) {
-            this._domLabel.textContent = this.get( 'label' );
+            this._domControl.disabled = this.get( 'isDisabled' );
+        }
+    }.observes( 'isDisabled' ),
+
+    syncLabel: function () {
+        if ( this.get( 'isRendered' ) ) {
+            var label = this._domLabel,
+                child;
+            while ( child = label.firstChild ) {
+                label.removeChild( child );
+            }
+            NS.Element.appendChildren( label, [
+                this.get( 'label' )
+            ]);
         }
     }.observes( 'label' ),
 
-    disabledDidChange: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this._domControl.disabled = this.get( 'disabled' );
-        }
-    }.observes( 'disabled' ),
-
-    tooltipDidChange: function () {
+    syncTooltip: function () {
         if ( this.get( 'isRendered' ) ) {
             this.get( 'layer' ).title = this.get( 'tooltip' );
         }

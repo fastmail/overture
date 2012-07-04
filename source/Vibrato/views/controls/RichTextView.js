@@ -37,13 +37,7 @@ var emailRegExp = RegExp.email,
     urlRegExp =
         /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
 
-var toTristate = function ( isOn ) {
-    return 'iconButton' + ( isOn ? ' isActive' : '' );
-};
-
-var popOver = new NS.PopOverView({
-    showCallout: true
-});
+var popOver = new NS.PopOverView();
 
 var ButtonView = NS.ButtonView;
 var equalTo = NS.Transform.isEqualToValue;
@@ -51,8 +45,6 @@ var equalTo = NS.Transform.isEqualToValue;
 var RichTextView = NS.Class({
 
     Extends: NS.View,
-
-    layerTag: 'div',
 
     isFocussed: false,
 
@@ -101,10 +93,13 @@ var RichTextView = NS.Class({
                 .willRemoveLayerFromDocument.call( this );
     },
 
+    layerTag: 'div',
+
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
 
     _render: function ( layer ) {
         var el = NS.Element.create,
+            bind = NS.bind,
             richTextView = this;
 
         // Editor
@@ -143,104 +138,74 @@ var RichTextView = NS.Class({
         iframe.addEventListener( 'load', onload, false );
 
         NS.Element.appendChildren( layer, [
-            el( 'div.ToolbarView', [
+            el( 'div.ToolbarView.smallIconsOnly', [
                 el( 'div.left', [
                     new ButtonView({
-                        type: NS.bind( 'isBold', this, toTristate ),
-                        tooltip: NS.loc( 'Bold' ),
+                        isActive: bind( 'isBold', this ),
                         label: NS.loc( 'Bold' ),
                         icon: 'bold',
                         activate: function () {
-                            if ( richTextView.get( 'isBold' ) ) {
-                                richTextView.removeBold();
-                            } else {
-                                richTextView.bold();
-                            }
+                            richTextView.toggle( 'bold' );
                         }
                     }),
                     new ButtonView({
-                        type: NS.bind( 'isItalic', this, toTristate ),
-                        tooltip: NS.loc( 'Italic' ),
+                        isActive: bind( 'isItalic', this ),
                         label: NS.loc( 'Italic' ),
                         icon: 'italic',
                         activate: function () {
-                            if ( richTextView.get( 'isItalic' ) ) {
-                                richTextView.removeItalic();
-                            } else {
-                                richTextView.italic();
-                            }
+                            richTextView.toggle( 'italic' );
                         }
                     }),
                     new ButtonView({
-                        type: NS.bind( 'isUnderlined', this, toTristate ),
-                        tooltip: NS.loc( 'Underline' ),
+                        isActive: bind( 'isUnderlined', this ),
                         label: NS.loc( 'Underline' ),
                         icon: 'underline',
                         activate: function () {
-                            if ( richTextView.get( 'isUnderlined' ) ) {
-                                richTextView.removeUnderline();
-                            } else {
-                                richTextView.underline();
-                            }
+                            richTextView.toggle( 'underline' );
                         }
                     }),
                     el( 'span.divider' ),
-                    this._fontSizeButton = new ButtonView({
-                        type: 'iconButton',
-                        tooltip: NS.loc( 'Font Size' ),
+                    new ButtonView({
                         label: NS.loc( 'Font Size' ),
                         icon: 'fontSize',
-                        activate: function () {
-                            richTextView.showFontSizeMenu();
-                        }
+                        target: this,
+                        method: 'showFontSizeMenu'
                     }),
-                    this._fontFaceButton = new ButtonView({
-                        type: 'iconButton',
-                        tooltip: NS.loc( 'Font Face' ),
+                    new ButtonView({
                         label: NS.loc( 'Font Face' ),
                         icon: 'fontFace',
-                        activate: function () {
-                            richTextView.showFontFaceMenu();
-                        }
+                        target: this,
+                        method: 'showFontFaceMenu'
                     }),
                     el( 'span.divider' ),
-                    this._textColourButton = new ButtonView({
-                        type: 'iconButton',
-                        tooltip: NS.loc( 'Text Color' ),
+                    new ButtonView({
                         label: NS.loc( 'Text Color' ),
                         icon: 'textColour',
-                        activate: function () {
-                            richTextView.showTextColourMenu();
-                        }
+                        target: this,
+                        method: 'showTextColourMenu'
                     }),
-                    this._textHighlightColourButton = new ButtonView({
-                        type: 'iconButton',
-                        tooltip: NS.loc( 'Text Highlight' ),
+                    new ButtonView({
                         label: NS.loc( 'Text Highlight' ),
                         icon: 'highlightColour',
-                        activate: function () {
-                            richTextView.showTextHighlightColourMenu();
-                        }
+                        target: this,
+                        method: 'showTextHighlightColourMenu'
                     }),
                     el( 'span.divider' ),
-                    this._linkButton = new ButtonView({
-                        type: NS.bind( 'isLink', this, toTristate ),
-                        tooltip: NS.loc( 'Link' ),
+                    new ButtonView({
+                        isActive: bind( 'isLink', this ),
                         label: NS.loc( 'Link' ),
                         icon: 'link',
                         activate: function () {
                             if ( richTextView.get( 'isLink' ) ) {
                                 richTextView.removeLink();
                             } else {
-                                richTextView.showLinkOverlay();
+                                richTextView.showLinkOverlay( this );
                             }
                         }
                     }),
                     el( 'span.divider' ),
                     new ButtonView({
-                        type: NS.bind( 'alignment', this, equalTo( 'left' ) )
-                               .set( 'transform', toTristate ),
-                        tooltip: NS.loc( 'Left' ),
+                        type: bind( 'alignment', this, equalTo( 'left' ) ),
                         label: NS.loc( 'Left' ),
                         icon: 'alignLeft',
                         activate: function () {
@@ -248,9 +213,7 @@ var RichTextView = NS.Class({
                         }
                     }),
                     new ButtonView({
-                        type: NS.bind( 'alignment', this, equalTo( 'center' ) )
-                               .set( 'transform', toTristate ),
-                        tooltip: NS.loc( 'Center' ),
+                        type: bind( 'alignment', this, equalTo( 'center' ) ),
                         label: NS.loc( 'Center' ),
                         icon: 'alignCentre',
                         activate: function () {
@@ -258,9 +221,7 @@ var RichTextView = NS.Class({
                         }
                     }),
                     new ButtonView({
-                        type: NS.bind( 'alignment', this, equalTo( 'right' ) )
-                               .set( 'transform', toTristate ),
-                        tooltip: NS.loc( 'Right' ),
+                        type: bind( 'alignment', this, equalTo( 'right' ) ),
                         label: NS.loc( 'Right' ),
                         icon: 'alignRight',
                         activate: function () {
@@ -268,9 +229,7 @@ var RichTextView = NS.Class({
                         }
                     }),
                     new ButtonView({
-                        type: NS.bind( 'alignment', this, equalTo( 'justify' ) )
-                               .set( 'transform', toTristate ),
-                        tooltip: NS.loc( 'Justify' ),
+                        type: bind( 'alignment', this, equalTo( 'justify' ) ),
                         label: NS.loc( 'Justify' ),
                         icon: 'alignJustify',
                         activate: function () {
@@ -279,8 +238,6 @@ var RichTextView = NS.Class({
                     }),
                     el( 'span.divider' ),
                     new ButtonView({
-                        type: 'iconButton',
-                        tooltip: NS.loc( 'Quote' ),
                         label: NS.loc( 'Quote' ),
                         icon: 'incQuote',
                         activate: function () {
@@ -288,8 +245,6 @@ var RichTextView = NS.Class({
                         }
                     }),
                     new ButtonView({
-                        type: 'iconButton',
-                        tooltip: NS.loc( 'Unquote' ),
                         label: NS.loc( 'Unquote' ),
                         icon: 'decQuote',
                         activate: function () {
@@ -298,8 +253,7 @@ var RichTextView = NS.Class({
                     }),
                     el( 'span.divider' ),
                     new ButtonView({
-                        type: NS.bind( 'isUnorderedList', this, toTristate ),
-                        tooltip: NS.loc( 'Unordered List' ),
+                        isActive: bind( 'isUnorderedList', this ),
                         label: NS.loc( 'Unordered List' ),
                         icon: 'ul',
                         activate: function () {
@@ -311,8 +265,7 @@ var RichTextView = NS.Class({
                         }
                     }),
                     new ButtonView({
-                        type: NS.bind( 'isOrderedList', this, toTristate ),
-                        tooltip: NS.loc( 'Ordered List' ),
+                        isActive: bind( 'isOrderedList', this ),
                         label: NS.loc( 'Ordered List' ),
                         icon: 'ol',
                         activate: function () {
@@ -351,11 +304,12 @@ var RichTextView = NS.Class({
         });
     }.property(),
 
-    showFontSizeMenu: function () {
+    showFontSizeMenu: function ( buttonView ) {
         popOver.show({
             view: this.get( 'fontSizeMenuView' ),
-            alignWithView: this._fontSizeButton,
+            alignWithView: buttonView,
             withEdge: 'centre',
+            showCallout: true,
             offsetTop: 2
         });
     },
@@ -384,11 +338,12 @@ var RichTextView = NS.Class({
         });
     }.property(),
 
-    showFontFaceMenu: function () {
+    showFontFaceMenu: function ( buttonView ) {
         popOver.show({
             view: this.get( 'fontFaceMenuView' ),
-            alignWithView: this._fontFaceButton,
+            alignWithView: buttonView,
             withEdge: 'centre',
+            showCallout: true,
             offsetTop: 2
         });
     },
@@ -400,39 +355,47 @@ var RichTextView = NS.Class({
         return new NS.MenuView({
             className: 'ColourMenuView',
             showFilter: false,
-            items: '#000000 #777672 #a9a8a1 #d7d4c0 #ffffff #3b641a #56a3cb #88c5c8 #a0dca0 #d0f652 #0018a8 #3880ad #4b9293 #68a65e #99b446 #683c2d #753381 #a54062 #bd433d #e4b150 #381b9a #7561ac #e36a95 #e56d69 #ffe60c'.split( ' ' ).map( function ( colour, index ) {
-                return {
-                    label: colour,
-                    style: 'background-color:' + colour +
-                        ( index % 5 ? '' : ';clear:left' ),
-                    onSelect: function () {
-                        if ( richTextView._colourText ) {
-                            richTextView.setTextColour( colour );
-                        } else {
-                            richTextView.setHighlightColour( colour );
+            items: ( '#000000 #777672 #a9a8a1 #d7d4c0 #ffffff ' +
+                     '#3b641a #56a3cb #88c5c8 #a0dca0 #d0f652 ' +
+                     '#0018a8 #3880ad #4b9293 #68a65e #99b446 ' +
+                     '#683c2d #753381 #a54062 #bd433d #e4b150 ' +
+                     '#381b9a #7561ac #e36a95 #e56d69 #ffe60c' )
+                .split( ' ' )
+                .map( function ( colour, index ) {
+                    return {
+                        label: colour,
+                        style: 'background-color:' + colour +
+                            ( index % 5 ? '' : ';clear:left' ),
+                        onSelect: function () {
+                            if ( richTextView._colourText ) {
+                                richTextView.setTextColour( colour );
+                            } else {
+                                richTextView.setHighlightColour( colour );
+                            }
                         }
-                    }
-                };
-            })
+                    };
+                })
         });
     }.property(),
 
-    showTextColourMenu: function () {
+    showTextColourMenu: function ( buttonView ) {
         this._colourText = true;
         popOver.show({
             view: this.get( 'textColourMenuView' ),
-            alignWithView: this._textColourButton,
+            alignWithView: buttonView,
             withEdge: 'centre',
+            showCallout: true,
             offsetTop: 2
         });
     },
 
-    showTextHighlightColourMenu: function () {
+    showTextHighlightColourMenu: function ( buttonView ) {
         this._colourText = false;
         popOver.show({
             view: this.get( 'textColourMenuView' ),
-            alignWithView: this._textHighlightColourButton,
+            alignWithView: buttonView,
             withEdge: 'centre',
+            showCallout: true,
             offsetTop: 2
         });
     },
@@ -509,7 +472,7 @@ var RichTextView = NS.Class({
         });
     }.property(),
 
-    showLinkOverlay: function () {
+    showLinkOverlay: function ( buttonView ) {
         var view = this.get( 'linkOverlayView' ),
             value = this.getSelectedText().trim();
         if ( !urlRegExp.test( value ) && !emailRegExp.test( value ) ) {
@@ -518,7 +481,8 @@ var RichTextView = NS.Class({
         view.set( 'value', value );
         popOver.show({
             view: view,
-            alignWithView: this._linkButton,
+            alignWithView: buttonView,
+            showCallout: true,
             offsetTop: 2,
             offsetLeft: -4
         });
@@ -605,7 +569,6 @@ var RichTextView = NS.Class({
     }.on( 'pathChange' ),
 
     onSelect: function ( event ) {
-        // Recalculate state
         this.propertyDidChange( 'path' );
     }.on( 'select' ),
 

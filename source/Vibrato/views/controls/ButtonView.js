@@ -14,44 +14,55 @@ var ButtonView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
-    layerTag: 'button',
+    isActive: false,
+    isFocussed: false,
 
+    type: '',
     icon: '',
-    type: 'button',
-
-    target: null,
-    action: null,
-
-    activate: function () {
-        if ( !this.get( 'disabled' ) ) {
-            var action = this.get( 'action' ),
-                target = this.get( 'target' ) || this;
-            if ( action ) {
-                target.fire( action, { originView: this } );
-            }
-        }
-    },
 
     // --- Render ---
 
+    layerTag: 'button',
     className: function () {
-        var icon = this.get( 'icon' );
-        return 'ButtonView ' + this.get( 'type' ) + ( icon ? ' ' + icon : '' );
-    }.property( 'icon', 'type' ),
+        var type = this.get( 'type' );
+        return 'ButtonView' +
+            ( type ? ' ' + type : '' ) +
+            ( this.get( 'isActive' ) ? ' active' : '' ) +
+            ( this.get( 'isFocussed' ) ? ' focussed' : '' );
+    }.property( 'type', 'isActive', 'isFocussed' ),
 
     _render: function ( layer ) {
-        layer.disabled = this.get( 'disabled' );
-        layer.title = this.get( 'tooltip' );
-        layer.tabIndex = -1;
+        var Element = NS.Element,
+            el = Element.create,
+            icon = this.get( 'icon' );
 
-        var el = NS.Element.create;
-        if ( this.get( 'icon' ) ) {
-            layer.appendChild( el( 'i' ) );
-        }
-        layer.appendChild( this._domLabel = el( 'span', {
-            text: this.get( 'label' )
-        }) );
         this._domControl = layer;
+        layer.tabIndex = -1;
+        layer.disabled = this.get( 'isDisabled' );
+        layer.title = this.get( 'tooltip' );
+
+        Element.appendChildren( layer, [
+            icon ? el( 'i', { className: icon } ) : null,
+            this._domLabel = el( 'span', [ this.get( 'label' ) ] )
+        ]);
+    },
+
+    // --- Activate ---
+
+    target: null,
+    action: null,
+    method: '',
+
+    activate: function () {
+        if ( !this.get( 'isDisabled' ) ) {
+            var target = this.get( 'target' ) || this,
+                action;
+            if ( action = this.get( 'action' ) ) {
+                target.fire( action, { originView: this } );
+            } else if ( action = this.get( 'method' ) ) {
+                target[ action ]( this );
+            }
+        }
     },
 
     // --- Keep state in sync with render ---
@@ -71,5 +82,48 @@ var ButtonView = NS.Class({
 });
 
 NS.ButtonView = ButtonView;
+
+var MenuButtonView = NS.Class({
+
+    Extends: ButtonView,
+
+    type: 'MenuButtonView',
+
+    popOverView: null,
+    menuView: null,
+
+    // --- Activate ---
+
+    activate: function () {
+        if ( !this.get( 'isActive' ) ) {
+            var buttonView = this;
+            this.set( 'isActive', true );
+            this.get( 'popOverView' ).show({
+                view: this.get( 'menuView' ),
+                alignWithView: this,
+                onHide: function () {
+                    buttonView.set( 'isActive', false );
+                }
+            });
+        }
+    },
+
+    // --- Keep state in sync with render ---
+
+    _activateOnFocus: function () {
+        if ( this.get( 'isFocussed' ) ) {
+            this.activate();
+        }
+    }.observes( 'isFocussed' ),
+
+    _activateOnMousedown: function ( event ) {
+        if ( event.button || event.metaKey || event.ctrlKey ) {
+            return;
+        }
+        this.activate();
+    }.on( 'mousedown' )
+});
+
+NS.MenuButtonView = MenuButtonView;
 
 }( this.O ) );

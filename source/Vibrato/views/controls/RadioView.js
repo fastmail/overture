@@ -19,17 +19,13 @@ var RadioView = NS.Class({
     className: 'RadioView',
 
     _render: function ( layer ) {
-        var el = NS.Element.create;
-        layer.title = this.get( 'tooltip' );
         layer.appendChild(
-            this._domControl = el( 'input', {
+            this._domControl = NS.Element.create( 'input', {
                 type: 'radio',
                 checked: this.get( 'value' )
             })
         );
-        layer.appendChild( this._domLabel = el( 'span', {
-            text: this.get( 'label' )
-        }) );
+        RadioView.parent._render.call( this, layer );
     },
 
     // --- Keep state in sync with render ---
@@ -40,7 +36,7 @@ var RadioView = NS.Class({
 
     // --- Keep render in sync with state ---
 
-    updateLayer: function () {
+    syncValue: function () {
         if ( this.get( 'isRendered' ) ) {
             this._domControl.checked = this.get( 'value' );
         }
