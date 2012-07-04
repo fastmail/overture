@@ -16,7 +16,7 @@ var CollectionView = NS.Class({
 
     Extends: NS.View,
 
-    ItemView: NS.ItemView,
+    ItemView: NS.View,
 
     _dirtyStart: -1,
     _dirtyEnd: -1,

@@ -244,7 +244,7 @@ var View = NS.Class({
         set as the id of the underlying DOM node.
     */
     id: function () {
-        return 'view-' + UID++;
+        return 'v' + UID++;
     }.property(),
 
     // --- Layer ---
