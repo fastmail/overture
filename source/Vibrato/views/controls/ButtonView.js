@@ -95,7 +95,7 @@ var MenuButtonView = NS.Class({
     // --- Activate ---
 
     activate: function () {
-        if ( !this.get( 'isActive' ) ) {
+        if ( !this.get( 'isDisabled' ) && !this.get( 'isActive' ) ) {
             var buttonView = this;
             this.set( 'isActive', true );
             this.get( 'popOverView' ).show({
