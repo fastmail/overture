@@ -34,7 +34,7 @@ var GlobalKeyboardShortcuts = NS.Class({
         Property (private): O.GlobalKeyboardShortcuts#_shortcuts
         Type: Object
 
-        The map of shortcut key to `[object, method]` tuples.
+        The map of shortcut key to an array of `[object, method]` tuples.
     */
     _shortcuts: {},
 
@@ -66,7 +66,8 @@ var GlobalKeyboardShortcuts = NS.Class({
         Method: O.GlobalKeyboardShortcuts#register
 
         Add a global keyboard shortcut. If a shortcut has already been
-        registered for this key, it will be replaced.
+        registered for this key, it will be replaced, but will be restored when
+        the new handler is removed.
 
         Parameters:
             key    - {String} The key to trigger the callback on. Modifier keys
@@ -80,7 +81,9 @@ var GlobalKeyboardShortcuts = NS.Class({
             {O.GlobalKeyboardShortcuts} Returns self.
     */
     register: function ( key, object, method ) {
-        this._shortcuts[ key ] = [ object, method ];
+        var shortcuts = this._shortcuts;
+        ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
+            .push([ object, method ]);
         return this;
     },
 
@@ -99,11 +102,42 @@ var GlobalKeyboardShortcuts = NS.Class({
             {O.GlobalKeyboardShortcuts} Returns self.
    */
     deregister: function ( key, object, method ) {
-        var current = this._shortcuts[ key ];
-        if ( current && current[0] === object && current[1] === method ) {
-            delete this._shortcuts[ key ];
+        var current = this._shortcuts[ key ],
+            length = current ? current.length : 0,
+            l = length,
+            item;
+        while ( l-- ) {
+            item = current[l];
+            if ( item[0] === object && item[1] === method ) {
+                if ( length === 1 ) {
+                    delete this._shortcuts[ key ];
+                } else {
+                    current.splice( l, 1 );
+                }
+            }
         }
         return this;
+    },
+
+    /**
+        Method: O.GlobalKeyboardShortcuts#getHandlerForEvent
+
+        Get the keyboard shortcut to be triggered by a key event.
+
+        Parameters:
+            event - {Event} The keypress event object.
+
+        Returns:
+            {Array|null} Returns the [ object, method ] tuple to be triggered by
+            the event, or null if nothing is registered for this key press.
+   */
+    getHandlerForEvent: function ( event ) {
+        var key = NS.DOMEvent.lookupKey( event ),
+            shortcuts = this._shortcuts[ key ];
+        if ( shortcuts && this.get( 'isEnabled' ) ) {
+            return shortcuts[ shortcuts.length - 1 ];
+        }
+        return null;
     },
 
     /**
@@ -115,9 +149,8 @@ var GlobalKeyboardShortcuts = NS.Class({
             event - {DOMEvent} The keypress event.
    */
     _trigger: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event ),
-            handler = this._shortcuts[ key ];
-        if ( handler && this.get( 'isEnabled' ) ) {
+        var handler = this.getHandlerForEvent( event );
+        if ( handler ) {
             handler[0][ handler[1] ]( event );
             event.preventDefault();
         }
