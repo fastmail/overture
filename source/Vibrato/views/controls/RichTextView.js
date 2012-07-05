@@ -240,16 +240,14 @@ var RichTextView = NS.Class({
                     new ButtonView({
                         label: NS.loc( 'Quote' ),
                         icon: 'incQuote',
-                        activate: function () {
-                            richTextView.increaseQuoteLevel();
-                        }
+                        target: richTextView,
+                        method: 'increaseQuoteLevel'
                     }),
                     new ButtonView({
                         label: NS.loc( 'Unquote' ),
                         icon: 'decQuote',
-                        activate: function () {
-                            richTextView.decreaseQuoteLevel();
-                        }
+                        target: richTextView,
+                        method: 'decreaseQuoteLevel'
                     }),
                     el( 'span.divider' ),
                     new ButtonView({
@@ -287,19 +285,22 @@ var RichTextView = NS.Class({
         var richTextView = this;
         return new NS.MenuView({
             showFilter: false,
-            items: [
+            options: [
                 [ NS.loc( 'Small' ), '10px'  ],
                 [ NS.loc( 'Medium' ), '13px' ],
                 [ NS.loc( 'Large' ), '16px'  ],
                 [ NS.loc( 'Huge' ), '22px'   ]
             ].map( function ( item ) {
-                return {
+                return new ButtonView({
                     label: item[0],
-                    style: 'font-size:' + item[1],
-                    onSelect: function () {
+                    layout: {
+                        fontSize: item[1]
+                    },
+                    method: 'setFontSize',
+                    setFontSize: function () {
                         richTextView.setFontSize( item[1] );
                     }
-                };
+                });
             })
         });
     }.property(),
@@ -318,7 +319,7 @@ var RichTextView = NS.Class({
         var richTextView = this;
         return new NS.MenuView({
             showFilter: false,
-            items: [
+            options: [
                 [ 'Arial', 'arial, sans-serif' ],
                 [ 'Georgia', 'georgia, serif' ],
                 [ 'Helvetica', 'helvetica, arial, sans-serif' ],
@@ -327,13 +328,16 @@ var RichTextView = NS.Class({
                 [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
                 [ 'Verdana', 'verdana, sans-serif' ]
             ].map( function ( item ) {
-                return {
+                return new ButtonView({
                     label: item[0],
-                    style: 'font-family:' + item[1],
-                    onSelect: function () {
+                    layout: {
+                        fontFamily: item[1]
+                    },
+                    method: 'setFontFace',
+                    setFontFace: function () {
                         richTextView.setFontFace( item[1] );
                     }
-                };
+                });
             })
         });
     }.property(),
@@ -355,25 +359,27 @@ var RichTextView = NS.Class({
         return new NS.MenuView({
             className: 'ColourMenuView',
             showFilter: false,
-            items: ( '#000000 #777672 #a9a8a1 #d7d4c0 #ffffff ' +
-                     '#3b641a #56a3cb #88c5c8 #a0dca0 #d0f652 ' +
-                     '#0018a8 #3880ad #4b9293 #68a65e #99b446 ' +
-                     '#683c2d #753381 #a54062 #bd433d #e4b150 ' +
-                     '#381b9a #7561ac #e36a95 #e56d69 #ffe60c' )
+            options: ( '#000000 #777672 #a9a8a1 #d7d4c0 #ffffff ' +
+                       '#3b641a #56a3cb #88c5c8 #a0dca0 #d0f652 ' +
+                       '#0018a8 #3880ad #4b9293 #68a65e #99b446 ' +
+                       '#683c2d #753381 #a54062 #bd433d #e4b150 ' +
+                       '#381b9a #7561ac #e36a95 #e56d69 #ffe60c' )
                 .split( ' ' )
                 .map( function ( colour, index ) {
-                    return {
+                    return new ButtonView({
                         label: colour,
-                        style: 'background-color:' + colour +
-                            ( index % 5 ? '' : ';clear:left' ),
-                        onSelect: function () {
+                        layout: {
+                            backgroundColor: colour
+                        },
+                        method: 'setColour',
+                        setColour: function () {
                             if ( richTextView._colourText ) {
                                 richTextView.setTextColour( colour );
                             } else {
                                 richTextView.setHighlightColour( colour );
                             }
                         }
-                    };
+                    });
                 })
         });
     }.property(),
@@ -456,9 +462,8 @@ var RichTextView = NS.Class({
                         new ButtonView({
                             type: 'destructive button size13',
                             label: NS.loc( 'Cancel' ),
-                            activate: function () {
-                                popOver.hide();
-                            }
+                            target: popOver,
+                            action: 'hide'
                         }),
                         new ButtonView({
                             type: 'constructive button size13',

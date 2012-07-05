@@ -50,8 +50,16 @@ var AbstractControlView = NS.Class({
 
     _render: function ( layer ) {
         var Element = NS.Element,
-            el = Element.create;
-        this._domControl.disabled = this.get( 'isDisabled' );
+            el = Element.create,
+            shortcut = this.get( 'shortcut' ),
+            control = this._domControl;
+
+        control.disabled = this.get( 'isDisabled' );
+
+        if ( shortcut && ( /^\w$/.test( shortcut ) ) ) {
+            control.accessKey = shortcut;
+        }
+
         Element.appendChildren( layer, [
             this._domLabel = el( 'span', [ this.get( 'label' ) ] )
         ]);

@@ -33,7 +33,6 @@ var ToolbarView = NS.Class({
 
     registerView: function ( name, view ) {
         this._views[ name ] = view;
-        view.set( 'target', this );
         return this;
     },
 

@@ -15,7 +15,6 @@ var ButtonView = NS.Class({
     Extends: NS.AbstractControlView,
 
     isActive: false,
-    isFocussed: false,
 
     type: '',
     icon: '',
@@ -27,24 +26,19 @@ var ButtonView = NS.Class({
         var type = this.get( 'type' );
         return 'ButtonView' +
             ( type ? ' ' + type : '' ) +
-            ( this.get( 'isActive' ) ? ' active' : '' ) +
-            ( this.get( 'isFocussed' ) ? ' focussed' : '' );
-    }.property( 'type', 'isActive', 'isFocussed' ),
+            ( this.get( 'shortcut' ) ? ' hasShortcut' : '' ) +
+            ( this.get( 'isActive' ) ? ' active' : '' );
+    }.property( 'type', 'shortcut', 'isActive' ),
 
     _render: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create,
-            icon = this.get( 'icon' );
+        var icon = this.get( 'icon' );
+        if ( icon ) {
+            layer.appendChild( NS.Element.create( 'i', { className: icon } ) );
+        }
+        layer.tabIndex = -1;
 
         this._domControl = layer;
-        layer.tabIndex = -1;
-        layer.disabled = this.get( 'isDisabled' );
-        layer.title = this.get( 'tooltip' );
-
-        Element.appendChildren( layer, [
-            icon ? el( 'i', { className: icon } ) : null,
-            this._domLabel = el( 'span', [ this.get( 'label' ) ] )
-        ]);
+        ButtonView.parent._render.call( this, layer );
     },
 
     // --- Activate ---
@@ -62,23 +56,44 @@ var ButtonView = NS.Class({
             } else if ( action = this.get( 'method' ) ) {
                 target[ action ]( this );
             }
+            this.fire( 'button:activate' );
         }
     },
 
     // --- Keep state in sync with render ---
 
+    // We want to trigger on mouseup so that the button can be used in a menu in
+    // a single click action. However, we also want to trigger on click for
+    // accessibility reasons. We don't want to trigger twice though, and at the
+    // time of the mouseup event there's no way to know if a click event will
+    // follow it. However, if a click event *is* following it, the click event
+    // will already be in the event queue, so we temporarily ignore clicks and
+    // put a callback function onto the end of the event queue to stop ignoring
+    // them. This will only run after the click event has fired (if there is
+    // one).
+
+    _ignore: false,
+
+    _monitorClicks: function () {
+        this._ignore = false;
+    },
+
     _activateOnClick: function ( event ) {
-        if ( event.button || event.metaKey || event.ctrlKey ) {
+        if ( this._ignore || event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
+        this._ignore = true;
+        NS.RunLoop.invokeInNextEventLoop( this._monitorClicks, this );
         this.activate();
-    }.on( 'click' ),
+    }.on( 'mouseup', 'click' ),
 
     _activateOnEnter: function ( event ) {
         if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
             this.activate();
+            // Don't want to trigger global keyboard shortcuts
+            event.stopPropagation();
         }
-    }.on( 'keydown' )
+    }.on( 'keypress' )
 });
 
 NS.ButtonView = ButtonView;
@@ -109,12 +124,6 @@ var MenuButtonView = NS.Class({
     },
 
     // --- Keep state in sync with render ---
-
-    _activateOnFocus: function () {
-        if ( this.get( 'isFocussed' ) ) {
-            this.activate();
-        }
-    }.observes( 'isFocussed' ),
 
     _activateOnMousedown: function ( event ) {
         if ( event.button || event.metaKey || event.ctrlKey ) {
