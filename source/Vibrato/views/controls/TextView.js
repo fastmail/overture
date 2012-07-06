@@ -64,6 +64,8 @@ var TextView = NS.Class({
             end: end
         };
     }.property().nocache(),
+    
+    blurOnEscape: true,
 
     // --- Render ---
 
@@ -203,7 +205,7 @@ var TextView = NS.Class({
         }
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
-        if ( key === 27 ) {
+        if ( key === 27 && this.get( 'blurOnEscape' ) ) {
             this.blur();
         }
     }.on( 'keypress' ),

@@ -14,10 +14,6 @@ var MenuController = NS.Class({
 
     Extends: NS.Object,
 
-    /*
-        Property: O.MenuController#options
-
-    */
     options: [],
 
     // --- Focus ---
@@ -76,7 +72,7 @@ var MenuController = NS.Class({
     selectFocussed: function () {
         var focussedOption = this.get( 'focussedOption' );
         if ( focussedOption && !focussedOption.get( 'isHidden' ) ) {
-            focussedOption.activate();
+            focussedOption.activate( this );
         }
     },
 
@@ -163,7 +159,7 @@ var MenuOptionView = NS.Class({
         this.set( 'isHidden', !!pattern && !pattern.test( label ) );
     },
 
-    activate: function () {
+    activate: function ( controller ) {
         this.get( 'childViews' )[0].activate();
     }
 });
@@ -225,6 +221,7 @@ var MenuView = NS.Class({
         Element.appendChildren( layer, [
             this.get( 'showFilter' ) ? el( 'div', [
                 this._input = new NS.TextView({
+                    blurOnEscape: false,
                     value: new NS.Binding({
                         isTwoWay: true
                     }).from( 'filter', this.get( 'controller' ) )
