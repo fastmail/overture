@@ -159,7 +159,7 @@ var MenuOptionView = NS.Class({
         this.set( 'isHidden', !!pattern && !pattern.test( label ) );
     },
 
-    activate: function ( controller ) {
+    activate: function () {
         this.get( 'childViews' )[0].activate();
     }
 });
@@ -187,8 +187,8 @@ var MenuView = NS.Class({
 
     didAppendLayerToDocument: function () {
         MenuView.parent.didAppendLayerToDocument.call( this );
-        var controller = this.get( 'controller' );
         if ( this.get( 'showFilter' ) ) {
+            var controller = this.get( 'controller' );
             controller.focusOption( controller.get( 'options' )[0] );
             this._input.focus();
         }

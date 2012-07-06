@@ -64,7 +64,7 @@ var TextView = NS.Class({
             end: end
         };
     }.property().nocache(),
-    
+
     blurOnEscape: true,
 
     // --- Render ---
