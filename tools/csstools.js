@@ -225,7 +225,7 @@ function findDependencies ( src, css, callback ) {
 
 function emround ( css ) {
     return css.replace(/([0-9]*\.[0-9]+)em/g, function ( val ) {
-        var s = parseFloat( val ).toFixed( 3 );
+        var s = parseFloat( val ).toFixed( 4 );
         while ( s.slice( -1 ) === '0' ) {
             s = s.slice( 0, -1 );
         }
