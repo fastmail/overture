@@ -1337,8 +1337,10 @@ var Store = NS.Class({
             Type     - {O.Class} The record type.
             added    - {Array} List of data objects for records added to the
                        source since oldState.
-            changed  - {Array} List of data objects for records which have been
-                       modified in the source since oldState.
+            changed  - {Object} A map of id to data object or partial data
+                       object (with just the fields that have changed) for
+                       records which have been modified in the source since
+                       oldState.
             removed  - {Array} List of ids for records which have been destroyed
                        in the store since oldState.
             oldState - {String} The state these changes are from.
