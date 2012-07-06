@@ -207,14 +207,21 @@ var MenuView = NS.Class({
     didAppendLayerToDocument: function () {
         MenuView.parent.didAppendLayerToDocument.call( this );
 
-        var layer = this.get( 'layer' ),
+        var parentView = this,
+            layer, delta, scrollView;
+        while ( parentView && !( parentView instanceof NS.ScrollView ) ) {
+            parentView = parentView.get( 'parentView' );
+        }
+        if ( !parentView ) {
+            layer = this.get( 'layer' );
             delta = layer.getBoundingClientRect().bottom -
-                layer.ownerDocument.documentElement.clientHeight,
-            scrollView = this._scrollView;
-        if ( delta > 0 ) {
-            scrollView.set( 'layout', {
-                maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
-            });
+                    layer.ownerDocument.documentElement.clientHeight;
+            if ( delta > 0 ) {
+                scrollView = this._scrollView;
+                scrollView.set( 'layout', {
+                    maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
+                });
+            }
         }
 
         if ( this.get( 'showFilter' ) ) {
