@@ -149,13 +149,17 @@ var Source = NS.Class({
         handling their own types.
 
         Parameters:
-            changes - {Object} The creates/updates/destroys to commit.
+            changes  - {Object} The creates/updates/destroys to commit.
+            callback - {Function} (optional) A callback to make after the
+                       changes have been committed.
 
         Returns:
-            {O.Source} Returns self.
+            {Boolean} Returns true if any of the types were handled. The
+            callback will only be called if the source is handling at least one
+            of the types being committed.
     */
-    commitChanges: function ( changes ) {
-        return this;
+    commitChanges: function ( changes, callback ) {
+        return false;
     }
 });
 

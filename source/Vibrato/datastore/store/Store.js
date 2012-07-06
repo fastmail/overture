@@ -157,6 +157,8 @@ var Store = NS.Class({
         this._typeToClientState = {};
         this._typeToServerState = {};
 
+        this._commitCallbacks = [];
+
         this._source = source;
 
         source.set( 'store', this );
@@ -526,10 +528,20 @@ var Store = NS.Class({
         source. Will only invoke once per run loop, even if called multiple
         times.
 
+        Parameters:
+            callback - {Function} (optional) A callback to be made after the
+                       source has finished committing the changes.
+
         Returns:
             {O.Store} Returns self.
     */
-    commitChanges: function () {
+    commitChanges: function ( callback ) {
+        if ( callback ) {
+            this._commitCallbacks.push( callback );
+        }
+        NS.RunLoop.queueFn( 'before', this._commitChanges, this );
+    },
+    _commitChanges: function () {
         var _created = this._created,
             _destroyed = this._destroyed,
             _skToData = this._skToData,
@@ -542,7 +554,9 @@ var Store = NS.Class({
             storeKey, data, changed, id, status, entry,
             newSkToChanged = {},
             newDestroyed = {},
-            changes = {};
+            changes = {},
+            commitCallbacks = this._commitCallbacks,
+            callback;
 
         var getEntry = function ( Type ) {
             var typeName = Type.className;
@@ -601,9 +615,19 @@ var Store = NS.Class({
         this._created = {};
         this._destroyed = newDestroyed;
 
-        this._source.commitChanges( changes );
+        if ( commitCallbacks.length ) {
+            if ( commitCallbacks.length > 1 ) {
+                callback = commitCallbacks.forEach.bind(
+                    commitCallbacks, function ( fn ) { fn(); } );
+                this._commitCallbacks = [];
+            } else {
+                callback = commitCallbacks.pop();
+            }
+        }
+
+        this._source.commitChanges( changes, callback );
         return this;
-    }.queue( 'before' ),
+    },
 
     /**
         Method: O.Store#discardChanges

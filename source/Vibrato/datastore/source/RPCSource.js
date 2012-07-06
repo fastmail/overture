@@ -565,16 +565,21 @@ var RPCSource = NS.Class({
         will remove the type from the changes object.
 
         Parameters:
-            changes - {Object} The creates/updates/destroys to commit.
+            changes  - {Object} The creates/updates/destroys to commit.
+            callback - {Function} (optional) A callback to make after the
+                       changes have been committed.
 
         Returns:
-            {O.RPCSource} Returns self.
+            {Boolean} Returns true if any of the types were handled. The
+            callback will only be called if the source is handling at least one
+            of the types being committed.
     */
-    commitChanges: function ( changes ) {
+    commitChanges: function ( changes, callback ) {
         var types = Object.keys( changes ),
             l = types.length,
             precedence = this.commitPrecedence,
-            type, handler, handled,
+            handledAny = false,
+            type, handler, handledType,
             change, create, update, destroy;
 
         if ( precedence ) {
@@ -587,7 +592,7 @@ var RPCSource = NS.Class({
             type = types[l];
             change = changes[ type ];
             handler = this.recordCommitters[ type ];
-            handled = false;
+            handledType = false;
             create = change.create;
             update = change.update;
             destroy = change.destroy;
@@ -603,30 +608,34 @@ var RPCSource = NS.Class({
                 } else {
                     handler.call( this, change );
                 }
-                handled = true;
+                handledType = true;
             } else {
                 handler = this.recordCreators[ type ];
                 if ( handler ) {
                     handler.call( this, create.storeKeys, create.records );
-                    handled = true;
+                    handledType = true;
                 }
                 handler = this.recordUpdaters[ type ];
                 if ( handler ) {
                     handler.call( this,
                         update.storeKeys, update.records, update.changes );
-                    handled = true;
+                    handledType = true;
                 }
                 handler = this.recordDestroyers[ type ];
                 if ( handler ) {
                     handler.call( this, destroy.storeKeys, destroy.ids );
-                    handled = true;
+                    handledType = true;
                 }
             }
-            if ( handled ) {
+            if ( handledType ) {
                 delete changes[ type ];
             }
+            handledAny = handledAny || handledType;
         }
-        return this;
+        if ( handledAny && callback ) {
+            this._callbackQueue.push( callback );
+        }
+        return handledAny;
     },
 
     /**

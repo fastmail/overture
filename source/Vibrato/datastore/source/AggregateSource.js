@@ -90,9 +90,20 @@ var AggregateSource = NS.Class({
         });
     },
 
-    commitChanges: function ( changes ) {
+    commitChanges: function ( changes, callback ) {
+        var waiting = 0,
+            callbackAfterAll;
+        if ( callback ) {
+            callbackAfterAll = function () {
+                if ( !( waiting-= 1 ) ) {
+                    callback();
+                }
+            };
+        }
         this.get( 'sources' ).forEach( function ( source ) {
-            source.commitChanges( changes );
+            if ( source.commitChanges( changes, callbackAfterAll ) ) {
+                waiting += 1;
+            }
         });
         return this;
     },
