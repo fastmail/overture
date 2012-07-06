@@ -146,6 +146,25 @@ var MenuOptionView = NS.Class({
         MenuOptionView.parent.init.call( this );
     },
 
+    scrollIntoView: function () {
+        if ( this.get( 'isFocussed' ) ) {
+            var scrollView = this.get( 'parentView' );
+            if ( scrollView instanceof NS.ScrollView ) {
+                var scrollHeight = scrollView.get( 'pxHeight' ),
+                    scrollTop = scrollView.get( 'scrollTop' ),
+                    top = this.get( 'pxTop' ),
+                    height = this.get( 'pxHeight' );
+
+                if ( top < scrollTop ) {
+                    scrollView.scrollTo( 0, top - ( height >> 1 ), true );
+                } else if ( top + height > scrollTop + scrollHeight ) {
+                    scrollView.scrollTo( 0,
+                        top + height - scrollHeight + ( height >> 1 ), true );
+                }
+            }
+        }
+    }.observes( 'isFocussed' ),
+
     takeFocus: function () {
         this.get( 'controller' ).focusOption( this );
     }.on( 'mouseover' ),
@@ -187,6 +206,17 @@ var MenuView = NS.Class({
 
     didAppendLayerToDocument: function () {
         MenuView.parent.didAppendLayerToDocument.call( this );
+
+        var layer = this.get( 'layer' ),
+            delta = layer.getBoundingClientRect().bottom -
+                layer.ownerDocument.documentElement.clientHeight,
+            scrollView = this._scrollView;
+        if ( delta > 0 ) {
+            scrollView.set( 'layout', {
+                maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
+            });
+        }
+
         if ( this.get( 'showFilter' ) ) {
             var controller = this.get( 'controller' );
             controller.focusOption( controller.get( 'options' )[0] );
@@ -227,7 +257,7 @@ var MenuView = NS.Class({
                     }).from( 'filter', this.get( 'controller' ) )
                 })
             ]) : null,
-            new NS.ScrollView({
+            this._scrollView = new NS.ScrollView({
                 positioning: 'relative',
                 layout: {},
                 layerTag: 'ul',

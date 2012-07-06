@@ -724,6 +724,7 @@ var View = NS.Class({
             this._layerStyles = null;
             this.get( 'layer' ).style.cssText =
                 Object.toCSSString( this.get( 'layerStyles' ) );
+            this.computedPropertyDidChange( 'pxDimensions' );
         }
         return this;
     },
@@ -905,7 +906,7 @@ var View = NS.Class({
             width: this.get( 'pxWidth' ),
             height: this.get( 'pxHeight' )
         };
-    }.property( 'layout', 'layer' ),
+    }.property( 'layout' ),
 
     /**
         Property: O.View#visibleRect
