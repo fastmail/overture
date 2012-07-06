@@ -1353,13 +1353,13 @@ var Store = NS.Class({
         this._typeToStatus[ typeName ] &= ~LOADING;
         if ( this._typeToClientState[ typeName ] === oldState ) {
             if ( added ) {
-                this.sourceDidFetchRecords( added );
+                this.sourceDidFetchRecords( Type, added );
             }
             if ( changed ) {
-                this.sourceDidFetchRecordUpdates( changed );
+                this.sourceDidFetchUpdates( Type, changed );
             }
             if ( removed ) {
-                this.sourceDidDestroyRecords( removed );
+                this.sourceDidDestroyRecords( Type, removed );
             }
             this._typeToClientState[ typeName ] = newState;
             this._checkServerStatus( Type, newState );
