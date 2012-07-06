@@ -77,7 +77,7 @@ var AbstractControlView = NS.Class({
 
     blur: function () {
         if ( this.get( 'isInDocument' ) ) {
-            this._domControl.focus();
+            this._domControl.blur();
         }
         return this;
     },
