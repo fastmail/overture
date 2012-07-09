@@ -599,6 +599,7 @@ var RPCSource = NS.Class({
             if ( handler ) {
                 if ( typeof handler === 'string' ) {
                     this.callMethod( handler, {
+                        state: change.state,
                         create: Object.zip( create.storeKeys, create.records ),
                         update: Object.zip(
                             update.storeKeys, delta( update, change.primaryKey )
