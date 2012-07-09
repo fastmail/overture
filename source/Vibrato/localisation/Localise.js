@@ -25,12 +25,15 @@ Date.implement({
         localised form. e.g. 5 hours 3 minutes ago.
 
         Parameters:
-            date - {Date} Date to compare it to.
+            date   - {Date} Date to compare it to.
+            approx - {Boolean} (optional) If true, only return a string for the
+                     most significant part of the relative time (e.g. just "5
+                     hours ago" instead of "5 hours 34 mintues ago").
 
         Returns:
             {String} Relative date string.
     */
-    relativeTo: function ( date ) {
+    relativeTo: function ( date, approx ) {
         if ( !date ) { date = new Date(); }
 
         var diffSeconds = ( date - this ) / 1000,
@@ -47,13 +50,16 @@ Date.implement({
             time = NS.loc( '[*,_1,minute]', ~~( diffSeconds / 60 ) );
         } else if ( diffSeconds < 86400 ) {
             time = NS.loc( '[*,_1,hour,hours,] [*,_2,minute,minutes,]',
-                ~~( diffSeconds / 3600 ), ~~( diffSeconds / 60 ) % 60 );
+                ~~( diffSeconds / 3600 ),
+                approx ? 0 : ~~( diffSeconds / 60 ) % 60 );
         } else if ( diffSeconds < 604800 ) {
             time = NS.loc( '[*,_1,day,days,] [*,_2,hour,hours,]',
-                ~~( diffSeconds / 86400 ), ~~( diffSeconds / 3600 ) % 24 );
+                ~~( diffSeconds / 86400 ),
+                approx ? 0 : ~~( diffSeconds / 3600 ) % 24 );
         } else if ( diffSeconds < 3628800 ) {
             time = NS.loc( '[*,_1,week,weeks,] [*,_2,day,days,]',
-                ~~( diffSeconds / 604800 ), ~~( diffSeconds / 86400 ) % 7 );
+                ~~( diffSeconds / 604800 ),
+                approx ? 0 : ~~( diffSeconds / 86400 ) % 7 );
         } else {
             var years = date.getFullYear() - this.getFullYear(),
                 months = date.getMonth() - this.getMonth();
