@@ -227,14 +227,23 @@ var MenuView = NS.Class({
         if ( this.get( 'showFilter' ) ) {
             var controller = this.get( 'controller' ),
                 input = this._input;
-            controller.focusOption( controller.get( 'options' )[0] );
-            NS.RunLoop.invokeInNextEventLoop( function () { input.focus(); } );
+            if ( !controller.get( 'focussedOption' ) ) {
+                controller.focusNext();
+            }
+            NS.RunLoop.invokeInNextEventLoop( function () {
+                input.focus().set( 'selection', {
+                    start: 0,
+                    end: input.get( 'value' ).length
+                });
+            });
         }
         return this;
     },
 
     didRemoveLayerFromDocument: function () {
-        this.get( 'controller' ).focusOption( null );
+        if ( !this.get( 'showFilter' ) ) {
+            this.get( 'controller' ).focusOption( null );
+        }
         return MenuView.parent.didRemoveLayerFromDocument.call( this );
     },
 
