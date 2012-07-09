@@ -260,6 +260,7 @@ var MenuView = NS.Class({
             this.get( 'showFilter' ) ? el( 'div', [
                 this._input = new NS.TextView({
                     blurOnEscape: false,
+                    type: 'text filter',
                     value: new NS.Binding({
                         isTwoWay: true
                     }).from( 'filter', this.get( 'controller' ) )
