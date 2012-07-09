@@ -282,7 +282,9 @@ var MenuView = NS.Class({
     hide: function ( event ) {
         if ( !event || this.get( 'closeOnActivate' ) ) {
             var parent = this.get( 'parentView' );
-            if ( parent ) { parent.hide(); }
+            if ( parent ) {
+                NS.RunLoop.invokeInNextEventLoop( parent.hide, parent );
+            }
         }
     }.on( 'button:activate' ),
 
