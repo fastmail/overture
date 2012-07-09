@@ -194,7 +194,7 @@ require = function ( modules, fn, bind ) {
 
     var allLoaded = true,
         l = modules.length,
-        module, info, dependencies, waitObj, j;
+        module, info, dependencies, waitObj;
 
     while ( l-- ) {
         module = modules[l];
@@ -221,10 +221,7 @@ require = function ( modules, fn, bind ) {
 
             // Load module dependencies
             if ( dependencies = info.dependencies ) {
-                j = dependencies.length;
-                while ( j-- ) {
-                    load( dependencies[j], true );
-                }
+                require( dependencies );
             }
 
             // Load this module
