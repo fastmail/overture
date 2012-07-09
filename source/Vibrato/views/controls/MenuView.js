@@ -225,9 +225,10 @@ var MenuView = NS.Class({
         }
 
         if ( this.get( 'showFilter' ) ) {
-            var controller = this.get( 'controller' );
+            var controller = this.get( 'controller' ),
+                input = this._input;
             controller.focusOption( controller.get( 'options' )[0] );
-            this._input.focus();
+            NS.RunLoop.invokeInNextEventLoop( function () { input.focus(); } );
         }
         return this;
     },
