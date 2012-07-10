@@ -33,7 +33,7 @@ var MenuController = NS.Class({
 
         do {
             i = ( i + step ).mod( l );
-        } while ( options[i].get( 'isHidden' ) && i !== current );
+        } while ( l && options[i].get( 'isHidden' ) && i !== current );
 
         return options[i];
     },
@@ -179,7 +179,8 @@ var MenuOptionView = NS.Class({
     },
 
     activate: function () {
-        this.get( 'childViews' )[0].activate();
+        var child = this.get( 'childViews' )[0];
+        if ( child.activate ) { child.activate(); }
     }
 });
 
