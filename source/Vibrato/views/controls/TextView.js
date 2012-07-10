@@ -208,6 +208,7 @@ var TextView = NS.Class({
         if ( key === 27 && this.get( 'blurOnEscape' ) ) {
             this.blur();
         }
+
     }.on( 'keypress' ),
 
     // --- Keep render in sync with state ---
@@ -238,6 +239,17 @@ var TextView = NS.Class({
         }
     }.observes( 'placeholder' )
 });
+
+if ( 8 <= NS.UA.msie && NS.UA.msie <= 9 ) {
+    TextView.implement({
+        _ieSyncDelete: function ( event ) {
+            var key = NS.Element.lookupKey( event );
+            if ( key === 'backspace' || key === 'delete' ) {
+                this.fire( 'input' );
+            }
+        }.on( 'keyup' )
+    });
+}
 
 NS.TextView = TextView;
 
