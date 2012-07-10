@@ -23,7 +23,10 @@ Number.implement({
             range.
     */
     limit: function ( min, max ) {
-        return this < min ? min : this > max ? max : this;
+        // +0 is required to unbox 'this' back into a primitive number in IE.
+        // Otherwise you get a boxed value, which amongst other things makes 0 a
+        // truthy value, leading to all sorts of interesting behaviour...
+        return this < min ? min : this > max ? max : this + 0;
     },
 
     /**
