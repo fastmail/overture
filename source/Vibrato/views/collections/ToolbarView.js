@@ -72,14 +72,16 @@ var ToolbarView = NS.Class({
     // ---
 
     leftConfig: function () {
-        var configs = this._configs;
-        return configs[ this.get( 'config' ) ].left ||
+        var configs = this._configs,
+            config = configs[ this.get( 'config' ) ];
+        return ( config && config.left ) ||
             configs.standard.left;
     }.property( 'config' ),
 
     rightConfig: function () {
-        var configs = this._configs;
-        return configs[ this.get( 'config' ) ].right ||
+        var configs = this._configs,
+            config = configs[ this.get( 'config' ) ];
+        return ( config && config.right ) ||
             configs.standard.right;
     }.property( 'config' ),
 
