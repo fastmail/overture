@@ -20,11 +20,12 @@ var SingleSelectionController = NS.Class({
         var content = this.get( 'content' ),
             range = this._range = { start: -1, end: 0 };
         if ( content ) {
-            content.addObserverForRange( range, this, 'idAtIndexDidChange' );
+            content.addObserverForRange(
+                range, this, 'recordAtIndexDidChange' );
             content.on( 'query:updated', this, 'contentWasUpdated' );
         }
-        if ( this.get( 'id' ) ) {
-            this._idDidChange();
+        if ( this.get( 'record' ) ) {
+            this._recordDidChange();
         } else if ( this.get( 'index' ) > -1 ) {
             this._indexDidChange();
         } else {
@@ -37,22 +38,22 @@ var SingleSelectionController = NS.Class({
         if ( content ) {
             content.detach( 'query:updated', this, 'contentWasUpdated' );
             content.removeObserverForRange(
-                this._range, this, 'idAtIndexDidChange' );
+                this._range, this, 'recordAtIndexDidChange' );
         }
         SingleSelectionController.parent.destroy.call( this );
     },
 
     content: null,
 
-    id: null,
+    record: null,
     index: -1,
 
     _ignore: false,
 
-    idAtIndexDidChange: function () {
+    recordAtIndexDidChange: function () {
         var record = this.get( 'content' ).getObjectAt( this.get( 'index' ) );
-        if ( !this.get( 'id' ) ) {
-            this.set( 'id', record ? record.get( 'id' ) : null );
+        if ( !this.get( 'record' ) ) {
+            this.set( 'record', record || null );
         }
     },
 
@@ -61,7 +62,6 @@ var SingleSelectionController = NS.Class({
             length = list ? list.get( 'length' ) : 0,
             index = this.get( 'index' ),
             range = this._range,
-            id = null,
             record;
         range.start = index;
         range.end = index + 1;
@@ -73,22 +73,21 @@ var SingleSelectionController = NS.Class({
             } else {
                 if ( length && index > -1 ) {
                     record = list.getObjectAt( index );
-                    if ( record ) { id = record.get( 'id' ); }
                 }
                 this._ignore = true;
-                this.set( 'id', id );
+                this.set( 'record', record || null );
                 this._ignore = false;
             }
         }
     }.observes( 'index' ),
 
-    _idDidChange: function () {
-        var id = this.get( 'id' ),
+    _recordDidChange: function () {
+        var record = this.get( 'record' ),
             list = this.get( 'content' );
-        if ( id && !this._ignore ) {
+        if ( record && !this._ignore ) {
             if ( list ) {
-                list.indexOfId( id, 0, function ( index ) {
-                    if ( this.get( 'id' ) === id ) {
+                list.indexOfId( record.get( 'id' ), 0, function ( index ) {
+                    if ( this.get( 'record' ) === record ) {
                         this._ignore = true;
                         this.set( 'index', index );
                         this._ignore = false;
@@ -100,37 +99,38 @@ var SingleSelectionController = NS.Class({
                 this._ignore = false;
             }
         }
-    }.observes( 'id' ),
+    }.observes( 'record' ),
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
         var range = this._range,
-            id = this.get( 'id' ),
-            index, record;
+            record = this.get( 'record' ),
+            index;
 
         if ( oldVal ) {
             oldVal.detach( 'query:updated', this, 'contentWasUpdated' );
-            oldVal.removeObserverForRange( range, this, 'idAtIndexDidChange' );
+            oldVal.removeObserverForRange(
+                range, this, 'recordAtIndexDidChange' );
         }
         if ( newVal ) {
-            newVal.addObserverForRange( range, this, 'idAtIndexDidChange' );
+            newVal.addObserverForRange( range, this, 'recordAtIndexDidChange' );
             newVal.on( 'query:updated', this, 'contentWasUpdated' );
         }
 
-        if ( id && newVal ) {
-            index = newVal.indexOfId( id );
+        if ( record && newVal ) {
+            index = newVal.indexOfId( record.get( 'id' ) );
         }
         index = index > -1 ? index : 0;
 
         if ( index === this.get( 'index' ) ) {
             record = newVal && newVal.getObjectAt( index );
-            this.set( 'id', record ? record.get( 'id' ) : null );
+            this.set( 'record', record || null );
         } else {
             this.set( 'index', index );
         }
     }.observes( 'content' ),
 
     contentWasUpdated: function ( updates ) {
-        var index = updates.added.indexOf( this.get( 'id' ) ),
+        var index = updates.added.indexOf( this.get( 'record' ).get( 'id' ) ),
             removedIndexes = updates.removedIndexes,
             addedIndexes = updates.addedIndexes,
             content = this.get( 'content' ),
@@ -159,7 +159,7 @@ var SingleSelectionController = NS.Class({
             ( ( content && content.get( 'length' ) ) || 1 ) - 1 );
         if ( index === this.get( 'index' ) ) {
             record = content && content.getObjectAt( index );
-            this.set( 'id', record ? record.get( 'id' ) : null );
+            this.set( 'record', record || null );
         } else {
             this.set( 'index', index );
         }
