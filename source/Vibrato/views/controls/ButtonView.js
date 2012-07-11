@@ -66,11 +66,14 @@ var ButtonView = NS.Class({
     // a single click action. However, we also want to trigger on click for
     // accessibility reasons. We don't want to trigger twice though, and at the
     // time of the mouseup event there's no way to know if a click event will
-    // follow it. However, if a click event *is* following it, the click event
-    // will already be in the event queue, so we temporarily ignore clicks and
-    // put a callback function onto the end of the event queue to stop ignoring
-    // them. This will only run after the click event has fired (if there is
-    // one).
+    // follow it. However, if a click event *is* following it, in most browsers,
+    // the click event will already be in the event queue, so we temporarily
+    // ignore clicks and put a callback function onto the end of the event queue
+    // to stop ignoring them. This will only run after the click event has fired
+    // (if there is one). The exception is Opera, where it gets queued before
+    // the click event. By adding a small 200ms delay we can more or less
+    // guarantee it is queued after, and it also prevents double click from
+    // activating the button twice, which could have unintended effects.
 
     _ignore: false,
 
@@ -83,7 +86,7 @@ var ButtonView = NS.Class({
             return;
         }
         this._ignore = true;
-        NS.RunLoop.invokeInNextEventLoop( this._monitorClicks, this );
+        NS.RunLoop.invokeAfterDelay( this._monitorClicks, 200, this );
         this.activate();
     }.on( 'mouseup', 'click' ),
 
