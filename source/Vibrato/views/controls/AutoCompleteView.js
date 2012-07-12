@@ -49,7 +49,7 @@ var AutoCompleteController = NS.Class({
             i, l, source, count, max, suggestions, accept,
             j, m, suggestion;
 
-        if ( value.length > this.getFromPath( 'view.minChars' ) ) {
+        if ( value.length >= this.getFromPath( 'view.minChars' ) ) {
             for ( i = 0, l = sources.length; i < l; i += 1 ) {
                 source = sources[i];
                 count = 0;
