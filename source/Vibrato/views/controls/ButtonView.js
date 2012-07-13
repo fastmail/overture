@@ -33,7 +33,11 @@ var ButtonView = NS.Class({
     _render: function ( layer ) {
         var icon = this.get( 'icon' );
         if ( icon ) {
-            layer.appendChild( NS.Element.create( 'i', { className: icon } ) );
+            layer.appendChild(
+                NS.Element.create( 'i', {
+                    className: icon
+                })
+            );
         }
         layer.tabIndex = -1;
 
@@ -96,7 +100,15 @@ var ButtonView = NS.Class({
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-    }.on( 'keypress' )
+    }.on( 'keypress' ),
+
+    // --- Keep render in sync with state ---
+
+    syncIcon: function () {
+        if ( this.get( 'isRendered' ) ) {
+            this.get( 'layer' ).firstChild.className = this.get( 'icon' );
+        }
+    }.observes( 'icon' )
 });
 
 NS.ButtonView = ButtonView;
