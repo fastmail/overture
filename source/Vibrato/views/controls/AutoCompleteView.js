@@ -88,7 +88,7 @@ var AutoCompleteOptionView = NS.Class({
     Extends: NS.View,
 
     isFocussed: false,
-    isHidden: false,
+    isFocussable: true,
 
     layerTag: 'li',
 

@@ -27,8 +27,9 @@ var ButtonView = NS.Class({
         return 'ButtonView' +
             ( type ? ' ' + type : '' ) +
             ( this.get( 'shortcut' ) ? ' hasShortcut' : '' ) +
-            ( this.get( 'isActive' ) ? ' active' : '' );
-    }.property( 'type', 'shortcut', 'isActive' ),
+            ( this.get( 'isActive' ) ? ' active' : '' ) +
+            ( this.get( 'isDisabled' ) ? ' disabled' : '' );
+    }.property( 'type', 'shortcut', 'isActive', 'isDisabled' ),
 
     _render: function ( layer ) {
         var icon = this.get( 'icon' );

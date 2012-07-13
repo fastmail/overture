@@ -222,8 +222,8 @@ var _notifyObserversOfKey =
         that     - {O.ObservableProps} The object on which the property has
                    changed.
         metadata - {Object} The metadata for this object.
-        changed - {Object} A map of property names to another object. This
-                  object has an oldValue and possibly a newValue property.
+        changed  - {Object} A map of property names to another object. This
+                   object has an oldValue and possibly a newValue property.
 */
 var _notifyGenericObservers = function ( that, metadata, changed ) {
     var observers = metadata.observers[ '*' ],

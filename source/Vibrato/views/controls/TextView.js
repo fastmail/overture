@@ -80,8 +80,10 @@ var TextView = NS.Class({
         return 'TextView ' + this.get( 'type' ) +
             ( this.get( 'isHighlighted' ) ? ' highlight' : '' ) +
             ( this.get( 'isFocussed' ) ? ' focussed' : '' ) +
-            ( this.get( 'isValid' ) ? '' : ' invalid' );
-    }.property( 'type', 'isHighlighted', 'isFocussed', 'isValid' ),
+            ( this.get( 'isValid' ) ? '' : ' invalid' ) +
+            ( this.get( 'isDisabled' ) ? ' disabled' : '' );
+    }.property( 'type', 'isHighlighted',
+        'isFocussed', 'isValid', 'isDisabled' ),
 
     _render: function ( layer ) {
         var Element = NS.Element,

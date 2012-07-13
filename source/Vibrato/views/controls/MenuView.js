@@ -33,7 +33,7 @@ var MenuController = NS.Class({
 
         do {
             i = ( i + step ).mod( l );
-        } while ( l && options[i].get( 'isHidden' ) && i !== current );
+        } while ( l && !options[i].get( 'isFocussable' ) && i !== current );
 
         return options[i];
     },
@@ -53,7 +53,7 @@ var MenuController = NS.Class({
                 current.set( 'isFocussed', false );
             }
             if ( option ) {
-                if ( option.get( 'isHidden' ) ) {
+                if ( !option.get( 'isFocussable' ) ) {
                     option = null;
                 } else {
                     option.set( 'isFocussed', true );
@@ -71,7 +71,7 @@ var MenuController = NS.Class({
 
     selectFocussed: function () {
         var focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption && !focussedOption.get( 'isHidden' ) ) {
+        if ( focussedOption && focussedOption.get( 'isFocussable' ) ) {
             focussedOption.activate( this );
         }
     },
@@ -90,7 +90,7 @@ var MenuController = NS.Class({
         while ( l-- ) {
             options[l].filter( pattern );
         }
-        if ( !focussedOption || focussedOption.get( 'isHidden' ) ) {
+        if ( !focussedOption || !focussedOption.get( 'isFocussable' ) ) {
             this.focusNext();
         }
     }.observes( 'filter' ),
@@ -129,8 +129,12 @@ var MenuOptionView = NS.Class({
 
     Extends: NS.View,
 
-    isFocussed: false,
     isHidden: false,
+    isDisabled: NS.bind( 'controlView.isDisabled' ),
+    isFocussed: false,
+    isFocussable: function () {
+        return !this.get( 'isHidden' ) && !this.get( 'isDisabled' );
+    }.property( 'isHidden', 'isDisabled' ),
 
     layerTag: 'li',
 
@@ -142,6 +146,7 @@ var MenuOptionView = NS.Class({
 
     init: function ( view, controller ) {
         this.childViews = [ view ];
+        this.controlView = view;
         this.controller = controller;
         MenuOptionView.parent.init.call( this );
     },
