@@ -29,7 +29,7 @@ var MenuController = NS.Class({
         if ( i < 0 && step < 0 ) {
             i = l;
         }
-        current = i;
+        current = i.mod( l );
 
         do {
             i = ( i + step ).mod( l );
