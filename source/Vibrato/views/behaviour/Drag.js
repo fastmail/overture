@@ -576,9 +576,8 @@ var Drag = NS.Class({
             if ( this._lastTargetView !== view ) {
                 this._lastTargetView = scrollView = view;
 
-                while ( scrollView &&
-                        !( scrollView instanceof NS.ScrollView ) ) {
-                    scrollView = scrollView.get( 'parentView' );
+                if ( !( scrollView instanceof NS.ScrollView ) ) {
+                    scrollView = scrollView.getParent( NS.ScrollView );
                 }
                 if ( scrollView ) {
                     bounds = scrollView.get( 'layer' ).getBoundingClientRect();

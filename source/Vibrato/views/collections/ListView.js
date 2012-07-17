@@ -42,17 +42,8 @@ var ListView = NS.Class({
         };
     }.property( 'itemHeight', 'contentLength' ),
 
-    scrollView: function () {
-        var scrollView = this;
-        do {
-            scrollView = scrollView.get( 'parentView' );
-        } while ( scrollView &&
-            !( scrollView instanceof NS.ScrollView ) );
-        return scrollView || null;
-    }.property( 'parentView' ),
-
     contentWasUpdated: function ( event ) {
-        var scrollView = this.get( 'scrollView' );
+        var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
             // Update scroll view correctly.
             var itemHeight = this.get( 'itemHeight' ),

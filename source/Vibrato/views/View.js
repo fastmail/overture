@@ -1064,6 +1064,8 @@ var View = NS.Class({
         return this;
     },
 
+    // --- Tree position and searching ---
+
     /**
         Method: O.View#compareViewTreePosition
 
@@ -1138,6 +1140,27 @@ var View = NS.Class({
         }
 
         return POSITION_DISCONNECTED;
+    },
+
+    /**
+        Method: O.View#getParent
+
+        Finds the nearest ancestor in the view hierarchy which is an instance of
+        a particular view class.
+
+        Parameters:
+            Type - {O.Class} A view type (i.e. a subclass of O.View).
+
+        Returns:
+            {(O.View|null)} Returns the nearest parent view of the given type or
+            null if none of the view's ancestors are of the required type.
+    */
+    getParent: function ( Type ) {
+        var parent = this;
+        do {
+            parent = parent.get( 'parentView' );
+        } while ( parent && !( parent instanceof Type ) );
+        return parent || null;
     },
 
     // --- Sleep/wake ---
