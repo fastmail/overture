@@ -59,9 +59,14 @@ var PopOverEventHandler = NS.Class({
         if ( !this.inPopOver( event ) ) {
             event.stopPropagation();
             // Pop over view may be interested in key events:
-            this._view._options.view.fire( event.type, event );
-            if ( NS.DOMEvent.lookupKey( event ) === 'esc' ) {
-                this._view.hide();
+            var view = this._view;
+            while ( view.hasSubView() ) {
+                view = view.get( 'subPopOverView' );
+            }
+            view._options.view.fire( event.type, event );
+            if ( event.type === 'keydown' &&
+                    NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+                view.hide();
             }
         }
     }.on( 'keypress', 'keydown', 'keyup' )
@@ -75,6 +80,9 @@ var PopOverView = NS.Class({
 
     positioning: 'absolute',
 
+    isVisible: false,
+    parentPopOverView: null,
+
     /*
         Options
         - view -> The view to append to the pop over
@@ -87,12 +95,16 @@ var PopOverView = NS.Class({
         - onHide: fn
     */
     show: function ( options ) {
+        if ( options.alignWithView === this ) {
+            return this.get( 'subPopOverView' ).show( options );
+        }
         this.hide();
 
         this._options = options;
 
         // Set layout and insert in the right place
-        var view = options.view,
+        var eventHandler = this.get( 'eventHandler' ),
+            view = options.view,
             alignWithView = options.alignWithView,
             atNode = options.atNode || alignWithView.get( 'layer' ),
             withEdge = options.withEdge,
@@ -103,9 +115,12 @@ var PopOverView = NS.Class({
         if ( withEdge === 'left' ) { withEdge = null; }
 
         // Want nearest parent scroll view (or root view if none).
-        while ( !( parent instanceof NS.RootView ) &&
-                !( parent instanceof NS.ScrollView ) ) {
-            parent = parent.get( 'parentView' );
+        // Special case parent == parent pop-over view.
+        if ( !( parent instanceof PopOverView ) ) {
+            while ( !( parent instanceof NS.RootView ) &&
+                    !( parent instanceof NS.ScrollView ) ) {
+                parent = parent.get( 'parentView' );
+            }
         }
 
         // Now find out our offsets;
@@ -144,33 +159,56 @@ var PopOverView = NS.Class({
             this.propertyDidChange( 'layout' );
         }
 
-        NS.RootViewController.pushResponder( this.get( 'eventHandler' ) );
+        if ( eventHandler ) {
+            NS.RootViewController.pushResponder( eventHandler );
+        }
+        this.set( 'isVisible', true );
+
+        return this;
     },
 
     hide: function () {
-        var parent = this.get( 'parentView' ),
-            eventHandler = this.get( 'eventHandler' ),
-            options = this._options,
-            onHide, view, layer;
-        if ( parent ) {
+        if ( this.get( 'isVisible' ) ) {
+            var subPopOverView = this.hasSubView() ?
+                    this.get( 'subPopOverView' ) : null,
+                eventHandler = this.get( 'eventHandler' ),
+                options = this._options,
+                onHide, view, layer;
+            if ( subPopOverView ) {
+                subPopOverView.hide();
+            }
+            this.set( 'isVisible', false );
             if ( onHide = options.onHide ) {
                 onHide();
             }
             view = options.view;
-            parent.removeView( this );
+            this.get( 'parentView' ).removeView( this );
             this.removeView( view );
             if ( options.showCallout ) {
                 layer = this.get( 'layer' );
                 layer.removeChild( layer.firstChild );
             }
-            NS.RootViewController.removeResponder( eventHandler );
-            eventHandler._seenMouseDown = false;
+            if ( eventHandler ) {
+                NS.RootViewController.removeResponder( eventHandler );
+                eventHandler._seenMouseDown = false;
+            }
             this._options = null;
         }
+        return this;
     },
 
+    hasSubView: function () {
+        return !!NS.meta( this ).cache.subPopOverView &&
+            this.get( 'subPopOverView' ).get( 'isVisible' );
+    },
+
+    subPopOverView: function () {
+        return new NS.PopOverView({ parentPopOverView: this });
+    }.property(),
+
     eventHandler: function () {
-        return new PopOverEventHandler({ _view: this });
+        return this.get( 'parentPopOverView' ) ?
+            null : new PopOverEventHandler({ _view: this });
     }.property(),
 
     stopEvents: function ( event ) {

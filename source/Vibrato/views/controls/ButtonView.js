@@ -123,19 +123,48 @@ var MenuButtonView = NS.Class({
     popOverView: null,
     menuView: null,
 
+    isInMenu: function () {
+        return this.get( 'parentView' ) instanceof NS.MenuOptionView;
+    }.property( 'parentView' ),
+
     // --- Activate ---
 
     activate: function () {
         if ( !this.get( 'isDisabled' ) && !this.get( 'isActive' ) ) {
-            var buttonView = this;
             this.set( 'isActive', true );
-            this.get( 'popOverView' ).show({
+            var buttonView = this,
+                isInMenu = this.get( 'isInMenu' ),
+                popOverView, offsetTop, offsetLeft, menuOptionView;
+            if ( isInMenu ) {
+                popOverView = this.getParent( NS.PopOverView );
+                // Align top of submenu with top of menu button.
+                offsetTop = -this.get( 'pxHeight' ) - 4;
+                // And to the right hand side
+                offsetLeft = this.get( 'pxWidth' );
+                menuOptionView = this.get( 'parentView' );
+            } else {
+                popOverView = this.get( 'popOverView' );
+            }
+            // If the isInMenu, the popOverView used will actually be a subview
+            // of this popOverView, and is returned from the show method.
+            popOverView = popOverView.show({
                 view: this.get( 'menuView' ),
-                alignWithView: this,
+                alignWithView: isInMenu ? popOverView : this,
+                atNode: isInMenu ? this.get( 'layer' ) : null,
+                offsetTop: offsetTop,
+                offsetLeft: offsetLeft,
                 onHide: function () {
                     buttonView.set( 'isActive', false );
+                    if ( menuOptionView ) {
+                        menuOptionView.removeObserverForKey(
+                            'isFocussed', popOverView, 'hide' );
+                    }
                 }
             });
+            if ( menuOptionView ) {
+                menuOptionView.addObserverForKey(
+                    'isFocussed', popOverView, 'hide' );
+            }
         }
     },
 

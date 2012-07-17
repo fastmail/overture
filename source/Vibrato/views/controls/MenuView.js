@@ -38,12 +38,14 @@ var MenuController = NS.Class({
         return options[i];
     },
 
-    focusPrevious: function () {
-        this.focusOption( this.getAdjacentOption( -1 ) );
+    focusPrevious: function ( event ) {
+        if ( event ) { event.preventDefault(); }
+        return this.focusOption( this.getAdjacentOption( -1 ) );
     },
 
-    focusNext: function () {
-        this.focusOption( this.getAdjacentOption( 1 ) );
+    focusNext: function ( event ) {
+        if ( event ) { event.preventDefault(); }
+        return this.focusOption( this.getAdjacentOption( 1 ) );
     },
 
     focusOption: function ( option ) {
@@ -61,19 +63,23 @@ var MenuController = NS.Class({
             }
             this.set( 'focussedOption', option );
         }
+        return this;
     },
 
     blurOption: function ( option ) {
         if ( this.get( 'focussedOption' ) === option ) {
             this.focusOption( null );
         }
+        return this;
     },
 
-    selectFocussed: function () {
+    selectFocussed: function ( event ) {
+        if ( event ) { event.preventDefault(); }
         var focussedOption = this.get( 'focussedOption' );
         if ( focussedOption && focussedOption.get( 'isFocussable' ) ) {
             focussedOption.activate( this );
         }
+        return this;
     },
 
     // --- Filter ---
@@ -101,27 +107,46 @@ var MenuController = NS.Class({
         esc: 'onEscape',
         enter: 'selectFocussed',
         up: 'focusPrevious',
-        down: 'focusNext'
+        down: 'focusNext',
+        left: 'closeIfSub',
+        right: 'activateIfMenu'
     },
 
     triggerKeyBinding: function ( event ) {
         var key = NS.DOMEvent.lookupKey( event ),
             bindings = this.get( 'keyBindings' );
         if ( bindings[ key ] ) {
-            event.preventDefault();
             event.stopPropagation();
             this[ bindings[ key ] ]( event, key );
         }
     }.on( 'keydown' ),
 
     onEscape: function ( event ) {
+        event.preventDefault();
         var filter = this.get( 'filter' );
         if ( filter ) {
             this.set( 'filter', '' );
         } else {
             this.get( 'view' ).hide();
         }
-        if ( event ) { event.preventDefault(); }
+    },
+
+    closeIfSub: function () {
+        var view = this.get( 'view' ),
+            popOverView;
+        if ( !view.get( 'showFilter' ) &&
+                ( popOverView = view.getParent( NS.PopOverView ) ) &&
+                  popOverView.get( 'parentPopOverView' ) ) {
+            view.hide();
+        }
+    },
+
+    activateIfMenu: function () {
+        var focussedOption = this.get( 'focussedOption' );
+        if ( focussedOption && !this.get( 'view' ).get( 'showFilter' ) &&
+                focussedOption.get( 'button' ) instanceof NS.MenuButtonView ) {
+            this.selectFocussed();
+        }
     }
 });
 
@@ -130,7 +155,7 @@ var MenuOptionView = NS.Class({
     Extends: NS.View,
 
     isHidden: false,
-    isDisabled: NS.bind( 'controlView.isDisabled' ),
+    isDisabled: NS.bind( 'button.isDisabled' ),
     isFocussed: false,
     isFocussable: function () {
         return !this.get( 'isHidden' ) && !this.get( 'isDisabled' );
@@ -146,15 +171,15 @@ var MenuOptionView = NS.Class({
 
     init: function ( view, controller ) {
         this.childViews = [ view ];
-        this.controlView = view;
+        this.button = view;
         this.controller = controller;
         MenuOptionView.parent.init.call( this );
     },
 
     scrollIntoView: function () {
         if ( this.get( 'isFocussed' ) ) {
-            var scrollView = this.get( 'parentView' );
-            if ( scrollView instanceof NS.ScrollView ) {
+            var scrollView = this.getParent( NS.ScrollView );
+            if ( scrollView ) {
                 var scrollHeight = scrollView.get( 'pxHeight' ),
                     scrollTop = scrollView.get( 'scrollTop' ),
                     top = this.get( 'pxTop' ),
@@ -170,22 +195,45 @@ var MenuOptionView = NS.Class({
         }
     }.observes( 'isFocussed' ),
 
+    _focusTimeout: null,
+
     takeFocus: function () {
-        this.get( 'controller' ).focusOption( this );
+        if ( this.get( 'isInDocument' ) ) {
+            this.get( 'controller' ).focusOption( this )
+                .activateIfMenu();
+        }
+    },
+
+    mouseOver: function () {
+        if ( !this.get( 'isFocussed' ) && !this._focusTimeout ) {
+            var popOverView = this.getParent( NS.PopOverView );
+            if ( popOverView && popOverView.hasSubView() ) {
+                this._focusTimeout = NS.RunLoop.invokeAfterDelay(
+                    this.takeFocus, 75, this );
+            } else {
+                this.takeFocus();
+            }
+        }
     }.on( 'mouseover' ),
 
-    loseFocus: function () {
-        this.get( 'controller' ).blurOption( this );
+    mouseOut: function () {
+        if ( this._focusTimeout ) {
+            NS.RunLoop.cancel( this._focusTimeout );
+            this._focusTimeout = null;
+        }
+        if ( !this.get( 'button' ).get( 'isActive' ) ) {
+            this.get( 'controller' ).blurOption( this );
+        }
     }.on( 'mouseout' ),
 
     filter: function ( pattern ) {
-        var label = this.get( 'childViews' )[0].get( 'label' );
+        var label = this.get( 'button' ).get( 'label' );
         this.set( 'isHidden', !!pattern && !pattern.test( label ) );
     },
 
     activate: function () {
-        var child = this.get( 'childViews' )[0];
-        if ( child.activate ) { child.activate(); }
+        var button = this.get( 'button' );
+        if ( button.activate ) { button.activate(); }
     }
 });
 
@@ -212,16 +260,11 @@ var MenuView = NS.Class({
 
     didAppendLayerToDocument: function () {
         MenuView.parent.didAppendLayerToDocument.call( this );
-
-        var parentView = this,
-            layer, delta, scrollView;
-        while ( parentView && !( parentView instanceof NS.ScrollView ) ) {
-            parentView = parentView.get( 'parentView' );
-        }
-        if ( !parentView ) {
-            layer = this.get( 'layer' );
-            delta = layer.getBoundingClientRect().bottom -
-                    layer.ownerDocument.documentElement.clientHeight;
+        if ( !this.getParent( NS.ScrollView ) ) {
+            var layer = this.get( 'layer' ),
+                delta = layer.getBoundingClientRect().bottom -
+                    layer.ownerDocument.documentElement.clientHeight,
+                scrollView;
             if ( delta > 0 ) {
                 scrollView = this._scrollView;
                 scrollView.set( 'layout', {
@@ -294,12 +337,22 @@ var MenuView = NS.Class({
         controller.set( 'options', optionViews );
     },
 
-    hide: function ( event ) {
-        if ( !event || this.get( 'closeOnActivate' ) ) {
-            var parent = this.get( 'parentView' );
-            if ( parent ) {
-                NS.RunLoop.invokeInNextEventLoop( parent.hide, parent );
+    hide: function () {
+        var parent = this.get( 'parentView' );
+        if ( parent ) {
+            NS.RunLoop.invokeInNextEventLoop( parent.hide, parent );
+        }
+    },
+
+    hideAll: function () {
+        if ( this.get( 'closeOnActivate' ) ) {
+            var popOverView = this.getParent( NS.PopOverView ) ||
+                    this.get( 'parentView' ),
+                parent;
+            while ( parent = popOverView.get( 'parentPopOverView' ) ) {
+                popOverView = parent;
             }
+            NS.RunLoop.invokeInNextEventLoop( popOverView.hide, popOverView );
         }
     }.on( 'button:activate' ),
 
