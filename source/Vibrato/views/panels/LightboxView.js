@@ -95,7 +95,7 @@ var LightboxItemView = NS.Class({
         if ( !this.get( 'position' ) ) {
             this.get( 'layer' ).getBoundingClientRect();
         }
-        LightboxItemView.parent.didAppendLayerToDocument.call( this );
+        return LightboxItemView.parent.didAppendLayerToDocument.call( this );
     },
 
     parentViewDidResize: function ( didJustAddToDocument ) {

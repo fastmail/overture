@@ -151,7 +151,7 @@ var ToolbarView = NS.Class({
             ])
         );
         Element.forView( prevView );
-        ToolbarView.parent.willAppendLayerToDocument.call( this );
+        return ToolbarView.parent.willAppendLayerToDocument.call( this );
     },
 
     didAppendLayerToDocument: function () {
@@ -177,6 +177,7 @@ var ToolbarView = NS.Class({
         layer.removeChild( container );
 
         this.endPropertyChanges();
+        return this;
     },
 
     _render: function ( layer ) {
