@@ -119,6 +119,7 @@ var RichTextView = NS.Class({
                     .addEventListener( 'keydown', richTextView )
                     .addEventListener( 'keypress', richTextView )
                     .addEventListener( 'keyup', richTextView )
+                    .addEventListener( 'mousedown', richTextView )
                     .addEventListener( 'click', richTextView )
                     .addEventListener( 'focus', richTextView )
                     .addEventListener( 'blur', richTextView )
@@ -490,7 +491,7 @@ var RichTextView = NS.Class({
                             type: 'destructive button size13',
                             label: NS.loc( 'Cancel' ),
                             target: popOver,
-                            action: 'hide'
+                            method: 'hide'
                         }),
                         new ButtonView({
                             type: 'constructive button size13',
