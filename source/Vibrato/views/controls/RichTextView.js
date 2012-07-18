@@ -99,7 +99,6 @@ var RichTextView = NS.Class({
 
     _render: function ( layer ) {
         var el = NS.Element.create,
-            bind = NS.bind,
             richTextView = this;
 
         // Editor
@@ -138,148 +137,176 @@ var RichTextView = NS.Class({
         iframe.addEventListener( 'load', onload, false );
 
         NS.Element.appendChildren( layer, [
-            el( 'div.ToolbarView.smallIconsOnly', [
-                el( 'div.left', [
-                    new ButtonView({
-                        isActive: bind( 'isBold', this ),
-                        label: NS.loc( 'Bold' ),
-                        icon: 'bold',
-                        activate: function () {
-                            richTextView.toggle( 'bold' );
-                        }
-                    }),
-                    new ButtonView({
-                        isActive: bind( 'isItalic', this ),
-                        label: NS.loc( 'Italic' ),
-                        icon: 'italic',
-                        activate: function () {
-                            richTextView.toggle( 'italic' );
-                        }
-                    }),
-                    new ButtonView({
-                        isActive: bind( 'isUnderlined', this ),
-                        label: NS.loc( 'Underline' ),
-                        icon: 'underline',
-                        activate: function () {
-                            richTextView.toggle( 'underline' );
-                        }
-                    }),
-                    el( 'span.divider' ),
-                    new ButtonView({
-                        label: NS.loc( 'Font Size' ),
-                        icon: 'fontSize',
-                        target: this,
-                        method: 'showFontSizeMenu'
-                    }),
-                    new ButtonView({
-                        label: NS.loc( 'Font Face' ),
-                        icon: 'fontFace',
-                        target: this,
-                        method: 'showFontFaceMenu'
-                    }),
-                    el( 'span.divider' ),
-                    new ButtonView({
-                        label: NS.loc( 'Text Color' ),
-                        icon: 'textColour',
-                        target: this,
-                        method: 'showTextColourMenu'
-                    }),
-                    new ButtonView({
-                        label: NS.loc( 'Text Highlight' ),
-                        icon: 'highlightColour',
-                        target: this,
-                        method: 'showTextHighlightColourMenu'
-                    }),
-                    el( 'span.divider' ),
-                    new ButtonView({
-                        isActive: bind( 'isLink', this ),
-                        label: NS.loc( 'Link' ),
-                        icon: 'link',
-                        activate: function () {
-                            if ( richTextView.get( 'isLink' ) ) {
-                                richTextView.removeLink();
-                            } else {
-                                richTextView.showLinkOverlay( this );
-                            }
-                        }
-                    }),
-                    el( 'span.divider' ),
-                    new ButtonView({
-                        type: bind( 'alignment', this, equalTo( 'left' ) ),
-                        label: NS.loc( 'Left' ),
-                        icon: 'alignLeft',
-                        activate: function () {
-                            richTextView.setTextAlignment( 'left' );
-                        }
-                    }),
-                    new ButtonView({
-                        type: bind( 'alignment', this, equalTo( 'center' ) ),
-                        label: NS.loc( 'Center' ),
-                        icon: 'alignCentre',
-                        activate: function () {
-                            richTextView.setTextAlignment( 'center' );
-                        }
-                    }),
-                    new ButtonView({
-                        type: bind( 'alignment', this, equalTo( 'right' ) ),
-                        label: NS.loc( 'Right' ),
-                        icon: 'alignRight',
-                        activate: function () {
-                            richTextView.setTextAlignment( 'right' );
-                        }
-                    }),
-                    new ButtonView({
-                        type: bind( 'alignment', this, equalTo( 'justify' ) ),
-                        label: NS.loc( 'Justify' ),
-                        icon: 'alignJustify',
-                        activate: function () {
-                            richTextView.setTextAlignment( 'justify' );
-                        }
-                    }),
-                    el( 'span.divider' ),
-                    new ButtonView({
-                        label: NS.loc( 'Quote' ),
-                        icon: 'incQuote',
-                        target: richTextView,
-                        method: 'increaseQuoteLevel'
-                    }),
-                    new ButtonView({
-                        label: NS.loc( 'Unquote' ),
-                        icon: 'decQuote',
-                        target: richTextView,
-                        method: 'decreaseQuoteLevel'
-                    }),
-                    el( 'span.divider' ),
-                    new ButtonView({
-                        isActive: bind( 'isUnorderedList', this ),
-                        label: NS.loc( 'Unordered List' ),
-                        icon: 'ul',
-                        activate: function () {
-                            if ( richTextView.get( 'isUnorderedList' ) ) {
-                                richTextView.removeList();
-                            } else {
-                                richTextView.makeUnorderedList();
-                            }
-                        }
-                    }),
-                    new ButtonView({
-                        isActive: bind( 'isOrderedList', this ),
-                        label: NS.loc( 'Ordered List' ),
-                        icon: 'ol',
-                        activate: function () {
-                            if ( richTextView.get( 'isOrderedList' ) ) {
-                                richTextView.removeList();
-                            } else {
-                                richTextView.makeOrderedList();
-                            }
-                        }
-                    })
-                ])
-            ]),
+            this.get( 'toolbarView' ),
             el( 'div.editor', [ iframe ] ),
             this._loadingOverlay = el( 'div.LoadingAnimation' )
         ]);
     },
+
+    toolbarView: function () {
+        var bind = NS.bind,
+            richTextView = this;
+
+        return new NS.ToolbarView({
+            className: 'ToolbarView small',
+            preventOverlap: true
+        }).registerViews({
+            bold: new ButtonView({
+                isActive: bind( 'isBold', this ),
+                label: NS.loc( 'Bold' ),
+                type: 'iconOnly',
+                icon: 'bold',
+                activate: function () {
+                    richTextView.toggle( 'bold' );
+                }
+            }),
+            italic: new ButtonView({
+                isActive: bind( 'isItalic', this ),
+                label: NS.loc( 'Italic' ),
+                type: 'iconOnly',
+                icon: 'italic',
+                activate: function () {
+                    richTextView.toggle( 'italic' );
+                }
+            }),
+            underline: new ButtonView({
+                isActive: bind( 'isUnderlined', this ),
+                label: NS.loc( 'Underline' ),
+                type: 'iconOnly',
+                icon: 'underline',
+                activate: function () {
+                    richTextView.toggle( 'underline' );
+                }
+            }),
+            size: new ButtonView({
+                label: NS.loc( 'Font Size' ),
+                type: 'iconOnly',
+                icon: 'fontSize',
+                target: this,
+                method: 'showFontSizeMenu'
+            }),
+            font: new ButtonView({
+                label: NS.loc( 'Font Face' ),
+                type: 'iconOnly',
+                icon: 'fontFace',
+                target: this,
+                method: 'showFontFaceMenu'
+            }),
+            colour: new ButtonView({
+                label: NS.loc( 'Text Color' ),
+                type: 'iconOnly',
+                icon: 'textColour',
+                target: this,
+                method: 'showTextColourMenu'
+            }),
+            bgcolour: new ButtonView({
+                label: NS.loc( 'Text Highlight' ),
+                type: 'iconOnly',
+                icon: 'highlightColour',
+                target: this,
+                method: 'showTextHighlightColourMenu'
+            }),
+            link: new ButtonView({
+                isActive: bind( 'isLink', this ),
+                label: NS.loc( 'Link' ),
+                type: 'iconOnly',
+                icon: 'link',
+                activate: function () {
+                    if ( richTextView.get( 'isLink' ) ) {
+                        richTextView.removeLink();
+                    } else {
+                        richTextView.showLinkOverlay( this );
+                    }
+                }
+            }),
+            left: new ButtonView({
+                isActive: bind( 'alignment', this, equalTo( 'left' ) ),
+                label: NS.loc( 'Left' ),
+                type: 'iconOnly',
+                icon: 'alignLeft',
+                activate: function () {
+                    richTextView.setTextAlignment( 'left' );
+                }
+            }),
+            centre: new ButtonView({
+                isActive: bind( 'alignment', this, equalTo( 'center' ) ),
+                label: NS.loc( 'Center' ),
+                type: 'iconOnly',
+                icon: 'alignCentre',
+                activate: function () {
+                    richTextView.setTextAlignment( 'center' );
+                }
+            }),
+            right: new ButtonView({
+                isActive: bind( 'alignment', this, equalTo( 'right' ) ),
+                label: NS.loc( 'Right' ),
+                type: 'iconOnly',
+                icon: 'alignRight',
+                activate: function () {
+                    richTextView.setTextAlignment( 'right' );
+                }
+            }),
+            justify: new ButtonView({
+                isActive: bind( 'alignment', this, equalTo( 'justify' ) ),
+                label: NS.loc( 'Justify' ),
+                type: 'iconOnly',
+                icon: 'alignJustify',
+                activate: function () {
+                    richTextView.setTextAlignment( 'justify' );
+                }
+            }),
+            quote: new ButtonView({
+                label: NS.loc( 'Quote' ),
+                type: 'iconOnly',
+                icon: 'incQuote',
+                target: richTextView,
+                method: 'increaseQuoteLevel'
+            }),
+            unquote: new ButtonView({
+                label: NS.loc( 'Unquote' ),
+                type: 'iconOnly',
+                icon: 'decQuote',
+                target: richTextView,
+                method: 'decreaseQuoteLevel'
+            }),
+            ul: new ButtonView({
+                isActive: bind( 'isUnorderedList', this ),
+                label: NS.loc( 'Unordered List' ),
+                type: 'iconOnly',
+                icon: 'ul',
+                activate: function () {
+                    if ( richTextView.get( 'isUnorderedList' ) ) {
+                        richTextView.removeList();
+                    } else {
+                        richTextView.makeUnorderedList();
+                    }
+                }
+            }),
+            ol: new ButtonView({
+                isActive: bind( 'isOrderedList', this ),
+                label: NS.loc( 'Ordered List' ),
+                type: 'iconOnly',
+                icon: 'ol',
+                activate: function () {
+                    if ( richTextView.get( 'isOrderedList' ) ) {
+                        richTextView.removeList();
+                    } else {
+                        richTextView.makeOrderedList();
+                    }
+                }
+            })
+        }).registerConfig( 'standard', {
+            left: [ 'bold', 'italic', 'underline', '-',
+                    'size', 'font', '-',
+                    'colour', 'bgcolour', '-',
+                    'link', '-',
+                    'left', 'centre', 'right', 'justify', '-',
+                    'quote', 'unquote', '-',
+                    'ul', 'ol'
+                  ],
+            right: []
+        });
+    }.property(),
 
     fontSizeMenuView: function () {
         var richTextView = this;
