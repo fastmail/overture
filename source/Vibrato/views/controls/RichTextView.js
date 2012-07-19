@@ -93,8 +93,6 @@ var RichTextView = NS.Class({
                 .willRemoveLayerFromDocument.call( this );
     },
 
-    layerTag: 'div',
-
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
 
     _render: function ( layer ) {
@@ -158,7 +156,11 @@ var RichTextView = NS.Class({
                 type: 'iconOnly',
                 icon: 'bold',
                 activate: function () {
-                    richTextView.toggle( 'bold' );
+                    if ( richTextView.get( 'isBold' ) ) {
+                        richTextView.removeBold();
+                    } else {
+                        richTextView.bold();
+                    }
                 }
             }),
             italic: new ButtonView({
@@ -167,7 +169,11 @@ var RichTextView = NS.Class({
                 type: 'iconOnly',
                 icon: 'italic',
                 activate: function () {
-                    richTextView.toggle( 'italic' );
+                    if ( richTextView.get( 'isItalic' ) ) {
+                        richTextView.removeItalic();
+                    } else {
+                        richTextView.italic();
+                    }
                 }
             }),
             underline: new ButtonView({
@@ -176,7 +182,11 @@ var RichTextView = NS.Class({
                 type: 'iconOnly',
                 icon: 'underline',
                 activate: function () {
-                    richTextView.toggle( 'underline' );
+                    if ( richTextView.get( 'isUnderlined' ) ) {
+                        richTextView.removeUnderline();
+                    } else {
+                        richTextView.underline();
+                    }
                 }
             }),
             size: new ButtonView({
