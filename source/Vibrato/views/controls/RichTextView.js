@@ -161,6 +161,7 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.bold();
                     }
+                    this.fire( 'button:activate' );
                 }
             }),
             italic: new ButtonView({
@@ -174,6 +175,7 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.italic();
                     }
+                    this.fire( 'button:activate' );
                 }
             }),
             underline: new ButtonView({
@@ -187,6 +189,7 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.underline();
                     }
+                    this.fire( 'button:activate' );
                 }
             }),
             size: new ButtonView({
@@ -228,6 +231,7 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.showLinkOverlay( this );
                     }
+                    this.fire( 'button:activate' );
                 }
             }),
             left: new ButtonView({
@@ -237,6 +241,7 @@ var RichTextView = NS.Class({
                 icon: 'alignLeft',
                 activate: function () {
                     richTextView.setTextAlignment( 'left' );
+                    this.fire( 'button:activate' );
                 }
             }),
             centre: new ButtonView({
@@ -246,6 +251,7 @@ var RichTextView = NS.Class({
                 icon: 'alignCentre',
                 activate: function () {
                     richTextView.setTextAlignment( 'center' );
+                    this.fire( 'button:activate' );
                 }
             }),
             right: new ButtonView({
@@ -255,6 +261,7 @@ var RichTextView = NS.Class({
                 icon: 'alignRight',
                 activate: function () {
                     richTextView.setTextAlignment( 'right' );
+                    this.fire( 'button:activate' );
                 }
             }),
             justify: new ButtonView({
@@ -264,6 +271,7 @@ var RichTextView = NS.Class({
                 icon: 'alignJustify',
                 activate: function () {
                     richTextView.setTextAlignment( 'justify' );
+                    this.fire( 'button:activate' );
                 }
             }),
             quote: new ButtonView({
@@ -291,6 +299,7 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.makeUnorderedList();
                     }
+                    this.fire( 'button:activate' );
                 }
             }),
             ol: new ButtonView({
@@ -304,6 +313,7 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.makeOrderedList();
                     }
+                    this.fire( 'button:activate' );
                 }
             })
         }).registerConfig( 'standard', {
