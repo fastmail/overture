@@ -42,14 +42,21 @@ var ToolbarView = NS.Class({
         };
     },
 
-    registerView: function ( name, view ) {
+    registerView: function ( name, view, _dontMeasure ) {
         this._views[ name ] = view;
+        if ( !_dontMeasure && this.get( 'isInDocument' ) &&
+                this.get( 'preventOverlap' ) ) {
+            this.preMeasure().postMeasure();
+        }
         return this;
     },
 
     registerViews: function ( views ) {
         for ( var name in views ) {
-            this.registerView( name, views[ name ] );
+            this.registerView( name, views[ name ], true );
+        }
+        if ( this.get( 'isInDocument' ) && this.get( 'preventOverlap' ) ) {
+            this.preMeasure().postMeasure();
         }
         return this;
     },
@@ -138,21 +145,57 @@ var ToolbarView = NS.Class({
         return this.get( 'rightConfig' ).map( toView, this );
     }.property( 'rightConfig' ),
 
+    preMeasure: function () {
+        this.insertView( this._measureView =
+            new NS.View({
+                className: 'measure',
+                layerStyles: {},
+                childViews: Object.values( this._views )
+                                  .filter( function ( view ) {
+                    return !view.get( 'parentView' );
+                }),
+                _render: function ( layer ) {
+                    layer.appendChild( NS.Element.create( 'span.divider' ) );
+                    NS.View.prototype._render.call( this, layer );
+                }
+            })
+        );
+        return this;
+    },
+
+    postMeasure: function () {
+        var widths = this._widths = {},
+            views = this._views,
+            measureView = this._measureView,
+            unused = measureView.get( 'childViews' ),
+            container = measureView.get( 'layer' ),
+            firstButton = unused.length ? unused[0].get( 'layer' ) : null,
+            name, l;
+
+        for ( name in views ) {
+            widths[ name ] = views[ name ].get( 'pxWidth' );
+        }
+        // Want to include any left/right margin, so get difference between
+        // edge of first button and start of container
+        widths[ '-' ] = ( firstButton ?
+            firstButton.getBoundingClientRect().left :
+            container.getBoundingClientRect().right
+        ) - container.getBoundingClientRect().left;
+
+        this.removeView( measureView );
+        l = unused.length;
+        while ( l-- ) {
+            measureView.removeView( unused[l] );
+        }
+        measureView.destroy();
+        delete this._measureView;
+
+        return this;
+    },
+
     willAppendLayerToDocument: function () {
         if ( this.get( 'preventOverlap' ) ) {
-            var Element = NS.Element,
-                el = Element.create,
-                prevView = Element.forView( this );
-            Element.appendChildren( this.get( 'layer' ),
-                el( 'div.measure', [
-                    el( 'span.divider' ),
-                    this._unused =
-                        Object.values( this._views ).filter( function ( view ) {
-                            return !view.get( 'parentView' );
-                        })
-                ])
-            );
-            Element.forView( prevView );
+            this.preMeasure();
         }
         return ToolbarView.parent.willAppendLayerToDocument.call( this );
     },
@@ -160,34 +203,9 @@ var ToolbarView = NS.Class({
     didAppendLayerToDocument: function () {
         this.beginPropertyChanges();
         ToolbarView.parent.didAppendLayerToDocument.call( this );
-
         if ( this.get( 'preventOverlap' ) ) {
-            var widths = this._widths = {},
-                views = this._views,
-                unused = this._unused,
-                layer = this.get( 'layer' ),
-                container = layer.lastChild,
-                firstButton = container.firstChild.nextSibling,
-                name;
-
-            for ( name in views ) {
-                widths[ name ] = views[ name ].get( 'pxWidth' );
-            }
-            // Want to include any left/right margin, so get difference between
-            // edge of first button and start of container
-            widths[ '-' ] = ( firstButton ?
-                firstButton.getBoundingClientRect().left :
-                container.getBoundingClientRect().right
-            ) - container.getBoundingClientRect().left;
-
-            unused.forEach( function ( view ) {
-                this.removeView( view );
-            }, this );
-            delete this._unused;
-
-            layer.removeChild( container );
+            this.postMeasure();
         }
-
         this.endPropertyChanges();
         return this;
     },
