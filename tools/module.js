@@ -192,7 +192,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         module += '", "';
         module += filename.replace( /\.[^.]+$/, '' );
         module += '", "';
-        module += data.replace( /"/g, '\\"');
+        module += data.replace( /\\/g, '\\\\' ).replace( /"/g, '\\"' );
         module += '");\n';
     });
     
