@@ -349,10 +349,13 @@ var MenuView = NS.Class({
             var popOverView = this.getParent( NS.PopOverView ) ||
                     this.get( 'parentView' ),
                 parent;
-            while ( parent = popOverView.get( 'parentPopOverView' ) ) {
-                popOverView = parent;
+            if ( popOverView ) {
+                while ( parent = popOverView.get( 'parentPopOverView' ) ) {
+                    popOverView = parent;
+                }
+                NS.RunLoop.invokeInNextEventLoop(
+                    popOverView.hide, popOverView );
             }
-            NS.RunLoop.invokeInNextEventLoop( popOverView.hide, popOverView );
         }
     }.on( 'button:activate' ),
 
