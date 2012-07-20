@@ -468,36 +468,11 @@ var RichTextView = NS.Class({
                 }
                 return NS.View.prototype.didAppendLayerToDocument.call( this );
             },
-            addLink: function ( event ) {
-                event.stopPropagation();
-                if ( event.type === 'keyup' &&
-                        NS.DOMEvent.lookupKey( event ) !== 'enter' ) {
-                    return;
-                }
-                var url = this.get( 'value' ).trim(),
-                    email;
-                // If it appears to start with a url protocol,
-                // pass it through verbatim.
-                if ( !( /[a-z][\w\-]+:/i.test( url ) ) ) {
-                    // Otherwise, look for an email address,
-                    // and add a mailto: handler, if found.
-                    email = emailRegExp.exec( url );
-                    if ( email ) {
-                        url = 'mailto:' + email[0];
-                    }
-                    // Or an http:// prefix if not.
-                    else {
-                        url = 'http://' + url;
-                    }
-                }
-                richTextView.makeLink( url );
-                popOver.hide();
-            }.on( 'addLink', 'keyup' ),
             _render: function ( layer ) {
                 var Element = NS.Element,
                     el = Element.create;
                 Element.appendChildren( layer, [
-                    el( 'p', [
+                    el( 'h3', [
                         NS.loc( 'Add a link to the following URL or email:' )
                     ]),
                     this._input = new NS.TextView({
@@ -517,10 +492,36 @@ var RichTextView = NS.Class({
                             type: 'constructive button size13',
                             label: NS.loc( 'Add Link' ),
                             target: this,
-                            action: 'addLink'
+                            method: 'addLink'
                         })
                     ])
                 ]);
+            },
+            addLinkOnEnter: function ( event ) {
+                event.stopPropagation();
+                if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
+                    this.addLink();
+                }
+            }.on( 'keyup' ),
+            addLink: function () {
+                var url = this.get( 'value' ).trim(),
+                    email;
+                // If it appears to start with a url protocol,
+                // pass it through verbatim.
+                if ( !( /[a-z][\w\-]+:/i.test( url ) ) ) {
+                    // Otherwise, look for an email address,
+                    // and add a mailto: handler, if found.
+                    email = emailRegExp.exec( url );
+                    if ( email ) {
+                        url = 'mailto:' + email[0];
+                    }
+                    // Or an http:// prefix if not.
+                    else {
+                        url = 'http://' + url;
+                    }
+                }
+                richTextView.makeLink( url );
+                popOver.hide();
             }
         });
     }.property(),
