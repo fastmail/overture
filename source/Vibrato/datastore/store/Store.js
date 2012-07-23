@@ -559,11 +559,13 @@ var Store = NS.Class({
             callback;
 
         var getEntry = function ( Type ) {
-            var typeName = Type.className;
+            var typeName = Type.className,
+                primaryKey;
             entry = changes[ typeName ];
             if ( !entry ) {
+                primaryKey = Type.primaryKey;
                 entry = changes[ typeName ] = {
-                    primaryKey: Type.primaryKey,
+                    primaryKey: Type.prototype[ primaryKey ].key || primaryKey,
                     create: { storeKeys: [], records: [] },
                     update: { storeKeys: [], records: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
