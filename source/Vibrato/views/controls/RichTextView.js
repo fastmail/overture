@@ -74,6 +74,7 @@ var RichTextView = NS.Class({
     // --- Render ---
 
     willAppendLayerToDocument: function () {
+        this.set( 'path', '' );
         NS.Element.removeClass( this._loadingOverlay, 'hidden' );
         return RichTextView.parent
                 .willAppendLayerToDocument.call( this );
@@ -125,7 +126,7 @@ var RichTextView = NS.Class({
                     .addEventListener( 'select', richTextView )
                     .addEventListener( 'pathChange', richTextView )
                     .addEventListener( 'undoStateChange', richTextView )
-                );
+                ).set( 'path', editor.getPath() );
                 NS.Element.addClass( richTextView._loadingOverlay, 'hidden' );
                 if ( richTextView.get( 'isFocussed' ) ) {
                     editor.focus();
