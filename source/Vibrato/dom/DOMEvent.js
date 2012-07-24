@@ -62,19 +62,18 @@ var DOMEvent = {
             {String} The key pressed (in lowercase if a letter).
     */
     lookupKey: function ( event, noModifiers ) {
-
-        // See http://unixpapa.com/js/key.html
-        // Short summary:
+        // See http://unixpapa.com/js/key.html. Short summary:
         // event.keyCode || event.which gives the ASCII code for any normal
         // keypress on all browsers. However, if event.which === 0 then it was a
         // special key and so it should be looked up in the table of function
         // keys. Anything from code 32 downwards must also be a special char.
-
         var code = event.keyCode || event.which,
-            preferAsci = code > 32 && event.type === 'keypress' &&
+            isKeyPress = ( event.type === 'keypress' ),
+            preferAsci = code > 32 && isKeyPress &&
                 event.which !== 0 && event.charCode !== 0,
             str = String.fromCharCode( code ).toLowerCase(),
-            key = ( !preferAsci && Object.keyOf( DOMEvent.keys, code ) ) || str;
+            key = ( !preferAsci && Object.keyOf( DOMEvent.keys, code ) ) || str,
+            altAndShift;
 
         // Function keys
         if ( !preferAsci && 111 < code && code < 124 ) {
@@ -83,10 +82,13 @@ var DOMEvent = {
         // Append modifiers (use alphabetical order)
         var modifiers = '';
         if ( !noModifiers ) {
-            if ( event.altKey ) { modifiers += 'alt-'; }
+            // Different keyboard layouts may require Shift/Alt for non A-Z
+            // keys, so we only add meta and ctrl modifiers.
+            altAndShift = !isKeyPress || ( /[a-z]/.test( key ) );
+            if ( event.altKey && altAndShift ) { modifiers += 'alt-'; }
             if ( event.ctrlKey ) { modifiers += 'ctrl-'; }
             if ( event.metaKey ) { modifiers += 'meta-'; }
-            if ( event.shiftKey ) { modifiers += 'shift-'; }
+            if ( event.shiftKey && altAndShift ) { modifiers += 'shift-'; }
         }
 
         return modifiers + key;
