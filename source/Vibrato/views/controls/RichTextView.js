@@ -275,6 +275,26 @@ var RichTextView = NS.Class({
                     this.fire( 'button:activate' );
                 }
             }),
+            ltr: new ButtonView({
+                isActive: bind( 'direction', this, equalTo( 'ltr' ) ),
+                label: NS.loc( 'Text Direction: Left to Right' ),
+                type: 'iconOnly',
+                icon: 'ltr',
+                activate: function () {
+                    richTextView.setTextDirection( 'ltr' );
+                    this.fire( 'button:activate' );
+                }
+            }),
+            rtl: new ButtonView({
+                isActive: bind( 'direction', this, equalTo( 'rtl' ) ),
+                label: NS.loc( 'Text Direction: Right to Left' ),
+                type: 'iconOnly',
+                icon: 'rtl',
+                activate: function () {
+                    richTextView.setTextDirection( 'rtl' );
+                    this.fire( 'button:activate' );
+                }
+            }),
             quote: new ButtonView({
                 label: NS.loc( 'Quote' ),
                 type: 'iconOnly',
@@ -322,9 +342,10 @@ var RichTextView = NS.Class({
                     'size', 'font', '-',
                     'colour', 'bgcolour', '-',
                     'link', '-',
-                    'left', 'centre', 'right', 'justify', '-',
                     'quote', 'unquote', '-',
-                    'ul', 'ol'
+                    'left', 'centre', 'right', 'justify', '-',
+                    'ul', 'ol', '-',
+                    'ltr', 'rtl'
                   ],
             right: []
         });
@@ -586,6 +607,7 @@ var RichTextView = NS.Class({
     setHighlightColour: execCommand( 'setHighlightColour' ),
 
     setTextAlignment: execCommand( 'setTextAlignment' ),
+    setTextDirection: execCommand( 'setTextDirection' ),
 
     increaseQuoteLevel: execCommand( 'increaseQuoteLevel' ),
     decreaseQuoteLevel: execCommand( 'decreaseQuoteLevel' ),
@@ -651,6 +673,27 @@ var RichTextView = NS.Class({
             alignment = results ? results[1] : 'left';
         }
         return alignment;
+    }.property( 'path' ),
+    
+    direction: function () {
+        var path = this.get( 'path' ),
+            results = /\.dir\-(\w+)/.exec( path ),
+            dir;
+        if ( path === '(selection)' ) {
+            dir = '';
+            this._forEachBlock( function ( block ) {
+                var blockDir = block.dir || 'ltr';
+                if ( dir && blockDir !== dir ) {
+                    dir = '';
+                    return true;
+                }
+                dir = blockDir;
+                return false;
+            });
+        } else {
+            dir = results ? results[1] : 'ltr';
+        }
+        return dir;
     }.property( 'path' ),
 
     isUnorderedList: queryCommandState( 'UL', ( />UL\b/ ) ),
