@@ -67,7 +67,7 @@ var ListViewKBWidgetView = NS.Class({
     },
 
     distanceFromVisRect: function () {
-        var scrollView = this.getFromPath( 'listView.scrollView' );
+        var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
             var scrollTop = scrollView.get( 'scrollTop' ),
                 layout = this.get( 'layout' ),
@@ -85,7 +85,7 @@ var ListViewKBWidgetView = NS.Class({
     }.property().nocache(),
 
     scrollIntoView: function ( offset, withAnimation ) {
-        var scrollView = this.getFromPath( 'listView.scrollView' );
+        var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
             var scrollHeight = scrollView.get( 'pxHeight' ),
                 layout = this.get( 'layout' ),
