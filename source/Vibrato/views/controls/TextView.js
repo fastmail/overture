@@ -205,12 +205,16 @@ var TextView = NS.Class({
         if ( key === 13 && !this.get( 'isMultiline' ) ) {
             event.preventDefault();
         }
+    }.on( 'keypress' ),
+
+    _blurOnEsc: function ( event ) {
+        var key = ( event.keyCode || event.which );
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
         if ( key === 27 && this.get( 'blurOnEscape' ) ) {
             this.blur();
         }
-    }.on( 'keypress' ),
+    }.on( 'keydown' ),
 
     // --- Keep render in sync with state ---
 
