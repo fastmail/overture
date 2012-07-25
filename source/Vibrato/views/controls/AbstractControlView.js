@@ -23,22 +23,29 @@ var AbstractControlView = NS.Class({
 
     tooltip: function () {
         var shortcut = this.get( 'shortcut' );
-        return shortcut ? NS.loc( 'Shortcut: [_1]', shortcut ) : '';
+        return shortcut ?
+            NS.loc( 'Shortcut: [_1]',
+                shortcut.split( ' ' ).join( ' ' + NS.loc( 'or' ) + ' ' )
+            ) : '';
     }.property( 'shortcut' ),
 
     didAppendLayerToDocument: function () {
-        var key = this.get( 'shortcut' );
-        if ( key ) {
-            NS.RootViewController.kbShortcuts
-                .register( key, this, 'activate' );
+        var shortcut = this.get( 'shortcut' );
+        if ( shortcut ) {
+            shortcut.split( ' ' ).forEach( function ( key ) {
+                NS.RootViewController.kbShortcuts
+                    .register( key, this, 'activate' );
+            }, this );
         }
         return AbstractControlView.parent.didAppendLayerToDocument.call( this );
     },
     willRemoveLayerFromDocument: function () {
-        var key = this.get( 'shortcut' );
-        if ( key ) {
-            NS.RootViewController.kbShortcuts
-                .deregister( key, this, 'activate' );
+        var shortcut = this.get( 'shortcut' );
+        if ( shortcut ) {
+            shortcut.split( ' ' ).forEach( function ( key ) {
+                NS.RootViewController.kbShortcuts
+                    .deregister( key, this, 'activate' );
+            }, this );
         }
         return AbstractControlView.parent.willRemoveLayerFromDocument.call(
             this );
