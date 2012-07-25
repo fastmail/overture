@@ -14,22 +14,6 @@ var InfoBubbleView = NS.Class({
 
     Extends: NS.View,
 
-    init: function () {
-        InfoBubbleView.parent.init.apply( this, arguments );
-        this.get( 'rootView' ).insertView( this );
-    },
-
-    destroy: function () {
-        this.get( 'rootView' ).removeView( this );
-        InfoBubbleView.parent.destroy.call( this );
-    },
-
-    className: function () {
-        return 'InfoBubbleView ' + this.get( 'alignToThe' ) +
-            ( this.get( 'isHidden' ) || !this.get( 'alignWithView' ) ?
-                ' hidden' : '' );
-    }.property( 'alignWithView', 'alignToThe', 'isHidden' ),
-
     zIndex: 5000,
 
     isHidden: true,
@@ -39,16 +23,52 @@ var InfoBubbleView = NS.Class({
 
     positioning: 'absolute',
 
-    layout: function () {
-        var view = this.get( 'alignWithView' );
-        if ( !view ) { return {}; }
+    className: function () {
+        return 'InfoBubbleView ' + this.get( 'alignToThe' );
+    }.property( 'alignToThe' ),
 
-        var bounds = view.get( 'layer' ).getBoundingClientRect(),
+    insertOrRemove: function () {
+        var shouldBeInDoc = !this.get( 'isHidden' ) &&
+                !!this.get( 'alignWithView' ),
+            isInDocument = this.get( 'isInDocument' ),
+            rootView = this.get( 'rootView' );
+        if ( shouldBeInDoc && !isInDocument ) {
+            rootView.insertView( this );
+        }
+        if ( !shouldBeInDoc && isInDocument ) {
+            rootView.removeView( this );
+        }
+    }.observes( 'isHidden', 'alignWithView' ),
+
+    monitorScrolls: function () {
+        var alignWithView = this.get( 'alignWithView' ),
+            scrollAncestors = this._scrollAncestors;
+        if ( scrollAncestors ) {
+            scrollAncestors.forEach( function ( view ) {
+                view.detach( 'scroll', this, 'parentViewDidResize' );
+            });
+        }
+        scrollAncestors = null;
+        if ( alignWithView ) {
+            scrollAncestors = [];
+            while ( alignWithView = alignWithView.getParent( NS.ScrollView ) ) {
+                alignWithView.on( 'scroll', this, 'parentViewDidResize' );
+                scrollAncestors.push( alignWithView );
+            }
+        }
+        this._scrollAncestors = scrollAncestors;
+    }.observes( 'alignWithView' ),
+
+    layout: function () {
+        var alignWithView = this.get( 'alignWithView' );
+        if ( !alignWithView ) { return {}; }
+
+        var alignToThe = this.get( 'alignToThe' ),
+            bounds = alignWithView.get( 'layer' ).getBoundingClientRect(),
             layout = {
+                top: parseInt( bounds.top, 10 ),
                 left: parseInt( bounds.left, 10 ),
-                top: parseInt( bounds.top, 10 )
-            },
-            alignToThe = this.get( 'alignToThe' );
+            };
 
         if ( alignToThe === 'right' ) {
             // IE8 doesn't support bounds.width
@@ -69,6 +89,10 @@ var InfoBubbleView = NS.Class({
             }),
             el( 'b' )
         ]) );
+    },
+    
+    parentViewDidResize: function () {
+        this.computedPropertyDidChange( 'layout' );
     }
 });
 
