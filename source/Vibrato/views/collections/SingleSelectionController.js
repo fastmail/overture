@@ -130,12 +130,13 @@ var SingleSelectionController = NS.Class({
     }.observes( 'content' ),
 
     contentWasUpdated: function ( updates ) {
-        var index = updates.added.indexOf( this.get( 'record' ).get( 'id' ) ),
+        var record = this.get( 'record' ),
+            index = record ? updates.added.indexOf( record.get( 'id' ) ) : -1,
             removedIndexes = updates.removedIndexes,
             addedIndexes = updates.addedIndexes,
             content = this.get( 'content' ),
             change = 0,
-            i, l, record;
+            i, l;
 
         if ( index > -1 ) {
             index = addedIndexes[ index ];
