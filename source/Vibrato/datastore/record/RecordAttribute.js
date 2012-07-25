@@ -245,7 +245,7 @@ var RecordAttribute = NS.Class({
             Type = this.Type;
         }
         return currentAttrValue !== undefined ?
-            Type && Type.fromJSON ?
+            currentAttrValue !== null && Type && Type.fromJSON ?
                 Type.fromJSON( currentAttrValue ) : currentAttrValue :
             this.defaultValue;
     }
