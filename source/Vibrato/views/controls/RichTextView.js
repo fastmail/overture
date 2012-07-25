@@ -579,7 +579,7 @@ var RichTextView = NS.Class({
     blur: function () {
         var editor = this.get( 'editor' );
         if ( editor ) {
-            editor.focus();
+            editor.blur();
         } else {
             this.set( 'isFocussed', false );
         }
@@ -674,7 +674,7 @@ var RichTextView = NS.Class({
         }
         return alignment;
     }.property( 'path' ),
-    
+
     direction: function () {
         var path = this.get( 'path' ),
             results = /\.dir\-(\w+)/.exec( path ),

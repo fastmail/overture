@@ -90,7 +90,7 @@ var InfoBubbleView = NS.Class({
             el( 'b' )
         ]) );
     },
-    
+
     parentViewDidResize: function () {
         this.computedPropertyDidChange( 'layout' );
     }
