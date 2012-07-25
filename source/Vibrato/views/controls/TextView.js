@@ -165,9 +165,9 @@ var TextView = NS.Class({
 
     // --- Keep state in sync with render ---
 
-    syncBackValue: function () {
+    syncBackValue: function ( event ) {
         this._settingFromInput = true;
-        if ( this.get( 'isFocussed' ) ) {
+        if ( !event || this.get( 'isFocussed' ) ) {
             this.set( 'value', this._domControl.value );
         }
         this._settingFromInput = false;
