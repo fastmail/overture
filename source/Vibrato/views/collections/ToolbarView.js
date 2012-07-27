@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: ToolbarView.js                                                       \\
 // Module: View                                                               \\
-// Requires: Core, Foundation, DOM, View.js                                   \\
+// Requires: Core, Foundation, DOM, View.js, ButtonView.js                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -16,6 +16,58 @@ var toView = function ( name ) {
         this._views[ name ];
 };
 
+var OverflowMenuView = NS.Class({
+
+    Extends: NS.MenuButtonView,
+
+    didAppendLayerToDocument: function () {
+        OverflowMenuView.parent.didAppendLayerToDocument.call( this );
+        this.setShortcuts( null, '', {}, this.get( 'shortcuts' ) );
+        return this;
+    },
+
+    willRemoveLayerFromDocument: function () {
+        this.setShortcuts( null, '', this.get( 'shortcuts' ), {} );
+        return OverflowMenuView.parent.willRemoveLayerFromDocument.call( this );
+    },
+
+    shortcuts: function () {
+        var views = this.getFromPath( 'menuView.options' );
+        return views ? views.reduce( function ( acc, view ) {
+            var shortcut = view.get( 'shortcut' );
+            if ( shortcut ) {
+                shortcut.split( ' ' ).forEach( function ( key ) {
+                    acc[ key ] = view;
+                });
+            }
+            return acc;
+        }, {} ) : {};
+    }.property( 'menuView' ),
+
+    setShortcuts: function ( _, __, oldShortcuts, shortcuts ) {
+        if ( this.get( 'isInDocument' ) ) {
+            var kbShortcuts = NS.RootViewController.kbShortcuts,
+                key;
+            if ( !shortcuts ) { shortcuts = this.get( 'shortcuts' ); }
+            for ( key in oldShortcuts ) {
+                kbShortcuts.deregister( key, this, 'activateButton' );
+            }
+            for ( key in shortcuts ) {
+                kbShortcuts.register( key, this, 'activateButton' );
+            }
+        }
+    }.observes( 'shortcuts' ),
+
+    activateButton: function ( event ) {
+        var key = NS.DOMEvent.lookupKey( event ),
+            button = this.get( 'shortcuts' )[ key ];
+        if ( button instanceof NS.MenuButtonView ) {
+            this.activate();
+        }
+        button.activate();
+    }
+});
+
 var ToolbarView = NS.Class({
 
     Extends: NS.View,
@@ -29,7 +81,7 @@ var ToolbarView = NS.Class({
     init: function ( options ) {
         ToolbarView.parent.init.call( this, options );
         this._views = {
-            overflow: new NS.MenuButtonView({
+            overflow: new OverflowMenuView({
                 label: NS.loc( 'More' ),
                 popOverView: options.popOverView || new NS.PopOverView()
             })
@@ -118,11 +170,11 @@ var ToolbarView = NS.Class({
 
                 this._views.overflow.set( 'menuView', new NS.MenuView({
                     showFilter: false,
-                    options: leftConfig.slice( l ).map( toView, this ).filter(
-                        function ( view ) {
+                    options: leftConfig.slice( l )
+                        .map( toView, this )
+                        .filter( function ( view ) {
                             return view instanceof NS.View;
-                        }
-                    )
+                        })
                 }) );
 
                 if ( l > 0 ) {
@@ -169,18 +221,20 @@ var ToolbarView = NS.Class({
             measureView = this._measureView,
             unused = measureView.get( 'childViews' ),
             container = measureView.get( 'layer' ),
+            containerBoundingClientRect = container.getBoundingClientRect(),
             firstButton = unused.length ? unused[0].get( 'layer' ) : null,
             name, l;
 
         for ( name in views ) {
             widths[ name ] = views[ name ].get( 'pxWidth' );
         }
+
         // Want to include any left/right margin, so get difference between
         // edge of first button and start of container
         widths[ '-' ] = ( firstButton ?
             firstButton.getBoundingClientRect().left :
-            container.getBoundingClientRect().right
-        ) - container.getBoundingClientRect().left;
+            containerBoundingClientRect.right
+        ) - containerBoundingClientRect.left;
 
         this.removeView( measureView );
         l = unused.length;
