@@ -36,12 +36,12 @@ var GlobalKeyboardShortcuts = NS.Class({
 
         The map of shortcut key to an array of `[object, method]` tuples.
     */
-    _shortcuts: {},
 
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
     init: function ( options ) {
+        this._shortcuts = {};
         GlobalKeyboardShortcuts.parent.init.call( this, options );
         var RootViewController = NS.RootViewController;
         RootViewController.kbShortcuts = this;
