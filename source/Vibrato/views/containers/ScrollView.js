@@ -41,6 +41,8 @@ var ScrollView = NS.Class({
 
     Extends: NS.View,
 
+    className: 'ScrollView',
+
     clipToBounds: true,
     showScrollbarY: true,
 
