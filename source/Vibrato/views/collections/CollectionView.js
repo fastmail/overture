@@ -119,7 +119,7 @@ var CollectionView = NS.Class({
     didUpdateLayer: function ( start, end ) {},
 
     updateLayer: function () {
-        if ( this.isDestroyed ) {
+        if ( this.isDestroyed || this._isSleeping ) {
             return;
         }
         var delegate = this.get( 'delegate' ) || this,
