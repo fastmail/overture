@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: RichTextView.js                                                      \\
 // Module: View                                                               \\
-// Requires: Core, Foundation, DOM, PopOverView.js                            \\
+// Requires: Core, Foundation, DOM, PopOverView.js, DropTarget.js             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -45,6 +45,8 @@ var equalTo = NS.Transform.isEqualToValue;
 var RichTextView = NS.Class({
 
     Extends: NS.View,
+
+    Mixin: NS.DropTarget,
 
     isFocussed: false,
 
@@ -123,6 +125,10 @@ var RichTextView = NS.Class({
                     .addEventListener( 'focus', richTextView )
                     .addEventListener( 'blur', richTextView )
                     .addEventListener( 'input', richTextView )
+                    .addEventListener( 'dragenter', richTextView )
+                    .addEventListener( 'dragleave', richTextView )
+                    .addEventListener( 'dragover', richTextView )
+                    .addEventListener( 'drop', richTextView )
                     .addEventListener( 'select', richTextView )
                     .addEventListener( 'pathChange', richTextView )
                     .addEventListener( 'undoStateChange', richTextView )
@@ -626,15 +632,16 @@ var RichTextView = NS.Class({
     removeList: execCommand( 'removeList' ),
 
     insertImage: execCommand( 'insertImage' ),
-    insertImageFromFile: function () {
+    insertImageFromFile: function ( files ) {
         if ( window.FileReader ) {
             var img = this.get( 'editor' ).insertImage(),
-                reader = new FileReader();
+                reader = new FileReader(),
+                file = files[0];
             reader.onload = function () {
                 img.src = reader.result;
                 reader.onload = null;
             };
-            reader.readAsDataURL();
+            reader.readAsDataURL( file );
         }
     },
 
@@ -741,7 +748,28 @@ var RichTextView = NS.Class({
         if ( ( event.keyCode || event.which ) === 27 ) {
             this.blur();
         }
-    }.on( 'keypress' )
+    }.on( 'keypress' ),
+
+    // -- Drag and drop ---
+
+    dropAcceptedDataTypes: {
+        'image/jpeg': true,
+        'image/png': true,
+        'image/gif': true
+    },
+
+    dropEffect: NS.Drag.COPY,
+
+    drop: function ( drag ) {
+        var types = this.get( 'dropAcceptedDataTypes' ),
+            type;
+        for ( type in types ) {
+            if ( drag.hasDataType( type ) ) {
+                this.insertImageFromFile([ drag.getDataOfType( type ) ]);
+                break;
+            }
+        }
+    }
 });
 
 RichTextView.pathToDocument = 'document.html';
