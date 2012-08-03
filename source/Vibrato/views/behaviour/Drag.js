@@ -103,8 +103,7 @@ var DragController = new NS.Object({
         }
     },
 
-    getDragViewFromNode: function ( node ) {
-        var view = NS.RootViewController.getViewFromNode( node );
+    getNearestDragView: function ( view ) {
         while ( view ) {
             if ( view.get( 'isDraggable' ) ) {
                 break;
@@ -120,13 +119,12 @@ var DragController = new NS.Object({
 
     // Non-native API version
     _onMousedown: function ( event ) {
-        var target = event.target;
-        if ( isControl[ target.nodeName ] ) {
+        if ( isControl[ event.target.nodeName ] ) {
             this.ignore = true;
         } else {
             this.x = event.clientX;
             this.y = event.clientY;
-            this.target = target;
+            this.targetView = event.targetView;
             this.ignore = false;
         }
     }.on( 'mousedown' ),
@@ -143,7 +141,7 @@ var DragController = new NS.Object({
                 view;
 
             if ( ( x*x + y*y ) > 25 ) {
-                view = this.getDragViewFromNode( this.target );
+                view = this.getNearestDragView( this.targetView );
                 if ( view ) {
                     new NS.Drag({
                         dragSource: view,
@@ -160,7 +158,7 @@ var DragController = new NS.Object({
     }.on( 'mousemove' ),
     _onMouseup: function ( event ) {
         this.ignore = true;
-        this.target = null;
+        this.targetView = null;
         // Mouseup will not fire if native DnD
         if ( this.drag ) {
             this.drag.drop( event ).endDrag();
@@ -189,7 +187,7 @@ var DragController = new NS.Object({
             event.preventDefault();
         } else {
             new NS.Drag({
-                dragSource: this.getDragViewFromNode( event.target ),
+                dragSource: this.getNearestDragView( event.targetView ),
                 event: event,
                 isNative: true
             });
@@ -536,7 +534,7 @@ var Drag = NS.Class({
         // Find which view is currently under the cursor. If none, presume we've
         // moved the cursor over the drag image, so we're probably still over
         // the current drop.
-        var view = NS.RootViewController.getViewFromNode( event.target ),
+        var view = event.targetView,
             x, y;
         if ( !view ) {
             view = this.get( 'dropTarget' );
