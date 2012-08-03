@@ -10,7 +10,7 @@
 
 "use strict";
 
-( function ( NS ) {
+( function ( NS, undefined ) {
 
 var canUseMultiple = FormData.isFake ? null : 'multiple';
 
@@ -18,6 +18,7 @@ var FileButtonView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
+    acceptOnlyTypes: '',
     acceptMultiple: false,
 
     type: '',
@@ -44,6 +45,7 @@ var FileButtonView = NS.Class({
             this._domControl = el( 'input', {
                 type: 'file',
                 tabIndex: -1,
+                accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             })
         ]);
@@ -81,6 +83,7 @@ var FileButtonView = NS.Class({
                 this._domControl = NS.Element.create( 'input', {
                     type: 'file',
                     tabIndex: -1,
+                    accept: this.get( 'acceptOnlyTypes' ) || undefined,
                     multiple: this.get( 'acceptMultiple' ) && canUseMultiple
                 }), input );
             if ( input.files ) {
@@ -90,6 +93,7 @@ var FileButtonView = NS.Class({
                 files = [{
                     name: filePath.slice( filePath.lastIndexOf( '/' ) + 1 ),
                     size: 0,
+                    type: '',
                     file: input
                 }];
             }

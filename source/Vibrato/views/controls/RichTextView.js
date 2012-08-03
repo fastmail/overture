@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global document */
+/*global document, window, FileReader */
 
 "use strict";
 
@@ -235,6 +235,14 @@ var RichTextView = NS.Class({
                     this.fire( 'button:activate' );
                 }
             }),
+            image: new NS.FileButtonView({
+                acceptOnlyTypes: 'image/* .gif .jpg .jpeg .png',
+                label: NS.loc( 'Insert Image' ),
+                type: 'iconOnly',
+                icon: 'image',
+                target: this,
+                method: 'insertImageFromFile'
+            }),
             left: new ButtonView({
                 isActive: bind( 'alignment', this, equalTo( 'left' ) ),
                 label: NS.loc( 'Left' ),
@@ -341,6 +349,7 @@ var RichTextView = NS.Class({
             left: [ 'bold', 'italic', 'underline', '-',
                     'size', 'font', '-',
                     'colour', 'bgcolour', '-',
+                    'image', '-',
                     'link', '-',
                     'quote', 'unquote', '-',
                     'left', 'centre', 'right', 'justify', '-',
@@ -617,6 +626,17 @@ var RichTextView = NS.Class({
     removeList: execCommand( 'removeList' ),
 
     insertImage: execCommand( 'insertImage' ),
+    insertImageFromFile: function () {
+        if ( window.FileReader ) {
+            var img = this.get( 'editor' ).insertImage(),
+                reader = new FileReader();
+            reader.onload = function () {
+                img.src = reader.result;
+                reader.onload = null;
+            };
+            reader.readAsDataURL();
+        }
+    },
 
     getSelectedText: function () {
         var editor = this.get( 'editor' );
