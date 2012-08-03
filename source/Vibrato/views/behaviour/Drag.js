@@ -412,45 +412,68 @@ var Drag = NS.Class({
     hasDataType: function ( type ) {
         return this.get( 'dataTypes' ).indexOf( type ) !== -1;
     },
-    // TODO: Make this asynchronous to support the latest native DnD API.
-    getDataOfType: function ( type ) {
-        var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
-        if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
-            return dataSource.getDragDataOfType( type, this );
-        }
+
+    getFiles: function ( typeRegExp ) {
+        var files = [];
         if ( this.isNative ) {
             var dataTransfer = this.event.dataTransfer,
                 items = dataTransfer.items,
-                i, l;
-            // Deprecated HTML5 DnD interface
-            if ( type === 'Files' ) {
-                if ( dataTransfer.files ) {
-                    return dataTransfer.files;
-                }
-            } else {
-                if ( dataTransfer.getData ) {
-                    return dataTransfer.getData( type );
-                }
-            }
+                i, l, item;
             // Current HTML5 DnD interface
             if ( items ) {
-                if ( type === 'Files' ) {
-                    var files = [];
-                    for ( i = 0, l = items.length; i < l; i += 1 ) {
-                        if ( items[i].kind === 'file' ) {
-                            files.push( items[i].getAsFile() );
-                        }
+                for ( i = 0, l = items.length; i < l; i += 1 ) {
+                    item = items[i];
+                    if ( item.kind === 'file' &&
+                            ( !typeRegExp || typeRegExp.test( item.type ) ) ) {
+                        files.push( item.getAsFile() );
                     }
-                    return files;
                 }
-                // for ( i = 0, l = items.length; i < l; i += 1 ) {
-                //     if ( items[i].type === type ) {
-                //         // Asynchronous!!!
-                //         // return items[i].getAsString( callback )
-                //     }
-                // }
+            }
+            // Deprecated HTML5 DnD interface
+            else if ( items = dataTransfer.files ) {
+                for ( i = 0, l = items.length; i < l; i += 1 ) {
+                    item = items[i];
+                    if ( !typeRegExp || typeRegExp.test( item.type ) ) {
+                        files.push( item );
+                    }
+                }
             }
         }
+        return files;
+    },
+
+    getDataOfType: function ( type, callback ) {
+        var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' ),
+            dataFound = false;
+        if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
+            callback( dataSource.getDragDataOfType( type, this ) );
+            dataFound = true;
+        }
+        else if ( this.isNative ) {
+            var dataTransfer = this.event.dataTransfer,
+                items = dataTransfer.items,
+                i, l, item;
+            // Current HTML5 DnD interface
+            if ( items ) {
+                for ( i = 0, l = items.length; i < l; i += 1 ) {
+                    item = items[i];
+                    if ( item.type === type ) {
+                        item.getAsString( callback );
+                        dataFound = true;
+                        break;
+                    }
+                }
+            }
+            // Deprecated HTML5 DnD interface
+            else if ( dataTransfer.getData ) {
+                callback( dataTransfer.getData( type ) );
+                dataFound = true;
+            }
+        }
+        if ( !dataFound ) {
+            callback( null );
+        }
+        return this;
     },
 
     // General:

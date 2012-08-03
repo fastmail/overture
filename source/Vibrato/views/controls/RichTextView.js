@@ -765,7 +765,7 @@ var RichTextView = NS.Class({
             type;
         for ( type in types ) {
             if ( drag.hasDataType( type ) ) {
-                this.insertImageFromFile([ drag.getDataOfType( type ) ]);
+                this.insertImageFromFile( drag.getFiles( /^image\/.*/ ) );
                 break;
             }
         }
