@@ -198,6 +198,12 @@ var DragController = new NS.Object({
             dataTransfer = event.dataTransfer,
             notify = true,
             effect;
+        // Probably hasn't come via root view controller, so doesn't have target
+        // view property
+        if ( !event.targetView ) {
+            event.targetView =
+                NS.RootViewController.getViewFromNode( event.target );
+        }
         if ( !drag ) {
             // Drag from external source:
             drag = new NS.Drag({
