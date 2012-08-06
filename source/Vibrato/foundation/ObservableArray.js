@@ -163,7 +163,7 @@ var ObservableArray = NS.Class({
             array = this._array,
             removed, newLength, i, l;
 
-        newItems = newItems ? slice.apply( newItems ) : [];
+        newItems = newItems ? slice.call( newItems ) : [];
 
         if ( oldLength <= index ) {
             for ( i = 0, l = newItems.length; i < l; i += 1 ) {

@@ -290,7 +290,7 @@ var LiveQuery = NS.Class({
                 return store.getIdFromStoreKey( storeKey ) ||
                     ( '#' + storeKey );
             },
-            l, storeKey, index, shouldBeInQuery,
+            i, l, storeKey, index, shouldBeInQuery,
             addedLength, removedLength, length, maxLength;
 
         l = storeKeysOfChanged.length;
@@ -340,7 +340,10 @@ var LiveQuery = NS.Class({
         }
 
         if ( addedLength ) {
-            storeKeys.push.apply( storeKeys, added );
+            l = storeKeys.length;
+            for ( i = 0; i < addedLength; i += 1 ) {
+                storeKeys[ l + i ] = added[i];
+            }
             if ( sort ) {
                 storeKeys.sort( sort );
                 addedIndexes = added.map(

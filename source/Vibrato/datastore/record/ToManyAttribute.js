@@ -64,7 +64,7 @@ var RecordArray = NS.Class({
     },
 
     replaceObjectsAt: function ( index, numberRemoved, newItems ) {
-        newItems = newItems ? slice.apply( newItems ) : [];
+        newItems = newItems ? slice.call( newItems ) : [];
 
         var record = this.get( 'record' ),
             propKey = this.get( 'propKey' ),

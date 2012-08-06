@@ -264,21 +264,28 @@ var RemotePagedQuery = NS.Class({
         var list = this._list,
             oldLength = list.length,
             listLength = oldLength,
-            start = this.indexOfId( args.anchor ) + 1 || listLength;
+            start = this.indexOfId( args.anchor ) + 1 || listLength,
+            idList = args.idList,
+            idListLength = idList.length,
+            i;
 
         // Append only; remove anything beyond the point of the anchor.
         if ( listLength > start ) {
             list.length = start;
         }
 
-        Array.prototype.push.apply( list, args.idList );
+        // Push the new ids onto the list.
+        for ( i = 0; i < idListLength; i += 1 ) {
+            list[ start + i ] = idList[i];
+        }
 
-        if ( args.idList.length < this.get( 'windowSize' ) ) {
+        if ( idListLength < this.get( 'windowSize' ) ) {
             this.set( 'complete', true );
         }
 
         // All that's left is to inform observers of the changes.
-        this.set( 'length', listLength = list.length )
+        listLength = list.length;
+        this.set( 'length', listLength )
             .rangeDidChange( start, Math.max( listLength, oldLength ) )
             .fire( 'query:idsLoaded' );
     },

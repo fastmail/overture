@@ -865,22 +865,24 @@ var WindowedRemoteQuery = NS.Class({
                 this.setObsolete();
                 return;
             }
+            // Check the sort and filter is still the same
             if ( update.sort !== this.get( 'sort' ) ||
                     update.filter !== this.get( 'filter' ) ) {
                 return;
             }
+            // Set new state
             this.set( 'state', update.newState );
 
             var preemptives = this._preemptiveUpdates,
-                l = preemptives.length;
+                l = preemptives.length,
+                composed, i;
 
             if ( !l ) {
                 this._applyUpdate( this._normaliseUpdate( update ) );
             } else {
                 // 1. Compose all preemptives:
                 // [p1, p2, p3] -> [p1, p1 + p2, p1 + p2 + p3 ]
-                var composed = [ preemptives[0] ],
-                    i;
+                composed = [ preemptives[0] ];
                 for ( i = 1; i < l; i += 1 ) {
                     composed[i] = composeUpdates(
                         composed[ i - 1 ], preemptives[i] );
@@ -927,19 +929,23 @@ var WindowedRemoteQuery = NS.Class({
                         }
                     }
                 }
-                if ( l = _indexes.length ) {
+                if ( _indexes.length ) {
                     var x = composeUpdates( allPreemptives, {
                         removedIndexes: _indexes,
                         removedIds: _ids,
                         addedIndexes: [],
                         addedIds: [],
                         changed: []
-                    });
+                    }), ll;
                     _indexes = _ids.map( function ( id ) {
                         return x.removedIndexes[ x.removedIds.indexOf( id ) ];
                     });
-                    removedIndexes.push.apply( removedIndexes, _indexes );
-                    removedIds.push.apply( removedIds, _ids );
+                    ll = removedIndexes.length;
+                    for ( i = 0, l = _indexes.length; i < l; i += 1 ) {
+                        removedIndexes[ ll ] = _indexes[i];
+                        removedIds[ ll ] = _ids[i];
+                        ll += 1;
+                    }
                 }
 
                 sortLinkedArrays( removedIndexes, removedIds );

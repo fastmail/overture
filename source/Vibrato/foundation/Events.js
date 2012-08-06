@@ -30,9 +30,11 @@ Function.implement({
             {Function} Returns self.
      */
     on: function () {
-        return this.observes.apply( this, map.call( arguments, function ( type ) {
-            return eventPrefix + type;
-        }) );
+        return this.observes.apply( this,
+            map.call( arguments, function ( type ) {
+                return eventPrefix + type;
+            })
+        );
     }
 });
 

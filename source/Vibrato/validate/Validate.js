@@ -45,7 +45,7 @@ var Validate = {
     */
     isValid: true,
     /**
-        Property: O.Validate#
+        Property: O.Validate#validators
         Type: Object.<String,Function>
 
         A map of names to functions that validate the object. The functions will
