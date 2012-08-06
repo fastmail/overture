@@ -165,6 +165,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         var data = fs.readFileSync( input );
         var filename = input.replace( /.*\//, '' );
         var type = filename.slice( filename.lastIndexOf( '.' ) + 1 );
+        if ( type === 'jpg' ) { type = 'jpeg'; }
         
         module += themeManager;
         module += '.imageDidLoad("';
