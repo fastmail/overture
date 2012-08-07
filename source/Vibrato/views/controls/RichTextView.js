@@ -753,9 +753,10 @@ var RichTextView = NS.Class({
     // -- Drag and drop ---
 
     dropAcceptedDataTypes: {
+        'image/gif': true,
         'image/jpeg': true,
         'image/png': true,
-        'image/gif': true
+        'image/tiff': true
     },
 
     dropEffect: NS.Drag.COPY,
