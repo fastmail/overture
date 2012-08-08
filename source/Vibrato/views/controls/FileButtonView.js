@@ -18,8 +18,8 @@ var FileButtonView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
-    acceptOnlyTypes: '',
     acceptMultiple: false,
+    acceptOnlyTypes: '',
 
     type: '',
     icon: '',

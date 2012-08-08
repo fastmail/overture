@@ -242,12 +242,13 @@ var RichTextView = NS.Class({
                 }
             }),
             image: new NS.FileButtonView({
+                acceptMultiple: true,
                 acceptOnlyTypes: 'image/* .gif .jpg .jpeg .png',
                 label: NS.loc( 'Insert Image' ),
                 type: 'iconOnly',
                 icon: 'image',
                 target: this,
-                method: 'insertImageFromFile'
+                method: 'insertImagesFromFiles'
             }),
             left: new ButtonView({
                 isActive: bind( 'alignment', this, equalTo( 'left' ) ),
@@ -632,16 +633,17 @@ var RichTextView = NS.Class({
     removeList: execCommand( 'removeList' ),
 
     insertImage: execCommand( 'insertImage' ),
-    insertImageFromFile: function ( files ) {
+    insertImagesFromFiles: function ( files ) {
         if ( window.FileReader ) {
-            var img = this.get( 'editor' ).insertImage(),
-                reader = new FileReader(),
-                file = files[0];
-            reader.onload = function () {
-                img.src = reader.result;
-                reader.onload = null;
-            };
-            reader.readAsDataURL( file );
+            files.forEach( function ( file ) {
+                var img = this.get( 'editor' ).insertImage(),
+                    reader = new FileReader();
+                reader.onload = function () {
+                    img.src = reader.result;
+                    reader.onload = null;
+                };
+                reader.readAsDataURL( file );
+            }, this );
         }
     },
 
@@ -766,7 +768,7 @@ var RichTextView = NS.Class({
             type;
         for ( type in types ) {
             if ( drag.hasDataType( type ) ) {
-                this.insertImageFromFile( drag.getFiles( /^image\/.*/ ) );
+                this.insertImagesFromFiles( drag.getFiles( /^image\/.*/ ) );
                 break;
             }
         }
