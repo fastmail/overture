@@ -86,7 +86,7 @@ var FileButtonView = NS.Class({
                     accept: this.get( 'acceptOnlyTypes' ) || undefined,
                     multiple: this.get( 'acceptMultiple' ) && canUseMultiple
                 }), input );
-            if ( input.files ) {
+            if ( !FormData.isFake && input.files ) {
                 files = Array.prototype.slice.call( input.files );
             } else {
                 filePath = input.value.replace( /\\/g, '/' );
