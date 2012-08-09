@@ -249,7 +249,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         body.removeChild( this._form );
         body.removeChild( this._iframe );
         this._iframe.removeEventListener( 'load', this._loadfn, false );
-        delete window[ this._transactionId ];
+        window[ this._transactionId ] = null;
         this._iframe = this._form = this._loadfn = null;
     }
 });
