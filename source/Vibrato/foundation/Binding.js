@@ -451,7 +451,7 @@ var Binding = NS.Class({
     */
     defaultValue: function ( value ) {
         return this.set( 'transform', function ( v ) {
-            return v || value;
+            return v !== undefined ? v : value;
         });
     },
 
