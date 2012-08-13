@@ -410,7 +410,7 @@ var Drag = NS.Class({
             }
             // Deprecated HTML5 DnD interface
             if ( dataTransfer.types ) {
-                return dataTransfer.types;
+                return Array.prototype.slice.call( dataTransfer.types );
             }
         }
         return [];
