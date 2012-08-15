@@ -129,8 +129,8 @@ var LightboxItemView = NS.Class({
             canvasWidth: lightboxWidth,
             canvasHeight: lightboxHeight,
 
-            width: Math.max( width, 150 ),
-            height: Math.max( height, 100 )
+            width: width,
+            height: height
         };
     }.property( 'contentDimensions', 'frameThickness' ),
 
