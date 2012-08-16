@@ -938,34 +938,57 @@ var View = NS.Class({
         be removed from that view first.
 
         Parameters:
-            view         - {O.View} The new child view to insert.
-            relativeNode - {Element} (optional) The DOM node to insert the child
-                           view's layer relative to. If not supplied, or
-                           null/undefined, this view's layer will be used.
-            where        - {String} (optional) Specifies where the view's layer
-                           should be placed in the DOM tree relative to the
-                           relativeView node. Defaults to 'bottom' (appended to
-                           node), may also be 'before', 'after' or 'top'.
+            view       - {O.View} The new child view to insert.
+            relativeTo - {(Element|O.View)} (optional) The DOM node or other
+                         child view to insert the new child view's layer
+                         relative to. If not supplied, or null/undefined, the
+                         child will be inserted relative to this view's layer.
+            where      - {String} (optional) Specifies where the view's layer
+                         should be placed in the DOM tree relative to the
+                         relativeView node. Defaults to 'bottom' (appended to
+                         node), may also be 'before', 'after' or 'top'.
 
         Returns:
             {O.View} Returns self.
     */
-    insertView: function ( view, relativeNode, where ) {
-        var oldParent = view.get( 'parentView' );
-        if ( oldParent ) { oldParent.removeView( view ); }
+    insertView: function ( view, relativeTo, where ) {
+        var oldParent = view.get( 'parentView' ),
+            childViews = this.get( 'childViews' ),
+            index, isInDocument, layer, parent, before;
 
+        if ( oldParent ) {
+            oldParent.removeView( view );
+        }
         view.set( 'parentView', this );
-        this.get( 'childViews' ).push( view );
+
+        if ( relativeTo instanceof View ) {
+            index = childViews.indexOf( relativeTo );
+            index = ( index > -1 ) ? where === 'before' ?
+                index : index + 1 : childViews.length;
+            childViews.splice( index, 0, view );
+            relativeTo = relativeTo.get( 'layer' );
+        } else {
+            if ( where === 'top' ) {
+                childViews.unshift( view );
+            } else {
+                childViews.push( view );
+            }
+        }
 
         if ( this.get( 'isRendered' ) ) {
-            if ( !relativeNode ) { relativeNode = this.get( 'layer' ); }
-            var isInDocument = this.get( 'isInDocument' ),
-                layer = view.get( 'layer' ),
-                parent = ( where === 'before' || where === 'after' ) ?
-                    relativeNode.parentNode : relativeNode,
-                before = ( where === 'before' ) ? relativeNode :
-                    ( where === 'top' ) ? relativeNode.firstChild :
-                    ( where === 'after' ) ? relativeNode.nextSibling : null;
+            if ( !relativeTo ) {
+                relativeTo = this.get( 'layer' );
+                if ( where === 'before' || where === 'after' ) {
+                    where = '';
+                }
+            }
+            isInDocument = this.get( 'isInDocument' );
+            layer = view.get( 'layer' );
+            parent = ( where === 'before' || where === 'after' ) ?
+                relativeTo.parentNode : relativeTo;
+            before = ( where === 'before' ) ? relativeTo :
+                ( where === 'top' ) ? relativeTo.firstChild :
+                ( where === 'after' ) ? relativeTo.nextSibling : null;
             view.render();
             if ( isInDocument ) {
                 view.willAppendLayerToDocument();
