@@ -39,6 +39,20 @@ var WINDOW_EMPTY = 0,
     WINDOW_RECORDS_LOADING = 16,
     WINDOW_RECORDS_READY = 32;
 
+/**
+    Method: O.WindowedRemoteQuery-sortLinkedArrays
+
+    Sorts an array whilst performing the same swaps on a second array, so that
+    if item x was in position i in array 1, and item y was in position i in
+    array 2, then after this function has been called, if item x is in posiiton
+    j in array 1, then item y will be in position j in array 2.
+
+    The arrays are sorted in place.
+
+    Parameters:
+        a1 - {Array} The array to sort.
+        a2 - {Array} The array to perform the same swaps on.
+*/
 var sortLinkedArrays = function ( a1, a2 ) {
     var zipped = a1.map( function ( item, i ) {
         return [ item, a2[i] ];
@@ -52,8 +66,20 @@ var sortLinkedArrays = function ( a1, a2 ) {
     });
 };
 
-// We want to return the index in the array of the number, or one past the last
-// position with a lower number if not present.
+/**
+    Method: O.WindowedRemoteQuery-binarySearch
+
+    Takes an array of sorted numbers and returns the index at which a given
+    number should be placed in the array (if the number is already in the array,
+    this is the index given).
+
+    Parameters:
+        array - {Array} The array to sort.
+        num   - {Number} The array to perform the same swaps on.
+
+    Returns:
+        {Number} The index to place num in the sorted array.
+*/
 var binarySearch = function ( array, num ) {
     var lower = 0,
         upper = array.length,
@@ -69,6 +95,18 @@ var binarySearch = function ( array, num ) {
     return lower;
 };
 
+/**
+    Method: O.WindowedRemoteQuery-mergeSortedLinkedArrays
+
+    Parameters:
+        a1 - {Array}
+        a2 - {Array}
+        b1 - {Array}
+        b2 - {Array}
+
+    Returns:
+        {Array.<Array>} A tuple of two arrays.
+*/
 var mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
     var rA = [],
         rB = [],
@@ -92,7 +130,8 @@ var mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
     return [ rA, rB ];
 };
 
-var adjustIndexes = function ( removed, added, removedBefore, ids, removedBeforeIds ) {
+var adjustIndexes =
+        function ( removed, added, removedBefore, ids, removedBeforeIds ) {
     var resultIndexes = [],
         resultIds = [],
         i, l, index, position, j, ll;
@@ -187,11 +226,22 @@ var intersect = function ( a, b, c, d ) {
 var windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
     var start = index * windowSize,
         margin = prefetch * windowSize,
-        j = ranges.length;
+        j = ranges.length,
+        range, rangeStart, rangeEnd, rangeIntersectsWindow;
     while ( j-- ) {
-        if ( intersect( start, start + windowSize,
-                ranges[j].start - margin,
-                ranges[j].end + margin ) ) {
+        range = ranges[j];
+        rangeStart = range.start || 0;
+        if ( !( 'end' in range ) ) {
+            break;
+        }
+        rangeEnd = range.end;
+        rangeIntersectsWindow = intersect(
+            start,
+            start + windowSize,
+            rangeStart - margin,
+            rangeEnd + margin
+        );
+        if ( rangeIntersectsWindow ) {
             break;
         }
     }
@@ -263,6 +313,16 @@ var WindowedRemoteQuery = NS.Class({
     prefetch: 1,
 
     /**
+        Property: O.WindowedRemoteQuery#canGetDeltaUpdates
+        Type: Boolean
+
+        If the state is out of date, can the source fetch the delta of exactly
+        what has changed, or does it just need to throw out the current list and
+        refetch?
+    */
+    canGetDeltaUpdates: true,
+
+    /**
         Property (private): O.WindowedRemoteQuery#_isAnExplicitIdFetch
         Type: Boolean
 
@@ -274,16 +334,16 @@ var WindowedRemoteQuery = NS.Class({
 
     init: function ( options ) {
         WindowedRemoteQuery.parent.init.call( this, options );
+
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];
         this._preemptiveUpdates = [];
 
         this._isAnExplicitIdFetch = false;
-        this._refresh = false;
+        this._fetchUpdates = true;
     },
 
-    _fetchUpdates: true,
     refresh: function ( force, callback, doNotFetchUpdates ) {
         if ( doNotFetchUpdates ) {
             this._fetchUpdates = false;
@@ -298,20 +358,22 @@ var WindowedRemoteQuery = NS.Class({
         this._preemptiveUpdates.length = 0;
 
         this._isAnExplicitIdFetch = false;
+        this._fetchUpdates = true;
 
         WindowedRemoteQuery.parent.reset.call( this, _, _key );
     }.observes( 'sort', 'filter' ),
 
     indexOfId: function ( id, from, callback ) {
-        var index = this._list.indexOf( id, from );
+        var index = this._list.indexOf( id, from ),
+            windows, l;
         if ( callback ) {
             // If we have a callback and haven't found it yet, we need to keep
             // searching.
             if ( index < 0 ) {
                 // First check if the list is loaded
-                var windows = this._windows,
-                    l = this.get( 'windowCount' );
+                l = this.get( 'windowCount' );
                 if ( l !== null ) {
+                    windows = this._windows;
                     while ( l-- ) {
                         if ( !( windows[l] & WINDOW_READY ) ) {
                             break;
@@ -339,35 +401,37 @@ var WindowedRemoteQuery = NS.Class({
 
     getIdsForObjectsInRange: function ( start, end, callback ) {
         var length = this.get( 'length' ),
-            complete = true;
+            isComplete = true,
+            windows, windowSize, i, l;
 
         if ( length !== null ) {
-            if ( start < 0 ) { start = 0 ; }
+            if ( start < 0 ) { start = 0; }
             if ( end > length ) { end = length; }
 
-            var windowSize = this.get( 'windowSize' ),
-                i = Math.floor( start / windowSize ),
-                l = Math.floor( ( end - 1 ) / windowSize ) + 1;
+            windows = this._windows;
+            windowSize = this.get( 'windowSize' );
+            i = Math.floor( start / windowSize );
+            l = Math.floor( ( end - 1 ) / windowSize ) + 1;
 
             for ( ; i < l; i += 1 ) {
-                if ( !( this._windows[i] & WINDOW_READY ) ) {
-                    complete = false;
+                if ( !( windows[i] & WINDOW_READY ) ) {
+                    isComplete = false;
                     this._isAnExplicitIdFetch = true;
                     this.fetchWindow( i, false, 0 );
                 }
             }
         } else {
-            complete = false;
+            isComplete = false;
         }
 
-        if ( complete ) {
+        if ( isComplete ) {
             callback( this._list.slice( start, end ), start, end );
         }
         else {
-            ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) ).push(
-                [ start, end, callback ] );
+            ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) )
+                .push([ start, end, callback ]);
         }
-        return !complete;
+        return !isComplete;
     },
 
     // Fetches all ids and records in window.
@@ -400,18 +464,22 @@ var WindowedRemoteQuery = NS.Class({
         window size is 30, calling this with index 1 will load all records
         between positions 30 and 59 (everything 0-indexed).
 
+        Also fetches the ids for all records in the window either side.
+
         Parameters:
-            index - {Number} The index of the window to load.
+            index        - {Number} The index of the window to load.
+            fetchRecords - {Boolean}
+            prefetch     - {Number} (optional)
 
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    // Fetch ids in window either side as well.
     fetchWindow: function ( index, fetchRecords, prefetch ) {
         var status = this.get( 'status' ),
             windows = this._windows,
             doFetch = false,
             i, l;
+
         if ( status & OBSOLETE ) {
             this.refresh();
         }
@@ -436,8 +504,8 @@ var WindowedRemoteQuery = NS.Class({
                     status = (WINDOW_READY|WINDOW_RECORDS_READY);
                 } else {
                     status = status | WINDOW_RECORDS_REQUESTED;
+                    doFetch = true;
                 }
-                doFetch = true;
             }
             windows[i] = status;
         }
@@ -447,12 +515,12 @@ var WindowedRemoteQuery = NS.Class({
         return this;
     },
 
-    // When Ids known:
+    // Precondition: all ids are known
     checkIfWindowIsFetched: function ( index ) {
         var store = this.get( 'store' ),
-            list = this._list,
             Type = this.get( 'Type' ),
             windowSize = this.get( 'windowSize' ),
+            list = this._list,
             i = index * windowSize,
             l = Math.min( i + windowSize, this.get( 'length' ) );
         for ( ; i < l; i += 1 ) {
@@ -526,7 +594,7 @@ var WindowedRemoteQuery = NS.Class({
         return this;
     },
 
-    // ---- Updates:
+    // ---- Updates ---
 
     _normaliseUpdate: function ( update ) {
         var list = this._list,
@@ -679,7 +747,7 @@ var WindowedRemoteQuery = NS.Class({
 
         // --- Broadcast changes ---
 
-        this.set( 'status', this.get( 'status' ) & ~( OBSOLETE|LOADING ) )
+        this.set( 'status', this.get( 'status' ) & ~(OBSOLETE|LOADING) )
             .set( 'length', newLength )
             .rangeDidChange( firstChange, Math.max( oldLength, newLength ) );
 
@@ -774,7 +842,9 @@ var WindowedRemoteQuery = NS.Class({
     clientDidGenerateUpdate: function ( update ) {
         this._normaliseUpdate( update );
         this._applyUpdate( update, true );
-        this._preemptiveUpdates.push( update );
+        if ( this.get( 'canGetDeltaUpdates' ) ) {
+            this._preemptiveUpdates.push( update );
+        }
         return this;
     },
 
@@ -808,7 +878,7 @@ var WindowedRemoteQuery = NS.Class({
         Returns:
             {O.Source} Returns self.
     */
-    sourceDidFetchUpdate: function () {
+    sourceDidFetchUpdate: ( function () {
         var equalArrays = function ( a1, a2 ) {
             var l = a1.length;
             if ( a2.length !== l ) { return false; }
@@ -1009,7 +1079,7 @@ var WindowedRemoteQuery = NS.Class({
                 }
             }
         };
-    }(),
+    }() ),
 
     /**
         Method: O.WindowedRemoteQuery#sourceDidFetchIdList
@@ -1040,35 +1110,38 @@ var WindowedRemoteQuery = NS.Class({
             return;
         }
 
-        // If the state does not match, the list has changed since we last
-        // queried it, so we must get the intervening updates first.
-        var state = this.get( 'state' );
-        if ( state ) {
-            if ( state !== args.state ) {
-                this._waitingPackets.push( args );
-                return this.setObsolete().refresh();
-            }
-        } else {
-            this.set( 'state', args.state );
-        }
-
-        var ids = args.idList,
-            length = ids.length,
+        var state = this.get( 'state' ),
+            oldLength = this.get( 'length' ) || 0,
             position = args.position,
             total = args.total,
+            ids = args.idList,
+            length = ids.length,
             list = this._list,
-            end;
+            preemptives = this._preemptiveUpdates,
+            informAllRangeObservers = false,
+            end, i, l, index;
+
+
+        // If the state does not match, the list has changed since we last
+        // queried it, so we must get the intervening updates first.
+        if ( state && state !== args.state ) {
+            if ( this.get( 'canGetDeltaUpdates' ) ) {
+                this._waitingPackets.push( args );
+                return this.setObsolete().refresh();
+            } else {
+                list.length = this._windows.length = 0;
+                informAllRangeObservers = true;
+            }
+        }
+        this.set( 'state', args.state );
 
         // Need to adjust for preemptive updates
-        var preemptives = this._preemptiveUpdates,
-            l = preemptives.length;
-        if ( l ) {
+        if ( l = preemptives.length ) {
             // Adjust ids, position, length
             var allPreemptives = preemptives.reduce( composeUpdates ),
                 addedIndexes = allPreemptives.addedIndexes,
                 addedIds = allPreemptives.addedIds,
-                removedIndexes = allPreemptives.removedIndexes,
-                i, index;
+                removedIndexes = allPreemptives.removedIndexes;
 
             l = removedIndexes.length;
             while ( l-- ) {
@@ -1134,7 +1207,10 @@ var WindowedRemoteQuery = NS.Class({
         // All that's left is to inform observers of the changes.
         return this.set( 'status', READY )
                    .set( 'length', total )
-                   .rangeDidChange( position, end )
+                   .rangeDidChange(
+                       informAllRangeObservers ? 0 : position,
+                       informAllRangeObservers ? oldLength : end
+                   )
                    .fire( 'query:idsLoaded' );
     },
 
@@ -1155,6 +1231,8 @@ var WindowedRemoteQuery = NS.Class({
                     function ( observer ) {
                 return observer.range;
             }) : null,
+            fetchAllObservedIds = refreshRequested &&
+                this.get( 'canGetDeltaUpdates' ),
             prefetch = this.get( 'prefetch' ),
             i, l, status, inUse, rPrev, iPrev, start;
 
@@ -1206,6 +1284,17 @@ var WindowedRemoteQuery = NS.Class({
                         status |= WINDOW_LOADING;
                     }
                     status &= ~WINDOW_REQUESTED;
+                }
+            } else if ( fetchAllObservedIds ) {
+                inUse = windowIsStillInUse( i, windowSize, prefetch, ranges );
+                start = i * windowSize;
+                if ( iPrev && iPrev.start + iPrev.count === start ) {
+                    iPrev.count += windowSize;
+                } else {
+                    idRequests.push( iPrev = {
+                        start: start,
+                        count: windowSize
+                    });
                 }
             }
             windows[i] = status;

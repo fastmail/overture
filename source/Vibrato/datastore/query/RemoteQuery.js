@@ -80,7 +80,7 @@ var RemoteQuery = NS.Class({
 
     /**
         Property: O.RemoteQuery#sort
-        Type: String
+        Type: *
 
         The sort order to use for this query.
     */
@@ -88,7 +88,7 @@ var RemoteQuery = NS.Class({
 
     /**
         Property: O.RemoteQuery#filter
-        Type: String
+        Type: *
 
         Any filter to apply to the query.
     */
@@ -98,7 +98,8 @@ var RemoteQuery = NS.Class({
         Property: O.RemoteQuery#state
         Type: String
 
-        A state string from the server to allow the query to fetch updates.
+        A state string from the server to allow the query to fetch updates and
+        to determine if its list is invalid.
     */
     state: '',
 
@@ -111,6 +112,16 @@ var RemoteQuery = NS.Class({
     Type: NS.Record,
 
     /**
+        Property: O.RemoteQuery#store
+        Type: O.Store
+    */
+
+    /**
+        Property: O.RemoteQuery#source
+        Type: O.Source
+    */
+
+    /**
         Property: O.RemoteQuery#status
         Type: O.Status
 
@@ -120,6 +131,24 @@ var RemoteQuery = NS.Class({
         have OBSOLETE and LOADING bits set as appropriate.
     */
     status: EMPTY,
+
+    /**
+        Method: O.Record#is
+
+        Checks whether record has a particular status. You can also supply a
+        union of statuses (e.g. `record.is(O.Status.OBSOLETE|O.Status.DIRTY)`),
+        in which case it will return true if the record has *any* of these
+        status bits set.
+
+        Parameters:
+            state - {O.Status} The status to check.
+
+        Returns:
+            {Boolean} True if the record has the queried status.
+    */
+    is: function ( state ) {
+        return !!( this.get( 'status' ) & state );
+    },
 
     /**
         Method: O.RemoteQuery#setObsolete
@@ -157,6 +186,7 @@ var RemoteQuery = NS.Class({
     init: function ( options ) {
         RemoteQuery.parent.init.call( this, options );
         this._list = [];
+        this._refresh = false;
         this.get( 'store' ).addQuery( this );
     },
 
@@ -168,8 +198,7 @@ var RemoteQuery = NS.Class({
         collected.
     */
     destroy: function () {
-        this.set( 'status',
-            ( this.get( 'status' ) & EMPTY ) ? NON_EXISTENT : DESTROYED );
+        this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
         this.get( 'store' ).removeQuery( this );
         RemoteQuery.parent.destroy.call( this );
     },
@@ -189,15 +218,14 @@ var RemoteQuery = NS.Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    _refresh: false,
     refresh: function ( force, callback ) {
         var status = this.get( 'status' );
         if ( force || status === EMPTY ||
                 ( ( status & OBSOLETE ) && !( status & LOADING ) ) ) {
-            this.get( 'source' ).fetchQuery( this, callback );
             if ( status & READY ) {
                 this._refresh = true;
             }
+            this.get( 'source' ).fetchQuery( this, callback );
         } else if ( callback ) {
             callback();
         }
@@ -215,11 +243,13 @@ var RemoteQuery = NS.Class({
             {O.RemoteQuery} Returns self.
     */
     reset: function ( _, _key ) {
+        var length = this.get( 'length' );
+
         this._list.length = 0;
+        this._refresh = false;
 
         this.set( 'state', '' );
 
-        var length = this.get( 'length' );
         if ( _key !== 'sort' ) {
             this.set( 'status', EMPTY )
                 .set( 'length', null );
@@ -363,6 +393,7 @@ var RemoteQuery = NS.Class({
         if ( length === null ) {
             ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) ).push(
                 [ start, end, callback ] );
+            this.refresh();
             return true;
         }
 

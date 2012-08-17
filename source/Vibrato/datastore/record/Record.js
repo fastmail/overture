@@ -239,7 +239,7 @@ var Record = NS.Class({
         status bits set.
 
         Parameters:
-            state - {O.Status} A bit array corresponding
+            state - {O.Status} The status to check.
 
         Returns:
             {Boolean} True if the record has the queried status.
