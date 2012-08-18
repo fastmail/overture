@@ -214,6 +214,20 @@ var composeUpdates = function ( u1, u2 ) {
     };
 };
 
+var invertUpdate = function ( u ) {
+    var array = u.removedIndexes;
+    u.removedIndexes = u.addedIndexes;
+    u.addedIndexes = array;
+
+    array = u.removedIds;
+    u.removedIds = u.addedIds;
+    u.addedIds = array;
+
+    u.total = u.total + u.addedIds.length - u.removedIds.length;
+
+    return u;
+};
+
 // Where (a,b) and (c,d) are ranges.
 // and a < b and c < d.
 var intersect = function ( a, b, c, d ) {
@@ -842,9 +856,7 @@ var WindowedRemoteQuery = NS.Class({
     clientDidGenerateUpdate: function ( update ) {
         this._normaliseUpdate( update );
         this._applyUpdate( update, true );
-        if ( this.get( 'canGetDeltaUpdates' ) ) {
-            this._preemptiveUpdates.push( update );
-        }
+        this._preemptiveUpdates.push( update );
         return this;
     },
 
@@ -1068,14 +1080,15 @@ var WindowedRemoteQuery = NS.Class({
                         this.get( 'status' ) & ~( OBSOLETE|LOADING ) );
                     this._applyWaitingPackets();
                 } else {
+                    // Undo all preemptive updates and apply server change
+                    // instead.
                     preemptives.length = 0;
-                    this._applyUpdate( composeUpdates({
-                        removedIndexes: allPreemptives.addedIndexes,
-                        removedIds: allPreemptives.addedIds,
-                        addedIndexes: allPreemptives.removedIndexes,
-                        addedIds: allPreemptives.removedIds,
-                        changed: allPreemptives.changed
-                    }, normalisedUpdate ) );
+                    this._applyUpdate(
+                        composeUpdates(
+                            invertUpdate( allPreemptives ),
+                            normalisedUpdate
+                        )
+                    );
                 }
             }
         };
@@ -1112,61 +1125,71 @@ var WindowedRemoteQuery = NS.Class({
 
         var state = this.get( 'state' ),
             oldLength = this.get( 'length' ) || 0,
+            canGetDeltaUpdates = this.get( 'canGetDeltaUpdates' ),
             position = args.position,
             total = args.total,
             ids = args.idList,
             length = ids.length,
             list = this._list,
+            windows = this._windows,
             preemptives = this._preemptiveUpdates,
             informAllRangeObservers = false,
-            end, i, l, index;
+            end;
 
 
         // If the state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
         if ( state && state !== args.state ) {
-            if ( this.get( 'canGetDeltaUpdates' ) ) {
+            if ( canGetDeltaUpdates ) {
                 this._waitingPackets.push( args );
                 return this.setObsolete().refresh();
             } else {
-                list.length = this._windows.length = 0;
+                list.length = windows.length = preemptives.length = 0;
                 informAllRangeObservers = true;
             }
         }
         this.set( 'state', args.state );
 
         // Need to adjust for preemptive updates
-        if ( l = preemptives.length ) {
+        if ( preemptives.length ) {
             // Adjust ids, position, length
             var allPreemptives = preemptives.reduce( composeUpdates ),
                 addedIndexes = allPreemptives.addedIndexes,
                 addedIds = allPreemptives.addedIds,
-                removedIndexes = allPreemptives.removedIndexes;
+                removedIndexes = allPreemptives.removedIndexes,
+                i, l, index;
 
-            l = removedIndexes.length;
-            while ( l-- ) {
-                index = removedIndexes[l] - position;
-                if ( index < length ) {
-                    if ( index >= 0 ) {
-                        ids.splice( index, 1 );
-                        length -= 1;
-                    } else {
-                        position -= 1;
+            if ( canGetDeltaUpdates ) {
+                l = removedIndexes.length;
+                while ( l-- ) {
+                    index = removedIndexes[l] - position;
+                    if ( index < length ) {
+                        if ( index >= 0 ) {
+                            ids.splice( index, 1 );
+                            length -= 1;
+                        } else {
+                            position -= 1;
+                        }
                     }
                 }
-            }
-            for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
-                index = addedIndexes[i] - position;
-                if ( index <= 0 ) {
-                    position += 1;
-                } else if ( index < length ) {
-                    ids.splice( index, 0, addedIds[i] );
-                    length += 1;
-                } else {
-                    break;
+                for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
+                    index = addedIndexes[i] - position;
+                    if ( index <= 0 ) {
+                        position += 1;
+                    } else if ( index < length ) {
+                        ids.splice( index, 0, addedIds[i] );
+                        length += 1;
+                    } else {
+                        break;
+                    }
                 }
+                total = allPreemptives.total;
+            } else {
+                // The preemptive change we made was clearly incorrect as no
+                // change has actually occurred, so we need to unwind it.
+                this._applyUpdate( invertUpdate( allPreemptives ), true );
+                preemptives.length = 0;
             }
-            total = allPreemptives.total;
         }
 
         // Calculate end index, as length will be destroyed later
@@ -1195,13 +1218,13 @@ var WindowedRemoteQuery = NS.Class({
         }
         // Now, for each set of windowSize records, we have a complete window.
         while ( ( length -= windowSize ) >= 0 ) {
-            this._windows[ windowIndex ] |= WINDOW_READY;
+            windows[ windowIndex ] |= WINDOW_READY;
             windowIndex += 1;
         }
         // Need to check if the final window was loaded (may not be full-sized).
         length += windowSize;
         if ( length && end === total && length === ( total % windowSize ) ) {
-            this._windows[ windowIndex ] |= WINDOW_READY;
+            windows[ windowIndex ] |= WINDOW_READY;
         }
 
         // All that's left is to inform observers of the changes.
@@ -1226,11 +1249,10 @@ var WindowedRemoteQuery = NS.Class({
             recordRequests = [],
             idRequests = [],
             optimiseFetching = this.get( 'optimiseFetching' ),
-            ranges = optimiseFetching ?
-                ( NS.meta( this, true ).rangeObservers || [] ).map(
-                    function ( observer ) {
-                return observer.range;
-            }) : null,
+            ranges =  ( NS.meta( this, true ).rangeObservers || [] ).map(
+                function ( observer ) {
+                    return observer.range;
+                }),
             fetchAllObservedIds = refreshRequested &&
                 this.get( 'canGetDeltaUpdates' ),
             prefetch = this.get( 'prefetch' ),
