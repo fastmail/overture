@@ -1254,7 +1254,7 @@ var WindowedRemoteQuery = NS.Class({
                     return observer.range;
                 }),
             fetchAllObservedIds = refreshRequested &&
-                this.get( 'canGetDeltaUpdates' ),
+                !this.get( 'canGetDeltaUpdates' ),
             prefetch = this.get( 'prefetch' ),
             i, l, status, inUse, rPrev, iPrev, start;
 
