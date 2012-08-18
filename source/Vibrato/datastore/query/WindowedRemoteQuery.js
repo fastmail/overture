@@ -1309,14 +1309,16 @@ var WindowedRemoteQuery = NS.Class({
                 }
             } else if ( fetchAllObservedIds ) {
                 inUse = windowIsStillInUse( i, windowSize, prefetch, ranges );
-                start = i * windowSize;
-                if ( iPrev && iPrev.start + iPrev.count === start ) {
-                    iPrev.count += windowSize;
-                } else {
-                    idRequests.push( iPrev = {
-                        start: start,
-                        count: windowSize
-                    });
+                if ( inUse ) {
+                    start = i * windowSize;
+                    if ( iPrev && iPrev.start + iPrev.count === start ) {
+                        iPrev.count += windowSize;
+                    } else {
+                        idRequests.push( iPrev = {
+                            start: start,
+                            count: windowSize
+                        });
+                    }
                 }
             }
             windows[i] = status;
