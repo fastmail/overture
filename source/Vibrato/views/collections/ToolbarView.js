@@ -128,6 +128,10 @@ var ToolbarView = NS.Class({
         return this;
     },
 
+    getView: function ( name ) {
+        return this._views[ name ];
+    },
+
     // ---
 
     leftConfig: function () {
