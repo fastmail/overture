@@ -35,7 +35,8 @@ var SelectView = NS.Class({
                     return el( 'option', {
                         text: option.text,
                         value: i,
-                        selected: option.value === selected
+                        selected: option.value === selected,
+                        disabled: !!option.isDisabled
                     });
                 })
             );
