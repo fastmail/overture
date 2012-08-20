@@ -71,6 +71,9 @@ var sort = function ( sort, a, b ) {
     methods for retrieving single records or lists based on queries.
 */
 var Store = NS.Class({
+    
+    Mixin: NS.Events,
+    
     /**
         Property: O.Store#autoCommit
         Type: Boolean
@@ -2199,6 +2202,9 @@ var Store = NS.Class({
             while ( l-- ) {
                 typeQueries[l].storeDidChangeRecords( typeChanges );
             }
+            this.fire( typeName + 'Changed', {
+                storeKeys: typeQueries
+            });
         }
 
         this._typeToChangedSks = {};
