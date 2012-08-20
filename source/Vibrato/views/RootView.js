@@ -91,13 +91,16 @@ var RootView = NS.Class({
     init: function ( node, options ) {
         RootView.parent.init.call( this, options );
 
-        var nodeIsDocument = node.nodeType === Node.DOCUMENT_NODE,
+        var nodeIsDocument = ( node.nodeType === Node.DOCUMENT_NODE ),
             doc = nodeIsDocument ? node : node.ownerDocument,
             win = doc.defaultView,
             events, l;
 
-        events = [ 'click', 'mousedown', 'mouseup',
-            'keypress', 'keydown', 'keyup', 'dragstart', 'selectstart' ];
+        events = [
+            'click', 'mousedown', 'mouseup',
+            'keypress', 'keydown', 'keyup',
+            'dragstart', 'selectstart'
+        ];
         for ( l = events.length; l--; ) {
             node.addEventListener( events[l], this, false );
         }
@@ -110,13 +113,34 @@ var RootView = NS.Class({
         for ( l = events.length; l--; ) {
             node.addEventListener( events[l], this, true );
         }
-        events = [ 'resize', 'orientationchange' ];
+        events = [ 'resize', 'orientationchange', 'scroll' ];
         for ( l = events.length; l--; ) {
             win.addEventListener( events[l], this, false );
         }
 
         this.layer = nodeIsDocument ? node.body : node;
     },
+
+    _onScroll: function ( event ) {
+        var layer = this.get( 'layer' ),
+            isBody = ( layer.nodeName === 'BODY' ),
+            doc = layer.ownerDocument,
+            win = doc.defaultView,
+            html = doc.documentElement,
+            left = isBody ?
+                // pageXOffset for everything but IE8.
+                win.pageXOffset || html.scrollLeft || 0 :
+                layer.scrollLeft,
+            top = isBody ?
+                // pageYOffset for everything but IE8.
+                win.pageYOffset || html.scrollTop || 0 :
+                layer.scrollTop;
+        this.beginPropertyChanges()
+                .set( 'scrollLeft', left )
+                .set( 'scrollTop', top )
+            .endPropertyChanges();
+        event.stopPropagation();
+    }.on( 'scroll' ),
 
     pxLeft: 0,
     pxTop: 0,
@@ -148,6 +172,10 @@ var RootView = NS.Class({
         // Window resize events: just notify parent has resized.
         if ( type === 'resize' || type === 'orientationchange' ) {
             this.parentViewDidResize();
+        }
+        // Scroll events are special.
+        else if ( type === 'scroll') {
+            this._onScroll( event );
         }
         // Normal events: send down the responder change.
         else {

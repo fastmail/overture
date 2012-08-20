@@ -93,17 +93,6 @@ var ScrollView = NS.Class({
         });
     }.property(),
 
-    _onScroll: function ( event ) {
-        var layer = this.get( 'layer' ),
-            left = layer.scrollLeft,
-            top = layer.scrollTop;
-        this.beginPropertyChanges()
-                .set( 'scrollLeft', left )
-                .set( 'scrollTop', top )
-            .endPropertyChanges();
-        event.stopPropagation();
-    }.on( 'scroll' ),
-
     scrollPage: function () {
         return this.scrollBy( 0, this.get( 'pxHeight' ) - 50, true );
     },
@@ -168,16 +157,7 @@ var ScrollView = NS.Class({
         }
         return this.scrollTo(
             position.left + offset.x, position.top + offset.y, withAnimation );
-    },
-
-    visibleRect: function () {
-        return {
-            x: this.get( 'scrollLeft' ),
-            y: this.get( 'scrollTop' ),
-            width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' )
-        };
-    }.property( 'pxDimensions', 'scrollLeft', 'scrollTop' )
+    }
 });
 
 NS.ScrollView = ScrollView;

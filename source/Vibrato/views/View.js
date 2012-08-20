@@ -823,6 +823,17 @@ var View = NS.Class({
     */
     scrollTop: 0,
 
+    _onScroll: function ( event ) {
+        var layer = this.get( 'layer' ),
+            left = layer.scrollLeft,
+            top = layer.scrollTop;
+        this.beginPropertyChanges()
+                .set( 'scrollLeft', left )
+                .set( 'scrollTop', top )
+            .endPropertyChanges();
+        event.stopPropagation();
+    }.on( 'scroll' ),
+
     /**
         Property: O.View#pxLeft
         Type: Number
@@ -922,12 +933,12 @@ var View = NS.Class({
     */
     visibleRect: function () {
         return {
-            x: 0,
-            y: 0,
+            x: this.get( 'scrollLeft' ),
+            y: this.get( 'scrollTop' ),
             width: this.get( 'pxWidth' ),
             height: this.get( 'pxHeight' )
         };
-    }.property( 'pxDimensions' ),
+    }.property( 'pxDimensions', 'scrollLeft', 'scrollTop' ),
 
     // --- Insertion and deletion ---
 
