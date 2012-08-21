@@ -259,7 +259,7 @@ var RemoteQuery = NS.Class({
         if ( _key ) {
             this.get( 'source' ).fetchQuery( this );
         }
-        return this;
+        return this.fire( 'query:reset' );
     }.observes( 'sort', 'filter' ),
 
     /**

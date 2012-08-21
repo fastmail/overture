@@ -22,7 +22,8 @@ var SingleSelectionController = NS.Class({
         if ( content ) {
             content.addObserverForRange(
                 range, this, 'recordAtIndexDidChange' );
-            content.on( 'query:updated', this, 'contentWasUpdated' );
+            content.on( 'query:updated', this, 'contentWasUpdated' )
+                   .on( 'query:reset', this, 'contentWasReset' );
         }
         if ( this.get( 'record' ) ) {
             this._recordDidChange();
@@ -36,7 +37,8 @@ var SingleSelectionController = NS.Class({
     destroy: function () {
         var content = this.get( 'content' );
         if ( content ) {
-            content.detach( 'query:updated', this, 'contentWasUpdated' );
+            content.detach( 'query:reset', this, 'contentWasReset' )
+                   .detach( 'query:updated', this, 'contentWasUpdated' );
             content.removeObserverForRange(
                 this._range, this, 'recordAtIndexDidChange' );
         }
@@ -107,13 +109,15 @@ var SingleSelectionController = NS.Class({
             index;
 
         if ( oldVal ) {
-            oldVal.detach( 'query:updated', this, 'contentWasUpdated' );
+            oldVal.detach( 'query:reset', this, 'contentWasReset' )
+                  .detach( 'query:updated', this, 'contentWasUpdated' );
             oldVal.removeObserverForRange(
                 range, this, 'recordAtIndexDidChange' );
         }
         if ( newVal ) {
             newVal.addObserverForRange( range, this, 'recordAtIndexDidChange' );
-            newVal.on( 'query:updated', this, 'contentWasUpdated' );
+            newVal.on( 'query:updated', this, 'contentWasUpdated' )
+                  .on( 'query:reset', this, 'contentWasReset' );
         }
 
         if ( record && newVal ) {
@@ -164,6 +168,10 @@ var SingleSelectionController = NS.Class({
         } else {
             this.set( 'index', index );
         }
+    },
+
+    contentWasReset: function () {
+        this.set( 'index', 0 );
     }
 });
 
