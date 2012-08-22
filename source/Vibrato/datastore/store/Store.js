@@ -71,9 +71,9 @@ var sort = function ( sort, a, b ) {
     methods for retrieving single records or lists based on queries.
 */
 var Store = NS.Class({
-    
+
     Mixin: NS.Events,
-    
+
     /**
         Property: O.Store#autoCommit
         Type: Boolean

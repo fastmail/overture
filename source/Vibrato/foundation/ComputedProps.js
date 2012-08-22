@@ -192,10 +192,10 @@ var getFromPath = NS.getFromPath = function ( path, root ) {
         nextDot = path.indexOf( '.', currentPosition );
         if ( nextDot === -1 ) { nextDot = pathLength; }
         key = path.slice( currentPosition, nextDot );
-        root = root.get ?
-                isNum.test( key ) ?
-                    root.getObjectAt( parseInt( key, 10 ) ) :
-                    root.get( key ) :
+        root = root.getObjectAt && isNum.test( key ) ?
+            root.getObjectAt( parseInt( key, 10 ) ) :
+            root.get ?
+                root.get( key ) :
                 root[ key ];
         currentPosition = nextDot + 1;
     }
