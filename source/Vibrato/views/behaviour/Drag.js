@@ -420,13 +420,12 @@ var Drag = NS.Class({
     },
 
     getFiles: function ( typeRegExp ) {
-        var files = [];
-        if ( this.isNative ) {
-            var dataTransfer = this.event.dataTransfer,
-                items = dataTransfer.items,
-                i, l, item;
+        var files = [],
+            dataTransfer = this.event.dataTransfer,
+            items, i, l, item;
+        if ( dataTransfer ) {
             // Current HTML5 DnD interface
-            if ( items ) {
+            if ( items = dataTransfer.items ) {
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
                     if ( item.kind === 'file' &&
@@ -600,7 +599,9 @@ var Drag = NS.Class({
         if ( !scroll ||
                 x < scroll.l || x > scroll.r || y < scroll.t || y > scroll.b ) {
             scroll = null;
-            if ( this._lastTargetView !== view ) {
+            // Optimise by only reclaculating scrollView bounds when we mouse
+            // over a new view.
+            if ( view && this._lastTargetView !== view ) {
                 this._lastTargetView = scrollView = view;
 
                 if ( !( scrollView instanceof NS.ScrollView ) ) {
