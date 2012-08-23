@@ -86,6 +86,133 @@ Date.implement({
 var slice = Array.prototype.slice,
     interpolate = String.prototype.interpolate;
 
+var compileTranslation = function ( translation ) {
+    var compiled = '',
+        start = 0,
+        searchIndex = 0,
+        length = translation.length,
+        end, parts, part, partLength,
+        i, j, l;
+
+    outer: while ( true ) {
+        end = translation.indexOf( '[', searchIndex ) ;
+        // If there are no more macros, just the last text section to
+        // process.
+        if ( end === -1 ) {
+            end = length;
+        } else {
+            // Check the '[' isn't escaped (preceded by an odd number of
+            // '~' characters):
+            j = end;
+            while ( j-- ) {
+                if ( translation[ j ] !== '~' ) {
+                    break;
+                }
+            }
+            if ( ( end - j ) % 2 === 0 ) {
+                searchIndex = end + 1;
+                continue;
+            }
+        }
+        // Standard text section
+        part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
+        if ( part ) {
+            if ( compiled ) { compiled += '+'; }
+            compiled += '"';
+            compiled += part.replace( /\\/g, '\\' )
+                            .replace( /"/g, '\\"' );
+            compiled += '"';
+        }
+        // Check if we've reached the end of the string
+        if ( end === length ) { break; }
+        // Macro section
+        start = searchIndex = end + 1;
+        // Find the end of the macro call.
+        while ( true ) {
+            end = translation.indexOf( ']', searchIndex );
+            // Invalid translation string.
+            if ( end === -1 ) {
+                compiled = '';
+                break outer;
+            }
+            // Check the ']' character isn't escaped.
+            j = end;
+            while ( j-- ) {
+                if ( translation[ j ] !== '~' ) {
+                    break;
+                }
+            }
+            if ( ( end - j ) % 2 ) {
+                break;
+            }
+            searchIndex = end + 1;
+        }
+        // Split into parts
+        parts = translation.slice( start, end ).split( ',' );
+        l = parts.length;
+
+        if ( compiled ) {
+            compiled += '+';
+        }
+        if ( l > 1 ) {
+            compiled += 'lang.macros["';
+        }
+        for ( i = 0; i < l; i += 1 ) {
+            // If not the first part, add a comma to separate the
+            // arguments to the macro function call.
+            if ( i > 1 ) {
+                compiled += ',';
+            }
+            // If a comma was escaped, we split up an argument.
+            // Rejoin these.
+            part = parts[i];
+            partLength = part.length;
+            while ( partLength && part[ partLength - 1 ] === '~' ) {
+                i += 1;
+                part += ',';
+                part += parts[i];
+                partLength = part.length;
+            }
+            // Unescape the part.
+            part = part.replace( /~(.)/g, '$1' );
+            // Check if we've got an argument.
+            if ( /^_(?:\*|\d+)$/.test( part ) ) {
+                part = part.slice( 1 );
+                compiled += 'args';
+                compiled += ( part === '*' ?
+                    '' : '[' + ( parseInt( part, 10 ) - 1 ) + ']'
+                );
+            }
+            // Otherwise:
+            else {
+                // First part is the macro name.
+                if ( !i ) {
+                    compiled += ( part === '*' ?
+                        'quant' : part === '#' ? 'numf' : part );
+                    compiled += '"].call(lang,';
+                }
+                // Anything else is a plain string argument
+                else {
+                    compiled += '"';
+                    compiled += part.replace( /\\/g, '\\' )
+                                    .replace( /"/g, '\\"' );
+                    compiled += '"';
+                }
+            }
+        }
+        if ( l > 1 ) {
+            compiled += ')';
+        }
+        start = searchIndex = end + 1;
+    }
+
+    /*jshint evil: true */
+    return new Function( 'lang', 'args',
+    /*jshint evil: false */
+        'return ' + ( compiled || '""' ) + ';'
+    );
+};
+
 /**
     Class: O.Language
 
@@ -119,6 +246,7 @@ var Language = NS.Class({
         [ 'macros', 'dateFormats' ].forEach( function ( obj ) {
             this[ obj ] = Object.create( this[ obj ] );
         }, this );
+        this.compiled = {};
         NS.merge( this, options );
     },
 
@@ -484,139 +612,33 @@ var Language = NS.Class({
     */
     translate: function ( string ) {
         var translation = this.translations[ string ],
-            compiled, searchIndex,
-            start, end, length,
-            parts, part, partLength,
-            i, j, l;
+            returnString = true,
+            args = [],
+            i, l, arg, compiled, parts;
 
         if ( translation === undefined ) {
             translation = string;
         }
 
-        // Compile string
-        if ( typeof translation === 'string' ) {
-            compiled = '';
-            start = 0;
-            searchIndex = 0;
-            length = translation.length;
-            while ( true ) {
-                end = translation.indexOf( '[', searchIndex ) ;
-                // If there are no more macros, just the last text section to
-                // process.
-                if ( end === -1 ) {
-                    end = length;
-                } else {
-                    // Check the '[' isn't escaped (preceded by an odd number of
-                    // '~' characters):
-                    j = end;
-                    while ( j-- ) {
-                        if ( translation[ j ] !== '~' ) {
-                            break;
-                        }
-                    }
-                    if ( ( end - j ) % 2 === 0 ) {
-                        searchIndex = end + 1;
-                        continue;
-                    }
-                }
-                // Standard text section
-                part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
-                if ( part ) {
-                    if ( compiled ) { compiled += '+'; }
-                    compiled += '"';
-                    compiled += part.replace( /\\/g, '\\' )
-                                    .replace( /"/g, '\\"' );
-                    compiled += '"';
-                }
-                // Check if we've reached the end of the string
-                if ( end === length ) { break; }
-                // Macro section
-                start = searchIndex = end + 1;
-                // Find the end of the macro call.
-                while ( true ) {
-                    end = translation.indexOf( ']', searchIndex );
-                    // Invalid translation string. Return literally.
-                    if ( end === -1 ) {
-                        return string;
-                    }
-                    // Check the ']' character isn't escaped.
-                    j = end;
-                    while ( j-- ) {
-                        if ( translation[ j ] !== '~' ) {
-                            break;
-                        }
-                    }
-                    if ( ( end - j ) % 2 ) {
-                        break;
-                    }
-                    searchIndex = end + 1;
-                }
-                // Split into parts
-                parts = translation.slice( start, end ).split( ',' );
-                l = parts.length;
-
-                if ( compiled ) {
-                    compiled += '+';
-                }
-                if ( l > 1 ) {
-                    compiled += 'this.macros["';
-                }
-                for ( i = 0; i < l; i += 1 ) {
-                    // If not the first part, add a comma to separate the
-                    // arguments to the macro function call.
-                    if ( i > 1 ) {
-                        compiled += ',';
-                    }
-                    // If a comma was escaped, we split up an argument.
-                    // Rejoin these.
-                    part = parts[i];
-                    partLength = part.length;
-                    while ( partLength && part[ partLength - 1 ] === '~' ) {
-                        i += 1;
-                        part += ',';
-                        part += parts[i];
-                        partLength = part.length;
-                    }
-                    // Unescape the part.
-                    part = part.replace( /~(.)/g, '$1' );
-                    // Check if we've got an argument.
-                    if ( /^_(?:\*|\d+)$/.test( part ) ) {
-                        part = part.slice( 1 );
-                        compiled += 'arguments';
-                        compiled += ( part === '*' ?
-                            '' : '[' + ( parseInt( part, 10 ) - 1 ) + ']'
-                        );
-                    }
-                    // Otherwise:
-                    else {
-                        // First part is the macro name.
-                        if ( !i ) {
-                            compiled += ( part === '*' ?
-                                'quant' : part === '#' ? 'numf' : part );
-                            compiled += '"].call(this,';
-                        }
-                        // Anything else is a plain string argument
-                        else {
-                            compiled += '"';
-                            compiled += part.replace( /\\/g, '\\' )
-                                            .replace( /"/g, '\\"' );
-                            compiled += '"';
-                        }
-                    }
-                }
-                if ( l > 1 ) {
-                    compiled += ')';
-                }
-                start = searchIndex = end + 1;
+        for ( i = 1, l = arguments.length; i < l; i += 1 ) {
+            arg = arguments[i];
+            if ( typeof arg === 'object' ) {
+                returnString = false;
             }
-
-            /*jshint evil: true */
-            this.translations[ string ] = translation =
-                new Function( 'return ' + ( compiled || '""' ) + ';' );
-            /*jshint evil: false */
+            args[ i - 1 ] = arg;
         }
 
-        return translation.apply( this, slice.call( arguments, 1 ) );
+        if ( returnString ) {
+            compiled = this.compiled[ string ] ||
+                ( this.compiled[ string ] = compileTranslation( translation ) );
+            return compiled( this, args );
+        }
+
+        parts = translation.split( /\[_(\d)\]/ );
+        for ( i = 1, l = parts.length; i < l; i += 2 ) {
+            parts[i] = args[ parts[i] - 1 ] || null;
+        }
+        return parts;
     },
 
     /**
