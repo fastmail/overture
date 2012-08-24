@@ -20,9 +20,7 @@ var SplitDividerView = NS.Class({
 
     thickness: 10,
 
-    length: new NS.Binding({
-        isTwoWay: true
-    }).from( 'parentView.staticPaneLength' ),
+    length: NS.bindTwoWay( 'parentView.staticPaneLength' ),
 
     min: NS.bind( 'parentView.minStaticPaneLength' ),
     max: NS.bind( 'parentView.maxStaticPaneLength' ),

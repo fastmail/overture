@@ -514,9 +514,7 @@ var RichTextView = NS.Class({
                         NS.loc( 'Add a link to the following URL or email:' )
                     ]),
                     this._input = new NS.TextView({
-                        value: new NS.Binding({
-                            isTwoWay: true
-                        }).from( 'value', this ),
+                        value: NS.bindTwoWay( 'value', this ),
                         placeholder: 'e.g. www.example.com'
                     }),
                     el( 'p.right', [

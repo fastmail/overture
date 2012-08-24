@@ -319,9 +319,7 @@ var MenuView = NS.Class({
                 this._input = new NS.TextView({
                     blurOnEscape: false,
                     type: 'text filter',
-                    value: new NS.Binding({
-                        isTwoWay: true
-                    }).from( 'filter', this.get( 'controller' ) )
+                    value: NS.bindTwoWay( 'filter', this.get( 'controller' ) )
                 })
             ]) : null,
             this._scrollView = new NS.ScrollView({

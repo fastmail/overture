@@ -140,11 +140,7 @@ var Binding = NS.Class({
     */
     init: function ( config ) {
         for ( var key in config ) {
-            if ( this[ key ] instanceof Function && !this[ key ].isProperty ) {
-                this[ key ]( config[ key ] );
-            } else {
-                this.set( key, config[ key ] );
-            }
+            this[ key ] = config[ key ];
         }
     },
 
@@ -401,44 +397,13 @@ var Binding = NS.Class({
     // ------------
 
     /**
-        Property (private): O.Binding#_transform
-        Type: Function
-
-        The transform to apply to values.
-    */
-    _transform: identity,
-
-    /**
-        Method: O.Binding#resetTransforms
-
-        Clears any transforms set on the object
-
-        Returns:
-            {O.Binding} Returns self.
-    */
-    resetTransforms: function () {
-        this._transform = identity;
-        return this;
-    },
-
-    /**
         Property: O.Binding#transform
         Type: Function
 
         A function which is applied to a value coming from one object before it
-        is set on the other object. If this value is set multiple times without
-        calling the resetTransforms method, the functions will be chained and
-        applied in the order in which they were added.
+        is set on the other object.
     */
-    transform: function ( fn ) {
-        if ( fn ) {
-            var old = this._transform;
-            this._transform = ( old === identity ? fn : function ( v, dir ) {
-                return fn( old( v, dir ), dir );
-            });
-        }
-        return this._transform;
-    }.property(),
+    transform: identity,
 
     /**
         Method: O.Binding#defaultValue
@@ -543,7 +508,7 @@ NS.Binding = Binding;
     Function: O.bind
 
     Convenience method. A shortcut for:
-        new Binding({
+        new O.Binding({
             transform: transform
         }).from( path, root );
 
@@ -559,7 +524,33 @@ NS.Binding = Binding;
 */
 NS.bind = function ( path, root, transform ) {
     return new Binding({
-        transform: transform
+        transform: transform || identity
+    }).from( path, root );
+};
+
+/**
+    Function: O.bindTwoWay
+
+    Convenience method. A shortcut for:
+        new O.Binding({
+            isTwoWay: true,
+            transform: transform
+        }).from( path, root );
+
+    Parameters:
+        path      - {String} The path to bind from
+        root      - {Object} (optional) The root object on the path to bind
+                    from. If not specified, will be the object the property is
+                    bound to.
+        transform - {Function} (optional) A transform to apply.
+
+    Returns:
+        {O.Binding} The new binding.
+*/
+NS.bindTwoWay = function ( path, root, transform ) {
+    return new Binding({
+        isTwoWay: true,
+        transform: transform || identity
     }).from( path, root );
 };
 

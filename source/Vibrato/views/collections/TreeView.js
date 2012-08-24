@@ -25,9 +25,7 @@ var ExpandoView = NS.Class({
         return 'ExpandoView' + ( this.get( 'isCollapsed' ) ? '' : ' expanded' );
     }.property( 'isCollapsed' ),
 
-    isCollapsed: new NS.Binding({
-        isTwoWay: true
-    }).from( 'parentView.isCollapsed' ),
+    isCollapsed: NS.bindTwoWay( 'parentView.isCollapsed' ),
 
     label: '',
 
