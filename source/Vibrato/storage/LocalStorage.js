@@ -32,6 +32,9 @@ var dummyStorage = {
     storage facilities provided by modern browsers. Essentially, you can treat
     it as an instance of <O.Object> whose values persists between page reloads
     (and between browser sessions if not set to session-only).
+
+    Since data is serialised to a string for storage, only native JS types
+    should be stored; class instances will not be restored correctly.
 */
 var LocalStorage = NS.Class({
 
@@ -43,8 +46,8 @@ var LocalStorage = NS.Class({
         Parameters:
             name        - {String} The name of this storage set. Objects with
                           the same name will overwrite each others' values.
-            sessionOnly - {Boolean} Should the values only be persisted for the
-                          session?
+            sessionOnly - {Boolean} (optional) Should the values only be
+                          persisted for the session?
     */
     init: function ( name, sessionOnly ) {
         LocalStorage.parent.init.call( this );
