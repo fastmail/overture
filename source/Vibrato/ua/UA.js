@@ -10,6 +10,12 @@
 
 "use strict";
 
+/**
+    Module: UA
+
+    The UA module contains information about the platform on which the
+    application is running.
+*/
 ( function ( NS ) {
 
 var ua = navigator.userAgent.toLowerCase(),
@@ -37,42 +43,10 @@ var ua = navigator.userAgent.toLowerCase(),
             'cssFloat' : 'styleFloat'
     };
 
-NS.UA = {
-    // Platform
-    platform: platform,
-
-    isMac: platform === 'mac',
-    isWin: platform === 'win',
-    isLinux: platform === 'linux',
-    isIOS: platform === 'ios',
-
-    // Browser
-    browser: browser,
-    version: version,
-
-    chrome: browser === 'chrome' ? version : 0,
-    firefox: browser === 'firefox' ? version : 0,
-    msie: browser === 'msie' ? version : 0,
-    opera: browser === 'opera' ? version : 0,
-    safari: browser === 'safari' ? version : 0,
-
-    operaMobile: /opera mobi/.test( ua ) ? version : 0,
-
-    // Rendering engine
-    gecko: /gecko\//.test( ua ),
-    presto: /presto/.test( ua ),
-    trident: /trident/.test( ua ),
-    webkit: /webkit/.test( ua ),
-
-    // CSS names
-    cssProps: cssProps,
-    cssPrefix: cssPrefixes[ browser ]
-};
-
 ( function () {
     var el = document.createElement( 'div' ),
         props = {
-            boxShadow: {
+            'box-shadow': {
                 name: 'box-shadow',
                 value: '0 0 0 #000'
             },
@@ -110,5 +84,134 @@ NS.UA = {
     });
     el = null;
 }() );
+
+/**
+    Namespace: O.UA
+
+    The O.UA namespace contains information about which browser and platform the
+    application is currently running on, and which CSS properties are supported.
+*/
+NS.UA = {
+    /**
+        Property: O.UA.platform
+        Type: String
+
+        The operating system being run. "mac", "win", "linux" or "ios".
+    */
+    platform: platform,
+
+    /**
+        Property: O.UA.isMac
+        Type: Boolean
+
+        True if running on a mac.
+    */
+    isMac: platform === 'mac',
+    /**
+        Property: O.UA.isWin
+        Type: Boolean
+
+        True if running on windows.
+    */
+    isWin: platform === 'win',
+    /**
+        Property: O.UA.isLinux
+        Type: Boolean
+
+        True if running on linux.
+    */
+    isLinux: platform === 'linux',
+    /**
+        Property: O.UA.isIOS
+        Type: Boolean
+
+        True if running on iOS.
+    */
+    isIOS: platform === 'ios',
+
+    /**
+        Property: O.UA.browser
+        Type: String
+
+        The browser being run. "chrome", "firefox", "msie" or "opera" or
+        "safari".
+    */
+    browser: browser,
+    /**
+        Property: O.UA.version
+        Type: Number
+
+        The browser version being run. This is a float, and includes the first
+        minor revision as well as the major revision. For example, if the user
+        is running Opera 12.5, this will be `12.5`, not just `12`.
+    */
+    version: version,
+
+    /**
+        Property: O.UA.chrome
+        Type: Number
+
+        If running Chrome, this will be the version number running. Otherwise 0.
+    */
+    chrome: browser === 'chrome' ? version : 0,
+    /**
+        Property: O.UA.firefox
+        Type: Number
+
+        If running Firefox, this will be the version number running. Otherwise
+        0.
+    */
+    firefox: browser === 'firefox' ? version : 0,
+    /**
+        Property: O.UA.msie
+        Type: Number
+
+        If running Internet Explorer, this will be the version number running.
+        Otherwise 0.
+    */
+    msie: browser === 'msie' ? version : 0,
+    /**
+        Property: O.UA.opera
+        Type: Number
+
+        If running Opera, this will be the version number running. Otherwise 0.
+    */
+    opera: browser === 'opera' ? version : 0,
+    /**
+        Property: O.UA.safari
+        Type: Number
+
+        If running Safari, this will be the version number running. Otherwise 0.
+    */
+    safari: browser === 'safari' ? version : 0,
+    /**
+        Property: O.UA.operaMobile
+        Type: Number
+
+        If running Opera Mobile, this will be the version number running.
+        Otherwise 0.
+    */
+    operaMobile: /opera mobi/.test( ua ) ? version : 0,
+
+    /**
+        Property: O.UA.cssProps
+        Type: Object
+
+        A map of certain CSS property names to the browser-specific CSS property
+        name required, or null if the browser does not support the property.
+
+        The following properties are available: box-shadow, float, transform,
+        transform3d, transition, transition-delay, transition-duration,
+        transition-property and transition-timing.
+    */
+    cssProps: cssProps,
+    /**
+        Property: O.UA.cssPrefix
+        Type: String
+
+        The CSS prefix to use for this browser.
+    */
+    cssPrefix: cssPrefixes[ browser ]
+};
 
 }( this.O ) );

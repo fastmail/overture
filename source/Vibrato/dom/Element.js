@@ -127,7 +127,7 @@ var cssNoPx = {
 
     Map of normal CSS names to the name used on the style object.
 */
-var styleNames = function () {
+var styleNames = ( function () {
     var styles = NS.UA.cssProps,
         styleNames = {},
         property, style;
@@ -139,11 +139,11 @@ var styleNames = function () {
             if ( style.slice( 0, 2 ) === 'Ms' ) {
                 style = 'm' + style.slice( 1 );
             }
-            styleNames[ property ] = style;
+            styleNames[ property.camelCase() ] = style;
         }
     }
     return styleNames;
-}();
+}() );
 
 /**
     Property (private): O.Element-doc
@@ -394,7 +394,8 @@ NS.Element = {
     */
     setStyle: setStyle = function ( el, style, value ) {
         if ( value !== undefined ) {
-            style = ( styleNames[ style ] || style ).camelCase();
+            style = style.camelCase();
+            style = styleNames[ style ] || style;
             if ( typeof value === 'number' && !cssNoPx[ style ] ) {
                 value += 'px';
             }
