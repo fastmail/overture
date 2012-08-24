@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: EventSource.js                                                       \\
 // Module: IO                                                                 \\
-// Requires: Core, Foundation, XHR.js                                         \\
+// Requires: Core, Foundation, UA, XHR.js                                     \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -199,7 +199,7 @@ var EventSource = global.EventSource ? NS.Class({
 
     _reconnectAfter: 30000,
     _lastEventId: '',
-    _poll: !!global.ie,
+    _poll: !!NS.UA.msie,
 
     // --- io ---
     loading: function ( xhr ) {
