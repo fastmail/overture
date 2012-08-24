@@ -13,18 +13,21 @@
 /**
     Mixin: O.Validate
 
-    Mixin to use when an object can be in either a valid or an invalid state,
-    with a set of functions to apply to determine which state it is in.
+    Objects that can be in either a valid or invalid state should include the
+    O.Validate mixin. This makes it easy to set up validation functions to run
+    when triggered by an event or property change, and provides a consistent
+    interface for other objects to get the validity state and error description.
 
-    Any object including O.Validate must also inclue <O.ObservableProps>.
+    Any object including O.Validate *must* also inclue <O.ObservableProps>.
 */
 
 var Validate = {
     /**
         Method: O.Validate#initValidate
 
-        Initialises any validators to run at the appropriate times. You should
-        call this during the init method of your object including O.Validate.
+        Initialises any validation functions to run at the appropriate times.
+        You *must* call this during the init method of your class including
+        O.Validate.
     */
     initValidate: function () {
         var type;
@@ -41,7 +44,7 @@ var Validate = {
         Property: O.Validate#isValid
         Type: Boolean
 
-        False if the validators last rejected the object's state
+        False if the validation functions last rejected the object's state
     */
     isValid: true,
     /**
@@ -51,15 +54,20 @@ var Validate = {
         A map of names to functions that validate the object. The functions will
         be called with this object as the `this` parameter, and the `value`
         property of the object as the sole argument. They must return a boolean
-        value indicating whether the validation succeeded.
+        value, true if and only if the object conforms to the constraint being
+        tested. If they return false, before doing so they should set the
+        `validityError` attribute on the object (the `this` parameter within the
+        function), with a string describing the error.
     */
     validators: {},
     /**
         Property: O.Validate#validateOn
         Type: Object.<String,Array.<String>>
 
-        A map of properties to observe to an array of validator names to be run
-        when the property changes.
+        A map of properties to observe to an array of validation function names
+        (as specified in #Validators) to be run when the property changes. To
+        validate when an event is fired, use `"event:" + errorType` as the
+        property name, e.g. `event:blur`.
     */
     validateOn: {},
     /**
@@ -67,7 +75,7 @@ var Validate = {
         Type: String
 
         A string describing the error causing validation to fail. This should be
-        set by the validator if it fails.
+        set by a validation function if it fails.
     */
     validityError: '',
 
@@ -80,11 +88,11 @@ var Validate = {
 
         Parameters:
             obj - {(Event|*)} (optional) If an event is fired, the type property
-                  of this object is used to determine the set of validators to
-                  run.
+                  of this object is used to determine the set of validation
+                  functions to run.
             key - {String} (optional) If this is supplied (and it must be the
                   second argument), it is used to determine the set of
-                  validators to run.
+                  validation functions to run.
     */
     _validate: function ( obj, key ) {
         var validators = this.get( 'validators' ),
@@ -96,7 +104,7 @@ var Validate = {
 
         for ( i = 0, l = toUse.length; i < l; i += 1 ) {
             isValid = isValid && validators[ toUse[i] ].call( this, value );
-            // If state is invalid, no point in validating further.
+            // If the state is invalid, no point in validating further.
             if ( !isValid ) { break; }
         }
         this.set( 'isValid', isValid );
