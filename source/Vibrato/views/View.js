@@ -950,10 +950,10 @@ var View = NS.Class({
 
         Parameters:
             view       - {O.View} The new child view to insert.
-            relativeTo - {(Element|O.View)} (optional) The DOM node or other
-                         child view to insert the new child view's layer
-                         relative to. If not supplied, or null/undefined, the
-                         child will be inserted relative to this view's layer.
+            relativeTo - {(Element|O.View)} (optional) The DOM node or child
+                         view to insert the new child view's layer relative to.
+                         If not supplied, or null/undefined, the child will be
+                         inserted relative to this view's layer.
             where      - {String} (optional) Specifies where the view's layer
                          should be placed in the DOM tree relative to the
                          relativeView node. Defaults to 'bottom' (appended to
@@ -966,6 +966,11 @@ var View = NS.Class({
         var oldParent = view.get( 'parentView' ),
             childViews = this.get( 'childViews' ),
             index, isInDocument, layer, parent, before;
+
+        if ( !relativeTo && ( where === 'before' || where === 'after' ) ) {
+            this.get( 'parentView' ).insertView( view, this, where );
+            return this;
+        }
 
         if ( oldParent ) {
             oldParent.removeView( view );
