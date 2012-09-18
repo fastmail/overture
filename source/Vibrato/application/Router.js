@@ -120,8 +120,8 @@ var Router = NS.Class({
         Router.parent.init.call( this, options );
         if ( !win ) { win = window; }
         var location = win.location,
-            path = this.useHash ?
-                getHash( location ) : getUrl( location, this.baseUrl );
+            path = ( this.useHash && getHash( location ) ) ||
+                getUrl( location, this.baseUrl );
         this.set( 'currentPath', path );
         this.restoreStateFromUrl( path );
         win.addEventListener(
