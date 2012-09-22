@@ -82,10 +82,6 @@ var RPCSource = NS.Class({
         // Map of id -> RemoteQuery for all queries to be fetched.
         this._queriesToFetch = {};
 
-        // Map of Type name -> true for types which have been fetched.
-        // using an RPCSource.getData type function.
-        this._typeFetched = {};
-
         RPCSource.parent.init.call( this, options );
     },
 
