@@ -11,7 +11,7 @@
 ( function ( undefined ) {
 
 var splitter =
-    /%(\+)?(?:'(.))?(-)?([0-9+])?(?:\.([0-9]+))?(?:\$([0-9])+)?([%sn@])/g;
+    /%(\+)?(?:'(.))?(-)?(\d+)?(?:\.(\d+))?(?:\$(\d+))?([%sn@])/g;
 
 String.implement({
     /**
@@ -42,7 +42,7 @@ String.implement({
         to strings via their toString() method.
 
         e.g. If the string is `"%+'*-16.3$2n"` and argument 2 is `123.456789`,
-        then the output is: `"+123.456********"`.
+        then the output is: `"+123.457********"`.
 
         Parameters:
             var_args - {...(String|Number|Object)} The arguments to interpolate.
