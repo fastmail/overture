@@ -213,6 +213,17 @@ var compileTranslation = function ( translation ) {
     );
 };
 
+var formatInt = function ( number, language ) {
+    var string = number + '';
+    if ( string.length > 3 ) {
+        string = string.replace(
+            /(\d+?)(?=(?:\d{3})+$)/g,
+            '$1' + language.thousandsSeparator
+        );
+    }
+    return string;
+};
+
 /**
     Class: O.Language
 
@@ -340,7 +351,7 @@ var Language = NS.Class({
         // Case 2: is 0 (optional; case 1 used if not supplied).
         '*1': function ( n, singular, zero ) {
             return ( !n && zero !== undefined ? zero : singular
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Most Western languages.
         // Case 1: is 1.
@@ -349,7 +360,7 @@ var Language = NS.Class({
         '*2': function ( n, singular, plural, zero ) {
             return ( n === 1 ? singular :
                 !n && zero !== undefined ? zero : plural
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // French and Brazilian Portugese.
         // Case 1: is 0 or 1.
@@ -358,7 +369,7 @@ var Language = NS.Class({
         '*2a': function ( n, singular, plural, zero ) {
             return ( n > 1 ? plural :
                 !n && zero !== undefined ? zero : singular
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Hungarian
         // Case 1: is 0,*3,*6,*8,*20,*30,*60,*80,*00,*000000, *000000+.
@@ -369,7 +380,7 @@ var Language = NS.Class({
             return ( !n ? zero !== undefined ? zero : form1 :
                 ( /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test( n + '' ) ) ?
                 form1 : form2
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Latvian.
         // Case 1: is 0.
@@ -379,7 +390,7 @@ var Language = NS.Class({
             return (
                 !n ? zero :
                 n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Romanian.
         // Case 1: is 1.
@@ -392,7 +403,7 @@ var Language = NS.Class({
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
                 !n || ( 1 <= mod100 && mod100 <= 19 ) ? plural1 : plural2
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Lithuanian.
         // Case 1: ends in 1, not 11.
@@ -406,7 +417,7 @@ var Language = NS.Class({
                 !n && zero !== undefined ? zero :
                 mod10 === 1 && mod100 !== 11 ? form1 :
                 mod10 === 0 || ( 10 <= mod100 && mod100 <= 20 ) ? form2 : form3
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Russian, Ukranian, Serbian, Croation.
         // Case 1: ends in 1, does not end in 11.
@@ -421,7 +432,7 @@ var Language = NS.Class({
                 mod10 === 1 && mod100 !== 11 ? form1 :
                 2 <= mod10 && mod10 <= 4 && ( mod100 < 12 || mod100 > 14 ) ?
                 form2 : form3
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Czech, Slovak.
         // Case 1: is 1.
@@ -433,7 +444,7 @@ var Language = NS.Class({
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
                 2 <= n && n <= 4 ? plural1 : plural2
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Polish.
         // Case 1: is 1.
@@ -448,7 +459,7 @@ var Language = NS.Class({
                 n === 1 ? singular :
                 2 <= mod10 && mod10 <= 4 && ( mod100 < 12 || mod100 > 14 ) ?
                 plural1 : plural2
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Slovenian, Sorbian.
         // Case 1: ends in 01.
@@ -463,7 +474,7 @@ var Language = NS.Class({
                 mod100 === 1 ? end01 :
                 mod100 === 2 ? end02 :
                 mod100 === 3 || mod100 === 4 ? end03or04 : plural
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Scottish Gaelic.
         // Case 1: is 1 or 11.
@@ -477,7 +488,7 @@ var Language = NS.Class({
                 n === 1 || n === 11 ? form1 :
                 n === 2 || n === 12 ? form2 :
                 3 <= n && n <= 19 ? form3 : form4
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Gaeilge (Irish).
         // Case 1: is 1.
@@ -493,7 +504,7 @@ var Language = NS.Class({
                 n === 2 ? doubular :
                 3 <= n && n <= 6 ? form1 :
                 7 <= n && n <= 10 ? form2 : form3
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
         // Arabic.
         // Case 1: is 0.
@@ -510,9 +521,10 @@ var Language = NS.Class({
                 n === 2 ? doubular :
                 3 <= mod100 && mod100 <= 10 ? pl1 :
                 11 <= mod100 && mod100 <= 99 ? pl2 : pl3
-            ).interpolate( n );
+            ).replace( '%n', formatInt( n, this ) );
         },
 
+        // The following four are deprecated and will be removed.
         quant: function ( n, singular, plural, zero ) {
             return ( !n && zero !== undefined ) ? zero :
                    ( n === 1 ) ? '1 ' + singular :
@@ -576,39 +588,63 @@ var Language = NS.Class({
 
         This method will first look up the string given as its first argument in
         the translations object for this language. If it finds a value it will
-        use that, otherwise it will use the original supplied string. The value
-        must be either a string or a function. If the value is a function, it
-        will be called with the rest of the translate arguments (the values to
-        be interpolated) as its arguments. If it is a string, values will be
-        interpolated as follows:
+        use that, otherwise it will use the original supplied string.
 
-        Square brackets may be used inside strings to call macros; the syntax is
-        the same as for Perl's maketext module. A macro is called like this:
-        `[name,_1,arg2,arg3]`. Arguments are passed as literal strings, except
-        if it is _n, where n is an integer. In this case, the argument will be
-        argument n supplied at runtime to the translation method. To include a
-        literal comma or close square bracket, precede it by a tilde. Macros are
-        defined in the macro object of the language and will be called with the
-        language object as the `this` parameter.
+        If futher arguments are given, these are interpolated into the string.
+        There are two different ways this can happen:
 
-        For example, using the default quant macro, you may have the following
-        translation string for 'n message(s)':
+        1. If all the arguments are strings or numbers:
 
-            'Test: [*,_1,directory,directories,No directories] found'
+           Square brackets may be used inside strings to call macros; the syntax
+           is the same as for Perl's maketext module. A macro is called like
+           this: `[name,_1,arg2,arg3]`. Arguments are passed as literal strings,
+           except if it is _n, where n is an integer. In this case, the argument
+           will be argument n supplied at runtime to the translation method. To
+           include a literal comma or close square bracket, precede it by a
+           tilde. Macros are defined in the macro object of the language and
+           will be called with the language object as the `this` parameter.
 
-        * If you were to call lang.translate( 'n message(s)', 0 ) you would get
-          'Test: No directory found' as the output.
-        * If you were to call lang.translate( 'n message(s)', 1 ) you would get
-          'Test: 1 directory found'
-        * If you were to call lang.translate( 'n message(s)', 2 ) you would get
-          'Test: 2 directories found'
+           The source string can also use a square bracket notation to just
+           insert an argument, e.g.
+
+               O.loc( "The city of [_1] is in [_2]", "Melbourne", "Australia" )
+               => "The city of Melbourne is in Australia".
+
+           The rules for pluralisation vary between languages, so if you have
+           numbers you need to interpolate, your source string should use the
+           appropriate pluralisation macro for your language. e.g.
+
+               O.loc( "[*2,_1,1 file was,%n files were,No files were] found in [_2]", 11, "Documents" );
+               => "11 files were found in Documents"
+
+        2. If at least one of the arguments is an object:
+
+           You cannot use macros, only "[_n]" placeholders. The result will be
+           an array of string parts and your arguments. This can be useful when
+           working with views, for example:
+
+               O.Element.appendChildren( layer, O.loc(
+                   "Searching [_1] for [_2]",
+                   new O.SelectView({
+                       value: O.bind(...),
+                       options: [
+                           { text: O.loc( "Everything" ),
+                             value: true },
+                           { text: O.loc( "Documents" ),
+                             value: false }
+                       ]
+                   }),
+                   el( 'b', {
+                       text: O.bind(...)
+                   })
+               ));
 
         Parameters:
             string   - {String} The string to localise.
             var_args - {...(String|Number|Object)} The arguments to interpolate.
 
         Returns:
-            {String} The localised string.
+            {(String|Array)} The localised string or array of localised parts.
     */
     translate: function ( string ) {
         var translation = this.translations[ string ],
@@ -805,6 +841,26 @@ var Localisation = {
     */
     date: function ( date, type ) {
         return active.getFormattedDate( date, type );
+    },
+
+    /**
+        Function: O.Localisation.number
+
+        Format a number according to local conventions. Ensures the correct
+        symbol is used for a decimal point, and inserts thousands separators if
+        used in the locale.
+
+        Parameters:
+            n - {(Number|String)} The number to format.
+
+        Returns:
+            {String} The localised number.
+    */
+    number: function ( n ) {
+        var parts = ( n + '' ).split( '.' );
+        parts[0] = parts[0].replace( /(\d+?)(?=(?:\d{3})+$)/g,
+            '$1' + active.thousandsSeparator );
+        return parts.join( active.decimalPoint );
     }
 };
 
