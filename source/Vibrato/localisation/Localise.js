@@ -47,17 +47,18 @@ Date.implement({
         if ( diffSeconds < 60 ) {
             time = NS.loc( 'less than a minute' );
         } else if ( diffSeconds < 3600 ) {
-            time = NS.loc( '[*,_1,minute]', ~~( diffSeconds / 60 ) );
+            time = NS.loc( '[*2,_1,%n minute,%n minutes]',
+                ~~( diffSeconds / 60 ) );
         } else if ( diffSeconds < 86400 ) {
-            time = NS.loc( '[*,_1,hour,hours,] [*,_2,minute,minutes,]',
+            time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
                 ~~( diffSeconds / 3600 ),
                 approx ? 0 : ~~( diffSeconds / 60 ) % 60 );
         } else if ( diffSeconds < 604800 ) {
-            time = NS.loc( '[*,_1,day,days,] [*,_2,hour,hours,]',
+            time = NS.loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
                 ~~( diffSeconds / 86400 ),
                 approx ? 0 : ~~( diffSeconds / 3600 ) % 24 );
         } else if ( diffSeconds < 3628800 ) {
-            time = NS.loc( '[*,_1,week,weeks,] [*,_2,day,days,]',
+            time = NS.loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
                 ~~( diffSeconds / 604800 ),
                 approx ? 0 : ~~( diffSeconds / 86400 ) % 7 );
         } else {
@@ -72,8 +73,9 @@ Date.implement({
                 years -= 1;
                 months += 12;
             }
-            time = NS.loc( '[*,_1,year,years,] [*,_2,month,months,]',
-                        years, months );
+            time =
+                NS.loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
+                    years, months );
         }
 
         time = time.trim();
