@@ -125,7 +125,7 @@ var AutoCompleteOptionView = NS.Class({
                 .set( 'value', result )
                 .set( 'selection', { start: result.length } );
         }
-    }.on( 'mousedown' )
+    }.on( 'mousedown', 'tap' )
 });
 
 var AutoCompleteView = NS.Class({

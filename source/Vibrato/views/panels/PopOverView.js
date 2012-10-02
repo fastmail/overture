@@ -26,7 +26,7 @@ var PopOverEventHandler = NS.Class({
     _seenMouseDown: false,
 
     // If a user clicks outside the menu we want to close it. But we don't want
-    // the mousedown/mouseup/click events to propogate to what's below. The
+    // the mousedown/mouseup/click events to propagate to what's below. The
     // events fire in that order, and not all are guaranteed to fire (the user
     // could mousedown and drag their mouse out of the window before releasing
     // it or vica versa. If there is a drag in between mousedown and mouseup,
@@ -46,14 +46,14 @@ var PopOverEventHandler = NS.Class({
             event.stopPropagation();
             if ( type === 'mousedown' ) {
                 this._seenMouseDown = true;
-            } else if ( type === 'click' ) {
+            } else if ( type === 'click' || type === 'tap' ) {
                 event.preventDefault();
-                if ( this._seenMouseDown ) {
+                if ( this._seenMouseDown || type === 'tap' ) {
                     this._view.hide();
                 }
             }
         }
-    }.on( 'click', 'mousedown', 'mouseup' ),
+    }.on( 'click', 'mousedown', 'mouseup', 'tap' ),
 
     handleKeys: function ( event ) {
         if ( !this.inPopOver( event ) ) {
@@ -213,7 +213,8 @@ var PopOverView = NS.Class({
 
     stopEvents: function ( event ) {
         event.stopPropagation();
-    }.on( 'click', 'mousedown', 'mouseup', 'keypress', 'keydown', 'keyup' )
+    }.on( 'click', 'mousedown', 'mouseup',
+        'keypress', 'keydown', 'keyup', 'tap' )
 });
 
 NS.PopOverView = PopOverView;
