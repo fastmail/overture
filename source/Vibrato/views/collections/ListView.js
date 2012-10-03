@@ -112,7 +112,7 @@ var ListView = NS.Class({
                 this._redraw();
             }
         }
-    }.observes( 'visibleRect' )
+    }.observes( 'visibleRect', 'itemHeight' )
 });
 
 NS.ListView = ListView;
