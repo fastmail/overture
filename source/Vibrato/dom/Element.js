@@ -55,10 +55,14 @@ var directProperties = {
     have their value converted to a boolean.
 */
 var booleanProperties = {
+    autofocus: 1,
     checked: 1,
     defaultChecked: 1,
     disabled: 1,
+    hidden: 1,
     multiple: 1,
+    readOnly: 1,
+    required: 1,
     selected: 1
 };
 
