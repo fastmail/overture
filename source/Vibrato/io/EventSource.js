@@ -61,7 +61,17 @@ var EventSource = global.EventSource ? NS.Class({
     */
     init: function () {
         EventSource.parent.init.apply( this, arguments );
-        this._eventTypes = [ 'open', 'message', 'error' ];
+
+        var eventTypes = [ 'open', 'message', 'error' ],
+            observers = NS.meta( this, true ).observers,
+            type;
+        for ( type in observers ) {
+            if ( /^__event__/.test( type ) ) {
+                eventTypes.include( type.slice( 9 ) );
+            }
+        }
+        this._eventTypes = eventTypes;
+
         this.open();
     },
 
