@@ -18,15 +18,16 @@
     remove it from the app's existence.
 */
 var MouseEventRemover = NS.Class({
-    init: function ( defaultPrevented ) {
+    init: function ( target, defaultPrevented ) {
         this.time = Date.now();
+        this.target = target;
         this.stop = defaultPrevented;
     },
     fire: function ( type, event ) {
         var isOld = ( Date.now() - this.time > 1000 ),
             isClick = ( type === 'click' ) && !event.isEvent,
             isActive = !isOld && ( isClick || /^mouse/.test( type ) );
-        if ( isActive && this.stop ) {
+        if ( isActive && ( this.stop || event.target !== this.target ) ) {
             event.preventDefault();
         }
         if ( isOld || isClick || type === 'tap' ) {
@@ -115,7 +116,7 @@ NS.Tap = new NS.Gesture({
                     tapEvent.type = 'click';
                     RootViewController.handleEvent( tapEvent );
                     RootViewController.pushResponder(
-                        new MouseEventRemover( defaultPrevented )
+                        new MouseEventRemover( touch.target, defaultPrevented )
                     );
                 }
                 delete tracking[ id ];
