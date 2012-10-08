@@ -44,11 +44,11 @@ var PopOverEventHandler = NS.Class({
         var type = event.type;
         if ( !this.inPopOver( event ) ) {
             event.stopPropagation();
-            if ( type === 'mousedown' ) {
+            if ( type === 'mousedown' || type === 'tap' ) {
                 this._seenMouseDown = true;
-            } else if ( type === 'click' || type === 'tap' ) {
+            } else if ( type === 'click' ) {
                 event.preventDefault();
-                if ( this._seenMouseDown || type === 'tap' ) {
+                if ( this._seenMouseDown ) {
                     this._view.hide();
                 }
             }
