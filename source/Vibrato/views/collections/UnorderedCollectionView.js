@@ -127,7 +127,8 @@ var UnorderedCollectionView = NS.Class({
             view = rendered[ id ];
 
             if ( view ) {
-                view.set( 'index', i );
+                view.set( 'index', i )
+                    .set( 'list', list );
             } else {
                 view = new ItemView({
                     parentView: this,
