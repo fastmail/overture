@@ -49,9 +49,10 @@ var CollectionView = NS.Class({
         }
     },
 
-    contentDidChange: function ( _, __, oldVal, newVal ) {
+    contentDidChange: function ( _, __, oldVal ) {
         if ( this.get( 'isRendered' ) ) {
-            var range = this._observedRange;
+            var range = this._observedRange,
+                newVal = this.get( 'content' );
             if ( oldVal ) {
                 oldVal.removeObserverForRange(
                     range, this, 'contentRangeDidChange' );
