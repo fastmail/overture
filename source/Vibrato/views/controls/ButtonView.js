@@ -31,7 +31,7 @@ var ButtonView = NS.Class({
             ( this.get( 'isDisabled' ) ? ' disabled' : '' );
     }.property( 'type', 'shortcut', 'isActive', 'isDisabled' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var icon = this.get( 'icon' );
         if ( icon ) {
             layer.appendChild(
@@ -43,7 +43,7 @@ var ButtonView = NS.Class({
         layer.tabIndex = -1;
 
         this._domControl = layer;
-        ButtonView.parent._render.call( this, layer );
+        ButtonView.parent.draw.call( this, layer );
     },
 
     // --- Keep render in sync with state ---

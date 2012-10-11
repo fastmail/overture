@@ -42,7 +42,7 @@ var LightboxItemView = NS.Class({
 
     positioning: 'absolute',
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create;
 
@@ -325,7 +325,7 @@ var LightboxView = NS.Class({
     positioning: 'absolute',
     layout: NS.View.LAYOUT_FILL_PARENT,
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create;
 
@@ -338,7 +338,7 @@ var LightboxView = NS.Class({
                 NS.loc( 'Next' )
             ])
         ]);
-        LightboxView.parent._render.call( this, layer );
+        LightboxView.parent.draw.call( this, layer );
     },
 
     // add/remove

@@ -30,7 +30,7 @@ var NotificationView = NS.Class({
             ( this.get( 'isShowing' ) ? ' isShowing' : '' );
     }.property( 'isShowing' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         layer.appendChild( this._container = NS.Element.create( 'p' ) );
     },
 

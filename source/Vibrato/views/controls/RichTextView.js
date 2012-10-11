@@ -98,7 +98,7 @@ var RichTextView = NS.Class({
 
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var el = NS.Element.create,
             richTextView = this;
 
@@ -506,7 +506,7 @@ var RichTextView = NS.Class({
                 }
                 return NS.View.prototype.didAppendLayerToDocument.call( this );
             },
-            _render: function ( layer ) {
+            draw: function ( layer ) {
                 var Element = NS.Element,
                     el = Element.create;
                 Element.appendChildren( layer, [

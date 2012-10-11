@@ -74,7 +74,7 @@ var CollectionView = NS.Class({
         }
     },
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var content = this.get( 'content' );
         if ( content ) {
             this._dirtyStart = 0;

@@ -19,7 +19,7 @@ var LabelView = NS.Class({
     value: '',
     tooltip: '',
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         layer.title = this.get( 'tooltip' );
         layer.textContent = this.get( 'value' );
     },

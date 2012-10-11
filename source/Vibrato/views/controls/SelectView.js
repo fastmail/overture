@@ -20,14 +20,14 @@ var SelectView = NS.Class({
 
     className: 'SelectView',
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var control = this._domControl =
-            this._renderSelect( this.get( 'options' ) );
-        SelectView.parent._render.call( this, layer );
+            this._drawSelect( this.get( 'options' ) );
+        SelectView.parent.draw.call( this, layer );
         layer.appendChild( control );
     },
 
-    _renderSelect: function ( options ) {
+    _drawSelect: function ( options ) {
         var selected = this.get( 'value' ),
             el = NS.Element.create,
             select = el( 'select', { disabled: this.get( 'disabled' ) },
@@ -52,7 +52,7 @@ var SelectView = NS.Class({
         'isDisabled', 'label', 'tooltip', 'options', 'value' ),
 
     redrawOptions: function ( layer ) {
-        var select = this._renderSelect( this.get( 'options' ) );
+        var select = this._drawSelect( this.get( 'options' ) );
         layer.replaceChild( select, this._domControl );
         this._domControl = select;
     },

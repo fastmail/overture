@@ -33,7 +33,7 @@ var FileButtonView = NS.Class({
             ( this.get( 'isDisabled' ) ? ' disabled' : '' );
     }.property( 'type', 'isDisabled' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create,
             icon = this.get( 'icon' );
@@ -49,7 +49,7 @@ var FileButtonView = NS.Class({
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             })
         ]);
-        FileButtonView.parent._render.call( this, layer );
+        FileButtonView.parent.draw.call( this, layer );
     },
 
     // --- Keep render in sync with state ---

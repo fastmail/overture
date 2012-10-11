@@ -309,7 +309,7 @@ var MenuView = NS.Class({
 
     ItemView: MenuOptionView,
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create,
             controller = this.get( 'controller' ),

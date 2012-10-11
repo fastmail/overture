@@ -210,9 +210,9 @@ var ToolbarView = NS.Class({
                                   .filter( function ( view ) {
                     return !view.get( 'parentView' );
                 }),
-                _render: function ( layer ) {
+                draw: function ( layer ) {
                     layer.appendChild( NS.Element.create( 'span.divider' ) );
-                    NS.View.prototype._render.call( this, layer );
+                    NS.View.prototype.draw.call( this, layer );
                 }
             }),
             this.get( 'layer' ).lastChild,
@@ -270,7 +270,7 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create;
         Element.appendChildren( layer, [

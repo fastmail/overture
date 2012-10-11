@@ -81,7 +81,7 @@ var InfoBubbleView = NS.Class({
         return layout;
     }.property( 'alignWithView', 'alignToThe' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var el = NS.Element.create;
         layer.appendChild( el( 'span', [
             el( 'span', {

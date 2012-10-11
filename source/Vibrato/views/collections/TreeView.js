@@ -29,7 +29,7 @@ var ExpandoView = NS.Class({
 
     label: '',
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var label = this.get( 'label' );
         layer.appendChild( NS.Element.create( 'span', {
             text: label
@@ -163,7 +163,7 @@ var TreeItemView = NS.Class({
         }
     }.queue( 'render' ).observes( 'hasSubtree' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var data = this.get( 'content' ),
             treeView = this.get( 'treeView' ),
             ContentView = treeView.get( 'ContentView' );
@@ -235,7 +235,7 @@ var TreeView = NS.Class({
         viewlist.splice( viewlist.indexOf( view ), 1 );
     },
 
-    _render: function () {
+    draw: function () {
         this.insertView( new NS.CollectionView({
             layerTag: 'ul',
             content: this.get( 'content' ),

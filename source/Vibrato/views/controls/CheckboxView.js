@@ -18,14 +18,14 @@ var CheckboxView = NS.Class({
 
     className: 'CheckboxView',
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         layer.appendChild(
             this._domControl = NS.Element.create( 'input', {
                 type: 'checkbox',
                 checked: this.get( 'value' )
             })
         );
-        CheckboxView.parent._render.call( this, layer );
+        CheckboxView.parent.draw.call( this, layer );
     },
 
     // --- Keep render in sync with state ---

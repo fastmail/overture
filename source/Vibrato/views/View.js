@@ -51,7 +51,7 @@ var canTransform = !!NS.UA.cssProps.transform,
                 return 'MessageView' +
                     ( this.get( 'isImportant' ) ? ' important' : '' );
             }.property( 'isImportant' ),
-            _render: function ( layer ) {
+            draw: function ( layer ) {
                 var Element = O.Element,
                     el = Element.create;
 
@@ -82,7 +82,7 @@ var canTransform = !!NS.UA.cssProps.transform,
     unless writing views with custom insertion methods. The role of the render
     method is to ensure that the underlying DOM representation of the view has
     been created; by default it creates the layer (the root DOM node for the
-    view), and passes it to the View#_render() method. This is the one you will
+    view), and passes it to the View#draw() method. This is the one you will
     normally override to draw your own view. You must ensure that as part of
     this, all child views are also rendered; the default version of the method
     is simply to call render() on each of the child views and append them to the
@@ -102,7 +102,7 @@ var canTransform = !!NS.UA.cssProps.transform,
 
     A View corresponds to a single DOM node; you will often then draw to this,
     both directly and by inserting sub-views. You are free to implement the
-    _render() method which does this in any way you like, however it is
+    draw() method which does this in any way you like, however it is
     recommended to make use of O.Element.create to write your template in
     JavaScript, as in the example above. This makes it easy to use bindings and
     insert other subviews directly.
@@ -117,7 +117,7 @@ var canTransform = !!NS.UA.cssProps.transform,
     O.CheckboxView etc. For example:
 
         new O.View({
-            _render: function ( layer ) {
+            draw: function ( layer ) {
                 var Element = O.Element,
                     el = Element.create,
                     content = this.get( 'content' );
@@ -672,20 +672,20 @@ var View = NS.Class({
             var Element = NS.Element,
                 prevView = Element.forView( this );
             this.set( 'isRendered', true );
-            this._render( this.get( 'layer' ) );
+            this.draw( this.get( 'layer' ) );
             Element.forView( prevView );
         }
         return this;
     },
 
     /**
-        Method (protected): O.View#_render
+        Method (protected): O.View#draw
 
         Draw the initial state of the view. You should override this method to
         draw your views. By default, it simply calls <O.View#render> on all
         child views and appends them to the view's DOM node.
     */
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var children = this.get( 'childViews' ),
             i, l;
         for ( i = 0, l = children.length; i < l; i += 1 ) {

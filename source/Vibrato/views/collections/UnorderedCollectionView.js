@@ -71,9 +71,9 @@ var UnorderedCollectionView = NS.Class({
 
     contentWasUpdated: function ( event ) {},
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         // Render any unmanaged child views first.
-        UnorderedCollectionView.parent._render.call( this, layer );
+        UnorderedCollectionView.parent.draw.call( this, layer );
         var content = this.get( 'content' );
         if ( content ) {
             content.addObserverForRange( this._renderRange, this, '_redraw' );

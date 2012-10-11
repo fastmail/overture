@@ -56,7 +56,7 @@ var AbstractControlView = NS.Class({
     _domControl: null,
     _domLabel: null,
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create,
             shortcut = this.get( 'shortcut' ),

@@ -18,14 +18,14 @@ var RadioView = NS.Class({
 
     className: 'RadioView',
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         layer.appendChild(
             this._domControl = NS.Element.create( 'input', {
                 type: 'radio',
                 checked: this.get( 'value' )
             })
         );
-        RadioView.parent._render.call( this, layer );
+        RadioView.parent.draw.call( this, layer );
     },
 
     // --- Keep render in sync with state ---

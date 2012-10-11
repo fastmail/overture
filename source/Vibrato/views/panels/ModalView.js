@@ -63,7 +63,7 @@ var ModalView = NS.Class({
         return ModalView.parent.willRemoveLayerFromDocument.call( this );
     },
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var el = NS.Element.create,
             container = this._container = el( 'div', {
                 styles: this.get( 'layerStyles' )

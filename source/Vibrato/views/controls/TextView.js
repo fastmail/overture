@@ -86,7 +86,7 @@ var TextView = NS.Class({
     }.property( 'type', 'isHighlighted',
         'isFocussed', 'isValid', 'isDisabled' ),
 
-    _render: function ( layer ) {
+    draw: function ( layer ) {
         var Element = NS.Element,
             el = NS.Element.create,
             value = this.get( 'value' ),
