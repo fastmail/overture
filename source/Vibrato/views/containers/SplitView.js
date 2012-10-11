@@ -37,8 +37,14 @@ SplitView = NS.Class({
         var childViews = this.get( 'childViews' ),
             tl = options[ topLeftView ],
             br = options[ bottomRightView ];
-        if ( tl ) { childViews.push( tl ); }
-        if ( br ) { childViews.push( br ); }
+        if ( tl ) {
+            tl.set( 'parentView', this );
+            childViews.push( tl );
+        }
+        if ( br ) {
+            br.set( 'parentView', this );
+            childViews.push( br );
+        }
         childViews.push( this.get( dividerView ) );
     },
 
