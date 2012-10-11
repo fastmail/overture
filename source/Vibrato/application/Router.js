@@ -186,8 +186,8 @@ var Router = NS.Class({
         Method: O.Router#encodeStateToUrl
 
         Sets the current URL to match the <O.Router#encodedState> property.
-        This method is called automatically once, at the end of the run loop
-        (after bindings have synced), whenever this property changes.
+        This method is called automatically once, at the end of the run loop,
+        whenever this property changes.
     */
     encodeStateToUrl: function () {
         var state = this.get( 'encodedState' ),

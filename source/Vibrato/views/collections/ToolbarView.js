@@ -214,7 +214,9 @@ var ToolbarView = NS.Class({
                     layer.appendChild( NS.Element.create( 'span.divider' ) );
                     NS.View.prototype._render.call( this, layer );
                 }
-            })
+            }),
+            this.get( 'layer' ).lastChild,
+            'before'
         );
         return this;
     },
@@ -249,7 +251,7 @@ var ToolbarView = NS.Class({
         delete this._measureView;
 
         return this;
-    },
+    }.queue( 'after' ),
 
     willAppendLayerToDocument: function () {
         if ( this.get( 'preventOverlap' ) ) {
@@ -281,45 +283,50 @@ var ToolbarView = NS.Class({
         ]);
     },
 
-    redraw: function ( _, side, oldViews ) {
-        if ( this.get( 'isRendered' ) ) {
-            var container = this.get( 'layer')[
-                    side === 'left' ? 'firstChild' : 'lastChild'
-                ],
-                newViews = this.get( side ),
-                View = NS.View,
-                start = 0,
-                isEqual = true,
-                i, l, view;
+    propertyNeedsRedraw: function () {
+       return ToolbarView.parent.propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'left', 'right' ),
 
-            for ( i = start, l = oldViews.length; i < l; i += 1 ) {
-                view = oldViews[i];
-                if ( view instanceof View ) {
-                    if ( isEqual && view === newViews[i] ) {
-                        start += 1;
-                    } else {
-                        isEqual = false;
-                        this.removeView( view );
-                    }
+    redrawLeft: function ( layer, oldViews ) {
+        this.redrawSide( layer.firstChild, oldViews, this.get( 'left' ) );
+    },
+    redrawRight: function ( layer, oldViews ) {
+        this.redrawSide( layer.lastChild, oldViews, this.get( 'right' ) );
+    },
+
+    redrawSide: function ( container, oldViews, newViews ) {
+        var View = NS.View,
+            start = 0,
+            isEqual = true,
+            i, l, view;
+
+        for ( i = start, l = oldViews.length; i < l; i += 1 ) {
+            view = oldViews[i];
+            if ( view instanceof View ) {
+                if ( isEqual && view === newViews[i] ) {
+                    start += 1;
                 } else {
-                    if ( isEqual ) {
-                        start += 1;
-                        newViews[i] = view;
-                    } else {
-                        container.removeChild( view );
-                    }
+                    isEqual = false;
+                    this.removeView( view );
                 }
-            }
-            for ( i = start, l = newViews.length; i < l; i += 1 ) {
-                view = newViews[i];
-                if ( view instanceof View ) {
-                    this.insertView( view, container );
+            } else {
+                if ( isEqual && !( newViews[i] instanceof View ) ) {
+                    start += 1;
+                    newViews[i] = view;
                 } else {
-                    container.appendChild( view );
+                    container.removeChild( view );
                 }
             }
         }
-    }.observes( 'left', 'right' )
+        for ( i = start, l = newViews.length; i < l; i += 1 ) {
+            view = newViews[i];
+            if ( view instanceof View ) {
+                this.insertView( view, container );
+            } else {
+                container.appendChild( view );
+            }
+        }
+    }
 });
 
 NS.ToolbarView = ToolbarView;

@@ -54,13 +54,6 @@ var UnorderedCollectionView = NS.Class({
         UnorderedCollectionView.parent.destroy.call( this );
     },
 
-    awaken: function () {
-        UnorderedCollectionView.parent.awaken.call( this );
-        if ( this._needsUpdate ) {
-            this.redraw();
-        }
-    },
-
     contentDidChange: function ( _, __, oldVal, newVal ) {
         if ( this.get( 'isRendered' ) ) {
             var range = this._renderRange;
@@ -85,22 +78,15 @@ var UnorderedCollectionView = NS.Class({
         if ( content ) {
             content.addObserverForRange( this._renderRange, this, '_redraw' );
             content.on( 'query:updated', this, 'contentWasUpdated' );
-            this.redraw();
+            this.redrawLayer( layer );
         }
     },
 
     _redraw: function () {
-        if ( !this._isSleeping ) {
-            NS.RunLoop.queueFn( 'after', this.redraw, this );
-        } else {
-            this._needsUpdate = true;
-        }
+        this.propertyNeedsRedraw( this, 'layer' );
     },
 
-    redraw: function () {
-        if ( this.isDestroyed ) {
-            return;
-        }
+    redrawLayer: function ( layer ) {
         var list = this.get( 'content' ) || [],
             ItemView = this.get( 'ItemView' ),
             selectionController = this.get( 'selectionController' ),
@@ -115,7 +101,6 @@ var UnorderedCollectionView = NS.Class({
             currentColour = this._currentColour,
             added = [],
 
-            layer = this.get( 'layer' ),
             isInDocument = this.get( 'isInDocument' ),
             frag = layer.ownerDocument.createDocumentFragment(),
             i, l, item, id, view;

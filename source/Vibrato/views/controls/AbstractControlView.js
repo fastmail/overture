@@ -54,6 +54,7 @@ var AbstractControlView = NS.Class({
     layerTag: 'label',
 
     _domControl: null,
+    _domLabel: null,
 
     _render: function ( layer ) {
         var Element = NS.Element,
@@ -70,6 +71,32 @@ var AbstractControlView = NS.Class({
         Element.appendChildren( layer, [
             this._domLabel = el( 'span', [ this.get( 'label' ) ] )
         ]);
+        layer.title = this.get( 'tooltip' );
+    },
+
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return AbstractControlView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'isDisabled', 'label', 'tooltip' ),
+
+    redrawIsDisabled: function ( layer ) {
+        this._domControl.disabled = this.get( 'isDisabled' );
+    },
+
+    redrawLabel: function () {
+        var label = this._domLabel,
+            child;
+        while ( child = label.firstChild ) {
+            label.removeChild( child );
+        }
+        NS.Element.appendChildren( label, [
+            this.get( 'label' )
+        ]);
+    },
+
+    redrawTooltip: function ( layer ) {
         layer.title = this.get( 'tooltip' );
     },
 
@@ -91,34 +118,8 @@ var AbstractControlView = NS.Class({
 
     // --- Activate ---
 
-    activate: function () {},
+    activate: function () {}
 
-    // --- Keep render in sync with state ---
-
-    syncIsDisabled: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this._domControl.disabled = this.get( 'isDisabled' );
-        }
-    }.observes( 'isDisabled' ),
-
-    syncLabel: function () {
-        if ( this.get( 'isRendered' ) ) {
-            var label = this._domLabel,
-                child;
-            while ( child = label.firstChild ) {
-                label.removeChild( child );
-            }
-            NS.Element.appendChildren( label, [
-                this.get( 'label' )
-            ]);
-        }
-    }.observes( 'label' ),
-
-    syncTooltip: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this.get( 'layer' ).title = this.get( 'tooltip' );
-        }
-    }.observes( 'tooltip' )
 });
 
 NS.AbstractControlView = AbstractControlView;

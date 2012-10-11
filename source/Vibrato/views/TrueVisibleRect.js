@@ -37,8 +37,8 @@ NS.TrueVisibleRect = {
             width: across,
             height: down
         };
-    }.property( 'scrollLeft', 'scrollTop', 'pxLeft', 'pxTop', 'pxDimensions',
-        'parentView.visibleRect', 'isInDocument' )
+    }.property( 'scrollTop', 'scrollLeft',
+        'pxLayout', 'parentView.visibleRect', 'isInDocument' )
 };
 
 }( this.O ) );

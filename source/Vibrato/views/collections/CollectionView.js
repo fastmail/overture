@@ -42,13 +42,6 @@ var CollectionView = NS.Class({
         });
     }.property(),
 
-    awaken: function () {
-        CollectionView.parent.awaken.call( this );
-        if ( this._dirtyStart < this._dirtyEnd ) {
-            this.updateLayer();
-        }
-    },
-
     contentDidChange: function ( _, __, oldVal ) {
         if ( this.get( 'isRendered' ) ) {
             var range = this._observedRange,
@@ -71,11 +64,13 @@ var CollectionView = NS.Class({
     }.observes( 'content' ),
 
     contentRangeDidChange: function ( _, start, end ) {
-        this._dirtyStart = this._dirtyStart < 0 ?
-            start : Math.min( start, this._dirtyStart );
-        this._dirtyEnd = Math.max( end, this._dirtyEnd );
-        if ( !this._isSleeping ) {
-            NS.RunLoop.queueFn( 'after', this.updateLayer, this );
+        var dirtyStart = this._dirtyStart,
+            dirtyEnd = this._dirtyEnd;
+        dirtyStart = this._dirtyStart = dirtyStart < 0 ?
+            start : Math.min( start, dirtyStart );
+        dirtyEnd = this._dirtyEnd = Math.max( end, dirtyEnd );
+        if ( dirtyStart < dirtyEnd ) {
+            this.propertyNeedsRedraw( this, 'layer' );
         }
     },
 
@@ -84,7 +79,7 @@ var CollectionView = NS.Class({
         if ( content ) {
             this._dirtyStart = 0;
             this._dirtyEnd = content.get( 'length' ) || 0;
-            this.updateLayer();
+            this.redrawLayer( layer );
             content.addObserverForRange(
                 this._observedRange, this, 'contentRangeDidChange' );
         }
@@ -119,10 +114,7 @@ var CollectionView = NS.Class({
     },
     didUpdateLayer: function ( start, end ) {},
 
-    updateLayer: function () {
-        if ( this.isDestroyed || this._isSleeping ) {
-            return;
-        }
+    redrawLayer: function ( layer ) {
         var delegate = this.get( 'delegate' ) || this,
 
             list = this.get( 'content' ),
@@ -134,7 +126,6 @@ var CollectionView = NS.Class({
             end = range[1],
 
             isInDocument = this.get( 'isInDocument' ),
-            layer = this.get( 'layer' ),
 
             managedViews = this._managedViews,
 

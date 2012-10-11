@@ -282,7 +282,7 @@ var RPCSource = NS.Class({
         }
         // Invoke after bindings to ensure all data has propagated through.
         for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
-            NS.RunLoop.queueFn( 'after', callbacks[i] );
+            NS.RunLoop.queueFn( 'middle', callbacks[i] );
         }
     },
 

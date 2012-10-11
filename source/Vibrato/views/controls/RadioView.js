@@ -28,19 +28,23 @@ var RadioView = NS.Class({
         RadioView.parent._render.call( this, layer );
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return RadioView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles',
+        'isDisabled', 'label', 'tooltip', 'value' ),
+
+    redrawValue: function () {
+        this._domControl.checked = this.get( 'value' );
+    },
+
     // --- Keep state in sync with render ---
 
     activate: function () {
         this.set( 'value', true );
-    }.on( 'click' ),
-
-    // --- Keep render in sync with state ---
-
-    syncValue: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this._domControl.checked = this.get( 'value' );
-        }
-    }.observes( 'value' )
+    }.on( 'click' )
 });
 
 NS.RadioView = RadioView;

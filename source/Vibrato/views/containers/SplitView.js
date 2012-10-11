@@ -32,15 +32,17 @@ SplitView = NS.Class({
     minStaticPaneLength: 0,
     maxStaticPaneLength: 32767,
 
-    childViews: function () {
+    init: function ( options ) {
         var children = [],
-            tl = this.get( topLeftView ),
-            br = this.get( bottomRightView );
+            tl = options[ topLeftView ],
+            br = options[ bottomRightView ];
         if ( tl ) { children.push( tl ); }
         if ( br ) { children.push( br ); }
         children.push( this.get( dividerView ) );
-        return children;
-    }.property( topLeftView, bottomRightView, dividerView ),
+        this.childViews = children;
+
+        SplitView.parent.init.call( this, options );
+    },
 
     // This can be overriden by simply
     // setting the property in the anonymous
@@ -53,7 +55,9 @@ SplitView = NS.Class({
     }.property(),
 
     positioning: 'absolute',
+
     layout: NS.View.LAYOUT_FILL_PARENT,
+
     _render: function ( layer ) {
         var tlview = this.get( topLeftView ),
             brview = this.get( bottomRightView ),
@@ -106,9 +110,11 @@ SplitView = NS.Class({
         // The flex pane is probably more important, so for the benefit of
         // screen readers, let's insert it higher in the HTML structure.
         var leftFirst = ( flexPane === TOP_LEFT );
-        layer.appendChild( leftFirst ? tlpane : brpane );
-        layer.appendChild( leftFirst ? brpane : tlpane );
-        layer.appendChild( this.get( dividerView ).render().get( 'layer' ) );
+        NS.Element.appendChildren( layer, [
+            leftFirst ? tlpane : brpane,
+            leftFirst ? brpane : tlpane,
+            this.get( dividerView ).render().get( 'layer' )
+        ]);
     },
 
     dynamicCSSPropTL: function () {
@@ -125,8 +131,12 @@ SplitView = NS.Class({
             ( flex ? 'top' : 'height' );
     }.property(),
 
-    _lengthDidChange: function () {
-        if ( !this.get( 'isRendered' ) ) { return; }
+    propertyNeedsRedraw: function () {
+        return SplitView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'staticPaneLength' ),
+
+    redrawStaticPaneLength: function () {
         var thickness = this.get( 'staticPaneLength' );
         this._topLeftViewContainer.style[
             this.get( 'dynamicCSSPropTL' ) ] = thickness + 'px';
@@ -137,52 +147,7 @@ SplitView = NS.Class({
             brView = this.get( bottomRightView );
         if ( tlView ) { tlView.parentViewDidResize(); }
         if ( brView ) { brView.parentViewDidResize(); }
-    }.observes( 'staticPaneLength' ),
-
-    _viewDidChange: function ( _, key, oldView, view ) {
-        if ( view ) {
-            view.set( 'parentView', this );
-        }
-        if ( this.get( 'isRendered' ) ) {
-            var isInDocument = this.get( 'isInDocument' );
-            if ( view ) {
-                view.render();
-            }
-            var container = this[ '_' + key + 'Container' ];
-            if ( view && oldView ) {
-                if ( isInDocument ) {
-                    oldView.willRemoveLayerFromDocument();
-                    view.willAppendLayerToDocument();
-                }
-                container.replaceChild(
-                    view.get( 'layer' ), oldView.get( 'layer' ) );
-                if ( isInDocument ) {
-                    oldView.didRemoveLayerFromDocument();
-                    view.didAppendLayerToDocument();
-                }
-            } else if ( view ) {
-                if ( isInDocument ) {
-                    view.willAppendLayerToDocument();
-                }
-                container.appendChild( view.get( 'layer' ) );
-                if ( isInDocument ) {
-                    view.didAppendLayerToDocument();
-                }
-            }
-            else if ( oldView ) {
-                if ( isInDocument ) {
-                    oldView.willRemoveLayerFromDocument();
-                }
-                container.removeChild( oldView.get( 'layer' ) );
-                if ( isInDocument ) {
-                    oldView.didRemoveLayerFromDocument();
-                }
-            }
-        }
-        if ( oldView ) {
-            oldView.set( 'parentView', null );
-        }
-    }.observes( topLeftView, bottomRightView ),
+    },
 
     // Must set a specific view
     insertView: null,
@@ -203,7 +168,19 @@ SplitView = NS.Class({
             this.set( bottomRightView, null );
         }
         return this;
-    }
+    },
+
+    _viewDidChange: function ( _, key, oldView ) {
+        var view = this.get( 'view' );
+        if ( oldView && view ) {
+            SplitView.parent.replaceView.call( view, oldView );
+        } else if ( oldView ) {
+            SplitView.parent.removeView.call( oldView );
+        } else if ( view ) {
+            SplitView.parent.insertView.call( view,
+                'bottom', this[ '_' + key + 'Container' ] );
+        }
+    }.observes( topLeftView, bottomRightView )
 });
 
 SplitView.extend({

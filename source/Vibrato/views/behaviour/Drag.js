@@ -340,7 +340,7 @@ var Drag = NS.Class({
         offset = this.get( 'dragImageOffset' );
         dragImage.style.left = ( cursor.x + offset.x ) + 'px';
         dragImage.style.top = ( cursor.y + offset.y ) + 'px';
-    }.observes( 'cursorLocation', 'dragImageOffset' ),
+    }.queue( 'render' ).observes( 'cursorLocation', 'dragImageOffset' ),
 
     // Cursor type
     _setCursor: function ( set ) {

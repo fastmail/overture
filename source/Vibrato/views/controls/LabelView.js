@@ -24,9 +24,18 @@ var LabelView = NS.Class({
         layer.textContent = this.get( 'value' );
     },
 
-    redraw: function () {
-        this._render( this.get( 'layer' ) );
-    }.observes( 'value', 'tooltip' )
+    propertyNeedsRedraw: function () {
+        return LabelView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'tooltip', 'value' ),
+
+    redrawTooltip: function ( layer ) {
+        layer.title = this.get( 'tooltip' );
+    },
+
+    redrawValue: function ( layer ) {
+        layer.textContent = this.get( 'value' );
+    }
 });
 
 NS.LabelView = LabelView;

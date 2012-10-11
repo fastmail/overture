@@ -22,7 +22,6 @@ var TextView = NS.Class({
 
     init: function () {
         TextView.parent.init.apply( this, arguments );
-        this._settingFromInput = false;
         this.initValidate();
     },
 
@@ -43,6 +42,8 @@ var TextView = NS.Class({
             end = selection ? isNumber ?
                     selection : selection.end || start : start;
         if ( selection !== undefined ) {
+            // Ensure any value changes have been drawn.
+            this.redraw();
             // Firefox will throw an error if the control is not actually in the
             // document when trying to set the selection. There might be other
             // situations where it does so as well, so just using a try/catch to
@@ -122,6 +123,35 @@ var TextView = NS.Class({
         ]);
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return TextView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'value', 'placeholder' ),
+
+    redrawValue: function () {
+        var value = this.get( 'value' );
+        this._domControl.value = value;
+        // Ensure placeholder is updated.
+        if ( !this.get( 'isFocussed' ) ) {
+            this._onBlur();
+        }
+        if ( this.get( 'isExpanding' ) ) {
+            this._mirror.textContent = value;
+        }
+    },
+
+    redrawPlaceholder: function () {
+        var placeholder = this.get( 'placeholder' ),
+            control = this._domControl;
+        if ( nativePlaceholder ) {
+            control.placeholder = placeholder;
+        } else if ( this._placeholderShowing ) {
+            control.value = placeholder;
+        }
+    },
+
     // --- Activate ---
 
     activate: function () {
@@ -166,11 +196,9 @@ var TextView = NS.Class({
     // --- Keep state in sync with render ---
 
     syncBackValue: function ( event ) {
-        this._settingFromInput = true;
         if ( !event || this.get( 'isFocussed' ) ) {
             this.set( 'value', this._domControl.value );
         }
-        this._settingFromInput = false;
     }.on( 'input' ),
 
     _onFocus: function () {
@@ -214,35 +242,7 @@ var TextView = NS.Class({
         if ( key === 27 && this.get( 'blurOnEscape' ) ) {
             this.blur();
         }
-    }.on( 'keydown' ),
-
-    // --- Keep render in sync with state ---
-
-    syncValue: function () {
-        var value = this.get( 'value' );
-        if ( !this._settingFromInput && this.get( 'isRendered' ) ) {
-            this._domControl.value = value;
-            // Ensure placeholder is updated.
-            if ( !this.get( 'isFocussed' ) ) {
-                this._onBlur();
-            }
-        }
-        if ( this.get( 'isExpanding' ) ) {
-            this._mirror.textContent = value;
-        }
-    }.observes( 'value' ),
-
-    syncPlaceholder: function () {
-        if ( this.get( 'isRendered' ) ) {
-            var placeholder = this.get( 'placeholder' ),
-                control = this._domControl;
-            if ( nativePlaceholder ) {
-                control.placeholder = placeholder;
-            } else if ( this._placeholderShowing ) {
-                control.value = placeholder;
-            }
-        }
-    }.observes( 'placeholder' )
+    }.on( 'keydown' )
 });
 
 if ( 8 <= NS.UA.msie && NS.UA.msie <= 9 ) {

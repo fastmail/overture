@@ -27,7 +27,7 @@ var RunLoop = {
 
         The order in which to flush the queues.
     */
-    _queueOrder: [ 'before', 'bindings', 'after' ],
+    _queueOrder: [ 'before', 'bindings', 'middle', 'render', 'after' ],
 
     /**
         Property (private): NS.RunLoop._queues
@@ -39,6 +39,8 @@ var RunLoop = {
     _queues: {
         before: [],
         bindings: [],
+        middle: [],
+        render: [],
         after: []
     },
 
@@ -107,21 +109,26 @@ var RunLoop = {
         again if it is already there.
 
         Parameters:
-            queue - {String} The name of the queue to add the tuple to.
-            fn    - {Function} The function to add to the array.
-            bind  - {(Object|undefined)} The object the function will be bound
-                    to when called.
+            queue     - {String} The name of the queue to add the tuple to.
+            fn        - {Function} The function to add to the array.
+            bind      - {(Object|undefined)} The object the function will be
+                        bound to when called.
+            allowDups - {Boolean} (optional) If not true, will search queue to
+                        check this fn/bind combination is not already present.
 
         Returns:
             {O.RunLoop} Returns self.
     */
-    queueFn: function ( queue, fn, bind ) {
+    queueFn: function ( queue, fn, bind, allowDups ) {
         var toInvoke = this._queues[ queue ],
-            i, l, tuple;
-        for ( i = 0, l = toInvoke.length; i < l; i += 1 ) {
-            tuple = toInvoke[i];
-            if ( tuple[0] === fn && tuple[1] === bind ) {
-                return this;
+            l = toInvoke.length,
+            i, tuple;
+        if ( !allowDups ) {
+            for ( i = 0; i < l; i += 1 ) {
+                tuple = toInvoke[i];
+                if ( tuple[0] === fn && tuple[1] === bind ) {
+                    return this;
+                }
             }
         }
         toInvoke[l] = [ fn, bind ];

@@ -95,8 +95,7 @@ var SelectionController = NS.Class({
 
     // ---
 
-    // Can override to provide feedback when waiting for ids to load.
-    willLoadSelection: function ( show ) {},
+    isLoadingSelection: false,
 
     selectIds: function ( ids, isSelected, _selectionId, _start, _end ) {
         if ( _selectionId && _selectionId !== this._selectionId ) {
@@ -130,7 +129,7 @@ var SelectionController = NS.Class({
                 .propertyDidChange( 'selectedIds' );
         }
 
-        this.willLoadSelection( false );
+        this.set( 'isLoadingSelection', false );
     },
 
     selectIndex: function ( index, isSelected, includeRangeFromLastSelected ) {
@@ -154,7 +153,7 @@ var SelectionController = NS.Class({
             );
 
         if ( loading ) {
-            this.willLoadSelection( true );
+            this.set( 'isLoadingSelection', true );
         }
 
         return this;
@@ -171,14 +170,14 @@ var SelectionController = NS.Class({
                 }.bind( this )
             );
             if ( loading ) {
-                this.willLoadSelection( true );
+                this.set( 'isLoadingSelection', true );
             }
         }
         else {
             this._selectedIds = {};
             this.set( 'selectionLength', 0 )
                 .propertyDidChange( 'selectedIds' )
-                .willLoadSelection( false );
+                .set( 'isLoadingSelection', false );
         }
 
         return this;

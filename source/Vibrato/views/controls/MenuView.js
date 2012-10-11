@@ -258,8 +258,17 @@ var MenuView = NS.Class({
         MenuView.parent.willDestroyLayer.call( this, layer );
     },
 
-    didAppendLayerToDocument: function () {
-        MenuView.parent.didAppendLayerToDocument.call( this );
+    didRemoveLayerFromDocument: function () {
+        if ( !this.get( 'showFilter' ) ) {
+            this.get( 'controller' ).focusOption( null );
+        }
+        return MenuView.parent.didRemoveLayerFromDocument.call( this );
+    },
+
+    _checkSize: function () {
+        if ( !this.get( 'isInDocument' ) ) {
+            return;
+        }
         if ( !this.getParent( NS.ScrollView ) ) {
             var layer = this.get( 'layer' ),
                 delta = layer.getBoundingClientRect().bottom -
@@ -286,15 +295,7 @@ var MenuView = NS.Class({
                 });
             });
         }
-        return this;
-    },
-
-    didRemoveLayerFromDocument: function () {
-        if ( !this.get( 'showFilter' ) ) {
-            this.get( 'controller' ).focusOption( null );
-        }
-        return MenuView.parent.didRemoveLayerFromDocument.call( this );
-    },
+    }.queue( 'after' ).observes( 'isInDocument' ),
 
     nextEventTarget: function () {
         return this.get( 'controller' );

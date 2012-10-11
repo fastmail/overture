@@ -293,25 +293,21 @@ NS.AnimatableView = {
             CSSStyleAnimation : StyleAnimation;
         return new Animation({
             object: this,
-            element: this.get( 'layer' ),
-            current: this._layerStyles || this.get( 'layerStyles' )
+            element: this.get( 'layer' )
         });
     }.property(),
 
-    updateLayerStyles: function () {
-        if ( this.isDestroyed ) { return; }
-
-        var oldStyles = this._layerStyles,
-            newStyles = this.get( 'layerStyles' ),
-            layer = this.get( 'layer' ),
+    redrawLayerStyles: function ( layer, oldStyles ) {
+        var newStyles = this.get( 'layerStyles' ),
             layerAnimation = this.get( 'layerAnimation' ),
             setStyle = NS.Element.setStyle,
             property, value;
 
-        delete this._layerStyles;
-
         // Animate
         if ( this.get( 'animateLayer' ) ) {
+            if ( !layerAnimation.current ) {
+                layerAnimation.current = oldStyles || newStyles;
+            }
             layerAnimation.animate(
                 newStyles,
                 this.get( 'animateLayerDuration' ),
@@ -330,7 +326,6 @@ NS.AnimatableView = {
                 }
             }
         }
-        return this;
     }
 };
 

@@ -6,9 +6,11 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
+/*global Element */
+
 "use strict";
 
-( function ( NS, undefined ) {
+( function ( NS, Element, undefined ) {
 
 /**
     Class: O.Binding
@@ -130,6 +132,8 @@ var Binding = NS.Class({
         or are they also sent the other way?
     */
     isTwoWay: false,
+
+    queue: 'bindings',
 
     /**
         Constructor: O.Binding
@@ -313,9 +317,12 @@ var Binding = NS.Class({
         var fromObject = this.get( 'fromObject' ),
             toObject = this.get( 'toObject' );
 
+        if ( toObject instanceof Element ) {
+            this.queue = 'render';
+        }
+
         // Occassionally we have a binding created before the objects it
-        // connects are, in which case wait until the end of the runloop to
-        // connect it.
+        // connects are, in which case delay connecting it a bit.
         if ( !this._doNotDelayConnection && ( !fromObject || !toObject ) ) {
             this._doNotDelayConnection = true;
             NS.RunLoop.queueFn( 'before', this.connect, this );
@@ -432,11 +439,11 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     _fromDidChange: function () {
+        if ( !this._needsSync && !this._isSuspended ) {
+            NS.RunLoop.queueFn( this.queue, this.sync, this, true );
+        }
         this._needsSync = true;
         this._syncFromToTo = true;
-        if ( !this._isSuspended ) {
-            NS.RunLoop.queueFn( 'bindings', this.sync, this );
-        }
         return this;
     },
 
@@ -451,11 +458,11 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     _toDidChange: function () {
+        if ( !this._needsSync && !this._isSuspended ) {
+            NS.RunLoop.queueFn( this.queue, this.sync, this, true );
+        }
         this._needsSync = true;
         this._syncFromToTo = false;
-        if ( !this._isSuspended ) {
-            NS.RunLoop.queueFn( 'bindings', this.sync, this );
-        }
         return this;
     },
 
@@ -554,4 +561,4 @@ NS.bindTwoWay = function ( path, root, transform ) {
     }).from( path, root );
 };
 
-}( this.O ) );
+}( this.O, typeof Element !== undefined ? Element : function () {} ) );

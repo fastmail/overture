@@ -28,6 +28,18 @@ var CheckboxView = NS.Class({
         CheckboxView.parent._render.call( this, layer );
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return CheckboxView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles',
+        'isDisabled', 'label', 'tooltip', 'value' ),
+
+    redrawValue: function () {
+        this._domControl.checked = this.get( 'value' );
+    },
+
     // --- Activate ---
 
     activate: function () {
@@ -38,15 +50,7 @@ var CheckboxView = NS.Class({
 
     syncBackValue: function ( event ) {
         this.set( 'value', this._domControl.checked );
-    }.on( 'change' ),
-
-    // --- Keep render in sync with state ---
-
-    syncValue: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this._domControl.checked = this.get( 'value' );
-        }
-    }.observes( 'value' )
+    }.on( 'change' )
 });
 
 NS.CheckboxView = CheckboxView;

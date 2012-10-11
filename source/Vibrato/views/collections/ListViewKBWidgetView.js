@@ -49,9 +49,7 @@ var ListViewKBWidgetView = NS.Class({
         for ( key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
         }
-        if ( this.get( 'distanceFromVisRect' ) ) {
-            this.scrollIntoView( 0, false );
-        }
+        this.checkInitialScroll();
         return ListViewKBWidgetView.parent
                 .didAppendLayerToDocument.call( this );
     },
@@ -65,6 +63,20 @@ var ListViewKBWidgetView = NS.Class({
         return ListViewKBWidgetView.parent.
             willRemoveLayerFromDocument.call( this );
     },
+
+    // Scroll to centre widget on screen with no animation
+    checkInitialScroll: function () {
+        if ( this.get( 'distanceFromVisRect' ) ) {
+            this.scrollIntoView( 0, false );
+        }
+    }.queue( 'after' ),
+
+    checkScroll: function () {
+        var distance = this.get( 'distanceFromVisRect' );
+        if ( distance ) {
+            this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
+        }
+    }.queue( 'after' ),
 
     distanceFromVisRect: function () {
         var scrollView = this.getParent( NS.ScrollView );
@@ -109,10 +121,7 @@ var ListViewKBWidgetView = NS.Class({
     go: function ( delta ) {
         this.increment( 'index', delta );
         if ( this.get( 'isInDocument' ) ) {
-            var distance = this.get( 'distanceFromVisRect' );
-            if ( distance ) {
-                this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
-            }
+            this.checkScroll();
         }
     },
     goNext: function () {

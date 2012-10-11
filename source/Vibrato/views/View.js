@@ -259,42 +259,6 @@ var View = NS.Class({
     */
     className: undefined,
 
-    _classNameDidChange: function () {
-        if ( this.get( 'isRendered' ) ) {
-            // If the view is not currently visible we want to update it
-            // immediately to be sure of changing it before it is inserted into
-            // the document DOM, as after this updates will affect the render
-            // tree so are much more expensive. On the otherhand, if it is
-            // already in the DOM, we want to make sure not to update it more
-            // than once per RunLoop, so need to invoke once after bindings.
-            if ( this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'after', this.updateClassName, this );
-            } else {
-                this.updateClassName();
-            }
-        }
-    }.observes( 'className' ),
-
-    /**
-        Method: O.View#updateClassName
-
-        Sets the className property on the underlying layer element node to the
-        className property of the view. Called automatically at the end of the
-        run loop whenever the view property changes, but can be called manually
-        if you need to flush the changes earlier.
-
-        Returns:
-            {O.View} Returns self.
-    */
-    updateClassName: function () {
-        // If invoked at end of RunLoop, could have been destroyed since the
-        // request to change class name was made.
-        if ( !this.isDestroyed ) {
-            this.get( 'layer' ).className = this.get( 'className' );
-        }
-        return this;
-    },
-
     /**
         Property: O.View#layerTag
         Type: String
@@ -361,8 +325,8 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     willAppendLayerToDocument: function () {
-        if ( this._layerStyles ) {
-            this.updateLayerStyles();
+        if ( this._needsRedraw ) {
+            this.redraw();
         }
 
         var children = this.get( 'childViews' ),
@@ -387,7 +351,7 @@ var View = NS.Class({
 
         NS.RootViewController.registerActiveView( this );
 
-        this.parentViewDidResize( true );
+        this.computedPropertyDidChange( 'pxLayout' );
 
         var children = this.get( 'childViews' ),
             l = children.length;
@@ -694,41 +658,6 @@ var View = NS.Class({
                 'clipToBounds','showScrollbarX', 'showScrollbarY',
                 'opacity', 'zIndex' ),
 
-    _layerStyles: null,
-    _layerStylesDidChange: function ( _, __, oldStyles ) {
-        if ( !this._layerStyles && this.get( 'isRendered' ) ) {
-            this._layerStyles = oldStyles;
-            // If the view is in the document, update at the end of the run
-            // loop. If not, will be updated just before appending to document.
-            if ( this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'after', this.updateLayerStyles, this );
-            }
-        }
-    }.observes( 'layerStyles' ),
-
-    /*
-        Method: O.View#updateLayerStyles
-
-        Applies the current layer styles to the layer. Will be called
-        automatically at the end of the run loop whenever the layerStyles
-        property changes, but may be called explicitly if you need to flush
-        changes to the layer immediately.
-
-        Returns:
-            {O.View} Returns self.
-    */
-    updateLayerStyles: function () {
-        if ( this.isDestroyed ) { return; }
-
-        if ( this._layerStyles ) {
-            this._layerStyles = null;
-            this.get( 'layer' ).style.cssText =
-                Object.toCSSString( this.get( 'layerStyles' ) );
-            this.computedPropertyDidChange( 'pxDimensions' );
-        }
-        return this;
-    },
-
     /**
         Method: O.View#render
 
@@ -764,6 +693,57 @@ var View = NS.Class({
         }
     },
 
+    /**
+        Property: O.View#_needsRedraw
+        Type: Array|null
+    */
+    _needsRedraw: null,
+
+    propertyNeedsRedraw: function ( _, layerProperty, oldProp ) {
+        if ( this.get( 'isRendered' ) ) {
+            var needsRedraw = this._needsRedraw || ( this._needsRedraw = [] ),
+                i, l;
+            for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
+                if ( needsRedraw[i][0] === layerProperty ) {
+                    return;
+                }
+            }
+            needsRedraw[l] = [
+                layerProperty,
+                oldProp
+            ];
+            if ( this.get( 'isInDocument' ) ) {
+                NS.RunLoop.queueFn( 'render', this.redraw, this );
+            }
+        }
+    }.observes( 'className', 'layerStyles' ),
+
+    redrawClassName: function ( layer, oldValue ) {
+        layer.className = this.get( 'className' );
+    },
+
+    redrawLayerStyles: function ( layer, oldValue ) {
+        layer.style.cssText =
+            Object.toCSSString( this.get( 'layerStyles' ) );
+        this.parentViewDidResize();
+    },
+
+    redraw: function () {
+        var needsRedraw = this._needsRedraw,
+            layer, l, dirtyProp;
+        if ( needsRedraw && !this.isDestroyed && !this.isSleeping &&
+                this.get( 'isRendered' ) ) {
+            this._needsRedraw = null;
+            layer = this.get( 'layer' );
+            l = needsRedraw.length;
+            while ( l-- ) {
+                dirtyProp = needsRedraw[l];
+                this[ 'redraw' +
+                    dirtyProp[0].capitalise() ]( layer, dirtyProp[1] );
+            }
+        }
+    },
+
     // --- Dimensions ---
 
     /**
@@ -773,47 +753,20 @@ var View = NS.Class({
         initially appended to the document. Rather than override this method,
         you should normally observe the <O.View#pxDimensions> property if you're
         interested in changes to the view size.
-
-        Parameters:
-            doNotPropagate - {Boolean} Do not call parentViewDidResize on all
-                             child views?
     */
-    parentViewDidResize: function ( doNotPropagate ) {
+    parentViewDidResize: function () {
         // px dimensions only have a defined value when part of the document,
         // so if we're not visible, let's just ignore the change.
-        if ( !this.get( 'isInDocument' ) ) { return; }
+        if ( this.get( 'isInDocument' ) ) {
+            this.computedPropertyDidChange( 'pxLayout' );
 
-        // If this this view has fixed dimensions then no change has occurred.
-        var layout = this.get( 'layout' ),
-            width = layout.width,
-            height = layout.height;
-        if ( width !== undefined && height !== undefined &&
-            ( typeof width !== 'string' ||
-                width.charAt( width.length - 1 ) !== '%' ) &&
-            ( typeof height !== 'string' ||
-                height.charAt( height.length - 1 ) !== '%' ) ) {
-             return;
-        }
-
-        this.computedPropertyDidChange( 'pxDimensions' );
-
-        if ( !doNotPropagate ) {
             var children = this.get( 'childViews' ),
                 l = children.length;
-
             while ( l-- ) {
                 children[l].parentViewDidResize();
             }
         }
     },
-
-    /**
-        Property: O.View#scrollLeft
-        Type: Number
-
-        The horizontal scroll position in pixels.
-    */
-    scrollLeft: 0,
 
     /**
         Property: O.View#scrollTop
@@ -822,6 +775,14 @@ var View = NS.Class({
         The vertical scroll position in pixels.
     */
     scrollTop: 0,
+
+    /**
+        Property: O.View#scrollLeft
+        Type: Number
+
+        The horizontal scroll position in pixels.
+    */
+    scrollLeft: 0,
 
     _onScroll: function ( event ) {
         var layer = this.get( 'layer' ),
@@ -834,25 +795,14 @@ var View = NS.Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
-    /**
-        Property: O.View#pxLeft
-        Type: Number
-
-        The position in pixels of the left edge of the layer from the left edge
-        of the parent view's layer.
-    */
-    pxLeft: function () {
-        if ( !this.get( 'isInDocument' ) ) {
-            return 0;
-        }
-        var parent = this.get( 'parentView' ).get( 'layer' ),
-            layer = this.get( 'layer' ),
-            offset = 0;
-        do {
-            offset += layer.offsetLeft;
-        } while ( ( layer = layer.offsetParent ) !== parent );
-        return offset;
-    }.property( 'isInDocument', 'layout', 'parentView' ),
+    pxLayout: function () {
+        return  {
+            top: this.get( 'pxTop' ),
+            left: this.get( 'pxLeft' ),
+            width: this.get( 'pxWidth' ),
+            height: this.get( 'pxHeight' )
+        };
+    }.property(),
 
     /**
         Property: O.View#pxTop
@@ -872,7 +822,27 @@ var View = NS.Class({
             offset += layer.offsetTop;
         } while ( ( layer = layer.offsetParent ) !== parent );
         return offset;
-    }.property( 'isInDocument', 'layout', 'parentView' ),
+    }.property( 'pxLayout' ),
+
+    /**
+        Property: O.View#pxLeft
+        Type: Number
+
+        The position in pixels of the left edge of the layer from the left edge
+        of the parent view's layer.
+    */
+    pxLeft: function () {
+        if ( !this.get( 'isInDocument' ) ) {
+            return 0;
+        }
+        var parent = this.get( 'parentView' ).get( 'layer' ),
+            layer = this.get( 'layer' ),
+            offset = 0;
+        do {
+            offset += layer.offsetLeft;
+        } while ( ( layer = layer.offsetParent ) !== parent );
+        return offset;
+    }.property( 'pxLayout' ),
 
     /**
         Property: O.View#pxWidth
@@ -886,7 +856,7 @@ var View = NS.Class({
             return layout.width;
         }
         return this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetWidth : 0;
-    }.property( 'pxDimensions' ),
+    }.property( 'pxLayout' ),
 
     /**
         Property: O.View#pxHeight
@@ -901,23 +871,7 @@ var View = NS.Class({
         }
         return this.get( 'isInDocument' ) ?
             this.get( 'layer' ).offsetHeight : 0;
-    }.property( 'pxDimensions' ),
-
-    /**
-        Property: O.View#pxDimensions
-        Type: Object
-
-        An object with two properties: width and height, corresponding to the
-        pxWidth and pxHeight properties of this view. Note that the object
-        itself is not updated if these values change; instead the pxDimensions
-        property will change to a new object with the new values.
-    */
-    pxDimensions: function () {
-        return {
-            width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' )
-        };
-    }.property( 'layout' ),
+    }.property( 'pxLayout' ),
 
     /**
         Property: O.View#visibleRect
@@ -938,7 +892,7 @@ var View = NS.Class({
             width: this.get( 'pxWidth' ),
             height: this.get( 'pxHeight' )
         };
-    }.property( 'pxDimensions', 'scrollLeft', 'scrollTop' ),
+    }.property( 'scrollLeft', 'scrollTop', 'pxLayout' ),
 
     // --- Insertion and deletion ---
 
@@ -966,6 +920,10 @@ var View = NS.Class({
         var oldParent = view.get( 'parentView' ),
             childViews = this.get( 'childViews' ),
             index, isInDocument, layer, parent, before;
+
+        if ( oldParent === this ) {
+            return this;
+        }
 
         if ( !relativeTo && ( where === 'before' || where === 'after' ) ) {
             this.get( 'parentView' ).insertView( view, this, where );
@@ -1204,7 +1162,13 @@ var View = NS.Class({
 
     // --- Sleep/wake ---
 
-    _isSleeping: false,
+    /**
+        Property: O.View#isSleeping
+        Type: Boolean
+
+        NOT OBSERVABLE.
+    */
+    isSleeping: false,
 
     /**
         Method: O.View#sleep
@@ -1218,14 +1182,14 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     sleep: function () {
-        if ( !this._isSleeping ) {
+        if ( !this.isSleeping ) {
             this.suspendBindings();
             var children = this.get( 'childViews' ),
                 l = children.length;
             while ( l-- ) {
                 children[l].sleep();
             }
-            this._isSleeping = true;
+            this.isSleeping = true;
         }
         return this;
     },
@@ -1241,14 +1205,17 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     awaken: function () {
-        if ( this._isSleeping ) {
-            this._isSleeping = false;
+        if ( this.isSleeping ) {
+            this.isSleeping = false;
             var children = this.get( 'childViews' ),
                 l = children.length;
             while ( l-- ) {
                 children[l].awaken();
             }
             this.resumeBindings();
+            if ( this._needsRedraw && this.get( 'isInDocument' ) ) {
+                NS.RunLoop.queueFn( 'render', this.redraw, this );
+            }
         }
         return this;
     },

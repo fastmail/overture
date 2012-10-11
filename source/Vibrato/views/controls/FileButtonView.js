@@ -52,6 +52,17 @@ var FileButtonView = NS.Class({
         FileButtonView.parent._render.call( this, layer );
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return ButtonView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles',
+        'isDisabled', 'label', 'tooltip', 'icon' ),
+
+    redrawIcon: function ( layer ) {
+        layer.firstChild.className = this.get( 'icon' );
+    },
 
     // --- Activate ---
 
@@ -99,15 +110,7 @@ var FileButtonView = NS.Class({
             }
             this.activate( files );
         }
-    }.on( 'change' ),
-
-    // --- Keep render in sync with state ---
-
-    syncIcon: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this.get( 'layer' ).firstChild.className = this.get( 'icon' );
-        }
-    }.observes( 'icon' )
+    }.on( 'change' )
 });
 
 NS.FileButtonView = FileButtonView;

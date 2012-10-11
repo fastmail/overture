@@ -44,6 +44,31 @@ var PushSelectView = NS.Class({
         );
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return PushSelectView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'options', 'value' ),
+
+    redrawOptions: function ( layer ) {
+        layer.replaceChild( this._renderSelect(), layer.firstChild );
+    },
+
+    redrawValue: function ( layer, oldValue ) {
+        var Element = NS.Element,
+            newValue = this.get( 'value' ),
+            childNodes = layer.firstChild.childNodes;
+        this.get( 'options' ).forEach( function ( option, i ) {
+            if ( option.value === oldValue ) {
+                Element.removeClass( childNodes[ i * 2 ], 'selected' );
+            }
+            if ( option.value === newValue ) {
+                Element.addClass( childNodes[ i * 2 ], 'selected' );
+            }
+        });
+    },
+
     // --- Keep state in sync with render ---
 
     _selectOption: function ( event ) {
@@ -51,31 +76,7 @@ var PushSelectView = NS.Class({
         if ( i != null ) {
             this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
         }
-    }.on( 'click' ),
-
-    // --- Keep render in sync with state ---
-
-    syncOptions: function () {
-        if ( this.get( 'isRendered' ) ) {
-            var layer = this.get( 'layer' );
-            layer.replaceChild( this._renderSelect(), layer.firstChild );
-        }
-    }.observes( 'options' ),
-
-    syncValue: function ( _, __, oldValue, newValue ) {
-        if ( this.get( 'isRendered' ) ) {
-            var Element = NS.Element,
-                childNodes = this.get( 'layer' ).firstChild.childNodes;
-            this.get( 'options' ).forEach( function ( option, i ) {
-                if ( option.value === oldValue ) {
-                    Element.removeClass( childNodes[ i * 2 ], 'selected' );
-                }
-                if ( option.value === newValue ) {
-                    Element.addClass( childNodes[ i * 2 ], 'selected' );
-                }
-            });
-        }
-    }.observes( 'value' )
+    }.on( 'click' )
 });
 
 NS.PushSelectView = PushSelectView;

@@ -125,10 +125,10 @@ var TreeItemView = NS.Class({
                 ' hiddenButChildren' : ' hidden' ) : '' );
     }.property( 'isSelected', 'isHidden', 'visibleChildren', 'depth' ),
 
-    _expandCollapse: function ( _, __, ___, isCollapsed ) {
-        if ( this.get( 'hasSubtree' ) ) {
+    _expandCollapse: function () {
+        if ( this.get( 'isRendered' ) && this.get( 'hasSubtree' ) ) {
             var subview = this.get( 'subView' );
-            if ( isCollapsed ) {
+            if ( this.get( 'isCollapsed' ) ) {
                 this.removeView( subview );
             } else {
                 this.insertView( subview );
@@ -161,7 +161,7 @@ var TreeItemView = NS.Class({
                 this[ action ]( this.get( 'subView' ) );
             }
         }
-    }.observes( 'hasSubtree' ),
+    }.queue( 'render' ).observes( 'hasSubtree' ),
 
     _render: function ( layer ) {
         var data = this.get( 'content' ),

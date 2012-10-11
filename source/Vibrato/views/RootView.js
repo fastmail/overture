@@ -150,13 +150,13 @@ var RootView = NS.Class({
         var layer = this.get( 'layer' );
         return layer.nodeName === 'BODY' ?
             layer.parentNode.clientWidth : layer.offsetWidth;
-    }.property( 'pxDimensions' ),
+    }.property( 'pxLayout' ),
 
     pxHeight: function () {
         var layer = this.get( 'layer' );
         return layer.nodeName === 'BODY' ?
             layer.parentNode.clientHeight : layer.offsetHeight;
-    }.property( 'pxDimensions' ),
+    }.property( 'pxLayout' ),
 
     handleEvent: function ( event ) {
         var type = event.type;

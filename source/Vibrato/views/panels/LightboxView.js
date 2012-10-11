@@ -54,7 +54,7 @@ var LightboxItemView = NS.Class({
         ]);
     },
 
-    redraw: function () {
+    updateDrawProperties: function () {
         var position = this.get( 'position' ),
             layout =
                 !position ?
@@ -65,7 +65,7 @@ var LightboxItemView = NS.Class({
         this.set( 'animateLayerDuration', layout === 'thumbLayout' ? 350: 500 )
             .set( 'hideControls', !!position )
             .set( 'layout', this.get( layout ) );
-    }.observes( 'isActive', 'position', 'dimensions' ),
+    }.queue( 'after' ).observes( 'isActive', 'position', 'dimensions' ),
 
     // --- Animation ---
 
@@ -98,10 +98,8 @@ var LightboxItemView = NS.Class({
         return LightboxItemView.parent.didAppendLayerToDocument.call( this );
     },
 
-    parentViewDidResize: function ( didJustAddToDocument ) {
-        if ( !didJustAddToDocument ) {
-            this.computedPropertyDidChange( 'dimensions' );
-        }
+    parentViewDidResize: function () {
+        this.computedPropertyDidChange( 'dimensions' );
     },
 
     dimensions: function () {
@@ -267,13 +265,13 @@ var LightboxPhotoView = NS.Class({
                 this._highResShowing = true;
             }
         }
-    }.observes( 'position', 'highResLoaded' ),
+    }.queue( 'render' ).observes( 'position', 'highResLoaded' ),
 
     switchToLowRes: function () {
         this.get( 'layer' ).replaceChild(
             this.get( 'thumbImage' ), this.get( 'highResImage' ) );
         this._highResShowing = false;
-    },
+    }.queue( 'render' ),
 
     renderContent: function () {
         if ( !this.get( 'position' ) ) {
@@ -426,7 +424,7 @@ var LightboxView = NS.Class({
             this.removeView( view );
             view.set( 'lightbox', null );
         }
-    },
+    }.queue( 'render' ),
 
     // Dimensions
 

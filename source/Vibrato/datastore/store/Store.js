@@ -542,7 +542,7 @@ var Store = NS.Class({
         if ( callback ) {
             this._commitCallbacks.push( callback );
         }
-        NS.RunLoop.queueFn( 'before', this._commitChanges, this );
+        NS.RunLoop.queueFn( 'middle', this._commitChanges, this );
     },
     _commitChanges: function () {
         var _created = this._created,
@@ -2177,7 +2177,7 @@ var Store = NS.Class({
             ( _typeToChangedSks[ typeName ] ||
                 ( _typeToChangedSks[ typeName ] = [] ) ).include( storeKey );
         }
-        NS.RunLoop.queueFn( 'before', this.refreshLiveQueries, this );
+        NS.RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
     },
 
     /**

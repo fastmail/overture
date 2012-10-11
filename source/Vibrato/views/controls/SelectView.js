@@ -43,37 +43,39 @@ var SelectView = NS.Class({
         return select;
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return SelectView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles',
+        'isDisabled', 'label', 'tooltip', 'options', 'value' ),
+
+    redrawOptions: function ( layer ) {
+        var select = this._renderSelect( this.get( 'options' ) );
+        layer.replaceChild( select, this._domControl );
+        this._domControl = select;
+    },
+
+    redrawValue: function () {
+        var value = this.get( 'value' ),
+            options = this.get( 'options' ),
+            l = options.length;
+
+        while ( l-- ) {
+            if ( options[l].value === value ) {
+                this._domControl.value = l + '';
+                return;
+            }
+        }
+    },
+
     // --- Keep state in sync with render ---
 
     syncBackValue: function ( event ) {
         var i = this._domControl.selectedIndex;
         this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
-    }.on( 'change' ),
-
-    // --- Keep render in sync with state ---
-
-    syncOptions: function () {
-        if ( this.get( 'isRendered' ) ) {
-            var select = this._renderSelect( this.get( 'options' ) );
-            this.get( 'layer' ).replaceChild( select, this._domControl );
-            this._domControl = select;
-        }
-    }.observes( 'options' ),
-
-    syncValue: function () {
-        if ( this.get( 'isRendered' ) ) {
-            var value = this.get( 'value' ),
-                options = this.get( 'options' ),
-                l = options.length;
-
-            while ( l-- ) {
-                if ( options[l].value === value ) {
-                    this._domControl.value = l + '';
-                    return;
-                }
-            }
-        }
-    }.observes( 'value' )
+    }.on( 'change' )
 });
 
 NS.SelectView = SelectView;

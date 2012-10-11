@@ -46,6 +46,18 @@ var ButtonView = NS.Class({
         ButtonView.parent._render.call( this, layer );
     },
 
+    // --- Keep render in sync with state ---
+
+    propertyNeedsRedraw: function () {
+        return ButtonView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles',
+        'isDisabled', 'label', 'tooltip', 'icon' ),
+
+    redrawIcon: function ( layer ) {
+        layer.firstChild.className = this.get( 'icon' );
+    },
+
     // --- Activate ---
 
     target: null,
@@ -101,15 +113,7 @@ var ButtonView = NS.Class({
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-    }.on( 'keypress' ),
-
-    // --- Keep render in sync with state ---
-
-    syncIcon: function () {
-        if ( this.get( 'isRendered' ) ) {
-            this.get( 'layer' ).firstChild.className = this.get( 'icon' );
-        }
-    }.observes( 'icon' )
+    }.on( 'keypress' )
 });
 
 NS.ButtonView = ButtonView;

@@ -38,7 +38,7 @@ var InfoBubbleView = NS.Class({
         if ( !shouldBeInDoc && isInDocument ) {
             rootView.removeView( this );
         }
-    }.observes( 'isHidden', 'alignWithView' ),
+    }.queue( 'render' ).observes( 'isHidden', 'alignWithView' ),
 
     monitorScrolls: function () {
         var alignWithView = this.get( 'alignWithView' ),
