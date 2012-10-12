@@ -22,6 +22,7 @@ var TextView = NS.Class({
 
     init: function () {
         TextView.parent.init.apply( this, arguments );
+        this._settingFromInput = false;
         this.initValidate();
     },
 
@@ -115,7 +116,7 @@ var TextView = NS.Class({
             this._domLabel = el( 'span', [ this.get( 'label' ) ] ),
             this.get( 'isExpanding' ) ? el( 'pre', [
                 this._mirror = el( 'span', {
-                    text: value
+                    text: NS.bind( 'value', this )
                 }),
                 el( 'br' )
             ]) : null,
@@ -125,10 +126,13 @@ var TextView = NS.Class({
 
     // --- Keep render in sync with state ---
 
-    propertyNeedsRedraw: function () {
-        return TextView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'value', 'placeholder' ),
+    propertyNeedsRedraw: function ( _, property ) {
+        if ( property !== 'value' || !this._settingFromInput ) {
+            TextView.parent.propertyNeedsRedraw.apply( this, arguments );
+        }
+    }.observes( 'className', 'layerStyles',
+        'isDisabled', 'label', 'tooltip',
+        'value', 'placeholder' ),
 
     redrawValue: function () {
         var value = this.get( 'value' );
@@ -136,9 +140,6 @@ var TextView = NS.Class({
         // Ensure placeholder is updated.
         if ( !this.get( 'isFocussed' ) ) {
             this._onBlur();
-        }
-        if ( this.get( 'isExpanding' ) ) {
-            this._mirror.textContent = value;
         }
     },
 
@@ -197,7 +198,9 @@ var TextView = NS.Class({
 
     syncBackValue: function ( event ) {
         if ( !event || this.get( 'isFocussed' ) ) {
+            this._settingFromInput = true;
             this.set( 'value', this._domControl.value );
+            this._settingFromInput = false;
         }
     }.on( 'input' ),
 
