@@ -24,10 +24,6 @@ var LightboxItemView = NS.Class({
 
     frameThickness: 30,
 
-    init: function ( options ) {
-        LightboxItemView.parent.init.call( this, options );
-    },
-
     position: function () {
         return this.get( 'index' ) - this.get( 'activeIndex' );
     }.property( 'activeIndex' ),
@@ -65,7 +61,7 @@ var LightboxItemView = NS.Class({
         this.set( 'animateLayerDuration', layout === 'thumbLayout' ? 350: 500 )
             .set( 'hideControls', !!position )
             .set( 'layout', this.get( layout ) );
-    }.queue( 'after' ).observes( 'isActive', 'position', 'dimensions' ),
+    }.observes( 'isActive', 'position', 'dimensions' ),
 
     // --- Animation ---
 
