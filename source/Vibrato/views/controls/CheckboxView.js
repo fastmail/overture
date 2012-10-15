@@ -50,7 +50,7 @@ var CheckboxView = NS.Class({
 
     syncBackValue: function ( event ) {
         this.set( 'value', this._domControl.checked );
-    }.on( 'change' )
+    }.on( 'click' )
 });
 
 NS.CheckboxView = CheckboxView;
