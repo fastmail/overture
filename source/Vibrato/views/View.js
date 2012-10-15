@@ -816,9 +816,14 @@ var View = NS.Class({
             return 0;
         }
         var parent = this.get( 'parentView' ).get( 'layer' ),
+            parentOffsetParent = parent.offsetParent,
             layer = this.get( 'layer' ),
             offset = 0;
         do {
+            if ( layer === parentOffsetParent ) {
+                offset -= parent.offsetTop;
+                break;
+            }
             offset += layer.offsetTop;
         } while ( ( layer = layer.offsetParent ) !== parent );
         return offset;
@@ -836,9 +841,14 @@ var View = NS.Class({
             return 0;
         }
         var parent = this.get( 'parentView' ).get( 'layer' ),
+            parentOffsetParent = parent.offsetParent,
             layer = this.get( 'layer' ),
             offset = 0;
         do {
+            if ( layer === parentOffsetParent ) {
+                offset -= parent.offsetLeft;
+                break;
+            }
             offset += layer.offsetLeft;
         } while ( ( layer = layer.offsetParent ) !== parent );
         return offset;
@@ -851,11 +861,9 @@ var View = NS.Class({
         The width of the view's layer in pixels.
     */
     pxWidth: function () {
-        var layout = this.get( 'layout' );
-        if ( layout.width && typeof layout.width === 'number' ) {
-            return layout.width;
-        }
-        return this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetWidth : 0;
+        var width = this.get( 'layout' ).width;
+        return ( typeof width === 'number' ) ? width :
+            this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetWidth : 0;
     }.property( 'pxLayout' ),
 
     /**
@@ -865,12 +873,9 @@ var View = NS.Class({
         The height of the view's layer in pixels.
     */
     pxHeight: function () {
-        var layout = this.get( 'layout' );
-        if ( layout.height && typeof layout.height === 'number' ) {
-            return layout.height;
-        }
-        return this.get( 'isInDocument' ) ?
-            this.get( 'layer' ).offsetHeight : 0;
+        var height = this.get( 'layout' ).height;
+        return ( typeof height === 'number' ) ? height :
+            this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetHeight : 0;
     }.property( 'pxLayout' ),
 
     /**
