@@ -22,7 +22,13 @@ var MouseEventRemover = NS.Class({
         this.time = Date.now();
         this.target = target;
         this.stop = defaultPrevented;
+        this.activate();
     },
+    // If a pop over view opens during the render phase, it may usurped us, so
+    // we wait until the 'after' phase to add ourselves to the responder queue.
+    activate: function () {
+        NS.RootViewController.pushResponder( this );
+    }.queue( 'after' ),
     fire: function ( type, event ) {
         var isOld = ( Date.now() - this.time > 1000 ),
             isClick = ( type === 'click' ) && !event.isEvent,
@@ -115,9 +121,7 @@ NS.Tap = new NS.Gesture({
                     RootViewController.handleEvent( tapEvent );
                     tapEvent.type = 'click';
                     RootViewController.handleEvent( tapEvent );
-                    RootViewController.pushResponder(
-                        new MouseEventRemover( touch.target, defaultPrevented )
-                    );
+                    new MouseEventRemover( touch.target, defaultPrevented );
                 }
                 delete tracking[ id ];
             }
