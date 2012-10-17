@@ -16,27 +16,6 @@ var Status = NS.Status,
 
 var qid = 0;
 
-var findPositionFor = function ( array, comparator, item ) {
-    var upper = array.length,
-        lower = 0,
-        middle, itemAtMiddle;
-
-    // Binary search.
-    while ( lower < upper ) {
-        middle = ( lower + upper ) >> 1;
-        itemAtMiddle = array[ middle ];
-        if ( item === itemAtMiddle ) {
-            return middle;
-        }
-        if ( comparator( item, itemAtMiddle ) > 0 ) {
-            lower = middle + 1;
-        } else {
-            upper = middle;
-        }
-    }
-    return lower;
-};
-
 var numerically = function ( a, b ) {
     return a - b;
 };
@@ -282,8 +261,8 @@ var LiveQuery = NS.Class({
         var filter = this._filter,
             sort = this._sort,
             storeKeys = this._storeKeys,
-            added = [], addedIndexes,
-            removed, removedIndexes = [],
+            added = [], addedIndexes = [],
+            removed = [], removedIndexes = [],
             oldLength = this.get( 'length' ),
             store = this.get( 'store' ),
             storeKeyToId = function ( storeKey ) {
@@ -291,8 +270,11 @@ var LiveQuery = NS.Class({
                     ( '#' + storeKey );
             },
             i, l, storeKey, index, shouldBeInQuery,
-            addedLength, removedLength, length, maxLength;
+            newStoreKeys, oi, ri, ai, a, b,
+            addedLength, removedLength, newLength, maxLength;
 
+        // 1. Find indexes of removed and ids of added
+        // If it's changed, it's added to both.
         l = storeKeysOfChanged.length;
         while ( l-- ) {
             storeKey = storeKeysOfChanged[l];
@@ -326,42 +308,58 @@ var LiveQuery = NS.Class({
         removedLength = removedIndexes.length;
         addedLength = added.length;
 
+        // 2. Sort removed indexes and find removed ids.
         if ( removedLength ) {
             removedIndexes.sort( numerically );
-            l = removedLength;
-            removed = new Array( removedLength );
-            while ( l-- ) {
-                index = removedIndexes[l];
-                removed[l] = storeKeys[ index ];
-                storeKeys.splice( index, 1 );
+            for ( i = 0; i < removedLength; i += 1 ) {
+                removed[i] = storeKeys[ removedIndexes[i] ];
             }
-        } else {
-            removed = [];
         }
 
+        // 3. Construct new array of store keys by merging sorted arrays
+        if ( addedLength || removedLength ) {
+            if ( addedLength && sort ) {
+                added.sort( sort );
+            }
+            newLength = oldLength - removedLength + addedLength;
+            newStoreKeys = new Array( newLength );
+            for ( i = 0, oi = 0, ri = 0, ai = 0; i < newLength; i += 1 ) {
+                while ( ri < removedLength && oi === removedIndexes[ ri ] ) {
+                    ri += 1;
+                    oi += 1;
+                }
+                if ( sort && oi < oldLength && ai < addedLength ) {
+                    a = storeKeys[ oi ];
+                    b = added[ ai ];
+                    if ( sort( a, b ) < 0 ) {
+                        newStoreKeys[i] = a;
+                        oi += 1;
+                    } else {
+                        newStoreKeys[i] = b;
+                        addedIndexes[ ai ] = i;
+                        ai += 1;
+                    }
+                } else if ( oi < oldLength ) {
+                    newStoreKeys[i] = storeKeys[ oi ];
+                    oi += 1;
+                } else {
+                    newStoreKeys[i] = added[ ai ];
+                    addedIndexes[ ai ] = i;
+                    ai += 1;
+                }
+            }
+        }
+
+        // 4. Sort added/addedIndexes arrays by index
         if ( addedLength ) {
-            l = storeKeys.length;
+            addedIndexes.sort( numerically );
             for ( i = 0; i < addedLength; i += 1 ) {
-                storeKeys[ l + i ] = added[i];
+                added[i] = newStoreKeys[ addedIndexes[i] ];
             }
-            if ( sort ) {
-                storeKeys.sort( sort );
-                addedIndexes = added.map(
-                    findPositionFor.bind( null, storeKeys, sort )
-                );
-                addedIndexes.sort( numerically );
-                added = addedIndexes.map( function ( index ) {
-                    return storeKeys[ index ];
-                });
-            } else {
-                addedIndexes = added.map( function ( _, i ) {
-                    return oldLength + i;
-                });
-            }
-        } else {
-            addedIndexes = [];
         }
 
+        // 5. Check if there are any redundant entries in the added/removed
+        // lists
         l = Math.min( addedLength, removedLength );
         while ( l-- ) {
             if ( added[l] === removed[l] &&
@@ -375,18 +373,18 @@ var LiveQuery = NS.Class({
             }
         }
 
+        // 6. If there was an actual change, notify observers.
         if ( addedLength || removedLength ) {
-            length = oldLength + addedLength - removedLength;
-            maxLength = Math.max( length, oldLength );
-
+            this._storeKeys = newStoreKeys;
+            maxLength = Math.max( newLength, oldLength );
             this.beginPropertyChanges()
-                .set( 'length', length )
+                .set( 'length', newLength )
                 .rangeDidChange(
                     Math.min(
                         addedLength ? addedIndexes[0] : maxLength,
                         removedLength ? removedIndexes[0] : maxLength
                     ),
-                    length === oldLength ?
+                    newLength === oldLength ?
                         Math.max(
                             addedLength ?
                                 addedIndexes[ addedLength - 1 ] : 0,
@@ -402,7 +400,7 @@ var LiveQuery = NS.Class({
                     added: added.map( storeKeyToId ),
                     addedIndexes: addedIndexes
                 });
-                return true;
+            return true;
         }
         return false;
     },
