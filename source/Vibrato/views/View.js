@@ -725,7 +725,7 @@ var View = NS.Class({
     redrawLayerStyles: function ( layer, oldValue ) {
         layer.style.cssText =
             Object.toCSSString( this.get( 'layerStyles' ) );
-        this.parentViewDidResize();
+        this.didResize();
     },
 
     redraw: function () {
@@ -749,22 +749,24 @@ var View = NS.Class({
     /**
         Method: O.View#parentViewDidResize
 
-        Called automatically whenever the parent view resizes, including when
-        initially appended to the document. Rather than override this method,
-        you should normally observe the <O.View#pxDimensions> property if you're
-        interested in changes to the view size.
+        Called automatically whenever the parent view resizes. Rather than
+        override this method, you should normally observe the <O.View#pxLayout>
+        property if you're interested in changes to the view size.
     */
     parentViewDidResize: function () {
         // px dimensions only have a defined value when part of the document,
         // so if we're not visible, let's just ignore the change.
         if ( this.get( 'isInDocument' ) ) {
-            this.computedPropertyDidChange( 'pxLayout' );
+            this.didResize();
+        }
+    },
 
-            var children = this.get( 'childViews' ),
-                l = children.length;
-            while ( l-- ) {
-                children[l].parentViewDidResize();
-            }
+    didResize: function () {
+        this.computedPropertyDidChange( 'pxLayout' );
+        var children = this.get( 'childViews' ),
+            l = children.length;
+        while ( l-- ) {
+            children[l].parentViewDidResize();
         }
     },
 
