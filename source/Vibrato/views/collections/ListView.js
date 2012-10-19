@@ -98,7 +98,7 @@ var ListView = NS.Class({
                 this._redraw();
             }
         }
-    }.queue( 'after' ).observes( 'visibleRect', 'itemHeight' )
+    }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' )
 });
 
 NS.ListView = ListView;
