@@ -21,26 +21,12 @@ var ListView = NS.Class({
     _batchSize: 10,
     _triggerInPx: 200,
 
-    itemHeight: 100,
-
-    contentLength: NS.bind( 'content.length' ),
-
     init: function ( options ) {
         this._renderRange = { start: 0, end: 0 };
         ListView.parent.init.call( this, options );
     },
 
     positioning: 'absolute',
-
-    layout: function () {
-        return {
-             top: 0,
-             left: 0,
-             right: 0,
-             height: this.get( 'itemHeight' ) *
-                 ( this.get( 'contentLength' ) || 0 )
-        };
-    }.property( 'itemHeight', 'contentLength' ),
 
     contentWasUpdated: function ( event ) {
         var scrollView = this.getParent( NS.ScrollView );

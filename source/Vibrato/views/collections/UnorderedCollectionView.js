@@ -29,6 +29,9 @@ var UnorderedCollectionView = NS.Class({
     content: null,
     ItemView: null,
 
+    itemHeight: 100,
+    contentLength: NS.bind( 'content.length' ),
+
     childViews: function () {
         return Object.values( this._rendered );
     }.property(),
@@ -71,6 +74,16 @@ var UnorderedCollectionView = NS.Class({
 
     contentWasUpdated: function ( event ) {},
 
+    layout: function () {
+        return {
+             top: 0,
+             left: 0,
+             right: 0,
+             height: this.get( 'itemHeight' ) *
+                 ( this.get( 'contentLength' ) || 0 )
+        };
+    }.property( 'itemHeight', 'contentLength' ),
+
     draw: function ( layer ) {
         // Render any unmanaged child views first.
         UnorderedCollectionView.parent.draw.call( this, layer );
@@ -86,10 +99,22 @@ var UnorderedCollectionView = NS.Class({
         this.propertyNeedsRedraw( this, 'layer' );
     },
 
+    createItemView: function ( content, index, list ) {
+        var ItemView = this.get( 'ItemView' );
+        return new ItemView({
+            parentView: this,
+            content: content,
+            index: index,
+            list: list,
+            selectionController: this.get( 'selectionController' )
+        });
+    },
+    destroyItemView: function ( view ) {
+        view.destroy();
+    },
+
     redrawLayer: function ( layer ) {
         var list = this.get( 'content' ) || [],
-            ItemView = this.get( 'ItemView' ),
-            selectionController = this.get( 'selectionController' ),
 
             // Limit to this range in the content array.
             renderRange = this._renderRange,
@@ -115,13 +140,7 @@ var UnorderedCollectionView = NS.Class({
                 view.set( 'index', i )
                     .set( 'list', list );
             } else {
-                view = new ItemView({
-                    parentView: this,
-                    content: item,
-                    index: i,
-                    list: list,
-                    selectionController: selectionController
-                });
+                view = this.createItemView( item, i, list );
                 if ( isInDocument ) {
                     view.willAppendLayerToDocument();
                     added.push( view );
@@ -143,7 +162,8 @@ var UnorderedCollectionView = NS.Class({
                 if ( isInDocument ) {
                     view.didRemoveLayerFromDocument();
                 }
-                view.set( 'parentView', null ).destroy();
+                view.set( 'parentView', null );
+                this.destroyItemView( view );
                 delete rendered[ id ];
             }
         }
