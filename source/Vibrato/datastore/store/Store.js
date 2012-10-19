@@ -60,8 +60,9 @@ var filter = function ( filter, storeKey ) {
     return filter( this._skToData[ storeKey ], this );
 };
 var sort = function ( sort, a, b ) {
-    var _skToData = this._skToData;
-    return sort( _skToData[ a ], _skToData[ b ], this );
+    var _skToData = this._skToData,
+        aIsFirst = sort( _skToData[ a ], _skToData[ b ], this );
+    return aIsFirst || ( ~~a - ~~b );
 };
 
 /**
