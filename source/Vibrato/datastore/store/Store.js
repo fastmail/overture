@@ -877,6 +877,7 @@ var Store = NS.Class({
         if ( !this.mayUnloadRecord( storeKey ) ) {
             return false;
         }
+        this.willUnloadRecord( storeKey );
 
         var typeName = this._skToType[ storeKey ].className,
             id = this._typeToSkToId[ typeName ][ storeKey ];
