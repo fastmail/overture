@@ -1134,7 +1134,8 @@ var WindowedRemoteQuery = NS.Class({
             windows = this._windows,
             preemptives = this._preemptiveUpdates,
             informAllRangeObservers = false,
-            end;
+            beginningOfWindowIsFetched = true,
+            end, i, l;
 
 
         // If the state does not match, the list has changed since we last
@@ -1157,7 +1158,7 @@ var WindowedRemoteQuery = NS.Class({
                 addedIndexes = allPreemptives.addedIndexes,
                 addedIds = allPreemptives.addedIds,
                 removedIndexes = allPreemptives.removedIndexes,
-                i, l, index;
+                index;
 
             if ( canGetDeltaUpdates ) {
                 l = removedIndexes.length;
@@ -1209,12 +1210,20 @@ var WindowedRemoteQuery = NS.Class({
         var windowSize = this.get( 'windowSize' ),
             windowIndex = Math.floor( position / windowSize ),
             withinWindowIndex = position % windowSize;
-        // If the results start part way through a window, the first possible
-        // complete one is the next one, so increment the index and update the
-        // count of remaining records
         if ( withinWindowIndex ) {
-            windowIndex += 1;
-            length -= ( windowSize - withinWindowIndex );
+            for ( i = windowIndex * windowSize, l = i + withinWindowIndex;
+                    i < l; i += 1  ) {
+                if ( !list[i] ) {
+                    beginningOfWindowIsFetched = false;
+                    break;
+                }
+            }
+            if ( beginningOfWindowIsFetched ) {
+                length += withinWindowIndex;
+            } else {
+                windowIndex += 1;
+                length -= ( windowSize - withinWindowIndex );
+            }
         }
         // Now, for each set of windowSize records, we have a complete window.
         while ( ( length -= windowSize ) >= 0 ) {
