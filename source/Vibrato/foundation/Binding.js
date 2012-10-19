@@ -330,14 +330,14 @@ var Binding = NS.Class({
         }
 
         fromObject.addObserverForPath(
-            this.get( 'fromPath' ), this, '_fromDidChange' );
+            this.get( 'fromPath' ), this, 'fromDidChange' );
 
         // Grab initial value:
         this.sync();
 
         if ( this.get( 'isTwoWay' ) ) {
             toObject.addObserverForPath(
-                this.get( 'toPath' ), this, '_toDidChange' );
+                this.get( 'toPath' ), this, 'toDidChange' );
         }
         this._isConnected = true;
         return this;
@@ -355,11 +355,11 @@ var Binding = NS.Class({
         if ( !this._isConnected ) { return this; }
 
         this.get( 'fromObject' ).removeObserverForPath(
-            this.get( 'fromPath' ), this, '_fromDidChange' );
+            this.get( 'fromPath' ), this, 'fromDidChange' );
 
         if ( this.get( 'isTwoWay' ) ) {
             this.get( 'toObject' ).removeObserverForPath(
-                this.get( 'toPath' ), this, '_toDidChange' );
+                this.get( 'toPath' ), this, 'toDidChange' );
         }
 
         this._isConnected = false;
@@ -430,7 +430,7 @@ var Binding = NS.Class({
     // ------------
 
     /**
-        Method (private): O.Binding#_fromDidChange
+        Method: O.Binding#fromDidChange
 
         Called when the observed property on the from object changes; adds the
         binding to the queue to be synced at the end of the run loop.
@@ -438,7 +438,7 @@ var Binding = NS.Class({
         Returns:
             {O.Binding} Returns self.
     */
-    _fromDidChange: function () {
+    fromDidChange: function () {
         if ( !this._needsSync && !this._isSuspended ) {
             NS.RunLoop.queueFn( this.queue, this.sync, this, true );
         }
@@ -448,7 +448,7 @@ var Binding = NS.Class({
     },
 
     /**
-        Method (private): O.Binding#_toDidChange
+        Method: O.Binding#toDidChange
 
         If the binding is two-way, this is called when the observed property on
         the to object changes; adds the binding to the queue to be synced at the
@@ -457,7 +457,7 @@ var Binding = NS.Class({
         Returns:
             {O.Binding} Returns self.
     */
-    _toDidChange: function () {
+    toDidChange: function () {
         if ( !this._needsSync && !this._isSuspended ) {
             NS.RunLoop.queueFn( this.queue, this.sync, this, true );
         }
