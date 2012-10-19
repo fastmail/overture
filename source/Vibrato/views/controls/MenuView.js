@@ -10,6 +10,12 @@
 
 ( function ( NS ) {
 
+// A menu option must have:
+// filter( pattern ): RegExp -> Boolean
+// isFocussed: Boolean
+// isHidden: Boolean
+// isDisabled: Boolean
+
 var MenuController = NS.Class({
 
     Extends: NS.Object,
@@ -18,11 +24,15 @@ var MenuController = NS.Class({
 
     // --- Focus ---
 
+    canSelect: function ( option ) {
+        return !option.get( 'isHidden' ) && !option.get( 'isDisabled' );
+    },
+
     focussedOption: null,
 
     getAdjacentOption: function ( step ) {
         var options = this.get( 'options' ),
-            l = options.length,
+            l = options.get( 'length' ),
             i = options.indexOf( this.get( 'focussedOption' ) ),
             current;
 
@@ -33,9 +43,10 @@ var MenuController = NS.Class({
 
         do {
             i = ( i + step ).mod( l );
-        } while ( l && !options[i].get( 'isFocussable' ) && i !== current );
+        } while ( l &&
+            !this.canSelect( options.getObjectAt( i ) ) && i !== current );
 
-        return options[i];
+        return options.getObjectAt( i );
     },
 
     focusPrevious: function ( event ) {
@@ -55,7 +66,7 @@ var MenuController = NS.Class({
                 current.set( 'isFocussed', false );
             }
             if ( option ) {
-                if ( !option.get( 'isFocussable' ) ) {
+                if ( !this.canSelect( option ) ) {
                     option = null;
                 } else {
                     option.set( 'isFocussed', true );
@@ -76,7 +87,7 @@ var MenuController = NS.Class({
     selectFocussed: function ( event ) {
         if ( event ) { event.preventDefault(); }
         var focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption && focussedOption.get( 'isFocussable' ) ) {
+        if ( focussedOption && this.canSelect( focussedOption ) ) {
             focussedOption.activate( this );
         }
         return this;
@@ -94,9 +105,9 @@ var MenuController = NS.Class({
             focussedOption = this.get( 'focussedOption' );
 
         while ( l-- ) {
-            options[l].filter( pattern );
+            options.getObjectAt( l ).filter( pattern );
         }
-        if ( !focussedOption || !focussedOption.get( 'isFocussable' ) ) {
+        if ( !focussedOption || !this.canSelect( focussedOption ) ) {
             this.focusNext();
         }
     }.observes( 'filter' ),
