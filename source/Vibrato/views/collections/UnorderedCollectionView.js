@@ -141,11 +141,11 @@ var UnorderedCollectionView = NS.Class({
                     .set( 'list', list );
             } else {
                 view = this.createItemView( item, i, list );
+                frag.appendChild( view.render().get( 'layer' ) );
                 if ( isInDocument ) {
                     view.willAppendLayerToDocument();
                     added.push( view );
                 }
-                frag.appendChild( view.render().get( 'layer' ) );
                 rendered[ id ] = view;
             }
             view._ucv_gc = currentColour;
