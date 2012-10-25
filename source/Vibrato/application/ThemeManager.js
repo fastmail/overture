@@ -41,29 +41,25 @@ var ThemeManager = NS.Class({
     theme: '',
 
     /**
-        Method (private): O.ThemeManager#_themeDidChange
+        Method: O.ThemeManager#changeTheme
 
-        Triggered whenever the theme changes. Replaces the stylesheets in the
-        document from the old theme with equivalents from the new one.
+        Replaces the stylesheets in the document from the old theme with
+        equivalents from the new one.
 
         Parameters:
-            _        - {*} Unused.
-            __       - {*} Unused.
             oldTheme - {String} The name of the theme being deactivated.
             newTheme - {String} The name of the newly active theme.
     */
-    _themeDidChange: function ( _, __, oldTheme, newTheme ) {
-        if ( oldTheme ) {
-            var active = this._activeStylesheets,
-                id;
-            for ( id in active ) {
-                if ( active[ id ] ) {
-                    this.addStylesheet( id, newTheme );
-                    this.removeStylesheet( id, oldTheme );
-                }
+    changeTheme: function ( oldTheme, newTheme ) {
+        var active = this._activeStylesheets,
+            id;
+        for ( id in active ) {
+            if ( active[ id ] ) {
+                this.addStylesheet( id, newTheme );
+                this.removeStylesheet( id, oldTheme );
             }
         }
-    }.observes( 'theme' ),
+    },
 
     /**
         Method: O.ThemeManager#imageDidLoad
@@ -120,20 +116,23 @@ var ThemeManager = NS.Class({
     addStylesheet: function ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
-        var data = this._styles[ theme ][ id ],
+        var styles = this._styles[ theme ],
+            data = styles[ id ] || this._styles.all[ id ],
             images = this._images[ theme ],
             themeIndependentImages = this._images.all,
             active = this._activeStylesheets;
 
-        // Substitute in images.
-        data = data.replace( /url\(([^)]+)\)/g, function ( url, img ) {
-            return 'url(' +
-                ( images[ img ] || themeIndependentImages[ img ] ||
-                    NS.loc( img ) || img ) +
-            ')';
-        });
-        NS.Stylesheet.create( theme + '-' + id, data );
-        active[ id ] = ( active[ id ] || 0 ) + 1;
+        if ( data ) {
+            // Substitute in images.
+            data = data.replace( /url\(([^)]+)\)/g, function ( url, img ) {
+                return 'url(' +
+                    ( images[ img ] || themeIndependentImages[ img ] ||
+                        NS.loc( img ) || img ) +
+                ')';
+            });
+            NS.Stylesheet.create( theme + '-' + id, data );
+            active[ id ] = ( active[ id ] || 0 ) + 1;
+        }
 
         return this;
     },
@@ -153,8 +152,10 @@ var ThemeManager = NS.Class({
         if ( !theme ) { theme = this.get( 'theme' ); }
 
         var sheet = document.getElementById( theme + '-' + id );
-        sheet.parentNode.removeChild( sheet );
-        this._activeStylesheets[ id ] -= 1;
+        if ( sheet ) {
+            sheet.parentNode.removeChild( sheet );
+            this._activeStylesheets[ id ] -= 1;
+        }
 
         return this;
     },
