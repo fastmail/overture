@@ -251,6 +251,7 @@ require = function ( modules, fn, bind ) {
 NS.loader = {
     debug: false,
     cacheModules: false,
+    modules: moduleInfo,
 
     register: function ( name, info ) {
         if ( !info.status ) {
