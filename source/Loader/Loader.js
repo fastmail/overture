@@ -311,7 +311,9 @@ O.execute = ( function ( global ) {
 
     return isGlobal ? function ( code ) {
         evaluate( code );
-    } : window.execScript || function ( code ) {
+    } : window.execScript ? function ( code ) {
+        window.execScript( code );
+    } : function ( code ) {
         var doc = document,
             head = doc.documentElement.firstChild,
             script = doc.createElement( 'script' );
