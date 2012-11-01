@@ -169,6 +169,8 @@ var styleAnimators = {
     },
     transform: {
         calcDelta: function ( startValue, endValue ) {
+            if ( !startValue ) { startValue = 'matrix(1,0,0,1,0,0)'; }
+            if ( !endValue ) { endValue = 'matrix(1,0,0,1,0,0)'; }
             var start = matrix.exec( startValue )[1].split( ',' ).map( Number ),
                 end = matrix.exec( endValue )[1].split( ',' ).map( Number );
             return {
