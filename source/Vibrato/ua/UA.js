@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global navigator, document */
+/*global navigator, document, window */
 
 "use strict";
 
@@ -192,6 +192,15 @@ NS.UA = {
         Otherwise 0.
     */
     operaMobile: /opera mobi/.test( ua ) ? version : 0,
+
+    /**
+        Property: O.UA.operaMini
+        Type: Number
+
+        If running Opera Mini, this will be the version number running.
+        Otherwise 0.
+    */
+    operaMini: !!window.operamini ? version : 0,
 
     /**
         Property: O.UA.cssProps
