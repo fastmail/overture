@@ -119,6 +119,7 @@ var DragController = new NS.Object({
 
     // Non-native API version
     _onMousedown: function ( event ) {
+        if ( event.button || event.metaKey || event.ctrlKey ) { return; }
         if ( isControl[ event.target.nodeName ] ) {
             this.ignore = true;
         } else {
