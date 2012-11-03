@@ -1531,7 +1531,7 @@ var Store = NS.Class({
     sourceDidFetchUpdates: function ( Type, updates ) {
         var _skToData = this._skToData,
             _skToStatus = this._skToStatus,
-            _idToSk = this._typeToIdToSk[ Type.className ],
+            _idToSk = this._typeToIdToSk[ Type.className ] || {},
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
