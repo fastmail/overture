@@ -125,6 +125,11 @@ var AutoCompleteOptionView = NS.Class({
                 .set( 'value', result )
                 .set( 'selection', { start: result.length } );
         }
+    },
+
+    activateOnClick: function ( event ) {
+        event.preventDefault();
+        this.activate();
     }.on( 'mousedown', 'tap' )
 });
 

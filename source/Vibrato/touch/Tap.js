@@ -31,14 +31,15 @@ var MouseEventRemover = NS.Class({
     }.queue( 'after' ),
     fire: function ( type, event ) {
         var isOld = ( Date.now() - this.time > 1000 ),
-            isClick = ( type === 'click' ) && !event.isEvent;
-        if ( isClick && ( this.stop || event.target !== this.target ) ) {
+            isClick = ( type === 'click' ) && !event.isEvent,
+            isMouse = isClick || /^mouse/.test( type );
+        if ( isMouse && ( this.stop || event.target !== this.target ) ) {
             event.preventDefault();
         }
         if ( isOld || isClick || type === 'tap' ) {
             NS.RootViewController.removeResponder( this );
         }
-        return !isOld && ( isClick || /^mouse/.test( type ) );
+        return !isOld && isMouse;
     }
 });
 
