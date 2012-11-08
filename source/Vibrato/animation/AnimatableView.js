@@ -210,8 +210,6 @@ var StyleAnimation = NS.Class({
 
     Extends: NS.Animation,
 
-    current: {},
-
     prepare: function ( styles ) {
         var animated = this.animated = [],
             from = this.from = this.current,
