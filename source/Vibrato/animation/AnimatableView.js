@@ -46,8 +46,8 @@ var CSSStyleAnimationController = {
         }
     }.invokeInRunLoop()
 };
-[ 'transitionend', 'webkitTransitionEnd',
-        'oTransitionEnd', ' MSTransitionEnd' ].forEach( function ( type ) {
+[ 'transitionend', 'webkitTransitionEnd', 'oTransitionEnd' ].forEach(
+function ( type ) {
     document.addEventListener( type, CSSStyleAnimationController, true );
 });
 
