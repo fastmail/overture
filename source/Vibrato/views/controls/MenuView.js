@@ -166,7 +166,9 @@ var MenuOptionView = NS.Class({
     Extends: NS.View,
 
     isHidden: false,
-    isDisabled: NS.bind( 'button.isDisabled' ),
+    isDisabled: function () {
+        return this.getFromPath( 'button.isDisabled' );
+    }.property( 'button.isDisabled' ),
     isFocussed: false,
     isFocussable: function () {
         return !this.get( 'isHidden' ) && !this.get( 'isDisabled' );
