@@ -207,7 +207,11 @@ var IO = NS.Class({
         if ( !details ) { details = {}; }
         details.request = request;
         details.transport = transport;
-        if ( request[ onEvent ] ) { request[ onEvent ]( details ); }
+        // Sometimes an XHR fires events (particularly progress) after it's
+        // finished. Weird, but in that case there may be no request object.
+        if ( request && request[ onEvent ] ) {
+            request[ onEvent ]( details );
+        }
         this.fire( 'io:' + type, details );
     }.invokeInRunLoop(),
 
