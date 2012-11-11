@@ -228,8 +228,6 @@ var TextView = NS.Class({
     }.on( 'blur' ),
 
     _onKeypress: function ( event ) {
-        // Stop event from getting to KB shortcuts handler.
-        event.stopPropagation();
         var key = ( event.keyCode || event.which );
         // If key == enter, IE will automatically focus the nearest button
         // (presumably as though it were submitting the form). Stop this.

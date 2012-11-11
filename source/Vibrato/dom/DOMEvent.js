@@ -23,25 +23,25 @@ var DOMEvent = {
         Maps the names of special keys to their key code.
     */
     keys: {
-        'enter': 13,
-        'up': 38,
-        'down': 40,
-        'left': 37,
-        'right': 39,
-        'esc': 27,
-        'space': 32,
-        'backspace': 8,
-        'tab': 9,
-        'delete': 46,
-        'pageup': 33,
-        'pagedown': 34,
-        'end': 35,
-        'home': 36,
-        'shift': 16,
-        'control': 17,
-        'alt': 18,
-        'capslock': 20,
-        'numlock': 144
+        8: 'backspace',
+        9: 'tab',
+        13: 'enter',
+        16: 'shift',
+        17: 'control',
+        18: 'alt',
+        20: 'capslock',
+        27: 'esc',
+        32: 'space',
+        33: 'pageup',
+        34: 'pagedown',
+        35: 'end',
+        36: 'home',
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+        46: 'delete',
+        144: 'numlock'
     },
 
     /**
@@ -69,10 +69,10 @@ var DOMEvent = {
         // keys. Anything from code 32 downwards must also be a special char.
         var code = event.keyCode || event.which,
             isKeyPress = ( event.type === 'keypress' ),
-            preferAsci = code > 32 && isKeyPress &&
+            preferAsci = isKeyPress && code > 32 &&
                 event.which !== 0 && event.charCode !== 0,
             str = String.fromCharCode( code ).toLowerCase(),
-            key = ( !preferAsci && Object.keyOf( DOMEvent.keys, code ) ) || str,
+            key = ( !preferAsci && DOMEvent.keys[ code ] ) || str,
             altAndShift;
 
         // Function keys

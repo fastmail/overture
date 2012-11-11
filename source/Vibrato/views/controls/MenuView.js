@@ -373,8 +373,9 @@ var MenuView = NS.Class({
 
     fireShortcut: function ( event ) {
         if ( !this.get( 'showFilter' ) ) {
-            var handler = NS.RootViewController
-                            .kbShortcuts.getHandlerForEvent( event ),
+            var key = NS.DOMEvent.lookupKey( event ),
+                handler = NS.RootViewController
+                            .kbShortcuts.getHandlerForKey( key ),
                 parent, object, method;
             if ( handler ) {
                 parent = object = handler[0];

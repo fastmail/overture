@@ -120,20 +120,20 @@ var GlobalKeyboardShortcuts = NS.Class({
     },
 
     /**
-        Method: O.GlobalKeyboardShortcuts#getHandlerForEvent
+        Method: O.GlobalKeyboardShortcuts#getHandlerForKey
 
-        Get the keyboard shortcut to be triggered by a key event.
+        Get the keyboard shortcut to be triggered by a key combo, represented as
+        a string, as output by <O.DOMEvent#lookupKey>.
 
         Parameters:
-            event - {Event} The keypress event object.
+            key - {String} The key combo to get the handler for.
 
         Returns:
             {Array|null} Returns the [ object, method ] tuple to be triggered by
             the event, or null if nothing is registered for this key press.
    */
-    getHandlerForEvent: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event ),
-            shortcuts = this._shortcuts[ key ];
+    getHandlerForKey: function ( key ) {
+        var shortcuts = this._shortcuts[ key ];
         if ( shortcuts && this.get( 'isEnabled' ) ) {
             return shortcuts[ shortcuts.length - 1 ];
         }
@@ -149,12 +149,22 @@ var GlobalKeyboardShortcuts = NS.Class({
             event - {DOMEvent} The keypress event.
    */
     _trigger: function ( event ) {
-        var handler = this.getHandlerForEvent( event );
+        var target = event.target,
+            nodeName = target.nodeName;
+        if ( ( nodeName === 'TEXTAREA' || nodeName === 'INPUT' ) &&
+                !( event.ctrlKey || event.metaKey ) ) {
+            return;
+        }
+        var key = NS.DOMEvent.lookupKey( event ),
+            isSpecialKey = ( key.lastIndexOf( '-' ) + 2 < key.length ),
+            // Handle special keys on keydown, character keys on keypress
+            handler = ( event.type === 'keydown' ) === isSpecialKey ?
+                this.getHandlerForKey( key ) : null;
         if ( handler ) {
             handler[0][ handler[1] ]( event );
             event.preventDefault();
         }
-    }.on( 'keypress' )
+    }.on( 'keypress', 'keydown' )
 });
 
 NS.GlobalKeyboardShortcuts = GlobalKeyboardShortcuts;
