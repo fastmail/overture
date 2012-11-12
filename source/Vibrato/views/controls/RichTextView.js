@@ -738,15 +738,13 @@ var RichTextView = NS.Class({
         this.set( 'isFocussed', false );
     }.on( 'blur' ),
 
-    _onKeypress: function ( event ) {
-        // Stop event from getting to KB shortcuts handler.
-        event.stopPropagation();
+    blurOnEsc: function ( event ) {
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
         if ( ( event.keyCode || event.which ) === 27 ) {
             this.blur();
         }
-    }.on( 'keydown', 'keypress' ),
+    }.on( 'keydown' ),
 
     // -- Drag and drop ---
 
