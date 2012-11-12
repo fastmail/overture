@@ -127,8 +127,12 @@ var TextView = NS.Class({
     // --- Keep render in sync with state ---
 
     propertyNeedsRedraw: function ( _, property ) {
-        if ( property !== 'value' || !this._settingFromInput ) {
+        var isValue = ( property === 'value' );
+        if ( !isValue || !this._settingFromInput ) {
             TextView.parent.propertyNeedsRedraw.apply( this, arguments );
+        }
+        if ( isValue && this.get( 'isExpanding' ) ) {
+            NS.RunLoop.queueFn( 'after', this.didResize, this );
         }
     }.observes( 'className', 'layerStyles',
         'isDisabled', 'label', 'tooltip',
