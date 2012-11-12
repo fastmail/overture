@@ -19,7 +19,7 @@ var ModalViewEventHandler = NS.Class({
                 this._view.get( 'layer' ), event.target ) ) {
             event.stopPropagation();
         }
-    }.on( 'keypress' )
+    }.on( 'keydown', 'keypress', 'keyup' )
 });
 
 var ModalView = NS.Class({
