@@ -746,7 +746,7 @@ var RichTextView = NS.Class({
         if ( ( event.keyCode || event.which ) === 27 ) {
             this.blur();
         }
-    }.on( 'keypress' ),
+    }.on( 'keydown', 'keypress' ),
 
     // -- Drag and drop ---
 
