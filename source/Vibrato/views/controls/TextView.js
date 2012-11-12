@@ -206,7 +206,7 @@ var TextView = NS.Class({
             this.set( 'value', this._domControl.value );
             this._settingFromInput = false;
         }
-    }.on( 'input' ),
+    }.on( NS.UA.operaMini ? 'change' : 'input' ),
 
     _onFocus: function () {
         if ( this._placeholderShowing ) {
