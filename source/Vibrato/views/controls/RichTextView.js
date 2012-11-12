@@ -49,6 +49,7 @@ var RichTextView = NS.Class({
     Mixin: NS.DropTarget,
 
     isFocussed: false,
+    isExpanding: false,
 
     editor: null,
 
@@ -132,7 +133,8 @@ var RichTextView = NS.Class({
                     .addEventListener( 'select', richTextView )
                     .addEventListener( 'pathChange', richTextView )
                     .addEventListener( 'undoStateChange', richTextView )
-                ).set( 'path', editor.getPath() );
+                ).set( 'path', editor.getPath() )
+                 .expand();
                 NS.Element.addClass( richTextView._loadingOverlay, 'hidden' );
                 if ( richTextView.get( 'isFocussed' ) ) {
                     editor.focus();
@@ -148,6 +150,31 @@ var RichTextView = NS.Class({
             this._loadingOverlay = el( 'div.LoadingAnimation' )
         ]);
     },
+
+    expand: function () {
+        if ( this.get( 'isExpanding' ) ) {
+            var editor = this.get( 'editor' ),
+                doc = editor && editor.getDocument(),
+                body = doc && doc.body,
+                lastChild = body && body.lastChild;
+
+            if ( !lastChild ) {
+                return;
+            }
+
+            var chromeHeight = this._chromeHeight || ( this._chromeHeight =
+                    this.get( 'pxHeight' ) - body.offsetHeight ),
+                height = lastChild.offsetTop + lastChild.offsetHeight +
+                    chromeHeight + 30,
+                layout = this.get( 'layout' );
+            
+            if ( layout.height !== height ) {
+                layout = NS.clone( layout );
+                layout.height = height;
+                this.set( 'layout', layout );
+            }
+        }
+    }.on( 'input' ),
 
     toolbarView: function () {
         var bind = NS.bind,
