@@ -640,7 +640,9 @@ var Drag = NS.Class({
         if ( scrollView.scrollBy( scrollBy.x, scrollBy.y ) ) {
             var cursor = this.get( 'cursorLocation' ),
                 target = document.elementFromPoint( cursor.x, cursor.y );
-            this._update( NS.RootViewController.getViewFromNode( target ) );
+            if ( target ) {
+                this._update( NS.RootViewController.getViewFromNode( target ) );
+            }
         }
     },
 
