@@ -349,7 +349,7 @@ var Drag = NS.Class({
             cursor = 'default';
         if ( stylesheet ) {
             stylesheet.parentNode.removeChild( stylesheet );
-            this._stylesheet = null;
+            stylesheet = null;
         }
         if ( set ) {
             switch ( this.get( 'dropEffect' ) ) {
@@ -363,24 +363,12 @@ var Drag = NS.Class({
                     cursor = 'alias';
                     break;
             }
-            var doc = document,
-                head = doc.documentElement.firstChild,
-                data = '*{cursor:default !important;cursor:' +
-                    cursor + ' !important;}',
-                style = this._stylesheet =
-                    NS.Element.create( 'style', { type: 'text/css' });
 
-            if ( style.styleSheet ) {
-                // IE8: must append to document BEFORE adding styles
-                // or you get the IE7 CSS parser!
-                head.appendChild( style );
-                style.styleSheet.cssText = data;
-            } else {
-                // Everyone else
-                style.appendChild( doc.createTextNode( data ) );
-                head.appendChild( style );
-            }
+            stylesheet = NS.Stylesheet.create( 'o-drag-cursor',
+                '*{cursor:default !important;cursor:' + cursor + ' !important;}'
+            );
         }
+        this._stylesheet = stylesheet;
     }.observes( 'dropEffect' ),
 
     // Data handlers:
