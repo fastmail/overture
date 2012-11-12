@@ -61,6 +61,10 @@ var ua = navigator.userAgent.toLowerCase(),
             transition: {
                 name: 'transition',
                 value: 'all .3s'
+            },
+            'user-select': {
+                name: 'user-select',
+                value: 'none'
             }
         },
         prefix = cssPrefixes[ browser ],

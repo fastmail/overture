@@ -22,7 +22,9 @@ var POSITION_SAME = 0x00,
     POSITION_CONTAINED_BY = 0x10;
 
 var canTransform = !!NS.UA.cssProps.transform,
-    isFirefox = NS.UA.firefox;
+    userSelectNone =
+        ( NS.UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
+            '-moz-none' : 'none';
 
 /**
     Class: O.View
@@ -587,13 +589,10 @@ var View = NS.Class({
                 position: this.get( 'positioning' ),
                 zIndex: this.get( 'zIndex' ),
                 opacity: this.get( 'opacity' ),
-                cursor: allowTextSelection ? 'auto' : undefined
+                cursor: allowTextSelection ? 'auto' : undefined,
+                userSelect: allowTextSelection ? 'text' : userSelectNone
             },
             property, value;
-
-        if ( isFirefox ) {
-            styles.MozUserSelect = allowTextSelection ? 'text' : '-moz-none';
-        }
 
         if ( this.get( 'clipToBounds' ) ) {
             styles.overflowX =
