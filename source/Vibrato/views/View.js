@@ -862,9 +862,8 @@ var View = NS.Class({
         The width of the view's layer in pixels.
     */
     pxWidth: function () {
-        var width = this.get( 'layout' ).width;
-        return ( typeof width === 'number' ) ? width :
-            this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetWidth : 0;
+        return this.get( 'isInDocument' ) ?
+            this.get( 'layer' ).offsetWidth : 0;
     }.property( 'pxLayout' ),
 
     /**
@@ -874,9 +873,8 @@ var View = NS.Class({
         The height of the view's layer in pixels.
     */
     pxHeight: function () {
-        var height = this.get( 'layout' ).height;
-        return ( typeof height === 'number' ) ? height :
-            this.get( 'isInDocument' ) ? this.get( 'layer' ).offsetHeight : 0;
+        return this.get( 'isInDocument' ) ?
+            this.get( 'layer' ).offsetHeight : 0;
     }.property( 'pxLayout' ),
 
     /**
