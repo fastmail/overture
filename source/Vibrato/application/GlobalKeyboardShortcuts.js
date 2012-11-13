@@ -9,6 +9,14 @@
 "use strict";
 
 ( function ( NS ) {
+
+var allowedInputs = {
+    checkbox: 1,
+    radio: 1,
+    file: 1,
+    submit: 1
+};
+
 /**
     Class: O.GlobalKeyboardShortcuts
 
@@ -149,10 +157,12 @@ var GlobalKeyboardShortcuts = NS.Class({
             event - {DOMEvent} The keypress event.
    */
     _trigger: function ( event ) {
-        var nodeName = event.target.nodeName;
-        if ( ( nodeName === 'TEXTAREA' || nodeName === 'INPUT' ||
-                ( event.targetView instanceof NS.RichTextView ) ) &&
-                !( event.ctrlKey || event.metaKey ) ) {
+        var target = event.target,
+            nodeName = target.nodeName;
+        if ( ( nodeName === 'TEXTAREA' ||
+                ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
+                ( event.targetView instanceof NS.RichTextView )
+             ) && !( event.ctrlKey || event.metaKey ) ) {
             return;
         }
         var key = NS.DOMEvent.lookupKey( event ),
