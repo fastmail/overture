@@ -1183,6 +1183,8 @@ var Store = NS.Class({
             NS.RunLoop.didError({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message: 'Type: ' + ( Type ? Type.className : 'Unknown' ) +
+                    '\nStatus: ' +
+                        ( Object.keyOf( NS.Status, status ) || status ) +
                     '\nData: ' + JSON.stringify( data )
             });
             return false;
