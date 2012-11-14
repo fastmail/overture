@@ -160,9 +160,7 @@ var IO = NS.Class({
         Property: O.IO#headers
         Type: Object
         Default:
-                {'X-Requested-With': 'XMLHttpRequest',
-                 'Accept': 'text/javascript, text/html, application/json, * / *'
-                }
+                {Accept: 'text/javascript, text/html, application/json, * / *'}
 
         An object of default headers to be sent with each request (can be
         overriden individually in each request). The format of the object is
