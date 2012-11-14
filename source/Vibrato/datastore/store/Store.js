@@ -31,6 +31,7 @@ var DIRTY        = 128; // Record has local changes not commited to source
 var OBSOLETE     = 256; // Source may have changes not yet loaded.
 
 // Error messages.
+var Status = NS.Status;
 var CANNOT_CREATE_EXISTING_RECORD_ERROR =
         'O.Store Error: Cannot create existing record',
     CANNOT_WRITE_TO_UNREADY_RECORD_ERROR =
@@ -922,7 +923,7 @@ var Store = NS.Class({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message: 'Type: ' + ( Type ? Type.className : 'Unknown' ) +
                     '\nStatus: ' +
-                        ( Object.keyOf( NS.Status, status ) || status ) +
+                        ( Object.keyOf( Status, status ) || status ) +
                     '\nData: ' + JSON.stringify( data )
             });
             return null;
@@ -1184,7 +1185,7 @@ var Store = NS.Class({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message: 'Type: ' + ( Type ? Type.className : 'Unknown' ) +
                     '\nStatus: ' +
-                        ( Object.keyOf( NS.Status, status ) || status ) +
+                        ( Object.keyOf( Status, status ) || status ) +
                     '\nData: ' + JSON.stringify( data )
             });
             return false;
@@ -1461,18 +1462,19 @@ var Store = NS.Class({
             if ( status & READY ) {
                 updates[ id ] = data;
             }
-            // Can't fetch a destroyed or non-existent record.
-            else if ( !( status & EMPTY ) ) {
-                NS.RunLoop.didError({
-                    name: FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR,
-                    message: 'Type: ' + Type.className +
-                        '\nStatus: ' +
-                            ( Object.keyOf( NS.Status, status ) || status ) +
-                        '\nId: ' + id
-                });
-            }
             // Anything else is new.
             else {
+                // Shouldn't have been able to fetch a destroyed or non-existent
+                // record. Smells like an error: log it.
+                if ( !( status & EMPTY ) ) {
+                    NS.RunLoop.didError({
+                        name: FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR,
+                        message: 'Type: ' + Type.className +
+                            '\nStatus: ' +
+                                ( Object.keyOf( Status, status ) || status ) +
+                            '\nId: ' + id
+                    });
+                }
                 this.setData( storeKey, data );
                 this.setStatus( storeKey, READY );
                 this._skToLastAccess[ storeKey ] = now;
