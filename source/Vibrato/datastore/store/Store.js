@@ -1545,13 +1545,16 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     sourceDidFetchUpdates: function ( Type, updates ) {
-        var _skToData = this._skToData,
+        var typeName = Type.className,
+            _skToData = this._skToData,
             _skToStatus = this._skToStatus,
-            _idToSk = this._typeToIdToSk[ Type.className ] || {},
+            _idToSk = this._typeToIdToSk[ typeName ] || {},
+            _skToId = this._typeToSkToId[ typeName ] || {},
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            id, storeKey, status, update;
+            primaryKey = Type.primaryKey,
+            id, storeKey, status, update, newId;
 
         for ( id in updates ) {
             storeKey = _idToSk[ id ];
@@ -1611,6 +1614,13 @@ var Store = NS.Class({
                 }
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
+            }
+            
+            newId = update[ primaryKey ];
+            if ( newId && newId !== id ) {
+                _skToId[ storeKey ] = id;
+                delete _idToSk[ id ];
+                _idToSk[ newId ] = storeKey;
             }
 
             this.updateData( storeKey, update, false );
