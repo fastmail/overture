@@ -248,13 +248,10 @@ var RemoteQuery = NS.Class({
         this._list.length = 0;
         this._refresh = false;
 
-        this.set( 'state', '' );
-
-        if ( _key !== 'sort' ) {
-            this.set( 'status', EMPTY )
-                .set( 'length', null );
-        }
-        this.rangeDidChange( 0, length );
+        this.set( 'state', '' )
+            .set( 'status', EMPTY )
+            .set( 'length', null )
+            .rangeDidChange( 0, length );
 
         if ( _key ) {
             this.get( 'source' ).fetchQuery( this );
