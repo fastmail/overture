@@ -31,7 +31,7 @@ var MouseEventRemover = NS.Class({
     }.queue( 'after' ),
     fire: function ( type, event ) {
         var isOld = ( Date.now() - this.time > 1000 ),
-            isClick = ( type === 'click' ) && !event.isEvent,
+            isClick = ( type === 'click' ) && !event.originalType,
             isMouse = isClick || /^mouse/.test( type );
         if ( isMouse && ( this.stop || event.target !== this.target ) ) {
             event.preventDefault();
@@ -114,6 +114,7 @@ NS.Tap = new NS.Gesture({
                     defaultPrevented = false;
                     tapEvent = {
                         isEvent: true,
+                        originalType: 'tap',
                         type: 'tap',
                         target: touch.target,
                         preventDefault: preventDefault

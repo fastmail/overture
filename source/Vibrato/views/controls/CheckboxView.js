@@ -49,8 +49,18 @@ var CheckboxView = NS.Class({
     // --- Keep state in sync with render ---
 
     syncBackValue: function ( event ) {
-        this.set( 'value', this._domControl.checked );
-    }.on( 'click' )
+        var isTap = ( event.type === 'tap' );
+        // Ignore simulated click events
+        if ( isTap || !event.originalType ) {
+            var control = this._domControl,
+                value = control.checked;
+            if ( isTap ) {
+                event.preventDefault();
+                value = !value;
+            }
+            this.set( 'value', value );
+        }
+    }.on( 'click', 'tap' )
 });
 
 NS.CheckboxView = CheckboxView;
