@@ -66,6 +66,37 @@ var sortLinkedArrays = function ( a1, a2 ) {
     });
 };
 
+var mapIndexes = function ( list, ids ) {
+    var indexOf = {},
+        indexes = [],
+        listLength = list.length,
+        idsLength = ids.length,
+        id, index, i;
+    // Since building the map will be O(n log n), only bother if we're trying to
+    // find the index for more than log(n) ids.
+    // The +1 ensures it is always at least 1, so that in the degenerative case
+    // where idsLength == 0, we never bother building the map
+    // When listLength == 0, Math.log( 0 ) == -Infinity, which is converted to 0
+    // by ~~ integer conversion.
+    if ( idsLength < ~~Math.log( listLength ) + 1 ) {
+        for ( i = 0; i < idsLength; i += 1 ) {
+            indexes.push( list.indexOf( ids[i] ) );
+        }
+    } else {
+        for ( i = 0; i < listLength; i += 1 ) {
+            id = list[i];
+            if ( id ) {
+                indexOf[ id ] = i;
+            }
+        }
+        for ( i = 0; i < idsLength; i += 1 ) {
+            index = indexOf[ ids[i] ];
+            indexes.push( index === undefined ? -1 : index );
+        }
+    }
+    return indexes;
+};
+
 /**
     Method: O.WindowedRemoteQuery-binarySearch
 
@@ -613,9 +644,7 @@ var WindowedRemoteQuery = NS.Class({
     _normaliseUpdate: function ( update ) {
         var list = this._list,
             removedIds = update.removed || [],
-            removedIndexes = removedIds.map( function ( id ) {
-                return list.indexOf( id );
-            }),
+            removedIndexes = mapIndexes( list, removedIds ),
             addedIds = [],
             addedIndexes = [],
             added = update.added || [],
