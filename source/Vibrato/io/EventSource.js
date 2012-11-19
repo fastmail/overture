@@ -6,9 +6,11 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
+/*global EventSource */
+
 "use strict";
 
-( function ( NS, global ) {
+( function ( NS, NativeEventSource ) {
 
 var CONNECTING = 0;
 var OPEN = 1;
@@ -25,7 +27,7 @@ var CLOSED = 2;
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
-var EventSource = global.EventSource ? NS.Class({
+var EventSource = NativeEventSource ? NS.Class({
 
     Extends: NS.Object,
 
@@ -71,8 +73,6 @@ var EventSource = global.EventSource ? NS.Class({
             }
         }
         this._eventTypes = eventTypes;
-
-        this.open();
     },
 
     on: function ( type ) {
@@ -141,7 +141,7 @@ var EventSource = global.EventSource ? NS.Class({
     open: function () {
         if ( this.get( 'readyState' ) === CLOSED ) {
             var eventSource = this._eventSource =
-                new global.EventSource( this.get( 'url' ) );
+                new NativeEventSource( this.get( 'url' ) );
 
             this._eventTypes.forEach( function ( type ) {
                 eventSource.addEventListener( type, this, false );
@@ -177,7 +177,6 @@ var EventSource = global.EventSource ? NS.Class({
     init: function () {
         EventSource.parent.init.apply( this, arguments );
         this._xhr = new NS.XHR( this );
-        this.open();
     },
     open: function () {
         var headers = {
@@ -350,4 +349,4 @@ EventSource.extend({
 
 NS.EventSource = EventSource;
 
-}( this.O, this ) );
+}( this.O, typeof EventSource !== 'undefined' ? EventSource : null ) );
