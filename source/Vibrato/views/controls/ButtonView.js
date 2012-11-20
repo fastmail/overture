@@ -126,6 +126,7 @@ var MenuButtonView = NS.Class({
 
     popOverView: null,
     menuView: null,
+    alignMenu: 'left',
 
     isInMenu: function () {
         return this.get( 'parentView' ) instanceof NS.MenuOptionView;
@@ -155,6 +156,7 @@ var MenuButtonView = NS.Class({
                 view: this.get( 'menuView' ),
                 alignWithView: isInMenu ? popOverView : this,
                 atNode: isInMenu ? this.get( 'layer' ) : null,
+                withEdge: this.get( 'alignMenu' ),
                 offsetTop: offsetTop,
                 offsetLeft: offsetLeft,
                 onHide: function () {
