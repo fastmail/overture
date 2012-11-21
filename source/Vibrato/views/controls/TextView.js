@@ -163,7 +163,7 @@ var TextView = NS.Class({
         this.focus();
     },
 
-    // --- Scrolling ---
+    // --- Scrolling and focus ---
 
     didAppendLayerToDocument: function () {
         // Restore scroll positions:
@@ -175,9 +175,17 @@ var TextView = NS.Class({
             if ( top ) { control.scrollTop = top; }
             control.addEventListener( 'scroll', this, false );
         }
+        var selection = this.get( 'savedSelection' );
+        if ( selection ) {
+            this.set( 'selection', selection ).focus();
+        }
         return TextView.parent.didAppendLayerToDocument.call( this );
     },
     willRemoveLayerFromDocument: function () {
+        // If focussed, save cursor position
+        if ( this.get( 'isFocussed' ) ) {
+            this.set( 'savedSelection', this.get( 'selection' ) );
+        }
         // Stop listening for scrolls:
         if ( this.get( 'isMultiline' ) ) {
             this._domControl.removeEventListener( 'scroll', this, false );

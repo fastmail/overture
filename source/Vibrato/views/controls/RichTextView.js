@@ -90,7 +90,7 @@ var RichTextView = NS.Class({
         // again. Must cache the value before it is removed though.
         var editor = this.get( 'editor' );
         if ( editor ) {
-            this._value = editor.getHTML();
+            this._value = editor.getHTML( this.get( 'isFocussed' ) );
             this.set( 'editor', null );
         }
         return RichTextView.parent
