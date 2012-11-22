@@ -310,6 +310,10 @@ var MenuView = NS.Class({
         }
     }.queue( 'after' ).observes( 'isInDocument' ),
 
+    mayHaveResized: function () {
+        this.parentViewDidResize();
+    }.queue( 'after' ).observes( 'controller.filter' ),
+
     nextEventTarget: function () {
         return this.get( 'controller' );
     }.property( 'controller' ),
