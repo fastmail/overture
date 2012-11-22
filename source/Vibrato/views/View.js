@@ -898,6 +898,25 @@ var View = NS.Class({
         };
     }.property( 'scrollLeft', 'scrollTop', 'pxLayout' ),
 
+    /**
+        Method: O.View#getPositionRelativeTo
+
+        Get the offset of this view relative to another view. Both views should
+        be currently in the document.
+
+        Parameters:
+            view - {O.View} The view to get the offset from.
+
+        Returns:
+            {Object} An object with 'top' and 'left' properties, each being the
+            number of pixels this view is offset from the given view.
+    */
+    getPositionRelativeTo: function ( view ) {
+        return NS.Element.getPosition(
+            this.get( 'layer' ), view.get( 'layer' )
+        );
+    },
+
     // --- Insertion and deletion ---
 
     /**

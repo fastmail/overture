@@ -195,7 +195,7 @@ var MenuOptionView = NS.Class({
             if ( scrollView ) {
                 var scrollHeight = scrollView.get( 'pxHeight' ),
                     scrollTop = scrollView.get( 'scrollTop' ),
-                    top = this.get( 'pxTop' ),
+                    top = this.getPositionRelativeTo( scrollView ).top,
                     height = this.get( 'pxHeight' );
 
                 if ( top < scrollTop ) {
