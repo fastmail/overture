@@ -32,6 +32,8 @@ var TextView = NS.Class({
     isHighlighted: false,
     isFocussed: false,
 
+    maxLength: undefined,
+
     placeholder: '',
     value: '',
 
@@ -98,6 +100,7 @@ var TextView = NS.Class({
                     autocomplete: 'off',
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
+                    maxLength: this.get( 'maxLength' ),
                     value: value
                 });
 
@@ -136,7 +139,7 @@ var TextView = NS.Class({
         }
     }.observes( 'className', 'layerStyles',
         'isDisabled', 'label', 'tooltip', 'tabIndex',
-        'value', 'placeholder' ),
+        'value', 'placeholder', 'maxLength' ),
 
     redrawValue: function () {
         var value = this.get( 'value' );
@@ -155,6 +158,10 @@ var TextView = NS.Class({
         } else if ( this._placeholderShowing ) {
             control.value = placeholder;
         }
+    },
+
+    redrawMaxLength: function () {
+        this._domControl.maxLength = this.get( 'maxLength' );
     },
 
     // --- Activate ---
