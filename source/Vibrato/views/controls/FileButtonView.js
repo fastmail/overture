@@ -24,6 +24,8 @@ var FileButtonView = NS.Class({
     type: '',
     icon: '',
 
+    tabIndex: -1,
+
     // --- Render ---
 
     className: function () {
@@ -44,7 +46,6 @@ var FileButtonView = NS.Class({
             }) : null,
             this._domControl = el( 'input', {
                 type: 'file',
-                tabIndex: -1,
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             })
@@ -55,10 +56,11 @@ var FileButtonView = NS.Class({
     // --- Keep render in sync with state ---
 
     propertyNeedsRedraw: function () {
-        return ButtonView.parent
+        return FileButtonView.parent
             .propertyNeedsRedraw.apply( this, arguments );
     }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'icon' ),
+        'isDisabled', 'label', 'tooltip', 'tabIndex',
+        'icon' ),
 
     redrawIcon: function ( layer ) {
         layer.firstChild.className = this.get( 'icon' );
@@ -93,7 +95,8 @@ var FileButtonView = NS.Class({
             input.parentNode.replaceChild(
                 this._domControl = NS.Element.create( 'input', {
                     type: 'file',
-                    tabIndex: -1,
+                    disabled: this.get( 'isDisabled' ),
+                    tabIndex: this.get( 'tabIndex' ),
                     accept: this.get( 'acceptOnlyTypes' ) || undefined,
                     multiple: this.get( 'acceptMultiple' ) && canUseMultiple
                 }), input );

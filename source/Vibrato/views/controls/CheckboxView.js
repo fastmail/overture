@@ -34,7 +34,8 @@ var CheckboxView = NS.Class({
         return CheckboxView.parent
             .propertyNeedsRedraw.apply( this, arguments );
     }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'value' ),
+        'isDisabled', 'label', 'tooltip', 'tabIndex',
+        'value' ),
 
     redrawValue: function () {
         this._domControl.checked = this.get( 'value' );

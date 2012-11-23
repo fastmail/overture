@@ -8,7 +8,7 @@
 
 "use strict";
 
-( function ( NS ) {
+( function ( NS, undefined ) {
 
 var AbstractControlView = NS.Class({
 
@@ -18,6 +18,7 @@ var AbstractControlView = NS.Class({
 
     label: '',
     value: false,
+    tabIndex: undefined,
 
     shortcut: '',
 
@@ -59,10 +60,15 @@ var AbstractControlView = NS.Class({
     draw: function ( layer ) {
         var Element = NS.Element,
             el = Element.create,
+            control = this._domControl,
             shortcut = this.get( 'shortcut' ),
-            control = this._domControl;
+            tabIndex = this.get( 'tabIndex' );
 
         control.disabled = this.get( 'isDisabled' );
+        
+        if ( tabIndex !== undefined ) {
+            control.tabIndex = tabIndex;
+        }
 
         if ( shortcut && ( /^\w$/.test( shortcut ) ) ) {
             control.accessKey = shortcut;
@@ -75,11 +81,6 @@ var AbstractControlView = NS.Class({
     },
 
     // --- Keep render in sync with state ---
-
-    propertyNeedsRedraw: function () {
-        return AbstractControlView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'isDisabled', 'label', 'tooltip' ),
 
     redrawIsDisabled: function ( layer ) {
         this._domControl.disabled = this.get( 'isDisabled' );
@@ -98,6 +99,10 @@ var AbstractControlView = NS.Class({
 
     redrawTooltip: function ( layer ) {
         layer.title = this.get( 'tooltip' );
+    },
+
+    redrawTabIndex: function () {
+        this._domControl.tabIndex = this.get( 'tabIndex' );
     },
 
     // --- Focus ---

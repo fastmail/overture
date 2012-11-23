@@ -135,7 +135,7 @@ var TextView = NS.Class({
             NS.RunLoop.queueFn( 'after', this.didResize, this );
         }
     }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip',
+        'isDisabled', 'label', 'tooltip', 'tabIndex',
         'value', 'placeholder' ),
 
     redrawValue: function () {

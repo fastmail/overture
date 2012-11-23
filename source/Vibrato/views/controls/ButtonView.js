@@ -19,6 +19,8 @@ var ButtonView = NS.Class({
     type: '',
     icon: '',
 
+    tabIndex: -1,
+
     // --- Render ---
 
     layerTag: 'button',
@@ -40,7 +42,6 @@ var ButtonView = NS.Class({
                 })
             );
         }
-        layer.tabIndex = -1;
 
         this._domControl = layer;
         ButtonView.parent.draw.call( this, layer );
@@ -52,7 +53,8 @@ var ButtonView = NS.Class({
         return ButtonView.parent
             .propertyNeedsRedraw.apply( this, arguments );
     }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'icon' ),
+        'isDisabled', 'label', 'tooltip', 'tabIndex',
+        'icon' ),
 
     redrawIcon: function ( layer ) {
         layer.firstChild.className = this.get( 'icon' );

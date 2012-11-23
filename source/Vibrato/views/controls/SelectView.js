@@ -49,7 +49,8 @@ var SelectView = NS.Class({
         return SelectView.parent
             .propertyNeedsRedraw.apply( this, arguments );
     }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'options', 'value' ),
+        'isDisabled', 'label', 'tooltip', 'tabIndex',
+        'options', 'value' ),
 
     redrawOptions: function ( layer ) {
         var select = this._drawSelect( this.get( 'options' ) );
