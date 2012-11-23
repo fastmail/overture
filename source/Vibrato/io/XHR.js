@@ -57,12 +57,12 @@ var XHR = NS.Class({
         if ( xhr.upload && io.uploadProgress ) {
             xhr.upload.addEventListener( 'progress', function ( event ) {
                 io.uploadProgress( that, event );
-            }, false );
+            }.invokeInRunLoop(), false );
         }
         if ( xhr.addEventListener && io.progress ) {
             xhr.addEventListener( 'progress', function ( event ) {
                 io.progress( that, event );
-            }, false );
+            }.invokeInRunLoop(), false );
         }
     },
 
@@ -244,7 +244,7 @@ var XHR = NS.Class({
         else {
             if ( io.failure ) { io.failure( this ); }
         }
-    },
+    }.invokeInRunLoop(),
 
     /**
         Method: O.XHR#abort

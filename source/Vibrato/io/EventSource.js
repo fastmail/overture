@@ -220,15 +220,15 @@ var EventSource = NativeEventSource ? NS.Class({
             this._openConnection();
             this._processData( xhr.getResponse() );
         }
-    }.invokeInRunLoop(),
+    },
     success: function ( xhr ) {
         this._openConnection();
         this._processData( xhr.getResponse() + '\n\n' );
         this._reconnect();
-    }.invokeInRunLoop(),
+    },
     failure: function ( xhr ) {
         this._failConnection();
-    }.invokeInRunLoop(),
+    },
     // -- end io ---
 
     _openConnection: function () {

@@ -211,7 +211,7 @@ var IO = NS.Class({
             request[ onEvent ]( details );
         }
         this.fire( 'io:' + type, details );
-    }.invokeInRunLoop(),
+    },
 
     /**
         Event: io:begin

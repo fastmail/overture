@@ -192,7 +192,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
             that._response = JSON.stringify( data );
             that._isSuccess = true;
             that._io.success( that );
-        };
+        }.invokeInRunLoop();
 
         body.appendChild( iframe );
         body.appendChild( form );
@@ -218,7 +218,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
             this._io.failure( this );
         }
         this._complete();
-    },
+    }.invokeInRunLoop(),
 
     /**
         Method: O.FormUploader-IFrameTransport#abort
