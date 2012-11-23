@@ -249,7 +249,9 @@ var DragController = new NS.Object({
     }.on( 'dragleave' ),
     _onDrop: function ( event ) {
         event.preventDefault();
-        this.drag.drop( event ).endDrag();
+        if ( this.drag ) {
+            this.drag.drop( event ).endDrag();
+        }
     }.on( 'drop' ),
     _onDragend: function ( event ) {
         // Dragend doesn't fire if the drag didn't start
