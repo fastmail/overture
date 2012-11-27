@@ -34,7 +34,7 @@ var NotificationView = NS.Class({
         layer.appendChild( this._container = NS.Element.create( 'p' ) );
     },
 
-    show: function ( message, time ) {
+    show: function ( message, time, isUserClosable ) {
         var el = NS.Element.create,
             container = el( 'p' ),
             actions = this._actions = {},
@@ -61,6 +61,14 @@ var NotificationView = NS.Class({
             }
         }
 
+        if ( isUserClosable ) {
+            container.appendChild(
+                this._close = el( 'a.close', [
+                    NS.loc( 'Close' )
+                ])
+            );
+        }
+
         this.get( 'layer' ).replaceChild( container, this._container );
         this._container = container;
         this.set( 'isShowing', true );
@@ -78,13 +86,18 @@ var NotificationView = NS.Class({
         if ( id === this._current && this.get( 'isShowing' ) ) {
             this.set( 'isShowing', false );
             this._actions = null;
+            this._close = null;
         }
     },
 
     _triggerAction: function ( event ) {
-        var id = event.target.id,
+        var target = event.target,
+            id = target.id,
             action = this._actions && this._actions[ id ];
-        if ( action ) {
+        if ( target === this._close ) {
+            this.hide( this._current );
+        }
+        else if ( action ) {
             event.preventDefault();
             action.object[ action.method ]();
         }
