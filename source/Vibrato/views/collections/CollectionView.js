@@ -25,6 +25,9 @@ var CollectionView = NS.Class({
         this._observedRange = { start: 0 };
         this._renderedTotal = 0;
         this._managedViews = [];
+        if ( options.delegate ) {
+            options.delegate.set( 'view', this );
+        }
         CollectionView.parent.init.call( this, options );
     },
 
@@ -215,7 +218,7 @@ var CollectionView = NS.Class({
         this._dirtyStart = this._dirtyEnd = -1;
         this._renderedTotal = length;
 
-        delegate.didUpdateLayer( start, end );
+        delegate.didUpdateLayer( start, end, list );
     },
 
     // --- Can't add views by hand; just bound to content ---
