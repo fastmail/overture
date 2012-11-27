@@ -1618,7 +1618,7 @@ var Store = NS.Class({
             
             newId = update[ primaryKey ];
             if ( newId && newId !== id ) {
-                _skToId[ storeKey ] = id;
+                _skToId[ storeKey ] = newId;
                 delete _idToSk[ id ];
                 _idToSk[ newId ] = storeKey;
             }
