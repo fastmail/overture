@@ -119,12 +119,15 @@ var ScrollView = NS.Class({
     },
 
     scrollTo: function ( x, y, withAnimation ) {
+        var scrollAnimation = this.get( 'scrollAnimation' );
         if ( withAnimation ) {
-            this.get( 'scrollAnimation' ).animate({
+            scrollAnimation.animate({
                 x: x,
                 y: y
             });
             return this;
+        } else {
+            scrollAnimation.stop();
         }
 
         // Can't have negative scroll values.
