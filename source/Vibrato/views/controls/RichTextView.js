@@ -167,7 +167,7 @@ var RichTextView = NS.Class({
                 height = lastChild.offsetTop + lastChild.offsetHeight +
                     chromeHeight + 30,
                 layout = this.get( 'layout' );
-            
+
             if ( layout.height !== height ) {
                 layout = NS.clone( layout );
                 layout.height = height;

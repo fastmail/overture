@@ -65,7 +65,7 @@ var AbstractControlView = NS.Class({
             tabIndex = this.get( 'tabIndex' );
 
         control.disabled = this.get( 'isDisabled' );
-        
+
         if ( tabIndex !== undefined ) {
             control.tabIndex = tabIndex;
         }
