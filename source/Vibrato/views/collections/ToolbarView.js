@@ -251,7 +251,7 @@ var ToolbarView = NS.Class({
         delete this._measureView;
 
         return this;
-    }.queue( 'after' ),
+    },
 
     willAppendLayerToDocument: function () {
         if ( this.get( 'preventOverlap' ) ) {
