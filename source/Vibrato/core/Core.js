@@ -334,6 +334,54 @@ var clone = NS.clone = function ( value ) {
 };
 
 /**
+    Function: O.isEqual
+
+    Compares two values to see if they are equal. Will *only* work with basic
+    JavaScript types (i.e. the ones that can be encoded in JSON).
+
+    Parameters:
+        a - {*} The first value.
+        b - {*} The second value.
+
+    Returns:
+        {Boolean} Are the values equal, i.e. are they identical primitives, or
+        are the both arrays or objects with equal members?
+*/
+var isEqual = NS.isEqual = function ( a, b ) {
+    var i, l, key;
+    if ( a === b ) {
+        return true;
+    }
+    if ( a !== null && b !== null &&
+            typeof a === 'object' &&
+            typeof b === 'object' ) {
+        if ( a instanceof Array ) {
+            if ( b instanceof Array && a.length === b.length ) {
+                for ( i = 0, l = a.length; i < l; i += 1 ) {
+                    if ( !isEqual( a[i], b[i] ) ) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        } else {
+            for ( key in a ) {
+                if ( !isEqual( a[ key ], b[ key ] ) ) {
+                    return false;
+                }
+            }
+            for ( key in b ) {
+                if ( !isEqual( a[ key ], b[ key ] ) ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+};
+
+/**
     Function: O.Class
 
     The Class function takes an object containing the instance functions for a

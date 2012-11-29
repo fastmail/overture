@@ -65,6 +65,7 @@ var sort = function ( sort, a, b ) {
         aIsFirst = sort( _skToData[ a ], _skToData[ b ], this );
     return aIsFirst || ( ~~a - ~~b );
 };
+var isEqual = NS.isEqual;
 
 /**
     Class: O.Store
@@ -1205,12 +1206,11 @@ var Store = NS.Class({
             for ( key in data ) {
                 value = data[ key ];
                 oldValue = current[ key ];
-                if ( value !== oldValue ) {
+                if ( !isEqual( value, oldValue ) ) {
                     current[ key ] = value;
                     changedKeys.push( key );
-                    seenChange =
-                        ( changed[ key ] = ( value !== committed[ key ] ) ) ||
-                        seenChange;
+                    changed[ key ] = !isEqual( value, committed[ key ] );
+                    seenChange = seenChange || changed[ key ];
                 }
             }
             // If we just reset properties to their committed values, we should
@@ -1242,7 +1242,7 @@ var Store = NS.Class({
             for ( key in data ) {
                 value = data[ key ];
                 oldValue = current[ key ];
-                if ( value !== oldValue ) {
+                if ( !isEqual( value, oldValue ) ) {
                     current[ key ] = value;
                     changedKeys.push( key );
                 }
@@ -1595,7 +1595,7 @@ var Store = NS.Class({
                     // changed then changed back.
                     for ( key in oldData ) {
                         if ( key in oldChanged ) {
-                            if ( oldData[ key ] !== update[ key ] ) {
+                            if ( !isEqual( oldData[ key ], update[ key ] ) ) {
                                 newChanged[ key ] = true;
                                 clean = false;
                             }
@@ -1615,7 +1615,7 @@ var Store = NS.Class({
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
             }
-            
+
             newId = update[ primaryKey ];
             if ( newId && newId !== id ) {
                 _skToId[ storeKey ] = newId;
@@ -1856,7 +1856,7 @@ var Store = NS.Class({
                 current = _skToData[ storeKey ];
                 delete _skToChanged[ storeKey ];
                 for ( key in current ) {
-                    if ( current[ key ] !== committed[ key ] ) {
+                    if ( !isEqual( current[ key ], committed[ key ] ) ) {
                         changed[ key ] = true;
                         _skToChanged[ storeKey ] = changed;
                     }
