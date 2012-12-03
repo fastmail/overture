@@ -33,7 +33,7 @@ var ScrollAnimation = NS.Class({
                 this.startX + ( position * this.deltaX ) : this.endY,
             y = position < 1 ?
                 this.startY + ( position * this.deltaY ) : this.endY;
-        this.object.scrollTo( x, y );
+        this.object.scrollTo( x, y, false, true );
     }
 });
 
@@ -118,7 +118,7 @@ var ScrollView = NS.Class({
             left !== this.get( 'scrollLeft' );
     },
 
-    scrollTo: function ( x, y, withAnimation ) {
+    scrollTo: function ( x, y, withAnimation, _isAnimation ) {
         var scrollAnimation = this.get( 'scrollAnimation' );
         if ( withAnimation ) {
             scrollAnimation.animate({
@@ -126,7 +126,7 @@ var ScrollView = NS.Class({
                 y: y
             });
             return this;
-        } else {
+        } else if ( !_isAnimation ) {
             scrollAnimation.stop();
         }
 
