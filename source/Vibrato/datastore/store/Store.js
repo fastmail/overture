@@ -2161,19 +2161,25 @@ var Store = NS.Class({
             id         - {String} The id of the requested query.
             QueryClass - {O.Class} (optional) The query class to use if the
                          query is not already created.
-            query      - {(Object|null)} (optional) The parameter to pass to the
+            options    - {(Object|null)} (optional) The parameter to pass to the
                          QueryClass constructor.
 
         Returns:
             {(O.LiveQuery|O.RemoteQuery|null)} The requested query.
     */
-    getQuery: function ( id, QueryClass, query ) {
-        return ( id && this._idToQuery[ id ] ) ||
-            ( QueryClass ? new QueryClass( NS.extend( query || {}, {
+    getQuery: function ( id, QueryClass, options ) {
+        var query = ( id && this._idToQuery[ id ] ) || null;
+        if ( !query && QueryClass ) {
+            query = new QueryClass( NS.extend( options || {}, {
                 id: id,
                 store: this,
                 source: this._source
-            }) ) : null );
+            }) );
+        }
+        if ( query ) {
+            query.lastAccess = Date.now();
+        }
+        return query;
     },
 
     /**

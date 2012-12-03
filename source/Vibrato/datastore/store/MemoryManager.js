@@ -22,19 +22,12 @@
 var MemoryManager = NS.Class({
 
     /**
-        Property (private): O.MemoryManager#_typeIndex
+        Property (private): O.MemoryManager#_index
         Type: Number
 
         Keeps track of which record type we need to examine next.
     */
-    _typeIndex: 0,
-
-    /**
-        Property (private): O.MemoryManager#_types
-        Type: Array<O.Class.<Record>>
-
-        The name of each type we need to memory manage.
-    */
+    _index: 0,
 
     /**
         Property (private): O.MemoryManager#_store
@@ -45,10 +38,14 @@ var MemoryManager = NS.Class({
 
     /**
         Property (private): O.MemoryManager#_restrictions
-        Type: Object
+        Type: Array
 
-        An object mapping Record type name to its restrictions. A restrictions
-        object may have a 'max' property and an 'afterCleanup' method.
+        An array of objects, each containing the properties:
+        - Type: The constructor for the Record or RemoteQuery subclass.
+        - max: The maximum number allowed.
+        - afterCleanup: An optional callback after cleanup, which will be given
+          an array of removed objects of the given type, every time some are
+          removed from the store.
     */
 
     /**
@@ -64,12 +61,15 @@ var MemoryManager = NS.Class({
 
         Parameters:
             store        - {Store} The store to be memory managed.
-            restrictions - {Object} An object mapping each Record type name to
-                           be managed to another object containing its
-                           restrictions. This must have a max (number of
-                           records) property and may have an afterCleanup
-                           function, which will be given an array of removed
-                           records every time some are removed from the store.
+            restrictions - {Object} An array of objects, each containing the
+                           properties:
+                           * Type: The constructor for the Record or RemoteQuery
+                             subclass.
+                           * max: The maximum number allowed.
+                           * afterCleanup: An optional callback after cleanup,
+                             which will be given an array of removed objects of
+                             the given type, every time some are removed from
+                             the store.
             frequency    - {Number} (optional) How frequently the cleanup
                            function is called in milliseconds. Default is 30000,
                            i.e. every 30 seconds.
@@ -77,7 +77,6 @@ var MemoryManager = NS.Class({
     init: function ( store, restrictions, frequency ) {
         this._store = store;
         this._restrictions = restrictions;
-        this._types = Object.keys( restrictions );
 
         this.frequency = frequency || 30000;
 
@@ -93,42 +92,102 @@ var MemoryManager = NS.Class({
         automatically called periodically by the memory manager.
     */
     cleanup: function () {
-        var typeIndex = this._typeIndex,
-            type = this._types[ typeIndex ],
-            restrictions = this._restrictions[ type ],
-            store = this._store,
+        var index = this._index,
+            restrictions = this._restrictions[ index ],
+            Type = restrictions.Type,
+            ParentType = Type,
+            max = restrictions.max,
+            afterFn = restrictions.afterCleanup,
+            deleted;
+
+        do {
+            if ( ParentType === NS.Record ) {
+                deleted = this.cleanupRecordType( Type, max );
+                break;
+            } else if ( ParentType === NS.RemoteQuery ) {
+                deleted = this.cleanupQueryType( Type, max );
+                break;
+            }
+        } while ( ParentType = ParentType.parent.constructor );
+
+        if ( afterFn ) { afterFn( deleted ); }
+
+        this._index = index = ( index + 1 ) % this._restrictions.length;
+
+        // Yield between examining types so we don't hog the event queue.
+        if ( index ) {
+            NS.RunLoop.invokeInNextEventLoop( this.cleanup, this );
+        } else {
+            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+        }
+    },
+
+    /**
+        Method: O.MemoryManager#cleanupRecordType
+
+        Parameters:
+            Type - {O.Class} The record type.
+            max  - {Number} The maximum number allowed.
+
+        Removes excess records from the store.
+    */
+    cleanupRecordType: function ( Type, max ) {
+        var store = this._store,
             _skToLastAccess = store._skToLastAccess,
             _skToData = store._skToData,
-            storeKeys = Object.keys( store._typeToSkToId[ type ] || {} ),
-            count = storeKeys.length,
-            numberToDelete = count - restrictions.max,
-            afterFn = restrictions.afterCleanup,
+            storeKeys =
+                Object.keys( store._typeToSkToId[ Type.className ] || {} ),
+            l = storeKeys.length,
+            numberToDelete = l - max,
             deleted = [],
-            storeKey, data;
+            data, storeKey;
 
         storeKeys.sort( function ( a, b ) {
             return _skToLastAccess[b] - _skToLastAccess[a];
         });
 
-        while ( numberToDelete > 0 && count-- ) {
-            storeKey = storeKeys[ count ];
+        while ( numberToDelete > 0 && l-- ) {
+            storeKey = storeKeys[l];
             data = _skToData[ storeKey ];
-            if ( store.unloadRecord( storeKeys[ count ] ) ) {
+            if ( store.unloadRecord( storeKey ) ) {
                 numberToDelete -= 1;
                 if ( data ) { deleted.push( data ); }
             }
         }
+        return deleted;
+    },
 
-        if ( afterFn ) { afterFn( deleted ); }
+    /**
+        Method: O.MemoryManager#cleanupQueryType
 
-        this._typeIndex = typeIndex = ( typeIndex + 1 ) % this._types.length;
+        Parameters:
+            Type - {O.Class} The query type.
+            max  - {Number} The maximum number allowed.
 
-        // Yield between examining types so we don't hog the event queue.
-        if ( typeIndex ) {
-            NS.RunLoop.invokeInNextEventLoop( this.cleanup, this );
-        } else {
-            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+        Removes excess remote queries from the store.
+    */
+    cleanupQueryType: function ( Type, max ) {
+        var queries = this._store.getAllRemoteQueries()
+                          .filter( function ( query ) {
+                return query instanceof Type;
+            }),
+            l = queries.length,
+            numberToDelete = l - max,
+            deleted = [],
+            query;
+
+        queries.sort( function ( a, b ) {
+            return b.lastAccess - a.lastAccess;
+        });
+        while ( numberToDelete > 0 && l-- ) {
+            query = queries[l];
+            if ( !query.hasObservers() ) {
+                query.destroy();
+                deleted.push( query );
+                numberToDelete -= 1;
+            }
         }
+        return deleted;
     }
 });
 
