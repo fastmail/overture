@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -55,7 +53,8 @@ var RecordArray = NS.Class({
 
     getObjectAt: function ( index ) {
         var id = RecordArray.parent.getObjectAt.call( this, index );
-        return this.get( 'store' ).getRecord( this.get( 'Type' ), id );
+        return id ?
+            this.get( 'store' ).getRecord( this.get( 'Type' ), id ) : null;
     },
 
     setObjectAt: function ( index, value ) {

@@ -21,43 +21,47 @@
  */
 var RecordArray = NS.Class({
 
-  Extends: NS.Object,
+    Extends: NS.Object,
 
-  Mixin: NS.Enumerable,
+    Mixin: NS.Enumerable,
 
-  init: function ( store, Type, storeKeys ) {
-      this.store = store;
-      this.Type = Type;
-      this.storeKeys = storeKeys;
-      RecordArray.parent.init.call( this );
-  },
+    init: function ( store, Type, storeKeys ) {
+        this.store = store;
+        this.Type = Type;
+        this.storeKeys = storeKeys;
+        RecordArray.parent.init.call( this );
+    },
 
-  /**
-      Property: O.RecordArray#length
-      Type: Number
+    /**
+        Property: O.RecordArray#length
+        Type: Number
 
-      The number of records in the array.
-  */
-  length: function () {
-      return this.get( 'storeKeys' ).length;
-  }.property( 'storeKeys' ),
+        The number of records in the array.
+    */
+    length: function () {
+        return this.get( 'storeKeys' ).length;
+    }.property( 'storeKeys' ),
 
-  /**
-      Method: O.RecordArray#getObjectAt
+    /**
+        Method: O.RecordArray#getObjectAt
 
-      Returns the record at the index given in the array.
+        Returns the record at the index given in the array.
 
-      Parameters:
-          index - {Number} The index of the record to return.
+        Parameters:
+            index - {Number} The index of the record to return.
 
-      Returns:
-          {O.Record} The record at index i in this array.
-  */
-  getObjectAt: function ( index ) {
-      var storeKey = this.get( 'storeKeys' )[ index ];
-      return this.get( 'store' )
-                 .materialiseRecord( storeKey, this.get( 'Type' ) );
-  }
+        Returns:
+            {O.Record} The record at index i in this array.
+    */
+    getObjectAt: function ( index ) {
+        var storeKey = this.get( 'storeKeys' )[ index ],
+            record;
+        if ( storeKey ) {
+            record = this.get( 'store' )
+                         .materialiseRecord( storeKey, this.get( 'Type' ) );
+        }
+        return record;
+    }
 });
 
 NS.RecordArray = RecordArray;
