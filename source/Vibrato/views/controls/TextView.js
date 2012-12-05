@@ -12,7 +12,9 @@
 
 ( function ( NS, undefined ) {
 
-var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
+var isOperaMini = !!NS.UA.operaMini;
+var nativePlaceholder = !isOperaMini &&
+        'placeholder' in document.createElement( 'input' );
 
 var TextView = NS.Class({
 
@@ -103,6 +105,12 @@ var TextView = NS.Class({
                     maxLength: this.get( 'maxLength' ),
                     value: value
                 });
+
+        // Need to add explicit handlers, or Opera Mini won't fire the events
+        if ( isOperaMini ) {
+            control.onfocus = function () {};
+            control.onblur = function () {};
+        }
 
         if ( placeholder ) {
             if ( nativePlaceholder ) {
@@ -221,7 +229,7 @@ var TextView = NS.Class({
             this.set( 'value', this._domControl.value );
             this._settingFromInput = false;
         }
-    }.on( NS.UA.operaMini ? 'change' : 'input' ),
+    }.on( isOperaMini ? 'change' : 'input' ),
 
     _onFocus: function () {
         if ( this._placeholderShowing ) {
