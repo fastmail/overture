@@ -104,9 +104,11 @@ var ButtonView = NS.Class({
         if ( this._ignore || event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
-        this._ignore = true;
-        NS.RunLoop.invokeAfterDelay( this._monitorClicks, 200, this );
-        this.activate();
+        if ( event.type !== 'mouseup' || this.getParent( NS.MenuView ) ) {
+            this._ignore = true;
+            NS.RunLoop.invokeAfterDelay( this._monitorClicks, 200, this );
+            this.activate();
+        }
     }.on( 'mouseup', 'click' ),
 
     _activateOnEnter: function ( event ) {
