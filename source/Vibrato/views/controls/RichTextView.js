@@ -187,6 +187,7 @@ var RichTextView = NS.Class({
             bold: new ButtonView({
                 isActive: bind( 'isBold', this ),
                 label: NS.loc( 'Bold' ),
+                tooltip: NS.loc( 'Bold' ),
                 type: 'iconOnly',
                 icon: 'bold',
                 activate: function () {
@@ -201,6 +202,7 @@ var RichTextView = NS.Class({
             italic: new ButtonView({
                 isActive: bind( 'isItalic', this ),
                 label: NS.loc( 'Italic' ),
+                tooltip: NS.loc( 'Italic' ),
                 type: 'iconOnly',
                 icon: 'italic',
                 activate: function () {
@@ -215,6 +217,7 @@ var RichTextView = NS.Class({
             underline: new ButtonView({
                 isActive: bind( 'isUnderlined', this ),
                 label: NS.loc( 'Underline' ),
+                tooltip: NS.loc( 'Underline' ),
                 type: 'iconOnly',
                 icon: 'underline',
                 activate: function () {
@@ -228,6 +231,7 @@ var RichTextView = NS.Class({
             }),
             size: new ButtonView({
                 label: NS.loc( 'Font Size' ),
+                tooltip: NS.loc( 'Font Size' ),
                 type: 'iconOnly',
                 icon: 'fontSize',
                 target: this,
@@ -235,6 +239,7 @@ var RichTextView = NS.Class({
             }),
             font: new ButtonView({
                 label: NS.loc( 'Font Face' ),
+                tooltip: NS.loc( 'Font Face' ),
                 type: 'iconOnly',
                 icon: 'fontFace',
                 target: this,
@@ -242,6 +247,7 @@ var RichTextView = NS.Class({
             }),
             colour: new ButtonView({
                 label: NS.loc( 'Text Color' ),
+                tooltip: NS.loc( 'Text Color' ),
                 type: 'iconOnly',
                 icon: 'textColour',
                 target: this,
@@ -249,6 +255,7 @@ var RichTextView = NS.Class({
             }),
             bgcolour: new ButtonView({
                 label: NS.loc( 'Text Highlight' ),
+                tooltip: NS.loc( 'Text Highlight' ),
                 type: 'iconOnly',
                 icon: 'highlightColour',
                 target: this,
@@ -257,6 +264,7 @@ var RichTextView = NS.Class({
             link: new ButtonView({
                 isActive: bind( 'isLink', this ),
                 label: NS.loc( 'Link' ),
+                tooltip: NS.loc( 'Link' ),
                 type: 'iconOnly',
                 icon: 'link',
                 activate: function () {
@@ -272,6 +280,7 @@ var RichTextView = NS.Class({
                 acceptMultiple: true,
                 acceptOnlyTypes: 'image/* .gif .jpg .jpeg .png',
                 label: NS.loc( 'Insert Image' ),
+                tooltip: NS.loc( 'Insert Image' ),
                 type: 'iconOnly',
                 icon: 'image',
                 target: this,
@@ -280,6 +289,7 @@ var RichTextView = NS.Class({
             left: new ButtonView({
                 isActive: bind( 'alignment', this, equalTo( 'left' ) ),
                 label: NS.loc( 'Left' ),
+                tooltip: NS.loc( 'Left' ),
                 type: 'iconOnly',
                 icon: 'alignLeft',
                 activate: function () {
@@ -290,6 +300,7 @@ var RichTextView = NS.Class({
             centre: new ButtonView({
                 isActive: bind( 'alignment', this, equalTo( 'center' ) ),
                 label: NS.loc( 'Center' ),
+                tooltip: NS.loc( 'Center' ),
                 type: 'iconOnly',
                 icon: 'alignCentre',
                 activate: function () {
@@ -300,6 +311,7 @@ var RichTextView = NS.Class({
             right: new ButtonView({
                 isActive: bind( 'alignment', this, equalTo( 'right' ) ),
                 label: NS.loc( 'Right' ),
+                tooltip: NS.loc( 'Right' ),
                 type: 'iconOnly',
                 icon: 'alignRight',
                 activate: function () {
@@ -310,6 +322,7 @@ var RichTextView = NS.Class({
             justify: new ButtonView({
                 isActive: bind( 'alignment', this, equalTo( 'justify' ) ),
                 label: NS.loc( 'Justify' ),
+                tooltip: NS.loc( 'Justify' ),
                 type: 'iconOnly',
                 icon: 'alignJustify',
                 activate: function () {
@@ -320,6 +333,7 @@ var RichTextView = NS.Class({
             ltr: new ButtonView({
                 isActive: bind( 'direction', this, equalTo( 'ltr' ) ),
                 label: NS.loc( 'Text Direction: Left to Right' ),
+                tooltip: NS.loc( 'Text Direction: Left to Right' ),
                 type: 'iconOnly',
                 icon: 'ltr',
                 activate: function () {
@@ -330,6 +344,7 @@ var RichTextView = NS.Class({
             rtl: new ButtonView({
                 isActive: bind( 'direction', this, equalTo( 'rtl' ) ),
                 label: NS.loc( 'Text Direction: Right to Left' ),
+                tooltip: NS.loc( 'Text Direction: Right to Left' ),
                 type: 'iconOnly',
                 icon: 'rtl',
                 activate: function () {
@@ -339,6 +354,7 @@ var RichTextView = NS.Class({
             }),
             quote: new ButtonView({
                 label: NS.loc( 'Quote' ),
+                tooltip: NS.loc( 'Quote' ),
                 type: 'iconOnly',
                 icon: 'incQuote',
                 target: richTextView,
@@ -346,6 +362,7 @@ var RichTextView = NS.Class({
             }),
             unquote: new ButtonView({
                 label: NS.loc( 'Unquote' ),
+                tooltip: NS.loc( 'Unquote' ),
                 type: 'iconOnly',
                 icon: 'decQuote',
                 target: richTextView,
@@ -354,6 +371,7 @@ var RichTextView = NS.Class({
             ul: new ButtonView({
                 isActive: bind( 'isUnorderedList', this ),
                 label: NS.loc( 'Unordered List' ),
+                tooltip: NS.loc( 'Unordered List' ),
                 type: 'iconOnly',
                 icon: 'ul',
                 activate: function () {
@@ -368,6 +386,7 @@ var RichTextView = NS.Class({
             ol: new ButtonView({
                 isActive: bind( 'isOrderedList', this ),
                 label: NS.loc( 'Ordered List' ),
+                tooltip: NS.loc( 'Ordered List' ),
                 type: 'iconOnly',
                 icon: 'ol',
                 activate: function () {
