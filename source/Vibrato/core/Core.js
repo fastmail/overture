@@ -361,8 +361,8 @@ var isEqual = NS.isEqual = function ( a, b ) {
                     if ( !isEqual( a[i], b[i] ) ) {
                         return false;
                     }
-                    return true;
                 }
+                return true;
             }
         } else {
             for ( key in a ) {
