@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -225,7 +223,7 @@ var RecordAttribute = NS.Class({
                     this.willSet( propValue, propKey, record ) ) {
                 attrValue = propValue && propValue.toJSON ?
                     propValue.toJSON() : propValue;
-                if ( attrValue !== currentAttrValue ) {
+                if ( !NS.isEqual( attrValue, currentAttrValue ) ) {
                     if ( storeKey ) {
                         update = {};
                         update[ attrKey ] = attrValue;
