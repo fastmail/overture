@@ -331,7 +331,7 @@ var Record = NS.Class({
                     defaultValue = attribute.defaultValue;
                     if ( defaultValue !== undefined ) {
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
-                            defaultValue.toJSON() : defaultValue;
+                            defaultValue.toJSON() : NS.clone( defaultValue );
                     }
                 }
                 if ( attribute.willCreateInStore ) {
