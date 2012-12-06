@@ -616,7 +616,7 @@ var Store = NS.Class({
             entry = getEntry( _skToType[ storeKey ] ).destroy;
             entry.storeKeys.push( storeKey );
             entry.ids.push( id );
-            this.setStatus( storeKey, DESTROYED|COMMITTING );
+            this.setStatus( storeKey, (DESTROYED|COMMITTING) );
         }
 
         this._skToChanged = newSkToChanged;
@@ -933,7 +933,7 @@ var Store = NS.Class({
         this._created[ storeKey ] = 1;
         this._skToData[ storeKey ] = data || {};
 
-        this.setStatus( storeKey, READY|NEW );
+        this.setStatus( storeKey, (READY|NEW) );
 
         if ( this.autoCommit ) {
             this.commitChanges();
@@ -1010,7 +1010,7 @@ var Store = NS.Class({
             remoteQuery;
 
         if ( newState !== clientState ) {
-            if ( !( status & (COMMITTING|LOADING) ) ) {
+            if ( !( status & (LOADING|COMMITTING) ) ) {
                 while ( l-- ) {
                     remoteQuery = _remoteQueries[l];
                     if ( remoteQuery.get( 'Type' ) === Type ) {
@@ -1072,7 +1072,7 @@ var Store = NS.Class({
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
             this._source.fetchAllRecords( Type, state );
-            this._typeToStatus[ typeName ] = status | LOADING;
+            this._typeToStatus[ typeName ] = ( status | LOADING );
         }
         return this;
     },
@@ -1104,7 +1104,7 @@ var Store = NS.Class({
         }
         if ( status & EMPTY ) {
             this._source.fetchRecord( Type, id );
-            this.setStatus( storeKey, EMPTY|LOADING );
+            this.setStatus( storeKey, (EMPTY|LOADING) );
         } else {
             this._source.refreshRecord( Type, id );
             this.setLoading( storeKey );
@@ -1197,7 +1197,7 @@ var Store = NS.Class({
             _skToData[ storeKey ] = current = NS.clone( current );
         }
 
-        if ( changeIsDirty && status !== READY|NEW ) {
+        if ( changeIsDirty && status !== (READY|NEW) ) {
             committed = _skToCommitted[ storeKey ] ||
                 ( _skToCommitted[ storeKey ] = NS.clone( current ) );
             changed = _skToChanged[ storeKey ] ||
@@ -1608,7 +1608,7 @@ var Store = NS.Class({
                         _skToChanged[ storeKey ] = newChanged;
                         _skToCommitted[ storeKey ] = update;
                         this.setData( storeKey, newData );
-                        this.setStatus( storeKey, READY|DIRTY );
+                        this.setStatus( storeKey, (READY|DIRTY) );
                         continue;
                     }
                 }
@@ -1725,7 +1725,7 @@ var Store = NS.Class({
             status = this.getStatus( storeKey );
             if ( status & NEW ) {
                 this.setIdForStoreKey( storeKey, skToId[ storeKey ] );
-                this.setStatus( storeKey, status & ~( NEW|COMMITTING ) );
+                this.setStatus( storeKey, status & ~(NEW|COMMITTING) );
             } else {
                 NS.RunLoop.didError({
                     name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR
@@ -1772,7 +1772,7 @@ var Store = NS.Class({
                     delete _skToCommitted[ storeKey ];
                     delete _skToChanged[ storeKey ];
                 }
-                this.setStatus( storeKey, READY|NEW );
+                this.setStatus( storeKey, (READY|NEW) );
                 _created[ storeKey ] = 1;
             }
         }
@@ -1933,7 +1933,7 @@ var Store = NS.Class({
                     name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
                 });
             }
-            this.setStatus( storeKey, DESTROYED|DIRTY );
+            this.setStatus( storeKey, (DESTROYED|DIRTY) );
             _destroyed[ storeKey ] = 1;
         }
         return this;
@@ -1974,7 +1974,7 @@ var Store = NS.Class({
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
                 delete _skToRollback[ storeKey ];
-                this.setStatus( storeKey, READY|OBSOLETE );
+                this.setStatus( storeKey, (READY|OBSOLETE) );
             }
         }
         return this;
