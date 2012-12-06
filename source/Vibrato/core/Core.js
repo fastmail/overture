@@ -314,7 +314,7 @@ var merge = NS.merge = function ( base, extras ) {
 var clone = NS.clone = function ( value ) {
     var cloned = value,
         l, key;
-    if ( value !== null && typeof value === 'object' ) {
+    if ( value && typeof value === 'object' ) {
         if ( value instanceof Array ) {
             cloned = [];
             l = value.length;
@@ -352,9 +352,7 @@ var isEqual = NS.isEqual = function ( a, b ) {
     if ( a === b ) {
         return true;
     }
-    if ( a !== null && b !== null &&
-            typeof a === 'object' &&
-            typeof b === 'object' ) {
+    if ( a && b && typeof a === 'object' && typeof b === 'object' ) {
         if ( a instanceof Array ) {
             if ( b instanceof Array && a.length === b.length ) {
                 for ( i = 0, l = a.length; i < l; i += 1 ) {
