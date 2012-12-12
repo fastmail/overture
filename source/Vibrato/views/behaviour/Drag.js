@@ -130,9 +130,13 @@ var DragController = new NS.Object({
         }
     }.on( 'mousedown' ),
     _onMousemove: function ( event ) {
-        // Mousemove is only fired if not native DnD
-        if ( this.drag ) {
-            this.drag.move( event );
+        var drag = this.drag;
+        if ( drag ) {
+            // Mousemove should only be fired if not native DnD, but sometimes
+            // is fired even when there's a native drag
+            if ( !drag.get( 'isNative' ) ) {
+                drag.move( event );
+            }
             // If mousemove during drag, don't propagate to views (for
             // consistency with native DnD).
             event.stopPropagation();
