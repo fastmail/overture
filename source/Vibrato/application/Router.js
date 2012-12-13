@@ -193,7 +193,7 @@ var Router = NS.Class({
         var state = this.get( 'encodedState' ),
             replaceState = this.get( 'replaceState' ),
             win = this._win,
-            location, href, i;
+            location, history, href, i, title, url;
         if ( this.get( 'currentPath' ) !== state ) {
             this.set( 'currentPath', state );
             if ( this.useHash ) {
@@ -207,11 +207,18 @@ var Router = NS.Class({
                     location.hash = '#/' + state;
                 }
             } else {
-                win.history[ replaceState ? 'replaceState' : 'pushState' ](
-                    null,
-                    this.get( 'title' ),
-                    this.getUrlForEncodedState( state )
-                );
+                history = win.history;
+                title = this.get( 'title' );
+                url = this.getUrlForEncodedState( state );
+                // Firefox sometimes throws an error for no good reason,
+                // especially on replaceState, so wrap in a try/catch.
+                try {
+                    if ( replaceState ) {
+                        history.replaceState( null, title, url );
+                    } else {
+                        history.pushState( null, title, url );
+                    }
+                } catch ( error ) {}
             }
             if ( replaceState ) {
                 this.set( 'replaceState', false );
