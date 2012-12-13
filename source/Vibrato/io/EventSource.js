@@ -161,13 +161,27 @@ var EventSource = NativeEventSource ? NS.Class({
             {O.EventSource} Returns self.
     */
     close: function () {
-        if ( this.get( 'readyState' ) !== CLOSED ) {
-            this._eventSource.close();
+        return this.set( 'readyState', CLOSED );
+    },
+
+    /**
+        Method (private): O.EventSource#_sourceDidClose
+
+        Removes event listeners and then the reference to an event source after
+        it closes, as they cannot be reused.
+    */
+    _sourceDidClose: function () {
+        if ( this.get( 'readyState' ) === CLOSED ) {
+            var eventSource = this._eventSource,
+                types = this._eventTypes,
+                l = types.length;
+            eventSource.close();
+            while ( l-- ) {
+                eventSource.removeEventListener( types[l], this, false );
+            }
             this._eventSource = null;
-            this.set( 'readyState', CLOSED );
         }
-        return this;
-    }
+    }.observes( 'readyState' )
 }) : NS.Class({
 
     Extends: NS.Object,
