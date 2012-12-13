@@ -74,7 +74,12 @@ var RunLoop = {
 
             for ( i = 0; i < l; i += 1 ) {
                 tuple = toInvoke[i];
-                tuple[0].call( tuple[1] );
+                try {
+                    tuple[0].call( tuple[1] );
+                }
+                catch ( error ) {
+                    RunLoop.didError( error );
+                }
             }
             return true;
         }
@@ -168,11 +173,7 @@ var RunLoop = {
             RunLoop.didError( error );
         }
         if ( this._depth === 1 ) {
-            try {
-                this.flushAllQueues();
-            } catch ( error ) {
-                RunLoop.didError( error );
-            }
+            this.flushAllQueues();
         }
         this._depth -= 1;
         return this;
