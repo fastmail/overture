@@ -6,11 +6,12 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global setTimeout, clearTimeout, setInterval, clearInterval, console */
+/*global setTimeout, clearTimeout, setInterval, clearInterval, setImmediate,
+         console */
 
 "use strict";
 
-( function ( NS ) {
+( function ( NS, setImmediate ) {
 
 /**
     Class: O.RunLoop
@@ -194,9 +195,9 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     invokeInNextEventLoop: function ( fn, bind ) {
-        setTimeout( function () {
+        setImmediate( function () {
             RunLoop.invoke( fn, bind );
-        }, 0 );
+        });
         return this;
     },
 
@@ -321,4 +322,10 @@ Function.implement({
     }
 });
 
-}( this.O ) );
+}( this.O,
+   typeof setImmediate !== 'undefined' ?
+        setImmediate :
+        function ( fn ) {
+            return setTimeout( fn, 0 );
+        }
+) );
