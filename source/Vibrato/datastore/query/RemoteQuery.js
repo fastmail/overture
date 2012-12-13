@@ -576,15 +576,19 @@ var RemoteQuery = NS.Class({
                 addedIds.push( list[i] );
             }
         }
+        
+        lastChangeNew = ( total === oldTotal ) ?
+            lastChangeNew + 1 : Math.max( oldTotal || 0, total );
 
         this.beginPropertyChanges()
             .set( 'status', READY )
-            .set( 'length', total )
-            .rangeDidChange( firstChange, total === oldTotal ?
-                lastChangeNew + 1 : Math.max( oldTotal || 0, total ) )
-            .endPropertyChanges();
+            .set( 'length', total );
+        if ( firstChange < lastChangeNew ) {
+            this.rangeDidChange( firstChange, lastChangeNew );
+        }
+        this.endPropertyChanges();
 
-        if ( oldTotal !== null ) {
+        if ( oldTotal !== null && firstChange < lastChangeNew ) {
             this.fire( 'query:updated', {
                 removed: removedIds,
                 removedIndexes: removedIndexes,
