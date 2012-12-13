@@ -68,7 +68,10 @@ var LightboxItemView = NS.Class({
     didAnimate: function () {
         this.increment( 'animating', -1 );
         if ( !this.get( 'position' ) && !this.get( 'isActive' ) ) {
-            this.get( 'lightbox' ).removeFromDocument();
+            var lightbox = this.get( 'lightbox' );
+            if ( lightbox ) {
+                lightbox.removeFromDocument();
+            }
         }
     },
 
