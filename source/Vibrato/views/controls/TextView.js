@@ -143,7 +143,7 @@ var TextView = NS.Class({
             TextView.parent.propertyNeedsRedraw.apply( this, arguments );
         }
         if ( isValue && this.get( 'isExpanding' ) ) {
-            NS.RunLoop.queueFn( 'after', this.didResize, this );
+            NS.RunLoop.queueFn( 'after', this.parentViewDidResize, this );
         }
     }.observes( 'className', 'layerStyles',
         'isDisabled', 'label', 'tooltip', 'tabIndex',
