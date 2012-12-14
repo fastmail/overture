@@ -109,10 +109,11 @@ var XHR = NS.Class({
             {String} The text of the header or the empty string if not found.
     */
     getHeader: function ( name ) {
-      try {
-          return this.xhr.getResponseHeader( name );
-      } catch ( error ) {}
-      return '';
+        var header;
+        try {
+            header = this.xhr.getResponseHeader( name );
+        } catch ( error ) {}
+        return header || '';
     },
 
     /**
@@ -126,10 +127,11 @@ var XHR = NS.Class({
     getResponse: function () {
         // Internet Explorer may throw an error if you try to read the
         // responseText before it is in readyState 4.
+        var response = '';
         try {
-            return this.xhr.responseText;
+            response = this.xhr.responseText;
         } catch ( error ) {}
-        return '';
+        return response || '';
     },
 
     /**
