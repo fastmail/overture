@@ -210,7 +210,12 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         // First load event is fired as soon as the frame is appended to the
         // DOM. Ignore this one; we're only interested in what happens after the
         // full page has loaded.
-        if ( this._iframe.contentWindow.location.href === 'about:blank' ) {
+        var iframeHref;
+        // May throw a security error in old IE/Opera.
+        try  {
+            iframeHref = this._iframe.contentWindow.location.href;
+        } catch ( error ) {}
+        if ( iframeHref === 'about:blank' ) {
             return;
         }
         this._isRunning = false;
