@@ -30,7 +30,7 @@ var SelectView = NS.Class({
     _drawSelect: function ( options ) {
         var selected = this.get( 'value' ),
             el = NS.Element.create,
-            select = el( 'select', { disabled: this.get( 'disabled' ) },
+            select = el( 'select', { disabled: this.get( 'isDisabled' ) },
                 options.map( function ( option, i ) {
                     return el( 'option', {
                         text: option.text,
