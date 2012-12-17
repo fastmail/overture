@@ -10,21 +10,24 @@ TOOLS := node $(PATH_TO_TOOLS)
 
 # Args:
 # pathToEnglishDB
-# scope
 # var_args... pathsToFilesToScan
 # outputFileName (strings.json)
 ENUMERATE_STRINGS := $(TOOLS)/localise.js enumerate
 
 # Args:
+# pathToEnglishDB
+# var_args... pathsToFilesToScan
+# outputFileName (strings.json)
+ENUMERATE_STRING_USAGE := $(TOOLS)/localise.js findUses
+
+# Args:
 # strings.json
 # lang.po
-# default.po
 # output
 MAKE_LANG_MODULE := $(TOOLS)/localise.js makeLangModule
 
 # Args:
 # EnglishDB
-# Scope
 # strings.json
 # inputFileName
 # outputFileName
@@ -78,7 +81,8 @@ ADD_MODULE_LIST := $(TOOLS)/module.js addModuleList
 # output
 MAKE_MODULE := $(TOOLS)/module.js makeModule
 
-DB_TO_PO := $(TOOLS)/dbTools.js dbToPo
+UPDATE_PO := $(TOOLS)/localise.js updatePo
+DB_TO_PO := $(TOOLS)/localise.js dbToPo
 
 ifeq ($(shell which sha1sum),)
 HASH_FILE := md5 -q

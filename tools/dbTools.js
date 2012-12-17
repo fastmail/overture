@@ -4,6 +4,41 @@
 
 var fs = require( 'fs' );
 
+function convert( dbFile, dbFile2 ) {
+    fs.readFile( dbFile, 'utf8', function ( error, dbContents ) {
+        if ( error ) {
+            console.log( 'Could not read input db file' );
+            return;
+        }
+        var data = {},
+            attr = /^([A-Z0-9_]+)\.(caption|description|scope)="(.+)"/gm,
+            match, entry;
+
+        while ( match = attr.exec( dbContents ) ) {
+            entry = data[ match[1] ] || ( data[ match[1] ] = {} );
+            entry[ match[2] ] = match[3];
+        }
+
+        var keys = Object.keys( data ),
+            i = 0,
+            l = keys.length,
+            output = '',
+            id;
+
+        for ( ; i < l; i += 1 ) {
+            id = keys[i];
+            entry = data[ id ];
+            if ( /momail/.test( entry.scope ) ) {
+                output += id + '\n';
+                output += JSON.stringify( entry.caption ) + '\n';
+                output += '[' + entry.description + ']\n\n';
+            }
+        }
+
+        fs.writeFile( dbFile2, output );
+    });
+}
+
 function sort( dbFile ) {
     fs.readFile( dbFile, 'utf8', function ( error, dbContents ) {
         if ( error ) {
@@ -18,14 +53,14 @@ function sort( dbFile ) {
             entry = data[ match[1] ] || ( data[ match[1] ] = {} );
             entry[ match[2] ] = match[3];
         }
-        
+
         var keys = Object.keys( data ),
             i = 0,
             l = keys.length,
             output = '',
             id;
         keys.sort();
-        
+
         for ( ; i < l; i += 1 ) {
             id = keys[i];
             entry = data[ id ];
@@ -35,7 +70,7 @@ function sort( dbFile ) {
             output +=
                 id + '.description=' + ( entry.description || '""' ) + '\n\n';
         }
-        
+
         fs.writeFile( dbFile, output );
     });
 }
@@ -57,7 +92,7 @@ function filter ( dbFile ) {
                 }
                 buffer = [];
             };
-        
+
         lines.forEach( function ( line ) {
             var title = /^[A-Z0-9_]+/.exec( line );
             if ( !title ) {
@@ -72,7 +107,7 @@ function filter ( dbFile ) {
                 buffer.push( line );
             }
         });
-        
+
         fs.writeFile( dbFile, output.join( '\n' ) );
     });
 }
@@ -92,7 +127,7 @@ function compare ( dbFile, dbFile2 ) {
                 ids2 = {},
                 idRegExp = /^[A-Z0-9_]+/gm,
                 id;
-            
+
             while ( id = idRegExp.exec( dbContents ) ) {
                 ids[ id[0] ] = true;
             }
@@ -129,12 +164,12 @@ function dbToPo ( dbFile, poFile ) {
             stringData = poData[ result[1] ] || ( poData[ result[1] ] = {} );
             stringData.original = result[2];
         }
-        
+
         while ( result = description.exec( data ) ) {
             stringData = poData[ result[1] ] || ( poData[ result[1] ] = {} );
             stringData.description = result[2];
         }
-        
+
         var poString = '#. Two letter language code\n' +
             'msgid "<LanguageCode>"\n' +
             'msgstr "en-US"\n\n',
@@ -172,7 +207,7 @@ function dbToPo ( dbFile, poFile ) {
             }
             poString += '\n';
         }
-        
+
         fs.writeFile( poFile, poString );
     });
 }
@@ -184,6 +219,9 @@ function dbToPo ( dbFile, poFile ) {
         dbFile = process.argv[3],
         dbFile2 = process.argv[4];
     switch ( action ) {
+        case 'convert':
+            convert( dbFile, dbFile2 );
+            break;
         case 'sort':
             sort( dbFile );
             break;
