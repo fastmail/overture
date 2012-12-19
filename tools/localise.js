@@ -453,7 +453,7 @@ var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) 
     fs.writeFile( outputPoPath, output );
 };
 
-var dbToPo = function ( englishDbPath, outputPoPath ) {
+var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
     var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
         output = '';
 
@@ -485,7 +485,8 @@ var dbToPo = function ( englishDbPath, outputPoPath ) {
         }
         output += 'msgctxt ' + JSON.stringify( id ) + '\n';
         output += 'msgid ' + JSON.stringify( dbObj.string ) + '\n';
-        output += 'msgstr ' + JSON.stringify( dbObj.string );
+        output += 'msgstr ' +
+            ( makePot ? '""' : JSON.stringify( dbObj.string ) );
         output += '\n\n';
     });
 
@@ -527,7 +528,10 @@ var dbToPo = function ( englishDbPath, outputPoPath ) {
             insertLocale( args[1], args[2], args[3], args[4] );
             break;
         case 'dbToPo':
-            dbToPo( args[1], args[2] );
+            dbToPo( args[1], args[2], false );
+            break;
+        case 'dbToPot':
+            dbToPo( args[1], args[2], true );
             break;
         case 'updatePo':
             updatePo( args[1], args[2], args[3], args[4] );
