@@ -35,7 +35,7 @@ var AutoCompleteController = NS.Class({
 
     init: function ( options ) {
         AutoCompleteController.parent.init.call( this, options );
-        this.filterDidChange( null, '', '', this.get( 'filter' ) );
+        this.filterDidChange();
     },
 
     options: NS.bind( 'view.collection.childViews' ),
@@ -48,8 +48,9 @@ var AutoCompleteController = NS.Class({
     }.property(),
 
     filter: NS.bind( 'view.inputView.value' ),
-    filterDidChange: function ( _, __, ___, value ) {
-        var sources = this.getFromPath( 'view.sources' ),
+    filterDidChange: function () {
+        var value = this.get( 'filter' ) || '',
+            sources = this.getFromPath( 'view.sources' ),
             items = [],
             i, l, source, count, max, suggestions, accept,
             j, m, suggestion;
