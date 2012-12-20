@@ -33,6 +33,11 @@ var AutoCompleteController = NS.Class({
 
     Extends: NS.MenuController,
 
+    init: function ( options ) {
+        AutoCompleteController.parent.init.call( this, options );
+        this.filterDidChange( null, '', '', this.get( 'filter' ) );
+    },
+
     options: NS.bind( 'view.collection.childViews' ),
     selectFirst: function ( _, __, ___, options ) {
         this.focusOption( options[0] || null );
