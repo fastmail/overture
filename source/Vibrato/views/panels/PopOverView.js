@@ -138,6 +138,10 @@ var PopOverView = NS.Class({
         // Set layout
         this.set( 'layout', position );
 
+        // Insert view
+        this.insertView( view );
+        this.render();
+
         // Callout
         if ( options.showCallout ) {
             this.get( 'layer' ).appendChild(
@@ -147,8 +151,7 @@ var PopOverView = NS.Class({
             );
         }
 
-        // Insert views
-        this.insertView( view );
+        // Insert into parent.
         parent.insertView( this );
 
         // Adjust positioning if not left-aligned
