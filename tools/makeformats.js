@@ -118,6 +118,7 @@ function makeLangFile( defaults, strings, output ) {
             date: getString( 'S_CALENDAR_FORMAT_DATE' ),
             time12: getString( 'S_CALENDAR_FORMAT_TIME_12' ),
             time24: getString( 'S_CALENDAR_FORMAT_TIME_24' ),
+            fullDate: getString( 'S_CALENDAR_FORMAT_FULL_DATE' ),
             fullDateAndTime:
                 getString( 'S_CALENDAR_FORMAT_FULL_DATE_TIME' ),
             shortDayMonth: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_MONTH' ),

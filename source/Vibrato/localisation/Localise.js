@@ -578,6 +578,7 @@ var Language = NS.Class({
         },
         time12: '%-I:%M %p',
         time24: '%H:%M',
+        fullDate: '%A, %-d %B %Y',
         fullDateAndTime: '%A, %-d %B %Y %H:%M',
         shortDayMonth: '%-d %b',
         shortDayMonthYear: '%-d %b ’%y'
@@ -834,9 +835,9 @@ var Localisation = {
         Get a date or time formatted according to local conventions.
 
         Parameters:
+            date - {...(String|Number|Object)} The arguments to interpolate.
             type - {String} The type of result you want, e.g. 'shortDate',
                    'time', 'fullDateAndTime'.
-            date - {...(String|Number|Object)} The arguments to interpolate.
 
         Returns:
             {String} The localised date.
