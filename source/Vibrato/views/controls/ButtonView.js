@@ -160,7 +160,7 @@ var MenuButtonView = NS.Class({
                 view: this.get( 'menuView' ),
                 alignWithView: isInMenu ? popOverView : this,
                 atNode: isInMenu ? this.get( 'layer' ) : null,
-                withEdge: this.get( 'alignMenu' ),
+                alignEdge: this.get( 'alignMenu' ),
                 offsetTop: offsetTop,
                 offsetLeft: offsetLeft,
                 onHide: function () {

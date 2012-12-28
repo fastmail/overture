@@ -441,7 +441,7 @@ var RichTextView = NS.Class({
         popOver.show({
             view: this.get( 'fontSizeMenuView' ),
             alignWithView: buttonView,
-            withEdge: 'centre',
+            alignEdge: 'centre',
             showCallout: true,
             offsetTop: 2
         });
@@ -478,7 +478,7 @@ var RichTextView = NS.Class({
         popOver.show({
             view: this.get( 'fontFaceMenuView' ),
             alignWithView: buttonView,
-            withEdge: 'centre',
+            alignEdge: 'centre',
             showCallout: true,
             offsetTop: 2
         });
@@ -521,7 +521,7 @@ var RichTextView = NS.Class({
         popOver.show({
             view: this.get( 'textColourMenuView' ),
             alignWithView: buttonView,
-            withEdge: 'centre',
+            alignEdge: 'centre',
             showCallout: true,
             offsetTop: 2
         });
@@ -532,7 +532,7 @@ var RichTextView = NS.Class({
         popOver.show({
             view: this.get( 'textColourMenuView' ),
             alignWithView: buttonView,
-            withEdge: 'centre',
+            alignEdge: 'centre',
             showCallout: true,
             offsetTop: 2
         });

@@ -88,7 +88,9 @@ var PopOverView = NS.Class({
         - view -> The view to append to the pop over
         - alignWithView -> the view to align to
         - atNode -> the node within the view to align to
-        - withEdge -> 'left'/'right'/'centre'
+        - positionToThe -> 'bottom'/'top'/'left'/'right'
+        - alignEdge -> 'left'/'centre'/'right'/'top'/'middle'/'bottom'
+        - inParent -> The view to insert the pop over in (optional)
         - showCallout -> true/false
         - offsetLeft
         - offsetTop
@@ -107,33 +109,64 @@ var PopOverView = NS.Class({
             view = options.view,
             alignWithView = options.alignWithView,
             atNode = options.atNode || alignWithView.get( 'layer' ),
-            withEdge = options.withEdge,
-            parent = options.atNode ?
-                alignWithView : alignWithView.get( 'parentView' ),
-            position, offset;
-
-        if ( withEdge === 'left' ) { withEdge = null; }
+            atNodeWidth = atNode.offsetWidth,
+            atNodeHeight = atNode.offsetHeight,
+            positionToThe = options.positionToThe || 'bottom',
+            alignEdge = options.alignEdge || 'left',
+            parent = options.inParent,
+            position, layer;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
-        if ( !( parent instanceof PopOverView ) ) {
+        if ( !parent ) {
+            parent = options.atNode ?
+                alignWithView : alignWithView.get( 'parentView' );
             while ( !( parent instanceof NS.RootView ) &&
-                    !( parent instanceof NS.ScrollView ) ) {
+                    !( parent instanceof NS.ScrollView ) &&
+                    !( parent instanceof PopOverView ) ) {
                 parent = parent.get( 'parentView' );
             }
         }
 
         // Now find out our offsets;
         position = NS.Element.getPosition( atNode, parent.get( 'layer' ) );
-        position.top += atNode.offsetHeight + ( options.offsetTop || 0 );
+
+        switch ( positionToThe ) {
+        case 'right':
+            position.left += atNodeWidth;
+            /* falls through */
+        case 'left':
+            switch ( alignEdge ) {
+            // case 'top':
+            //    break; // nothing to do
+            case 'middle':
+                atNodeHeight = atNodeHeight >> 1;
+                /* falls through */
+            case 'bottom':
+                position.top += atNodeHeight;
+                break;
+            }
+            break;
+        case 'bottom':
+            position.top += atNodeHeight;
+            /* falls through */
+        case 'top':
+            switch ( alignEdge ) {
+            // case 'left':
+            //     break; // nothing to do
+            case 'centre':
+                atNodeWidth = atNodeWidth >> 1;
+                /* falls through */
+            case 'right':
+                position.left += atNodeWidth;
+                break;
+            }
+            break;
+        }
+
+        position.top += options.offsetTop || 0;
         position.left += options.offsetLeft || 0;
         position.zIndex = 1000;
-
-        if ( withEdge ) {
-            offset = atNode.offsetWidth;
-            if ( withEdge === 'centre' ) { offset = ~~( offset >> 1 ); }
-            position.left += offset;
-        }
 
         // Set layout
         this.set( 'layout', position );
@@ -143,10 +176,12 @@ var PopOverView = NS.Class({
         this.render();
 
         // Callout
+        layer = this.get( 'layer' );
         if ( options.showCallout ) {
-            this.get( 'layer' ).appendChild(
+            layer.appendChild(
                 NS.Element.create( 'b', {
-                    className: 'callout ' + ( withEdge || 'left' )
+                    className: 'callout ' +
+                        positionToThe.charAt( 0 ) + ' ' + alignEdge
                 })
             );
         }
@@ -154,11 +189,41 @@ var PopOverView = NS.Class({
         // Insert into parent.
         parent.insertView( this );
 
-        // Adjust positioning if not left-aligned
-        if ( withEdge ) {
-            offset = this.get( 'layer' ).offsetWidth;
-            if ( withEdge === 'centre' ) { offset = ~~( offset >> 1 ); }
-            position.left -= offset;
+        // Adjust positioning
+        switch ( positionToThe ) {
+        case 'left':
+            position.left -= layer.offsetWidth;
+            /* falls through */
+        case 'right':
+            switch ( alignEdge ) {
+            // case 'top':
+            //    break; // nothing to do
+            case 'middle':
+                position.top -= layer.offsetHeight >> 1;
+                break;
+            case 'bottom':
+                position.top -= layer.offsetHeight;
+                break;
+            }
+            break;
+        case 'top':
+            position.top -= layer.offsetHeight;
+            /* falls through */
+        case 'bottom':
+            switch ( alignEdge ) {
+            // case 'left':
+            //     break; // nothing to do
+            case 'centre':
+                position.left -= layer.offsetWidth >> 1;
+                break;
+            case 'right':
+                position.left -= layer.offsetWidth;
+                break;
+            }
+            break;
+        }
+        if ( positionToThe === 'right' || positionToThe === 'bottom' ||
+                ( alignEdge !== 'left' && alignEdge !== 'right' ) ) {
             this.propertyDidChange( 'layout' );
         }
 
