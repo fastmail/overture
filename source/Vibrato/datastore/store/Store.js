@@ -1474,6 +1474,8 @@ var Store = NS.Class({
                                 ( Object.keyOf( Status, status ) || status ) +
                             '\nId: ' + id
                     });
+                    // Set status back to empty so setData works.
+                    this.setStatus( storeKey, EMPTY );
                 }
                 this.setData( storeKey, data );
                 this.setStatus( storeKey, READY );
