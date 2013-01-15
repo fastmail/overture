@@ -5,8 +5,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global document */
-
 "use strict";
 
 ( function ( NS ) {
@@ -70,7 +68,7 @@ var SingleSelectionController = NS.Class({
         if ( !this._ignore ) {
             if ( index < 0 || ( !length && index ) ) {
                 this.set( 'index', 0 );
-            } else if ( length && index >= length ) {
+            } else if ( length > 0 && index >= length ) {
                 this.set( 'index', length - 1 );
             } else {
                 if ( length && index > -1 ) {
