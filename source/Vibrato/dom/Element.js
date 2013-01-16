@@ -403,7 +403,21 @@ NS.Element = {
             if ( typeof value === 'number' && !cssNoPx[ style ] ) {
                 value += 'px';
             }
-            el.style[ style ] = value;
+            // IE will throw an error if you try to set an invalid value for a
+            // style.
+            try {
+                el.style[ style ] = value;
+            } catch ( error ) {
+                NS.RunLoop.didError({
+                    name: 'Element#setStyle',
+                    message: 'Invalid value set',
+                    details:
+                        'Style: ' + style +
+                      '\nValue: ' + value +
+                      '\nEl id: ' + el.id +
+                      '\nEl class: ' + el.className
+                });
+            }
         }
         return this;
     },
