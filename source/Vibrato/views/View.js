@@ -6,8 +6,6 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global Node */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -349,6 +347,11 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     didAppendLayerToDocument: function () {
+        // If change was made since willAppendLayerToDocument, will not be
+        // flushed, so add redraw to render queue.
+        if ( this._needsRedraw ) {
+            NS.RunLoop.queueFn( 'render', this.redraw, this );
+        }
         this.set( 'isInDocument', true );
 
         NS.RootViewController.registerActiveView( this );
@@ -1035,13 +1038,13 @@ var View = NS.Class({
                 oldLayer = oldView.get( 'layer' );
             view.render();
             if ( isInDocument ) {
-                view.willAppendLayerToDocument();
                 oldView.willRemoveLayerFromDocument();
+                view.willAppendLayerToDocument();
             }
             oldLayer.parentNode.replaceChild( view.get( 'layer' ), oldLayer );
             if ( isInDocument ) {
-                oldView.didRemoveLayerFromDocument();
                 view.didAppendLayerToDocument();
+                oldView.didRemoveLayerFromDocument();
             }
         }
 
