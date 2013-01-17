@@ -180,7 +180,10 @@ var TextView = NS.Class({
 
     // --- Scrolling and focus ---
 
+    savedSelection: null,
+
     didAppendLayerToDocument: function () {
+        TextView.parent.didAppendLayerToDocument.call( this );
         // Restore scroll positions:
         if ( this.get( 'isMultiline' ) ) {
             var control = this._domControl,
@@ -194,7 +197,7 @@ var TextView = NS.Class({
         if ( selection ) {
             this.set( 'selection', selection ).focus();
         }
-        return TextView.parent.didAppendLayerToDocument.call( this );
+        return this;
     },
     willRemoveLayerFromDocument: function () {
         // If focussed, save cursor position
