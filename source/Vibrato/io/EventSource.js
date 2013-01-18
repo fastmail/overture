@@ -107,6 +107,9 @@ var EventSource = NativeEventSource ? NS.Class({
             this._then = now;
             this._tick =
                 NS.RunLoop.invokeAfterDelay( this._check, 60000, this );
+            // Chrome occasionally closes the event source without firing an
+            // event. Resync readyState here to work around.
+            this.set( 'readyState', this._eventSource.readyState );
         }
     },
     /**
