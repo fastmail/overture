@@ -105,7 +105,7 @@ var AutoCompleteOptionView = NS.Class({
 
     takeFocus: function () {
         this.get( 'content' ).controller.focusOption( this );
-    }.on( 'mouseover' ),
+    }.on( 'mousemove' ),
 
     loseFocus: function () {
         this.get( 'content' ).controller.blurOption( this );

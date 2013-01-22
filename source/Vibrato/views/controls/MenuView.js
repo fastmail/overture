@@ -217,7 +217,7 @@ var MenuOptionView = NS.Class({
         }
     },
 
-    mouseOver: function () {
+    mouseMove: function () {
         if ( !this.get( 'isFocussed' ) && !this._focusTimeout ) {
             var popOverView = this.getParent( NS.PopOverView );
             if ( popOverView && popOverView.hasSubView() ) {
@@ -227,7 +227,7 @@ var MenuOptionView = NS.Class({
                 this.takeFocus();
             }
         }
-    }.on( 'mouseover' ),
+    }.on( 'mousemove' ),
 
     mouseOut: function () {
         if ( this._focusTimeout ) {
@@ -261,13 +261,13 @@ var MenuView = NS.Class({
 
     didCreateLayer: function ( layer ) {
         MenuView.parent.didCreateLayer.call( this, layer );
-        layer.addEventListener( 'mouseover', this, false );
+        layer.addEventListener( 'mousemove', this, false );
         layer.addEventListener( 'mouseout', this, false );
     },
 
     willDestroyLayer: function ( layer ) {
         layer.removeEventListener( 'mouseout', this, false );
-        layer.removeEventListener( 'mouseover', this, false );
+        layer.removeEventListener( 'mousemove', this, false );
         MenuView.parent.willDestroyLayer.call( this, layer );
     },
 
