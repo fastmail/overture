@@ -79,11 +79,28 @@ var RichTextView = NS.Class({
     willAppendLayerToDocument: function () {
         this.set( 'path', '' );
         NS.Element.removeClass( this._loadingOverlay, 'hidden' );
-        return RichTextView.parent
-                .willAppendLayerToDocument.call( this );
+        return RichTextView.parent.willAppendLayerToDocument.call( this );
+    },
+
+    didAppendLayerToDocument: function () {
+        if ( this.get( 'isExpanding' ) ) {
+            var scrollView = this.getParent( NS.ScrollView );
+            if ( scrollView ) {
+                scrollView.addObserverForKey(
+                    'scrollTop', this, '_setToolbarPosition' );
+            }
+        }
+        return RichTextView.parent.didAppendLayerToDocument.call( this );
     },
 
     willRemoveLayerFromDocument: function () {
+        if ( this.get( 'isExpanding' ) ) {
+            var scrollView = this.getParent( NS.ScrollView );
+            if ( scrollView ) {
+                scrollView.removeObserverForKey(
+                    'scrollTop', this, '_setToolbarPosition' );
+            }
+        }
         // As soon as the view is removed from the document, any editor
         // reference is no longer valid, as the iframe will have been unloaded.
         // The reference will be recreated when the iframe is appended
@@ -93,8 +110,7 @@ var RichTextView = NS.Class({
             this._value = editor.getHTML( this.get( 'isFocussed' ) );
             this.set( 'editor', null );
         }
-        return RichTextView.parent
-                .willRemoveLayerFromDocument.call( this );
+        return RichTextView.parent.willRemoveLayerFromDocument.call( this );
     },
 
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
@@ -176,12 +192,67 @@ var RichTextView = NS.Class({
         }
     }.on( 'input' ),
 
+    _setToolbarPosition: function ( scrollView, _, __, scrollTop ) {
+        var toolbarView = this.get( 'toolbarView' ),
+            offsetHeight = this._offsetHeight,
+            offsetTop = this._offsetTop,
+            now = Date.now(),
+            wasSticky = toolbarView.get( 'positioning' ) === 'fixed',
+            isSticky, position;
+
+        // For performance, cache the size and position for 1/2 second from last
+        // use.
+        if ( !offsetTop || this._offsetExpiry < now ) {
+            this._offsetHeight = offsetHeight =
+                this.get( 'layer' ).offsetHeight;
+            this._offsetTop = offsetTop =
+                Math.floor( this.getPositionRelativeTo( scrollView ).top );
+        }
+        this._offsetExpiry = now + 500;
+
+        isSticky =
+            scrollTop > offsetTop &&
+            scrollTop < offsetTop + offsetHeight -
+                ( scrollView.get( 'pxHeight' ) >> 2 );
+
+        if ( isSticky && !wasSticky ) {
+            position = toolbarView.get( 'layer' ).getBoundingClientRect();
+            toolbarView
+                .set( 'className', 'ToolbarView small sticky' )
+                .set( 'positioning', 'fixed' )
+                .set( 'layout', {
+                    top: scrollView.get( 'layer' ).getBoundingClientRect().top,
+                    left: position.left,
+                    right: this.getParent( NS.RootView ).get( 'pxWidth' ) -
+                        position.right
+                });
+        }
+        if ( !isSticky && wasSticky ) {
+            toolbarView
+                .set( 'className', 'ToolbarView small' )
+                .set( 'positioning', 'absolute' )
+                .set( 'layout', {
+                    top: 0,
+                    left: 0,
+                    right: 0
+                });
+        }
+    },
+
     toolbarView: function () {
         var bind = NS.bind,
             richTextView = this;
 
         return new NS.ToolbarView({
             className: 'ToolbarView small',
+            positioning: 'absolute',
+            clipToBounds: true,
+            zIndex: 1,
+            layout: {
+                top: 0,
+                left: 0,
+                right: 0
+            },
             preventOverlap: true
         }).registerViews({
             bold: new ButtonView({
@@ -497,7 +568,7 @@ var RichTextView = NS.Class({
                        '#683c2d #753381 #a54062 #bd433d #e4b150 ' +
                        '#381b9a #7561ac #e36a95 #e56d69 #ffe60c' )
                 .split( ' ' )
-                .map( function ( colour, index ) {
+                .map( function ( colour ) {
                     return new ButtonView({
                         label: colour,
                         layout: {
@@ -716,7 +787,7 @@ var RichTextView = NS.Class({
         event.stopPropagation();
     }.on( 'pathChange' ),
 
-    onSelect: function ( event ) {
+    onSelect: function () {
         this.propertyDidChange( 'path' );
     }.on( 'select' ),
 
