@@ -131,6 +131,7 @@ var RichTextView = NS.Class({
             if ( !editor ) {
                 win.onEditorLoad = onload;
             } else {
+                editor.didError = NS.RunLoop.didError;
                 richTextView.set( 'editor', editor
                     .addStyles( richTextView.get( 'styles' ) )
                     .setHTML( richTextView._value )
