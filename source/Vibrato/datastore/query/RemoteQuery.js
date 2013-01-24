@@ -576,7 +576,7 @@ var RemoteQuery = NS.Class({
                 addedIds.push( list[i] );
             }
         }
-        
+
         lastChangeNew = ( total === oldTotal ) ?
             lastChangeNew + 1 : Math.max( oldTotal || 0, total );
 
