@@ -119,7 +119,8 @@ Array.implement({
     /**
         Method: Array#erase
 
-        Removes all occurrences of the item from the array.
+        Removes all occurrences (as determined by strict '===' equality) of the
+        item from the array.
 
         Parameters:
             item - {*} The item to be removed from the array.

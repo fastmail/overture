@@ -85,9 +85,6 @@ Date.implement({
     }
 });
 
-var slice = Array.prototype.slice,
-    interpolate = String.prototype.interpolate;
-
 var compileTranslation = function ( translation ) {
     var compiled = '',
         start = 0,
@@ -542,7 +539,8 @@ var Language = NS.Class({
             return parts.join( this.decimalPoint );
         },
         sprintf: function ( string ) {
-            return interpolate.apply( string, slice.call( arguments, 1 ) );
+            return String.prototype.format.apply( string,
+                Array.prototype.slice.call( arguments, 1 ) );
         }
     },
 

@@ -15,7 +15,7 @@ var splitter =
 
 String.implement({
     /**
-        Method: String#interpolate
+        Method: String#format
 
         Format a string by substituting in arguments. The method can also add
         padding to make the insertion a fixed width and restrict the number of
@@ -50,7 +50,7 @@ String.implement({
         Returns:
             {String} The formatted string.
     */
-    interpolate: function () {
+    format: function () {
         // Reset RegExp.
         splitter.lastIndex = 0;
 
