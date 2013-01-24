@@ -54,12 +54,12 @@ var XHR = NS.Class({
         if ( io ) { this._io = io; }
         var xhr = this.xhr = new XMLHttpRequest(),
             that = this;
-        if ( xhr.upload && io.uploadProgress ) {
+        if ( xhr.upload && io && io.uploadProgress ) {
             xhr.upload.addEventListener( 'progress', function ( event ) {
                 io.uploadProgress( that, event );
             }.invokeInRunLoop(), false );
         }
-        if ( xhr.addEventListener && io.progress ) {
+        if ( xhr.addEventListener && io && io.progress ) {
             xhr.addEventListener( 'progress', function ( event ) {
                 io.progress( that, event );
             }.invokeInRunLoop(), false );
