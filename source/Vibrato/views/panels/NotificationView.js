@@ -10,6 +10,10 @@
 
 ( function ( NS, undefined ) {
 
+var hiddenLayout = {
+    top: 0
+};
+
 var NotificationView = NS.Class({
 
     Extends: NS.View,
@@ -46,11 +50,12 @@ var NotificationView = NS.Class({
     },
 
     hide: function () {
-        return this.set( 'layout', NotificationView.prototype.layout );
+        return this.set( 'layout', hiddenLayout );
     },
 
+    willAnimate: function () {},
     didAnimate: function () {
-        if ( !this.get( 'layout' ).top ) {
+        if ( this.get( 'layout' ) === hiddenLayout ) {
             this.get( 'parentView' )
                 .removeView( this )
                 .notificationDidHide( this );
@@ -62,9 +67,7 @@ var NotificationView = NS.Class({
     },
 
     zIndex: 10000,
-    layout: {
-        top: 0
-    },
+    layout: hiddenLayout,
 
     draw: function ( layer ) {
         this.drawNotification( layer );
