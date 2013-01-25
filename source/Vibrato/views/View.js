@@ -236,6 +236,86 @@ var View = NS.Class({
         }
     },
 
+    destroy: function () {
+        if ( this.get( 'parentView' ) ) {
+            throw new Error( 'Cannot destroy a node attached to a parent' );
+        }
+
+        var children = this.get( 'childViews' ),
+            l = children.length;
+        while ( l-- ) {
+            children[l].set( 'parentView', null ).destroy();
+        }
+        this.childViews = null;
+        if ( this.get( 'isRendered' ) ) {
+            this.willDestroyLayer( this.get( 'layer' ) );
+        }
+        this.clearPropertyCache();
+        View.parent.destroy.call( this );
+    },
+
+    // --- Sleep/wake ---
+
+    /**
+        Property: O.View#isSleeping
+        Type: Boolean
+
+        NOT OBSERVABLE.
+    */
+    isSleeping: false,
+
+    /**
+        Method: O.View#sleep
+
+        Suspends bindings on this view and all child views. May be overrident to
+        suspend other expensive observers/operations which are not needed until
+        the view is awakened again. Call this when the view is removed from the
+        document but kept in memory.
+
+        Returns:
+            {O.View} Returns self.
+    */
+    sleep: function () {
+        if ( !this.isSleeping ) {
+            this.suspendBindings();
+            var children = this.get( 'childViews' ),
+                l = children.length;
+            while ( l-- ) {
+                children[l].sleep();
+            }
+            this.isSleeping = true;
+        }
+        return this;
+    },
+
+    /**
+        Method: O.View#awaken
+
+        Resumes bindings on this view and all child views; the inverse of
+        <O.View#sleep>. Call just before reinserting a view into the DOM after
+        it has been asleep.
+
+        Returns:
+            {O.View} Returns self.
+    */
+    awaken: function () {
+        if ( this.isSleeping ) {
+            this.isSleeping = false;
+            var children = this.get( 'childViews' ),
+                l = children.length;
+            while ( l-- ) {
+                children[l].awaken();
+            }
+            this.resumeBindings();
+            if ( this._needsRedraw && this.get( 'isInDocument' ) ) {
+                NS.RunLoop.queueFn( 'render', this.redraw, this );
+            }
+        }
+        return this;
+    },
+
+    // --- Layer ---
+
     /**
         Property: O.View#id
         Type: String
@@ -246,8 +326,6 @@ var View = NS.Class({
     id: function () {
         return 'v' + UID++;
     }.property(),
-
-    // --- Layer ---
 
     /**
         Property: O.View#className
@@ -696,11 +774,29 @@ var View = NS.Class({
     },
 
     /**
-        Property: O.View#_needsRedraw
+        Property (private): O.View#_needsRedraw
         Type: Array|null
+
+        Array of tuples for properties that need a redraw. Each tuple has the
+        property name as the first item and the old value as the second.
     */
     _needsRedraw: null,
 
+    /**
+        Method: O.View#propertyNeedsRedraw
+
+        Adds a property to the needsRedraw queue and if in document, schedules
+        the O.View#redraw method to be run in the next 'render' phase of the run
+        loop. This method is automatically called when the className or
+        layerStyles properties change. If the view needs to be redrawn when
+        other properties change too, override this method and add the other
+        properties as observees as well.
+
+        Parameters:
+            _             - {*} Unused
+            layerProperty - {String} The name of the property needing a redraw
+            oldProp       - {*} The previous value of the property
+    */
     propertyNeedsRedraw: function ( _, layerProperty, oldProp ) {
         if ( this.get( 'isRendered' ) ) {
             var needsRedraw = this._needsRedraw || ( this._needsRedraw = [] ),
@@ -720,16 +816,42 @@ var View = NS.Class({
         }
     }.observes( 'className', 'layerStyles' ),
 
-    redrawClassName: function ( layer, oldValue ) {
+    /**
+        Method: O.View#redrawClassName
+
+        Sets the className on the layer to match the className property of the
+        view. Called automatically when the className property changes.
+
+        Parameters:
+            layer - {Element} The view's layer.
+    */
+    redrawClassName: function ( layer ) {
         layer.className = this.get( 'className' );
     },
 
-    redrawLayerStyles: function ( layer, oldValue ) {
+    /**
+        Method: O.View#redrawClassName
+
+        Sets the style attribute on the layer to match the layerStyles property
+        of the view. Called automatically when the layerStyles property changes.
+
+        Parameters:
+            layer - {Element} The view's layer.
+    */
+    redrawLayerStyles: function ( layer ) {
         layer.style.cssText =
             Object.toCSSString( this.get( 'layerStyles' ) );
         this.didResize();
     },
 
+    /**
+        Method: O.View#redraw
+
+        Updates the rendering of the view to account for any changes in the
+        state of the view. By default, just calls
+        `this.redraw<Property>( layer, oldValue )` for each property that has
+        been passed to <O.View#propertyNeedsRedraw>.
+    */
     redraw: function () {
         var needsRedraw = this._needsRedraw,
             layer, l, dirtyProp;
@@ -763,6 +885,12 @@ var View = NS.Class({
         }
     },
 
+    /**
+        Method: O.View#didResize
+
+        Called when the view may have resized. This will invalidate the pxLayout
+        properties and inform child views.
+    */
     didResize: function () {
         this.computedPropertyDidChange( 'pxLayout' );
         var children = this.get( 'childViews' ),
@@ -799,6 +927,18 @@ var View = NS.Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
+    /**
+        Property: O.View#pxLayout
+        Type: Object
+
+        An object specifying the layout of the view in pixels. Properties:
+        - top: The y-axis offset in pixels of the top edge of the view from the
+          top edge of its parent's view.
+        - left: The x-axis offset in pixels of the left edge of the view from
+          the left edge of its parent's view.
+        - width: The width of the view in pixels.
+        - height: The height of the view in pixels.
+    */
     pxLayout: function () {
         return  {
             top: this.get( 'pxTop' ),
@@ -1184,86 +1324,6 @@ var View = NS.Class({
             parent = parent.get( 'parentView' );
         } while ( parent && !( parent instanceof Type ) );
         return parent || null;
-    },
-
-    // --- Sleep/wake ---
-
-    /**
-        Property: O.View#isSleeping
-        Type: Boolean
-
-        NOT OBSERVABLE.
-    */
-    isSleeping: false,
-
-    /**
-        Method: O.View#sleep
-
-        Suspends bindings on this view and all child views. May be overrident to
-        suspend other expensive observers/operations which are not needed until
-        the view is awakened again. Call this when the view is removed from the
-        document but kept in memory.
-
-        Returns:
-            {O.View} Returns self.
-    */
-    sleep: function () {
-        if ( !this.isSleeping ) {
-            this.suspendBindings();
-            var children = this.get( 'childViews' ),
-                l = children.length;
-            while ( l-- ) {
-                children[l].sleep();
-            }
-            this.isSleeping = true;
-        }
-        return this;
-    },
-
-    /**
-        Method: O.View#awaken
-
-        Resumes bindings on this view and all child views; the inverse of
-        <O.View#sleep>. Call just before reinserting a view into the DOM after
-        it has been asleep.
-
-        Returns:
-            {O.View} Returns self.
-    */
-    awaken: function () {
-        if ( this.isSleeping ) {
-            this.isSleeping = false;
-            var children = this.get( 'childViews' ),
-                l = children.length;
-            while ( l-- ) {
-                children[l].awaken();
-            }
-            this.resumeBindings();
-            if ( this._needsRedraw && this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'render', this.redraw, this );
-            }
-        }
-        return this;
-    },
-
-    // --- Destructor ---
-
-    destroy: function () {
-        if ( this.get( 'parentView' ) ) {
-            throw new Error( 'Cannot destroy a node attached to a parent' );
-        }
-
-        var children = this.get( 'childViews' ),
-            l = children.length;
-        while ( l-- ) {
-            children[l].set( 'parentView', null ).destroy();
-        }
-        this.childViews = null;
-        if ( this.get( 'isRendered' ) ) {
-            this.willDestroyLayer( this.get( 'layer' ) );
-        }
-        this.clearPropertyCache();
-        View.parent.destroy.call( this );
     }
 });
 
