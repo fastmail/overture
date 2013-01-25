@@ -1225,15 +1225,10 @@ var WindowedRemoteQuery = NS.Class({
         // Calculate end index, as length will be destroyed later
         end = position + length;
 
-        // Set the length to the beginning of the splice to ensure it will work.
-        // Otherwise the splice will add the elements in at the position of the
-        // current end of the array!
-        if ( list.length < position ) {
-            list.length = position;
+        // Insert ids into list
+        for ( i = 0; i < length; i += 1 ) {
+            list[ position + i ] = ids[i];
         }
-
-        ids.unshift( position, length );
-        Array.prototype.splice.apply( list, ids );
 
         // Have we fetched any windows?
         var windowSize = this.get( 'windowSize' ),
