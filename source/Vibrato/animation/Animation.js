@@ -75,8 +75,19 @@ var nextFrame = function ( time ) {
 }.invokeInRunLoop();
 
 var meta = NS.meta;
-var timestamp = win.performance && performance.now ?
-    performance : Date;
+var timestamp = Date;
+
+// Feature detect what timestamp is actually passed to the requestAnimFrame
+// method
+requestAnimFrame( function ( time ) {
+    if ( time < Date.now() ) {
+        timestamp = performance;
+        // For Chrome v21-23 (inclusive):
+        if ( !timestamp.now ) {
+            timestamp.now = timestamp.webkitNow;
+        }
+    }
+});
 
 NS.Animation = NS.Class({
 
