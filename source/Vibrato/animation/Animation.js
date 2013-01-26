@@ -6,7 +6,7 @@
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global window */
+/*global window, performance */
 
 "use strict";
 
@@ -75,6 +75,8 @@ var nextFrame = function ( time ) {
 }.invokeInRunLoop();
 
 var meta = NS.meta;
+var timestamp = win.performance && performance.now ?
+    performance : Date;
 
 NS.Animation = NS.Class({
 
@@ -111,7 +113,7 @@ NS.Animation = NS.Class({
             metadata = meta( object ),
             objAnimations = metadata.animations || ( metadata.animations = [] );
 
-        this.startTime = Date.now();
+        this.startTime = timestamp.now();
 
         // Start loop if no current animations
         if ( !animations.length ) {
