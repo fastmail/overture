@@ -37,6 +37,8 @@ var NotificationView = NS.Class({
     text: '',
     html: '',
 
+    _timer: null,
+
     show: function ( notificationsContainer ) {
         notificationsContainer.insertView( this );
         this.set( 'layout', {
@@ -44,18 +46,24 @@ var NotificationView = NS.Class({
         });
         var timeout = this.get( 'timeout' );
         if ( timeout ) {
-            NS.RunLoop.invokeAfterDelay( this.hide, timeout, this );
+            this._timer =
+                NS.RunLoop.invokeAfterDelay( this.hide, timeout, this );
         }
         return this;
     },
 
     hide: function () {
+        if ( this._timer ) {
+            NS.RunLoop.cancel( this._timer );
+            this._timer = null;
+        }
         return this.set( 'layout', hiddenLayout );
     },
 
-    willAnimate: function () {},
     didAnimate: function () {
-        if ( this.get( 'layout' ) === hiddenLayout ) {
+        this.increment( 'animating', -1 );
+        if ( !this.get( 'animating' ) &&
+                this.get( 'layout' ) === hiddenLayout ) {
             this.get( 'parentView' )
                 .removeView( this )
                 .notificationDidHide( this );
@@ -64,7 +72,7 @@ var NotificationView = NS.Class({
                 this.destroy();
             }
         }
-    },
+    }.queue( 'render' ),
 
     zIndex: 10000,
     layout: hiddenLayout,
