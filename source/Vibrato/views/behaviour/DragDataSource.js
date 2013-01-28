@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: DragDataSource.js                                                    \\
 // Module: View                                                               \\
-// Requires: Drag.js                                                          \\
+// Requires: DragEffect.js                                                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -20,7 +20,7 @@ NS.DragDataSource = {
         };
     },
     isDragDataSource: true,
-    allowedDragEffects: NS.Drag.ALL,
+    allowedDragEffects: NS.DragEffect.ALL,
     dragDataTypes: [],
     getDragDataOfType: function ( type, drag ) {
         return this._dragData[ type ];

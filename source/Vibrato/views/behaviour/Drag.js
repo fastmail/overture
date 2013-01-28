@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: Drag.js                                                              \\
 // Module: View                                                               \\
-// Requires: Core, Foundation, DOM, RootView.js                               \\
+// Requires: DragEffect.js                                                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -12,7 +12,7 @@
 
 ( function ( NS ) {
 
-/* Issues with drag.
+/* Issues with native drag and drop.
 
 This system hooks into the native HTML5 drag and drop event system to allow data
 to be dragged not just within the window but also between windows and other
@@ -48,235 +48,19 @@ show-stopping bugs here, so this is handled as normal.
 
 */
 
+// Inlined from O.DragEffect
 var NONE = 0,
     COPY = 1,
     MOVE = 2,
     LINK = 4,
     ALL = COPY|MOVE|LINK,
-    // Maps bit mask effect to string
-    effectToString = [
-        'none',
-        'copy',
-        'move',
-        'copyMove',
-        'link',
-        'copyLink',
-        'linkMove',
-        'all'
-    ];
-
-    // To detect if natively supported:
-    // (function () {
-    //     var el = document.createElement( 'div' ),
-    //         isSupported = false;
-    //     el.setAttribute( 'ondrag', '' );
-    //     isSupported = el.ondrag instanceof Function;
-    //     el.removeAttribute( 'ondrag' );
-    //     el = null;
-    //     return isSupported;
-    // }() );
-
-var isControl = {
-    BUTTON: 1,
-    INPUT: 1,
-    OPTION: 1,
-    SELECT: 1,
-    TEXTAREA: 1
-};
-
-var DragController = new NS.Object({
-    x: 0,
-    y: 0,
-    target: null,
-    ignore: true,
-    drag: null,
-
-    register: function ( drag ) {
-        if ( this.drag ) {
-            this.drag.endDrag();
-        }
-        this.drag = drag;
-    },
-    deregister: function ( drag ) {
-        if ( this.drag === drag ) {
-            this.drag = null;
-        }
-    },
-
-    getNearestDragView: function ( view ) {
-        while ( view ) {
-            if ( view.get( 'isDraggable' ) ) {
-                break;
-            }
-            view = view.get( 'parentView' ) || null;
-        }
-        return view;
-    },
-
-    handleEvent: function ( event ) {
-        this.fire( event.type, event );
-    }.invokeInRunLoop(),
-
-    // Non-native API version
-    _onMousedown: function ( event ) {
-        if ( event.button || event.metaKey || event.ctrlKey ) { return; }
-        if ( isControl[ event.target.nodeName ] ) {
-            this.ignore = true;
-        } else {
-            this.x = event.clientX;
-            this.y = event.clientY;
-            this.targetView = event.targetView;
-            this.ignore = false;
-        }
-    }.on( 'mousedown' ),
-    _onMousemove: function ( event ) {
-        var drag = this.drag;
-        if ( drag ) {
-            // Mousemove should only be fired if not native DnD, but sometimes
-            // is fired even when there's a native drag
-            if ( !drag.get( 'isNative' ) ) {
-                drag.move( event );
-            }
-            // If mousemove during drag, don't propagate to views (for
-            // consistency with native DnD).
-            event.stopPropagation();
-        } else if ( !this.ignore ) {
-            var x = event.clientX - this.x,
-                y = event.clientY - this.y,
-                view;
-
-            if ( ( x*x + y*y ) > 25 ) {
-                view = this.getNearestDragView( this.targetView );
-                if ( view ) {
-                    new NS.Drag({
-                        dragSource: view,
-                        event: event,
-                        startLocation: {
-                            x: this.x,
-                            y: this.y
-                        }
-                    });
-                }
-                this.ignore = true;
-            }
-        }
-    }.on( 'mousemove' ),
-    _onMouseup: function ( event ) {
-        this.ignore = true;
-        this.targetView = null;
-        // Mouseup will not fire if native DnD
-        if ( this.drag ) {
-            this.drag.drop( event ).endDrag();
-        }
-    }.on( 'mouseup' ),
-    _escCancel: function ( event ) {
-        if ( this.drag && NS.DOMEvent.lookupKey( event ) === 'esc' ) {
-            this.drag.endDrag();
-        }
-    }.on( 'keydown' ),
-
-    // Native API version:
-    _onDragstart: function ( event ) {
-        // Ignore any implicit drags; only use native API when draggable="true"
-        // is explicitly set
-        var target = event.target,
-            explicit = false;
-        while ( target && target.getAttribute ) {
-            if ( target.getAttribute( 'draggable' ) === 'true' ) {
-                explicit = true;
-                break;
-            }
-            target = target.parentNode;
-        }
-        if ( !explicit ) {
-            event.preventDefault();
-        } else {
-            new NS.Drag({
-                dragSource: this.getNearestDragView( event.targetView ),
-                event: event,
-                isNative: true
-            });
-        }
-    }.on( 'dragstart' ),
-    _onDragover: function ( event ) {
-        var drag = this.drag,
-            dataTransfer = event.dataTransfer,
-            notify = true,
-            effect;
-        // Probably hasn't come via root view controller, so doesn't have target
-        // view property
-        if ( !event.targetView ) {
-            event.targetView =
-                NS.RootViewController.getViewFromNode( event.target );
-        }
-        if ( !drag ) {
-            // Drag from external source:
-            drag = new NS.Drag({
-                event: event,
-                isNative: true,
-                allowedEffects:
-                    effectToString.indexOf( dataTransfer.effectAllowed )
-            });
-        } else {
-            var x = event.clientX,
-                y = event.clientY;
-            if ( this.x === x && this.y === y ) {
-                notify = false;
-            } else {
-                this.x = x;
-                this.y = y;
-            }
-        }
-        if ( notify ) {
-            drag.move( event );
-        }
-        effect = drag.get( 'dropEffect' ) & drag.get( 'allowedEffects' );
-        dataTransfer.dropEffect = effectToString[ effect ];
-        if ( effect ) {
-            event.preventDefault();
-        }
-    }.on( 'dragover' ),
-    // If a native drag starts outside the window, we never get a dragend
-    // event. Instead we need to keep track of the dragenter/dragleave calls.
-    // The drag enter event is fired before the drag leave event (see
-    // http://dev.w3.org/html5/spec/dnd.html#drag-and-drop-processing-model), so
-    // when the count gets down to zero it means the mouse has left the actual
-    // window and so we can end the drag.
-    _nativeRefCount: 0,
-    _onDragenter: function ( event ) {
-        this._nativeRefCount += 1;
-    }.on( 'dragenter' ),
-    _onDragleave: function ( event ) {
-        if ( !( this._nativeRefCount -= 1 ) && this.drag ) {
-            this.drag.endDrag();
-        }
-    }.on( 'dragleave' ),
-    _onDrop: function ( event ) {
-        event.preventDefault();
-        if ( this.drag ) {
-            this.drag.drop( event ).endDrag();
-        }
-    }.on( 'drop' ),
-    _onDragend: function ( event ) {
-        // Dragend doesn't fire if the drag didn't start
-        // inside the window, so we also call drag end on drop.
-        if ( this.drag ) {
-            this.drag.endDrag();
-        }
-    }.on( 'dragend' )
-});
-
-'dragover dragenter dragleave drop dragend'.split( ' ' ).forEach( function ( type ) {
-    document.addEventListener( type, DragController, false );
-});
-
-NS.RootViewController.pushResponder( DragController );
+    effectToString = NS.DragEffect.effectToString;
 
 var Drag = NS.Class({
 
     Extends: NS.Object,
 
-    nextEventTarget: DragController,
+    nextEventTarget: NS.DragController,
 
     init: function ( options ) {
         Drag.parent.init.call( this, options );
@@ -478,7 +262,7 @@ var Drag = NS.Class({
 
     // General:
     startDrag: function () {
-        DragController.register( this );
+        NS.DragController.register( this );
         this.fire( 'dragStarted' );
         var dragSource = this.get( 'dragSource' ),
             allowedEffects, dataTransfer, dataSource, dataIsSet;
@@ -545,7 +329,7 @@ var Drag = NS.Class({
         this._setCursor( false );
 
         this.fire( 'dragEnded' );
-        DragController.deregister( this );
+        NS.DragController.deregister( this );
 
         return this;
     },
@@ -698,12 +482,5 @@ var Drag = NS.Class({
 });
 
 NS.Drag = Drag;
-NS.DragController = DragController;
-
-NS.Drag.NONE = NONE;
-NS.Drag.COPY = COPY;
-NS.Drag.MOVE = MOVE;
-NS.Drag.LINK = LINK;
-NS.Drag.ALL = ALL;
 
 }( this.O ) );

@@ -873,7 +873,7 @@ var RichTextView = NS.Class({
         'image/tiff': true
     },
 
-    dropEffect: NS.Drag.COPY,
+    dropEffect: NS.DragEffect.COPY,
 
     drop: function ( drag ) {
         var types = this.get( 'dropAcceptedDataTypes' ),
