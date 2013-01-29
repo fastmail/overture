@@ -35,6 +35,10 @@ var CORSRequest =
     ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
     ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
 
+// Will the browser execute the scripts in the order they are injected into the
+// page?
+var inOrderScripts = ( CORSRequest === XMLHttpRequest );
+
 var afterModuleExecute = function ( name ) {
     var info = moduleInfo[ name ],
         callbacks = info.callbacks,
@@ -101,15 +105,26 @@ var moduleDidLoad = function ( name, data ) {
 };
 
 // Loads text, but does not parse/execute unless executeOnLoad is set.
-var load = function ( name, executeOnLoad ) {
+var load = function ( name, executeOnLoad, force ) {
     var info = moduleInfo[ name ],
         src = info.src,
         status = info.status,
         loader = NS.loader,
-        useScriptTag = !CORSRequest || ( loader.debug && !window.ie ),
-        data, doc, script, xhr, send, wait;
+        useScriptTag = !CORSRequest || loader.debug,
+        dependencies, data, doc, script, xhr, send, wait;
 
-    if ( useScriptTag && !executeOnLoad ) { return; }
+    if ( useScriptTag ) {
+        if ( !executeOnLoad ) {
+            return;
+        }
+        if ( !inOrderScripts && !force &&
+                ( dependencies = info.dependencies ) ) {
+            require( dependencies, function () {
+                load( name, executeOnLoad, true );
+            });
+            return;
+        }
+    }
 
     if ( status === UNREQUESTED ) {
         // Set new status
