@@ -79,8 +79,9 @@ var timestamp = Date;
 
 // Feature detect what timestamp is actually passed to the requestAnimFrame
 // method
+var then = timestamp.now();
 requestAnimFrame( function ( time ) {
-    if ( time < Date.now() ) {
+    if ( time < then ) {
         timestamp = performance;
         // For Chrome v21-23 (inclusive):
         if ( !timestamp.now ) {
