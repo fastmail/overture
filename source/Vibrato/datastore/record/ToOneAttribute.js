@@ -67,8 +67,8 @@ var ToOneAttribute = NS.Class({
 
 NS.ToOneAttribute = ToOneAttribute;
 
-NS.Record.toOne = function ( options ) {
-    return new ToOneAttribute( options );
+NS.Record.toOne = function ( mixin ) {
+    return new ToOneAttribute( mixin );
 };
 
 }( this.O ) );

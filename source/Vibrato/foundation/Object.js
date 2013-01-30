@@ -29,13 +29,13 @@ NS.Object = NS.Class({
         Constructor: O.Object
 
         Parameters:
-            options - {Object} (optional) Any properties in this object will be
-                      added to the new O.Object instance before initialisation
-                      (so you can pass it getter/setter functions or observing
-                      methods).
+            mixin - {Object} (optional) Any properties in this object will be
+                    added to the new O.Object instance before initialisation (so
+                    you can pass it getter/setter functions or observing
+                    methods).
     */
-    init: function ( options ) {
-        NS.mixin( this, options );
+    init: function ( mixin ) {
+        NS.mixin( this, mixin );
         var metadata = meta( this, false ),
             inits = metadata.inits,
             method;

@@ -171,18 +171,18 @@ var IO = NS.Class({
         Constructor: O.IO
 
         Parameters:
-            config - {Object} An object containing new defaults for any of the
-                     public properties defined on the object. Can also contain
-                     methods to override the normal methods to create an
-                     anonymous subclass.
+            mixin - {Object} An object containing new defaults for any of the
+                    public properties defined on the object. Can also contain
+                    methods to override the normal methods to create an
+                    anonymous subclass.
     */
-    init: function ( options ) {
+    init: function ( mixin ) {
         this._queue = [];
         this._transportPool = [];
         this.headers = {
             'Accept': 'text/javascript, text/html, application/json, */*'
         };
-        IO.parent.init.call( this, options );
+        IO.parent.init.call( this, mixin );
     },
 
     /**

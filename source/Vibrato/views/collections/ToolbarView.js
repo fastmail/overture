@@ -78,12 +78,12 @@ var ToolbarView = NS.Class({
     minimumGap: 20,
     preventOverlap: false,
 
-    init: function ( options ) {
-        ToolbarView.parent.init.call( this, options );
+    init: function ( mixin ) {
+        ToolbarView.parent.init.call( this, mixin );
         this._views = {
             overflow: new OverflowMenuView({
                 label: NS.loc( 'More' ),
-                popOverView: options.popOverView || new NS.PopOverView()
+                popOverView: mixin.popOverView || new NS.PopOverView()
             })
         };
         this._configs = {

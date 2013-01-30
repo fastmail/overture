@@ -22,8 +22,8 @@ var TextView = NS.Class({
 
     Mixin: NS.Validate,
 
-    init: function () {
-        TextView.parent.init.apply( this, arguments );
+    init: function ( mixin ) {
+        TextView.parent.init.call( this, mixin );
         this._settingFromInput = false;
         this.initValidate();
     },

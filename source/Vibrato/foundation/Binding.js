@@ -139,12 +139,12 @@ var Binding = NS.Class({
         Constructor: O.Binding
 
         Parameters:
-            config - {Object} (optional). Can set isTwoWay or the transform to
-                     use on the binding.
+            mixin - {Object} (optional). Can set isTwoWay or the transform to
+                    use on the binding.
     */
-    init: function ( config ) {
-        for ( var key in config ) {
-            this[ key ] = config[ key ];
+    init: function ( mixin ) {
+        for ( var key in mixin ) {
+            this[ key ] = mixin[ key ];
         }
     },
 

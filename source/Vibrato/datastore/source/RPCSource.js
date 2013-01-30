@@ -61,13 +61,13 @@ var RPCSource = NS.Class({
         Constructor: O.RPCSource
 
         Parameters:
-            options - {Object} (optional) Any properties in this object will be
-                      added to the new O.Object instance before initialisation
-                      (so you can pass it getter/setter functions or observing
-                      methods). If you don't specify this, your source isn't
-                      going to do much!
+            mixin - {Object} (optional) Any properties in this object will be
+                    added to the new O.Object instance before initialisation (so
+                    you can pass it getter/setter functions or observing
+                    methods). If you don't specify this, your source isn't going
+                    to do much!
     */
-    init: function ( options ) {
+    init: function ( mixin ) {
         // List of method/args queued for sending in the next request.
         this._sendQueue = [];
         // List of callback functions to be executed after the next request.
@@ -82,7 +82,7 @@ var RPCSource = NS.Class({
         // Map of id -> RemoteQuery for all queries to be fetched.
         this._queriesToFetch = {};
 
-        RPCSource.parent.init.call( this, options );
+        RPCSource.parent.init.call( this, mixin );
     },
 
     /**

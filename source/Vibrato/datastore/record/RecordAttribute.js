@@ -45,10 +45,10 @@ var RecordAttribute = NS.Class({
         Constructor: O.RecordAttribute
 
         Parameters:
-            options - {Object} (optional) Override the default properties.
+            mixin - {Object} (optional) Override the default properties.
     */
-    init: function ( options ) {
-        NS.extend( this, options );
+    init: function ( mixin ) {
+        NS.extend( this, mixin );
     },
 
     /**
@@ -266,16 +266,16 @@ NS.RecordAttribute = RecordAttribute;
 
     Parameters:
         Type    - {Constructor} The type of the property.
-        options - {Object} Options to pass to the <O.RecordAttribute>
-                  constructor.
+        mixin - {Object} Properties to pass to the <O.RecordAttribute>
+                constructor.
 
     Returns:
         {O.RecordAttribute} Getter/setter for that record attribute.
 */
-NS.Record.attr = function ( Type, options ) {
-    if ( !options ) { options = {}; }
-    if ( Type && !options.Type ) { options.Type = Type; }
-    return new RecordAttribute( options );
+NS.Record.attr = function ( Type, mixin ) {
+    if ( !mixin ) { mixin = {}; }
+    if ( Type && !mixin.Type ) { mixin.Type = Type; }
+    return new RecordAttribute( mixin );
 };
 
 }( this.O ) );

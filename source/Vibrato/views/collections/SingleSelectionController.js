@@ -13,8 +13,8 @@ var SingleSelectionController = NS.Class({
 
     Extends: NS.Object,
 
-    init: function ( options ) {
-        SingleSelectionController.parent.init.call( this, options );
+    init: function ( mixin ) {
+        SingleSelectionController.parent.init.call( this, mixin );
         var content = this.get( 'content' ),
             range = this._range = { start: -1, end: 0 };
         if ( content ) {

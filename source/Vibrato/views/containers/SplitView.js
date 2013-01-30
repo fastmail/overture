@@ -32,11 +32,11 @@ SplitView = NS.Class({
     minStaticPaneLength: 0,
     maxStaticPaneLength: 32767,
 
-    init: function ( options ) {
-        SplitView.parent.init.call( this, options );
+    init: function ( mixin ) {
+        SplitView.parent.init.call( this, mixin );
         var childViews = this.get( 'childViews' ),
-            tl = options[ topLeftView ],
-            br = options[ bottomRightView ];
+            tl = mixin[ topLeftView ],
+            br = mixin[ bottomRightView ];
         if ( tl ) {
             tl.set( 'parentView', this );
             childViews.push( tl );

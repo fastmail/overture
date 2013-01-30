@@ -11,8 +11,8 @@
 ( function ( NS ) {
 
 NS.Gesture = NS.Class({
-    init: function ( options ) {
-        NS.extend( this, options );
+    init: function ( mixin ) {
+        NS.extend( this, mixin );
         NS.GestureManager.register( this );
     },
     destroy: function () {

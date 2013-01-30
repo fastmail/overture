@@ -184,8 +184,8 @@ var ToManyAttribute = NS.Class({
 
 NS.ToManyAttribute = ToManyAttribute;
 
-NS.Record.toMany = function ( options ) {
-    return new ToManyAttribute( options );
+NS.Record.toMany = function ( mixin ) {
+    return new ToManyAttribute( mixin );
 };
 
 }( this.O ) );

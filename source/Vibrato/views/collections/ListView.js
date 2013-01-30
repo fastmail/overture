@@ -21,9 +21,9 @@ var ListView = NS.Class({
     _batchSize: 10,
     _triggerInPx: 200,
 
-    init: function ( options ) {
+    init: function ( mixin ) {
         this._renderRange = { start: 0, end: 0 };
-        ListView.parent.init.call( this, options );
+        ListView.parent.init.call( this, mixin );
     },
 
     positioning: 'absolute',

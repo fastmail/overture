@@ -36,8 +36,8 @@ var UnorderedCollectionView = NS.Class({
         return Object.values( this._rendered );
     }.property(),
 
-    init: function ( options ) {
-        UnorderedCollectionView.parent.init.call( this, options );
+    init: function ( mixin ) {
+        UnorderedCollectionView.parent.init.call( this, mixin );
         this._rendered = {};
         var selectionController = this.get( 'selectionController' );
         if ( selectionController ) {

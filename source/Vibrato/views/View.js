@@ -226,8 +226,8 @@ var View = NS.Class({
         An array of the child views of this view.
     */
 
-    init: function ( options ) {
-        View.parent.init.call( this, options );
+    init: function ( mixin ) {
+        View.parent.init.call( this, mixin );
 
         var children = this.get( 'childViews' ) || ( this.childViews = [] ),
             l = children.length;

@@ -250,14 +250,14 @@ var Language = NS.Class({
                        a formatted date.
 
         Parameters:
-            options - {Object} Locale information for this language.
+            mixin - {Object} Locale information for this language.
     */
-    init: function ( options ) {
+    init: function ( mixin ) {
         [ 'macros', 'dateFormats' ].forEach( function ( obj ) {
             this[ obj ] = Object.create( this[ obj ] );
         }, this );
         this.compiled = {};
-        NS.merge( this, options );
+        NS.merge( this, mixin );
     },
 
     /**

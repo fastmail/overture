@@ -25,8 +25,8 @@ var ThemeManager = NS.Class({
 
     Extends: NS.Object,
 
-    init: function ( options ) {
-        ThemeManager.parent.init.call( this, options );
+    init: function ( mixin ) {
+        ThemeManager.parent.init.call( this, mixin );
         this._images = { all: {} };
         this._styles = { all: {} };
         this._activeStylesheets = {};

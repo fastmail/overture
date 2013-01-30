@@ -56,13 +56,13 @@ var EventSource = NativeEventSource ? NS.Class({
         Constructor: O.EventSource
 
         Parameters:
-            options - {Object} (optional) Any properties in this object will be
-                      added to the new O.EventSource instance before
-                      initialisation (so you can pass it getter/setter functions
-                      or observing methods).
+            mixin - {Object} (optional) Any properties in this object will be
+                    added to the new O.EventSource instance before
+                    initialisation (so you can pass it getter/setter functions
+                    or observing methods).
     */
-    init: function () {
-        EventSource.parent.init.apply( this, arguments );
+    init: function ( mixin ) {
+        EventSource.parent.init.call( this, mixin );
 
         var eventTypes = [ 'open', 'message', 'error' ],
             observers = NS.meta( this, true ).observers,
@@ -191,8 +191,8 @@ var EventSource = NativeEventSource ? NS.Class({
 
     readyState: CONNECTING,
 
-    init: function () {
-        EventSource.parent.init.apply( this, arguments );
+    init: function ( mixin ) {
+        EventSource.parent.init.call( this, mixin );
         this._xhr = new NS.XHR( this );
     },
     open: function () {

@@ -438,11 +438,12 @@ var Store = NS.Class({
             Type       - {O.Class} The record type.
             id         - {String} The record id, or the store key prefixed with
                          a '#'.
-            doNotFetch - {Boolean} If true, the record data will not be fetched
-                         from the server if it is not already loaded.
+            doNotFetch - {Boolean} (optional) If true, the record data will not
+                         be fetched from the server if it is not already loaded.
 
         Returns:
-            {O.Record} Returns the requested record.
+            {O.Record|null} Returns the requested record, or null if no type or
+            no id given.
     */
     getRecord: function ( Type, id, doNotFetch ) {
         if ( !Type || !id ) { return null; }
@@ -2163,16 +2164,16 @@ var Store = NS.Class({
             id         - {String} The id of the requested query.
             QueryClass - {O.Class} (optional) The query class to use if the
                          query is not already created.
-            options    - {(Object|null)} (optional) The parameter to pass to the
+            mixin    - {(Object|null)} (optional) Properties to pass to the
                          QueryClass constructor.
 
         Returns:
             {(O.LiveQuery|O.RemoteQuery|null)} The requested query.
     */
-    getQuery: function ( id, QueryClass, options ) {
+    getQuery: function ( id, QueryClass, mixin ) {
         var query = ( id && this._idToQuery[ id ] ) || null;
         if ( !query && QueryClass ) {
-            query = new QueryClass( NS.extend( options || {}, {
+            query = new QueryClass( NS.extend( mixin || {}, {
                 id: id,
                 store: this,
                 source: this._source

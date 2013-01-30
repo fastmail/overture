@@ -21,8 +21,8 @@ var SelectionController = NS.Class({
     _selectionId: 0,
     _lastSelectedIndex: 0,
 
-    init: function ( options ) {
-        SelectionController.parent.init.call( this, options );
+    init: function ( mixin ) {
+        SelectionController.parent.init.call( this, mixin );
         var content = this.get( 'content' );
         if ( content ) {
             content.on( 'query:updated', this, 'contentWasUpdated' );

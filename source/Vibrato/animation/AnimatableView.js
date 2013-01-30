@@ -55,8 +55,8 @@ var canTransform3d = !!NS.UA.cssProps.transform3d;
 
 var CSSStyleAnimation = NS.Class({
 
-    init: function ( options ) {
-        NS.extend( this, options );
+    init: function ( mixin ) {
+        NS.extend( this, mixin );
     },
 
     isRunning: false,

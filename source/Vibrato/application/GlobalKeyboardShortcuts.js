@@ -48,9 +48,9 @@ var GlobalKeyboardShortcuts = NS.Class({
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
-    init: function ( options ) {
+    init: function ( mixin ) {
         this._shortcuts = {};
-        GlobalKeyboardShortcuts.parent.init.call( this, options );
+        GlobalKeyboardShortcuts.parent.init.call( this, mixin );
         var RootViewController = NS.RootViewController;
         RootViewController.kbShortcuts = this;
         RootViewController.queueResponder( this );

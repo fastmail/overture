@@ -92,8 +92,8 @@ requestAnimFrame( function ( time ) {
 
 NS.Animation = NS.Class({
 
-    init: function ( options ) {
-        NS.extend( this, options );
+    init: function ( mixin ) {
+        NS.extend( this, mixin );
     },
 
     object: null,

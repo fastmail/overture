@@ -99,7 +99,7 @@ var LiveQuery = NS.Class({
     /**
         Constructor: O.LiveQuery
 
-        The following options should be configured:
+        The following properties should be configured:
 
         store  - {O.Store} The store to query for records.
         Type   - {O.Class} The constructor for the record type this query is a
@@ -116,17 +116,17 @@ var LiveQuery = NS.Class({
                  particular order.
 
         Parameters:
-            options - {Object} The options for the query.
+            mixin - {Object} The properties for the query.
     */
-    init: function ( options ) {
-        var sort = options.sort,
-            store = options.store || this.store,
+    init: function ( mixin ) {
+        var sort = mixin.sort,
+            store = mixin.store || this.store,
             results;
 
         if ( sort && !( sort instanceof Function ) ) {
-            sort = options.sort = NS.sortByProperties( sort );
+            sort = mixin.sort = NS.sortByProperties( sort );
         }
-        results = store.findAll( options.Type, options.filter, sort );
+        results = store.findAll( mixin.Type, mixin.filter, sort );
 
         this._storeKeys = results;
         this._sort = results.sortFn;
@@ -134,7 +134,7 @@ var LiveQuery = NS.Class({
 
         this.length = results.length;
 
-        LiveQuery.parent.init.call( this, options );
+        LiveQuery.parent.init.call( this, mixin );
 
         store.addQuery( this );
     },

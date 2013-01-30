@@ -178,13 +178,13 @@ var RemoteQuery = NS.Class({
         Constructor: O.RemoteQuery
 
         Parameters:
-            options - {Object} (optional) Any properties in this object will be
-                      added to the new O.RemoteQuery instance before
-                      initialisation (so you can pass it getter/setter functions
-                      or observing methods).
+            mixin - {Object} (optional) Any properties in this object will be
+                    added to the new O.RemoteQuery instance before
+                    initialisation (so you can pass it getter/setter functions
+                    or observing methods).
     */
-    init: function ( options ) {
-        RemoteQuery.parent.init.call( this, options );
+    init: function ( mixin ) {
+        RemoteQuery.parent.init.call( this, mixin );
         this._list = [];
         this._refresh = false;
         this.get( 'store' ).addQuery( this );

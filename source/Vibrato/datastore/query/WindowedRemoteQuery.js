@@ -377,8 +377,8 @@ var WindowedRemoteQuery = NS.Class({
         non-observed range in the query.
     */
 
-    init: function ( options ) {
-        WindowedRemoteQuery.parent.init.call( this, options );
+    init: function ( mixin ) {
+        WindowedRemoteQuery.parent.init.call( this, mixin );
 
         this._windows = [];
         this._indexOfRequested = [];

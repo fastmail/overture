@@ -299,8 +299,8 @@ var LightboxView = NS.Class({
 
     isActive: false,
 
-    init: function ( parentView, options ) {
-        LightboxView.parent.init.call( this, options );
+    init: function ( parentView, mixin ) {
+        LightboxView.parent.init.call( this, mixin );
         this._rootView = parentView;
         this._shortcuts = NS.RootViewController.kbShortcuts;
     },

@@ -116,8 +116,8 @@ var Router = NS.Class({
     */
     routes: [],
 
-    init: function ( options, win ) {
-        Router.parent.init.call( this, options );
+    init: function ( mixin, win ) {
+        Router.parent.init.call( this, mixin );
         if ( !win ) { win = window; }
         var location = win.location,
             path = ( this.useHash && getHash( location ) ) ||

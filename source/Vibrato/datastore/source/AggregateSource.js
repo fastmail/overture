@@ -22,9 +22,9 @@ var AggregateSource = NS.Class({
 
     Extends: NS.Source,
 
-    init: function ( options ) {
+    init: function ( mixin ) {
         this.sources = [];
-        AggregateSource.parent.init.call( this, options );
+        AggregateSource.parent.init.call( this, mixin );
     },
 
     /**

@@ -33,15 +33,15 @@ var AutoCompleteController = NS.Class({
 
     Extends: NS.MenuController,
 
-    init: function ( options ) {
-        AutoCompleteController.parent.init.call( this, options );
+    init: function ( mixin ) {
+        AutoCompleteController.parent.init.call( this, mixin );
         this.filterDidChange();
     },
 
-    options: NS.bind( 'view.collection.childViews' ),
-    selectFirst: function ( _, __, ___, options ) {
-        this.focusOption( options[0] || null );
-    }.observes( 'options' ),
+    mixin: NS.bind( 'view.collection.childViews' ),
+    selectFirst: function ( _, __, ___, mixin ) {
+        this.focusOption( mixin[0] || null );
+    }.observes( 'mixin' ),
 
     suggestions: function () {
         return new NS.ObservableArray();
@@ -158,8 +158,8 @@ var AutoCompleteView = NS.Class({
 
     // ---
 
-    init: function ( options ) {
-        AutoCompleteView.parent.init.call( this, options );
+    init: function ( mixin ) {
+        AutoCompleteView.parent.init.call( this, mixin );
         var view = this.get( 'inputView' ),
             _;
         if ( view ) {

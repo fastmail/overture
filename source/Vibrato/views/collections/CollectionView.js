@@ -21,14 +21,14 @@ var CollectionView = NS.Class({
     _dirtyStart: -1,
     _dirtyEnd: -1,
 
-    init: function ( options ) {
+    init: function ( mixin ) {
         this._observedRange = { start: 0 };
         this._renderedTotal = 0;
         this._managedViews = [];
-        if ( options.delegate ) {
-            options.delegate.set( 'view', this );
+        if ( mixin.delegate ) {
+            mixin.delegate.set( 'view', this );
         }
-        CollectionView.parent.init.call( this, options );
+        CollectionView.parent.init.call( this, mixin );
     },
 
     destroy: function () {

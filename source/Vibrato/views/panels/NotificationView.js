@@ -115,9 +115,9 @@ var NotificationContainerView = NS.Class({
 
     showing: null,
 
-    init: function ( options ) {
+    init: function ( mixin ) {
         this._waiting = [];
-        NotificationContainerView.parent.init.call( this, options );
+        NotificationContainerView.parent.init.call( this, mixin );
     },
 
     positioning: 'absolute',

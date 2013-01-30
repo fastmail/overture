@@ -35,11 +35,11 @@ var ObservableArray = NS.Class({
         Constructor: O.ObservableArray
 
         Parameters:
-            array   - {Array} (optional) A normal array to make observable.
-            options - {Object} (optional)
+            array   - {Array} (optional) The initial contents of the array.
+            mixin - {Object} (optional)
     */
-    init: function ( array, options ) {
-        ObservableArray.parent.init.call( this, options );
+    init: function ( array, mixin ) {
+        ObservableArray.parent.init.call( this, mixin );
         this._array = array || [];
         this._length = this._array.length;
     },
