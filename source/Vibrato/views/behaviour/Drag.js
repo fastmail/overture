@@ -56,54 +56,151 @@ var NONE = 0,
     ALL = COPY|MOVE|LINK,
     effectToString = NS.DragEffect.effectToString;
 
+/**
+    Class: O.Drag
+
+    Extends: O.Object
+
+    Represents a drag operation being performed by a user.
+*/
 var Drag = NS.Class({
 
     Extends: NS.Object,
 
-    nextEventTarget: NS.DragController,
+    /**
+        Constructor: O.Drag
 
-    init: function ( options ) {
-        Drag.parent.init.call( this, options );
+        Parameters:
+            mixin - {Object} Overrides any properties on the object. Must
+                    include an `event` property containing the event object that
+                    triggered the drag.
+    */
+    init: function ( mixin ) {
+        Drag.parent.init.call( this, mixin );
 
-        var event = options.event;
-        this.cursorLocation = {
+        var event = mixin.event;
+        this.cursorPosition = {
             x: event.clientX,
             y: event.clientY
         };
-        if ( !options.startLocation ) {
-            this.startLocation = this.cursorLocation;
+        if ( !mixin.startPosition ) {
+            this.startPosition = this.cursorPosition;
         }
         this._setCursor( true );
         this.startDrag();
     },
 
+    /**
+        Property: O.Drag#isNative
+        Type: Boolean
+
+        Is this drag triggered by native drag/drop events rather than mouse
+        up/down events?
+    */
     isNative: false,
 
+    /**
+        Property: O.Drag#dragSource
+        Type: O.View|null
+
+        The view on which the drag was initiated, if initiated in the current
+        window. Otherwise null.
+    */
     dragSource: null,
+
+    /**
+        Property: O.Drag#allowedEffects
+        Type: O.DragEffect
+        Default: O.DragEffect.ALL
+
+        Which effects (move/copy/link) will the drag source allow the drop
+        target to perform with the data represented by this drag.
+    */
     allowedEffects: ALL,
 
+    /**
+        Property: O.Drag#dataSource
+        Type: O.DragDataSource|null
+
+        An object providing access to the data represented by the drag. If null,
+        the <O.Drag#dragSource> object will be used as the data source if it is
+        present and contains the <O.DragDataSource> mixin. Otherwise, the drag
+        is presumed not to represent any data.
+    */
     dataSource: null,
 
+    /**
+        Property: O.Drag#dropTarget
+        Type: O.DropTarget|null
+
+        The nearest <O.DropTarget> implementing view (going up the view tree)
+        under the mouse cursor at the moment, or null if none of them are drop
+        targets.
+    */
     dropTarget: null,
+
+    /**
+        Property: O.Drag#dropEffect
+        Type: O.DragEffect
+        Defatul: O.DragEffect.MOVE
+
+        The effect of the action that will be performed on the data should a
+        drop be performed. This should be set by the current drop target.
+    */
     dropEffect: MOVE,
 
+    /**
+        Property: O.Drag#cursorPosition
+        Type: Object
+
+        Contains `x` and `y` values indicating the current cursor position
+        relative to the browser window.
+    */
+    cursorPosition: { x: 0, y: 0 },
+
+    /**
+        Property: O.Drag#startPosition
+        Type: Object
+
+        Contains `x` and `y` values indicating the cursor position when the drag
+        was initiated, relative to the browser window.
+    */
+    startPosition: { x: 0, y: 0 },
+
+    /**
+        Property: O.Drag#dragImage
+        Type: Element|null
+
+        A DOM element to display next to the cursor whilst the drag is active.
+        This could be a simple <img> or <canvas> tag, or a more complicated DOM
+        tree.
+    */
     dragImage: null,
-    dragImageOffset: function ( offset ) {
-        if ( offset ) {
-            if ( !this.isNative ) {
-                offset.x = Math.max( offset.x, 5 );
-                offset.y = Math.max( offset.y, 5 );
-            }
-            this._dragImageOffset = offset;
-        }
-        return this._dragImageOffset;
-    }.property(),
-    _dragImageOffset: { x: 5, y: 5 },
 
-    cursorLocation: { x: 0, y: 0 },
-    startLocation: { x: 0, y: 0 },
+    /**
+        Property: O.Drag#dragImageOffset
+        Type: Object
+        Default: { x: 5, y: 5 }
 
-    // Drag image
+        x - {Number} The number of pixels to the right of the cursor at which
+            the drag image should begin.
+        y - {Number} The number of pixels to the bottom of the cursor at which
+            the drag image should begin.
+    */
+    dragImageOffset: { x: 5, y: 5 },
+
+    /**
+        Method (private): O.Drag#_dragImageDidChange
+
+        Observes the <O.Drag#dragImage> property and updates the image being
+        dragged if it changes.
+
+        Parameters:
+            _        - {*} Ignored.
+            __       - {*} Ignored.
+            oldImage - {Element|null} The current drag image.
+            image    - {Element|null} The new drag image to set.
+    */
     _dragImageDidChange: function ( _, __, oldImage, image ) {
         if ( this.isNative ) {
             var offset = this.get( 'dragImageOffset' );
@@ -118,22 +215,40 @@ var Drag = NS.Class({
                 dragCursor = this._dragCursor = NS.Element.create( 'div', {
                     style: 'position: fixed; z-index: 9999;'
                 });
-                this._updateDragImageLocation();
+                this._updateDragImagePosition();
                 document.body.appendChild( dragCursor );
             }
             dragCursor.appendChild( image );
         }
     }.observes( 'dragImage' ),
-    _updateDragImageLocation: function () {
+
+    /**
+        Method (private): O.Drag#_updateDragImagePosition
+
+        Observes the <O.Drag#cursorPosition> and <O.Drag#dragImageOffset>
+        properties and repositions the drag image as appropriate (if it's not a
+        native drag, where the browser will automatically update the drag image.
+    */
+    _updateDragImagePosition: function () {
         var cursor, offset, dragImage;
         if ( this.isNative || !( dragImage = this._dragCursor ) ) { return; }
-        cursor = this.get( 'cursorLocation' );
+        cursor = this.get( 'cursorPosition' );
         offset = this.get( 'dragImageOffset' );
-        dragImage.style.left = ( cursor.x + offset.x ) + 'px';
-        dragImage.style.top = ( cursor.y + offset.y ) + 'px';
-    }.queue( 'render' ).observes( 'cursorLocation', 'dragImageOffset' ),
+        dragImage.style.left = ( cursor.x + Math.max( offset.x, 5 ) ) + 'px';
+        dragImage.style.top = ( cursor.y + Math.max( offset.y, 5 ) ) + 'px';
+    }.queue( 'render' ).observes( 'cursorPosition', 'dragImageOffset' ),
 
-    // Cursor type
+    /**
+        Method (private): O.Drag#_setCursor
+
+        Sets the on-screen cursor image based on the current dropEffect,
+        overriding the normal cursor image.
+
+        Parameters:
+            set - {Boolean} If true, the cursor image will be overriden to match
+                  the drop effect. If false, it will be set back to the default
+                  (e.g. hand when over a link, pointer otherwise).
+    */
     _setCursor: function ( set ) {
         var stylesheet = this._stylesheet,
             cursor = 'default';
@@ -161,7 +276,15 @@ var Drag = NS.Class({
         this._stylesheet = stylesheet;
     }.observes( 'dropEffect' ),
 
-    // Data handlers:
+    /**
+        Property: O.Drag#dataTypes
+        Type: Array.<String>
+
+        An array of the data types available to drop targets of this drag. The
+        data type will be the MIME type of the data if a native drag, or a
+        custom string if non-native. Native drags representing at least one
+        file, will also contain a `'Files'` data type.
+    */
     dataTypes: function () {
         var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
         if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
@@ -194,10 +317,32 @@ var Drag = NS.Class({
         }
         return [];
     }.property(),
+
+    /**
+        Method: O.Drag#hasDataType
+
+        Parameters
+            type - {String} The type to test for.
+
+        Returns:
+            {Boolean} Does the drag contain data of this type?
+    */
     hasDataType: function ( type ) {
         return this.get( 'dataTypes' ).indexOf( type ) !== -1;
     },
 
+    /**
+        Method: O.Drag#getFiles
+
+        Parameters
+            typeRegExp - {RegExp} (optional) A regular expression to match
+                         against the file's MIME type.
+
+        Returns:
+            {Array.<File>} An array of all files represented by the drag, or if
+            a regular expression is given, an array of all files with a matching
+            MIME type.
+    */
     getFiles: function ( typeRegExp ) {
         var files = [],
             dataTransfer = this.event.dataTransfer,
@@ -226,6 +371,21 @@ var Drag = NS.Class({
         return files;
     },
 
+    /**
+        Method: O.Drag#getDataOfType
+
+        Fetches data of a particular type represented by the drag.
+
+        Parameters
+            type     - {String} The type of data to retrieve.
+            callback - {Function} A callback to be called with the data as its
+                       single argument, or null as the argument if no data
+                       available of the requested type. Note, the callback may
+                       be made synchronously or asynchronously.
+
+        Returns:
+            {O.Drag} Returns self.
+    */
     getDataOfType: function ( type, callback ) {
         var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' ),
             dataFound = false;
@@ -260,12 +420,22 @@ var Drag = NS.Class({
         return this;
     },
 
-    // General:
+    /**
+        Method: O.Drag#startDrag
+
+        Called automatically by the init method of the drag to register it with
+        the drag controller and set any data on the dataTransfer event property
+        if a native drag. It is unlikely you will ever need to call this method
+        explicitly.
+
+        Returns:
+            {O.Drag} Returns self.
+    */
     startDrag: function () {
         NS.DragController.register( this );
         this.fire( 'dragStarted' );
         var dragSource = this.get( 'dragSource' ),
-            allowedEffects, dataTransfer, dataSource, dataIsSet;
+            allowedEffects, dataTransfer, dataSource, dataIsSet, data;
         // No drag source if drag started in another window/app.
         if ( dragSource ) {
             dragSource.set( 'isDragging', true ).dragStarted( this );
@@ -286,7 +456,7 @@ var Drag = NS.Class({
                     dataSource.get( 'dragDataTypes' )
                               .forEach( function ( type ) {
                         if ( type.contains( '/' ) ) {
-                            var data = dataSource.getDragDataOfType( type );
+                            data = dataSource.getDragDataOfType( type, this );
                             // Current HTML5 DnD interface
                             if ( dataTransfer.items ) {
                                 dataTransfer.items.add( data, type );
@@ -308,6 +478,22 @@ var Drag = NS.Class({
         }
         return this;
     },
+
+    /**
+        Method: O.Drag#endDrag
+
+        If the drag is in progress, you can call this to cancel the drag
+        operation. Otherwise it will be called automatically when the drag is
+        finished (i.e. when the user releases the mouse or moves it out of the
+        browser window).
+
+        The method will clean up after a drag, resetting the cursor back to
+        normal, informing the current drop target and drag source that the drag
+        is finished and deregistering with the drag controller.
+
+        Returns:
+            {O.Drag} Returns self.
+    */
     endDrag: function () {
         var dropTarget = this.get( 'dropTarget' ),
             dragSource = this.get( 'dragSource' );
@@ -334,7 +520,20 @@ var Drag = NS.Class({
         return this;
     },
 
-    // Do the actual drag.
+    /**
+        Method: O.Drag#move
+
+        Called automatically by the drag controller whenever the mouse moves
+        whilst the drag is in progress. Gets the updated cursor position,
+        recalculates the drop target and scrolls scroll views if hovering near
+        the edge.
+
+        Parameters:
+            event - {Event} The dragover or mousemove event.
+
+        Returns:
+            {O.Drag} Returns self.
+    */
     move: function ( event ) {
         this.event = event;
 
@@ -348,7 +547,7 @@ var Drag = NS.Class({
         }
 
         // Update cursor location
-        this.set( 'cursorLocation', {
+        this.set( 'cursorPosition', {
             x: x = event.clientX,
             y: y = event.clientY
         });
@@ -362,12 +561,55 @@ var Drag = NS.Class({
         return this;
     },
 
+    /**
+        Property (private): O.Drag#_scrollBounds
+        Type: Object|null
+
+        An object caching the position of the scroll view on the screen.
+    */
     _scrollBounds: null,
+    /**
+        Property (private): O.Drag#_scrollView
+        Type: O.ScrollView|null
+
+        The scroll view under the cursor, if any.
+    */
     _scrollView: null,
+    /**
+        Property (private): O.Drag#_scrollBy
+        Type: Object|null
+
+        An object with `x` and `y` properties containing the number of pixels
+        the scroll view should be scrolled in the next frame (negative values to
+        scroll up, positive values to scroll down).
+    */
     _scrollBy: null,
+    /**
+        Property (private): O.Drag#_scrollInterval
+        Type: InvocationToken|null
+
+        The InvocationToken returned by a call to <O.RunLoop.cancel>.
+    */
     _scrollInterval: null,
+    /**
+        Property (private): O.Drag#_lastTargetView
+        Type: O.View|null
+
+        The view the mouse was over last time <O.Drag#_check> was called.
+    */
     _lastTargetView: null,
 
+    /**
+        Method (private): O.Drag#_check
+
+        Checks if the mouse is currently near the edge of a scroll view, and if
+        so, sets that to scroll automatically.
+
+        Parameters
+            view - {O.View} The view the mouse is currently over.
+            x    - The current x-coordinate of the mouse.
+            y    - The current y-coordinate of the mouse.
+    */
     _check: function ( view, x, y ) {
         var scroll = this._scrollBounds,
             scrollView = this._scrollView,
@@ -423,12 +665,18 @@ var Drag = NS.Class({
         }
     },
 
+    /**
+        Method (private): O.Drag#_scroll
+
+        Moves the scroll position of the scroll view currently being hovered
+        over.
+    */
     _scroll: function () {
         var scrollView = this._scrollView,
             scrollBy = this._scrollBy;
 
         if ( scrollView.scrollBy( scrollBy.x, scrollBy.y ) ) {
-            var cursor = this.get( 'cursorLocation' ),
+            var cursor = this.get( 'cursorPosition' ),
                 target = document.elementFromPoint( cursor.x, cursor.y );
             if ( target ) {
                 this._update( NS.RootViewController.getViewFromNode( target ) );
@@ -436,6 +684,15 @@ var Drag = NS.Class({
         }
     },
 
+    /**
+        Method (private): O.Drag#_update
+
+        Finds the current drop target and invokes the appropriate callbacks on
+        the drag source and old/new drop targets.
+
+        Parameters:
+            view - {O.View} The view the mouse is currently over.
+    */
     _update: function ( view ) {
         var currentDrop = this.get( 'dropTarget' ),
             dragSource = this.get( 'dragSource' );
@@ -471,7 +728,19 @@ var Drag = NS.Class({
         }
     },
 
-    // And drop
+    /**
+        Method: O.Drag#drop
+
+        Called automatically by the drag controller when a drop event occurs. If
+        over a drop target, and the drop effect is not NONE, calls the
+        <O.DropTarget#drop> method on the target.
+
+        Parameters:
+            event - {Event} The drop or mouseup event.
+
+        Returns:
+            {O.Drag} Returns self.
+    */
     drop: function ( event ) {
         this.event = event;
         if ( this.dropTarget && this.dropEffect ) {

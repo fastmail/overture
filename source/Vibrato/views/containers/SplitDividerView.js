@@ -66,8 +66,8 @@ var SplitDividerView = NS.Class({
 
     dragMoved: function ( drag ) {
         var dir = this._dir,
-            delta = drag.get( 'cursorLocation' )[ dir ] -
-                drag.get( 'startLocation' )[ dir ];
+            delta = drag.get( 'cursorPosition' )[ dir ] -
+                drag.get( 'startPosition' )[ dir ];
         this.set( 'length', ( this._length + delta ).limit(
             this.get( 'min' ), this.get( 'max' ) ) );
     }

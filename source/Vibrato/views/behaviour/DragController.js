@@ -22,7 +22,7 @@ var isControl = {
 var effectToString = NS.DragEffect.effectToString;
 
 /**
-    Object: O.DragController
+    Class: O.DragController
 
     This singleton manages drag and drop events, normalising native drag and
     drop with mouse(down|move|up) simulated drag and drop. It creates instances
@@ -40,7 +40,7 @@ var DragController = new NS.Object({
 
         The (screen-based) x coordinate of the mouse when the last mousedown
         event fired. Used to detect if the mouse has moved sufficiently whilst
-        down to initiate a drag
+        down to initiate a drag.
     */
     _x: 0,
 
@@ -50,7 +50,7 @@ var DragController = new NS.Object({
 
         The (screen-based) y coordinate of the mouse when the last mousedown
         event fired. Used to detect if the mouse has moved sufficiently whilst
-        down to initiate a drag
+        down to initiate a drag.
     */
     _y: 0,
 
@@ -152,7 +152,7 @@ var DragController = new NS.Object({
         Method (private): O.DragController._onMousedown
 
         Tracks mousedown events so that simulated drag events can be dispatched
-        when a drag gesture is detected
+        when a drag gesture is detected.
 
         Parameters:
             event - {Event} The mousedown event.
@@ -200,7 +200,7 @@ var DragController = new NS.Object({
                     new NS.Drag({
                         dragSource: view,
                         event: event,
-                        startLocation: {
+                        startPosition: {
                             x: this._x,
                             y: this._y
                         }
@@ -329,7 +329,7 @@ var DragController = new NS.Object({
         Method (private): O.DragController._onDragenter
 
         Tracks dragenter events to increment the
-        <O.DragController._nativeRefCount> refcount
+        <O.DragController._nativeRefCount> refcount.
 
         Parameters:
             event - {Event} The dragenter event.
