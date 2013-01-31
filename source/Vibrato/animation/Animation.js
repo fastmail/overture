@@ -81,7 +81,10 @@ var timestamp = Date;
 // method
 var then = timestamp.now();
 requestAnimFrame( function ( time ) {
-    if ( time < then ) {
+    // Older Webkit gives a high-resolution timestamp, which may actually be a
+    // few milliseconds before then. Add a second to it to ensure this isn't a
+    // factor.
+    if ( time + 1000 < then ) {
         timestamp = performance;
         // For Chrome v21-23 (inclusive):
         if ( !timestamp.now ) {
