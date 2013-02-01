@@ -3,7 +3,7 @@
 // Module: Foundation                                                         \\
 // Requires: ComputedProps.js, BoundProps.js, ObservableProps.js, EventTarget.js \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 "use strict";

@@ -3,7 +3,7 @@
 // Module: View                                                               \\
 // Requires: Core, Foundation, DOM, PopOverView.js, DropTarget.js             \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 /*global document, window, FileReader */

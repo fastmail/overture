@@ -2,7 +2,7 @@
 // File: Loader.js                                                            \\
 // Module: Loader                                                             \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 /*global window, document, setTimeout, XMLHttpRequest, XDomainRequest,

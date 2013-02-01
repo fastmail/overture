@@ -3,7 +3,7 @@
 // Module: Application                                                        \\
 // Requires: Core, Foundation, DOM                                            \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
