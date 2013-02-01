@@ -18,8 +18,8 @@ var ListView = NS.Class({
 
     Mixin: NS.TrueVisibleRect,
 
-    _batchSize: 10,
-    _triggerInPx: 200,
+    batchSize: 10,
+    triggerInPx: 200,
 
     init: function ( mixin ) {
         this._renderRange = { start: 0, end: 0 };
@@ -80,8 +80,8 @@ var ListView = NS.Class({
         // We only care about changes when we're visible.
         if ( this.get( 'isInDocument' ) ) {
             var visible = this.get( 'visibleRect' ),
-                extension = this._triggerInPx,
-                batchSize = this._batchSize,
+                extension = this.get( 'triggerInPx' ),
+                batchSize = this.get( 'batchSize' ),
                 height = this.get( 'itemHeight' ) * batchSize,
                 y = visible.y,
                 // Index of first item we want rendered
