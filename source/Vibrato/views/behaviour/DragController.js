@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: DragController.js                                                    \\
 // Module: View                                                               \\
-// Requires: RootView.js, DragEffect.js                                       \\
+// Requires: ViewEventsController.js, DragEffect.js                           \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -137,7 +137,7 @@ var DragController = new NS.Object({
     /**
         Method: O.DragController.handleEvent
 
-        Handler for native events. Fires an equivilent <O.Events> event.
+        Handler for native events. Fires an equivalent <O.EventTarget> event.
 
         Parameters:
             event - {Event}
@@ -279,7 +279,7 @@ var DragController = new NS.Object({
         // view property
         if ( !event.targetView ) {
             event.targetView =
-                NS.RootViewController.getViewFromNode( event.target );
+                NS.ViewEventsController.getViewFromNode( event.target );
         }
         if ( !drag ) {
             // Drag from external source:
@@ -412,7 +412,7 @@ var DragController = new NS.Object({
         document.addEventListener( type, DragController, false );
     });
 
-NS.RootViewController.pushResponder( DragController );
+NS.ViewEventsController.pushEventTarget( DragController );
 
 NS.DragController = DragController;
 

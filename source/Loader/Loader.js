@@ -48,7 +48,7 @@ var afterModuleExecute = function ( name ) {
     if ( loader.fire ) {
         NS.loader.fire( 'loader:didLoadModule', { module: name } );
     } else if ( NS.meta ) {
-        NS.extend( loader, NS.Events );
+        NS.extend( loader, NS.EventTarget );
         afterModuleExecute = afterModuleExecute.invokeInRunLoop();
     }
     info.status = EXECUTED;

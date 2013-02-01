@@ -196,22 +196,6 @@ var View = NS.Class({
     Extends: NS.Object,
 
     /**
-        Property: O.View#isRendered
-        Type: Boolean
-
-        Has the <O.View#render> method been called yet?
-    */
-    isRendered: false,
-
-    /**
-        Property: O.View#isInDocument
-        Type: Boolean
-
-        Is the view currently part of the document DOM tree hierarchy?
-    */
-    isInDocument: false,
-
-    /**
         Property: O.View#parentView
         Type: O.View|null
 
@@ -315,6 +299,22 @@ var View = NS.Class({
     },
 
     // --- Layer ---
+
+    /**
+        Property: O.View#isRendered
+        Type: Boolean
+
+        Has the <O.View#render> method been called yet?
+    */
+    isRendered: false,
+
+    /**
+        Property: O.View#isInDocument
+        Type: Boolean
+
+        Is the view currently part of the document DOM tree hierarchy?
+    */
+    isInDocument: false,
 
     /**
         Property: O.View#id
@@ -432,7 +432,7 @@ var View = NS.Class({
         }
         this.set( 'isInDocument', true );
 
-        NS.RootViewController.registerActiveView( this );
+        NS.ViewEventsController.registerActiveView( this );
 
         this.computedPropertyDidChange( 'pxLayout' );
 
@@ -456,7 +456,7 @@ var View = NS.Class({
     willRemoveLayerFromDocument: function () {
         this.set( 'isInDocument', false );
 
-        NS.RootViewController.deregisterActiveView( this );
+        NS.ViewEventsController.deregisterActiveView( this );
 
         var children = this.get( 'childViews' ),
             l = children.length;
@@ -489,7 +489,7 @@ var View = NS.Class({
 
     /**
         Property: O.View#nextEventTarget
-        Type: O.Events|null
+        Type: O.EventTarget|null
 
         The next object to bubble events to. Unless overriden, this will be the
         parent view of this view.
@@ -516,7 +516,7 @@ var View = NS.Class({
             event - {Event} The DOM event object.
     */
     handleEvent: function ( event ) {
-        NS.RootViewController.handleEvent( event );
+        NS.ViewEventsController.handleEvent( event );
     },
 
     // --- Behaviour ---

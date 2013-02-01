@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------- \\
-// File: Events.js                                                            \\
+// File: EventTarget.js                                                       \\
 // Module: Foundation                                                         \\
 // Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
@@ -39,27 +39,28 @@ Function.implement({
 });
 
 /**
-    Mixin: O.Events
+    Mixin: O.EventTarget
 
-    The Events mixin allows you to add custom event support to any other class
-    complete with support for bubbling. Simply add a `Mixin: O.Events` property
-    to your class. Then you can fire any event at any time just by calling
-    `this.fire('eventName')`. If you add a target to support bubbling, it is
-    recommended you add a prefix to the name of your events, to distinguish them
-    from those of other classes, e.g. the IO class fires `io:eventName` events.
+    The EventTarget mixin allows you to add custom event support to any other
+    class complete with support for bubbling. Simply add a `Mixin:
+    O.EventTarget` property to your class. Then you can fire an event at any
+    time by calling `this.fire('eventName')`. If you add a target to support
+    bubbling, it is recommended you add a prefix to the name of your events, to
+    distinguish them from those of other classes, e.g. the IO class fires
+    `io:eventName` events.
 */
-NS.Events = {
+NS.EventTarget = {
 
     /**
-        Property: O.Events#nextEventTarget
-        Type: (O.Events|null)
+        Property: O.EventTarget#nextEventTarget
+        Type: (O.EventTarget|null)
 
         Pointer to the next object in the event bubbling chain.
     */
     nextEventTarget: null,
 
     /**
-        Method: O.Events#on
+        Method: O.EventTarget#on
 
         Add a function to be called whenever an event of a particular type is
         fired.
@@ -75,7 +76,7 @@ NS.Events = {
                      parameter.
 
         Returns:
-            {O.Events} Returns self.
+            {O.EventTarget} Returns self.
     */
     on: function ( type, obj, method ) {
         if ( !( obj instanceof Function ) ) {
@@ -94,7 +95,7 @@ NS.Events = {
     },
 
     /**
-        Method: O.Events#once
+        Method: O.EventTarget#once
 
         Add a function to be called the next time an event of a particular type
         is fired, but not for subsequent firings.
@@ -104,7 +105,7 @@ NS.Events = {
             fn   - {Function} The function to be called when the event fires.
 
         Returns:
-            {O.Events} Returns self.
+            {O.EventTarget} Returns self.
     */
     once: function ( type, fn ) {
         var once = function ( event ) {
@@ -116,7 +117,7 @@ NS.Events = {
     },
 
     /**
-        Method: O.Events#fire
+        Method: O.EventTarget#fire
 
         Fires an event, causing all subscribed functions to be called with an
         event object as the single parameter and the scope bound to the object
@@ -192,7 +193,7 @@ NS.Events = {
     },
 
     /**
-        Method: O.Events#detach
+        Method: O.EventTarget#detach
 
         Detaches a particular event handler or all handlers for a particular
         event type. This method has no effect if the function supplied is not
@@ -210,7 +211,7 @@ NS.Events = {
                      parameter.
 
         Returns:
-            {O.Events} Returns self.
+            {O.EventTarget} Returns self.
     */
     detach: function ( type, obj, method ) {
         type = eventPrefix + type;

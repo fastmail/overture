@@ -64,7 +64,7 @@ var ScrollView = NS.Class({
 
         // Add keyboard shortcuts:
         var keys = this.get( 'keys' ),
-            shortcuts = NS.RootViewController.kbShortcuts,
+            shortcuts = NS.ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
@@ -76,7 +76,7 @@ var ScrollView = NS.Class({
     willRemoveLayerFromDocument: function () {
         // Remove keyboard shortcuts:
         var keys = this.get( 'keys' ),
-            shortcuts = NS.RootViewController.kbShortcuts,
+            shortcuts = NS.ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );

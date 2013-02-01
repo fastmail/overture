@@ -44,7 +44,7 @@ var ListViewKBWidgetView = NS.Class({
 
     didAppendLayerToDocument: function () {
         var keys = this.get( 'keys' ),
-            shortcuts = NS.RootViewController.kbShortcuts,
+            shortcuts = NS.ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
@@ -55,7 +55,7 @@ var ListViewKBWidgetView = NS.Class({
     },
     willRemoveLayerFromDocument: function () {
         var keys = this.get( 'keys' ),
-            shortcuts = NS.RootViewController.kbShortcuts,
+            shortcuts = NS.ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );

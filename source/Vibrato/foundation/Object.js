@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: Object.js                                                            \\
 // Module: Foundation                                                         \\
-// Requires: ComputedProps.js, BoundProps.js, ObservableProps.js, Events.js   \\
+// Requires: ComputedProps.js, BoundProps.js, ObservableProps.js, EventTarget.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -15,7 +15,7 @@ var meta = NS.meta;
 /**
     Class: O.Object
 
-    Includes: O.ComputedProps, O.BoundProps, O.ObservableProps, O.Events
+    Includes: O.ComputedProps, O.BoundProps, O.ObservableProps, O.EventTarget
 
     This is the root class for almost every object in the rest of the library.
     It adds support for computed properties, bound properties, observable
@@ -23,7 +23,9 @@ var meta = NS.meta;
 */
 NS.Object = NS.Class({
 
-    Mixin: [ NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.Events ],
+    Mixin: [
+        NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.EventTarget
+    ],
 
     /**
         Constructor: O.Object

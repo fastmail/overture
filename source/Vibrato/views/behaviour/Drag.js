@@ -679,7 +679,7 @@ var Drag = NS.Class({
             var cursor = this.get( 'cursorPosition' ),
                 target = document.elementFromPoint( cursor.x, cursor.y );
             if ( target ) {
-                this._update( NS.RootViewController.getViewFromNode( target ) );
+                this._update( NS.ViewEventsController.getViewFromNode( target ) );
             }
         }
     },

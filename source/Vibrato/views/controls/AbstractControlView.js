@@ -34,7 +34,7 @@ var AbstractControlView = NS.Class({
         var shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
-                NS.RootViewController.kbShortcuts
+                NS.ViewEventsController.kbShortcuts
                     .register( key, this, 'activate' );
             }, this );
         }
@@ -44,7 +44,7 @@ var AbstractControlView = NS.Class({
         var shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
-                NS.RootViewController.kbShortcuts
+                NS.ViewEventsController.kbShortcuts
                     .deregister( key, this, 'activate' );
             }, this );
         }

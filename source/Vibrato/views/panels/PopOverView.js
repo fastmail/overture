@@ -228,7 +228,7 @@ var PopOverView = NS.Class({
         }
 
         if ( eventHandler ) {
-            NS.RootViewController.pushResponder( eventHandler );
+            NS.ViewEventsController.pushEventTarget( eventHandler );
         }
         this.set( 'isVisible', true );
 
@@ -257,7 +257,7 @@ var PopOverView = NS.Class({
                 layer.removeChild( layer.firstChild );
             }
             if ( eventHandler ) {
-                NS.RootViewController.removeResponder( eventHandler );
+                NS.ViewEventsController.removeEventTarget( eventHandler );
                 eventHandler._seenMouseDown = false;
             }
             this._options = null;

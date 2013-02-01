@@ -46,7 +46,7 @@ var OverflowMenuView = NS.Class({
 
     setShortcuts: function ( _, __, oldShortcuts, shortcuts ) {
         if ( this.get( 'isInDocument' ) ) {
-            var kbShortcuts = NS.RootViewController.kbShortcuts,
+            var kbShortcuts = NS.ViewEventsController.kbShortcuts,
                 key;
             if ( !shortcuts ) { shortcuts = this.get( 'shortcuts' ); }
             for ( key in oldShortcuts ) {

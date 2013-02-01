@@ -249,7 +249,7 @@ NS.Element = {
         if ( ieEventModel && ( tag === 'input' ||
                 tag === 'select' || tag === 'textarea' ) ) {
             el.addEventListener( tag === 'select' ?
-                'change' : 'propertychange', NS.RootViewController, false );
+                'change' : 'propertychange', NS.ViewEventsController, false );
         }
         if ( props ) {
             setAttributes( el, props );

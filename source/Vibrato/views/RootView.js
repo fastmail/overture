@@ -1,135 +1,14 @@
 // -------------------------------------------------------------------------- \\
 // File: RootView.js                                                          \\
 // Module: View                                                               \\
-// Requires: Core, Foundation, DOM, View.js                                   \\
+// Requires: View.js                                                          \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global Node */
-
 "use strict";
 
 ( function ( NS ) {
-
-/**
-    Object: O.RootViewController
-*/
-var RootViewController = {
-
-    /**
-        Property (private): O.RootViewController._activeViews
-        Type: Object
-
-        Maps from id to the view object for all views currently in a document.
-    */
-    _activeViews: {},
-
-    /**
-        Method: O.RootViewController.registerActiveView
-
-        Automatically called when a view is inserted into a document.
-
-        Parameters:
-            view - {O.View} The view object that has entered the document.
-
-        Retruns:
-            {O.RootViewController} Returns self.
-    */
-    registerActiveView: function ( view ) {
-        this._activeViews[ view.get( 'id' ) ] = view;
-        return this;
-    },
-
-    /**
-        Method: O.RootViewController.deregisterActiveView
-
-        Automatically called when a view is removed from a document.
-
-        Parameters:
-            view - {O.View} The view object that has left the document.
-
-        Retruns:
-            {O.RootViewController} Returns self.
-    */
-    deregisterActiveView: function ( view ) {
-        delete this._activeViews[ view.get( 'id' ) ];
-        return this;
-    },
-
-    /**
-        Method: O.RootViewController.getViewFromNode
-
-        Returns the view object that the given DOM node is a part of.
-
-        Parameters:
-            node - {Element} a DOM node.
-
-        Retruns:
-            {O.View|null} Returns the view which owns the node.
-    */
-    getViewFromNode: function ( node ) {
-        var activeViews = this._activeViews,
-            doc = node.ownerDocument,
-            view = null;
-        while ( !view && node && node !== doc ) {
-            view = activeViews[ node.id ];
-            node = node.parentNode;
-        }
-        return view;
-    },
-
-    /**
-        Property (private): O.RootViewController._responders
-        Type: Array
-
-        List of event responders.
-    */
-    _responders: [],
-
-    // First responder: will be notified of event before views.
-    pushResponder: function ( responder ) {
-        this._responders.push( responder );
-        return this;
-    },
-    // Last responder: will be notified of event after views.
-    queueResponder: function ( responder ) {
-        this._responders.unshift( responder );
-        return this;
-    },
-    // Stop being notified of events.
-    removeResponder: function ( responder ) {
-        this._responders.erase( responder );
-        return this;
-    },
-
-    handleEvent: function ( event, view ) {
-        var responders = this._responders,
-            l = responders.length,
-            responder;
-
-        if ( !view ) {
-            view = this.getViewFromNode( event.target );
-        }
-        event.targetView = view;
-        event.phase = 'beforeViews';
-
-        while ( l-- ) {
-            responder = responders[l];
-            if ( responder === this ) {
-                responder = view;
-                event.phase = 'views';
-            }
-            if ( responder && responder.fire( event.type, event ) ) {
-                break;
-            }
-            if ( responders[l] === this ) {
-                event.phase = 'afterViews';
-            }
-        }
-    }.invokeInRunLoop()
-};
-RootViewController.pushResponder( RootViewController );
 
 var RootView = NS.Class({
 
@@ -143,7 +22,8 @@ var RootView = NS.Class({
     init: function ( node, mixin ) {
         RootView.parent.init.call( this, mixin );
 
-        var nodeIsDocument = ( node.nodeType === Node.DOCUMENT_NODE ),
+        // Node.DOCUMENT_NODE => 9.
+        var nodeIsDocument = ( node.nodeType === 9 ),
             doc = nodeIsDocument ? node : node.ownerDocument,
             win = doc.defaultView,
             events, l;
@@ -231,16 +111,13 @@ var RootView = NS.Class({
         else if ( type === 'scroll') {
             this._onScroll( event );
         }
-        // Normal events: send down the responder change.
+        // Normal events: send down the eventTarget chain.
         else {
-            RootViewController.handleEvent( event );
+            NS.ViewEventsController.handleEvent( event );
         }
     }.invokeInRunLoop()
 });
 
-// Expose Globals:
-
 NS.RootView = RootView;
-NS.RootViewController = RootViewController;
 
 }( this.O ) );

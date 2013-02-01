@@ -98,7 +98,7 @@ Date.implement({
         Returns:
             {String} Localised month name.
     */
-    getMonthName: function ( abbreviate) {
+    getMonthName: function ( abbreviate ) {
         var names = NS.i18n && NS.i18n.get(
                 ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' ),
             day = this.getMonth();

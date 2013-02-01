@@ -845,7 +845,7 @@ var RichTextView = NS.Class({
     // --- Keep state in sync with render ---
 
     handleEvent: function ( event ) {
-        NS.RootViewController.handleEvent( event, this );
+        NS.ViewEventsController.handleEvent( event, this );
     },
 
     _onFocus: function () {

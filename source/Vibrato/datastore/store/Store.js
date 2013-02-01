@@ -75,7 +75,7 @@ var isEqual = NS.isEqual;
 */
 var Store = NS.Class({
 
-    Mixin: NS.Events,
+    Mixin: NS.EventTarget,
 
     /**
         Property: O.Store#autoCommit

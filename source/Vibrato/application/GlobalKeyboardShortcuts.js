@@ -51,9 +51,9 @@ var GlobalKeyboardShortcuts = NS.Class({
     init: function ( mixin ) {
         this._shortcuts = {};
         GlobalKeyboardShortcuts.parent.init.call( this, mixin );
-        var RootViewController = NS.RootViewController;
-        RootViewController.kbShortcuts = this;
-        RootViewController.queueResponder( this );
+        var ViewEventsController = NS.ViewEventsController;
+        ViewEventsController.kbShortcuts = this;
+        ViewEventsController.queueEventTarget( this );
     },
 
     /**
@@ -62,11 +62,11 @@ var GlobalKeyboardShortcuts = NS.Class({
         Destructor.
     */
     destroy: function () {
-        var RootViewController = NS.RootViewController;
-        if ( RootViewController.kbShortcuts === this ) {
-            delete NS.RootViewController.kbShortcuts;
+        var ViewEventsController = NS.ViewEventsController;
+        if ( ViewEventsController.kbShortcuts === this ) {
+            delete NS.ViewEventsController.kbShortcuts;
         }
-        RootViewController.removeResponder( this );
+        ViewEventsController.removeEventTarget( this );
         GlobalKeyboardShortcuts.parent.destroy.call( this );
     },
 

@@ -302,7 +302,7 @@ var LightboxView = NS.Class({
     init: function ( parentView, mixin ) {
         LightboxView.parent.init.call( this, mixin );
         this._rootView = parentView;
-        this._shortcuts = NS.RootViewController.kbShortcuts;
+        this._shortcuts = NS.ViewEventsController.kbShortcuts;
     },
 
     index: function ( index ) {
@@ -393,7 +393,7 @@ var LightboxView = NS.Class({
         this._rootView.insertView( this );
 
         // Capture events
-        NS.RootViewController.queueResponder( this );
+        NS.ViewEventsController.queueEventTarget( this );
 
         // Now, fade in gradient background and views.
         this.set( 'isActive', true );
@@ -404,7 +404,7 @@ var LightboxView = NS.Class({
         this._shortcuts.set( 'isEnabled', this._kbEnabled );
 
         // Stop capturing events
-        NS.RootViewController.removeResponder( this );
+        NS.ViewEventsController.removeEventTarget( this );
 
         // Fade out gradient background and views.
         // Item view will call removeFromDocument after animation.
