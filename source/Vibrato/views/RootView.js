@@ -10,6 +10,23 @@
 
 ( function ( NS ) {
 
+/**
+    Class: O.RootView
+
+    Extends: O.View
+
+    An O.RootView instance uses an existing DOM node for its layer, and forms
+    the root of the O.View tree making up your application. The root view adds
+    DOM event listeners to its layer to observe and dispatch events for the
+    whole view hierarchy.
+
+        MyApp.views.mainWindow = new O.RootView( document );
+
+    Normally, you will create an O.RootView instance with the document node for
+    each window in your application, but if your application is not taking over
+    the full page, it can be initiated with any other node already in the
+    document.
+*/
 var RootView = NS.Class({
 
     Extends: NS.View,

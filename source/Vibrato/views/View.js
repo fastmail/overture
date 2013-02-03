@@ -557,7 +557,7 @@ var View = NS.Class({
         Default: 'relative'
 
         What type of positioning to use to layout the DOM node of this view.
-        Will normally be either 'relative' (the default) or 'absolte'.
+        Will normally be either 'relative' (the default) or 'absolute'.
    */
     positioning: 'relative',
 
