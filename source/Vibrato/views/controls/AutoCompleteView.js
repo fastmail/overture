@@ -38,10 +38,10 @@ var AutoCompleteController = NS.Class({
         this.filterDidChange();
     },
 
-    mixin: NS.bind( 'view.collection.childViews' ),
-    selectFirst: function ( _, __, ___, mixin ) {
-        this.focusOption( mixin[0] || null );
-    }.observes( 'mixin' ),
+    options: NS.bind( 'view.collection.childViews' ),
+    selectFirst: function ( _, __, ___, options ) {
+        this.focusOption( options[0] || null );
+    }.observes( 'options' ),
 
     suggestions: function () {
         return new NS.ObservableArray();
