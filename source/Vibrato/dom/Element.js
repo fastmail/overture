@@ -315,7 +315,7 @@ NS.Element = {
                 else if ( node instanceof NS.View ) {
                     view.insertView( node, el );
                 } else {
-                    if ( typeof node === 'string' ) {
+                    if ( typeof node !== 'object' ) {
                         node = doc.createTextNode( node );
                     }
                     el.appendChild( node );
