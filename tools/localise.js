@@ -494,12 +494,12 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
                 getString( 'S_CALENDAR_SUNDAY' )
             ]),
 
-            past: makeRegExp([
+            past: makeRegExp(
                 getString( 'TIME_PAST_KEYWORDS' ).split( ' ' )
-            ]),
-            future: makeRegExp([
+            ),
+            future: makeRegExp(
                 getString( 'TIME_FUTURE_KEYWORDS' ).split( ' ' )
-            ]),
+            ),
             add: makeRegExp([
                 getString( 'TIME_AFTER' ),
                 '+'
