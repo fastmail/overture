@@ -257,6 +257,81 @@ var extract = function ( dbFilePath, filesToScanPaths, outputPath, allData ) {
 
 // Lang module
 
+var divide = function ( strings, index ) {
+    var output = [];
+    var i, l, ll, buckets, string, character;
+    while ( l = strings.length ) {
+        buckets = [];
+        for ( i = 0; i < l; i += 1 ) {
+            string = strings[i];
+            character = string[ index ] || '';
+            ll = buckets.length;
+            while ( ll-- ) {
+                if ( buckets[ll].character === character ) {
+                    buckets[ll].strings.push( string );
+                    break;
+                }
+            }
+            if ( ll === -1 ) {
+                buckets.push({
+                    character: character,
+                    strings: [ string ]
+                });
+            }
+        }
+        if ( buckets.length === 1 ) {
+            output.push( character );
+            if ( !character ) { break; }
+            index += 1;
+        } else {
+            output.push(
+                buckets.map( function ( bucket ) {
+                    return divide( bucket.strings, index );
+                })
+            );
+            break;
+        }
+    }
+    return output;
+};
+
+var escapeRegExp = function ( string ) {
+    return string.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
+};
+
+var join = function ( strings ) {
+    var output = '',
+        i, l, part, optional, section;
+    for ( i = 0, l = strings.length; i < l; i += 1 ) {
+        part = strings[i];
+        if ( typeof part === 'string' ) {
+            output += escapeRegExp( part );
+        } else {
+            optional = part.some( function ( array ) {
+                return array[0] === '';
+            });
+            section = part.filter( function ( array ) {
+                return !!array[0];
+            }).map( function ( array ) {
+                return join( array );
+            }).join( '|' );
+            if ( section.length > 1 ) {
+                section = '(?:' + section + ')';
+            }
+            if ( optional ) {
+                section += '?';
+            }
+            output += section;
+        }
+    }
+    return output;
+};
+
+var makeRegExp = function ( strings ) {
+    var regexp = join( divide( strings, 0 ) );
+    return '/^' + regexp + '\\b/i';
+};
+
 var formatHeaderLine = function ( text, length ) {
     return '// ' + text +
         new Array( length - 6 - text.length ).join(' ') + ' \\\\\n';
@@ -271,6 +346,10 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
 
     var localisation = {
         code: code,
+
+        decimalPoint: getString( 'S_FORMAT_DECIMAL_POINT' ),
+        thousandsSeparator: getString( 'S_FORMAT_THOUSANDS_SEPARATOR' ),
+
         dayNames: [
             getString( 'S_CALENDAR_SUNDAY' ),
             getString( 'S_CALENDAR_MONDAY' ),
@@ -292,7 +371,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         monthNames: [
             getString( 'D_JANUARY' ),
             getString( 'D_FEBRUARY' ),
-            getString( 'D_MARS' ),
+            getString( 'D_MARCH' ),
             getString( 'D_APRIL' ),
             getString( 'D_MAY' ),
             getString( 'D_JUNE' ),
@@ -318,13 +397,11 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             getString( 'S_CALENDAR_DEC' )
         ],
 
-        decimalPoint: getString( 'S_FORMAT_DECIMAL_POINT' ),
-        thousandsSeparator: getString( 'S_FORMAT_THOUSANDS_SEPARATOR' ),
-
         amDesignator: getString( 'S_CALENDAR_AM' ),
         pmDesignator: getString( 'S_CALENDAR_PM' ),
 
         use24hClock: getString( 'S_CALENDAR_FORMAT_TIME_DEFAULT' ) === '24h',
+        dateElementOrder: 'dmy',
 
         dateFormats: {
             date: getString( 'S_CALENDAR_FORMAT_DATE' ),
@@ -338,6 +415,120 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
                 getString( 'S_CALENDAR_FORMAT_SHORT_DAY_MONTH_YEAR' ),
             shortDayDate: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_DATE' )
         },
+        datePatterns: {
+            jan: makeRegExp([
+                getString( 'D_JANUARY' ),
+                getString( 'S_CALENDAR_JAN' )
+            ]),
+            feb: makeRegExp([
+                getString( 'D_FEBRUARY' ),
+                getString( 'S_CALENDAR_FEB' )
+            ]),
+            mar: makeRegExp([
+                getString( 'D_MARCH' ),
+                getString( 'S_CALENDAR_MAR' )
+            ]),
+            apr: makeRegExp([
+                getString( 'D_APRIL' ),
+                getString( 'S_CALENDAR_APR' )
+            ]),
+            may: makeRegExp([
+                getString( 'D_MAY' ),
+                getString( 'S_CALENDAR_MAY' )
+            ]),
+            jun: makeRegExp([
+                getString( 'D_JUNE' ),
+                getString( 'S_CALENDAR_JUN' )
+            ]),
+            jul: makeRegExp([
+                getString( 'D_JULY' ),
+                getString( 'S_CALENDAR_JUL' )
+            ]),
+            aug: makeRegExp([
+                getString( 'D_AUGUST' ),
+                getString( 'S_CALENDAR_AUG' )
+            ]),
+            sep: makeRegExp([
+                getString( 'D_SEPTEMBER' ),
+                getString( 'S_CALENDAR_SEP' )
+            ]),
+            oct: makeRegExp([
+                getString( 'D_OCTOBER' ),
+                getString( 'S_CALENDAR_OCT' )
+            ]),
+            nov: makeRegExp([
+                getString( 'D_NOVEMBER' ),
+                getString( 'S_CALENDAR_NOV' )
+            ]),
+            dec: makeRegExp([
+                getString( 'D_DECEMBER' ),
+                getString( 'S_CALENDAR_DEC' )
+            ]),
+
+            mon: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_MONDAY' ),
+                getString( 'S_CALENDAR_MONDAY' )
+            ]),
+            tue: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_TUESDAY' ),
+                getString( 'S_CALENDAR_TUESDAY' )
+            ]),
+            wed: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_WEDNESDAY' ),
+                getString( 'S_CALENDAR_WEDNESDAY' )
+            ]),
+            thu: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_THURSDAY' ),
+                getString( 'S_CALENDAR_THURSDAY' )
+            ]),
+            fri: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_FRIDAY' ),
+                getString( 'S_CALENDAR_FRIDAY' )
+            ]),
+            sat: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_SATURDAY' ),
+                getString( 'S_CALENDAR_SATURDAY' )
+            ]),
+            sun: makeRegExp([
+                getString( 'S_CALENDAR_SHORT_HEADER_SUNDAY' ),
+                getString( 'S_CALENDAR_SUNDAY' )
+            ]),
+
+            past: makeRegExp([
+                getString( 'TIME_PAST_KEYWORDS' ).split( ' ' )
+            ]),
+            future: makeRegExp([
+                getString( 'TIME_FUTURE_KEYWORDS' ).split( ' ' )
+            ]),
+            add: makeRegExp([
+                getString( 'TIME_AFTER' ),
+                '+'
+            ]),
+            subtract: makeRegExp([
+                getString( 'TIME_BEFORE' ),
+                '-'
+            ]),
+
+            yesterday: makeRegExp([ getString( 'TIME_YESTERDAY' ) ]),
+            today: makeRegExp([ getString( 'TIME_TODAY' ) ]),
+            tomorrow: makeRegExp([ getString( 'TIME_TOMORROW' ) ]),
+            now: makeRegExp([ getString( 'TIME_NOW' ) ]),
+
+            // millisecond: '/^ms|milli(?:second)?s?\\b/i',
+            // second: '/^sec(?:ond)?s?\\b/i',
+            // minute: '/^min(?:ute)?s?\\b/i',
+            // hour: '/^h(?:ou)?rs?\\b/i',
+            // week: '/^w(?:ee)?k\\b/i',
+            // month: '/^m(?:o(?:nth)?s?)?\\b/i',
+            // day: '/^d(?:ays?)?\\b/i',
+            // year: '/^y(?:(?:ea)?rs?)?\\b/i',
+
+            am: '/^(?:a\\.?m?\\.?)\\b/i',
+            pm: '/^(?:p\\.?m?\\.?)\\b/i',
+
+            ordinalSuffix: '/^\\s*(?:st|nd|rd|th)\\b/i',
+            timeContext: '/^\\s*(?:\\:|am|pm)/i'
+        },
         
         translations: idList.map( getString )
     };
@@ -347,13 +538,16 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         formatHeaderLine( 'File: ' + code + '.js', 80 ) +
         formatHeaderLine( 'Module: Locale', 80 ) +
         formatHeaderLine(
-            'License: © 2010–2012 Opera Software ASA. All rights reserved.', 80
+            'License: © 2010–2013 Opera Software ASA. All rights reserved.', 80
         ) +
         formatHeaderLine( new Array( 80 - 6 + 1 ).join( '-' ), 80 ) +
         '\n' +
-        '( function () { var x = new O.Language(' +
-            JSON.stringify( localisation, null, 2 ) +
-        ');\nO.Localisation.addLanguage( x ).setLanguage("' + code + '")}() );';
+        '( function () { var x = new O.Locale(' +
+            JSON.stringify( localisation, null, 2 )
+                .replace( /"(\/\^.*?\/i)"/g, function ( _, regexp ) {
+                    return regexp.replace( /\\\\/g, '\\' );
+                }) +
+        ');\nO.i18n.addLocale( x ).setLocale("' + code + '")}() );';
 };
 
 var makeLangModule = function ( idListPath, poPath, outputPath ) {

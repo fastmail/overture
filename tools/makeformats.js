@@ -80,7 +80,7 @@ function makeLangFile( defaults, strings, output ) {
         monthNames: [
             getString( 'D_JANUARY' ),
             getString( 'D_FEBRUARY' ),
-            getString( 'D_MARS' ),
+            getString( 'D_MARCH' ),
             getString( 'D_APRIL' ),
             getString( 'D_MAY' ),
             getString( 'D_JUNE' ),
