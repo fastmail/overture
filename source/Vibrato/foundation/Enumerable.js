@@ -10,15 +10,20 @@
 
 ( function ( NS ) {
 
+var defaultComparator = function ( a, b ) {
+    return a < b ? -1 : a > b ? 1 : 0;
+};
+
 /**
     Mixin: O.Enumerable
 
     The Enumerable mixin adds a number of iteration and accessor methods to any
     class with a 'getObjectAt' method that supports numerical values and a 'get'
-    method that supports 'length'. The API mirrors that of the native Array
-    type.
+    method that supports 'length'.
+
+    The native Array type also implements O.Enumerable.
 */
-NS.Enumerable = {
+var Enumerable = {
 
     // :: Accessor methods =====================================================
 
@@ -88,6 +93,41 @@ NS.Enumerable = {
             }
         }
         return -1;
+    },
+
+    /**
+        Method: Array#binarySearch
+
+        *Presumes the enumerable is sorted.*
+
+        Does a binary search on the array to find the index for the given value,
+        or if not in the array, then the index at which it should be inserted to
+        maintain the ordering of the array.
+
+        Parameters:
+            value      - {*} The value to search for in the array
+            comparator - {Function} (optional). A comparator function. If not
+                         supplied, the comparison will be made simply by the `<`
+                         infix comparator.
+
+        Returns:
+            {Number} The index to place the value in the sorted array.
+    */
+    binarySearch: function ( value, comparator ) {
+        var lower = 0,
+            upper = this.get( 'length' ),
+            middle, candidate;
+        if ( !comparator ) { comparator = defaultComparator; }
+        while ( lower < upper ) {
+            middle = ( lower + upper ) >> 1;
+            candidate = this.getObjectAt( middle );
+            if ( comparator( candidate, value ) < 0 ) {
+                lower = middle + 1;
+            } else {
+                upper = middle;
+            }
+        }
+        return lower;
     },
 
     /**
@@ -280,5 +320,9 @@ NS.Enumerable = {
         return false;
     }
 };
+
+Array.implement( Enumerable );
+
+NS.Enumerable = Enumerable;
 
 }( this.O ) );

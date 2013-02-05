@@ -75,26 +75,6 @@ Array.implement({
     },
 
     /**
-        Method: Array#first
-
-        Returns:
-            {*} The first item in the array.
-    */
-    first: function () {
-        return this[0];
-    },
-
-    /**
-        Method: Array#last
-
-        Returns:
-            {*} The last item in the array.
-    */
-    last: function () {
-        return this[ this.length - 1 ];
-    },
-
-    /**
         Method: Array#include
 
         Adds an item to the end of the array if it is not already present (as

@@ -98,35 +98,6 @@ var mapIndexes = function ( list, ids ) {
 };
 
 /**
-    Method: O.WindowedRemoteQuery-binarySearch
-
-    Takes an array of sorted numbers and returns the index at which a given
-    number should be placed in the array (if the number is already in the array,
-    this is the index given).
-
-    Parameters:
-        array - {Array} The array to sort.
-        num   - {Number} The array to perform the same swaps on.
-
-    Returns:
-        {Number} The index to place num in the sorted array.
-*/
-var binarySearch = function ( array, num ) {
-    var lower = 0,
-        upper = array.length,
-        middle;
-    while ( lower < upper ) {
-        middle = ( lower + upper ) >> 1;
-        if ( array[ middle ] < num ) {
-            lower = middle + 1;
-        } else {
-            upper = middle;
-        }
-    }
-    return lower;
-};
-
-/**
     Method: O.WindowedRemoteQuery-mergeSortedLinkedArrays
 
     Parameters:
@@ -171,7 +142,7 @@ var adjustIndexes =
         index = removed[i];
         // And see how many items were added in the first update
         // before it
-        position = binarySearch( added, index );
+        position = added.binarySearch( index );
         // If there was an item added in the first update at the exact same
         // position, we don't need to do anything as they cancel each other out.
         // Since update 2 is from the state left by update 1, the ids MUST be
