@@ -77,7 +77,7 @@ if ('a~b'.split(/(~)/).length !== 3) {
                 }
                 output.push( this.slice( lastLastIndex, match.index ) );
                 if ( match.length > 1 && match.index < this.length ) {
-                    output.push( match.slice( 1 ) );
+                    output.push.apply( output, match.slice( 1 ) );
                 }
                 // only needed if s.lastIndex === this.length
                 lastLength = match[0].length;
