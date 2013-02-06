@@ -11,7 +11,7 @@
 ( function ( NS ) {
 
 var meta = NS.meta,
-    map = Array.prototype.map,
+    slice = Array.prototype.slice,
     eventPrefix = '__event__',
     toString = Object.prototype.toString;
 
@@ -31,7 +31,7 @@ Function.implement({
      */
     on: function () {
         return this.observes.apply( this,
-            map.call( arguments, function ( type ) {
+            slice.call( arguments ).map( function ( type ) {
                 return eventPrefix + type;
             })
         );
