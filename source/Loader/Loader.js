@@ -158,7 +158,8 @@ var load = function ( name, executeOnLoad, force ) {
             script.async = false;
             script.onload = script.onreadystatechange = function () {
                 var readyState = script.readyState;
-                if ( readyState && readyState !== 'complete' ) {
+                if ( readyState &&
+                        readyState !== 'loaded' && readyState !== 'complete' ) {
                     return;
                 }
                 script.onload = script.onreadystatechange = null;
