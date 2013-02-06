@@ -156,8 +156,12 @@ var load = function ( name, executeOnLoad, force ) {
             script.type = 'text/javascript';
             script.charset = 'utf-8';
             script.async = false;
-            script.onload = function () {
-                script.onload = null;
+            script.onload = script.onreadystatechange = function () {
+                var readyState = script.readyState;
+                if ( readyState && readyState !== 'complete' ) {
+                    return;
+                }
+                script.onload = script.onreadystatechange = null;
                 script.parentNode.removeChild( script );
                 afterModuleExecute( name, info );
             };
