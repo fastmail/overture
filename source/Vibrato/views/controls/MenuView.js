@@ -286,13 +286,10 @@ var MenuView = NS.Class({
             var layer = this.get( 'layer' ),
                 delta = layer.getBoundingClientRect().bottom -
                     layer.ownerDocument.documentElement.clientHeight,
-                scrollView;
-            if ( delta > 0 ) {
                 scrollView = this._scrollView;
-                scrollView.set( 'layout', {
-                    maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
-                });
-            }
+            scrollView.set( 'layout', {
+                maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
+            });
         }
 
         if ( this.get( 'showFilter' ) ) {
