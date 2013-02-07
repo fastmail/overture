@@ -56,7 +56,7 @@ var ScrollView = NS.Class({
         Type: String
         Default: 'ScrollView'
 
-        Overrides default in O.View#className.
+        Overrides default in <O.View#className>.
     */
     className: 'ScrollView',
 
@@ -65,7 +65,7 @@ var ScrollView = NS.Class({
         Type: Boolean
         Default: true
 
-        Overrides default in O.View#clipToBounds.
+        Overrides default in <O.View#clipToBounds>.
    */
     clipToBounds: true,
     /**
@@ -73,7 +73,7 @@ var ScrollView = NS.Class({
         Type: Boolean
         Default: true
 
-        Overrides default in O.View#showScrollbarY
+        Overrides default in <O.View#showScrollbarY>.
    */
     showScrollbarY: true,
 
@@ -82,7 +82,7 @@ var ScrollView = NS.Class({
         Type: String
         Default: 'absolute'
 
-        Overrides default in O.View#positioning
+        Overrides default in <O.View#positioning>.
    */
     positioning: 'absolute',
 
@@ -97,7 +97,7 @@ var ScrollView = NS.Class({
                     height: '100%'
                 }
 
-        Overrides default in O.View#layout
+        Overrides default in <O.View#layout>.
     */
     layout: NS.View.LAYOUT_FILL_PARENT,
 

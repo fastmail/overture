@@ -171,7 +171,7 @@ var SplitView = NS.Class({
         Type: String
         Default: 'absolute'
 
-        Overrides default in O.View#positioning
+        Overrides default in <O.View#positioning>.
    */
     positioning: 'absolute',
 
@@ -186,7 +186,7 @@ var SplitView = NS.Class({
                     height: '100%'
                 }
 
-        Overrides default in O.View#layout
+        Overrides default in <O.View#layout>.
     */
     layout: NS.View.LAYOUT_FILL_PARENT,
 

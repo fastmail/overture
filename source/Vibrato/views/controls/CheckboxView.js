@@ -10,14 +10,34 @@
 
 ( function ( NS ) {
 
+/**
+    Class: O.CheckboxView
+
+    Extends: O.AbstractControlView
+
+    A checkbox control view. The `value` property is two-way bindable,
+    representing the state of the checkbox (`true` => checked).
+*/
 var CheckboxView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
     // --- Render ---
 
+    /**
+        Property: O.CheckboxView#className
+        Type: String
+        Default: 'CheckboxView'
+
+        Overrides default in <O.View#className>.
+    */
     className: 'CheckboxView',
 
+    /**
+        Method: O.CheckboxView#draw
+
+        Overridden to draw checkbox in layer. See <O.View#draw>.
+    */
     draw: function ( layer ) {
         layer.appendChild(
             this._domControl = NS.Element.create( 'input', {
@@ -30,6 +50,12 @@ var CheckboxView = NS.Class({
 
     // --- Keep render in sync with state ---
 
+    /**
+        Method: O.CheckboxView#propertyNeedsRedraw
+
+        Overridden to observe extra properties requiring redraw.
+        See <O.View#propertyNeedsRedraw>.
+    */
     propertyNeedsRedraw: function () {
         return CheckboxView.parent
             .propertyNeedsRedraw.apply( this, arguments );
@@ -37,18 +63,36 @@ var CheckboxView = NS.Class({
         'isDisabled', 'label', 'tooltip', 'tabIndex',
         'value' ),
 
+    /**
+        Method: O.CheckboxView#redrawValue
+
+        Updates the checked status of the DOM `<input type="checkbox">` to match
+        the value property of the view.
+    */
     redrawValue: function () {
         this._domControl.checked = this.get( 'value' );
     },
 
     // --- Activate ---
 
+    /**
+        Method: O.CheckboxView#activate
+
+        Overridden to toggle the checked status of the control. See
+        <O.AbstractControlView#activate>.
+    */
     activate: function () {
         this.toggle( 'value' );
     },
 
     // --- Keep state in sync with render ---
 
+    /**
+        Method: O.CheckboxView#syncBackValue
+
+        Observes `click` and `tap` events to update the view's `value` property
+        when the user toggles the checkbox.
+    */
     syncBackValue: function ( event ) {
         var isTap = ( event.type === 'tap' );
         // Ignore simulated click events
