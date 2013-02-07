@@ -18,19 +18,94 @@ var VERTICAL = 1,
     topLeftView = 'topLeftView',
     bottomRightView = 'bottomRightView',
     dividerView = 'dividerView',
-    auto = 'auto',
+    auto = 'auto';
 
-SplitView = NS.Class({
+/**
+    Class: O.SplitView
+
+    Extends: O.View
+
+    An O.SplitView instance divides itself into two panes. One of these is a
+    fixed size and the other is flexible (sized to fill the remaining space).
+    The division between the two panes can be dragged to resize the fixed-size
+    pane.
+*/
+var SplitView = NS.Class({
 
     Extends: NS.View,
 
-    // These must not change after init or behaviour is undefined.
+    /**
+        Property: O.SplitView#direction
+        Type: Number
+        Default: O.SplitView.VERTICAL
+
+        The direction to split the view. Must be either `O.SplitView.VERTICAL`
+        (the default) or `O.SplitView.HORIZONTAL`. Note, this must not change
+        after the view has been initialised, or behaviour is undefined.
+    */
     direction: VERTICAL,
+
+    /**
+        Property: O.SplitView#flex
+        Type: Number
+        Default: O.SplitView.TOP_LEFT
+
+        Which of the two panes should be the flexible one. Must be either
+        `O.SplitView.TOP_LEFT` (default - the top pane is flexible if
+        horizontally split, or the top pane is flexible if vertically split) or
+        `O.SplitView.BOTTOM_RIGHT` (the right or bottom pane is flexible). Note,
+        this must not change after the view has been initialised, or behaviour
+        is undefined.
+    */
     flex: TOP_LEFT,
 
+    /**
+        Property: O.SplitView#flex
+        Type: Number
+        Default: 200
+
+        The number of pixels the static pane is wide/tall (depending on split
+        direction).
+    */
     staticPaneLength: 200,
+
+    /**
+        Property: O.SplitView#minStaticPaneLength
+        Type: Number
+        Default: 0
+
+        The minimum width/height (in pixels) that the static pane may be resized
+        to.
+    */
     minStaticPaneLength: 0,
+
+    /**
+        Property: O.SplitView#maxStaticPaneLength
+        Type: Number
+        Default: 0
+
+        The maximum width/height (in pixels) that the static pane may be resized
+        to.
+    */
     maxStaticPaneLength: 32767,
+
+    /**
+        Property: O.SplitView#topLeftView
+        Type: O.View|null
+        Default: 0
+
+        The view instance to insert in the top/left pane.
+    */
+    topLeftView: null,
+
+    /**
+        Property: O.SplitView#bottomRightView
+        Type: O.View|null
+        Default: 0
+
+        The view instance to insert in the bottom/right pane.
+    */
+    bottomRightView: null,
 
     init: function ( mixin ) {
         SplitView.parent.init.call( this, mixin );
@@ -48,9 +123,14 @@ SplitView = NS.Class({
         childViews.push( this.get( dividerView ) );
     },
 
-    // This can be overriden by simply
-    // setting the property in the anonymous
-    // subclass.
+    /**
+        Property: O.SplitView#dividerView
+        Type: O.SplitDividerView
+
+        The <O.SplitDividerView> instance to insert as a child to form the drag
+        handle for resizing the panes. By default, this creates and returns a
+        new instance the first time it is requested.
+    */
     dividerView: function () {
         return new NS.SplitDividerView({
             id: this.get( 'id' ) + '-' + 'divider',
@@ -58,17 +138,72 @@ SplitView = NS.Class({
         });
     }.property(),
 
+    /**
+        Property: O.SplitView#dynamicCSSPropTL
+        Type: String
+
+        The CSS property that should be set on the top/left pane when the static
+        pane length changes.
+    */
+    dynamicCSSPropTL: function () {
+        var flex = this.get( 'flex' ) === TOP_LEFT;
+        return this.get( 'direction' ) === VERTICAL ?
+            ( flex ? 'right' : 'width' ) :
+            ( flex ? 'bottom' : 'height' );
+    }.property(),
+
+    /**
+        Property: O.SplitView#dynamicCSSPropTL
+        Type: String
+
+        The CSS property that should be set on the bottom/right pane when the
+        static pane length changes.
+    */
+    dynamicCSSPropBR: function () {
+        var flex = this.get( 'flex' ) === BOTTOM_RIGHT;
+        return this.get( 'direction' ) === VERTICAL ?
+            ( flex ? 'left' : 'width' ) :
+            ( flex ? 'top' : 'height' );
+    }.property(),
+
+    /**
+        Property: O.SplitView#positioning
+        Type: String
+        Default: 'absolute'
+
+        Overrides default in O.View#positioning
+   */
     positioning: 'absolute',
 
+    /**
+        Property: O.SplitView#layout
+        Type: Object
+        Default:
+                {
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%'
+                }
+
+        Overrides default in O.View#layout
+    */
     layout: NS.View.LAYOUT_FILL_PARENT,
 
+    /**
+        Method: O.SplitView#draw
+
+        Initial rendering of view. See <O.View#draw>.
+    */
     draw: function ( layer ) {
-        var tlview = this.get( topLeftView ),
+        var Element = NS.Element,
+            el = Element.create,
+            tlview = this.get( topLeftView ),
             brview = this.get( bottomRightView ),
             flexDir = this.get( 'direction' ),
             flexPane = this.get( 'flex' ),
+            leftFirst = ( flexPane === TOP_LEFT ),
             staticLength = this.get( 'staticPaneLength' ),
-            el = NS.Element.create,
             tlpane = this._topLeftViewContainer = el( 'div', {
                 id: this.get( 'id' ) + '-' +
                     ( flexDir === VERTICAL ? 'left': 'top' ),
@@ -113,33 +248,30 @@ SplitView = NS.Class({
 
         // The flex pane is probably more important, so for the benefit of
         // screen readers, let's insert it higher in the HTML structure.
-        var leftFirst = ( flexPane === TOP_LEFT );
-        NS.Element.appendChildren( layer, [
+        Element.appendChildren( layer, [
             leftFirst ? tlpane : brpane,
             leftFirst ? brpane : tlpane,
             this.get( dividerView ).render().get( 'layer' )
         ]);
     },
 
-    dynamicCSSPropTL: function () {
-        var flex = this.get( 'flex' ) === TOP_LEFT;
-        return this.get( 'direction' ) === VERTICAL ?
-            ( flex ? 'right' : 'width' ) :
-            ( flex ? 'bottom' : 'height' );
-    }.property(),
+    /**
+        Method: O.SplitView#propertyNeedsRedraw
 
-    dynamicCSSPropBR: function () {
-        var flex = this.get( 'flex' ) === BOTTOM_RIGHT;
-        return this.get( 'direction' ) === VERTICAL ?
-            ( flex ? 'left' : 'width' ) :
-            ( flex ? 'top' : 'height' );
-    }.property(),
-
+        Overridden to observe extra properties requiring redraw.
+        See <O.View#propertyNeedsRedraw>.
+    */
     propertyNeedsRedraw: function () {
         return SplitView.parent
             .propertyNeedsRedraw.apply( this, arguments );
     }.observes( 'className', 'layerStyles', 'staticPaneLength' ),
 
+    /**
+        Method: O.SplitView#redrawStaticPaneLength
+
+        Resizes the rendering of the panes when the
+        <O.SplitView#staticPaneLength> property changes.
+    */
     redrawStaticPaneLength: function () {
         var thickness = this.get( 'staticPaneLength' );
         this._topLeftViewContainer.style[
@@ -153,9 +285,23 @@ SplitView = NS.Class({
         if ( brView ) { brView.parentViewDidResize(); }
     },
 
-    // Must set a specific view
+    /**
+        Method: O.SplitView#insertView
+
+        This is overriden to `null` so trying to call it will result in an
+        error. You must instead explicitly set a view as either the
+        <O.SplitView#topLeftView> or <O.SplitView#bottomRightView> property.
+    */
     insertView: null,
 
+    /**
+        Method: O.SplitView#replaceView
+
+        See <O.View#replaceView>.
+
+        Overridden to ensure <O.SplitView#topLeftView> and
+        <O.SplitView#bottomRightView> properties get updated correctly.
+    */
     replaceView: function ( view, oldView ) {
         if ( oldView === this.get( topLeftView ) ) {
             this.set( topLeftView, view );
@@ -165,6 +311,14 @@ SplitView = NS.Class({
         return this;
     },
 
+    /**
+        Method: O.SplitView#removeView
+
+        See <O.View#removeView>.
+
+        Overridden to ensure <O.SplitView#topLeftView> and
+        <O.SplitView#bottomRightView> properties get updated correctly.
+    */
     removeView: function ( view ) {
         if ( view === this.get( topLeftView ) ) {
             this.set( topLeftView, null );
@@ -174,6 +328,18 @@ SplitView = NS.Class({
         return this;
     },
 
+    /**
+        Method (private): O.SplitView#_viewDidChange
+
+        Calls the appropriate insert/remove/replace method when
+        the <O.SplitView#topLeftView> or <O.SplitView#bottomRightView>
+        property changes.
+
+        Parameters:
+            _       - {*} Ignored.
+            key     - {String} Either 'topLeftView' or 'bottomRightView'.
+            oldView - {O.View|null} The previous value of the property.
+    */
     _viewDidChange: function ( _, key, oldView ) {
         var view = this.get( 'view' );
         if ( oldView && view ) {
