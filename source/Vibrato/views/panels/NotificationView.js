@@ -93,12 +93,26 @@ var NotificationView = NS.Class({
             html = this.get( 'html' );
         if ( text || html ) {
             layer.appendChild(
-                NS.Element.create( 'span', {
+                this._textNode = NS.Element.create( 'span', {
                     text: text || undefined,
                     html: text ? undefined : html
                 })
             );
         }
+    },
+
+    propertyNeedsRedraw: function () {
+        return NotificationView.parent
+            .propertyNeedsRedraw.apply( this, arguments );
+    }.observes( 'className', 'layerStyles', 'text', 'html' ),
+
+    redrawText: function () {
+        this.redrawHTML();
+    },
+    redrawHTML: function () {
+        var text = this.get( 'text' ),
+            html = this.get( 'html' );
+        this._textNode.set( html ? 'html' : 'text', html || text );
     },
 
     hideOnClick: function ( event ) {
