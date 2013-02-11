@@ -282,11 +282,11 @@ var MenuView = NS.Class({
         if ( !this.get( 'isInDocument' ) ) {
             return;
         }
-        if ( !this.getParent( NS.ScrollView ) ) {
+        var scrollView = this._scrollView;
+        if ( scrollView && !this.getParent( NS.ScrollView ) ) {
             var layer = this.get( 'layer' ),
                 delta = layer.getBoundingClientRect().bottom -
-                    layer.ownerDocument.documentElement.clientHeight,
-                scrollView = this._scrollView;
+                    layer.ownerDocument.documentElement.clientHeight;
             scrollView.set( 'layout', {
                 maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
             });
