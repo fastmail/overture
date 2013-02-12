@@ -177,10 +177,22 @@ var LocaleController = {
             {String} The localised number.
     */
     number: function ( n ) {
-        var parts = ( n + '' ).split( '.' );
-        parts[0] = parts[0].replace( /(\d+?)(?=(?:\d{3})+$)/g,
-            '$1' + active.thousandsSeparator );
-        return parts.join( active.decimalPoint );
+        return active.getFormattedNumber( n );
+    },
+
+    /**
+        Function: O.LocaleController.fileSize
+
+        Format a number of bytes into a locale-specific file size string.
+
+        Parameters:
+            bytes - {Number} The number of bytes.
+
+        Returns:
+            {String} The localised, human-readable file size.
+    */
+    fileSize: function ( bytes ) {
+        return active.getFormattedFileSize( bytes );
     }
 };
 

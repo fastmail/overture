@@ -211,6 +211,69 @@ var Locale = NS.Class({
     */
     thousandsSeparator: ',',
 
+    /**
+        Property: O.Locale#fileSizeUnits
+        Type: Array.<String>
+
+        An array containing the suffix denoting units of bytes, kilobytes,
+        megabytes and gigabytes (in that order).
+    */
+    fileSizeUnits: [ 'B', 'KB', 'MB', 'GB' ],
+
+    /**
+        Method: O.Locale#getFormattedNumber
+
+        Format a number according to local conventions. Ensures the correct
+        symbol is used for a decimal point, and inserts thousands separators if
+        used in the locale.
+
+        Parameters:
+            number - {(Number|String)} The number to format.
+
+        Returns:
+            {String} The localised number.
+    */
+    getFormattedNumber: function ( number ) {
+        var integer = number + '',
+            fraction = '',
+            decimalPointIndex = integer.indexOf( '.' );
+        if ( decimalPointIndex > -1 ) {
+            fraction = integer.slice( decimalPointIndex + 1 );
+            integer = integer.slice( 0, decimalPointIndex );
+        }
+        return formatInt( integer, this ) +
+            ( fraction && this.decimalPoint + fraction );
+    },
+
+    /**
+        Method: O.Locale#getFormattedFileSize
+
+        Format a number of bytes into a locale-specific file size string.
+
+        Parameters:
+            bytes - {Number} The number of bytes.
+
+        Returns:
+            {String} The localised, human-readable file size.
+    */
+    getFormattedFileSize: function ( bytes ) {
+        var units = this.fileSizeUnits,
+            l = units.length - 1,
+            i = 0,
+            ORDER_MAGNITUDE = 1000,
+            number;
+        while ( i < l && bytes > ORDER_MAGNITUDE ) {
+            bytes /= ORDER_MAGNITUDE;
+            i += 1;
+        }
+        // B/KB to nearest whole number, MB/GB to 1 decimal place.
+        number = ( i < 2 ) ?
+            Math.round( bytes ) + '' :
+            bytes.toFixed( 1 );
+        // Use a &nbsp; to join the number to the unit.
+        return this.getFormattedNumber( number ) + ' ' + units[i];
+    },
+
     // === Date and Time ===
 
     /**
