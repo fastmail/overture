@@ -5,8 +5,6 @@
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global document */
-
 "use strict";
 
 ( function ( NS ) {
@@ -38,7 +36,7 @@ var SelectionController = NS.Class({
             newContent.on( 'query:updated', this, 'contentWasUpdated' );
         }
         this._selectedIds = {};
-        this.set( 'selectionLength', 0 )
+        this.set( 'length', 0 )
             .propertyDidChange( 'selectedIds' );
     }.observes( 'content' ),
 
@@ -46,7 +44,7 @@ var SelectionController = NS.Class({
         // If an id has been removed, it may no
         // longer belong to the selection
         var _selectedIds = this._selectedIds,
-            selectionLength = this.get( 'selectionLength' ),
+            length = this.get( 'length' ),
             removed = event.removed || [],
             added = event.added.reduce( function ( set, id ) {
                 set[ id ] = true;
@@ -58,18 +56,18 @@ var SelectionController = NS.Class({
         while ( l-- ) {
             id = removed[l];
             if ( _selectedIds[ id ] && !added[ id ] ) {
-                selectionLength -= 1;
+                length -= 1;
                 delete _selectedIds[ id ];
             }
         }
 
-        this.set( 'selectionLength', selectionLength )
+        this.set( 'length', length )
             .propertyDidChange( 'selectedIds' );
     },
 
     // ---
 
-    selectionLength: 0,
+    length: 0,
 
     selectedIds: function () {
         return Object.keys( this._selectedIds );
@@ -97,7 +95,7 @@ var SelectionController = NS.Class({
 
     isLoadingSelection: false,
 
-    selectIds: function ( ids, isSelected, _selectionId, _start, _end ) {
+    selectIds: function ( ids, isSelected, _selectionId ) {
         if ( _selectionId && _selectionId !== this._selectionId ) {
             return;
         }
@@ -124,8 +122,8 @@ var SelectionController = NS.Class({
         }
 
         if ( howManyChanged ) {
-            this.increment( 'selectionLength',
-                    ( isSelected ? howManyChanged : -howManyChanged ) )
+            this.increment( 'length',
+                    isSelected ? howManyChanged : -howManyChanged )
                 .propertyDidChange( 'selectedIds' );
         }
 
@@ -175,7 +173,7 @@ var SelectionController = NS.Class({
         }
         else {
             this._selectedIds = {};
-            this.set( 'selectionLength', 0 )
+            this.set( 'length', 0 )
                 .propertyDidChange( 'selectedIds' )
                 .set( 'isLoadingSelection', false );
         }
