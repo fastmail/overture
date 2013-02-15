@@ -31,7 +31,7 @@ var CSSStyleAnimationController = {
     register: function ( el, animation ) {
         this.animations[ NS.guid( el ) ] = animation;
     },
-    deregister: function ( el, animation ) {
+    deregister: function ( el ) {
         delete this.animations[ NS.guid( el ) ];
     },
     handleEvent: function ( event ) {
@@ -65,6 +65,8 @@ var CSSStyleAnimation = NS.Class({
 
     ease: NS.Easing.ease,
     duration: 300,
+
+    _deadMan: null,
 
     animate: function ( styles, duration, ease ) {
         if ( this.isRunning ) {
@@ -102,6 +104,13 @@ var CSSStyleAnimation = NS.Class({
 
         if ( animating.length ) {
             this.isRunning = true;
+            // If the CSS property was transitioning from x -> y, and now we ask
+            // it to transition from y -> x, it may already be at x, even though
+            // the style attribute reads as y. In this case, it may not fire a
+            // transitionend event. Set a timeout for 100ms after the duration
+            // as a deadman switch to rescue it in this case.
+            this._deadMan = NS.RunLoop.invokeAfterDelay(
+                this.stop, this.duration + 100, this );
 
             if ( object.willAnimate ) {
                 object.willAnimate( this );
@@ -113,7 +122,7 @@ var CSSStyleAnimation = NS.Class({
         return this;
     },
 
-    transitionEnd: function ( property, elapsedTime ) {
+    transitionEnd: function ( property ) {
         var animating = this.animating,
             index = animating.indexOf( property );
         if ( index > -1 ) {
@@ -130,8 +139,9 @@ var CSSStyleAnimation = NS.Class({
         if ( this.isRunning ) {
             this.isRunning = false;
             this.animating.length = 0;
+            NS.RunLoop.cancel( this._deadMan );
 
-            CSSStyleAnimationController.deregister( this.element, this );
+            CSSStyleAnimationController.deregister( this.element );
 
             NS.Element.setStyle( this.element, 'transition', 'none' );
 
