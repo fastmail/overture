@@ -1103,8 +1103,11 @@ var View = NS.Class({
 
         if ( relativeTo instanceof View ) {
             index = childViews.indexOf( relativeTo );
-            index = ( index > -1 ) ? where === 'before' ?
-                index : index + 1 : childViews.length;
+            index = ( index > -1 ) ?
+                where === 'before' ?
+                    index :
+                    index + 1 :
+                childViews.length;
             childViews.splice( index, 0, view );
             relativeTo = relativeTo.get( 'layer' );
         } else {
@@ -1123,13 +1126,12 @@ var View = NS.Class({
                 }
             }
             isInDocument = this.get( 'isInDocument' );
-            layer = view.get( 'layer' );
             parent = ( where === 'before' || where === 'after' ) ?
                 relativeTo.parentNode : relativeTo;
             before = ( where === 'before' ) ? relativeTo :
                 ( where === 'top' ) ? relativeTo.firstChild :
                 ( where === 'after' ) ? relativeTo.nextSibling : null;
-            view.render();
+            layer = view.render().get( 'layer' );
             if ( isInDocument ) {
                 view.willAppendLayerToDocument();
             }
