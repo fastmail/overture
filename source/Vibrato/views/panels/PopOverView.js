@@ -222,8 +222,8 @@ var PopOverView = NS.Class({
             }
             break;
         }
-        if ( positionToThe === 'right' || positionToThe === 'bottom' ||
-                ( alignEdge !== 'left' && alignEdge !== 'right' ) ) {
+        if ( positionToThe === 'left' || positionToThe === 'top' ||
+                ( alignEdge !== 'left' && alignEdge !== 'top' ) ) {
             this.propertyDidChange( 'layout' );
         }
 
