@@ -13,17 +13,17 @@
 ( function ( NS ) {
 
 var View = NS.View;
+var Element = NS.Element;
 
-var forEachView = function ( views, method ) {
-    if ( views ) {
-        if ( !( views instanceof Array ) ) {
-            views = [ views ];
-        }
-        var l = views.length,
-            view;
-        while ( l-- ) {
-            view = views[l];
-            if ( view instanceof View ) {
+var forEachView = function ( views, method, args ) {
+    var l = views ? views.length : 0,
+        view;
+    while ( l-- ) {
+        view = views[l];
+        if ( view instanceof View ) {
+            if ( args ) {
+                view[ method ].apply( view, args );
+            } else {
                 view[ method ]();
             }
         }
@@ -34,16 +34,34 @@ var SwitchView = NS.Class({
 
     Extends: View,
 
-    forEachView: function ( method ) {
+    init: function ( mixin ) {
+        this.views = [];
+        this.subViews = [];
+
+        SwitchView.parent.init.call( this, mixin );
+
         var views = this.get( 'views' ),
-            l = views.length;
+            l = views.length,
+            view;
         while ( l-- ) {
-            forEachView( views[l], method );
+            view = views[l];
+            if ( view && !( view instanceof Array ) ) {
+                views[l] = [ view ];
+            }
         }
     },
 
     destroy: function () {
-        this.forEachView( 'destroy' );
+        var views = this.get( 'views' ),
+            l = views.length;
+        while ( l-- ) {
+            forEachView( views[l], 'destroy' );
+        }
+        views = this.get( 'subViews' );
+        l = views.length;
+        while ( l-- ) {
+            forEachView( views[l], 'destroy' );
+        }
         SwitchView.parent.destroy.call( this );
     },
 
@@ -52,7 +70,6 @@ var SwitchView = NS.Class({
     sleep: function () {
         if ( !this.isSleeping ) {
             this.suspendBindings();
-            this.forEachView( 'sleep' );
             this.isSleeping = true;
         }
         return this;
@@ -61,7 +78,6 @@ var SwitchView = NS.Class({
     awaken: function () {
         if ( this.isSleeping ) {
             this.isSleeping = false;
-            this.forEachView( 'awaken' );
             this.resumeBindings();
         }
         return this;
@@ -93,20 +109,17 @@ var SwitchView = NS.Class({
 
     // ---
 
-    views: [],
+    _index: 0,
     index: 0,
 
-    _insertedView: null,
-    _activeView: null,
-    activeView: function () {
-        return this.get( 'views' ).getObjectAt( this.get( 'index' ) );
-    }.property( 'views', 'index' ),
-
-    activeViewDidChange: function () {
-        if ( this.get( 'activeView' ) !== this._activeView ) {
-            this.remove( this.get( 'parentView' ) ).add();
+    indexDidChange: function () {
+        if ( this.get( 'index' ) !== this._index ) {
+            var parentView = this.get( 'parentView' );
+            if ( parentView ) {
+                this.remove( parentView ).add();
+            }
         }
-    }.queue( 'render' ).observes( 'activeView' ),
+    }.queue( 'render' ).observes( 'index' ),
 
     parentViewDidChange: function ( _, __, oldParent, newParent ) {
         if ( oldParent ) {
@@ -114,8 +127,14 @@ var SwitchView = NS.Class({
         }
         if ( newParent ) {
             if ( newParent.get( 'isRendered' ) ) {
+                // We need to wait until we've been inserted to know where our
+                // DOM marker has been place, and so where to insert the real
+                // view(s).
                 newParent.addObserverForKey( 'childViews', this, 'add' );
             } else {
+                // If not rendered, just add our views in the right place in the
+                // parent's childView list. They'll be rendered in the right
+                // spot.
                 this.add();
             }
         }
@@ -125,25 +144,31 @@ var SwitchView = NS.Class({
         if ( object ) {
             object.removeObserverForKey( key, this, 'add' );
         }
-        var activeView = this.get( 'activeView' ),
-            viewList = activeView ?
-                activeView instanceof Array ?
-                    activeView :
-                    [ activeView ] :
-                null,
+        var index = this.get( 'index' ),
+            view = this.get( 'views' )[ index ],
+            subView = this.get( 'subViews' )[ index ],
             parent = this.get( 'parentView' ),
+            isInDocument = this.get( 'isInDocument' ),
             position = this.get( 'layer' ),
             layer = position.parentNode,
-            l = viewList ? viewList.length : 0,
+            l = view ? view.length : 0,
             node, before;
-        forEachView( viewList, 'awaken' );
+
+        forEachView( view, 'awaken' );
+        if ( subView ) {
+            forEachView( subView, 'awaken' );
+            forEachView( subView, 'set', [ 'parentView', parent ] );
+            if ( isInDocument ) {
+                forEachView( subView, 'willAppendLayerToDocument' );
+            }
+        }
         while ( l-- ) {
-            node = viewList[l];
+            node = view[l];
             if ( node instanceof View ) {
                 parent.insertView( node, this, 'after' );
             } else {
                 if ( typeof node !== 'object' ) {
-                    node = viewList[l] = document.createTextNode( node );
+                    node = view[l] = document.createTextNode( node );
                 }
                 before = position.nextSibling;
                 if ( before ) {
@@ -153,50 +178,123 @@ var SwitchView = NS.Class({
                 }
             }
         }
-        this._activeView = activeView;
-        this._insertedView = viewList;
+        if ( subView ) {
+            if ( isInDocument ) {
+                forEachView( subView, 'didAppendLayerToDocument' );
+            }
+            parent.set( 'childViews',
+                parent.get( 'childViews' ).concat( subView ) );
+        }
+        this._index = index;
         return this;
     },
 
     remove: function ( parent ) {
-        var viewList = this._insertedView,
-            l = viewList ? viewList.length : 0,
+        var oldIndex = this._index,
+            view = this.get( 'views' )[ oldIndex ],
+            subView = this.get( 'subViews' )[ oldIndex ],
+            isInDocument = this.get( 'isInDocument' ),
+            l = view ? view.length : 0,
             node;
+
+        if ( isInDocument && subView ) {
+            forEachView( subView, 'willRemoveLayerFromDocument' );
+        }
         while ( l-- ) {
-            node = viewList[l];
+            node = view[l];
             if ( node instanceof View ) {
                 parent.removeView( node );
             } else {
                 node.parentNode.removeChild( node );
             }
         }
-        forEachView( viewList, 'sleep' );
-        this._insertedView = null;
-        this._activeView = null;
+        if ( subView ) {
+            if ( isInDocument ) {
+                forEachView( subView, 'didRemoveLayerFromDocument' );
+            }
+            forEachView( subView, 'set', [ 'parentView', null ] );
+            parent.set( 'childViews',
+                parent.get( 'childViews' ).filter( function ( view ) {
+                    return subView.indexOf( view ) === -1;
+                })
+            );
+            forEachView( subView, 'sleep' );
+        }
+        forEachView( view, 'sleep' );
+        this._index = -1;
         return this;
     },
 
     // ---
 
+    /*
+        If views are inside el() methods, they will call this method. Collect
+        them up, then pass them as subViews when show() or otherwise() is
+        called.
+    */
+    insertView: function ( view, parentNode ) {
+        this.childViews.push( view );
+        var oldParent = view.get( 'parentView' );
+        if ( oldParent ) {
+            oldParent.removeView( view );
+        }
+        parentNode.appendChild( view.render().get( 'layer' ) );
+        return this;
+    },
+
+    _addCondition: function ( view, index ) {
+        view = view ?
+            view instanceof Array ?
+                view :
+                [ view ] :
+            null;
+        forEachView( this.views[ index ] = view, 'sleep' );
+        var subView = this.childViews;
+        if ( subView.length ) {
+            forEachView( subView, 'sleep' );
+            this.subViews[ index ] = subView;
+            this.childViews = [];
+        }
+        return this;
+    },
+
+    show: function ( view ) {
+        return this._addCondition( view, 0 );
+    },
+
     otherwise: function ( view ) {
-        this.views[1] = view || null;
-        forEachView( view, 'sleep' );
+        return this._addCondition( view, 1 );
+    },
+
+    end: function () {
+        Element.forView( this._oldView );
+        this._oldView = null;
         return this;
     }
 });
 
 NS.SwitchView = SwitchView;
 
-var pickView = function ( bool ) {
+var pickViewWhen = function ( bool ) {
     return bool ? 0 : 1;
 };
+var pickViewUnless = function ( bool ) {
+    return bool ? 1 : 0;
+};
 
-NS.Element.when = function ( object, property, view ) {
-    forEachView( view, 'sleep' );
-    return new SwitchView({
-        views: [ view, null ],
-        index: NS.bind( property, object, pickView )
+var createView = function ( object, property, transform ) {
+    var switchView = new SwitchView({
+        index: NS.bind( property, object, transform )
     });
+    switchView._oldView = Element.forView( switchView );
+    return switchView;
+};
+
+Element.when = function ( object, property ) {
+    return createView( object, property, pickViewWhen );
+};
+Element.unless = function ( object, property ) {
+    return createView( object, property, pickViewUnless );
 };
 
 }( this.O ) );
