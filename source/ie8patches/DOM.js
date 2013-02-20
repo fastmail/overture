@@ -185,6 +185,25 @@ HTMLTextAreaElement.prototype.setSelectionRange = function ( start, end ) {
     range.select();
 };
 
+Object.defineProperty( Element.prototype, 'previousElementSibling', {
+    get: function () {
+        var node = this;
+        do {
+            node = node.previousSibling;
+        } while ( node && node.nodeType !== 1 );
+        return node;
+    }
+});
+Object.defineProperty( Element.prototype, 'nextElementSibling', {
+    get: function () {
+        var node = this;
+        do {
+            node = node.nextSibling;
+        } while ( node && node.nodeType !== 1 );
+        return node;
+    }
+});
+
 // === Node constants ===
 
 window.Node = {
