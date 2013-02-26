@@ -10,20 +10,135 @@
 
 ( function ( NS ) {
 
+/**
+    Class: O.ButtonView
+
+    Extends: O.AbstractControlView
+
+    A ButtonView represents an interactive rectangle in your user interface
+    which the user can click/tap to perform an action. The ButtonView uses a
+    <button> element in the DOM by default. If the action being perfomed is
+    actually a navigation and just shows/hides content and does not change any
+    state, semantically you should change the layer tag to an <a>.
+
+    ### Using O.ButtonView ###
+
+    The most common way to use O.ButtonView is to create an instance as part of
+    the <O.View#draw method of your view class. For example:
+
+        var Element = O.Element,
+            el = Element.create;
+
+        Element.appendChildren( layer, [
+            el( 'h1', [
+                'Which pill will you take?'
+            ]),
+            el( 'div.actions', [
+                new O.ButtonView({
+                    label: 'The Red Pill',
+                    type: 'destructive size13',
+                    icon: 'redpill',
+                    isDisabled: O.bind( 'isNeo', controller ),
+                    target: controller,
+                    method: 'abort'
+                }),
+                new O.ButtonView({
+                    label: 'The Blue Pill',
+                    type: 'constructive size13',
+                    icon: 'bluepill',
+                    target: controller,
+                    method: 'proceed'
+                })
+            ])
+        ]);
+
+    new O.ButtonView
+
+    ### Styling O.ButtonView ###
+
+    The underlying DOM structure is:
+
+    <button class="ButtonView ${view.type}">
+        <i class="${view.icon}"></i>
+        <span>${view.label}</span>
+    </button>
+
+    If there is no icon property set, the <i> will have a class of 'hidden'
+    instead. The icon can be drawn as a background to the empty <i> element.
+*/
 var ButtonView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
+    /**
+        Property: O.ButtonView#isActive
+        Type: Boolean
+        Default: false
+
+        If the button is a toggle (like in the case of <O.MenuButtonView>, where
+        the menu is either visible or not), this property should be set to true
+        when in the active state, and false when not. This provides a CSS hook
+        for drawing the correct style to represent the button state.
+
+        <O.MenuButtonView> instances will automatically set this property
+        correctly, but if you subclass O.ButtonView yourself in a similar way,
+        be sure to set this when the state changes.
+    */
     isActive: false,
 
+    /**
+        Property: O.ButtonView#type
+        Type: String
+        Default: ''
+
+        A space-separated list of CSS classnames to give the layer in the DOM,
+        irrespective of state.
+    */
     type: '',
+
+    /**
+        Property: O.ButtonView#type
+        Type: String
+        Default: ''
+
+        Set to the name of the icon to use, if any, for the button. See the
+        general notes on using <O.ButtonView> for more information.
+    */
     icon: '',
 
+    /**
+        Property: O.ButtonView#tabIndex
+        Type: Number
+        Default: -1
+
+        Overrides default in <O.AbstractControlView#tabIndex>.
+    */
     tabIndex: -1,
 
     // --- Render ---
 
+    /**
+        Property: O.ButtonView#layerTag
+        Type: String
+        Default: 'button'
+
+        Overrides default in <O.View#layerTag>.
+    */
     layerTag: 'button',
+
+    /**
+        Property: O.ButtonView#className
+        Type: String
+
+        Overrides default in <O.View#tabIndex>. The layer will always have the
+        class "ButtonView" plus any classes listed in the <O.ButtonView#type>
+        property. In addition, it may have the following classes depending on
+        the state:
+
+        hasShortcut - If the view has a shortcut property set.
+        active      - If the view's isActive property is true.
+        disabled    - If the view's isDisabled property is true.
+    */
     className: function () {
         var type = this.get( 'type' );
         return 'ButtonView' +
@@ -33,22 +148,30 @@ var ButtonView = NS.Class({
             ( this.get( 'isDisabled' ) ? ' disabled' : '' );
     }.property( 'type', 'shortcut', 'isActive', 'isDisabled' ),
 
-    draw: function ( layer ) {
-        var icon = this.get( 'icon' );
-        if ( icon ) {
-            layer.appendChild(
-                NS.Element.create( 'i', {
-                    className: icon
-                })
-            );
-        }
+    /**
+        Method: O.ButtonView#draw
 
+        Overridden to draw view. See <O.View#draw>. For DOM structure, see
+        general <O.ButtonView> notes.
+    */
+    draw: function ( layer ) {
+        layer.appendChild(
+            NS.Element.create( 'i', {
+                className: this.get( 'icon' ) || 'hidden'
+            })
+        );
         this._domControl = layer;
         ButtonView.parent.draw.call( this, layer );
     },
 
     // --- Keep render in sync with state ---
 
+    /**
+        Method: O.ButtonView#propertyNeedsRedraw
+
+        Overridden to observe extra properties requiring redraw.
+        See <O.View#propertyNeedsRedraw>.
+    */
     propertyNeedsRedraw: function () {
         return ButtonView.parent
             .propertyNeedsRedraw.apply( this, arguments );
@@ -56,16 +179,67 @@ var ButtonView = NS.Class({
         'isDisabled', 'label', 'tooltip', 'tabIndex',
         'icon' ),
 
+    /**
+        Method: O.ButtonView#redrawIcon
+
+        Updates the className of the <i> representing the button's icon.
+    */
     redrawIcon: function ( layer ) {
-        layer.firstChild.className = this.get( 'icon' );
+        layer.firstChild.className = this.get( 'icon' ) || 'hidden';
     },
 
     // --- Activate ---
 
-    target: null,
-    action: null,
-    method: '',
+    /**
+        Property: O.ButtonView#target
+        Type: Object|null
+        Default: null
 
+        The object to fire an event/call a method on when the button is
+        activated. If null (the default), the ButtonView instance itself will be
+        used.
+    */
+    target: null,
+
+    /**
+        Property: O.ButtonView#action
+        Type: String|null
+        Default: null
+
+        The name of the event to fire on the <#target> when the button is
+        activated. Note, you should set *either* the action property or the
+        <#method> property. If both are set, the method property will be
+        ignored.
+    */
+    action: null,
+
+    /**
+        Property: O.ButtonView#method
+        Type: String|null
+        Default: null
+
+        The name of the method to call on the <#target> when the button is
+        activated. Note, you should set *either* the <#action> property or the
+        method property. If both are set, the method property will be ignored.
+    */
+    method: null,
+
+    /**
+        Method: O.ButtonView#activate
+
+        This method is called when the button is triggered, either by being
+        clicked/tapped on, or via a keyboard shortcut. If the button is
+        disabled, it will do nothing. Otherwise, it fires an event with the name
+        given in the <#action> property on the <#target> object. Or, if no
+        action is defined, calls the method named in the <#method> property on
+        the object instead.
+
+        If an event is fired, the `originView` property of the event object
+        provides a reference back to the button that fired it. If a method is
+        called, the ButtonView instance will be passed as the sole argument.
+
+        It also fires an event called `button:activate` on itself.
+    */
     activate: function () {
         if ( !this.get( 'isDisabled' ) ) {
             var target = this.get( 'target' ) || this,
@@ -81,25 +255,42 @@ var ButtonView = NS.Class({
 
     // --- Keep state in sync with render ---
 
-    // We want to trigger on mouseup so that the button can be used in a menu in
-    // a single click action. However, we also want to trigger on click for
-    // accessibility reasons. We don't want to trigger twice though, and at the
-    // time of the mouseup event there's no way to know if a click event will
-    // follow it. However, if a click event *is* following it, in most browsers,
-    // the click event will already be in the event queue, so we temporarily
-    // ignore clicks and put a callback function onto the end of the event queue
-    // to stop ignoring them. This will only run after the click event has fired
-    // (if there is one). The exception is Opera, where it gets queued before
-    // the click event. By adding a small 200ms delay we can more or less
-    // guarantee it is queued after, and it also prevents double click from
-    // activating the button twice, which could have unintended effects.
+    /**
+        Property (private): O.ButtonView#_ignore
+        Type: Boolean
 
+        If true, don't activate on click/mouseup.
+
+        We want to trigger on mouseup so that the button can be used in a menu
+        in a single click action. However, we also want to trigger on click for
+        accessibility reasons. We don't want to trigger twice though, and at the
+        time of the mouseup event there's no way to know if a click event will
+        follow it. However, if a click event *is* following it, in most
+        browsers, the click event will already be in the event queue, so we
+        temporarily ignore clicks and put a callback function onto the end of
+        the event queue to stop ignoring them. This will only run after the
+        click event has fired (if there is one). The exception is Opera, where
+        it gets queued before the click event. By adding a small 200ms delay we
+        can more or less guarantee it is queued after, and it also prevents
+        double click from activating the button twice, which could have
+        unintended effects.
+    */
     _ignore: false,
 
+    /**
+        Method (private): O.ButtonView#_monitorClicks
+
+        Start activating on click/mouseup again.
+    */
     _monitorClicks: function () {
         this._ignore = false;
     },
 
+    /**
+        Method (private): O.ButtonView#_activateOnClick
+
+        Activates the button on normal clicks.
+    */
     _activateOnClick: function ( event ) {
         if ( this._ignore || event.button || event.metaKey || event.ctrlKey ) {
             return;
@@ -111,6 +302,12 @@ var ButtonView = NS.Class({
         }
     }.on( 'mouseup', 'click' ),
 
+    /**
+        Method (private): O.ButtonView#_activateOnEnter
+
+        Activates the button when it has keyboard focus and the `enter` key is
+        pressed.
+    */
     _activateOnEnter: function ( event ) {
         if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
             this.activate();
@@ -121,73 +318,5 @@ var ButtonView = NS.Class({
 });
 
 NS.ButtonView = ButtonView;
-
-var MenuButtonView = NS.Class({
-
-    Extends: ButtonView,
-
-    type: 'MenuButtonView',
-
-    popOverView: null,
-    menuView: null,
-    alignMenu: 'left',
-
-    isInMenu: function () {
-        return this.get( 'parentView' ) instanceof NS.MenuOptionView;
-    }.property( 'parentView' ),
-
-    // --- Activate ---
-
-    activate: function () {
-        if ( !this.get( 'isDisabled' ) && !this.get( 'isActive' ) ) {
-            this.set( 'isActive', true );
-            var buttonView = this,
-                isInMenu = this.get( 'isInMenu' ),
-                popOverView, offsetTop, offsetLeft, menuOptionView;
-            if ( isInMenu ) {
-                popOverView = this.getParent( NS.PopOverView );
-                // Align top of submenu with top of menu button.
-                offsetTop = -this.get( 'pxHeight' ) - 4;
-                // And to the right hand side
-                offsetLeft = this.get( 'pxWidth' );
-                menuOptionView = this.get( 'parentView' );
-            } else {
-                popOverView = this.get( 'popOverView' );
-            }
-            // If the isInMenu, the popOverView used will actually be a subview
-            // of this popOverView, and is returned from the show method.
-            popOverView = popOverView.show({
-                view: this.get( 'menuView' ),
-                alignWithView: isInMenu ? popOverView : this,
-                atNode: isInMenu ? this.get( 'layer' ) : null,
-                alignEdge: this.get( 'alignMenu' ),
-                offsetTop: offsetTop,
-                offsetLeft: offsetLeft,
-                onHide: function () {
-                    buttonView.set( 'isActive', false );
-                    if ( menuOptionView ) {
-                        menuOptionView.removeObserverForKey(
-                            'isFocussed', popOverView, 'hide' );
-                    }
-                }
-            });
-            if ( menuOptionView ) {
-                menuOptionView.addObserverForKey(
-                    'isFocussed', popOverView, 'hide' );
-            }
-        }
-    },
-
-    // --- Keep state in sync with render ---
-
-    _activateOnMousedown: function ( event ) {
-        if ( event.button || event.metaKey || event.ctrlKey ) {
-            return;
-        }
-        this.activate();
-    }.on( 'mousedown' )
-});
-
-NS.MenuButtonView = MenuButtonView;
 
 }( this.O ) );
