@@ -20,7 +20,7 @@ var forEachView = function ( views, method, args ) {
         view;
     while ( l-- ) {
         view = views[l];
-        if ( view instanceof View ) {
+        if ( view instanceof View && !view.isDestroyed ) {
             if ( args ) {
                 view[ method ].apply( view, args );
             } else {
