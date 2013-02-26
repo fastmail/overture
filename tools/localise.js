@@ -401,7 +401,14 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         pmDesignator: getString( 'S_CALENDAR_PM' ),
 
         use24hClock: getString( 'S_CALENDAR_FORMAT_TIME_DEFAULT' ) === '24h',
-        dateElementOrder: 'dmy',
+        dateElementOrder: function () {
+            var format = getString( 'S_CALENDAR_FORMAT_DATE' ),
+                year = /%\-?Y/i.exec( format ).index,
+                month = /%\-?m/i.exec( format ).index,
+                day = /%\-?d/i.exec( format ).index;
+            return year < month && year < day ? 'ymd' :
+                month < day ? 'mdy' : 'dmy';
+        }(),
 
         dateFormats: {
             date: getString( 'S_CALENDAR_FORMAT_DATE' ),
