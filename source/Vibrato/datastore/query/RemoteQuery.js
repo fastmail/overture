@@ -15,7 +15,10 @@ var Status = NS.Status,
     READY = Status.READY,
     DESTROYED = Status.DESTROYED,
     NON_EXISTENT = Status.NON_EXISTENT,
+    // LOADING => The list is being fetched from the server.
     LOADING = Status.LOADING,
+    // OBSOLETE => The list may have changed on the server since the last fetch
+    // was initiated.
     OBSOLETE = Status.OBSOLETE;
 
 var qid = 0;
@@ -133,21 +136,21 @@ var RemoteQuery = NS.Class({
     status: EMPTY,
 
     /**
-        Method: O.Record#is
+        Method: O.RemoteQuery#is
 
-        Checks whether record has a particular status. You can also supply a
-        union of statuses (e.g. `record.is(O.Status.OBSOLETE|O.Status.DIRTY)`),
-        in which case it will return true if the record has *any* of these
-        status bits set.
+        Checks whether the query has a particular status. You can also supply a
+        union of statuses (e.g. `query.is(O.Status.OBSOLETE|O.Status.DIRTY)`),
+        in which case it will return true if the query has *any* of these status
+        bits set.
 
         Parameters:
-            state - {O.Status} The status to check.
+            status - {O.Status} The status to check.
 
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is: function ( state ) {
-        return !!( this.get( 'status' ) & state );
+    is: function ( status ) {
+        return !!( this.get( 'status' ) & status );
     },
 
     /**
@@ -211,7 +214,7 @@ var RemoteQuery = NS.Class({
         Parameters:
             force        - {Boolean} (optional) Unless this is true, the remote
                            query will only ask the source to fetch updates if it
-                           is marked OBSOLETE and not marked LOADING.
+                           is marked EMPTY or OBSOLETE.
             callback     - {Function} (optional) A callback to be made
                            when the refresh finishes.
 
@@ -220,8 +223,7 @@ var RemoteQuery = NS.Class({
     */
     refresh: function ( force, callback ) {
         var status = this.get( 'status' );
-        if ( force || status === EMPTY ||
-                ( ( status & OBSOLETE ) && !( status & LOADING ) ) ) {
+        if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
             if ( status & READY ) {
                 this._refresh = true;
             }
@@ -505,7 +507,8 @@ var RemoteQuery = NS.Class({
     sourceWillFetchQuery: function () {
         var refresh = this._refresh;
         this._refresh = false;
-        this.setLoading();
+        this.set( 'status',
+            ( this.get( 'status' )|LOADING ) & ~OBSOLETE );
         return refresh;
     },
 
@@ -581,7 +584,7 @@ var RemoteQuery = NS.Class({
             lastChangeNew + 1 : Math.max( oldTotal || 0, total );
 
         this.beginPropertyChanges()
-            .set( 'status', READY )
+            .set( 'status', READY|( this.is( OBSOLETE ) ? OBSOLETE : 0 ) )
             .set( 'length', total );
         if ( firstChange < lastChangeNew ) {
             this.rangeDidChange( firstChange, lastChangeNew );

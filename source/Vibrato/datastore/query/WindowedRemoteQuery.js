@@ -13,7 +13,10 @@
 var Status = NS.Status,
     EMPTY = Status.EMPTY,
     READY = Status.READY,
+    // LOADING => An *update* is being fetched from the server
     LOADING = Status.LOADING,
+    // OBSOLETE => The data on the server may have changed since the last update
+    // was requested.
     OBSOLETE = Status.OBSOLETE;
 
 /**
@@ -761,8 +764,7 @@ var WindowedRemoteQuery = NS.Class({
 
         // --- Broadcast changes ---
 
-        this.set( 'status', this.get( 'status' ) & ~(OBSOLETE|LOADING) )
-            .set( 'length', newLength )
+        this.set( 'length', newLength )
             .rangeDidChange( firstChange, Math.max( oldLength, newLength ) );
 
         // For selection purposes, list view will need to know the ids of those
@@ -888,7 +890,7 @@ var WindowedRemoteQuery = NS.Class({
             update - {Object} The delta update (see description above).
 
         Returns:
-            {O.Source} Returns self.
+            {O.WindowedRemoteQuery} Returns self.
     */
     sourceDidFetchUpdate: ( function () {
         var equalArrays = function ( a1, a2 ) {
@@ -936,21 +938,22 @@ var WindowedRemoteQuery = NS.Class({
         };
 
         return function ( update ) {
-            var state = this.get( 'state' );
+            var state = this.get( 'state' ),
+                status = this.get( 'status' );
+            // We've got an update, so we're no longer in the LOADING state.
+            this.set( 'status', status & ~LOADING );
             // Check we've not already got this update.
             if ( state === update.newState ) {
-                this.set( 'status', READY );
-                return;
+                return this;
             }
             // We can only update from our old state.
             if ( state !== update.oldState ) {
-                this.setObsolete();
-                return;
+                return this.setObsolete();
             }
             // Check the sort and filter is still the same
             if ( update.sort !== this.get( 'sort' ) ||
                     update.filter !== this.get( 'filter' ) ) {
-                return;
+                return this;
             }
             // Set new state
             this.set( 'state', update.newState );
@@ -1076,8 +1079,6 @@ var WindowedRemoteQuery = NS.Class({
                             .sourceHasUpdatesForRecords(
                                 this.get( 'Type' ), changed );
                     }
-                    this.set( 'status',
-                        this.get( 'status' ) & ~( OBSOLETE|LOADING ) );
                     this._applyWaitingPackets();
                 } else {
                     // Undo all preemptive updates and apply server change
@@ -1091,6 +1092,7 @@ var WindowedRemoteQuery = NS.Class({
                     );
                 }
             }
+            return this;
         };
     }() ),
 
@@ -1120,10 +1122,11 @@ var WindowedRemoteQuery = NS.Class({
         // ignore it.
         if ( this.get( 'sort' ) !== args.sort ||
                 this.get( 'filter' ) !== args.filter ) {
-            return;
+            return this;
         }
 
         var state = this.get( 'state' ),
+            status = this.get( 'status' ),
             oldLength = this.get( 'length' ) || 0,
             canGetDeltaUpdates = this.get( 'canGetDeltaUpdates' ),
             position = args.position,
@@ -1232,7 +1235,7 @@ var WindowedRemoteQuery = NS.Class({
         }
 
         // All that's left is to inform observers of the changes.
-        return this.set( 'status', READY )
+        return this.set( 'status', (status & EMPTY) ? READY : status )
                    .set( 'length', total )
                    .rangeDidChange(
                        informAllRangeObservers ? 0 : position,
@@ -1328,8 +1331,9 @@ var WindowedRemoteQuery = NS.Class({
             windows[i] = status;
         }
 
-        if ( refreshRequested ) {
-            this.setLoading();
+        if ( refreshRequested || this.is( EMPTY ) ) {
+            this.set( 'status',
+                ( this.get( 'status' )|LOADING ) & ~OBSOLETE );
         }
 
         return {
