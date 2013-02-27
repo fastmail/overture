@@ -51,11 +51,14 @@ var SingleSelectionController = NS.Class({
     _ignore: false,
 
     recordAtIndexDidChange: function () {
-        var record = this.get( 'content' ).getObjectAt( this.get( 'index' ) );
         if ( !this.get( 'record' ) ) {
-            this.set( 'record', record || null );
+            var content = this.get( 'content' );
+            this.set( 'record', content &&
+                content.getObjectAt( this.get( 'index' ) ) ||
+                null
+            );
         }
-    },
+    }.queue( 'before' ),
 
     _indexDidChange: function () {
         var list = this.get( 'content' ),
