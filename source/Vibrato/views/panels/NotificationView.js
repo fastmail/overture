@@ -49,10 +49,11 @@ var NotificationView = NS.Class({
             this._timer =
                 NS.RunLoop.invokeAfterDelay( this.hide, timeout, this );
         }
-        return this;
+        return this.set( 'isShowing', true );
     },
 
     hide: function () {
+        this.set( 'isShowing', false );
         if ( this._timer ) {
             NS.RunLoop.cancel( this._timer );
             this._timer = null;
