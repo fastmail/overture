@@ -439,12 +439,7 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     fromDidChange: function () {
-        if ( !this._needsSync && !this._isSuspended ) {
-            NS.RunLoop.queueFn( this.queue, this.sync, this, true );
-        }
-        this._needsSync = true;
-        this._syncFromToTo = true;
-        return this;
+        return this.needsSync( true );
     },
 
     /**
@@ -458,11 +453,33 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     toDidChange: function () {
-        if ( !this._needsSync && !this._isSuspended ) {
-            NS.RunLoop.queueFn( this.queue, this.sync, this, true );
-        }
+        return this.needsSync( false );
+    },
+
+    /**
+        Method: O.Binding#needsSync
+
+        Adds the binding to the queue to be synced at the end of the run loop.
+
+        Parameters:
+            direction - {Boolean} True if sync needed from the "from" object to
+                        the "to" object, false if the reverse.
+
+        Returns:
+            {O.Binding} Returns self.
+    */
+    needsSync: function ( direction ) {
+        var queue = this.queue,
+            inQueue = this._needsSync;
+        this._syncFromToTo = direction;
         this._needsSync = true;
-        this._syncFromToTo = false;
+        if ( !inQueue && !this._isSuspended ) {
+            if ( queue ) {
+                NS.RunLoop.queueFn( queue, this.sync, this, true );
+            } else {
+                this.sync();
+            }
+        }
         return this;
     },
 
