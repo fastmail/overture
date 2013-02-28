@@ -240,6 +240,21 @@ var RichTextView = NS.Class({
         }
     },
 
+    toolbarConfig: {
+        left: [
+            'bold', 'italic', 'underline', '-',
+            'size', 'font', '-',
+            'colour', 'bgcolour', '-',
+            'image', '-',
+            'link', '-',
+            'quote', 'unquote', '-',
+            'left', 'centre', 'right', 'justify', '-',
+            'ul', 'ol', '-',
+            'ltr', 'rtl'
+        ],
+        right: []
+    },
+
     toolbarView: function () {
         var bind = NS.bind,
             richTextView = this;
@@ -470,19 +485,7 @@ var RichTextView = NS.Class({
                     this.fire( 'button:activate' );
                 }
             })
-        }).registerConfig( 'standard', {
-            left: [ 'bold', 'italic', 'underline', '-',
-                    'size', 'font', '-',
-                    'colour', 'bgcolour', '-',
-                    'image', '-',
-                    'link', '-',
-                    'quote', 'unquote', '-',
-                    'left', 'centre', 'right', 'justify', '-',
-                    'ul', 'ol', '-',
-                    'ltr', 'rtl'
-                  ],
-            right: []
-        });
+        }).registerConfig( 'standard', this.get( 'toolbarConfig' ) );
     }.property(),
 
     fontSizeMenuView: function () {
