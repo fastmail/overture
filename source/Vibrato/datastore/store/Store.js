@@ -478,7 +478,7 @@ var Store = NS.Class({
     */
     getOne: function ( Type, filter ) {
         var storeKey = this.findOne( Type, filter );
-        return storeKey ? this.materialiseRecord( storeKey ) : null;
+        return storeKey ? this.materialiseRecord( storeKey, Type ) : null;
     },
 
     /**
