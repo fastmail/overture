@@ -365,7 +365,7 @@ var RichTextView = NS.Class({
             }),
             image: new NS.FileButtonView({
                 acceptMultiple: true,
-                acceptOnlyTypes: 'image/* .gif .jpg .jpeg .png',
+                acceptOnlyTypes: 'image/jpeg, image/png, image/gif',
                 label: NS.loc( 'Insert Image' ),
                 tooltip: NS.loc( 'Insert Image' ),
                 type: 'iconOnly',

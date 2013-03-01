@@ -58,10 +58,10 @@
 
     The underlying DOM structure is:
 
-    <button class="ButtonView ${view.type}">
-        <i class="${view.icon}"></i>
-        <span>${view.label}</span>
-    </button>
+        <button class="ButtonView ${view.type}">
+            <i class="${view.icon}"></i>
+            <span>${view.label}</span>
+        </button>
 
     If there is no icon property set, the <i> will have a class of 'hidden'
     instead. The icon can be drawn as a background to the empty <i> element.
@@ -130,7 +130,7 @@ var ButtonView = NS.Class({
         Property: O.ButtonView#className
         Type: String
 
-        Overrides default in <O.View#tabIndex>. The layer will always have the
+        Overrides default in <O.View#className>. The layer will always have the
         class "ButtonView" plus any classes listed in the <O.ButtonView#type>
         property. In addition, it may have the following classes depending on
         the state:
@@ -290,6 +290,9 @@ var ButtonView = NS.Class({
         Method (private): O.ButtonView#_activateOnClick
 
         Activates the button on normal clicks.
+
+        Parameters:
+            event - {Event} The click or mouseup event.
     */
     _activateOnClick: function ( event ) {
         if ( this._ignore || event.button || event.metaKey || event.ctrlKey ) {
@@ -307,6 +310,9 @@ var ButtonView = NS.Class({
 
         Activates the button when it has keyboard focus and the `enter` key is
         pressed.
+
+        Parameters:
+            event - {Event} The keypress event.
     */
     _activateOnEnter: function ( event ) {
         if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {

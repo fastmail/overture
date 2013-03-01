@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: FileButtonView.js                                                    \\
 // Module: View                                                               \\
-// Requires: Core, Foundation, DOM, IO, AbstractControlView.js                \\
+// Requires: Core, Foundation, DOM, IO, ButtonView.js                         \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -14,20 +14,78 @@
 
 var canUseMultiple = FormData.isFake ? null : 'multiple';
 
+/**
+    Class: O.FileButtonView
+
+    Extends: O.ButtonView
+
+    A FileButtonView is used to allow the user to select a file (or multiple
+    files) from their computer, which you can then upload to a server or, on
+    modern browsers, read and manipulate directly.
+
+    In general, FileButtonview is designed to be used just like an
+    <O.ButtonView> instance, including styling.
+
+    ### Styling O.FileButtonView ###
+
+    The underlying DOM structure is:
+
+        <label>
+            <i class="${view.icon}"></i>
+            <input type="file">
+            <span>${view.label}</span>
+        </label>
+
+    If there is no icon property set, the <i> will have a class of 'hidden'
+    instead. The icon can be drawn as a background to the empty <i> element.
+*/
 var FileButtonView = NS.Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: NS.ButtonView,
 
+    /**
+        Property: O.FileButtonView#acceptMultiple
+        Type: Boolean
+        Default: false
+
+        Should the user be allowed to select multiple files at once (if the
+        browser supports it)?
+    */
     acceptMultiple: false,
+
+    /**
+        Property: O.FileButtonView#acceptOnlyTypes
+        Type: String
+        Default: ''
+
+        A comma-separated list of MIME types that may be selected by the user.
+        Modern browsers only (set directly as the `accept` attribute in the
+        `<input>` element).
+    */
     acceptOnlyTypes: '',
-
-    type: '',
-    icon: '',
-
-    tabIndex: -1,
 
     // --- Render ---
 
+    /**
+        Property: O.ButtonView#layerTag
+        Type: String
+        Default: 'label'
+
+        Overrides default in <O.ButtonView#layerTag>.
+    */
+    layerTag: 'label',
+
+    /**
+        Property: O.FileButtonView#className
+        Type: String
+
+        Overrides default in <O.View#className>. The layer will always have the
+        classes "ButtonView" and "FileButtonView", plus any classes listed in
+        the <O.FileButtonView#type> property. In addition, it may have the
+        following class depending on the state:
+
+        disabled - If the view's isDisabled property is true.
+    */
     className: function () {
         var type = this.get( 'type' );
         return 'ButtonView FileButtonView' +
@@ -35,62 +93,57 @@ var FileButtonView = NS.Class({
             ( this.get( 'isDisabled' ) ? ' disabled' : '' );
     }.property( 'type', 'isDisabled' ),
 
+    /**
+        Method: O.FileButtonView#draw
+
+        Overridden to draw view. See <O.View#draw>. For DOM structure, see
+        general <O.FileButtonView> notes.
+    */
     draw: function ( layer ) {
         var Element = NS.Element,
-            el = Element.create,
-            icon = this.get( 'icon' );
-
+            el = Element.create;
         Element.appendChildren( layer, [
-            icon ? el( 'i', {
-                className: icon
-            }) : null,
-            this._domControl = el( 'input', {
+            el( 'i', {
+                className: this.get( 'icon' ) || 'hidden'
+            }),
+            this._domControl = NS.Element.create( 'input', {
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             })
         ]);
-        FileButtonView.parent.draw.call( this, layer );
-    },
-
-    // --- Keep render in sync with state ---
-
-    propertyNeedsRedraw: function () {
-        return FileButtonView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'tabIndex',
-        'icon' ),
-
-    redrawIcon: function ( layer ) {
-        layer.firstChild.className = this.get( 'icon' );
+        NS.AbstractControlView.prototype.draw.call( this, layer );
     },
 
     // --- Activate ---
 
-    target: null,
-    action: null,
-    method: '',
+    // Remove these methods. Must be handled by the browser.
+    _activateOnClick: null,
+    _activateOnEnter: null,
 
-    activate: function ( files ) {
-        if ( !this.get( 'isDisabled' ) ) {
-            var target = this.get( 'target' ) || this,
-                action;
-            if ( action = this.get( 'action' ) ) {
-                target.fire( action, {
-                    originView: this,
-                    files: files
-                });
-            } else if ( action = this.get( 'method' ) ) {
-                target[ action ]( files, this );
-            }
-            this.fire( 'button:activate' );
-        }
+    /**
+        Method: O.FileButtonView#activate
+
+        Opens the OS file chooser dialog.
+    */
+    activate: function () {
+        this._domControl.click();
     },
 
+    /**
+        Method (private): O.FileButtonView#_fileWasChosen
+
+        Parameters:
+            event - {Event} The change event.
+
+        Calls the method or fires the action on the target (see <O.ButtonView>
+        for description of these), with the files as the first argument or
+        `files` property on the event object.
+    */
     _fileWasChosen: function ( event ) {
         var input = this._domControl,
-            files, filePath;
+            files, filePath,
+            target, action;
         if ( event.target === input ) {
             input.parentNode.replaceChild(
                 this._domControl = NS.Element.create( 'input', {
@@ -111,7 +164,18 @@ var FileButtonView = NS.Class({
                     file: input
                 }];
             }
-            this.activate( files );
+            if ( !this.get( 'isDisabled' ) ) {
+                target = this.get( 'target' ) || this;
+                if ( action = this.get( 'action' ) ) {
+                    target.fire( action, {
+                        originView: this,
+                        files: files
+                    });
+                } else if ( action = this.get( 'method' ) ) {
+                    target[ action ]( files, this );
+                }
+                this.fire( 'button:activate' );
+            }
         }
     }.on( 'change' )
 });
