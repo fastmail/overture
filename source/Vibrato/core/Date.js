@@ -58,7 +58,7 @@ if ( Date.parse( '1970-01-01T00:00Z' ) !== 0 ) {
         */
         var nativeParse = Date.parse,
             format = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+\-])(\d{2})(?::(\d{2}))?)?)?)?$/;
-        
+
         return function ( date ) {
             var results = format.exec( date );
             return results ?
