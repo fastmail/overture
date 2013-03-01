@@ -246,9 +246,6 @@ var PopOverView = NS.Class({
                 subPopOverView.hide();
             }
             this.set( 'isVisible', false );
-            if ( onHide = options.onHide ) {
-                onHide();
-            }
             view = options.view;
             this.get( 'parentView' ).removeView( this );
             this.removeView( view );
@@ -261,6 +258,9 @@ var PopOverView = NS.Class({
                 eventHandler._seenMouseDown = false;
             }
             this._options = null;
+            if ( onHide = options.onHide ) {
+                onHide();
+            }
         }
         return this;
     },
