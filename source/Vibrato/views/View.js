@@ -221,16 +221,15 @@ var View = NS.Class({
     },
 
     destroy: function () {
-        if ( this.get( 'parentView' ) ) {
-            throw new Error( 'Cannot destroy a node attached to a parent' );
+        if ( this.get( 'isInDocument' ) ) {
+            throw new Error( 'Cannot destroy a view in the document' );
         }
 
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
-            children[l].set( 'parentView', null ).destroy();
+            children[l].destroy();
         }
-        this.childViews = null;
         if ( this.get( 'isRendered' ) ) {
             this.willDestroyLayer( this.get( 'layer' ) );
         }
