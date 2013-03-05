@@ -256,15 +256,14 @@ var SplitView = NS.Class({
     },
 
     /**
-        Method: O.SplitView#propertyNeedsRedraw
+        Method: O.SplitView#splitNeedsRedraw
 
-        Overridden to observe extra properties requiring redraw.
-        See <O.View#propertyNeedsRedraw>.
+        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
+        redraw.
     */
-    propertyNeedsRedraw: function () {
-        return SplitView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'staticPaneLength' ),
+    splitNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'staticPaneLength' ),
 
     /**
         Method: O.SplitView#redrawStaticPaneLength

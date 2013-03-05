@@ -176,6 +176,10 @@ var AbstractControlView = NS.Class({
 
     // --- Keep render in sync with state ---
 
+    abstractControlNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'isDisabled', 'label', 'tooltip', 'tabIndex' ),
+
     /**
         Method: O.AbstractControlView#redrawIsDisabled
 

@@ -46,12 +46,14 @@ var RadioView = NS.Class({
     // --- Keep render in sync with state ---
 
     /**
-        Method: O.RadioView#propertyNeedsRedraw
+        Method: O.RadioView#radioNeedsRedraw
 
-        Overridden to observe extra properties requiring redraw.
-        See <O.View#propertyNeedsRedraw>.
+        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
+        redraw.
     */
-    propertyNeedsRedraw: NS.CheckboxView.prototype.propertyNeedsRedraw,
+    radioNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'value' ),
 
     /**
         Method: O.RadioView#redrawValue

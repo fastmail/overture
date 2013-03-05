@@ -102,10 +102,9 @@ var NotificationView = NS.Class({
         }
     },
 
-    propertyNeedsRedraw: function () {
-        return NotificationView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'text', 'html' ),
+    notificationNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'text', 'html' ),
 
     redrawText: function () {
         this.redrawHTML();

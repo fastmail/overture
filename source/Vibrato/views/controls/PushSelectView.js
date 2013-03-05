@@ -46,10 +46,9 @@ var PushSelectView = NS.Class({
 
     // --- Keep render in sync with state ---
 
-    propertyNeedsRedraw: function () {
-        return PushSelectView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'options', 'value' ),
+    pushSelectNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'options', 'value' ),
 
     redrawOptions: function ( layer ) {
         layer.replaceChild( this._drawSelect(), layer.firstChild );

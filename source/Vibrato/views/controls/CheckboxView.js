@@ -51,17 +51,14 @@ var CheckboxView = NS.Class({
     // --- Keep render in sync with state ---
 
     /**
-        Method: O.CheckboxView#propertyNeedsRedraw
+        Method: O.CheckboxView#checkboxNeedsRedraw
 
-        Overridden to observe extra properties requiring redraw.
-        See <O.View#propertyNeedsRedraw>.
+        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
+        redraw.
     */
-    propertyNeedsRedraw: function () {
-        return CheckboxView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'tabIndex',
-        'value' ),
+    checkboxNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'value' ),
 
     /**
         Method: O.CheckboxView#redrawValue

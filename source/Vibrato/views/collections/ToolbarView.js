@@ -283,9 +283,9 @@ var ToolbarView = NS.Class({
         ]);
     },
 
-    propertyNeedsRedraw: function () {
-       return ToolbarView.parent.propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'left', 'right' ),
+    toolbarNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'left', 'right' ),
 
     redrawLeft: function ( layer, oldViews ) {
         this.redrawSide( layer.firstChild, oldViews, this.get( 'left' ) );

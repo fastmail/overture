@@ -167,17 +167,14 @@ var ButtonView = NS.Class({
     // --- Keep render in sync with state ---
 
     /**
-        Method: O.ButtonView#propertyNeedsRedraw
+        Method: O.ButtonView#buttonNeedsRedraw
 
-        Overridden to observe extra properties requiring redraw.
-        See <O.View#propertyNeedsRedraw>.
+        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
+        redraw.
     */
-    propertyNeedsRedraw: function () {
-        return ButtonView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'tabIndex',
-        'icon' ),
+    buttonNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'icon' ),
 
     /**
         Method: O.ButtonView#redrawIcon

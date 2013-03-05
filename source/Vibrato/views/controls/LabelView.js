@@ -64,15 +64,14 @@ var LabelView = NS.Class({
     },
 
     /**
-        Method: O.LabelView#propertyNeedsRedraw
+        Method: O.LabelView#labelNeedsRedraw
 
-        Overridden to observe extra properties requiring redraw.
-        See <O.View#propertyNeedsRedraw>.
+        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
+        redraw.
     */
-    propertyNeedsRedraw: function () {
-        return LabelView.parent
-            .propertyNeedsRedraw.apply( this, arguments );
-    }.observes( 'className', 'layerStyles', 'tooltip', 'value' ),
+    labelNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'tooltip', 'value' ),
 
     /**
         Method: O.LabelView#redrawTooltip

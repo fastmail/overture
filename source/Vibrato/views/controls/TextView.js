@@ -137,17 +137,15 @@ var TextView = NS.Class({
 
     // --- Keep render in sync with state ---
 
-    propertyNeedsRedraw: function ( _, property ) {
+    textNeedsRedraw: function ( self, property, oldValue ) {
         var isValue = ( property === 'value' );
         if ( !isValue || !this._settingFromInput ) {
-            TextView.parent.propertyNeedsRedraw.apply( this, arguments );
+            this.propertyNeedsRedraw( self, property, oldValue );
         }
         if ( isValue && this.get( 'isExpanding' ) ) {
             NS.RunLoop.queueFn( 'after', this.parentViewDidResize, this );
         }
-    }.observes( 'className', 'layerStyles',
-        'isDisabled', 'label', 'tooltip', 'tabIndex',
-        'value', 'placeholder', 'maxLength' ),
+    }.observes( 'value', 'placeholder', 'maxLength' ),
 
     redrawValue: function () {
         var value = this.get( 'value' );
