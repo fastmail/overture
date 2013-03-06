@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------- \\
 // File: TreeView.js                                                          \\
-// Module: View                                                               \\
+// Module: CollectionViews                                                    \\
 // Requires: CollectionView.js                                                \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2012 Opera Software ASA. All rights reserved.              \\

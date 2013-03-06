@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: SwitchView.js                                                        \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, View.js                                        \\
+// Module: CollectionViews                                                    \\
+// Requires: Core, Foundation, View                                           \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\

@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------- \\
 // File: DragDataSource.js                                                    \\
-// Module: View                                                               \\
+// Module: DragDrop                                                           \\
 // Requires: DragEffect.js                                                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\

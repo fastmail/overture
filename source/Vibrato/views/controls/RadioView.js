@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: RadioView.js                                                         \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, CheckboxView.js                           \\
+// Module: ControlViews                                                       \\
+// Requires: Core, Foundation, DOM, View, CheckboxView.js                     \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -51,9 +51,7 @@ var RadioView = NS.Class({
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    radioNeedsRedraw: function ( self, property, oldValue ) {
-       return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'value' ),
+    radioNeedsRedraw: NS.CheckboxView.prototype.checkboxNeedsRedraw,
 
     /**
         Method: O.RadioView#redrawValue

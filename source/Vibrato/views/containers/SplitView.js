@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: SplitView.js                                                         \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, View.js                                   \\
+// Module: ContainerViews                                                     \\
+// Requires: Core, Foundation, View                                           \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -340,14 +340,14 @@ var SplitView = NS.Class({
             oldView - {O.View|null} The previous value of the property.
     */
     _viewDidChange: function ( _, key, oldView ) {
-        var view = this.get( 'view' );
+        var view = this.get( key );
         if ( oldView && view ) {
-            SplitView.parent.replaceView.call( view, oldView );
+            SplitView.parent.replaceView.call( this, view, oldView );
         } else if ( oldView ) {
-            SplitView.parent.removeView.call( oldView );
+            SplitView.parent.removeView.call( this, oldView );
         } else if ( view ) {
-            SplitView.parent.insertView.call( view,
-                'bottom', this[ '_' + key + 'Container' ] );
+            SplitView.parent.insertView.call( this, view,
+                this[ '_' + key + 'Container' ], 'bottom' );
         }
     }.observes( topLeftView, bottomRightView )
 });

@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: AutoCompleteView.js                                                  \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, MenuView.js                               \\
+// Module: ControlViews                                                       \\
+// Requires: Core, Foundation, DOM, View, MenuView.js                         \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\

@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: SplitViewDivider.js                                                  \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, View.js, SplitView.js, Draggable.js       \\
+// Module: ContainerViews                                                     \\
+// Requires: Core, Foundation, View, DragDrop                                 \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\

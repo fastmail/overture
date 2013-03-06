@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: DragController.js                                                    \\
-// Module: View                                                               \\
-// Requires: ViewEventsController.js, DragEffect.js                           \\
+// Module: DragDrop                                                           \\
+// Requires: View, DragEffect.js                                              \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\

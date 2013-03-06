@@ -1,12 +1,10 @@
 // -------------------------------------------------------------------------- \\
 // File: ListView.js                                                          \\
-// Module: View                                                               \\
-// Requires: UnorderedCollectionView.js                                       \\
+// Module: CollectionViews                                                    \\
+// Requires: View, UnorderedCollectionView.js, TrueVisibleRect.js             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
-
-/*global document */
 
 "use strict";
 

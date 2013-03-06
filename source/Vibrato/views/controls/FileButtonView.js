@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: FileButtonView.js                                                    \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, IO, ButtonView.js                         \\
+// Module: ControlViews                                                       \\
+// Requires: Core, Foundation, DOM, View, ButtonView.js                       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\

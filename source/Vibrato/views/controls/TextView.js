@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: TextView.js                                                          \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, Validate, AbstractControlView.js          \\
+// Module: ControlViews                                                       \\
+// Requires: Core, Foundation, DOM, View, Validate, AbstractControlView.js    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\

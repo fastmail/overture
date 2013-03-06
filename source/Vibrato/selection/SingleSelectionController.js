@@ -1,6 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: SingleSelectionController.js                                         \\
-// Module: View                                                               \\
+// Module: Selection                                                          \\
+// Requires: Core, Foundation                                                 \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -107,7 +108,7 @@ var SingleSelectionController = NS.Class({
     contentDidChange: function ( _, __, oldVal, newVal ) {
         var range = this._range,
             record = this.get( 'record' ),
-            index;
+            index = 0;
 
         if ( oldVal ) {
             oldVal.detach( 'query:reset', this, 'contentWasReset' )
@@ -123,8 +124,10 @@ var SingleSelectionController = NS.Class({
 
         if ( record && newVal ) {
             index = newVal.indexOfId( record.get( 'id' ) );
+            if ( index < 0 ) {
+                index = 0;
+            }
         }
-        index = index > -1 ? index : 0;
 
         if ( index === this.get( 'index' ) ) {
             record = newVal && newVal.getObjectAt( index );
