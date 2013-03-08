@@ -285,15 +285,6 @@ var SplitView = NS.Class({
     },
 
     /**
-        Method: O.SplitView#insertView
-
-        This is overriden to `null` so trying to call it will result in an
-        error. You must instead explicitly set a view as either the
-        <O.SplitView#topLeftView> or <O.SplitView#bottomRightView> property.
-    */
-    insertView: null,
-
-    /**
         Method: O.SplitView#replaceView
 
         See <O.View#replaceView>.
@@ -306,6 +297,8 @@ var SplitView = NS.Class({
             this.set( topLeftView, view );
         } else if ( oldView === this.get( bottomRightView ) ) {
             this.set( bottomRightView, view );
+        } else {
+            SplitView.parent.replaceView.call( this, view, oldView );
         }
         return this;
     },
@@ -323,6 +316,8 @@ var SplitView = NS.Class({
             this.set( topLeftView, null );
         } else if ( view === this.get( bottomRightView ) ) {
             this.set( bottomRightView, null );
+        } else {
+            SplitView.parent.removeView.call( this, view );
         }
         return this;
     },
