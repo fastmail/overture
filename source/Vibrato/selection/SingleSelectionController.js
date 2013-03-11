@@ -14,6 +14,8 @@ var SingleSelectionController = NS.Class({
 
     Extends: NS.Object,
 
+    allowNoSelection: true,
+
     init: function ( mixin ) {
         SingleSelectionController.parent.init.call( this, mixin );
         var content = this.get( 'content' ),
@@ -28,7 +30,7 @@ var SingleSelectionController = NS.Class({
             this._recordDidChange();
         } else if ( this.get( 'index' ) > -1 ) {
             this._indexDidChange();
-        } else {
+        } else if ( !this.get( 'allowNoSelection' ) ) {
             this.set( 'index', 0 );
         }
     },
@@ -47,6 +49,9 @@ var SingleSelectionController = NS.Class({
     content: null,
 
     record: null,
+
+    // -1 means don't update when the list contents changes (so will remain at 0
+    // selection or explicitly selected record not in list.)
     index: -1,
 
     _ignore: false,
@@ -70,7 +75,8 @@ var SingleSelectionController = NS.Class({
         range.start = index;
         range.end = index + 1;
         if ( !this._ignore ) {
-            if ( index < 0 || ( !length && index ) ) {
+            if ( ( index < 0 && !this.get( 'allowNoSelection' ) ) ||
+                    ( !length && index > 0 ) ) {
                 this.set( 'index', 0 );
             } else if ( length > 0 && index >= length ) {
                 this.set( 'index', length - 1 );
@@ -86,18 +92,19 @@ var SingleSelectionController = NS.Class({
     }.observes( 'index' ),
 
     _recordDidChange: function () {
-        var record = this.get( 'record' ),
-            list = this.get( 'content' );
-        if ( record && !this._ignore ) {
-            if ( list ) {
+        if ( !this._ignore ) {
+            var record = this.get( 'record' ),
+                list = this.get( 'content' );
+            if ( record && list ) {
                 list.indexOfId( record.get( 'id' ), 0, function ( index ) {
-                    if ( this.get( 'record' ) === record ) {
+                    if ( this.get( 'record' ) === record &&
+                            this.get( 'content' ) === list ) {
                         this._ignore = true;
                         this.set( 'index', index );
                         this._ignore = false;
                     }
                 }.bind( this ) );
-            } else {
+            } else if ( record || this.get( 'allowNoSelection' ) ) {
                 this._ignore = true;
                 this.set( 'index', -1 );
                 this._ignore = false;
@@ -107,8 +114,9 @@ var SingleSelectionController = NS.Class({
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
         var range = this._range,
+            allowNoSelection = this.get( 'allowNoSelection' ),
             record = this.get( 'record' ),
-            index = 0;
+            index = allowNoSelection ? -1 : 0;
 
         if ( oldVal ) {
             oldVal.detach( 'query:reset', this, 'contentWasReset' )
@@ -124,7 +132,7 @@ var SingleSelectionController = NS.Class({
 
         if ( record && newVal ) {
             index = newVal.indexOfId( record.get( 'id' ) );
-            if ( index < 0 ) {
+            if ( !allowNoSelection && index < 0 ) {
                 index = 0;
             }
         }
@@ -150,6 +158,10 @@ var SingleSelectionController = NS.Class({
             index = addedIndexes[ index ];
         } else {
             index = this.get( 'index' );
+            // Can't update a position not currently in the list.
+            if ( index === -1 ) {
+                return;
+            }
             for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
                 if ( removedIndexes[i] < index ) { change += 1; }
                 // Guaranteed in ascending order.
@@ -175,7 +187,7 @@ var SingleSelectionController = NS.Class({
     },
 
     contentWasReset: function () {
-        this.set( 'index', 0 );
+        this.set( 'index', this.get( 'allowNoSelection' ) ? -1 : 0 );
     }
 });
 
