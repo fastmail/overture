@@ -119,7 +119,9 @@ var ListViewKBWidgetView = NS.Class({
     },
 
     go: function ( delta ) {
-        this.increment( 'index', delta );
+        var length = this.getFromPath( 'listView.content.length' ) || 0,
+            index = this.get( 'index' );
+        this.set( 'index', ( index + delta ).limit( 0, length - 1 ) );
         if ( this.get( 'isInDocument' ) ) {
             this.checkScroll();
         }
