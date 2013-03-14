@@ -404,7 +404,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         dateElementOrder: function () {
             var format = getString( 'S_CALENDAR_FORMAT_DATE' ),
                 year = /%\-?Y/i.exec( format ).index,
-                month = /%\-?m/i.exec( format ).index,
+                month = /%\-?[mb]/i.exec( format ).index,
                 day = /%\-?d/i.exec( format ).index;
             return year < month && year < day ? 'ymd' :
                 month < day ? 'mdy' : 'dmy';
