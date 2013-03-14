@@ -98,7 +98,7 @@ var MenuButtonView = NS.Class({
         Ignores target/method/action properties.
     */
     activate: function () {
-        if ( !this.get( 'isActive' ) ) {
+        if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             var buttonView = this,
                 isInMenu = this.get( 'isInMenu' ),
