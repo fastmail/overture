@@ -46,7 +46,20 @@ var ListItemView = NS.Class({
         return  {
             top: index * itemHeight
         };
-    }.property( 'index', 'itemHeight' )
+    }.property( 'index', 'itemHeight' ),
+
+    detach: function ( wasRemovedFromList ) {
+        var isInDocument = this.get( 'isInDocument' ),
+            layer = this.get( 'layer' );
+        if ( isInDocument ) {
+            this.willRemoveLayerFromDocument();
+        }
+        layer.parentNode.removeChild( layer );
+        if ( isInDocument ) {
+            this.didRemoveLayerFromDocument();
+        }
+        this.set( 'parentView', null );
+    }
 });
 
 NS.ListItemView = ListItemView;

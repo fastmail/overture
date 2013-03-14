@@ -6,8 +6,6 @@
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global document */
-
 "use strict";
 
 ( function ( NS ) {
@@ -22,6 +20,8 @@ var UnorderedCollectionView = NS.Class({
         end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
     },
 
+    _added: null,
+    _removed: null,
     _needsUpdate: false,
     _currentColour: true,
 
@@ -72,7 +72,10 @@ var UnorderedCollectionView = NS.Class({
         }
     }.observes( 'content' ),
 
-    contentWasUpdated: function ( event ) {},
+    contentWasUpdated: function ( event ) {
+        this._added = event.added;
+        this._removed = event.removed;
+    },
 
     layout: function () {
         return {
@@ -99,13 +102,14 @@ var UnorderedCollectionView = NS.Class({
         this.propertyNeedsRedraw( this, 'layer' );
     },
 
-    createItemView: function ( content, index, list ) {
+    createItemView: function ( content, index, list, isNew ) {
         var ItemView = this.get( 'ItemView' );
         return new ItemView({
             parentView: this,
             content: content,
             index: index,
             list: list,
+            isNew: isNew,
             selectionController: this.get( 'selectionController' )
         });
     },
@@ -124,7 +128,11 @@ var UnorderedCollectionView = NS.Class({
             // Set of already rendered views.
             rendered = this._rendered,
             currentColour = this._currentColour,
-            added = [],
+            addedViews = [],
+
+            // Are they new or always been there?
+            added = this._added,
+            removed = this._removed,
 
             isInDocument = this.get( 'isInDocument' ),
             frag = layer.ownerDocument.createDocumentFragment(),
@@ -140,11 +148,12 @@ var UnorderedCollectionView = NS.Class({
                 view.set( 'index', i )
                     .set( 'list', list );
             } else {
-                view = this.createItemView( item, i, list );
+                view = this.createItemView( item, i, list,
+                    added ? added.indexOf( item.get( 'id' ) ) > -1 : false );
                 frag.appendChild( view.render().get( 'layer' ) );
                 if ( isInDocument ) {
                     view.willAppendLayerToDocument();
-                    added.push( view );
+                    addedViews.push( view );
                 }
                 rendered[ id ] = view;
             }
@@ -155,14 +164,9 @@ var UnorderedCollectionView = NS.Class({
         for ( id in rendered ) {
             view = rendered[ id ];
             if ( view._ucv_gc !== currentColour ) {
-                if ( isInDocument ) {
-                    view.willRemoveLayerFromDocument();
-                }
-                layer.removeChild( view.get( 'layer' ) );
-                if ( isInDocument ) {
-                    view.didRemoveLayerFromDocument();
-                }
-                view.set( 'parentView', null );
+                view.detach( removed ?
+                    removed.indexOf( view.content.get( 'id' ) ) > -1 : false
+                );
                 this.destroyItemView( view );
                 delete rendered[ id ];
             }
@@ -170,12 +174,14 @@ var UnorderedCollectionView = NS.Class({
 
         // Add new ones
         layer.appendChild( frag );
-        for ( i = 0, l = added.length; i < l; i += 1 ) {
-            added[i].didAppendLayerToDocument();
+        for ( i = 0, l = addedViews.length; i < l; i += 1 ) {
+            addedViews[i].didAppendLayerToDocument();
         }
 
         this.computedPropertyDidChange( 'childViews' );
         this._needsUpdate = false;
+        this._added = null;
+        this._removed = null;
         this._currentColour = !currentColour;
     },
 

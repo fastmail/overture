@@ -58,6 +58,7 @@ var ListView = NS.Class({
                 scrollView.scrollBy( 0, change * itemHeight );
             }
         }
+        return ListView.parent.contentWasUpdated.call( this, event );
     },
 
     _simulateScroll: function ( _, __, oldLength, length ) {
