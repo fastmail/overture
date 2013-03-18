@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------- \\
-// File: ListViewKBWidgetView.js                                              \\
+// File: ListKBFocusView.js                                              \\
 // Module: CollectionViews                                                    \\
 // Requires: Core, Foundation, View                                           \\
 // Author: Neil Jenkins                                                       \\
@@ -12,7 +12,7 @@
 
 ( function ( NS, undefined ) {
 
-var ListViewKBWidgetView = NS.Class({
+var ListKBFocusView = NS.Class({
 
     Extends: NS.View,
 
@@ -32,8 +32,10 @@ var ListViewKBWidgetView = NS.Class({
         enter: 'trigger'
     },
 
-    className: 'ListViewKBWidgetView',
+    className: 'ListKBFocusView',
+
     positioning: 'absolute',
+
     layout: function () {
         var itemHeight = this.get( 'itemHeight' );
         return {
@@ -50,8 +52,7 @@ var ListViewKBWidgetView = NS.Class({
             shortcuts.register( key, this, keys[ key ] );
         }
         this.checkInitialScroll();
-        return ListViewKBWidgetView.parent
-                .didEnterDocument.call( this );
+        return ListKBFocusView.parent.didEnterDocument.call( this );
     },
     willLeaveDocument: function () {
         var keys = this.get( 'keys' ),
@@ -60,8 +61,7 @@ var ListViewKBWidgetView = NS.Class({
         for ( key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );
         }
-        return ListViewKBWidgetView.parent.
-            willLeaveDocument.call( this );
+        return ListKBFocusView.parent.willLeaveDocument.call( this );
     },
 
     // Scroll to centre widget on screen with no animation
@@ -147,6 +147,6 @@ var ListViewKBWidgetView = NS.Class({
     trigger: function () {}
 });
 
-NS.ListViewKBWidgetView = ListViewKBWidgetView;
+NS.ListKBFocusView = ListKBFocusView;
 
 }( this.O ) );
