@@ -149,7 +149,10 @@ var UnorderedCollectionView = NS.Class({
                     .set( 'list', list );
             } else {
                 view = this.createItemView( item, i, list,
-                    added ? added.indexOf( item.get( 'id' ) ) > -1 : false );
+                    added && item ?
+                        added.indexOf( item.get( 'id' ) ) > -1 :
+                        false
+                );
                 frag.appendChild( view.render().get( 'layer' ) );
                 if ( isInDocument ) {
                     view.willAppendLayerToDocument();
