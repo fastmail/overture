@@ -6,7 +6,7 @@
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global window */
+/*global location, sessionStorage, localStorage */
 
 "use strict";
 
@@ -52,8 +52,8 @@ var LocalStorage = NS.Class({
     init: function ( name, sessionOnly ) {
         LocalStorage.parent.init.call( this );
         this._name = name + '.';
-        this._store = window.location.protocol === 'file:' ? dummyStorage :
-            sessionOnly ? window.sessionStorage : window.localStorage;
+        this._store = location.protocol === 'file:' ? dummyStorage :
+            sessionOnly ? sessionStorage : localStorage;
     },
 
     set: function ( key, value ) {
