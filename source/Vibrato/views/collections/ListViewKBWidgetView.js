@@ -42,7 +42,7 @@ var ListViewKBWidgetView = NS.Class({
         };
     }.property( 'itemHeight', 'index' ),
 
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         var keys = this.get( 'keys' ),
             shortcuts = NS.ViewEventsController.kbShortcuts,
             key;
@@ -51,9 +51,9 @@ var ListViewKBWidgetView = NS.Class({
         }
         this.checkInitialScroll();
         return ListViewKBWidgetView.parent
-                .didAppendLayerToDocument.call( this );
+                .didEnterDocument.call( this );
     },
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         var keys = this.get( 'keys' ),
             shortcuts = NS.ViewEventsController.kbShortcuts,
             key;
@@ -61,7 +61,7 @@ var ListViewKBWidgetView = NS.Class({
             shortcuts.deregister( key, this, keys[ key ] );
         }
         return ListViewKBWidgetView.parent.
-            willRemoveLayerFromDocument.call( this );
+            willLeaveDocument.call( this );
     },
 
     // Scroll to centre widget on screen with no animation

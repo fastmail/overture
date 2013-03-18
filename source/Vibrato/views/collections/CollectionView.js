@@ -150,13 +150,13 @@ var CollectionView = NS.Class({
                     start += 1;
                 } else {
                     if ( isInDocument ) {
-                        view.willRemoveLayerFromDocument();
+                        view.willLeaveDocument();
                     }
                     managedViews[i] = null;
                     layer.removeChild( view.get( 'layer' ) );
                     oldViews.push( view );
                     if ( isInDocument ) {
-                        view.didRemoveLayerFromDocument();
+                        view.didLeaveDocument();
                     }
                 }
             }
@@ -189,7 +189,7 @@ var CollectionView = NS.Class({
             view = newViews[i];
             frag.appendChild( view.render().get( 'layer' ) );
             if ( isInDocument ) {
-                view.willAppendLayerToDocument();
+                view.willEnterDocument();
             }
         }
 
@@ -210,7 +210,7 @@ var CollectionView = NS.Class({
         // Step 7. Inform the new views of their new status.
         if ( isInDocument ) {
             while ( l-- ) {
-                newViews[l].didAppendLayerToDocument();
+                newViews[l].didEnterDocument();
             }
         }
 

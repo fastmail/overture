@@ -155,7 +155,7 @@ var UnorderedCollectionView = NS.Class({
                 );
                 frag.appendChild( view.render().get( 'layer' ) );
                 if ( isInDocument ) {
-                    view.willAppendLayerToDocument();
+                    view.willEnterDocument();
                     addedViews.push( view );
                 }
                 rendered[ id ] = view;
@@ -178,7 +178,7 @@ var UnorderedCollectionView = NS.Class({
         // Add new ones
         layer.appendChild( frag );
         for ( i = 0, l = addedViews.length; i < l; i += 1 ) {
-            addedViews[i].didAppendLayerToDocument();
+            addedViews[i].didEnterDocument();
         }
 
         this.computedPropertyDidChange( 'childViews' );

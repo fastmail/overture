@@ -54,13 +54,13 @@ var ModalView = NS.Class({
         return this.get( 'eventHandler' );
     }.property(),
 
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         NS.ViewEventsController.pushEventTarget( this.get( 'eventHandler' ) );
-        return ModalView.parent.didAppendLayerToDocument.call( this );
+        return ModalView.parent.didEnterDocument.call( this );
     },
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         NS.ViewEventsController.removeEventTarget( this.get( 'eventHandler' ) );
-        return ModalView.parent.willRemoveLayerFromDocument.call( this );
+        return ModalView.parent.willLeaveDocument.call( this );
     },
 
     draw: function ( layer ) {

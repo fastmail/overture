@@ -271,11 +271,11 @@ var MenuView = NS.Class({
         MenuView.parent.willDestroyLayer.call( this, layer );
     },
 
-    didRemoveLayerFromDocument: function () {
+    didLeaveDocument: function () {
         if ( !this.get( 'showFilter' ) ) {
             this.get( 'controller' ).focusOption( null );
         }
-        return MenuView.parent.didRemoveLayerFromDocument.call( this );
+        return MenuView.parent.didLeaveDocument.call( this );
     },
 
     _checkSize: function () {

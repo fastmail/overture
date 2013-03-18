@@ -180,8 +180,8 @@ var TextView = NS.Class({
 
     savedSelection: null,
 
-    didAppendLayerToDocument: function () {
-        TextView.parent.didAppendLayerToDocument.call( this );
+    didEnterDocument: function () {
+        TextView.parent.didEnterDocument.call( this );
         // Restore scroll positions:
         if ( this.get( 'isMultiline' ) ) {
             var control = this._domControl,
@@ -197,7 +197,7 @@ var TextView = NS.Class({
         }
         return this;
     },
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         // If focussed, save cursor position
         if ( this.get( 'isFocussed' ) ) {
             this.set( 'savedSelection', this.get( 'selection' ) );
@@ -206,7 +206,7 @@ var TextView = NS.Class({
         if ( this.get( 'isMultiline' ) ) {
             this._domControl.removeEventListener( 'scroll', this, false );
         }
-        return TextView.parent.willRemoveLayerFromDocument.call( this );
+        return TextView.parent.willLeaveDocument.call( this );
     },
 
     _syncBackScrolls: function ( event ) {

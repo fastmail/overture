@@ -394,14 +394,14 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didAppendLayerToDocument
+        Method: O.View#didEnterDocument
 
         Called immediately before the layer is appended to the document.
 
         Returns:
             {O.View} Returns self.
     */
-    willAppendLayerToDocument: function () {
+    willEnterDocument: function () {
         if ( this._needsRedraw ) {
             this.redraw();
         }
@@ -409,22 +409,22 @@ var View = NS.Class({
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
-            children[l].willAppendLayerToDocument();
+            children[l].willEnterDocument();
         }
 
         return this;
     },
 
     /**
-        Method: O.View#didAppendLayerToDocument
+        Method: O.View#didEnterDocument
 
         Called immediately after the layer is appended to the document.
 
         Returns:
             {O.View} Returns self.
     */
-    didAppendLayerToDocument: function () {
-        // If change was made since willAppendLayerToDocument, will not be
+    didEnterDocument: function () {
+        // If change was made since willEnterDocument, will not be
         // flushed, so add redraw to render queue.
         if ( this._needsRedraw ) {
             NS.RunLoop.queueFn( 'render', this.redraw, this );
@@ -438,21 +438,21 @@ var View = NS.Class({
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
-            children[l].didAppendLayerToDocument();
+            children[l].didEnterDocument();
         }
 
         return this;
     },
 
     /**
-        Method: O.View#willRemoveLayerFromDocument
+        Method: O.View#willLeaveDocument
 
         Called immediately before the layer is removed from the document.
 
         Returns:
             {O.View} Returns self.
     */
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         this.set( 'isInDocument', false );
 
         NS.ViewEventsController.deregisterActiveView( this );
@@ -460,25 +460,25 @@ var View = NS.Class({
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
-            children[l].willRemoveLayerFromDocument();
+            children[l].willLeaveDocument();
         }
 
         return this;
     },
 
     /**
-        Method: O.View#didRemoveLayerFromDocument
+        Method: O.View#didLeaveDocument
 
         Called immediately after the layer is removed from the document.
 
         Returns:
             {O.View} Returns self.
     */
-    didRemoveLayerFromDocument: function () {
+    didLeaveDocument: function () {
         var children = this.get( 'childViews' ),
             l = children.length;
         while ( l-- ) {
-            children[l].didRemoveLayerFromDocument();
+            children[l].didLeaveDocument();
         }
 
         return this;
@@ -915,6 +915,15 @@ var View = NS.Class({
     */
     scrollLeft: 0,
 
+    /**
+        Method (private): O.View#_onScroll
+
+        Parameters:
+            event - {Event} The scroll event object.
+
+        Updates the view properties when the layer scrolls. Note, scroll events
+        are only monitored in instances of <O.ScrollView>.
+    */
     _onScroll: function ( event ) {
         var layer = this.get( 'layer' ),
             left = layer.scrollLeft,
@@ -1132,7 +1141,7 @@ var View = NS.Class({
                 ( where === 'after' ) ? relativeTo.nextSibling : null;
             layer = view.render().get( 'layer' );
             if ( isInDocument ) {
-                view.willAppendLayerToDocument();
+                view.willEnterDocument();
             }
             if ( before ) {
                 parent.insertBefore( layer, before );
@@ -1140,7 +1149,7 @@ var View = NS.Class({
                 parent.appendChild( layer );
             }
             if ( isInDocument ) {
-                view.didAppendLayerToDocument();
+                view.didEnterDocument();
             }
         }
         this.propertyDidChange( 'childViews' );
@@ -1179,13 +1188,13 @@ var View = NS.Class({
                 oldLayer = oldView.get( 'layer' );
             view.render();
             if ( isInDocument ) {
-                oldView.willRemoveLayerFromDocument();
-                view.willAppendLayerToDocument();
+                oldView.willLeaveDocument();
+                view.willEnterDocument();
             }
             oldLayer.parentNode.replaceChild( view.get( 'layer' ), oldLayer );
             if ( isInDocument ) {
-                view.didAppendLayerToDocument();
-                oldView.didRemoveLayerFromDocument();
+                view.didEnterDocument();
+                oldView.didLeaveDocument();
             }
         }
 
@@ -1215,11 +1224,11 @@ var View = NS.Class({
             var isInDocument = this.get( 'isInDocument' ),
                 layer = view.get( 'layer' );
             if ( isInDocument ) {
-                view.willRemoveLayerFromDocument();
+                view.willLeaveDocument();
             }
             layer.parentNode.removeChild( layer );
             if ( isInDocument ) {
-                view.didRemoveLayerFromDocument();
+                view.didLeaveDocument();
             }
         }
         children.splice( i, 1 );

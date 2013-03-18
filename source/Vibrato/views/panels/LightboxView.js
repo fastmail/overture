@@ -89,12 +89,12 @@ var LightboxItemView = NS.Class({
         height: 300
     },
 
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         // Must flush CSS changes -> force reflow/redraw.
         if ( !this.get( 'position' ) ) {
             this.get( 'layer' ).getBoundingClientRect();
         }
-        return LightboxItemView.parent.didAppendLayerToDocument.call( this );
+        return LightboxItemView.parent.didEnterDocument.call( this );
     },
 
     parentViewDidResize: function () {

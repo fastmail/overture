@@ -76,13 +76,13 @@ var RichTextView = NS.Class({
 
     // --- Render ---
 
-    willAppendLayerToDocument: function () {
+    willEnterDocument: function () {
         this.set( 'path', '' );
         NS.Element.removeClass( this._loadingOverlay, 'hidden' );
-        return RichTextView.parent.willAppendLayerToDocument.call( this );
+        return RichTextView.parent.willEnterDocument.call( this );
     },
 
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         if ( this.get( 'isExpanding' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
@@ -90,10 +90,10 @@ var RichTextView = NS.Class({
                     'scrollTop', this, '_setToolbarPosition' );
             }
         }
-        return RichTextView.parent.didAppendLayerToDocument.call( this );
+        return RichTextView.parent.didEnterDocument.call( this );
     },
 
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         if ( this.get( 'isExpanding' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
@@ -110,7 +110,7 @@ var RichTextView = NS.Class({
             this._value = editor.getHTML( this.get( 'isFocussed' ) );
             this.set( 'editor', null );
         }
-        return RichTextView.parent.willRemoveLayerFromDocument.call( this );
+        return RichTextView.parent.willLeaveDocument.call( this );
     },
 
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
@@ -618,12 +618,12 @@ var RichTextView = NS.Class({
         return new NS.View({
             className: 'URLPopOver',
             value: '',
-            didAppendLayerToDocument: function () {
+            didEnterDocument: function () {
                 this._input.set( 'selection', this.get( 'value' ).length )
                            .focus();
                 // IE8 and Safari 6 don't fire this event for some reason.
                 this._input.fire( 'focus' );
-                return NS.View.prototype.didAppendLayerToDocument.call( this );
+                return NS.View.prototype.didEnterDocument.call( this );
             },
             draw: function ( layer ) {
                 var Element = NS.Element,

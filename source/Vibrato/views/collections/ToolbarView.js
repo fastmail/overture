@@ -20,15 +20,15 @@ var OverflowMenuView = NS.Class({
 
     Extends: NS.MenuButtonView,
 
-    didAppendLayerToDocument: function () {
-        OverflowMenuView.parent.didAppendLayerToDocument.call( this );
+    didEnterDocument: function () {
+        OverflowMenuView.parent.didEnterDocument.call( this );
         this.setShortcuts( null, '', {}, this.get( 'shortcuts' ) );
         return this;
     },
 
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         this.setShortcuts( null, '', this.get( 'shortcuts' ), {} );
-        return OverflowMenuView.parent.willRemoveLayerFromDocument.call( this );
+        return OverflowMenuView.parent.willLeaveDocument.call( this );
     },
 
     shortcuts: function () {
@@ -253,16 +253,16 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    willAppendLayerToDocument: function () {
+    willEnterDocument: function () {
         if ( this.get( 'preventOverlap' ) ) {
             this.preMeasure();
         }
-        return ToolbarView.parent.willAppendLayerToDocument.call( this );
+        return ToolbarView.parent.willEnterDocument.call( this );
     },
 
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         this.beginPropertyChanges();
-        ToolbarView.parent.didAppendLayerToDocument.call( this );
+        ToolbarView.parent.didEnterDocument.call( this );
         if ( this.get( 'preventOverlap' ) ) {
             this.postMeasure();
         }

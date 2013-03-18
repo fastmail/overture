@@ -87,12 +87,12 @@ var AbstractControlView = NS.Class({
     }.property( 'shortcut' ),
 
     /**
-        Method: O.AbstractControlView#didAppendLayerToDocument
+        Method: O.AbstractControlView#didEnterDocument
 
         Overridden to add keyboard shortcuts.
-        See <O.View#didAppendLayerToDocument>.
+        See <O.View#didEnterDocument>.
     */
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         var shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
@@ -100,16 +100,16 @@ var AbstractControlView = NS.Class({
                     .register( key, this, 'activate' );
             }, this );
         }
-        return AbstractControlView.parent.didAppendLayerToDocument.call( this );
+        return AbstractControlView.parent.didEnterDocument.call( this );
     },
 
     /**
-        Method: O.AbstractControlView#didAppendLayerToDocument
+        Method: O.AbstractControlView#didEnterDocument
 
         Overridden to remove keyboard shortcuts.
-        See <O.View#didAppendLayerToDocument>.
+        See <O.View#didEnterDocument>.
     */
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         var shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
@@ -117,7 +117,7 @@ var AbstractControlView = NS.Class({
                     .deregister( key, this, 'activate' );
             }, this );
         }
-        return AbstractControlView.parent.willRemoveLayerFromDocument.call(
+        return AbstractControlView.parent.willLeaveDocument.call(
             this );
     },
 

@@ -91,19 +91,19 @@ var SwitchView = NS.Class({
         return document.createComment( 'SwitchView ' + this.get( 'id' ) );
     }.property(),
 
-    willAppendLayerToDocument: function () {
+    willEnterDocument: function () {
         return this;
     },
 
-    didAppendLayerToDocument: function () {
+    didEnterDocument: function () {
         return this.set( 'isInDocument', true );
     },
 
-    willRemoveLayerFromDocument: function () {
+    willLeaveDocument: function () {
         return this.set( 'isInDocument', false );
     },
 
-    didRemoveLayerFromDocument: function () {
+    didLeaveDocument: function () {
         return this;
     },
 
@@ -159,7 +159,7 @@ var SwitchView = NS.Class({
             forEachView( subView, 'awaken' );
             forEachView( subView, 'set', [ 'parentView', parent ] );
             if ( isInDocument ) {
-                forEachView( subView, 'willAppendLayerToDocument' );
+                forEachView( subView, 'willEnterDocument' );
             }
         }
         while ( l-- ) {
@@ -180,7 +180,7 @@ var SwitchView = NS.Class({
         }
         if ( subView ) {
             if ( isInDocument ) {
-                forEachView( subView, 'didAppendLayerToDocument' );
+                forEachView( subView, 'didEnterDocument' );
             }
             parent.set( 'childViews',
                 parent.get( 'childViews' ).concat( subView ) );
@@ -198,7 +198,7 @@ var SwitchView = NS.Class({
             node;
 
         if ( isInDocument && subView ) {
-            forEachView( subView, 'willRemoveLayerFromDocument' );
+            forEachView( subView, 'willLeaveDocument' );
         }
         while ( l-- ) {
             node = view[l];
@@ -210,7 +210,7 @@ var SwitchView = NS.Class({
         }
         if ( subView ) {
             if ( isInDocument ) {
-                forEachView( subView, 'didRemoveLayerFromDocument' );
+                forEachView( subView, 'didLeaveDocument' );
             }
             forEachView( subView, 'set', [ 'parentView', null ] );
             parent.set( 'childViews',

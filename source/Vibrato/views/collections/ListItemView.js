@@ -52,11 +52,11 @@ var ListItemView = NS.Class({
         var isInDocument = this.get( 'isInDocument' ),
             layer = this.get( 'layer' );
         if ( isInDocument ) {
-            this.willRemoveLayerFromDocument();
+            this.willLeaveDocument();
         }
         layer.parentNode.removeChild( layer );
         if ( isInDocument ) {
-            this.didRemoveLayerFromDocument();
+            this.didLeaveDocument();
         }
         this.set( 'parentView', null );
     }
