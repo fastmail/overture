@@ -42,7 +42,7 @@ NS.BoundProps = {
                 // leave the Binding object itself as the value; instead we want
                 // the value to be undefined.
                 this[ key ] = undefined;
-                this[ key + 'Binding' ] = binding.to( key, this ).connect();
+                binding.to( key, this ).connect();
             }
         }
         return this;
