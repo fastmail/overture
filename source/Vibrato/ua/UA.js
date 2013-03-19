@@ -27,7 +27,7 @@ var ua = navigator.userAgent.toLowerCase(),
     )[0],
     browser = ( /chrome|opera|safari|firefox|msie/.exec( ua ) || other )[0],
     version = parseFloat(
-        ( /(?:version\/|chrome\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua )|| other )[1].replace( '_', '.' ) 
+        ( /(?:version\/|chrome\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua )|| other )[1].replace( '_', '.' )
     ),
     cssPrefixes = {
         chrome: '-webkit-',

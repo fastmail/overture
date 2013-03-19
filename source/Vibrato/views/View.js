@@ -178,17 +178,6 @@ var canTransform = !!NS.UA.cssProps.transform,
     co-ordinates and will fill the entire space. If the layout for this view is
     to be set via a CSS file (in conjunction with the id/class of the view), you
     should set the layout property to an empty object: `{}`.
-
-    ### Sleep/Wake ###
-
-    At times, you may keep a view in memory whilst it is not actively being
-    displayed, for example different screens in an application. Calling the
-    sleep() method on a view will suspend all bindings to the view and its
-    subviews. If all data is piped to the view via bindings (recommended
-    practice), this means the view will no longer be updated as the data
-    changes, saving time, but the bindings will make a note that the data has
-    changed. Just be sure to call awaken() before reinserting into the document
-    to ensure the bindings are resynced and that the view is up-to-date.
 */
 
 var View = NS.Class({
@@ -218,6 +207,7 @@ var View = NS.Class({
         while ( l-- ) {
             children[l].set( 'parentView', this );
         }
+        this.suspendBindings();
     },
 
     destroy: function () {
@@ -235,66 +225,6 @@ var View = NS.Class({
         }
         this.clearPropertyCache();
         View.parent.destroy.call( this );
-    },
-
-    // --- Sleep/wake ---
-
-    /**
-        Property: O.View#isSleeping
-        Type: Boolean
-
-        NOT OBSERVABLE.
-    */
-    isSleeping: false,
-
-    /**
-        Method: O.View#sleep
-
-        Suspends bindings on this view and all child views. May be overrident to
-        suspend other expensive observers/operations which are not needed until
-        the view is awakened again. Call this when the view is removed from the
-        document but kept in memory.
-
-        Returns:
-            {O.View} Returns self.
-    */
-    sleep: function () {
-        if ( !this.isSleeping ) {
-            this.suspendBindings();
-            var children = this.get( 'childViews' ),
-                l = children.length;
-            while ( l-- ) {
-                children[l].sleep();
-            }
-            this.isSleeping = true;
-        }
-        return this;
-    },
-
-    /**
-        Method: O.View#awaken
-
-        Resumes bindings on this view and all child views; the inverse of
-        <O.View#sleep>. Call just before reinserting a view into the DOM after
-        it has been asleep.
-
-        Returns:
-            {O.View} Returns self.
-    */
-    awaken: function () {
-        if ( this.isSleeping ) {
-            this.isSleeping = false;
-            var children = this.get( 'childViews' ),
-                l = children.length;
-            while ( l-- ) {
-                children[l].awaken();
-            }
-            this.resumeBindings();
-            if ( this._needsRedraw && this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'render', this.redraw, this );
-            }
-        }
-        return this;
     },
 
     // --- Layer ---
@@ -402,6 +332,8 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     willEnterDocument: function () {
+        this.resumeBindings();
+
         if ( this._needsRedraw ) {
             this.redraw();
         }
@@ -480,8 +412,7 @@ var View = NS.Class({
         while ( l-- ) {
             children[l].didLeaveDocument();
         }
-
-        return this;
+        return this.suspendBindings();
     },
 
     // --- Event triage ---
@@ -750,6 +681,9 @@ var View = NS.Class({
         if ( !this.get( 'isRendered' ) ) {
             var Element = NS.Element,
                 prevView = Element.forView( this );
+            // render() called just before inserting in doc, so should
+            // resume bindings early to ensure initial render is correct.
+            this.resumeBindings();
             this.set( 'isRendered', true );
             this.draw( this.get( 'layer' ) );
             Element.forView( prevView );
@@ -854,8 +788,7 @@ var View = NS.Class({
     redraw: function () {
         var needsRedraw = this._needsRedraw,
             layer, l, dirtyProp;
-        if ( needsRedraw && !this.isDestroyed && !this.isSleeping &&
-                this.get( 'isRendered' ) ) {
+        if ( needsRedraw && !this.isDestroyed && this.get( 'isRendered' ) ) {
             this._needsRedraw = null;
             layer = this.get( 'layer' );
             l = needsRedraw.length;

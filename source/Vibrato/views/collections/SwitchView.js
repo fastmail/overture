@@ -67,24 +67,6 @@ var SwitchView = NS.Class({
 
     // ---
 
-    sleep: function () {
-        if ( !this.isSleeping ) {
-            this.suspendBindings();
-            this.isSleeping = true;
-        }
-        return this;
-    },
-
-    awaken: function () {
-        if ( this.isSleeping ) {
-            this.isSleeping = false;
-            this.resumeBindings();
-        }
-        return this;
-    },
-
-    // ---
-
     isRendered: true,
 
     layer: function () {
@@ -92,7 +74,7 @@ var SwitchView = NS.Class({
     }.property(),
 
     willEnterDocument: function () {
-        return this;
+        return this.resumeBindings();
     },
 
     didEnterDocument: function () {
@@ -104,7 +86,7 @@ var SwitchView = NS.Class({
     },
 
     didLeaveDocument: function () {
-        return this;
+        return this.suspendBindings();
     },
 
     // ---
@@ -154,9 +136,7 @@ var SwitchView = NS.Class({
             l = view ? view.length : 0,
             node, before;
 
-        forEachView( view, 'awaken' );
         if ( subView ) {
-            forEachView( subView, 'awaken' );
             forEachView( subView, 'set', [ 'parentView', parent ] );
             if ( isInDocument ) {
                 forEachView( subView, 'willEnterDocument' );
@@ -218,9 +198,7 @@ var SwitchView = NS.Class({
                     return subView.indexOf( view ) === -1;
                 })
             );
-            forEachView( subView, 'sleep' );
         }
-        forEachView( view, 'sleep' );
         this._index = -1;
         return this;
     },
@@ -248,10 +226,9 @@ var SwitchView = NS.Class({
                 view :
                 [ view ] :
             null;
-        forEachView( this.views[ index ] = view, 'sleep' );
+        this.views[ index ] = view;
         var subView = this.childViews;
         if ( subView.length ) {
-            forEachView( subView, 'sleep' );
             this.subViews[ index ] = subView;
             this.childViews = [];
         }

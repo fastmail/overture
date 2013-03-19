@@ -23,6 +23,14 @@ var InfoBubbleView = NS.Class({
 
     positioning: 'absolute',
 
+    // Don't suspend, as may insert itself based on bindings.
+    suspendBindings: function () {
+        return this;
+    },
+    resumeBindings: function () {
+        return this;
+    },
+
     className: function () {
         return 'InfoBubbleView ' + this.get( 'alignToThe' );
     }.property( 'alignToThe' ),
