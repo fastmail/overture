@@ -73,8 +73,10 @@ var UnorderedCollectionView = NS.Class({
     }.observes( 'content' ),
 
     contentWasUpdated: function ( event ) {
-        this._added = event.added;
-        this._removed = event.removed;
+        if ( this.get( 'isInDocument' ) ) {
+            this._added = event.added;
+            this._removed = event.removed;
+        }
     },
 
     layout: function () {
