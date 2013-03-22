@@ -750,6 +750,27 @@ var View = NS.Class({
     }.observes( 'className', 'layerStyles' ),
 
     /**
+        Method: O.View#redraw
+
+        Updates the rendering of the view to account for any changes in the
+        state of the view. By default, just calls
+        `this.redraw<Property>( layer, oldValue )` for each property that has
+        been passed to <O.View#propertyNeedsRedraw>.
+    */
+    redraw: function () {
+        var needsRedraw = this._needsRedraw,
+            layer, i, l, prop;
+        if ( needsRedraw && !this.isDestroyed && this.get( 'isRendered' ) ) {
+            layer = this.get( 'layer' );
+            this._needsRedraw = null;
+            for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
+                prop = needsRedraw[i];
+                this[ 'redraw' + prop[0].capitalise() ]( layer, prop[1] );
+            }
+        }
+    },
+
+    /**
         Method: O.View#redrawClassName
 
         Sets the className on the layer to match the className property of the
@@ -775,29 +796,6 @@ var View = NS.Class({
         layer.style.cssText =
             Object.toCSSString( this.get( 'layerStyles' ) );
         this.didResize();
-    },
-
-    /**
-        Method: O.View#redraw
-
-        Updates the rendering of the view to account for any changes in the
-        state of the view. By default, just calls
-        `this.redraw<Property>( layer, oldValue )` for each property that has
-        been passed to <O.View#propertyNeedsRedraw>.
-    */
-    redraw: function () {
-        var needsRedraw = this._needsRedraw,
-            layer, l, dirtyProp;
-        if ( needsRedraw && !this.isDestroyed && this.get( 'isRendered' ) ) {
-            this._needsRedraw = null;
-            layer = this.get( 'layer' );
-            l = needsRedraw.length;
-            while ( l-- ) {
-                dirtyProp = needsRedraw[l];
-                this[ 'redraw' +
-                    dirtyProp[0].capitalise() ]( layer, dirtyProp[1] );
-            }
-        }
     },
 
     // --- Dimensions ---
