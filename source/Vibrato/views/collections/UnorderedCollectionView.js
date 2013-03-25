@@ -169,8 +169,10 @@ var UnorderedCollectionView = NS.Class({
         for ( id in rendered ) {
             view = rendered[ id ];
             if ( view._ucv_gc !== currentColour ) {
-                view.detach( removed ?
-                    removed.indexOf( view.content.get( 'id' ) ) > -1 : false
+                item = view.content;
+                view.detach( removed && item ?
+                    removed.indexOf( item.get( 'id' ) ) > -1 :
+                    false
                 );
                 this.destroyItemView( view );
                 delete rendered[ id ];
