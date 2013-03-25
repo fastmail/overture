@@ -298,7 +298,7 @@ var ToolbarView = NS.Class({
         var View = NS.View,
             start = 0,
             isEqual = true,
-            i, l, view;
+            i, l, view, parent;
 
         for ( i = start, l = oldViews.length; i < l; i += 1 ) {
             view = oldViews[i];
@@ -307,7 +307,10 @@ var ToolbarView = NS.Class({
                     start += 1;
                 } else {
                     isEqual = false;
-                    this.removeView( view );
+                    // Check it hasn't already swapped sides!
+                    if ( view.get( 'layer' ).parentNode === container ) {
+                        this.removeView( view );
+                    }
                 }
             } else {
                 if ( isEqual && !( newViews[i] instanceof View ) ) {
@@ -321,6 +324,9 @@ var ToolbarView = NS.Class({
         for ( i = start, l = newViews.length; i < l; i += 1 ) {
             view = newViews[i];
             if ( view instanceof View ) {
+                if ( parent = view.get( 'parentView' ) ) {
+                    parent.removeView( view );
+                }
                 this.insertView( view, container );
             } else {
                 container.appendChild( view );
