@@ -33,6 +33,11 @@ var RadioView = NS.Class({
     */
     className: 'RadioView',
 
+    /**
+        Method: O.RadioView#draw
+
+        Overridden to draw radio button in layer. See <O.View#draw>.
+    */
     draw: function ( layer ) {
         layer.appendChild(
             this._domControl = NS.Element.create( 'input', {

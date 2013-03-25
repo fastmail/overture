@@ -16,6 +16,16 @@ var isOperaMini = !!NS.UA.operaMini;
 var nativePlaceholder = !isOperaMini &&
         'placeholder' in document.createElement( 'input' );
 
+ /**
+    Class: O.TextView
+
+    Extends: O.AbstractControlView
+
+    Includes: O.Validate
+
+    A text input control. The `value` property is two-way bindable, representing
+    the input text.
+*/
 var TextView = NS.Class({
 
     Extends: NS.AbstractControlView,
@@ -28,17 +38,113 @@ var TextView = NS.Class({
         this.initValidate();
     },
 
+    /**
+        Property: O.TextView#isMasked
+        Type: Boolean
+        Default: false
+
+        If true, an input of type `password` will be used for the DOM node, so
+        all values will be masked. Note, this property is ignored if
+        <#isMultiline> is set to true.
+
+        This property *must not* be changed after the view has been rendered.
+    */
     isMasked: false,
+
+    /**
+        Property: O.TextView#isMultiline
+        Type: Boolean
+        Default: false
+
+        If set to true, the text field will accept line breaks.
+
+        This property *must not* be changed after the view has been rendered.
+    */
     isMultiline: false,
+
+    /**
+        Property: O.TextView#isExpanding
+        Type: Boolean
+        Default: false
+
+        If <#isMultiline> is set to true, setting <#isExpanding> to true will
+        make it automatically expand vertically to fit its contents, rather than
+        show a scrollbar.
+
+        This property *must not* be changed after the view has been rendered.
+    */
     isExpanding: false,
+
+    /**
+        Property: O.TextView#isHighlighted
+        Type: Boolean
+        Default: false
+
+        If true, a `highlight` class will be added to the view's class name.
+        This is a styling hook for highlighting the view, e.g. if it fails
+        validation.
+    */
     isHighlighted: false,
+
+    /**
+        Property: O.TextView#isFocussed
+        Type: Boolean
+
+        Represents whether the view currently has focus or not.
+    */
     isFocussed: false,
 
+    /**
+        Property: O.TextView#maxLength
+        Type: Number|undefined
+        Default: undefined
+
+        If set to a number, this will be the maximum number of characters
+        allowed in the text input. If undefined, no limit will be placed
+        (default).
+    */
     maxLength: undefined,
 
+    /**
+        Property: O.TextView#placeholder
+        Type: String
+        Default: ''
+
+        Placeholder text to be displayed in the text input when it is empty.
+    */
     placeholder: '',
+
+    /**
+        Property: O.TextView#value
+        Type: String
+        Default: ''
+
+        The value currently input in the text field.
+    */
     value: '',
 
+    /**
+        Property: O.TextView#selection
+        Type: Object
+
+        When used as a getter, this will return an object with two properties:
+
+        start - {Number} The number of characters offset from the beginning of
+                the text that the selection starts.
+        end   - {Number} The number of characters offset from the beginning of
+                the text that the selection ends.
+
+        Note, if there is no selection, the start and end values will be the
+        same, and give the position of the cursor.
+
+        When used as a setter, you can give it an object as described above to
+        set the selection, or if you just want to give it a cursor position, you
+        can pass a number instead.
+
+        Note, this property is *not observable* and cannot be used to monitor
+        changes in selection/cursor position.
+
+    */
     selection: function ( selection ) {
         var control = this._domControl,
             isNumber = ( typeof selection === 'number' ),
@@ -71,17 +177,53 @@ var TextView = NS.Class({
         };
     }.property().nocache(),
 
+    /**
+        Property: O.TextView#blurOnEscape
+        Type: Boolean
+        Default: true
+
+        If true, if the user is focussed in the text view and hits the escape
+        key, the focus will be removed.
+    */
     blurOnEscape: true,
 
     // --- Render ---
 
+    /**
+        Property: O.TextView#allowTextSelection
+        Type: Boolean
+        Default: true
+
+        Overrides default in <O.View#allowTextSelection>.
+    */
     allowTextSelection: true,
 
+    /**
+        Property: O.TextView#type
+        Type: String
+
+        The type of the text view, as determined by the <#isMultiline> and
+        <#isExpanding> properties. Will be one of `'expanding'`, `'multiline'`
+        or `'text'`. Will be added to the view's class name.
+    */
     type: function () {
         return this.get( 'isMultiline' ) ?
             this.get( 'isExpanding' ) ? 'expanding' : 'multiline' : 'text';
     }.property(),
 
+    /**
+        Property: O.TextView#className
+        Type: String
+
+        Overrides default in <O.View#className>. Will have the class `TextView`,
+        and the class given in the <#type> property, along with the following
+        other class names dependent on state:
+
+        highlight - The <#isHighlighted> property is true.
+        focussed  - The <#isFocussed> property is true.
+        invalid   - The <#isValid> property is false.
+        disabled  - The <#isDisabled> property is true.
+    */
     className: function () {
         return 'TextView ' + this.get( 'type' ) +
             ( this.get( 'isHighlighted' ) ? ' highlight' : '' ) +
@@ -91,6 +233,11 @@ var TextView = NS.Class({
     }.property( 'type', 'isHighlighted',
         'isFocussed', 'isValid', 'isDisabled' ),
 
+    /**
+        Method: O.TextView#draw
+
+        Overridden to draw view. See <O.View#draw>.
+    */
     draw: function ( layer ) {
         var Element = NS.Element,
             el = NS.Element.create,
@@ -137,6 +284,12 @@ var TextView = NS.Class({
 
     // --- Keep render in sync with state ---
 
+    /**
+        Method: O.TextView#textNeedsRedraw
+
+        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
+        redraw.
+    */
     textNeedsRedraw: function ( self, property, oldValue ) {
         var isValue = ( property === 'value' );
         if ( !isValue || !this._settingFromInput ) {
@@ -147,6 +300,12 @@ var TextView = NS.Class({
         }
     }.observes( 'value', 'placeholder', 'maxLength' ),
 
+    /**
+        Method: O.TextView#redrawValue
+
+        Updates the content of the `<textarea>` or `<input>` to match the
+        <#value> property.
+    */
     redrawValue: function () {
         var value = this.get( 'value' );
         this._domControl.value = value;
@@ -156,6 +315,12 @@ var TextView = NS.Class({
         }
     },
 
+    /**
+        Method: O.TextView#redrawPlaceholder
+
+        Updates the placeholder text in the DOM when the <#placeholder> property
+        changes.
+    */
     redrawPlaceholder: function () {
         var placeholder = this.get( 'placeholder' ),
             control = this._domControl;
@@ -166,12 +331,23 @@ var TextView = NS.Class({
         }
     },
 
+    /**
+        Method: O.TextView#redrawMaxLength
+
+        Updates the maxLength property of the `<textarea>` or `<input>` to match
+        the <#maxLength> property.
+    */
     redrawMaxLength: function () {
         this._domControl.maxLength = this.get( 'maxLength' );
     },
 
     // --- Activate ---
 
+    /**
+        Method: O.TextView#activate
+
+        Overridden to focus the text view. See <O.AbstractControlView#activate>.
+    */
     activate: function () {
         this.focus();
     },
@@ -180,6 +356,12 @@ var TextView = NS.Class({
 
     savedSelection: null,
 
+    /**
+        Method: O.TextView#didEnterDocument
+
+        Overridden to restore scroll position and selection. See
+        <O.View#didEnterDocument>.
+    */
     didEnterDocument: function () {
         TextView.parent.didEnterDocument.call( this );
         // Restore scroll positions:
@@ -197,6 +379,13 @@ var TextView = NS.Class({
         }
         return this;
     },
+
+    /**
+        Method: O.TextView#willLeaveDocument
+
+        Overridden to save scroll position and selection. See
+        <O.View#willLeaveDocument>.
+    */
     willLeaveDocument: function () {
         // If focussed, save cursor position
         if ( this.get( 'isFocussed' ) ) {
@@ -209,6 +398,15 @@ var TextView = NS.Class({
         return TextView.parent.willLeaveDocument.call( this );
     },
 
+    /**
+        Method (private): O.TextView#_syncBackScrolls
+
+        Sets the <O.View#scrollLeft> and <O.View#scrollTop> properties whenever
+        the user scrolls the textarea.
+
+        Parameters:
+            event - {Event} The scroll event.
+    */
     _syncBackScrolls: function ( event ) {
         var control = this._domControl,
             left = control.scrollLeft,
@@ -224,6 +422,14 @@ var TextView = NS.Class({
 
     // --- Keep state in sync with render ---
 
+    /**
+        Method: O.TextView#syncBackValue
+
+        Updates the <#value> property when the user interacts with the textarea.
+
+        Parameters:
+            event - {Event} The input event.
+    */
     syncBackValue: function ( event ) {
         if ( !event || this.get( 'isFocussed' ) ) {
             this._settingFromInput = true;
@@ -232,6 +438,15 @@ var TextView = NS.Class({
         }
     }.on( isOperaMini ? 'change' : 'input' ),
 
+    /**
+        Method (private): O.TextView#_onFocus
+
+        Updates the <#isFocussed> property and removes the placholder text for
+        browsers that don't support this natively.
+
+        Parameters:
+            event - {Event} The focus event.
+    */
     _onFocus: function () {
         if ( this._placeholderShowing ) {
             var control = this._domControl;
@@ -242,6 +457,15 @@ var TextView = NS.Class({
         this.set( 'isFocussed', true );
     }.on( 'focus' ),
 
+    /**
+        Method (private): O.TextView#_onBlur
+
+        Updates the <#isFocussed> property and adds the placholder text for
+        browsers that don't support this natively.
+
+        Parameters:
+            event - {Event} The blur event.
+    */
     _onBlur: function () {
         this.set( 'isFocussed', false );
         if ( !nativePlaceholder ) {
@@ -255,6 +479,15 @@ var TextView = NS.Class({
         }
     }.on( 'blur' ),
 
+    /**
+        Method (private): O.TextView#_onKeypress
+
+        Stop IE automatically focussing the nearest button when the user hits
+        enter in single line text inputs.
+
+        Parameters:
+            event - {Event} The keypress event.
+    */
     _onKeypress: function ( event ) {
         var key = ( event.keyCode || event.which );
         // If key == enter, IE will automatically focus the nearest button
@@ -264,6 +497,15 @@ var TextView = NS.Class({
         }
     }.on( 'keypress' ),
 
+    /**
+        Method (private): O.TextView#_blurOnEsc
+
+        Blur the text area when the user hits escape, provided the
+        <#blurOnEscape> property is set to `true`.
+
+        Parameters:
+            event - {Event} The keydown event.
+    */
     _blurOnEsc: function ( event ) {
         var key = ( event.keyCode || event.which );
         // If key == esc, we want to blur. Not all browsers do this
