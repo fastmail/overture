@@ -128,7 +128,8 @@ var MenuController = NS.Class({
             bindings = this.get( 'keyBindings' );
         if ( bindings[ key ] ) {
             event.stopPropagation();
-            this[ bindings[ key ] ]( event, key );
+            NS.RunLoop.invokeInNextEventLoop(
+                this[ bindings[ key ] ].bind( this, event, key ) );
         }
     }.on( 'keydown' ),
 
