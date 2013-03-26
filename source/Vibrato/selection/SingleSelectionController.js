@@ -168,13 +168,11 @@ var SingleSelectionController = NS.Class({
                 else { break; }
             }
             index -= change;
-            change = 0;
             for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
-                if ( addedIndexes[i] <= index ) { change += 1; }
+                if ( addedIndexes[i] <= index ) { index += 1; }
                 // Guaranteed in ascending order.
                 else { break; }
             }
-            index += change;
         }
         index = Math.min( index,
             ( ( content && content.get( 'length' ) ) || 1 ) - 1 );
