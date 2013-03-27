@@ -22,6 +22,7 @@ var SingleSelectionController = NS.Class({
         this.content = null;
         this.record = null;
         this.index = -1;
+        this.isFetchingIndex = false;
 
         SingleSelectionController.parent.init.call( this, mixin );
 
@@ -93,12 +94,14 @@ var SingleSelectionController = NS.Class({
             var record = this.get( 'record' ),
                 list = this.get( 'content' );
             if ( record && list ) {
+                this.set( 'isFetchingIndex', true );
                 list.indexOfId( record.get( 'id' ), 0, function ( index ) {
                     if ( this.get( 'record' ) === record &&
                             this.get( 'content' ) === list ) {
                         this._ignore = true;
                         this.set( 'index', index );
                         this._ignore = false;
+                        this.set( 'isFetchingIndex', false );
                     }
                 }.bind( this ) );
             } else if ( record || this.get( 'allowNoSelection' ) ) {
@@ -182,7 +185,7 @@ var SingleSelectionController = NS.Class({
     },
 
     contentWasReset: function () {
-        this.set( 'index', this.get( 'allowNoSelection' ) ? -1 : 0 );
+        this._recordDidChange();
     }
 });
 
