@@ -181,6 +181,30 @@ var RunLoop = {
     },
 
     /**
+        Property (private): NS.RunLoop._nextLoopQueue
+        Type: Array.<Array>
+
+        An array of `[fn,bind]` tuples which are to be invoked in the next event
+        loop.
+    */
+    _nextLoopQueue: null,
+
+    /**
+        Method (private): O.RunLoop._callNextLoopQueue
+
+        Invokes all the functions waiting in the <#_nextLoopQueue> queue.
+    */
+    _callNextLoopQueue: function () {
+        var nextLoopQueue = this._nextLoopQueue,
+            i, l, tuple;
+        this._nextLoopQueue = null;
+        for ( i = 0, l = nextLoopQueue.length; i < l; i += 1 ) {
+            tuple = nextLoopQueue[i];
+            tuple[0].call( tuple[1] );
+        }
+    },
+
+    /**
         Method: O.RunLoop.invokeInNextEventLoop
 
         Use this to invoke a function in a new browser event loop, immediately
@@ -195,9 +219,15 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     invokeInNextEventLoop: function ( fn, bind ) {
-        setImmediate( function () {
-            RunLoop.invoke( fn, bind );
-        });
+        var nextLoopQueue = this._nextLoopQueue,
+            that = this;
+        if ( !nextLoopQueue ) {
+            this._nextLoopQueue = nextLoopQueue = [];
+            setImmediate( function () {
+                RunLoop.invoke( that._callNextLoopQueue, that );
+            });
+        }
+        nextLoopQueue.push([ fn, bind ]);
         return this;
     },
 
@@ -302,6 +332,23 @@ Function.implement({
         var fn = this;
         return function () {
             RunLoop.queueFn( queue, fn, this );
+            return this;
+        };
+    },
+
+    /**
+        Method: Function#later
+
+        Modifies the function so that when it is called, it will actually be
+        invoked in the next event loop.
+
+        Returns:
+            {Function} Returns wrapped function.
+    */
+    later: function () {
+        var fn = this;
+        return function () {
+            RunLoop.invokeInNextEventLoop( fn, this );
             return this;
         };
     },
