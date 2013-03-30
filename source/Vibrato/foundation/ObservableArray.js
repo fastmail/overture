@@ -39,9 +39,10 @@ var ObservableArray = NS.Class({
             mixin - {Object} (optional)
     */
     init: function ( array, mixin ) {
-        ObservableArray.parent.init.call( this, mixin );
         this._array = array || [];
         this._length = this._array.length;
+
+        ObservableArray.parent.init.call( this, mixin );
     },
 
     /**

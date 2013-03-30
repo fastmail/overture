@@ -42,7 +42,6 @@ var EventSource = NativeEventSource ? NS.Class({
         1 - OPEN
         2 - CLOSED
     */
-    readyState: CLOSED,
 
     /**
         Property: O.EventSource#url
@@ -62,10 +61,15 @@ var EventSource = NativeEventSource ? NS.Class({
                     or observing methods).
     */
     init: function ( mixin ) {
+        this._then = 0;
+        this._tick = null;
+
+        this.readyState = CLOSED;
+
         EventSource.parent.init.call( this, mixin );
 
         var eventTypes = [ 'open', 'message', 'error' ],
-            observers = NS.meta( this, true ).observers,
+            observers = NS.meta( this ).observers,
             type;
         for ( type in observers ) {
             if ( /^__event__/.test( type ) ) {

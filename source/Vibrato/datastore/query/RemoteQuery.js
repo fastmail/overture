@@ -104,7 +104,6 @@ var RemoteQuery = NS.Class({
         A state string from the server to allow the query to fetch updates and
         to determine if its list is invalid.
     */
-    state: '',
 
     /**
         Property: O.RemoteQuery#Type
@@ -133,7 +132,6 @@ var RemoteQuery = NS.Class({
         finished with the query and called <O.RemoteQuery#destroy>. It may also
         have OBSOLETE and LOADING bits set as appropriate.
     */
-    status: EMPTY,
 
     /**
         Method: O.RemoteQuery#is
@@ -187,9 +185,16 @@ var RemoteQuery = NS.Class({
                     or observing methods).
     */
     init: function ( mixin ) {
-        RemoteQuery.parent.init.call( this, mixin );
         this._list = [];
+        this._awaitingIdFetch = [];
         this._refresh = false;
+
+        this.state = '';
+        this.status = EMPTY;
+        this.length = null;
+
+        RemoteQuery.parent.init.call( this, mixin );
+
         this.get( 'store' ).addQuery( this );
     },
 
@@ -324,7 +329,6 @@ var RemoteQuery = NS.Class({
         The length of the list of records matching the query, or null if
         unknown.
     */
-    length: null,
 
     /**
         Method: O.RemoteQuery#indexOfId
@@ -390,8 +394,7 @@ var RemoteQuery = NS.Class({
         var length = this.get( 'length' );
 
         if ( length === null ) {
-            ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) ).push(
-                [ start, end, callback ] );
+            this._awaitingIdFetch.push([ start, end, callback ]);
             this.refresh();
             return true;
         }
@@ -446,29 +449,28 @@ var RemoteQuery = NS.Class({
     _adjustIdFetches: function ( event ) {
         var added = event.addedIndexes,
             removed = event.removedIndexes,
-            _awaitingIdFetch = this._awaitingIdFetch;
-        if ( _awaitingIdFetch ) {
-            _awaitingIdFetch.forEach( function ( call ) {
-                var start = call[0],
-                    end = call[1],
-                    index, i, l;
+            awaitingIdFetch = this._awaitingIdFetch,
+            i, l, call, start, end, j, ll, index;
+        for ( i = 0, l = awaitingIdFetch.length; i < l; i += 1 ) {
+            call = awaitingIdFetch[i];
+            start = call[0];
+            end = call[1];
 
-                for ( i = 0, l = removed.length; i < l; i += 1 ) {
-                    index = removed[i];
-                    if ( index < start ) { start -= 1; }
-                    if ( index < end ) { end -= 1; }
-                }
+            for ( j = 0, ll = removed.length; j < ll; j += 1 ) {
+                index = removed[j];
+                if ( index < start ) { start -= 1; }
+                if ( index < end ) { end -= 1; }
+            }
 
-                for ( i = 0, l = added.length; i < l; i += 1 ) {
-                    index = added[i];
-                    if ( index <= start ) { start += 1; }
-                    if ( index < end ) { end += 1; }
-                }
+            for ( j = 0, ll = added.length; j < ll; j += 1 ) {
+                index = added[j];
+                if ( index <= start ) { start += 1; }
+                if ( index < end ) { end += 1; }
+            }
 
-                // Update waiting method call arguments
-                call[0] = start;
-                call[1] = end;
-            });
+            // Update waiting method call arguments
+            call[0] = start;
+            call[1] = end;
         }
     }.on( 'query:updated' ),
 
@@ -481,12 +483,12 @@ var RemoteQuery = NS.Class({
         been delivered).
     */
     _idsWereFetched: function () {
-        var _awaitingIdFetch = this._awaitingIdFetch;
-        this._awaitingIdFetch = null;
-        if ( _awaitingIdFetch ) {
-            _awaitingIdFetch.forEach( function ( call ) {
+        var awaitingIdFetch = this._awaitingIdFetch;
+        if ( awaitingIdFetch.length ) {
+            awaitingIdFetch.forEach( function ( call ) {
                 this.getIdsForObjectsInRange( call[0], call[1], call[2] );
             }, this );
+            awaitingIdFetch.length = 0;
         }
     }.queue( 'before' ).on( 'query:idsLoaded' ),
 

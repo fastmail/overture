@@ -82,6 +82,11 @@ var RPCSource = NS.Class({
         // Map of id -> RemoteQuery for all queries to be fetched.
         this._queriesToFetch = {};
 
+        this._inFlightRemoteCalls = null;
+        this._inFlightCallbacks = null;
+
+        this.isSending = false;
+
         RPCSource.parent.init.call( this, mixin );
     },
 
@@ -93,16 +98,12 @@ var RPCSource = NS.Class({
     */
     url: '/',
 
-    _inFlightRemoteCalls: null,
-    _inFlightCallbacks: null,
-
     /**
         Property: O.RPCSource#isSending
         Type: Boolean
 
         Is a request currently in flight?
     */
-    isSending: false,
 
     /**
         Property: O.RPCSource#willRetry

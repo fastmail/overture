@@ -18,16 +18,17 @@ var CollectionView = NS.Class({
 
     ItemView: NS.View,
 
-    _dirtyStart: -1,
-    _dirtyEnd: -1,
-
     init: function ( mixin ) {
+        this._dirtyStart = -1;
+        this._dirtyEnd = -1;
         this._observedRange = { start: 0 };
         this._renderedTotal = 0;
         this._managedViews = [];
+
         if ( mixin.delegate ) {
             mixin.delegate.set( 'view', this );
         }
+
         CollectionView.parent.init.call( this, mixin );
     },
 

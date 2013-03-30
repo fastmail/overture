@@ -10,35 +10,39 @@
 
 ( function ( NS ) {
 
+var all = {
+    start: 0,
+    end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
+};
+
 var UnorderedCollectionView = NS.Class({
 
     Extends: NS.View,
 
-    // Range in list to render.
-    _renderRange: {
-        start: 0,
-        end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
-    },
-
-    _added: null,
-    _removed: null,
-    _needsUpdate: false,
-    _currentColour: true,
-
-    selectionController: null,
     content: null,
+
+    contentLength: NS.bind( 'content.length' ),
+
     ItemView: null,
 
     itemHeight: 100,
-    contentLength: NS.bind( 'content.length' ),
 
     childViews: function () {
         return Object.values( this._rendered );
     }.property(),
 
     init: function ( mixin ) {
-        UnorderedCollectionView.parent.init.call( this, mixin );
+        this._added = null;
+        this._removed = null;
+        this._needsUpdate = false;
+        this._currentColour = true;
         this._rendered = {};
+        this._renderRange = all;
+
+        this.selectionController = null,
+
+        UnorderedCollectionView.parent.init.call( this, mixin );
+
         var selectionController = this.get( 'selectionController' );
         if ( selectionController ) {
             selectionController.set( 'view', this );

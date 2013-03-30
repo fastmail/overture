@@ -62,6 +62,12 @@ if ( typeof module === 'object' ) {
     observers     - A mapping of keys to an array of observers for that key.
                     Event listeners are also in  here, mapped from a key of
                     '__event__' + the event type.
+    changed       - Null, or if the depth property is >1, an object mapping keys
+                    or properties that have changed value, to an object holding
+                    the old and possibly the new value.
+    depth         - The number of calls to
+                    <O.ObservableProps#beginPropertyChanges> without a
+                    corresponding call to <O.ObservableProps#endPropertyChanges>.
     pathObservers - A mapping of keys to a list of paths they observe.
     bindings      - A mapping of keys to Binding objects.
     inits         - A mapping of mixin names to a reference count of the number
@@ -99,6 +105,8 @@ if ( typeof module === 'object' ) {
             observers: {
                 x: [ { object: null, method: 'onX' } ]
             },
+            changed: null,
+            depth: 0,
             pathObservers: {
                 onX: [ 'z.a' ]
             },
@@ -113,67 +121,61 @@ if ( typeof module === 'object' ) {
         }
 
     Parameters:
-        object    - {Object} The object to fetch the metadata for.
-        readOnly  - {Boolean} (optional) Set this to true if you are definitely
-                    not going to modify the metadata object; the runtime can
-                    avoid creating a new one unnecessarily.
+        object - {Object} The object to fetch the metadata for.
 
     Returns:
         {Object} The metadata for the object.
 */
-var EMPTY_METADATA = {
-    object: null,
-    dependents: {},
-    allDependents: {},
-    cache: {},
-    observers: {},
-    pathObservers: {},
-    bindings: {},
-    inits: {},
-    isInitialised: false
+
+var Metadata = function ( object ) {
+    this.dependents = {};
+    this.allDependents = {};
+    this.cache = {};
+    this.observers = {};
+    this.changed = null;
+    this.depth = 0;
+    this.pathObservers = {};
+    this.bindings = {};
+    this.inits = {};
+    this.object = object;
+    this.isInitialised = false;
+
+    object.__meta__ = this;
 };
-var meta = NS.meta = function ( object, readOnly ) {
+
+var meta = NS.meta = function ( object ) {
     var data = object.__meta__;
-    if ( !readOnly && ( !data || data.object !== object ) ) {
-        if ( data ) {
-            // Until the set of computed properties on the object changes, the
-            // 'dependents' information is identical to that of the parent so
-            // can be shared. The computed 'allDependents will be calculated
-            // when needed and stored in the parent meta object, so be available
-            // to all other objects of the same type. The dependents property
-            // is copied on write (and the allDependents then reset and
-            // calculated separately for the object).
-            data = Object.create( data );
+    if ( !data ) {
+        data = new Metadata( object );
+    } else if ( data.object !== object ) {
+        // Until the set of computed properties on the object changes, the
+        // 'dependents' information is identical to that of the parent so
+        // can be shared. The computed 'allDependents will be calculated
+        // when needed and stored in the parent meta object, so be available
+        // to all other objects of the same type. The dependents property
+        // is copied on write (and the allDependents then reset and
+        // calculated separately for the object).
+        data = Object.create( data );
 
-            // The cache should always be separate.
-            data.cache = {};
+        // The cache should always be separate.
+        data.cache = {};
 
-            // Inherit observers, bindings and init/destructors.
-            // The individual properties in these objects will be copied on
-            // write, leaving any unaltered properties shared with the parent.
-            // Path observers are rare enough that we don't waste time and space
-            // creating a new object here, but rather wait until a write is made
-            // to data.pathObservers, at which point the inheriting object is
-            // created.
-            data.observers = Object.create( data.observers );
-            data.bindings = Object.create( data.bindings );
-            data.inits = Object.create( data.inits );
-        } else {
-            data = {
-                dependents: {},
-                allDependents: {},
-                cache: {},
-                observers: {},
-                pathObservers: {},
-                bindings: {},
-                inits: {},
-                isInitialised: false
-            };
-        }
+        // Inherit observers, bindings and init/destructors.
+        // The individual properties in these objects will be copied on
+        // write, leaving any unaltered properties shared with the parent.
+        // Path observers are rare enough that we don't waste time and space
+        // creating a new object here, but rather wait until a write is made
+        // to data.pathObservers, at which point the inheriting object is
+        // created.
+        data.observers = Object.create( data.observers );
+        data.changed = null;
+        data.depth = 0;
+        data.bindings = Object.create( data.bindings );
+        data.inits = Object.create( data.inits );
         data.object = object;
         object.__meta__ = data;
     }
-    return data || EMPTY_METADATA;
+    return data;
 };
 
 /**
@@ -224,11 +226,11 @@ var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
                 old = object[ key ];
                 value = extras[ key ];
                 if ( old && old.__teardownProperty__ ) {
-                    if ( !metadata ) { metadata = meta( object, false ); }
+                    if ( !metadata ) { metadata = meta( object ); }
                     old.__teardownProperty__( metadata, key, object );
                 }
                 if ( value && value.__setupProperty__ ) {
-                    if ( !metadata ) { metadata = meta( object, false ); }
+                    if ( !metadata ) { metadata = meta( object ); }
                     value.__setupProperty__( metadata, key, object );
                 }
                 object[ key ] = value;

@@ -29,7 +29,6 @@ var AttributeErrors = NS.Class({
 
         The number of attributes on the record in an error state.
     */
-    errorCount: 0,
 
     /**
         Constructor: O.Record-AttributeErrors
@@ -40,8 +39,8 @@ var AttributeErrors = NS.Class({
     init: function ( record ) {
         AttributeErrors.parent.init.call( this );
 
-        var attrs = NS.meta( record, true ).attrs,
-            metadata = NS.meta( this, false ),
+        var attrs = NS.meta( record ).attrs,
+            metadata = NS.meta( this ),
             dependents = metadata.dependents = NS.clone( metadata.dependents ),
             errorCount = 0,
             attrKey, propKey, attribute, error, dependencies, l, key;
@@ -90,7 +89,7 @@ var AttributeErrors = NS.Class({
             attr - {String} The name of the attribute which has changed.
     */
     attrDidChange: function ( _, attr ) {
-        var metadata = NS.meta( this, false ),
+        var metadata = NS.meta( this ),
             changed = metadata.changed = {},
             dependents = metadata.dependents[ attr ],
             l = dependents.length,
@@ -148,7 +147,7 @@ var initType = function ( Type ) {
     var primaryKey = Type.primaryKey,
         metadata, dependents;
     if ( primaryKey !== 'id' ) {
-        metadata = NS.meta( Type.prototype, false );
+        metadata = NS.meta( Type.prototype );
         dependents = metadata.dependents;
         if ( !metadata.hasOwnProperty( 'dependents' ) ) {
             dependents = metadata.dependents = NS.clone( dependents );
@@ -189,11 +188,11 @@ var Record = NS.Class({
         if ( !Type.isInited ) {
             initType( Type );
         }
-        if ( !storeKey ) {
-            this._data = {};
-        }
+        this._noSync = false;
+        this._data = storeKey ? null : {};
         this.store = store;
         this.storeKey = storeKey;
+
         Record.parent.init.call( this );
     },
 
@@ -317,10 +316,10 @@ var Record = NS.Class({
             idPropKey = Type.primaryKey,
             idAttrKey = this[ idPropKey ].key || idPropKey,
             storeKey = store.getStoreKey( Type, data[ idAttrKey ] ),
-            attrs = NS.meta( this, true ).attrs,
+            attrs = NS.meta( this ).attrs,
             attrKey, propKey, attribute, defaultValue;
 
-        delete this._data;
+        this._data = null;
 
         // Fill in any missing defaults
         for ( attrKey in attrs ) {
@@ -414,7 +413,6 @@ var Record = NS.Class({
 
         If true, any changes to the record will not be committed to the source.
     */
-    _noSync: false,
 
     /**
         Method: O.Record#stopSync
@@ -449,7 +447,7 @@ var Record = NS.Class({
         Type: Boolean
         Default: True
 
-        May the contact be edited/deleted?
+        May the record be edited/deleted?
     */
     isEditable: true,
 

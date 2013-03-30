@@ -11,8 +11,7 @@
 ( function ( NS, undefined ) {
 
 var meta = NS.meta;
-var bindingKey = '__binding__' + Date.now(),
-    uuid = 0;
+var bindingKey = '__binding__';
 
 NS.BoundProps = {
     /**
@@ -28,7 +27,7 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     initBindings: function () {
-        var bindings = meta( this, false ).bindings,
+        var bindings = meta( this ).bindings,
             key, binding;
         for ( key in bindings ) {
             // Guard in case a previously bound property has been overridden in
@@ -60,7 +59,7 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     destroyBindings: function () {
-        var bindings = meta( this, true ).bindings,
+        var bindings = meta( this ).bindings,
             key, binding;
         for ( key in bindings ) {
             // Guard in case a previously bound property has been overridden in
@@ -82,7 +81,7 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     registerBinding: function ( binding ) {
-        meta( this, false ).bindings[ bindingKey + ( uuid += 1 ) ] = binding;
+        meta( this ).bindings[ bindingKey + NS.guid( binding ) ] = binding;
         return this;
     },
 
@@ -96,7 +95,7 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     deregisterBinding: function ( binding ) {
-        var bindings = meta( this, false ).bindings,
+        var bindings = meta( this ).bindings,
             key = Object.keyOf( bindings, binding );
         delete bindings[ key ];
         return this;
@@ -111,7 +110,7 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     suspendBindings: function () {
-        var bindings = meta( this, true ).bindings,
+        var bindings = meta( this ).bindings,
             key, binding;
         for ( key in bindings ) {
             if ( binding = bindings[ key ] ) {
@@ -130,7 +129,7 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     resumeBindings:  function () {
-        var bindings = meta( this, true ).bindings,
+        var bindings = meta( this ).bindings,
             key, binding;
         for ( key in bindings ) {
             if ( binding = bindings[ key ] ) {

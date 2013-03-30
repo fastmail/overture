@@ -26,10 +26,13 @@ var ThemeManager = NS.Class({
     Extends: NS.Object,
 
     init: function ( mixin ) {
-        ThemeManager.parent.init.call( this, mixin );
         this._images = { all: {} };
         this._styles = { all: {} };
         this._activeStylesheets = {};
+
+        this.theme = '';
+
+        ThemeManager.parent.init.call( this, mixin );
     },
 
     /**
@@ -38,7 +41,6 @@ var ThemeManager = NS.Class({
 
         The name of the currently active theme.
     */
-    theme: '',
 
     /**
         Method: O.ThemeManager#changeTheme

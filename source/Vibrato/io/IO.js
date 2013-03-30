@@ -64,7 +64,6 @@ var IO = NS.Class({
 
         A reference to the most recent active transport object
     */
-    _recent: null,
 
     /**
         Property: O.IO#activeConnections
@@ -72,7 +71,6 @@ var IO = NS.Class({
 
         The number of active connections
     */
-    activeConnections: 0,
 
     // Handling of multiple send() calls.
 
@@ -177,11 +175,15 @@ var IO = NS.Class({
                     anonymous subclass.
     */
     init: function ( mixin ) {
+        this._recent = null,
         this._queue = [];
         this._transportPool = [];
+
+        this.activeConnections = 0,
         this.headers = {
             'Accept': 'text/javascript, text/html, application/json, */*'
         };
+
         IO.parent.init.call( this, mixin );
     },
 
@@ -286,10 +288,10 @@ var IO = NS.Class({
         var transport = this._transportPool.length ?
                 this._transportPool.pop() :
                 new ( this.get( 'Transport' ) )( this ),
-            method = ( request.method || this.method ).toUpperCase(),
-            url = request.url || this.url,
+            method = ( request.method || this.get( 'method' ) ).toUpperCase(),
+            url = request.url || this.get( 'url' ),
             data = request.data || null,
-            headers = request.headers || this.headers;
+            headers = request.headers || this.get( 'headers' );
 
         // Store reference in case we need to abort a request.
         this._recent = transport;

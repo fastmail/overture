@@ -123,7 +123,7 @@ Function.implement({
         method - {String} Either 'addObserverForPath' or 'removeObserverForPath'
 */
 var _setupTeardownPaths = function ( obj, method ) {
-    var pathObservers = meta( obj, true ).pathObservers,
+    var pathObservers = meta( obj ).pathObservers,
         key, paths, l;
     for ( key in pathObservers ) {
         paths = pathObservers[ key ];
@@ -246,13 +246,6 @@ var _notifyGenericObservers = function ( that, metadata, changed ) {
 */
 
 NS.ObservableProps = {
-    /**
-        Property (private): O.ObservableProps#_kvo_depth
-        Type: Number
-
-        The number of calls to beginPropertyChanges in the stack.
-    */
-    _kvo_depth: 0,
 
     /**
         Method: O.Observable#initObservers
@@ -288,7 +281,7 @@ NS.ObservableProps = {
             {Boolean} Does the object have any observers?
     */
     hasObservers: function () {
-        var observers = meta( this, true ).observers,
+        var observers = meta( this ).observers,
             key, keyObservers, l, object;
         for ( key in observers ) {
             keyObservers = observers[ key ];
@@ -316,7 +309,7 @@ NS.ObservableProps = {
             {O.ObservableProps} Returns self.
     */
     beginPropertyChanges: function () {
-        this._kvo_depth += 1;
+        meta( this ).depth += 1;
         return this;
     },
 
@@ -332,13 +325,12 @@ NS.ObservableProps = {
             {O.ObservableProps} Returns self.
     */
     endPropertyChanges: function () {
-        if ( this._kvo_depth === 1 ) {
+        var metadata = meta( this ),
+            changed, key;
+        if ( metadata.depth === 1 ) {
             // Notify observers.
-            var changed, key,
-                metadata = meta( this, false );
-            while ( metadata.hasOwnProperty( 'changed' ) ) {
-                changed = metadata.changed;
-                delete metadata.changed;
+            while ( changed = metadata.changed ) {
+                metadata.changed = null;
                 for ( key in changed ) {
                     _notifyObserversOfKey( this, metadata,
                         key, changed[ key ].oldValue, changed[ key ].newValue );
@@ -352,7 +344,7 @@ NS.ObservableProps = {
         // Only decrement here so that any further property changes that happen
         // whilst we are notifying of the previous ones are queued up and then
         // distributed in the next loop.
-        this._kvo_depth -= 1;
+        metadata.depth -= 1;
         return this;
     },
 
@@ -374,43 +366,49 @@ NS.ObservableProps = {
             {O.ObservableProps} Returns self.
     */
     propertyDidChange: function ( key, oldValue, newValue ) {
-        var metadata = meta( this, false ),
+        var metadata = meta( this ),
             isInitialised = metadata.isInitialised,
-            changed = metadata.hasOwnProperty( 'changed' ) ?
-                metadata.changed : {},
             dependents = isInitialised ?
                 this.propertiesDependentOnKey( key ) : [],
             l = dependents.length,
+            depth = metadata.depth,
+            hasGenericObservers = metadata.observers[ '*' ],
+            fastPath = !l && !depth && !hasGenericObservers,
+            changed = fastPath ? null : metadata.changed || {},
             cache = metadata.cache,
             prop;
 
-        while ( l-- ) {
-            prop = dependents[l];
-            if ( !changed[ prop ] ) {
-                changed[ prop ] = {
-                    oldValue: cache[ prop ]
-                };
-            }
-            delete cache[ prop ];
-        }
-
-        changed[ key ] = {
-            oldValue: changed[ key ] ? changed[ key ].oldValue : oldValue,
-            newValue: newValue
-        };
-
-        if ( this._kvo_depth ) {
-            metadata.changed = changed;
+        if ( fastPath ) {
+            _notifyObserversOfKey( this, metadata, key, oldValue, newValue );
         } else {
-            // Notify observers of dependent keys.
-            for ( prop in changed ) {
-                _notifyObserversOfKey( this, metadata,
-                    prop, changed[ prop ].oldValue, changed[ prop ].newValue );
+            while ( l-- ) {
+                prop = dependents[l];
+                if ( !changed[ prop ] ) {
+                    changed[ prop ] = {
+                        oldValue: cache[ prop ]
+                    };
+                }
+                delete cache[ prop ];
             }
 
-            // Notify observers interested in any property change
-            if ( isInitialised && metadata.observers[ '*' ] ) {
-                _notifyGenericObservers( this, metadata, changed );
+            changed[ key ] = {
+                oldValue: changed[ key ] ? changed[ key ].oldValue : oldValue,
+                newValue: newValue
+            };
+
+            if ( metadata.depth ) {
+                metadata.changed = changed;
+            } else {
+                // Notify observers of dependent keys.
+                for ( prop in changed ) {
+                    _notifyObserversOfKey( this, metadata, prop,
+                        changed[ prop ].oldValue, changed[ prop ].newValue );
+                }
+
+                // Notify observers interested in any property change
+                if ( isInitialised && hasGenericObservers ) {
+                    _notifyGenericObservers( this, metadata, changed );
+                }
             }
         }
 
@@ -437,7 +435,7 @@ NS.ObservableProps = {
             {O.ObservableProps} Returns self.
     */
     addObserverForKey: function ( key, object, method ) {
-        var observers = meta( this, false ).observers,
+        var observers = meta( this ).observers,
             keyObservers = observers[ key ];
         if ( !observers.hasOwnProperty( key ) ) {
             keyObservers = observers[ key ] = keyObservers ?
@@ -464,7 +462,7 @@ NS.ObservableProps = {
             {O.ObservableProps} Returns self.
     */
     removeObserverForKey: function ( key, object, method ) {
-        var observers = meta( this, false ).observers,
+        var observers = meta( this ).observers,
             keyObservers = observers[ key ],
             observer, l;
         if ( keyObservers ) {
@@ -510,7 +508,7 @@ NS.ObservableProps = {
             var key = path.slice( 0, nextDot ),
                 value = this.get( key ),
                 restOfPath = path.slice( nextDot + 1 ),
-                observers = meta( this, false ).observers,
+                observers = meta( this ).observers,
                 keyObservers = observers[ key ];
             if ( !observers.hasOwnProperty( key ) ) {
                 keyObservers = observers[ key ] = keyObservers ?
@@ -552,7 +550,7 @@ NS.ObservableProps = {
             var key = path.slice( 0, nextDot ),
                 value = this.get( key ),
                 restOfPath = path.slice( nextDot + 1 ),
-                observers = meta( this, false ).observers[ key ],
+                observers = meta( this ).observers[ key ],
                 observer, l;
 
             if ( observers ) {

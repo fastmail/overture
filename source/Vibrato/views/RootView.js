@@ -31,9 +31,6 @@ var RootView = NS.Class({
 
     Extends: NS.View,
 
-    isInDocument: true,
-    isRendered: true,
-
     layer: null,
 
     init: function ( node, mixin ) {
@@ -69,6 +66,8 @@ var RootView = NS.Class({
             win.addEventListener( events[l], this, false );
         }
 
+        this.isRendered = true;
+        this.isInDocument = true;
         this.layer = nodeIsDocument ? node.body : node;
     },
 

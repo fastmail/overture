@@ -50,10 +50,11 @@ var LocalStorage = NS.Class({
                           persisted for the session?
     */
     init: function ( name, sessionOnly ) {
-        LocalStorage.parent.init.call( this );
         this._name = name + '.';
         this._store = location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? sessionStorage : localStorage;
+
+        LocalStorage.parent.init.call( this );
     },
 
     set: function ( key, value ) {
@@ -75,5 +76,5 @@ var LocalStorage = NS.Class({
 });
 
 NS.LocalStorage = LocalStorage;
-	
+
 }( this.O ) );

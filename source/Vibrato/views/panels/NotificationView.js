@@ -56,7 +56,7 @@ var NotificationView = NS.Class({
         // If we don't have a layerAnimation object yet, we can't have animated
         // in, so just detach immediately. Otherwise, stop the current layer
         // animation, then animate out.
-        var layerAnimation = NS.meta( this, true ).cache.layerAnimation;
+        var layerAnimation = NS.meta( this ).cache.layerAnimation;
         if ( layerAnimation ) {
             layerAnimation.stop();
             this.set( 'layout', hiddenLayout );

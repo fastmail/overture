@@ -16,14 +16,13 @@ var RecordArray = NS.Class({
 
     Extends: NS.ObservableArray,
 
-    record: null,
-    propKey: '',
-
     init: function ( record, propKey, value, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;
         this.store = record.get( 'store' );
+
+        this._updatingStore = false;
 
         RecordArray.parent.init.call( this, value && value.slice() );
 
@@ -39,8 +38,6 @@ var RecordArray = NS.Class({
     toJSON: function () {
         return this._array.slice();
     },
-
-    _updatingStore: false,
 
     updateListFromRecord: function () {
         if ( this._updatingStore ) { return; }

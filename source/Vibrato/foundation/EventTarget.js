@@ -84,7 +84,7 @@ NS.EventTarget = {
         }
         type = eventPrefix + type;
 
-        var observers = meta( this, false ).observers,
+        var observers = meta( this ).observers,
             handlers = observers[ type ];
         if ( !observers.hasOwnProperty( type ) ) {
             handlers = observers[ type ] = handlers ?
@@ -168,7 +168,7 @@ NS.EventTarget = {
         };
 
         while ( target ) {
-            handlers = meta( target, true ).observers[ typeKey ];
+            handlers = meta( target ).observers[ typeKey ];
             length = handlers ? handlers.length : 0;
             while ( length-- ) {
                 handler = handlers[ length ];
@@ -216,7 +216,7 @@ NS.EventTarget = {
     detach: function ( type, obj, method ) {
         type = eventPrefix + type;
 
-        var observers = meta( this, false ).observers,
+        var observers = meta( this ).observers,
             handlers = observers[ type ];
         if ( handlers ) {
             if ( !observers.hasOwnProperty( type ) ) {

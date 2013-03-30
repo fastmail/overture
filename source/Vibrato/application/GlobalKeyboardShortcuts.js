@@ -36,7 +36,6 @@ var GlobalKeyboardShortcuts = NS.Class({
         Callbacks will only fire if this property is true when the instance
         handles the event.
     */
-    isEnabled: true,
 
     /**
         Property (private): O.GlobalKeyboardShortcuts#_shortcuts
@@ -49,8 +48,11 @@ var GlobalKeyboardShortcuts = NS.Class({
         Constructor: O.GlobalKeyboardShortcuts
     */
     init: function ( mixin ) {
+        this.isEnabled = true;
         this._shortcuts = {};
+        
         GlobalKeyboardShortcuts.parent.init.call( this, mixin );
+
         var ViewEventsController = NS.ViewEventsController;
         ViewEventsController.kbShortcuts = this;
         ViewEventsController.queueEventTarget( this );

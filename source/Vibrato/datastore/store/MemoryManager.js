@@ -27,7 +27,6 @@ var MemoryManager = NS.Class({
 
         Keeps track of which record type we need to examine next.
     */
-    _index: 0,
 
     /**
         Property (private): O.MemoryManager#_store
@@ -75,6 +74,7 @@ var MemoryManager = NS.Class({
                            i.e. every 30 seconds.
     */
     init: function ( store, restrictions, frequency ) {
+        this._index = 0;
         this._store = store;
         this._restrictions = restrictions;
 

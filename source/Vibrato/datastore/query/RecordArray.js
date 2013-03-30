@@ -29,6 +29,7 @@ var RecordArray = NS.Class({
         this.store = store;
         this.Type = Type;
         this.storeKeys = storeKeys;
+
         RecordArray.parent.init.call( this );
     },
 

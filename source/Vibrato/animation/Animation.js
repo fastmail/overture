@@ -96,17 +96,20 @@ requestAnimFrame( function ( time ) {
 NS.Animation = NS.Class({
 
     init: function ( mixin ) {
+        this.duration = 300;
+        this.ease = NS.Easing.ease;
+        this.startTime = 0;
+        this.isRunning = false;
+
+        this.startValue = null;
+        this.endValue = null;
+        this.deltaValue = null;
+
         NS.extend( this, mixin );
     },
 
-    object: null,
-    property: 'value',
-
-    ease: NS.Easing.ease,
-    duration: 300,
-
-    startTime: 0,
-    isRunning: false,
+//    object: null,
+//    property: 'value',
 
     animate: function ( value, duration, ease ) {
         if ( this.isRunning ) {

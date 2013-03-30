@@ -40,7 +40,7 @@ NS.ObservableRange = {
     */
     rangeDidChange: function ( start, end ) {
         if ( end === undefined ) { end = start + 1; }
-        var metadata = meta( this, true ),
+        var metadata = meta( this ),
             key, index;
         for ( key in metadata.observers ) {
             index = parseInt( key, 10 );
@@ -94,7 +94,7 @@ NS.ObservableRange = {
             {O.ObservableRange} Returns self.
     */
     addObserverForRange: function ( range, object, method ) {
-        var metadata = meta( this, false );
+        var metadata = meta( this );
         ( metadata.rangeObservers || ( metadata.rangeObservers = [] ) ).push({
             range: range,
             object: object,
@@ -122,7 +122,7 @@ NS.ObservableRange = {
             {O.ObservableRange} Returns self.
     */
     removeObserverForRange: function ( range, object, method ) {
-        var observers = meta( this, false ).rangeObservers,
+        var observers = meta( this ).rangeObservers,
             l = observers ? observers.length : 0;
         while ( l-- ) {
             var observer = observers[l];

@@ -76,13 +76,13 @@ var StyleAnimation = NS.Class({
 
     prepare: function ( styles ) {
         var animated = this.animated = [],
-            from = this.from = this.current,
+            from = this.startValue = this.current,
             current = this.current = NS.clone( from ),
-            delta = this.delta = {},
+            delta = this.deltaValue = {},
 
             property, start, end, animator;
 
-        this.to = styles;
+        this.endValue = styles;
 
         for ( property in styles ) {
             start = from[ property ] || 0;
@@ -108,9 +108,9 @@ var StyleAnimation = NS.Class({
         var animated = this.animated,
             l = animated.length,
 
-            from = this.from,
-            to = this.to,
-            difference = this.delta,
+            from = this.startValue,
+            to = this.endValue,
+            difference = this.deltaValue,
             current = this.current,
 
             el = this.element,

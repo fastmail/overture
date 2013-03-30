@@ -352,8 +352,6 @@ var WindowedRemoteQuery = NS.Class({
     */
 
     init: function ( mixin ) {
-        WindowedRemoteQuery.parent.init.call( this, mixin );
-
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];
@@ -361,6 +359,8 @@ var WindowedRemoteQuery = NS.Class({
 
         this._isAnExplicitIdFetch = false;
         this._fetchUpdates = true;
+
+        WindowedRemoteQuery.parent.init.call( this, mixin );
     },
 
     refresh: function ( force, callback, doNotFetchUpdates ) {
@@ -447,8 +447,7 @@ var WindowedRemoteQuery = NS.Class({
             callback( this._list.slice( start, end ), start, end );
         }
         else {
-            ( this._awaitingIdFetch || ( this._awaitingIdFetch = [] ) )
-                .push([ start, end, callback ]);
+            this._awaitingIdFetch.push([ start, end, callback ]);
         }
         return !isComplete;
     },
@@ -1256,7 +1255,7 @@ var WindowedRemoteQuery = NS.Class({
             recordRequests = [],
             idRequests = [],
             optimiseFetching = this.get( 'optimiseFetching' ),
-            ranges =  ( NS.meta( this, true ).rangeObservers || [] ).map(
+            ranges =  ( NS.meta( this ).rangeObservers || [] ).map(
                 function ( observer ) {
                     return observer.range;
                 }),

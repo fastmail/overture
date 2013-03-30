@@ -55,17 +55,16 @@ function ( type ) {
 var CSSStyleAnimation = NS.Class({
 
     init: function ( mixin ) {
+        this._deadMan = null;
+
+        this.duration = 300;
+        this.ease = NS.Easing.ease;
+        this.isRunning = false;
+        this.animating = [];
+        this.current = null;
+
         NS.extend( this, mixin );
     },
-
-    isRunning: false,
-
-    object: {},
-
-    ease: NS.Easing.ease,
-    duration: 300,
-
-    _deadMan: null,
 
     animate: function ( styles, duration, ease ) {
         if ( this.isRunning ) {
@@ -80,7 +79,7 @@ var CSSStyleAnimation = NS.Class({
 
         var el = this.element,
             current = this.current,
-            animating = this.animating = [],
+            animating = this.animating,
             object = this.object,
             setStyle = NS.Element.setStyle,
             property, value;
@@ -111,7 +110,7 @@ var CSSStyleAnimation = NS.Class({
             this._deadMan = NS.RunLoop.invokeAfterDelay(
                 this.stop, this.duration + 100, this );
 
-            if ( object.willAnimate ) {
+            if ( object && object.willAnimate ) {
                 object.willAnimate( this );
             }
 
@@ -145,7 +144,7 @@ var CSSStyleAnimation = NS.Class({
             NS.Element.setStyle( this.element, 'transition', 'none' );
 
             var object = this.object;
-            if ( object.didAnimate ) {
+            if ( object && object.didAnimate ) {
                 object.didAnimate( this );
             }
         }

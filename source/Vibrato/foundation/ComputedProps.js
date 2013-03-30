@@ -20,6 +20,12 @@
 var slice = Array.prototype.slice,
     meta = NS.meta;
 
+var makeComputedDidChange = function( key ) {
+    return function () {
+        this.computedPropertyDidChange( key );
+    };
+};
+
 var setupComputed = function ( metadata, key, obj ) {
     var dependencies = this.dependencies,
         dependents = metadata.dependents,
@@ -41,13 +47,9 @@ var setupComputed = function ( metadata, key, obj ) {
                 metadata.inits.Observers =
                     ( metadata.inits.Observers || 0 ) + 1;
             }
-            /*jshint loopfunc: true */
             if ( !obj[ method ] ) {
-                obj[ method ] = function () {
-                    this.computedPropertyDidChange( key );
-                };
+                obj[ method ] = makeComputedDidChange( key );
             }
-            /*jshint loopfunc: false */
             if ( !pathObservers ) {
                 pathObservers = metadata.pathObservers;
                 if ( !metadata.hasOwnProperty( 'pathObservers' ) ) {
@@ -266,7 +268,7 @@ NS.ComputedProps = {
             {Array} Returns the list of dependents (may be empty).
     */
     propertiesDependentOnKey: function ( key ) {
-        var metadata = meta( this, false );
+        var metadata = meta( this );
         return metadata.allDependents[ key ] ||
             ( metadata.allDependents[ key ] =
                 computeDependentKeys( metadata.dependents, key, [] ) );
@@ -288,7 +290,7 @@ NS.ComputedProps = {
     propertyDidChange: function ( key, oldValue, newValue ) {
         var dependents = this.propertiesDependentOnKey( key ),
             l = dependents.length,
-            cache = meta( this, false ).cache;
+            cache = meta( this ).cache;
         while ( l-- ) {
             delete cache[ dependents[l] ];
         }
@@ -308,7 +310,7 @@ NS.ComputedProps = {
             {O.ComputedProps} Returns self.
     */
     computedPropertyDidChange: function ( key ) {
-        var cache = meta( this, false ).cache,
+        var cache = meta( this ).cache,
             oldValue = cache[ key ];
         delete cache[ key ];
         return this.propertyDidChange( key, oldValue );
@@ -326,7 +328,7 @@ NS.ComputedProps = {
             {O.ComputedProps} Returns self.
     */
     clearPropertyCache: function () {
-        meta( this, false ).cache = {};
+        meta( this ).cache = {};
         return this;
     },
 
@@ -354,7 +356,7 @@ NS.ComputedProps = {
             silent = !!oldValue.isSilent;
             value = oldValue.call( this, value, key );
             if ( !oldValue.isVolatile ) {
-                cache = meta( this, false ).cache;
+                cache = meta( this ).cache;
                 oldValue = cache[ key ];
                 cache[ key ] = value;
             } else {
@@ -395,7 +397,7 @@ NS.ComputedProps = {
             if ( value.isVolatile ) {
                 return value.call( this, undefined, key );
             }
-            cache = meta( this, false ).cache;
+            cache = meta( this ).cache;
             return ( key in cache ) ? cache[ key ] :
                 ( cache[ key ] = value.call( this, undefined, key ) );
         }

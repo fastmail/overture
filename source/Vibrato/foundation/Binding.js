@@ -97,7 +97,6 @@ var Binding = NS.Class({
 
         Is the instance currently observing for changes?
     */
-    _isConnected: false,
 
     /**
         Property (private): O.Binding#_needsSync
@@ -105,7 +104,6 @@ var Binding = NS.Class({
 
         Has the data changed on the from object (or the 'to' object if two-way)?
     */
-    _needsSync: true,
 
     /**
         Property (private): O.Binding#_isSuspended
@@ -113,7 +111,6 @@ var Binding = NS.Class({
 
         Should the binding stop propagating changes?
     */
-    _isSuspended: false,
 
     /**
         Property (private): O.Binding#_syncFromToTo
@@ -122,18 +119,24 @@ var Binding = NS.Class({
         The direction to sync from. True if syncing from the 'from' object to
         the 'to' object, false if it's going to do the reverse.
     */
-    _syncFromToTo: true,
 
     /**
         Property: O.Binding#isTwoWay
         Type: Boolean
+        Default: false
 
         Are changes just propagated from the 'from' object to the 'to' object,
         or are they also sent the other way?
     */
-    isTwoWay: false,
 
-    queue: 'bindings',
+    /**
+        Property: O.Binding#queue
+        Type: String
+        Default: 'bindings'
+
+        During which queue in the run loop should the binding sync?
+    */
+
 
     /**
         Constructor: O.Binding
@@ -143,6 +146,20 @@ var Binding = NS.Class({
                     use on the binding.
     */
     init: function ( mixin ) {
+        this._isConnected = false;
+        this._isSuspended = false;
+        this._needsSync = true;
+        this._syncFromToTo = true,
+
+        this._fromPath = null;
+        this._fromRoot = null;
+        this._toPath = null;
+        this._toRoot = null;
+
+        this.isTwoWay = false;
+        this.transform = identity;
+        this.queue = 'bindings';
+
         for ( var key in mixin ) {
             this[ key ] = mixin[ key ];
         }
@@ -410,7 +427,6 @@ var Binding = NS.Class({
         A function which is applied to a value coming from one object before it
         is set on the other object.
     */
-    transform: identity,
 
     /**
         Method: O.Binding#defaultValue

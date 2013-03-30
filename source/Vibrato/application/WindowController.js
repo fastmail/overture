@@ -16,15 +16,17 @@ var WindowController = NS.Class({
 
     Extends: NS.Object,
 
-    isMaster: false,
-    isFocussed: NS.UA.msie !== 8 && document.hasFocus ?
-        document.hasFocus() : true,
-
-    broadcastKey: 'owm:broadcast',
     pingKey: 'owm:ping',
 
-    init: function ( options ) {
-        WindowController.parent.init.call( this, options );
+    broadcastKey: 'owm:broadcast',
+
+    init: function ( mixin ) {
+        this.isMaster = false;
+        this.isFocussed = ( NS.UA.msie !== 8 && document.hasFocus ) ?
+            document.hasFocus() : true;
+
+        WindowController.parent.init.call( this, mixin );
+
         var now = Date.now(),
             pingKey = this.get( 'pingKey' ),
             masterLastSeen = 0;
@@ -36,21 +38,26 @@ var WindowController = NS.Class({
         } else {
             this.loseMaster();
         }
+
         window.addEventListener( 'storage', this, false );
         window.addEventListener( 'unload', this, false );
         window.addEventListener( 'focus', this, false );
         window.addEventListener( 'blur', this, false );
     },
+
     destroy: function () {
         if ( this.get( 'isMaster' ) ) {
             try {
                 localStorage.setItem( this.get( 'pingKey' ), 0 );
             } catch ( error ) {}
         }
+
         window.removeEventListener( 'storage', this, false );
         window.removeEventListener( 'unload', this, false );
+
         WindowController.parent.destroy.call( this );
     },
+
     handleEvent: function ( event ) {
         switch( event.type ) {
         case 'storage':
@@ -93,6 +100,7 @@ var WindowController = NS.Class({
             break;
         }
     }.invokeInRunLoop(),
+
     becomeMaster: function () {
         try {
             localStorage.setItem( this.get( 'pingKey' ), Date.now() );
@@ -102,12 +110,14 @@ var WindowController = NS.Class({
         this._ping = NS.RunLoop.invokeAfterDelay(
             this.becomeMaster, 20000 + ~~( Math.random() * 10000 ), this );
     },
+
     loseMaster: function () {
         this.set( 'isMaster', false );
         NS.RunLoop.cancel( this._ping );
         this._ping = NS.RunLoop.invokeAfterDelay(
             this.becomeMaster, 35000 + ~~( Math.random() * 20000 ), this );
     },
+
     broadcast: function ( data ) {
         try {
             localStorage.setItem(

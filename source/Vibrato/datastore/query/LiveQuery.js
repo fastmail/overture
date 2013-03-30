@@ -55,7 +55,6 @@ var LiveQuery = NS.Class({
 
         The function to filter data objects with.
     */
-    _filter: null,
 
     /**
         Property (private): O.LiveQuery#_sort
@@ -63,7 +62,6 @@ var LiveQuery = NS.Class({
 
         The function to sort the data objects with.
     */
-    _sort: null,
 
     /**
         Property: O.LiveQuery#store
@@ -86,7 +84,6 @@ var LiveQuery = NS.Class({
 
         Status of the query: READY|DESTROYED
     */
-    status: READY,
 
     /**
         Property: O.LiveQuery#className
@@ -132,6 +129,8 @@ var LiveQuery = NS.Class({
         this._sort = results.sortFn;
         this._filter = results.filterFn;
 
+        this.status = READY;
+
         this.length = results.length;
 
         LiveQuery.parent.init.call( this, mixin );
@@ -172,7 +171,6 @@ var LiveQuery = NS.Class({
 
         The number of records in the query.
     */
-    length: 0,
 
     /**
         Method: O.LiveQuery#indexOfId

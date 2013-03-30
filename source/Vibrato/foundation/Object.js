@@ -37,8 +37,11 @@ NS.Object = NS.Class({
                     methods).
     */
     init: function ( mixin ) {
+        this.isDestroyed = false;
+
         NS.mixin( this, mixin );
-        var metadata = meta( this, false ),
+
+        var metadata = meta( this ),
             inits = metadata.inits,
             method;
         for ( method in inits ) {
@@ -56,13 +59,14 @@ NS.Object = NS.Class({
         bindings) so the object will be available for garbage collection.
     */
     destroy: function () {
-        var destructors = meta( this, true ).inits,
+        var destructors = meta( this ).inits,
             method;
         for ( method in destructors ) {
             if ( destructors[ method ] ) {
                 this[ 'destroy' + method ]();
             }
         }
+
         this.isDestroyed = true;
     }
 });

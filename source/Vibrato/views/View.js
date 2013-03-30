@@ -190,7 +190,6 @@ var View = NS.Class({
 
         The parent view of this view.
     */
-    parentView: null,
 
     /**
         Property: O.View#childViews
@@ -200,6 +199,12 @@ var View = NS.Class({
     */
 
     init: function ( mixin ) {
+        this._needsRedraw = null;
+
+        this.parentView = null;
+        this.isRendered = false;
+        this.isInDocument = false;
+
         View.parent.init.call( this, mixin );
 
         var children = this.get( 'childViews' ) || ( this.childViews = [] ),
@@ -235,7 +240,6 @@ var View = NS.Class({
 
         Has the <O.View#render> method been called yet?
     */
-    isRendered: false,
 
     /**
         Property: O.View#isInDocument
@@ -243,7 +247,6 @@ var View = NS.Class({
 
         Is the view currently part of the document DOM tree hierarchy?
     */
-    isInDocument: false,
 
     /**
         Property: O.View#id
@@ -713,7 +716,6 @@ var View = NS.Class({
         Array of tuples for properties that need a redraw. Each tuple has the
         property name as the first item and the old value as the second.
     */
-    _needsRedraw: null,
 
     /**
         Method: O.View#propertyNeedsRedraw

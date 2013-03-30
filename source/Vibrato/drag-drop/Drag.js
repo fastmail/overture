@@ -76,16 +76,30 @@ var Drag = NS.Class({
                     triggered the drag.
     */
     init: function ( mixin ) {
-        Drag.parent.init.call( this, mixin );
-
         var event = mixin.event;
-        this.cursorPosition = {
+
+        this._dragCursor = null;
+        this._stylesheet = null;
+        this._scrollBounds = null;
+        this._scrollView = null;
+        this._scrollBy = null;
+        this._scrollInterval = null;
+        this._lastTargetView = null;
+
+        this.isNative = false;
+        this.dragSource = null;
+        this.allowedEffects = ALL;
+        this.dataSource = null;
+        this.dropTarget = null;
+        this.dropEffect = MOVE;
+        this.cursorPosition = this.startPosition = {
             x: event.clientX,
             y: event.clientY
         };
-        if ( !mixin.startPosition ) {
-            this.startPosition = this.cursorPosition;
-        }
+        this.dragImage = null;
+
+        Drag.parent.init.call( this, mixin );
+
         this._setCursor( true );
         this.startDrag();
     },
@@ -97,7 +111,6 @@ var Drag = NS.Class({
         Is this drag triggered by native drag/drop events rather than mouse
         up/down events?
     */
-    isNative: false,
 
     /**
         Property: O.Drag#dragSource
@@ -106,7 +119,6 @@ var Drag = NS.Class({
         The view on which the drag was initiated, if initiated in the current
         window. Otherwise null.
     */
-    dragSource: null,
 
     /**
         Property: O.Drag#allowedEffects
@@ -116,7 +128,6 @@ var Drag = NS.Class({
         Which effects (move/copy/link) will the drag source allow the drop
         target to perform with the data represented by this drag.
     */
-    allowedEffects: ALL,
 
     /**
         Property: O.Drag#dataSource
@@ -127,7 +138,6 @@ var Drag = NS.Class({
         present and contains the <O.DragDataSource> mixin. Otherwise, the drag
         is presumed not to represent any data.
     */
-    dataSource: null,
 
     /**
         Property: O.Drag#dropTarget
@@ -137,7 +147,6 @@ var Drag = NS.Class({
         under the mouse cursor at the moment, or null if none of them are drop
         targets.
     */
-    dropTarget: null,
 
     /**
         Property: O.Drag#dropEffect
@@ -147,7 +156,6 @@ var Drag = NS.Class({
         The effect of the action that will be performed on the data should a
         drop be performed. This should be set by the current drop target.
     */
-    dropEffect: MOVE,
 
     /**
         Property: O.Drag#cursorPosition
@@ -156,7 +164,6 @@ var Drag = NS.Class({
         Contains `x` and `y` values indicating the current cursor position
         relative to the browser window.
     */
-    cursorPosition: { x: 0, y: 0 },
 
     /**
         Property: O.Drag#startPosition
@@ -165,7 +172,6 @@ var Drag = NS.Class({
         Contains `x` and `y` values indicating the cursor position when the drag
         was initiated, relative to the browser window.
     */
-    startPosition: { x: 0, y: 0 },
 
     /**
         Property: O.Drag#dragImage
@@ -175,7 +181,6 @@ var Drag = NS.Class({
         This could be a simple <img> or <canvas> tag, or a more complicated DOM
         tree.
     */
-    dragImage: null,
 
     /**
         Property: O.Drag#dragImageOffset
@@ -230,12 +235,14 @@ var Drag = NS.Class({
         native drag, where the browser will automatically update the drag image.
     */
     _updateDragImagePosition: function () {
-        var cursor, offset, dragImage;
-        if ( this.isNative || !( dragImage = this._dragCursor ) ) { return; }
-        cursor = this.get( 'cursorPosition' );
-        offset = this.get( 'dragImageOffset' );
-        dragImage.style.left = ( cursor.x + Math.max( offset.x, 5 ) ) + 'px';
-        dragImage.style.top = ( cursor.y + Math.max( offset.y, 5 ) ) + 'px';
+        var dragImage = this._dragCursor,
+            cursor, offset;
+        if ( dragImage ) {
+            cursor = this.get( 'cursorPosition' );
+            offset = this.get( 'dragImageOffset' );
+            dragImage.style.left = ( cursor.x + Math.max( offset.x, 5 ) ) + 'px';
+            dragImage.style.top = ( cursor.y + Math.max( offset.y, 5 ) ) + 'px';
+        }
     }.queue( 'render' ).observes( 'cursorPosition', 'dragImageOffset' ),
 
     /**
@@ -567,14 +574,14 @@ var Drag = NS.Class({
 
         An object caching the position of the scroll view on the screen.
     */
-    _scrollBounds: null,
+
     /**
         Property (private): O.Drag#_scrollView
         Type: O.ScrollView|null
 
         The scroll view under the cursor, if any.
     */
-    _scrollView: null,
+
     /**
         Property (private): O.Drag#_scrollBy
         Type: Object|null
@@ -583,21 +590,20 @@ var Drag = NS.Class({
         the scroll view should be scrolled in the next frame (negative values to
         scroll up, positive values to scroll down).
     */
-    _scrollBy: null,
+
     /**
         Property (private): O.Drag#_scrollInterval
         Type: InvocationToken|null
 
         The InvocationToken returned by a call to <O.RunLoop.cancel>.
     */
-    _scrollInterval: null,
+
     /**
         Property (private): O.Drag#_lastTargetView
         Type: O.View|null
 
         The view the mouse was over last time <O.Drag#_check> was called.
     */
-    _lastTargetView: null,
 
     /**
         Method (private): O.Drag#_check

@@ -17,7 +17,14 @@ var SingleSelectionController = NS.Class({
     allowNoSelection: true,
 
     init: function ( mixin ) {
+        this._ignore = false;
+
+        this.content = null;
+        this.record = null;
+        this.index = -1;
+
         SingleSelectionController.parent.init.call( this, mixin );
+
         var content = this.get( 'content' ),
             range = this._range = { start: -1, end: 0 };
         if ( content ) {
@@ -45,16 +52,6 @@ var SingleSelectionController = NS.Class({
         }
         SingleSelectionController.parent.destroy.call( this );
     },
-
-    content: null,
-
-    record: null,
-
-    // -1 means don't update when the list contents changes (so will remain at 0
-    // selection or explicitly selected record not in list.)
-    index: -1,
-
-    _ignore: false,
 
     recordAtIndexDidChange: function () {
         if ( !this.get( 'record' ) ) {

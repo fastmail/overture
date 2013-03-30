@@ -40,6 +40,8 @@ var SwitchView = NS.Class({
 
         SwitchView.parent.init.call( this, mixin );
 
+        this.isRendered = true;
+
         var views = this.get( 'views' ),
             l = views.length,
             view;
@@ -66,8 +68,6 @@ var SwitchView = NS.Class({
     },
 
     // ---
-
-    isRendered: true,
 
     layer: function () {
         return document.createComment( 'SwitchView ' + this.get( 'id' ) );

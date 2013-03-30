@@ -1295,7 +1295,7 @@ var Store = NS.Class({
             l = changedKeys.length,
             attrs, attrKey, propKey, attribute, errorForAttribute;
         if ( record ) {
-            attrs = NS.meta( record, true ).attrs;
+            attrs = NS.meta( record ).attrs;
             record.beginPropertyChanges();
             while ( l-- ) {
                 attrKey = changedKeys[l];

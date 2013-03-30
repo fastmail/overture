@@ -108,7 +108,11 @@ var SplitView = NS.Class({
     bottomRightView: null,
 
     init: function ( mixin ) {
+        this._topLeftViewContainer = null;
+        this._bottomRightViewContainer = null;
+
         SplitView.parent.init.call( this, mixin );
+
         var childViews = this.get( 'childViews' ),
             tl = mixin[ topLeftView ],
             br = mixin[ bottomRightView ];

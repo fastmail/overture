@@ -60,6 +60,9 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     */
     init: function ( io ) {
         this._io = io;
+        this._isSuccess = false;
+        this._isRunning = false;
+        this._response = '';
     },
 
     /**
@@ -68,7 +71,6 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
 
         Was the request successful?
     */
-    _isSuccess: false,
 
     /**
         Method: O.FormUploader-IFrameTransport#isSuccess
@@ -87,7 +89,6 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
 
         Is there a request in progress?
     */
-    _isRunning: false,
 
     /**
         Method: O.FormUploader-IFrameTransport#isRunning
@@ -107,7 +108,6 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
 
         The response text.
     */
-    _response: '',
 
     /**
         Method: O.FormUploader-IFrameTransport#getResponse

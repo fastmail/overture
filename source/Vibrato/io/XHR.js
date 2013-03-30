@@ -25,14 +25,14 @@ var XHR = NS.Class({
         Property (private): O.XHR#_io
         Type: Object
 
-        Reference to object on which callbacks are made.
+        Reference to object on which callbacks are made. The following callbacks
+        are supported (all optional):
+
+        * uploadProgress
+        * loading
+        * success
+        * failure
     */
-    _io: {
-        // uploadProgress: function () {},
-        // loading: function () {},
-        // success: function () {},
-        // failure: function () {}
-    },
 
     /**
         Property (private): O.XHR#_isRunning
@@ -40,7 +40,6 @@ var XHR = NS.Class({
 
         Is a request in progress?
     */
-    _isRunning: false,
 
     /**
         Constructor: O.XHR
@@ -51,7 +50,9 @@ var XHR = NS.Class({
                  to be called by the XHR instance as these events occur.
     */
     init: function ( io ) {
-        if ( io ) { this._io = io; }
+        this._isRunning = false;
+        this._status = 0;
+        this._io = io || {};
         var xhr = this.xhr = new XMLHttpRequest(),
             that = this;
         if ( xhr.upload && io && io.uploadProgress ) {
