@@ -125,15 +125,7 @@ var ScrollView = NS.Class({
     keys: {},
 
     didEnterDocument: function () {
-        // Scroll is reset to 0 some browsers whenever it is removed from the
-        // DOM, so we need to set it to what it should be.
-        var layer = this.get( 'layer' ),
-            left = this.get( 'scrollLeft' ),
-            top = this.get( 'scrollTop' );
-
-        layer.scrollLeft = left;
-        layer.scrollTop = top;
-        layer.addEventListener( 'scroll', this, false );
+        this.get( 'layer' ).addEventListener( 'scroll', this, false );
 
         // Add keyboard shortcuts:
         var keys = this.get( 'keys' ),
@@ -159,6 +151,16 @@ var ScrollView = NS.Class({
 
         return ScrollView.parent.willLeaveDocument.call( this );
     },
+
+    _restoreScroll: function () {
+        // Scroll is reset to 0 in some browsers whenever it is removed from the
+        // DOM, so we need to set it to what it should be.
+        if ( this.get( 'isInDocument' ) ) {
+            var layer = this.get( 'layer' );
+            layer.scrollLeft = this.get( 'scrollLeft' );
+            layer.scrollTop = this.get( 'scrollTop' );
+        }
+    }.queue( 'after' ).observes( 'isInDocument' ),
 
     /**
         Property: O.ScrollView#scrollAnimation
