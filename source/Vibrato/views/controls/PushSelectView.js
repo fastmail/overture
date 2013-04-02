@@ -36,6 +36,7 @@ var PushSelectView = NS.Class({
                     el( 'a', NS.extend({
                         className: ( option.className || '' ) +
                             ( option.value === selected ? ' selected' : '' ),
+                        href: '',
                         'data-index': i
                     }, option, true ) )
                 );
@@ -74,6 +75,7 @@ var PushSelectView = NS.Class({
         var i = event.target.get( 'data-index' );
         if ( i != null ) {
             this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
+            event.preventDefault();
         }
     }.on( 'click' )
 });
