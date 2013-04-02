@@ -20,8 +20,8 @@ var ListView = NS.Class({
     triggerInPx: 200,
 
     init: function ( mixin ) {
-        this._renderRange = { start: 0, end: 0 };
         ListView.parent.init.call( this, mixin );
+        this._renderRange.end = 0;
     },
 
     positioning: 'absolute',

@@ -10,11 +10,6 @@
 
 ( function ( NS ) {
 
-var all = {
-    start: 0,
-    end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
-};
-
 var UnorderedCollectionView = NS.Class({
 
     Extends: NS.View,
@@ -37,7 +32,10 @@ var UnorderedCollectionView = NS.Class({
         this._needsUpdate = false;
         this._currentColour = true;
         this._rendered = {};
-        this._renderRange = all;
+        this._renderRange = {
+            start: 0,
+            end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
+        };
 
         this.selectionController = null,
 
