@@ -50,7 +50,7 @@ var GlobalKeyboardShortcuts = NS.Class({
     init: function ( mixin ) {
         this.isEnabled = true;
         this._shortcuts = {};
-        
+
         GlobalKeyboardShortcuts.parent.init.call( this, mixin );
 
         var ViewEventsController = NS.ViewEventsController;

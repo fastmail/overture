@@ -46,8 +46,8 @@ var SingleSelectionController = NS.Class({
     destroy: function () {
         var content = this.get( 'content' );
         if ( content ) {
-            content.detach( 'query:reset', this, 'contentWasReset' )
-                   .detach( 'query:updated', this, 'contentWasUpdated' );
+            content.off( 'query:reset', this, 'contentWasReset' )
+                   .off( 'query:updated', this, 'contentWasUpdated' );
             content.removeObserverForRange(
                 this._range, this, 'recordAtIndexDidChange' );
         }
@@ -119,8 +119,8 @@ var SingleSelectionController = NS.Class({
             index = allowNoSelection ? -1 : 0;
 
         if ( oldVal ) {
-            oldVal.detach( 'query:reset', this, 'contentWasReset' )
-                  .detach( 'query:updated', this, 'contentWasUpdated' );
+            oldVal.off( 'query:reset', this, 'contentWasReset' )
+                  .off( 'query:updated', this, 'contentWasUpdated' );
             oldVal.removeObserverForRange(
                 range, this, 'recordAtIndexDidChange' );
         }

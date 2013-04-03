@@ -110,7 +110,7 @@ NS.EventTarget = {
     once: function ( type, fn ) {
         var once = function ( event ) {
             fn.call( this, event );
-            this.detach( type, once );
+            this.off( type, once );
         };
         this.on( type, once );
         return this;
@@ -193,7 +193,7 @@ NS.EventTarget = {
     },
 
     /**
-        Method: O.EventTarget#detach
+        Method: O.EventTarget#off
 
         Detaches a particular event handler or all handlers for a particular
         event type. This method has no effect if the function supplied is not
@@ -213,7 +213,7 @@ NS.EventTarget = {
         Returns:
             {O.EventTarget} Returns self.
     */
-    detach: function ( type, obj, method ) {
+    off: function ( type, obj, method ) {
         type = eventPrefix + type;
 
         var observers = meta( this ).observers,

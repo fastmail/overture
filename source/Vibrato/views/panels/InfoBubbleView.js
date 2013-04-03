@@ -53,7 +53,7 @@ var InfoBubbleView = NS.Class({
             scrollAncestors = this._scrollAncestors;
         if ( scrollAncestors ) {
             scrollAncestors.forEach( function ( view ) {
-                view.detach( 'scroll', this, 'parentViewDidResize' );
+                view.off( 'scroll', this, 'parentViewDidResize' );
             });
         }
         scrollAncestors = null;

@@ -85,6 +85,7 @@ var NotificationView = NS.Class({
         if ( this.get( 'destroyOnClose' ) ) {
             this.destroy();
         }
+        return this;
     },
 
     zIndex: 10000,

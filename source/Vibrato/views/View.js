@@ -609,10 +609,8 @@ var View = NS.Class({
             property, value;
 
         if ( this.get( 'clipToBounds' ) ) {
-            styles.overflowX =
-                this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
-            styles.overflowY =
-                this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
+            styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
+            styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
         }
 
         for ( property in layout ) {
@@ -1167,6 +1165,14 @@ var View = NS.Class({
         children.splice( i, 1 );
         view.set( 'parentView', null );
         this.propertyDidChange( 'childViews' );
+        return this;
+    },
+
+    detach: function () {
+        var parentView = this.get( 'parentView' );
+        if ( parentView ) {
+            parentView.removeView( this );
+        }
         return this;
     },
 

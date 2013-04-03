@@ -19,14 +19,14 @@ var ListItemView = NS.Class({
     index: 0,
     itemHeight: 32,
 
-    selectionController: null,
+    selection: null,
     isSelected: false,
 
     init: function ( mixin ) {
-        var selectionController = mixin.selectionController,
+        var selection = mixin.selection,
             content = mixin.content;
-        if ( selectionController && content ) {
-            this.isSelected = selectionController.isIdSelected(
+        if ( selection && content ) {
+            this.isSelected = selection.isIdSelected(
                 content.get( 'id' )
             );
         }
@@ -46,20 +46,7 @@ var ListItemView = NS.Class({
         return  {
             top: index * itemHeight
         };
-    }.property( 'index', 'itemHeight' ),
-
-    detach: function ( wasRemovedFromList ) {
-        var isInDocument = this.get( 'isInDocument' ),
-            layer = this.get( 'layer' );
-        if ( isInDocument ) {
-            this.willLeaveDocument();
-        }
-        layer.parentNode.removeChild( layer );
-        if ( isInDocument ) {
-            this.didLeaveDocument();
-        }
-        this.set( 'parentView', null );
-    }
+    }.property( 'index', 'itemHeight' )
 });
 
 NS.ListItemView = ListItemView;

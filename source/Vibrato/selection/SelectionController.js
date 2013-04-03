@@ -35,7 +35,7 @@ var SelectionController = NS.Class({
 
     contentDidChange: function ( _, __, oldContent, newContent ) {
         if ( oldContent ) {
-            oldContent.detach( 'query:updated', this, 'contentWasUpdated' );
+            oldContent.off( 'query:updated', this, 'contentWasUpdated' );
         }
         if ( newContent ) {
             newContent.on( 'query:updated', this, 'contentWasUpdated' );

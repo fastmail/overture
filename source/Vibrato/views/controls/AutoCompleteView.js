@@ -170,9 +170,9 @@ var AutoCompleteView = NS.Class({
     inputView: null,
     inputViewDidChange: function ( _, __, oldView, newView ) {
         if ( oldView ) {
-            oldView.detach( 'focus', this, 'inputDidReceiveFocus' );
-            oldView.detach( 'blur', this, 'inputDidLoseFocus' );
-            oldView.detach( 'keydown', this, 'inputDidKeydown' );
+            oldView.off( 'focus', this, 'inputDidReceiveFocus' );
+            oldView.off( 'blur', this, 'inputDidLoseFocus' );
+            oldView.off( 'keydown', this, 'inputDidKeydown' );
         }
         if ( newView ) {
             newView.on( 'focus', this, 'inputDidReceiveFocus' );
@@ -212,7 +212,7 @@ var AutoCompleteView = NS.Class({
     draw: function ( layer ) {
         var collection;
         NS.Element.appendChildren( layer, [
-            collection = new NS.CollectionView({
+            collection = new NS.ListView({
                 content: this.get( 'controller' ).get( 'suggestions' ),
                 layerTag: 'ul',
                 ItemView: this.get( 'ItemView' )

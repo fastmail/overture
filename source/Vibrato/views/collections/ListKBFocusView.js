@@ -18,7 +18,7 @@ var ListKBFocusView = NS.Class({
 
     listView: null,
 
-    selectionController: NS.bind( 'listView.selectionController' ),
+    selection: NS.bind( 'listView.selection' ),
     itemHeight: NS.bind( 'listView.itemHeight' ),
 
     index: 0,
@@ -134,13 +134,13 @@ var ListKBFocusView = NS.Class({
     },
     select: function ( event ) {
         var index = this.get( 'index' ),
-            selectionController = this.get( 'selectionController' ),
+            selection = this.get( 'selection' ),
             list = this.getFromPath( 'listView.content' ),
             record = list && list.getObjectAt( index );
         // Check it's next to a loaded record.
         if ( record ) {
-            selectionController.selectIndex( index,
-                !selectionController.isIdSelected( record.get( 'id' ) ),
+            selection.selectIndex( index,
+                !selection.isIdSelected( record.get( 'id' ) ),
                 event.shiftKey );
         }
     },

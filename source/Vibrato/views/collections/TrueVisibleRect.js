@@ -16,8 +16,8 @@
     The TrueVisibleRect mixin can be added to view classes to make the
     <O.View#visibleRect> property take into account clipping by the parent view.
     This is more expensive, so should only be used in classes where this is
-    absolutely necessary, for example in <O.ListView>, where it is used to only
-    render the visible portion of a potentially very long list.
+    absolutely necessary, for example in <O.ProgressiveListView>, where it is
+    used to only render the visible portion of a potentially very long list.
 */
 NS.TrueVisibleRect = {
 
