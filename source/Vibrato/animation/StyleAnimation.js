@@ -98,9 +98,9 @@ var StyleAnimation = NS.Class({
                     } else {
                         units[ property ] =
                             ( typeof start === 'string' &&
-                                start.replace( /[\-\d]/g, '' ) ) ||
+                                start.replace( /[\.\-\d]/g, '' ) ) ||
                             ( typeof end === 'string' &&
-                                end.replace( /[\-\d]/g, '' ) ) ||
+                                end.replace( /[\.\-\d]/g, '' ) ) ||
                             'px';
                         start = from[ property ] = parseInt( start, 10 );
                         delta[ property ] = parseInt( end, 10 ) - start;
