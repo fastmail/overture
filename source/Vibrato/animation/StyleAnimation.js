@@ -79,6 +79,7 @@ var StyleAnimation = NS.Class({
             from = this.startValue = this.current,
             current = this.current = NS.clone( from ),
             delta = this.deltaValue = {},
+            units = this.units = {},
 
             property, start, end, animator;
 
@@ -92,9 +93,18 @@ var StyleAnimation = NS.Class({
                 if ( supported[ property ] ) {
                     animated.push( property );
                     animator = styleAnimators[ property ];
-                    delta[ property ] = animator ?
-                        animator.calcDelta( start, end ) :
-                        end - start;
+                    if ( animator ) {
+                        delta[ property ] = animator.calcDelta( start, end );
+                    } else {
+                        units[ property ] =
+                            ( typeof start === 'string' &&
+                                start.replace( /[\-\d]/g, '' ) ) ||
+                            ( typeof end === 'string' &&
+                                end.replace( /[\-\d]/g, '' ) ) ||
+                            'px';
+                        start = from[ property ] = parseInt( start, 10 );
+                        delta[ property ] = parseInt( end, 10 ) - start;
+                    }
                 } else {
                     current[ property ] = end;
                     NS.Element.setStyle( this.element, property, end );
@@ -111,11 +121,12 @@ var StyleAnimation = NS.Class({
             from = this.startValue,
             to = this.endValue,
             difference = this.deltaValue,
+            units = this.units,
             current = this.current,
 
             el = this.element,
             setStyle = NS.Element.setStyle,
-            property, value, start, end, delta, animator;
+            property, value, start, end, delta, unit, animator;
 
         while ( l-- ) {
             property = animated[l];
@@ -124,11 +135,13 @@ var StyleAnimation = NS.Class({
             start = from[ property ] || 0;
             end = to[ property ] || 0;
             delta = difference[ property ];
+            unit = units[ property ];
+
             animator = styleAnimators[ property ];
 
             value = current[ property ] = animator ?
                 animator.calcValue( position, delta, start, end ) :
-                position < 1 ? start + ( position * delta ) : end;
+                position < 1 ? ( start + ( position * delta ) ) + unit : end;
 
             // And set.
             setStyle( el, property, value );
