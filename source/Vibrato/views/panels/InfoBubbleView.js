@@ -24,12 +24,7 @@ var InfoBubbleView = NS.Class({
     positioning: 'absolute',
 
     // Don't suspend, as may insert itself based on bindings.
-    suspendBindings: function () {
-        return this;
-    },
-    resumeBindings: function () {
-        return this;
-    },
+    syncOnlyInDocument: false,
 
     className: function () {
         return 'InfoBubbleView ' + this.get( 'alignToThe' );
@@ -75,7 +70,7 @@ var InfoBubbleView = NS.Class({
             bounds = alignWithView.get( 'layer' ).getBoundingClientRect(),
             layout = {
                 top: parseInt( bounds.top, 10 ),
-                left: parseInt( bounds.left, 10 ),
+                left: parseInt( bounds.left, 10 )
             };
 
         if ( alignToThe === 'right' ) {

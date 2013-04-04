@@ -198,6 +198,17 @@ var View = NS.Class({
         An array of the child views of this view.
     */
 
+    /**
+        Property: O.View#syncOnlyInDocument
+        Type: Boolean
+        Default: true
+
+        If true, all bindings to the view will be suspended when the view is not
+        in the document, and resumed/resynced just before being inserted into
+        the document for efficiency.
+    */
+    syncOnlyInDocument: true,
+
     init: function ( mixin ) {
         this._needsRedraw = null;
 
@@ -212,7 +223,9 @@ var View = NS.Class({
         while ( l-- ) {
             children[l].set( 'parentView', this );
         }
-        this.suspendBindings();
+        if ( this.get( 'syncOnlyInDocument' ) ) {
+            this.suspendBindings();
+        }
     },
 
     destroy: function () {
@@ -335,7 +348,9 @@ var View = NS.Class({
             {O.View} Returns self.
     */
     willEnterDocument: function () {
-        this.resumeBindings();
+        if ( this.get( 'syncOnlyInDocument' ) ) {
+            this.resumeBindings();
+        }
 
         if ( this._needsRedraw ) {
             this.redraw();
@@ -415,7 +430,10 @@ var View = NS.Class({
         while ( l-- ) {
             children[l].didLeaveDocument();
         }
-        return this.suspendBindings();
+        if ( this.get( 'syncOnlyInDocument' ) ) {
+            this.suspendBindings();
+        }
+        return this;
     },
 
     // --- Event triage ---
@@ -684,7 +702,9 @@ var View = NS.Class({
                 prevView = Element.forView( this );
             // render() called just before inserting in doc, so should
             // resume bindings early to ensure initial render is correct.
-            this.resumeBindings();
+            if ( this.get( 'syncOnlyInDocument' ) ) {
+                this.resumeBindings();
+            }
             this.set( 'isRendered', true );
             this.draw( this.get( 'layer' ) );
             Element.forView( prevView );
