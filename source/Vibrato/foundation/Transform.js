@@ -92,6 +92,21 @@ NS.Transform = {
     },
 
     /**
+        Function: O.Transform#defaultValue
+
+        Returns a function which will transform `undefined` into the default
+        value, but will pass through any other value untouched.
+
+        Parameters:
+            value - {*} The default value to use.
+    */
+    defaultValue: function ( value ) {
+        return function ( v ) {
+            return v !== undefined ? v : value;
+        };
+    },
+
+    /**
         Function: O.Transform.undefinedToNull
 
         Converts an undefined value into null, passes others through unchanged.

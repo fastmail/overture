@@ -58,11 +58,15 @@ var _resolveRootAndPath = function ( binding, direction, path, root ) {
     var beginObservablePath = path.lastIndexOf( '*' ) + 1,
         observablePath = path.slice( beginObservablePath ),
         staticPath = beginObservablePath ?
-            path.slice( 0, beginObservablePath - 1 ) : '';
+            path.slice( 0, beginObservablePath - 1 ) : '',
+        lastDot = observablePath.lastIndexOf( '.' );
 
-    binding.set( direction + 'Object',
-        staticPath ? NS.getFromPath( staticPath, root ) : root );
-    binding.set( direction + 'Path', observablePath );
+    binding[ direction + 'Object' ] =
+        staticPath ? NS.getFromPath( staticPath, root ) : root;
+    binding[ direction + 'Path' ] = observablePath;
+    binding[ direction + 'PathBeforeKey' ] =
+        ( lastDot === -1 ) ? '' : observablePath.slice( 0, lastDot );
+    binding[ direction + 'Key' ] = observablePath.slice( lastDot + 1 );
 };
 
 /**
@@ -79,8 +83,6 @@ var _resolveRootAndPath = function ( binding, direction, path, root ) {
 var identity = function ( v ) { return v; };
 
 var Binding = NS.Class({
-
-    Mixin: NS.ComputedProps,
 
     __setupProperty__: function ( metadata, key ) {
         metadata.bindings[ key ] = this;
@@ -155,6 +157,16 @@ var Binding = NS.Class({
         this._fromRoot = null;
         this._toPath = null;
         this._toRoot = null;
+
+        this.fromObject = null;
+        this.fromPath = '';
+        this.fromPathBeforeKey = '';
+        this.fromKey = '';
+
+        this.toObject = null;
+        this.toPath = '';
+        this.toPathBeforeKey = '';
+        this.toKey = '';
 
         this.isTwoWay = false;
         this.transform = identity;
@@ -247,10 +259,6 @@ var Binding = NS.Class({
         The final component of the fromPath (the property name on the final
         object).
     */
-    fromKey: function () {
-        var fromPath = this.get( 'fromPath' );
-        return fromPath.slice( fromPath.lastIndexOf( '.' ) + 1 );
-    }.property( 'fromPath' ),
 
     /**
         Property: O.Binding#fromPathBeforeKey
@@ -258,11 +266,6 @@ var Binding = NS.Class({
 
         The dynamic 'from' path component before the final key.
     */
-    fromPathBeforeKey: function () {
-        var fromPath = this.get( 'fromPath' ),
-            lastDot = fromPath.lastIndexOf( '.' );
-        return ( lastDot === -1 ) ? null : fromPath.slice( 0, lastDot );
-    }.property( 'fromPath' ),
 
     /**
         Property: O.Binding#toObject
@@ -285,10 +288,6 @@ var Binding = NS.Class({
         The final component of the toPath (the property name on the final
         object).
     */
-    toKey: function () {
-        var toPath = this.get( 'toPath' );
-        return toPath.slice( toPath.lastIndexOf( '.' ) + 1 );
-    }.property( 'toPath' ),
 
     /**
         Property: O.Binding#toPathBeforeKey
@@ -296,11 +295,6 @@ var Binding = NS.Class({
 
         The dynamic 'to' path component before the final key.
     */
-    toPathBeforeKey: function () {
-        var toPath = this.get( 'toPath' ),
-            lastDot = toPath.lastIndexOf( '.' );
-        return ( lastDot === -1 ) ? null : toPath.slice( 0, lastDot );
-    }.property( 'toPath' ),
 
     // ------------
 
@@ -331,8 +325,8 @@ var Binding = NS.Class({
         _resolveRootAndPath(
             this, 'to', this._toPath, this._toRoot || this._fromRoot );
 
-        var fromObject = this.get( 'fromObject' ),
-            toObject = this.get( 'toObject' );
+        var fromObject = this.fromObject,
+            toObject = this.toObject;
 
         if ( toObject instanceof Element ) {
             this.queue = 'render';
@@ -346,15 +340,13 @@ var Binding = NS.Class({
             return this;
         }
 
-        fromObject.addObserverForPath(
-            this.get( 'fromPath' ), this, 'fromDidChange' );
+        fromObject.addObserverForPath( this.fromPath, this, 'fromDidChange' );
 
         // Grab initial value:
         this.sync();
 
-        if ( this.get( 'isTwoWay' ) ) {
-            toObject.addObserverForPath(
-                this.get( 'toPath' ), this, 'toDidChange' );
+        if ( this.isTwoWay ) {
+            toObject.addObserverForPath( this.toPath, this, 'toDidChange' );
         }
         this._isConnected = true;
         return this;
@@ -371,12 +363,12 @@ var Binding = NS.Class({
     disconnect: function () {
         if ( !this._isConnected ) { return this; }
 
-        this.get( 'fromObject' ).removeObserverForPath(
-            this.get( 'fromPath' ), this, 'fromDidChange' );
+        this.fromObject.removeObserverForPath(
+            this.fromPath, this, 'fromDidChange' );
 
-        if ( this.get( 'isTwoWay' ) ) {
-            this.get( 'toObject' ).removeObserverForPath(
-                this.get( 'toPath' ), this, 'toDidChange' );
+        if ( this.isTwoWay ) {
+            this.toObject.removeObserverForPath(
+                this.toPath, this, 'toDidChange' );
         }
 
         this._isConnected = false;
@@ -427,21 +419,6 @@ var Binding = NS.Class({
         A function which is applied to a value coming from one object before it
         is set on the other object.
     */
-
-    /**
-        Method: O.Binding#defaultValue
-
-        Helper method to set a transform which converts any falsy value to the
-        value supplied as the only parameter to this method.
-
-        Parameters:
-            value - {*} The default value to use.
-    */
-    defaultValue: function ( value ) {
-        return this.set( 'transform', function ( v ) {
-            return v !== undefined ? v : value;
-        });
-    },
 
     // ------------
 
@@ -522,21 +499,24 @@ var Binding = NS.Class({
         var syncForward = this._syncFromToTo,
             from = syncForward ? 'from' : 'to',
             to = syncForward ? 'to' : 'from',
-            path = this.get( to + 'PathBeforeKey' ),
-            toObj = this.get( to + 'Object' ),
+            pathBeforeKey = this[ to + 'PathBeforeKey' ],
+            toObject = this[ to + 'Object' ],
             key, value;
 
-        if ( path ) { toObj = toObj.getFromPath( path ); }
-        if ( !toObj ) { return false; }
+        if ( pathBeforeKey ) {
+            toObject = toObject.getFromPath( pathBeforeKey );
+        }
+        if ( !toObject ) {
+            return false;
+        }
 
-        key = this.get( to + 'Key' );
-        value = this.get( 'transform' ).call( this,
-            this.get( from + 'Object' )
-                .getFromPath( this.get( from + 'Path' ) ),
+        key = this[ to + 'Key' ];
+        value = this.transform.call( this,
+            this[ from + 'Object' ].getFromPath( this[ from + 'Path' ] ),
             syncForward
         );
         if ( value !== undefined ) {
-            toObj.set( key, value );
+            toObject.set( key, value );
         }
         return true;
     }
@@ -562,10 +542,12 @@ NS.Binding = Binding;
     Returns:
         {O.Binding} The new binding.
 */
-NS.bind = function ( path, root, transform ) {
-    return new Binding({
-        transform: transform || identity
-    }).from( path, root );
+var bind = NS.bind = function ( path, root, transform ) {
+    var binding = new Binding().from( path, root );
+    if ( transform ) {
+        binding.transform = transform;
+    }
+    return binding;
 };
 
 /**
@@ -588,10 +570,9 @@ NS.bind = function ( path, root, transform ) {
         {O.Binding} The new binding.
 */
 NS.bindTwoWay = function ( path, root, transform ) {
-    return new Binding({
-        isTwoWay: true,
-        transform: transform || identity
-    }).from( path, root );
+    var binding = bind( path, root, transform );
+    binding.isTwoWay = true;
+    return binding;
 };
 
 }( this.O, typeof Element !== undefined ? Element : function () {} ) );
