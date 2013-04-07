@@ -192,10 +192,22 @@ var meta = NS.meta = function ( object ) {
 */
 var guid = 0;
 NS.guid = function ( item ) {
-    var type = typeof item;
-    return ( type === 'object' || type === 'function' ) ?
-        item.__guid__ || ( item.__guid__ = '(id:' + ( guid += 1 ) + ')' ) :
-        '(' + type + ':' + item + ')';
+    if ( item === null ) {
+        return 'null';
+    }
+    switch ( typeof item ) {
+        case 'boolean':
+            return item ? 'true' : 'false';
+        case 'number':
+            return 'num:' + item.toString( 36 );
+        case 'string':
+            return 'str:' + item;
+        case 'undefined':
+            return item;
+    }
+    return item.__guid__ || ( item.__guid__ =
+        'id:' + ( guid += 1 ).toString( 36 )
+    );
 };
 
 /**
@@ -480,8 +492,8 @@ NS.sortByProperties = function ( properties ) {
                 }
                 if ( type === 'string' ) {
                     if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
-                        aVal = parseInt( aVal, 10 );
-                        bVal = parseInt( bVal, 10 );
+                        aVal = +aVal;
+                        bVal = +bVal;
                     } else {
                         aVal = aVal.toLowerCase();
                         bVal = bVal.toLowerCase();
