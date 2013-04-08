@@ -272,8 +272,11 @@ var MenuView = NS.Class({
     },
 
     didLeaveDocument: function () {
-        if ( !this.get( 'showFilter' ) ) {
-            this.get( 'controller' ).focusOption( null );
+        var controller = this.get( 'controller' );
+        if ( this.get( 'showFilter' ) ) {
+            controller.set( 'filter', '' );
+        } else {
+            controller.focusOption( null );
         }
         return MenuView.parent.didLeaveDocument.call( this );
     },
