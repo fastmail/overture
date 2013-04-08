@@ -10,16 +10,6 @@
 
 ( function ( NS ) {
 
-/*
-    If the browser doesn't support CSS Transitions, fall back to manual. We
-    don't bother implementing everything though. Unsupported:
-
-    Non-px units for length.
-    Colours.
-    String values.
-    Automatic reverse transitions.
-*/
-
 var matrix = /matrix\((.*?)\)/;
 var styleAnimators = {
     display: {
@@ -70,10 +60,46 @@ var supported = {
     opacity: 1
 };
 
+/**
+    Class: O.StyleAnimation
+
+    Extends: O.Animation
+
+    Animates the CSS styles of an element without using CSS transitions. This is
+    used in browsers that don't support CSS transitions, but could also be
+    useful if you want to animate an element using an easing method not
+    supported by CSS transitions.
+
+    Note, only the following CSS properties are currently supported by this
+    class (all others will be set immediately without transition):
+
+    * top
+    * right
+    * bottom
+    * left
+    * width
+    * height
+    * transform (values must be in matrix form)
+    * opacity
+*/
 var StyleAnimation = NS.Class({
 
     Extends: NS.Animation,
 
+    /**
+        Method (protected): O.StyleAnimation#prepare
+
+        Goes through the new styles for the element, works out which of these
+        can be animated, and caches the delta value (difference between end and
+        start value) for each one to save duplicated calculation when drawing a
+        frame.
+
+        Parameters:
+            styles - {Object} A map of style name to desired value.
+
+        Returns:
+            {Boolean} True if any of the styles are going to be animated.
+    */
     prepare: function ( styles ) {
         var animated = this.animated = [],
             from = this.startValue = this.current,
@@ -114,6 +140,15 @@ var StyleAnimation = NS.Class({
         return !!animated.length;
     },
 
+    /**
+        Method (protected): O.StyleAnimation#drawFrame
+
+        Updates the animating styles on the element to the interpolated values
+        at the position given.
+
+        Parameters:
+            position - {Number} The position in the animation.
+    */
     drawFrame: function ( position ) {
         var animated = this.animated,
             l = animated.length,

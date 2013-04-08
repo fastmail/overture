@@ -10,20 +10,81 @@
 
 ( function ( NS ) {
 
+/**
+    Mixin: O.AnimatableView
+
+    Mix this into an <O.View> class to automatically animate all changes to the
+    view's <O.View#layerStyles> property.
+*/
 NS.AnimatableView = {
 
+    /**
+        Property: O.AnimatableView#animateLayer
+        Type: Boolean
+        Default: true
+
+        If true, changes to the view's <O.View#layerStyles> property will be
+        animated. If false, the changes will be set without animation.
+    */
     animateLayer: true,
+
+    /**
+        Property: O.AnimatableView#animateLayerDuration
+        Type: Number
+        Default: 300
+
+        The length of time in milliseconds to animate changes to the view's
+        layer styles.
+    */
     animateLayerDuration: 300,
+
+    /**
+        Property: O.AnimatableView#animateLayerEasing
+        Type: Function
+        Default: O.Easing.ease
+
+        The easing function to use for the animation of the view's layer styles.
+    */
     animateLayerEasing: NS.Easing.ease,
 
+    /**
+        Property: O.AnimatableView#animating
+        Type: Number
+
+        The number of properties on the view currently being animated. Note,
+        <O.View#layerStyles> counts as a single property.
+    */
     animating: 0,
+
+    /**
+        Method: O.AnimatableView#willAnimate
+
+        This method is called by the <O.Animation> class when it begins
+        animating a property on the object. Increments the <#animating>
+        property.
+    */
     willAnimate: function () {
         this.increment( 'animating', 1 );
     },
+
+    /**
+        Method: O.AnimatableView#didAnimate
+
+        This method is called by the <O.Animation> class when it finshes
+        animating a property on the object. Decrements the <#animating>
+        property.
+    */
     didAnimate: function () {
         this.increment( 'animating', -1 );
     },
 
+    /**
+        Property: O.AnimatableView#layerAnimation
+        Type: O.CSSStyleAnimation|O.StyleAnimation
+
+        An appropriate animation object (depending on browser support) to
+        animate the layer styles. Automatically generated when first accessed.
+    */
     layerAnimation: function () {
         var Animation = NS.UA.cssProps.transition ?
             NS.CSSStyleAnimation : NS.StyleAnimation;
@@ -33,6 +94,16 @@ NS.AnimatableView = {
         });
     }.property(),
 
+    /**
+        Method: O.AnimatableView#redrawLayerStyles
+
+        Overrides <O.View#redrawLayerStyles> to animate the change in styles
+        instead of setting them immediately.
+
+        Parameters:
+            layer     - {Element} The view's layer.
+            oldStyles - {Object|null} The previous layer styles for the view.
+    */
     redrawLayerStyles: function ( layer, oldStyles ) {
         var newStyles = this.get( 'layerStyles' ),
             layerAnimation = this.get( 'layerAnimation' ),

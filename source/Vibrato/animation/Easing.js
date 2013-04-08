@@ -10,6 +10,23 @@
 
 ( function ( NS ) {
 
+/**
+    Function (private): O.Easing-cubicBezier
+
+    Returns a function that, for the given cubic bezier control points, returns
+    the y position given an x position. p0 is presumed to be (0,0) an p3 is
+    presumed to be (1,1).
+
+    Parameters:
+        p1x - {Number} The x-coordinate for point 1.
+        p1y - {Number} The y-coordinate for point 1.
+        p2x - {Number} The x-coordinate for point 2.
+        p2y - {Number} The y-coordinate for point 2.
+
+    Returns:
+        {Function} A function representing the cubic bezier with the points
+        given.
+*/
 var cubicBezier = function ( p1x, p1y, p2x, p2y ) {
     // Calculate constants in parametric bezier formular
     // http://www.moshplant.com/direct-or/bezier/math.html
@@ -53,15 +70,86 @@ var cubicBezier = function ( p1x, p1y, p2x, p2y ) {
     });
 };
 
+/**
+    Object: O.Easing
 
+    Holds functions emulating the standard CSS easing functions.
+*/
 NS.Easing = {
+    /**
+        Function: O.Easing#linear
+
+        Linear easing.
+
+        Parameters:
+            n - {Number} A number between 0 and 1 representing the current
+                position in the animation.
+
+        Returns:
+            {Number} The position along the animation path (between 0 and 1).
+    */
     linear: function ( n ) {
         return n;
     }.extend({ cssName: 'linear' }),
 
+    /**
+        Function: O.Easing#ease
+
+        Equivalent to the CSS ease transition, a cubic bezier curve with control
+        points (0.25, 0.1) and (0.25, 1).
+
+        Parameters:
+            n - {Number} A number between 0 and 1 representing the current
+                position in the animation.
+
+        Returns:
+            {Number} The position along the animation path (between 0 and 1).
+    */
     ease: cubicBezier( 0.25, 0.1, 0.25, 1 ),
+
+    /**
+        Function: O.Easing#easeIn
+
+        Equivalent to the CSS easeIn transition, a cubic bezier curve with
+        control points (0.42, 0) and (1, 1).
+
+        Parameters:
+            n - {Number} A number between 0 and 1 representing the current
+                position in the animation.
+
+        Returns:
+            {Number} The position along the animation path (between 0 and 1).
+    */
     easeIn: cubicBezier( 0.42, 0, 1, 1 ),
+
+    /**
+        Function: O.Easing#easeOut
+
+        Equivalent to the CSS easeOut transition, a cubic bezier curve with
+        control points (0, 0) and (0.58, 1).
+
+        Parameters:
+            n - {Number} A number between 0 and 1 representing the current
+                position in the animation.
+
+        Returns:
+            {Number} The position along the animation path (between 0 and 1).
+    */
     easeOut: cubicBezier( 0, 0, 0.58, 1 ),
+
+    /**
+        Function: O.Easing#easeInOut
+
+        Equivalent to the CSS easeInOut transition, a cubic bezier curve with
+        control points (0.42, 0) and (0.58, 1).
+
+        Parameters:
+            n - {Number} A number between 0 and 1 representing the current
+                position in the animation.
+
+        Returns:
+            {Number} The position along the animation path (between 0 and 1).
+    */
     easeInOut: cubicBezier( 0.42, 0, 0.58, 1 )
 };
 
