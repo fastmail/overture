@@ -377,9 +377,7 @@ NS.ComputedProps = {
         Gets the value of the named property on this object. If there is an
         accessor function for this property it will call that rather than just
         returning the function. Values will be cached for efficient subsequent
-        retrieval unless the accessor function is marked volatile. If the key
-        supplied does not corresond to a property defined on the object, the
-        value of getUnknownProperty( key ) is returned instead.
+        retrieval unless the accessor function is marked volatile.
 
         Parameters:
             key - {String} The name of the property to fetch.
@@ -388,9 +386,6 @@ NS.ComputedProps = {
             {*} The value of the property.
     */
     get: function ( key ) {
-        if ( !( key in this ) ) {
-            return this.getUnknownProperty( key );
-        }
         var value = this[ key ],
             cache;
         if ( value && value.isProperty ) {
@@ -418,22 +413,6 @@ NS.ComputedProps = {
     */
     getFromPath: function ( path ) {
         return getFromPath( path, this );
-    },
-
-    /**
-        Method (protected): O.ComputedProps#getUnknownProperty
-
-        Called by the get function if an unknown key is retrieved. By default
-        returns undefined, but can be overridden to return anything.
-
-        Parameters:
-            key - {String} The name of the property to fetch.
-
-        Returns:
-            {undefined}
-    */
-    getUnknownProperty: function ( key ) {
-        return undefined;
     },
 
     /**
