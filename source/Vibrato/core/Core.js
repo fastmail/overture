@@ -128,6 +128,7 @@ if ( typeof module === 'object' ) {
 */
 
 var Metadata = function ( object ) {
+    this.object = object;
     this.dependents = {};
     this.allDependents = {};
     this.cache = {};
@@ -137,7 +138,6 @@ var Metadata = function ( object ) {
     this.pathObservers = {};
     this.bindings = {};
     this.inits = {};
-    this.object = object;
     this.isInitialised = false;
 
     object.__meta__ = this;
@@ -156,6 +156,7 @@ var meta = NS.meta = function ( object ) {
         // is copied on write (and the allDependents then reset and
         // calculated separately for the object).
         data = Object.create( data );
+        data.object = object;
 
         // The cache should always be separate.
         data.cache = {};
@@ -172,7 +173,7 @@ var meta = NS.meta = function ( object ) {
         data.depth = 0;
         data.bindings = Object.create( data.bindings );
         data.inits = Object.create( data.inits );
-        data.object = object;
+
         object.__meta__ = data;
     }
     return data;
