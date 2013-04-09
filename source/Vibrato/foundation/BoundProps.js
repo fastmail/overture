@@ -13,6 +13,13 @@
 var meta = NS.meta;
 var bindingKey = '__binding__';
 
+/**
+    Mixin: O.BoundProps
+
+    The BoundProps mixin provides support for initialising bound properties
+    inherited from the prototype, and for suspending/resuming bindings on the
+    object.
+*/
 NS.BoundProps = {
     /**
         Method: O.BoundProps#initBindings

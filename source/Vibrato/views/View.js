@@ -78,11 +78,11 @@ var canTransform = !!NS.UA.cssProps.transform,
     ### The rendering pipeline ###
 
     A view is automatically rendered just before being inserted into the
-    document; it is rare you will need to call View#render() from custom code,
+    document; it is rare you will need to call <O.View#render> from custom code,
     unless writing views with custom insertion methods. The role of the render
     method is to ensure that the underlying DOM representation of the view has
     been created; by default it creates the layer (the root DOM node for the
-    view), and passes it to the View#draw() method. This is the one you will
+    view), and passes it to the <O.View#draw> method. This is the one you will
     normally override to draw your own view. You must ensure that as part of
     this, all child views are also rendered; the default version of the method
     is simply to call render() on each of the child views and append them to the
@@ -102,18 +102,18 @@ var canTransform = !!NS.UA.cssProps.transform,
 
     A View corresponds to a single DOM node; you will often then draw to this,
     both directly and by inserting sub-views. You are free to implement the
-    draw() method which does this in any way you like, however it is
-    recommended to make use of O.Element.create to write your template in
+    <#draw> method which does this in any way you like, however it is
+    recommended to make use of <O.Element.create> to write your template in
     JavaScript, as in the example above. This makes it easy to use bindings and
     insert other subviews directly.
 
     ### Updating for changes ###
 
     A view is often used to represent a piece of mutable data. In this case, you
-    want to be keep the view in sync with the underlying data. This is easy to
-    do using standard bindings; you can bind any property of the DOM. You can
-    also include sub views just like normal DOM children. For form controls,
-    which need to synchronise in two directions, use the wrapper views, like
+    want to keep the view in sync with the underlying data. This is easy to do
+    using standard bindings; you can bind any property of the DOM. You can also
+    include sub views just like normal DOM children. For form controls, which
+    need to synchronise in two directions, use the wrapper views, like
     O.CheckboxView etc. For example:
 
         new O.View({
@@ -145,8 +145,8 @@ var canTransform = !!NS.UA.cssProps.transform,
     ### Events ###
 
     All events are handled very efficiently by delegation. You can register
-    methods that should be invoked on certain events by calling the 'on' method
-    on the method function. For example:
+    methods that should be invoked on certain events by calling the
+    <Function#on> method. For example:
 
         new O.View({
             alert: function ( event ) {

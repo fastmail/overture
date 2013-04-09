@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------- \\
-// File: LiveQuery.js                                                        \\
+// File: LiveQuery.js                                                         \\
 // Module: DataStore                                                          \\
 // Requires: Core, Foundation, Status.js                                      \\
 // Author: Neil Jenkins                                                       \\

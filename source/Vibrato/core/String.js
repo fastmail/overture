@@ -214,7 +214,7 @@ String.implement({
         Method: String#trim
 
         Returns the string with any white space at the beginning and end
-        removed. Implementation by Stven Levithan:
+        removed. Implementation by Steven Levithan:
         <http://blog.stevenlevithan.com/archives/faster-trim-javascript>
 
         Returns:

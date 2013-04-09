@@ -16,7 +16,7 @@ var isOperaMini = !!NS.UA.operaMini;
 var nativePlaceholder = !isOperaMini &&
         'placeholder' in document.createElement( 'input' );
 
- /**
+/**
     Class: O.TextView
 
     Extends: O.AbstractControlView
