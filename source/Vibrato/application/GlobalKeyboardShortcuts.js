@@ -160,18 +160,24 @@ var GlobalKeyboardShortcuts = NS.Class({
    */
     _trigger: function ( event ) {
         var target = event.target,
-            nodeName = target.nodeName;
-        if ( ( nodeName === 'TEXTAREA' ||
+            nodeName = target.nodeName,
+            isSpecialKey = event.ctrlKey || event.metaKey,
+            handler = null,
+            key;
+        if ( !isSpecialKey && ( nodeName === 'TEXTAREA' ||
                 ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
                 ( event.targetView instanceof NS.RichTextView )
-             ) && !( event.ctrlKey || event.metaKey ) ) {
+             ) ) {
             return;
         }
-        var key = NS.DOMEvent.lookupKey( event ),
-            isSpecialKey = ( key.lastIndexOf( '-' ) + 2 < key.length ),
-            // Handle special keys on keydown, character keys on keypress
-            handler = ( event.type === 'keydown' ) === isSpecialKey ?
-                this.getHandlerForKey( key ) : null;
+        key = NS.DOMEvent.lookupKey( event );
+        if ( !isSpecialKey ) {
+            isSpecialKey = ( key.lastIndexOf( '-' ) + 2 < key.length );
+        }
+        // Handle special keys on keydown, character keys on keypress
+        if ( ( event.type === 'keydown' ) === isSpecialKey ) {
+            handler = this.getHandlerForKey( key );
+        }
         if ( handler ) {
             handler[0][ handler[1] ]( event );
             event.preventDefault();
