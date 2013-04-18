@@ -183,8 +183,10 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         var filename = input.replace( /.*\//, '' );
         
         data = data.replace( /url\(\s*["']?(.*?)["']?\s*\)/g,
-                    function ( _, img ) {
-               return 'url(' + img.replace( /.*\//g, '' ) + ')';
+                    function ( original, img ) {
+               return /data:/.test( img ) ?
+                    original :
+                    'url(' + img.replace( /.*\//g, '' ) + ')';
         });
         data = csstools.minify( data );
         module += themeManager;
