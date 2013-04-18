@@ -31,6 +31,8 @@ var RootView = NS.Class({
 
     Extends: NS.View,
 
+    syncOnlyInDocument: false,
+
     layer: null,
 
     init: function ( node, mixin ) {
