@@ -20,7 +20,7 @@
 var slice = Array.prototype.slice,
     meta = NS.meta;
 
-var makeComputedDidChange = function( key ) {
+var makeComputedDidChange = function ( key ) {
     return function () {
         this.computedPropertyDidChange( key );
     };
