@@ -46,8 +46,10 @@ var ModalEventHandler = NS.Class({
     handleMouse: function ( event ) {
         var type = event.type,
             view;
-        if ( !this.inView( event ) ) {
-            event.stopPropagation();
+        event.stopPropagation();
+        if ( this.inView( event ) ) {
+            event.targetView.fire( type, event );
+        } else {
             if ( type === 'mousedown' || type === 'tap' ) {
                 this._seenMouseDown = true;
             } else if ( type === 'click' ) {
@@ -63,8 +65,10 @@ var ModalEventHandler = NS.Class({
     }.on( 'click', 'mousedown', 'mouseup', 'tap' ),
 
     handleKeys: function ( event ) {
-        if ( !this.inView( event ) ) {
-            event.stopPropagation();
+        event.stopPropagation();
+        if ( this.inView( event ) ) {
+            event.targetView.fire( event.type, event );
+        } else {
             // View may be interested in key events:
             var view = this.get( 'view' );
             if ( view.keyOutside ) {
