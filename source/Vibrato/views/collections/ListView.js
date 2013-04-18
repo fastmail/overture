@@ -119,8 +119,8 @@ var ListView = NS.Class({
 
     // -----------------------------------------------------------------------
 
-    isCorrectItemView: function () {
-        return true;
+    isCorrectItemView: function ( view, item ) {
+        return view.get( 'content' ) === item;
     },
 
     createItemView: function ( content, index, list, isAdded ) {
@@ -177,8 +177,7 @@ var ListView = NS.Class({
             while ( dirtyEnd && l ) {
                 view = childViews[ l - 1 ];
                 item = list.getObjectAt( dirtyEnd - 1 );
-                if ( view.get( 'content' ) !== item ||
-                        !this.isCorrectItemView( view, item, dirtyEnd - 1 ) ) {
+                if ( !this.isCorrectItemView( view, item, dirtyEnd - 1 ) ) {
                     break;
                 }
                 lastExistingView = view;
@@ -188,8 +187,7 @@ var ListView = NS.Class({
             while ( dirtyStart < dirtyEnd && dirtyStart < l ) {
                 view = childViews[ dirtyStart ];
                 item = list.getObjectAt( dirtyStart );
-                if ( view.get( 'content' ) !== item ||
-                        !this.isCorrectItemView( view, item, dirtyStart ) ) {
+                if ( !this.isCorrectItemView( view, item, dirtyStart ) ) {
                     break;
                 }
                 dirtyStart += 1;
