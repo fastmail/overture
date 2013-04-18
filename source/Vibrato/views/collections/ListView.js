@@ -139,6 +139,32 @@ var ListView = NS.Class({
         view.destroy();
     },
 
+    calculateDirtyRange: function ( list, start, end ) {
+        var lastExistingView = null,
+            childViews = this.get( 'childViews' ),
+            l = childViews.length,
+            view, item;
+        while ( end && l ) {
+            view = childViews[ l - 1 ];
+            item = list.getObjectAt( end - 1 );
+            if ( !this.isCorrectItemView( view, item, end - 1 ) ) {
+                break;
+            }
+            lastExistingView = view;
+            l -= 1;
+            end -= 1;
+        }
+        while ( start < end && start < l ) {
+            view = childViews[ start ];
+            item = list.getObjectAt( start );
+            if ( !this.isCorrectItemView( view, item, start ) ) {
+                break;
+            }
+            start += 1;
+        }
+        return [ start, end, lastExistingView ];
+    },
+
     redrawLayer: function ( layer ) {
         var list = this.get( 'content' ) || [],
 
@@ -149,9 +175,7 @@ var ListView = NS.Class({
             start = Math.max( 0, renderRange.start ),
             end = Math.min( list.get( 'length' ), renderRange.end ),
 
-            childViews,
-            dirtyStart = start,
-            dirtyEnd = end,
+            dirty, dirtyStart, dirtyEnd,
             lastExistingView = null,
 
             // Set of already rendered views.
@@ -172,26 +196,10 @@ var ListView = NS.Class({
         // have to remove existing views from the DOM. To optimise this, we
         // check from both ends whether the views are already correct.
         if ( renderInOrder ) {
-            childViews = this.get( 'childViews' );
-            l = childViews.length;
-            while ( dirtyEnd && l ) {
-                view = childViews[ l - 1 ];
-                item = list.getObjectAt( dirtyEnd - 1 );
-                if ( !this.isCorrectItemView( view, item, dirtyEnd - 1 ) ) {
-                    break;
-                }
-                lastExistingView = view;
-                l -= 1;
-                dirtyEnd -= 1;
-            }
-            while ( dirtyStart < dirtyEnd && dirtyStart < l ) {
-                view = childViews[ dirtyStart ];
-                item = list.getObjectAt( dirtyStart );
-                if ( !this.isCorrectItemView( view, item, dirtyStart ) ) {
-                    break;
-                }
-                dirtyStart += 1;
-            }
+            dirty = this.calculateDirtyRange( list, start, end ),
+            dirtyStart = dirty[0];
+            dirtyEnd = dirty[1];
+            lastExistingView = dirty[2];
         }
 
         // Get list to be rendered.
@@ -206,8 +214,7 @@ var ListView = NS.Class({
                 view = null;
             }
             if ( !view ) {
-                isAdded = added && item ?
-                    added[ item.get( 'id' ) ] : false;
+                isAdded = added && item ? added[ item.get( 'id' ) ] : false;
                 view = this.createItemView( item, i, list, isAdded );
                 if ( view ) {
                     rendered[ id ] = view;
