@@ -10,68 +10,6 @@
 
 ( function ( NS ) {
 
-var PopOverEventHandler = NS.Class({
-
-    Extends: NS.Object,
-
-    inPopOver: function ( event ) {
-        var view = event.targetView,
-            popOver = this._view;
-        while ( view && view !== popOver ) {
-            view = view.get( 'parentView' );
-        }
-        return !!view;
-    },
-
-    _seenMouseDown: false,
-
-    // If a user clicks outside the menu we want to close it. But we don't want
-    // the mousedown/mouseup/click events to propagate to what's below. The
-    // events fire in that order, and not all are guaranteed to fire (the user
-    // could mousedown and drag their mouse out of the window before releasing
-    // it or vica versa. If there is a drag in between mousedown and mouseup,
-    // the click event won't fire).
-    //
-    // The safest to hide on is click, as we know there are no more events from
-    // this user interaction which we need to capture, and it also means the
-    // user has clicked and released outside the pop over; a decent indication
-    // we should close it. However, if the pop over was triggered on mousedown
-    // we may still see a mouseup and a click event from this initial user
-    // interaction, but these musn't hide the view. Therefore, we make sure
-    // we've seen at least one mousedown event after the popOver view shows
-    // before hiding on click.
-    handleMouse: function ( event ) {
-        var type = event.type;
-        if ( !this.inPopOver( event ) ) {
-            event.stopPropagation();
-            if ( type === 'mousedown' || type === 'tap' ) {
-                this._seenMouseDown = true;
-            } else if ( type === 'click' ) {
-                event.preventDefault();
-                if ( this._seenMouseDown ) {
-                    this._view.hide();
-                }
-            }
-        }
-    }.on( 'click', 'mousedown', 'mouseup', 'tap' ),
-
-    handleKeys: function ( event ) {
-        if ( !this.inPopOver( event ) ) {
-            event.stopPropagation();
-            // Pop over view may be interested in key events:
-            var view = this._view;
-            while ( view.hasSubView() ) {
-                view = view.get( 'subPopOverView' );
-            }
-            view._options.view.fire( event.type, event );
-            if ( event.type === 'keydown' &&
-                    NS.DOMEvent.lookupKey( event ) === 'esc' ) {
-                view.hide();
-            }
-        }
-    }.on( 'keypress', 'keydown', 'keyup' )
-});
-
 var PopOverView = NS.Class({
 
     Extends: NS.View,
@@ -276,8 +214,24 @@ var PopOverView = NS.Class({
 
     eventHandler: function () {
         return this.get( 'parentPopOverView' ) ?
-            null : new PopOverEventHandler({ _view: this });
+            null : new NS.ModalEventHandler({ view: this });
     }.property(),
+
+    clickedOutside: function () {
+        this.hide();
+    },
+
+    keyOutside: function ( event ) {
+        var view = this;
+        while ( view.hasSubView() ) {
+            view = view.get( 'subPopOverView' );
+        }
+        view._options.view.fire( event.type, event );
+        if ( event.type === 'keydown' &&
+                NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+            view.hide();
+        }
+    },
 
     stopEvents: function ( event ) {
         event.stopPropagation();

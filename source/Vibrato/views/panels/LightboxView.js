@@ -393,7 +393,7 @@ var LightboxView = NS.Class({
         this._rootView.insertView( this );
 
         // Capture events
-        NS.ViewEventsController.queueEventTarget( this );
+        NS.ViewEventsController.pushEventTarget( this.get( 'eventHandler' ) );
 
         // Now, fade in gradient background and views.
         this.set( 'isActive', true );
@@ -404,7 +404,7 @@ var LightboxView = NS.Class({
         this._shortcuts.set( 'isEnabled', this._kbEnabled );
 
         // Stop capturing events
-        NS.ViewEventsController.removeEventTarget( this );
+        NS.ViewEventsController.removeEventTarget( this.get( 'eventHandler' ) );
 
         // Fade out gradient background and views.
         // Item view will call removeFromDocument after animation.
@@ -436,6 +436,20 @@ var LightboxView = NS.Class({
     }.property().nocache(),
 
     // Actions
+
+    eventHandler: function () {
+        return new NS.ModalEventHandler({ view: this });
+    }.property(),
+
+    clickedOutside: function () {
+        this.close();
+    },
+
+    keyOutside: function ( event ) {
+        if ( event.type === 'keydown' ) {
+            this.keyboardShortcuts( event );
+        }
+    },
 
     keyboardShortcuts: function ( event ) {
         switch ( NS.DOMEvent.lookupKey( event ) ) {

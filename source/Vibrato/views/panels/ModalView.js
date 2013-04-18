@@ -10,18 +10,6 @@
 
 ( function ( NS ) {
 
-var ModalViewEventHandler = NS.Class({
-
-    Extends: NS.Object,
-
-    stopKeyPropagation: function ( event ) {
-        if ( event.phase === 'views' || !NS.Element.contains(
-                this._view.get( 'layer' ), event.target ) ) {
-            event.stopPropagation();
-        }
-    }.on( 'keydown', 'keypress', 'keyup' )
-});
-
 var ModalView = NS.Class({
 
     Extends: NS.View,
@@ -47,11 +35,7 @@ var ModalView = NS.Class({
     title: '',
 
     eventHandler: function () {
-        return new ModalViewEventHandler({ _view: this });
-    }.property(),
-
-    nextEventTarget: function () {
-        return this.get( 'eventHandler' );
+        return new NS.ModalEventHandler({ view: this });
     }.property(),
 
     didEnterDocument: function () {
@@ -85,7 +69,12 @@ var ModalView = NS.Class({
         if ( !relativeNode ) { relativeNode = this._container; }
         return ModalView.parent.insertView.call(
             this, view, relativeNode, where );
-    }
+    },
+
+    stopEvents: function ( event ) {
+        event.stopPropagation();
+    }.on( 'click', 'mousedown', 'mouseup',
+        'keypress', 'keydown', 'keyup', 'tap' )
 });
 
 NS.ModalView = ModalView;
