@@ -133,7 +133,10 @@ var cssNoPx = {
 */
 var styleNames = ( function () {
     var styles = NS.UA.cssProps,
-        styleNames = {},
+        styleNames = {
+            'float': document.body.style.cssFloat !== undefined ?
+                'cssFloat' : 'styleFloat'
+        },
         property, style;
     for ( property in styles ) {
         style = styles[ property ];
@@ -536,6 +539,39 @@ NS.Element = {
         }
         return position;
     }
+};
+
+/**
+    Function: Object.toCSSString
+
+    Converts an object into a String of 'key:value' pairs, delimited by ';'.
+    Keys are converted from camel case to hyphenated format and numerical
+    values are converted to strings with a 'px' suffix.
+
+    Parameters:
+        object - {Object} The object of CSS properties.
+
+    Returns:
+        {String} The CSS string.
+*/
+Object.toCSSString = function ( object ) {
+    var result = '',
+        key, value;
+    for ( key in object ) {
+        value = object[ key ];
+        if ( value !== undefined ) {
+            if ( typeof value === 'number' && !cssNoPx[ key ] ) {
+                value += 'px';
+            }
+            key = key.hyphenate();
+            key = NS.UA.cssProps[ key ] || key;
+            result += key;
+            result += ':';
+            result += value;
+            result += ';';
+        }
+    }
+    return result;
 };
 
 }( this.O ) );

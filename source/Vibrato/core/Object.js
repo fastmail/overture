@@ -8,12 +8,7 @@
 
 "use strict";
 
-( function ( undefined ) {
-
-var cssNoPx = {
-    opacity: 1,
-    zIndex: 1
-};
+( function () {
 
 Object.extend({
     /**
@@ -191,37 +186,6 @@ Object.extend({
             obj[ keys[l] ] = values[l];
         }
         return obj;
-    },
-
-    /**
-        Function: Object.toCSSString
-
-        Converts an object into a String of 'key:value' pairs, delimited by ';'.
-        Keys are converted from camel case to hyphenated format and numerical
-        values are converted to strings with a 'px' suffix.
-
-        Parameters:
-            object - {Object} The object of CSS properties.
-
-        Returns:
-            {String} The CSS string.
-    */
-    toCSSString: function ( object ) {
-        var result = '',
-            key, value;
-        for ( key in object ) {
-            value = object[ key ];
-            if ( value !== undefined ) {
-                result += key.hyphenate();
-                result += ':';
-                result += value;
-                if ( typeof value === 'number' && !cssNoPx[ key ] ) {
-                    result += 'px';
-                }
-                result += ';';
-            }
-        }
-        return result;
     },
 
     /**

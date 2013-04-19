@@ -36,10 +36,7 @@ var ua = navigator.userAgent.toLowerCase(),
         opera: '-o-',
         safari: '-webkit-'
     },
-    cssProps = {
-        'float': document.body.style.cssFloat !== undefined ?
-            'cssFloat' : 'styleFloat'
-    };
+    cssProps = {};
 
 ( function () {
     var el = document.createElement( 'div' ),
