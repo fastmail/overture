@@ -116,7 +116,7 @@ var ToolbarView = NS.Class({
     registerConfig: function ( name, config ) {
         this._configs[ name ] = config;
         if ( this.get( 'config' ) === name ) {
-            this.propertyDidChange( 'config' );
+            this.computedPropertyDidChange( 'config' );
         }
         return this;
     },
