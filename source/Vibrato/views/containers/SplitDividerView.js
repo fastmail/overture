@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: SplitViewDivider.js                                                  \\
 // Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View, DragDrop                                 \\
+// Requires: Core, Foundation, View, DragDrop, SplitViewController.js         \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -10,6 +10,8 @@
 
 ( function ( NS ) {
 
+var VERTICAL = NS.SplitViewController.VERTICAL;
+
 /**
     Class: O.SplitDividerView
 
@@ -17,9 +19,9 @@
 
     Includes: O.Draggable
 
-    An O.SplitDividerView instance represents the divide between two panes in an
-    <O.SplitView> instance. It can be dragged to resize the static pane in the
-    split view.
+    An O.SplitDividerView instance represents the divide between two panes
+    controllered by an <O.SplitViewController> instance. It can be dragged to
+    resize the static pane in the split view.
 */
 var SplitDividerView = NS.Class({
 
@@ -48,46 +50,53 @@ var SplitDividerView = NS.Class({
     thickness: 10,
 
     /**
+        Property: O.SplitDividerView#controller
+        Type: O.SplitViewController
+
+        The controller for the split view.
+    */
+
+    /**
         Property: O.SplitDividerView#offset
         Type: Number
 
-        Bound two-way to the parent <O.SplitView#staticPaneLength>. Is the
-        distance from the edge of the split view that the split divider view
-        should be positioned.
+        Bound two-way to the <O.SplitViewController#staticPaneLength>. It is
+        the distance from the edge of the split view that the split divider
+        view should be positioned.
     */
-    offset: NS.bindTwoWay( 'parentView.staticPaneLength' ),
+    offset: NS.bindTwoWay( 'controller.staticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#min
         Type: Number
 
-        Bound to the parent <O.SplitView#minStaticPaneLength>.
+        Bound to the <O.SplitViewController#minStaticPaneLength>.
     */
-    min: NS.bind( 'parentView.minStaticPaneLength' ),
+    min: NS.bind( 'controller.minStaticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#max
         Type: Number
 
-        Bound to the parent <O.SplitView#maxStaticPaneLength>.
+        Bound to the <O.SplitViewController#maxStaticPaneLength>.
     */
-    max: NS.bind( 'parentView.maxStaticPaneLength' ),
+    max: NS.bind( 'controller.maxStaticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#direction
         Type: Number
 
-        Bound to the parent <O.SplitView#direction>.
+        Bound to the <O.SplitViewController#direction>.
     */
-    direction: NS.bind( 'parentView.direction' ),
+    direction: NS.bind( 'controller.direction' ),
 
     /**
         Property: O.SplitDividerView#flex
         Type: Number
 
-        Bound to the parent <O.SplitView#flex>.
+        Bound to the <O.SplitViewController#flex>.
     */
-    flex: NS.bind( 'parentView.flex' ),
+    flex: NS.bind( 'controller.flex' ),
 
     /**
         Property: O.SplitDividerView#anchor
@@ -97,8 +106,8 @@ var SplitDividerView = NS.Class({
         (top/left/bottom/right).
     */
     anchor: function () {
-        var flexTL = this.get( 'flex' ) === NS.SplitView.TOP_LEFT,
-            isVertical = this.get( 'direction' ) === NS.SplitView.VERTICAL;
+        var flexTL = this.get( 'flex' ) === NS.SplitViewController.TOP_LEFT,
+            isVertical = this.get( 'direction' ) === VERTICAL;
         return isVertical ?
             ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
     }.property( 'flex', 'direction' ),
@@ -122,7 +131,7 @@ var SplitDividerView = NS.Class({
     layout: function () {
         var thickness = this.get( 'thickness' ),
             styles;
-        if ( this.get( 'direction' ) === NS.SplitView.VERTICAL ) {
+        if ( this.get( 'direction' ) === VERTICAL ) {
             styles = {
                 top: 0,
                 bottom: 0,
@@ -147,8 +156,7 @@ var SplitDividerView = NS.Class({
     */
     dragStarted: function () {
         this._offset = this.get( 'offset' );
-        this._dir = ( this.get( 'direction' ) === NS.SplitView.VERTICAL ) ?
-            'x' : 'y';
+        this._dir = ( this.get( 'direction' ) === VERTICAL ) ? 'x' : 'y';
     },
 
     /**
