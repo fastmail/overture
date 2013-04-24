@@ -60,7 +60,12 @@ var ModalEventHandler = NS.Class({
                 }
             }
         }
-        event.seenByModal = true;
+        // The same event object will be used to fire the click event
+        // immediately afterwards. We want to handle that as well, so don't
+        // set the seen flag.
+        if ( type !== 'tap' ) {
+            event.seenByModal = true;
+        }
     }.on( 'click', 'mousedown', 'mouseup', 'tap' ),
 
     handleKeys: function ( event ) {
