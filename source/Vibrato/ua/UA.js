@@ -34,7 +34,8 @@ var ua = navigator.userAgent.toLowerCase(),
         firefox: '-moz-',
         msie: '-ms-',
         opera: '-o-',
-        safari: '-webkit-'
+        safari: '-webkit-',
+        other: '-webkit-'
     },
     cssProps = {};
 
