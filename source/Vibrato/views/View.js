@@ -1301,8 +1301,8 @@ var View = NS.Class({
 View.LAYOUT_FILL_PARENT = {
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%'
+    bottom: 0,
+    right: 0
 };
 
 View.POSITION_SAME = POSITION_SAME;
