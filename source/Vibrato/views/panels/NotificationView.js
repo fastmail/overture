@@ -11,7 +11,8 @@
 ( function ( NS, undefined ) {
 
 var hiddenLayout = {
-    top: 0
+    top: 0,
+    translateY: 0
 };
 
 var NotificationView = NS.Class({
@@ -34,6 +35,13 @@ var NotificationView = NS.Class({
     precedence: 0,
     timeout: 0,
 
+    hiddenLayout: hiddenLayout,
+    visibleLayout: function () {
+        return {
+            top: this.get( 'pxHeight' )
+        };
+    }.property(),
+
     text: '',
     html: '',
 
@@ -41,9 +49,7 @@ var NotificationView = NS.Class({
 
     show: function ( notificationsContainer ) {
         notificationsContainer.insertView( this );
-        this.set( 'layout', {
-            top: this.get( 'pxHeight' )
-        });
+        this.set( 'layout',  this.get( 'visibleLayout' ) );
         var timeout = this.get( 'timeout' );
         if ( timeout ) {
             this._timer =
@@ -59,7 +65,7 @@ var NotificationView = NS.Class({
         var layerAnimation = NS.meta( this ).cache.layerAnimation;
         if ( layerAnimation ) {
             layerAnimation.stop();
-            this.set( 'layout', hiddenLayout );
+            this.set( 'layout', this.get( 'hiddenLayout' ) );
         } else {
             this.detach();
         }
@@ -140,6 +146,8 @@ var NotificationContainerView = NS.Class({
 
     Extends: NS.View,
 
+    className: 'NotificationContainerView',
+
     showing: null,
 
     init: function ( mixin ) {
@@ -148,10 +156,6 @@ var NotificationContainerView = NS.Class({
     },
 
     positioning: 'absolute',
-    layout: {
-        bottom: '100%',
-        left: '50%'
-    },
 
     willShow: function ( notification ) {
         var showing = this.get( 'showing' );
