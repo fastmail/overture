@@ -314,24 +314,35 @@ var ScrollView = NS.Class({
         }
         return this.scrollTo(
             position.left + offset.x, position.top + offset.y, withAnimation );
-    },
-
-    // Need to make that we are not at the end, so that native scrolling on iOS
-    // always scrolls this div, not the parent.
-    _ensureTouchScroll: function ( event ) {
-        var scrollTop = this.get( 'scrollTop' ),
-            scrollLeft = this.get( 'scrollLeft' );
-        if ( !scrollTop ) {
-            this.scrollTo( scrollLeft, 1 );
-        } else if ( scrollTop + this.get( 'pxHeight' ) ===
-                this.get( 'layer' ).scrollHeight ) {
-            this.scrollTo( scrollLeft, scrollTop - 1 );
-        }
-        // Stop propagation so we can prevent scrolling of viewport if we want.
-        // Just add a touchstart handler to the root view that prevents default.
-        event.stopPropagation();
-    }.on( 'touchstart' )
+    }
 });
+
+if ( NS.UA.isIOS ) {
+    ScrollView.implement({
+        draw: function ( layer ) {
+            layer.appendChild( NS.Element.create( 'div', {
+                style: 'position:absolute;top:100%;left:0;width:1px;height:2px;'
+            }) );
+            ScrollView.parent.draw.call( this, layer );
+        },
+        // Need to make that we are not at the end, so that native scrolling on
+        // iOS always scrolls this div, not the parent.
+        _ensureTouchScroll: function ( event ) {
+            var scrollTop = this.get( 'scrollTop' ),
+                scrollLeft = this.get( 'scrollLeft' );
+            if ( !scrollTop ) {
+                this.scrollTo( scrollLeft, 1 );
+            } else if ( scrollTop + this.get( 'pxHeight' ) ===
+                    this.get( 'layer' ).scrollHeight ) {
+                this.scrollTo( scrollLeft, scrollTop - 1 );
+            }
+            // Stop propagation so we can prevent scrolling of viewport if we
+            // want. Just add a touchstart handler to the root view that
+            // prevents default.
+            event.stopPropagation();
+        }.on( 'touchstart' )
+    });
+}
 
 NS.ScrollView = ScrollView;
 
