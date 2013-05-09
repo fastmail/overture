@@ -78,7 +78,13 @@ var ModalEventHandler = NS.Class({
             }
         }
         event.seenByModal = true;
-    }.on( 'keypress', 'keydown', 'keyup' )
+    }.on( 'keypress', 'keydown', 'keyup' ),
+
+    handleTouch: function ( event ) {
+        if ( !this.inView( event ) ) {
+            event.preventDefault();
+        }
+    }.on( 'touchstart' )
 });
 
 NS.ModalEventHandler = ModalEventHandler;
