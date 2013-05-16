@@ -674,7 +674,7 @@ var View = NS.Class({
                     }
                 }
                 value = transform[0];
-                if ( value ) {
+                if ( value !== 1 ) {
                     styles.width *= value;
                     styles.height *= value;
                 }
