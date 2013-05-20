@@ -224,15 +224,16 @@ var RichTextView = NS.Class({
     },
     _setToolbarPosition: function ( scrollView, toolbarView, isSticky ) {
         if ( isSticky ) {
-            var position = toolbarView.getPositionRelativeTo( scrollView );
+            var newParent = scrollView.get( 'parentView' ),
+                position = toolbarView.getPositionRelativeTo( newParent );
             toolbarView
                 .set( 'className', 'ToolbarView small RichTextToolbarView sticky' )
                 .set( 'layout', {
                     top: scrollView.get( 'pxTop' ),
-                    left: scrollView.get( 'pxLeft' ) + position.left,
+                    left: position.left,
                     width: toolbarView.get( 'pxWidth' )
                 });
-            scrollView.get( 'parentView' ).insertView( toolbarView );
+            newParent.insertView( toolbarView );
         } else {
             toolbarView
                 .set( 'className', 'ToolbarView small RichTextToolbarView' )
