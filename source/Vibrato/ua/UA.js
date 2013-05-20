@@ -19,7 +19,7 @@
 ( function ( NS ) {
 
 var ua = navigator.userAgent.toLowerCase(),
-    other = [ 'other', 0 ],
+    other = [ 'other', '0' ],
     platform = /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
         /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
         /android|webos/.exec( ua ) ||
