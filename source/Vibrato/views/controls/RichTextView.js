@@ -87,7 +87,7 @@ var RichTextView = NS.Class({
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.addObserverForKey(
-                    'scrollTop', this, '_setToolbarPosition' );
+                    'scrollTop', this, '_calcToolbarPosition' );
             }
         }
         return RichTextView.parent.didEnterDocument.call( this );
@@ -98,8 +98,10 @@ var RichTextView = NS.Class({
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.removeObserverForKey(
-                    'scrollTop', this, '_setToolbarPosition' );
+                    'scrollTop', this, '_calcToolbarPosition' );
             }
+            this._setToolbarPosition(
+                scrollView, this.get( 'toolbarView' ), false );
         }
         // As soon as the view is removed from the document, any editor
         // reference is no longer valid, as the iframe will have been unloaded.
@@ -193,12 +195,12 @@ var RichTextView = NS.Class({
         }
     }.on( 'input' ),
 
-    _setToolbarPosition: function ( scrollView, _, __, scrollTop ) {
+    _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
         var toolbarView = this.get( 'toolbarView' ),
             offsetHeight = this._offsetHeight,
             offsetTop = this._offsetTop,
             now = Date.now(),
-            wasSticky = toolbarView.get( 'positioning' ) === 'fixed',
+            wasSticky = toolbarView.get( 'parentView' ) !== this,
             isSticky, position;
 
         // For performance, cache the size and position for 1/2 second from last
@@ -216,27 +218,30 @@ var RichTextView = NS.Class({
             scrollTop < offsetTop + offsetHeight -
                 ( scrollView.get( 'pxHeight' ) >> 2 );
 
-        if ( isSticky && !wasSticky ) {
-            position = toolbarView.get( 'layer' ).getBoundingClientRect();
-            toolbarView
-                .set( 'className', 'ToolbarView small sticky' )
-                .set( 'positioning', 'fixed' )
-                .set( 'layout', {
-                    top: scrollView.get( 'layer' ).getBoundingClientRect().top,
-                    left: position.left,
-                    right: this.getParent( NS.RootView ).get( 'pxWidth' ) -
-                        position.right
-                });
+        if ( isSticky !== wasSticky ) {
+            this._setToolbarPosition( scrollView, toolbarView, isSticky );
         }
-        if ( !isSticky && wasSticky ) {
+    },
+    _setToolbarPosition: function ( scrollView, toolbarView, isSticky ) {
+        if ( isSticky ) {
+            var position = toolbarView.getPositionRelativeTo( scrollView );
             toolbarView
-                .set( 'className', 'ToolbarView small' )
-                .set( 'positioning', 'absolute' )
+                .set( 'className', 'ToolbarView small RichTextToolbarView sticky' )
+                .set( 'layout', {
+                    top: scrollView.get( 'pxTop' ),
+                    left: scrollView.get( 'pxLeft' ) + position.left,
+                    width: toolbarView.get( 'pxWidth' )
+                });
+            scrollView.get( 'parentView' ).insertView( toolbarView );
+        } else {
+            toolbarView
+                .set( 'className', 'ToolbarView small RichTextToolbarView' )
                 .set( 'layout', {
                     top: 0,
                     left: 0,
                     right: 0
                 });
+            this.insertView( toolbarView, null, 'top' );
         }
     },
 
@@ -260,7 +265,7 @@ var RichTextView = NS.Class({
             richTextView = this;
 
         return new NS.ToolbarView({
-            className: 'ToolbarView small',
+            className: 'ToolbarView small RichTextToolbarView',
             positioning: 'absolute',
             clipToBounds: true,
             zIndex: 1,
