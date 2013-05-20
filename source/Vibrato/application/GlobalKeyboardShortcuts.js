@@ -175,7 +175,7 @@ var GlobalKeyboardShortcuts = NS.Class({
             handler[0][ handler[1] ]( event );
             event.preventDefault();
         }
-    }.on( 'keypress', 'keydown' )
+    }.on( 'keypress' )
 });
 
 NS.GlobalKeyboardShortcuts = GlobalKeyboardShortcuts;
