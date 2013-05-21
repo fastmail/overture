@@ -13,6 +13,10 @@
 var Status = NS.Status,
     EMPTY = Status.EMPTY,
     READY = Status.READY,
+    // DIRTY => A preemptive update has been applied since the last fetch of
+    // updates from the server was *initiated*. Therefore, any update we receive
+    // may not cover all of the preemptives.
+    DIRTY = Status.DIRTY,
     // LOADING => An *update* is being fetched from the server
     LOADING = Status.LOADING,
     // OBSOLETE => The data on the server may have changed since the last update
@@ -858,7 +862,7 @@ var WindowedRemoteQuery = NS.Class({
         this._normaliseUpdate( update );
         this._applyUpdate( update, true );
         this._preemptiveUpdates.push( update );
-        return this;
+        return this.set( 'status', this.get( 'status' ) | DIRTY );
     },
 
     /**
@@ -938,11 +942,21 @@ var WindowedRemoteQuery = NS.Class({
 
         return function ( update ) {
             var state = this.get( 'state' ),
-                status = this.get( 'status' );
+                status = this.get( 'status' ),
+                preemptives = this._preemptiveUpdates,
+                l = preemptives.length,
+                allPreemptives, composed, i;
+
             // We've got an update, so we're no longer in the LOADING state.
             this.set( 'status', status & ~LOADING );
+
             // Check we've not already got this update.
             if ( state === update.newState ) {
+                if ( l && !( status & DIRTY ) ) {
+                    allPreemptives = preemptives.reduce( composeUpdates );
+                    this._applyUpdate( invertUpdate( allPreemptives ), true );
+                    preemptives.length = 0;
+                }
                 return this;
             }
             // We can only update from our old state.
@@ -956,10 +970,6 @@ var WindowedRemoteQuery = NS.Class({
             }
             // Set new state
             this.set( 'state', update.newState );
-
-            var preemptives = this._preemptiveUpdates,
-                l = preemptives.length,
-                composed, i;
 
             if ( !l ) {
                 this._applyUpdate( this._normaliseUpdate( update ) );
@@ -987,8 +997,7 @@ var WindowedRemoteQuery = NS.Class({
                 // need to search for the id in the current list then compose
                 // the result with the preemptive in order to get the original
                 // index.
-                var allPreemptives = composed[ l - 1 ],
-                    removed = update.removed,
+                var removed = update.removed,
                     _indexes = [],
                     _ids = [],
                     removedIndexes = [],
@@ -996,6 +1005,7 @@ var WindowedRemoteQuery = NS.Class({
                     list = this._list,
                     id, index, changed;
 
+                allPreemptives = composed[ l - 1 ];
                 for ( i = 0, l = removed.length; i < l; i += 1 ) {
                     id = removed[i];
                     index = allPreemptives.removedIds.indexOf( id );
@@ -1077,6 +1087,14 @@ var WindowedRemoteQuery = NS.Class({
                         this.get( 'store' )
                             .sourceHasUpdatesForRecords(
                                 this.get( 'Type' ), changed );
+                    }
+                    // If we aren't in the dirty state, we shouldn't have any
+                    // preemptive updates left. If we do, remove them.
+                    if ( !( status & DIRTY ) && preemptives.length ) {
+                        allPreemptives = preemptives.reduce( composeUpdates );
+                        this._applyUpdate(
+                            invertUpdate( allPreemptives ), true );
+                        preemptives.length = 0;
                     }
                     this._applyWaitingPackets();
                 } else {
@@ -1332,7 +1350,7 @@ var WindowedRemoteQuery = NS.Class({
 
         if ( refreshRequested || this.is( EMPTY ) ) {
             this.set( 'status',
-                ( this.get( 'status' )|LOADING ) & ~OBSOLETE );
+                ( this.get( 'status' )|LOADING ) & ~(OBSOLETE|DIRTY) );
         }
 
         return {
