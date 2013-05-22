@@ -391,6 +391,7 @@ var TextView = NS.Class({
         // If focussed, save cursor position
         if ( this.get( 'isFocussed' ) ) {
             this.set( 'savedSelection', this.get( 'selection' ) );
+            this.blur();
         }
         // Stop listening for scrolls:
         if ( this.get( 'isMultiline' ) ) {
