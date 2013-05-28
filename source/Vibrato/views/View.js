@@ -884,6 +884,10 @@ var View = NS.Class({
                 .set( 'scrollTop', top )
             .endPropertyChanges();
         event.stopPropagation();
+        // Don't interpret tap to stop scroll as a real tap.
+        if ( NS.Tap ) {
+            NS.Tap.cancel();
+        }
     }.on( 'scroll' ),
 
     /**
