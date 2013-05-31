@@ -11,8 +11,7 @@
 ( function ( NS, undefined ) {
 
 var hiddenLayout = {
-    top: 0,
-    transform: 'translate3d(0,0,0)'
+    top: 0
 };
 
 var NotificationView = NS.Class({
