@@ -196,9 +196,6 @@ var CSSStyleAnimation = NS.Class({
             value = styles[ property ];
             if ( value !== current[ property ] ) {
                 animating.push( property );
-                if ( property === 'transform' && canTransform3d ) {
-                    value += ' translateZ(0)';
-                }
                 setStyle( el, property, value );
             }
         }

@@ -170,14 +170,6 @@ var canTransform = !!NS.UA.cssProps.transform,
     frequently as you like; the underlying DOM node will be kept in sync. It is
     common to make className a computed property that updates depending on the
     state of the view.
-
-    The positioning property is set to 'absolute' by default. If you wish to use
-    'relative' or 'fixed' positioning for a view, this should be set as
-    appropriate. Height/width, position etc. should be specified in the 'layout'
-    property. By default the view is positioned at (0,0) in the parent view
-    co-ordinates and will fill the entire space. If the layout for this view is
-    to be set via a CSS file (in conjunction with the id/class of the view), you
-    should set the layout property to an empty object: `{}`.
 */
 
 var View = NS.Class({
@@ -301,7 +293,7 @@ var View = NS.Class({
         var layer = NS.Element.create( this.get( 'layerTag' ), {
             id: this.get( 'id' ),
             className: this.get( 'className' ),
-            styles: this.get( 'layerStyles' ),
+            style: Object.toCSSString( this.get( 'layerStyles' ) ),
             unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on'
         });
         this.didCreateLayer( layer );
@@ -513,95 +505,15 @@ var View = NS.Class({
     positioning: 'relative',
 
     /**
-        Property: O.View#clipToBounds
-        Type: Boolean
-        Default: false
-
-        Hide content that overflows the bounds of the root DOM element
-        representing this view?
-   */
-    clipToBounds: false,
-
-    /**
-        Property: O.View#showScrollbarX
-        Type: Boolean
-        Default: false
-
-        Show a scrollbar if the content horizontally overflows the bounds of the
-        root DOM element representing this view? Note, this only has an effect
-        if <O.View#clipToBounds> is set to true.
-    */
-    showScrollbarX: false,
-
-    /**
-        Property: O.View#showScrollbarY
-        Type: Boolean
-        Default: false
-
-        Show a scrollbar if the content vertically overflows the bounds of the
-        root DOM element representing this view? Note, this only has an effect
-        if <O.View#clipToBounds> is set to true.
-    */
-    showScrollbarY: false,
-
-    /**
         Property: O.View#layout
         Type: Object
         Default: {}
 
-        The CSS properties to use to layout an object. Any number values are
+        The CSS properties to apply to the view's layer. Any number values are
         presumed to be in 'px', any string values are presumed to have an
-        appropriate unit suffix. May contain any combination of:
-
-            top        - The distance from the top of the parent view to the top
-                         of this view.
-            right      - The distance from the right edge of the parent view to
-                         the right edge of this view.
-            bottom     - The distance from the bottom of the parent view to the
-                         bottom of this view.
-            left       - The distance from the left edge of the parent view to
-                         the left edge of this view.
-
-            width      - The width of the view.
-            height     - The height of the view.
-
-            translateX - Similar to the left property.
-            translateY - Similar to the top property.
-            scale      - Scale the view (1.0 is normal scale).
-
-        You must not specify more than 2 out of top/bottom/height and
-        left/right/width, as the third property will be calculated by the
-        browser.
-
-        The translate/scale properties will mostly be used when animating views.
-
-        Note, if you choose to position the view solely through the stylesheet,
-        or if the view is relatively positioned and laid out by the browser,
-        this property may be an empty object.
+        appropriate unit suffix.
     */
     layout: {},
-
-    /**
-        Property: O.View#opacity
-        Type: (Number|undefined)
-        Default: undefined
-
-        Opacity of the view. 1.0 is opaque, 0.0 is transparent. If undefined
-        (default), no opacity property is set on the view; this normally is the
-        same as 1.0 (opaque), unless there is a property in the stylesheet
-        setting the opacity on the element.
-    */
-    opacity: undefined,
-
-    /**
-        Property: O.View#zIndex
-        Type: (Number|undefined)
-        Default: undefined
-
-        The zIndex of the view. Must be an integer. Not set if undefined
-        (default), allowing the browser's default z-index values to be used.
-    */
-    zIndex: undefined,
 
     /**
         Property: O.View#layerStyles
@@ -613,79 +525,13 @@ var View = NS.Class({
         properties change.
     */
     layerStyles: function () {
-        var layout = this.get( 'layout' ),
-            allowTextSelection = this.get( 'allowTextSelection' ),
-            transform = [ 1, 0, 0, 1, 0, 0 ],
-            hasTransform = false,
-            styles = {
-                position: this.get( 'positioning' ),
-                zIndex: this.get( 'zIndex' ),
-                opacity: this.get( 'opacity' ),
-                cursor: allowTextSelection ? 'auto' : undefined,
-                userSelect: allowTextSelection ? 'text' : userSelectNone
-            },
-            property, value;
-
-        if ( this.get( 'clipToBounds' ) ) {
-            styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
-            styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
-        }
-
-        for ( property in layout ) {
-            value = layout[ property ];
-            switch ( property ) {
-                case 'translateX':
-                    hasTransform = true;
-                    transform[4] = value;
-                    break;
-                case 'translateY':
-                    hasTransform = true;
-                    transform[5] = value;
-                    break;
-                case 'scale':
-                    hasTransform = true;
-                    transform[0] = transform[3] = value;
-                    break;
-                default:
-                    styles[ property ] = value;
-            }
-        }
-
-        if ( hasTransform ) {
-            if ( canTransform ) {
-                styles.transform = 'matrix(' + transform.join( ',' ) + ')';
-            }
-            // <IE8>
-            else {
-                value = transform[4];
-                if ( value ) {
-                    if ( 'right' in styles ) {
-                        styles.right -= value;
-                    } else {
-                        styles.left = ( styles.left || 0 ) + value;
-                    }
-                }
-                value = transform[5];
-                if ( value ) {
-                    if ( 'bottom' in styles ) {
-                        styles.bottom -= value;
-                    } else {
-                        styles.top = ( styles.top || 0 ) + value;
-                    }
-                }
-                value = transform[0];
-                if ( value !== 1 ) {
-                    styles.width *= value;
-                    styles.height *= value;
-                }
-            }
-            // </IE8>
-        }
-
-        return styles;
-    }.property( 'layout', 'allowTextSelection', 'positioning',
-                'clipToBounds','showScrollbarX', 'showScrollbarY',
-                'opacity', 'zIndex' ),
+        var allowTextSelection = this.get( 'allowTextSelection' );
+        return NS.extend({
+            position: this.get( 'positioning' ),
+            cursor: allowTextSelection ? 'auto' : undefined,
+            userSelect: allowTextSelection ? 'text' : userSelectNone
+        }, this.get( 'layout' ) );
+    }.property( 'layout', 'allowTextSelection', 'positioning' ),
 
     /**
         Method: O.View#render
@@ -804,7 +650,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#redrawClassName
+        Method: O.View#redrawLayerStyles
 
         Sets the style attribute on the layer to match the layerStyles property
         of the view. Called automatically when the layerStyles property changes.
@@ -813,8 +659,7 @@ var View = NS.Class({
             layer - {Element} The view's layer.
     */
     redrawLayerStyles: function ( layer ) {
-        layer.style.cssText =
-            Object.toCSSString( this.get( 'layerStyles' ) );
+        layer.style.cssText = Object.toCSSString( this.get( 'layerStyles' ) );
         this.didResize();
     },
 

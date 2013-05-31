@@ -14,8 +14,6 @@ var InfoBubbleView = NS.Class({
 
     Extends: NS.View,
 
-    zIndex: 5000,
-
     isHidden: true,
     alignWithView: null,
     alignToThe: 'top',

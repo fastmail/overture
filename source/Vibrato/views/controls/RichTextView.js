@@ -268,9 +268,9 @@ var RichTextView = NS.Class({
         return new NS.ToolbarView({
             className: 'ToolbarView small RichTextToolbarView',
             positioning: 'absolute',
-            clipToBounds: true,
-            zIndex: 1,
             layout: {
+                overflow: 'hidden',
+                zIndex: 1,
                 top: 0,
                 left: 0,
                 right: 0

@@ -38,8 +38,7 @@ var styleAnimators = {
             var start = deltaValue.start, delta = deltaValue.delta;
             return 'matrix(' + start.map( function ( value, index ) {
                 return value + ( position * delta[ index ] );
-            }).join( ',' ) + ')' +
-            ( NS.UA.cssProps.transform3d ? ' translateZ(0)' : '' );
+            }).join( ',' ) + ')';
         }
     }
 };

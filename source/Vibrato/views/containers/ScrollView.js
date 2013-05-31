@@ -44,7 +44,7 @@ var ScrollAnimation = NS.Class({
 
     An O.ScrollView instance is a fixed size container, which can be scrolled if
     its contents overflows the bounds of the view. By default, a scrollbar will
-    only be shown for vertical overflow. Set the <O.View#showScrollbarX>
+    only be shown for vertical overflow. Set the <O.ScrollView#showScrollbarX>
     property to `true` to show a scrollbar on horizontal overflow as well.
 */
 var ScrollView = NS.Class({
@@ -60,21 +60,25 @@ var ScrollView = NS.Class({
     */
     className: 'ScrollView',
 
-    /**
-        Property: O.ScrollView#clipToBounds
-        Type: Boolean
-        Default: true
 
-        Overrides default in <O.View#clipToBounds>.
-   */
-    clipToBounds: true,
+    /**
+        Property: O.ScrollView#showScrollbarX
+        Type: Boolean
+        Default: false
+
+        Show a scrollbar if the content horizontally overflows the bounds of the
+        DOM element representing this view?
+    */
+    showScrollbarX: false,
+
     /**
         Property: O.ScrollView#showScrollbarY
         Type: Boolean
         Default: true
 
-        Overrides default in <O.View#showScrollbarY>.
-   */
+        Show a scrollbar if the content vertically overflows the bounds of the
+        DOM element representing this view?
+    */
     showScrollbarY: true,
 
     /**
@@ -100,6 +104,20 @@ var ScrollView = NS.Class({
         Overrides default in <O.View#layout>.
     */
     layout: NS.View.LAYOUT_FILL_PARENT,
+
+    /**
+        Property: O.ScrollView#layerStyles
+        Type: Object
+
+        Sets the overflow styles to show the scrollbars.
+    */
+    layerStyles: function () {
+        var styles = NS.View.prototype.layerStyles.call( this );
+        styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
+        styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
+        return styles;
+    }.property( 'layout', 'allowTextSelection', 'positioning',
+        'showScrollbarX', 'showScrollbarY' ),
 
     /**
         Property: O.ScrollView#keys

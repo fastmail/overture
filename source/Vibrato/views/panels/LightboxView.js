@@ -12,6 +12,9 @@
 
 ( function ( NS ) {
 
+var canTransform = !!NS.UA.cssProps.transform,
+    canTransform3d = !!NS.UA.cssProps.transform3d;
+
 var LightboxItemView = NS.Class({
 
     Extends: NS.View,
@@ -136,62 +139,108 @@ var LightboxItemView = NS.Class({
             width = dimensions.width,
             height = dimensions.height,
             frame = this.get( 'frameThickness' ),
-            thumb = this.get( 'thumbPosition' );
-
-        return {
-            width: width,
-            height: height,
-            // IE8 doesn't support bounds.(width|height)
-            translateX: Math.floor( thumb.left +
+            thumb = this.get( 'thumbPosition' ),
+            left = Math.floor( thumb.left +
                 ( thumb.right - thumb.left - width - frame ) / 2 ),
-            translateY: Math.floor( thumb.top +
+            top = Math.floor( thumb.top +
                 ( thumb.bottom - thumb.top - height - frame ) / 2 ),
-            scale: ( thumb.right - thumb.left ) / ( width + frame )
-        };
+            scale = ( thumb.right - thumb.left ) / ( width + frame ),
+            layout = canTransform ? {
+                width: width,
+                height: height,
+                transform:
+                    ( canTransform3d ?
+                    'translate3d(' + left + 'px,' + top + 'px,0) ' :
+                    'translate(' + left + 'px,' + top + 'px) '
+                    ) +
+                    'scale(' + scale + ')'
+            } : {
+                top: top,
+                left: left,
+                width: width * scale,
+                heigh: height * scale
+            };
+
+        return layout;
     }.property( 'dimensions', 'thumbPosition' ),
 
     centreLayout: function () {
         var dimensions = this.get( 'dimensions' ),
             width = dimensions.width,
             height = dimensions.height,
-            frame = this.get( 'frameThickness' );
+            frame = this.get( 'frameThickness' ),
+            left = ( dimensions.canvasWidth - width - frame ) >> 1,
+            top = ( dimensions.canvasHeight - height - frame ) >> 1,
+            layout = canTransform ? {
+                width: width,
+                height: height,
+                transform:
+                    ( canTransform3d ?
+                    'translate3d(' + left + 'px,' + top + 'px,0) ' :
+                    'translate(' + left + 'px,' + top + 'px) '
+                    )
+            } : {
+                top: top,
+                left: left,
+                width: width,
+                heigh: height
+            };
 
-        return {
-            width: width,
-            height: height,
-            translateX: ( dimensions.canvasWidth - width - frame ) >> 1,
-            translateY: ( dimensions.canvasHeight - height - frame ) >> 1
-        };
+        return layout;
     }.property( 'dimensions' ),
 
     leftLayout: function () {
         var dimensions = this.get( 'dimensions' ),
             width = dimensions.width,
             height = dimensions.height,
-            frame = this.get( 'frameThickness' );
+            frame = this.get( 'frameThickness' ),
+            left = -( width + frame ),
+            top = ( dimensions.canvasHeight - height - frame ) >> 1,
+            scale = 0.5,
+            layout = canTransform ? {
+                width: width,
+                height: height,
+                transform:
+                    ( canTransform3d ?
+                    'translate3d(' + left + 'px,' + top + 'px,0) ' :
+                    'translate(' + left + 'px,' + top + 'px) '
+                    ) +
+                    'scale(' + scale + ')'
+            } : {
+                top: top,
+                left: left,
+                width: width * scale,
+                heigh: height * scale
+            };
 
-        return {
-            width: dimensions.width,
-            height: dimensions.height,
-            translateX: -( width + frame ),
-            translateY: ( dimensions.canvasHeight - height - frame ) >> 1,
-            scale: 0.5
-        };
+        return layout;
     }.property( 'dimensions' ),
 
     rightLayout: function () {
         var dimensions = this.get( 'dimensions' ),
             width = dimensions.width,
             height = dimensions.height,
-            frame = this.get( 'frameThickness' );
+            frame = this.get( 'frameThickness' ),
+            left = dimensions.canvasWidth,
+            top = ( dimensions.canvasHeight - height - frame ) >> 1,
+            scale = 0.5,
+            layout = canTransform ? {
+                width: width,
+                height: height,
+                transform:
+                    ( canTransform3d ?
+                    'translate3d(' + left + 'px,' + top + 'px,0) ' :
+                    'translate(' + left + 'px,' + top + 'px) '
+                    ) +
+                    'scale(' + scale + ')'
+            } : {
+                top: top,
+                left: left,
+                width: width * scale,
+                heigh: height * scale
+            };
 
-        return {
-            width: width,
-            height: height,
-            translateX: dimensions.canvasWidth,
-            translateY: ( dimensions.canvasHeight - height - frame ) >> 1,
-            scale: 0.5
-        };
+        return layout;
     }.property( 'dimensions' ),
 
     // --- Event handling ---

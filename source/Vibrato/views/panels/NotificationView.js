@@ -12,7 +12,7 @@
 
 var hiddenLayout = {
     top: 0,
-    translateY: 0
+    transform: 'translate3d(0,0,0)'
 };
 
 var NotificationView = NS.Class({
@@ -94,7 +94,6 @@ var NotificationView = NS.Class({
         return this;
     },
 
-    zIndex: 10000,
     layout: hiddenLayout,
 
     draw: function ( layer ) {
