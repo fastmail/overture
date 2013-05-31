@@ -48,7 +48,7 @@ var NotificationView = NS.Class({
 
     show: function ( notificationsContainer ) {
         notificationsContainer.insertView( this );
-        this.set( 'layout',  this.get( 'visibleLayout' ) );
+        this._show();
         var timeout = this.get( 'timeout' );
         if ( timeout ) {
             this._timer =
@@ -56,6 +56,12 @@ var NotificationView = NS.Class({
         }
         return this.set( 'isShowing', true );
     },
+
+    _show: function () {
+        if ( this.get( 'isShowing' ) ) {
+            this.set( 'layout',  this.get( 'visibleLayout' ) );
+        }
+    }.later(),
 
     hide: function () {
         // If we don't have a layerAnimation object yet, we can't have animated
