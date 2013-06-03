@@ -67,10 +67,11 @@ var NotificationView = NS.Class({
         // If we don't have a layerAnimation object yet, we can't have animated
         // in, so just detach immediately. Otherwise, stop the current layer
         // animation, then animate out.
-        var layerAnimation = NS.meta( this ).cache.layerAnimation;
-        if ( layerAnimation ) {
+        var layerAnimation = NS.meta( this ).cache.layerAnimation,
+            hiddenLayout = this.get( 'hiddenLayout' );
+        if ( layerAnimation && this.get( 'layout' ) !== hiddenLayout ) {
             layerAnimation.stop();
-            this.set( 'layout', this.get( 'hiddenLayout' ) );
+            this.set( 'layout', hiddenLayout );
         } else {
             this.detach();
         }
@@ -86,7 +87,7 @@ var NotificationView = NS.Class({
         if ( !this.get( 'animating' ) && !this.get( 'isShowing' ) ) {
             this.detach();
         }
-    }.queue( 'render' ),
+    },
 
     detach: function () {
         this.get( 'parentView' )
@@ -97,7 +98,7 @@ var NotificationView = NS.Class({
             this.destroy();
         }
         return this;
-    },
+    }.queue( 'render' ),
 
     layout: hiddenLayout,
 
