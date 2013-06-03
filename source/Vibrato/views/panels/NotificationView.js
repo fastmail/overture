@@ -98,7 +98,7 @@ var NotificationView = NS.Class({
             this.destroy();
         }
         return this;
-    }.queue( 'render' ),
+    },
 
     layout: hiddenLayout,
 
