@@ -47,6 +47,9 @@ var NotificationView = NS.Class({
     _timer: null,
 
     show: function ( notificationsContainer ) {
+        if ( this.get( 'isShowing' ) ) {
+            this.hide( true );
+        }
         notificationsContainer.insertView( this );
         this._show();
         var timeout = this.get( 'timeout' );
@@ -63,23 +66,27 @@ var NotificationView = NS.Class({
         }
     }.later(),
 
-    hide: function () {
-        // If we don't have a layerAnimation object yet, we can't have animated
-        // in, so just detach immediately. Otherwise, stop the current layer
-        // animation, then animate out.
-        var layerAnimation = NS.meta( this ).cache.layerAnimation,
-            hiddenLayout = this.get( 'hiddenLayout' );
-        if ( layerAnimation && this.get( 'layout' ) !== hiddenLayout ) {
-            layerAnimation.stop();
-            this.set( 'layout', hiddenLayout );
-        } else {
-            this.detach();
+    hide: function ( doNotAnimate ) {
+        if ( this.get( 'isShowing' ) ) {
+            // If we don't have a layerAnimation object yet, we can't have
+            // animated in, so just detach immediately. Otherwise, stop the
+            // current layer animation, then animate out.
+            var layerAnimation = NS.meta( this ).cache.layerAnimation,
+                hiddenLayout = this.get( 'hiddenLayout' );
+            if ( !doNotAnimate && layerAnimation &&
+                    this.get( 'layout' ) !== hiddenLayout ) {
+                layerAnimation.stop();
+                this.set( 'layout', hiddenLayout );
+            } else {
+                this.detach();
+            }
+            if ( this._timer ) {
+                NS.RunLoop.cancel( this._timer );
+                this._timer = null;
+            }
+            this.set( 'isShowing', false );
         }
-        if ( this._timer ) {
-            NS.RunLoop.cancel( this._timer );
-            this._timer = null;
-        }
-        return this.set( 'isShowing', false );
+        return this;
     },
 
     didAnimate: function () {
