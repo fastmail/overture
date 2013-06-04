@@ -143,7 +143,7 @@ var ScrollView = NS.Class({
     keys: {},
 
     didEnterDocument: function () {
-        this.get( 'layer' ).addEventListener( 'scroll', this, false );
+        this.get( 'scrollLayer' ).addEventListener( 'scroll', this, false );
 
         // Add keyboard shortcuts:
         var keys = this.get( 'keys' ),
@@ -165,7 +165,7 @@ var ScrollView = NS.Class({
             shortcuts.deregister( key, this, keys[ key ] );
         }
 
-        this.get( 'layer' ).removeEventListener( 'scroll', this, false );
+        this.get( 'scrollLayer' ).removeEventListener( 'scroll', this, false );
 
         return ScrollView.parent.willLeaveDocument.call( this );
     },
@@ -174,7 +174,7 @@ var ScrollView = NS.Class({
         // Scroll is reset to 0 in some browsers whenever it is removed from the
         // DOM, so we need to set it to what it should be.
         if ( this.get( 'isInDocument' ) ) {
-            var layer = this.get( 'layer' );
+            var layer = this.get( 'scrollLayer' );
             layer.scrollLeft = this.get( 'scrollLeft' );
             layer.scrollTop = this.get( 'scrollTop' );
         }
@@ -293,7 +293,7 @@ var ScrollView = NS.Class({
         // Can only scroll when in the document; we'll scroll
         // on attachment anyway so just store the values otherwise.
         if ( this.get( 'isInDocument' ) ) {
-            var layer = this.get( 'layer' );
+            var layer = this.get( 'scrollLayer' );
             layer.scrollLeft = x;
             layer.scrollTop = y;
             // We don't know if they were greater than the max allowed value
@@ -332,42 +332,69 @@ var ScrollView = NS.Class({
         }
         return this.scrollTo(
             position.left + offset.x, position.top + offset.y, withAnimation );
-    }
+    },
+
+    scrollLayer: function () {
+        return this.get( 'layer' );
+    }.property( 'layer' ),
+
+    /**
+        Method (private): O.ScrollView#_onScroll
+
+        Parameters:
+            event - {Event} The scroll event object.
+
+        Updates the view properties when the layer scrolls.
+    */
+    _onScroll: function ( event ) {
+        var layer = this.get( 'scrollLayer' ),
+            left = layer.scrollLeft,
+            top = layer.scrollTop;
+        this.beginPropertyChanges()
+            .set( 'scrollLeft', left )
+            .set( 'scrollTop', top )
+            .endPropertyChanges();
+        event.stopPropagation();
+        // Don't interpret tap to stop scroll as a real tap.
+        if ( NS.Tap ) {
+            NS.Tap.cancel();
+        }
+    }.on( 'scroll' )
 });
 
 if ( NS.UA.isIOS ) {
     ScrollView.implement({
+        scrollLayer: null,
         draw: function ( layer ) {
-            var wrapper = NS.Element.create( 'div.ScrollViewContents', {
-                style: 'position:relative;top:0;left:0;width:100%;' +
-                    'min-height:100%;padding:1px 0;' +
-                    ( this.get( 'showScrollbarX' ) ? '' : 'overflow:hidden;' )
-            });
+            var el = NS.Element.create,
+                contents, wrapper;
+
+            wrapper = this.scrollLayer = el( 'div', {
+                style: 'position:relative;height:100%;overflow:auto;' +
+                    '-webkit-overflow-scrolling:touch;'
+            }, [
+                contents = el( 'div.ScrollViewContents', {
+                    style: 'position:relative;top:0;left:0;width:100%;' +
+                        'min-height:100%;padding:1px 0;' +
+                        ( this.get( 'showScrollbarX' ) ?
+                            '' : 'overflow:hidden;' )
+                }),
+                el( 'div', {
+                    style: 'position:absolute;top:100%;left: 0px;' +
+                        'width:1px;height:1px;'
+                })
+            ]);
             layer.appendChild( wrapper );
-            ScrollView.parent.draw.call( this, wrapper );
+            ScrollView.parent.draw.call( this, contents );
         },
         insertView: function ( view, relativeTo, where ) {
             if ( !relativeTo && this.get( 'isRendered' ) &&
                     where !== 'before' && where !== 'after' ) {
-                relativeTo = this.get( 'layer' ).firstChild;
+                relativeTo = this.get( 'scrollLayer' ).firstChild;
             }
             return ScrollView.parent.insertView.call(
                 this, view, relativeTo, where );
-        },
-        // Need to make that we are not at the end, so that native scrolling on
-        // iOS always scrolls this div, not the parent.
-        _ensureTouchScroll: function ( event ) {
-            if ( this.get( 'isInDocument' ) ) {
-                var scrollTop = this.get( 'scrollTop' ),
-                    scrollLeft = this.get( 'scrollLeft' );
-                if ( !scrollTop ) {
-                    this.scrollTo( scrollLeft, 1 );
-                } else if ( scrollTop + this.get( 'pxHeight' ) ===
-                        this.get( 'layer' ).scrollHeight ) {
-                    this.scrollTo( scrollLeft, scrollTop - 1 );
-                }
-            }
-        }.queue( 'after' ).on( 'scroll' ).observes( 'isInDocument' )
+        }
     });
 }
 

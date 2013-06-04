@@ -712,30 +712,6 @@ var View = NS.Class({
     scrollLeft: 0,
 
     /**
-        Method (private): O.View#_onScroll
-
-        Parameters:
-            event - {Event} The scroll event object.
-
-        Updates the view properties when the layer scrolls. Note, scroll events
-        are only monitored in instances of <O.ScrollView>.
-    */
-    _onScroll: function ( event ) {
-        var layer = this.get( 'layer' ),
-            left = layer.scrollLeft,
-            top = layer.scrollTop;
-        this.beginPropertyChanges()
-                .set( 'scrollLeft', left )
-                .set( 'scrollTop', top )
-            .endPropertyChanges();
-        event.stopPropagation();
-        // Don't interpret tap to stop scroll as a real tap.
-        if ( NS.Tap ) {
-            NS.Tap.cancel();
-        }
-    }.on( 'scroll' ),
-
-    /**
         Property: O.View#pxLayout
         Type: Object
 
