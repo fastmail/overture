@@ -10,6 +10,8 @@
 
 ( function ( NS ) {
 
+/*global window */
+
 /**
     Class: O.RootView
 
@@ -94,6 +96,10 @@ var RootView = NS.Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
+    hideAddressBar: function () {
+        window.scrollTo( 0, 0 );
+    },
+
     pxLeft: 0,
     pxTop: 0,
 
@@ -110,29 +116,29 @@ var RootView = NS.Class({
     }.property( 'pxLayout' ),
 
     handleEvent: function ( event ) {
-        var type = event.type;
-
+        switch ( event.type ) {
         // We observe mousemove when mousedown.
-        if ( type === 'mousedown' ) {
+        case 'mousedown':
             this.get( 'layer' ).ownerDocument
                 .addEventListener( 'mousemove', this, false );
-        } else if ( type === 'mouseup' ) {
+            break;
+        case 'mouseup':
             this.get( 'layer' ).ownerDocument
                 .removeEventListener( 'mousemove', this, false );
-        }
-
+            break;
         // Window resize events: just notify parent has resized.
-        if ( type === 'resize' || type === 'orientationchange' ) {
+        case 'orientationchange':
+            this.hideAddressBar();
+            /* falls through */
+        case 'resize':
             this.parentViewDidResize();
-        }
+            return;
         // Scroll events are special.
-        else if ( type === 'scroll') {
+        case 'scroll':
             this._onScroll( event );
+            return;
         }
-        // Normal events: send down the eventTarget chain.
-        else {
-            NS.ViewEventsController.handleEvent( event );
-        }
+        NS.ViewEventsController.handleEvent( event );
     }.invokeInRunLoop()
 });
 
