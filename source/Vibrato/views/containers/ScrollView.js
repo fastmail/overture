@@ -374,10 +374,9 @@ if ( NS.UA.isIOS ) {
                     '-webkit-overflow-scrolling:touch;'
             }, [
                 contents = el( 'div.ScrollViewContents', {
-                    style: 'position:relative;top:0;left:0;width:100%;' +
-                        'min-height:100%;padding:1px 0;' +
-                        ( this.get( 'showScrollbarX' ) ?
-                            '' : 'overflow:hidden;' )
+                    style: 'position:relative;' + (
+                        this.get( 'showScrollbarX' ) ? '' : 'overflow:hidden;'
+                    )
                 }),
                 el( 'div', {
                     style: 'position:absolute;top:100%;left: 0px;' +
