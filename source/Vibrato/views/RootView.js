@@ -100,20 +100,8 @@ var RootView = NS.Class({
         window.scrollTo( 0, 0 );
     },
 
-    pxLeft: 0,
     pxTop: 0,
-
-    pxWidth: function () {
-        var layer = this.get( 'layer' );
-        return layer.nodeName === 'BODY' ?
-            layer.parentNode.clientWidth : layer.offsetWidth;
-    }.property( 'pxLayout' ),
-
-    pxHeight: function () {
-        var layer = this.get( 'layer' );
-        return layer.nodeName === 'BODY' ?
-            layer.parentNode.clientHeight : layer.offsetHeight;
-    }.property( 'pxLayout' ),
+    pxLeft: 0,
 
     handleEvent: function ( event ) {
         switch ( event.type ) {
