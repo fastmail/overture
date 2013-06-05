@@ -62,6 +62,14 @@ var MenuButtonView = NS.Class({
     popOverView: null,
 
     /**
+        Property: O.MenuButtonView#popOverViewOptions
+        Type: Object
+
+        Options to pass to <O.PopOverView#show>.
+    */
+    popOverOptions: {},
+
+    /**
         Property: O.MenuButtonView#menuView
         Type: O.MenuView
 
@@ -115,7 +123,7 @@ var MenuButtonView = NS.Class({
             }
             // If the isInMenu, the popOverView used will actually be a subview
             // of this popOverView, and is returned from the show method.
-            popOverView = popOverView.show({
+            popOverView = popOverView.show( NS.extend({
                 view: this.get( 'menuView' ),
                 alignWithView: isInMenu ? popOverView : this,
                 atNode: isInMenu ? this.get( 'layer' ) : null,
@@ -129,7 +137,7 @@ var MenuButtonView = NS.Class({
                             'isFocussed', popOverView, 'hide' );
                     }
                 }
-            });
+            }, this.get( 'popOverOptions' ) ) );
             if ( menuOptionView ) {
                 menuOptionView.addObserverForKey(
                     'isFocussed', popOverView, 'hide' );
