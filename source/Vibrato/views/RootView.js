@@ -119,7 +119,7 @@ var RootView = NS.Class({
             this.hideAddressBar();
             /* falls through */
         case 'resize':
-            this.parentViewDidResize();
+            this.didResize();
             return;
         // Scroll events are special.
         case 'scroll':
