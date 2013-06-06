@@ -40,13 +40,19 @@ var ListItemView = NS.Class({
 
     positioning: 'absolute',
 
-    layout: function () {
+    layout: ( NS.UA.cssProps.transform3d ? function () {
         var index = this.get( 'index' ),
             itemHeight = this.get( 'itemHeight' );
-        return  {
+        return {
+            transform: 'translate3d(0,' + ( index * itemHeight ) + 'px,0)'
+        };
+    } : function () {
+        var index = this.get( 'index' ),
+            itemHeight = this.get( 'itemHeight' );
+        return {
             top: index * itemHeight
         };
-    }.property( 'index', 'itemHeight' )
+    }).property( 'index', 'itemHeight' )
 });
 
 NS.ListItemView = ListItemView;
