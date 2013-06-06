@@ -142,6 +142,10 @@ var ScrollView = NS.Class({
     */
     keys: {},
 
+    didCreateLayer: function ( layer ) {
+        this.scrollLayer = layer;
+    },
+
     didEnterDocument: function () {
         this.get( 'scrollLayer' ).addEventListener( 'scroll', this, false );
 
@@ -334,10 +338,6 @@ var ScrollView = NS.Class({
             position.left + offset.x, position.top + offset.y, withAnimation );
     },
 
-    scrollLayer: function () {
-        return this.get( 'layer' );
-    }.property( 'layer' ),
-
     /**
         Method (private): O.ScrollView#_onScroll
 
@@ -364,28 +364,53 @@ var ScrollView = NS.Class({
 
 if ( NS.UA.isIOS ) {
     ScrollView.implement({
-        scrollLayer: null,
         draw: function ( layer ) {
             var el = NS.Element.create,
-                contents, wrapper;
+                contents, scrollFixerHeight, wrapper;
 
-            wrapper = this.scrollLayer = el( 'div', {
-                style: 'position:relative;height:100%;overflow:auto;' +
-                    '-webkit-overflow-scrolling:touch;'
-            }, [
+            // Preferred solution if height of div is fixed.
+            if ( this.get( 'positioning' ) === 'absolute' ) {
+                wrapper = this.scrollLayer = el( 'div', {
+                    style: 'position:relative;height:100%;overflow:auto;' +
+                        '-webkit-overflow-scrolling:touch;'
+                });
+                layer.appendChild( wrapper );
+                scrollFixerHeight = '1';
+            }
+            // Fallback solution if we can't be sure.
+            else {
+                wrapper = layer;
+                this.on( 'scroll', this, '_iosScroll' )
+                    .addObserverForKey( 'isInDocument', this, '_iosScroll' );
+                scrollFixerHeight = '2';
+            }
+            wrapper.appendChild(
                 contents = el( 'div.ScrollViewContents', {
                     style: 'position:relative;' + (
                         this.get( 'showScrollbarX' ) ? '' : 'overflow:hidden;'
                     )
-                }),
+                })
+            );
+            wrapper.appendChild(
                 el( 'div', {
                     style: 'position:absolute;top:100%;left: 0px;' +
-                        'width:1px;height:1px;'
+                        'width:1px;height:' + scrollFixerHeight + 'px;'
                 })
-            ]);
-            layer.appendChild( wrapper );
+            );
             ScrollView.parent.draw.call( this, contents );
         },
+        _iosScroll: function () {
+            if ( this.get( 'isInDocument' ) ) {
+                var scrollTop = this.get( 'scrollTop' ),
+                    scrollLeft = this.get( 'scrollLeft' );
+                if ( !scrollTop ) {
+                    this.scrollTo( scrollLeft, 1 );
+                } else if ( scrollTop + this.get( 'pxHeight' ) ===
+                        this.get( 'layer' ).scrollHeight ) {
+                    this.scrollTo( scrollLeft, scrollTop - 1 );
+                }
+            }
+        }.queue( 'after' ),
         insertView: function ( view, relativeTo, where ) {
             if ( !relativeTo && this.get( 'isRendered' ) &&
                     where !== 'before' && where !== 'after' ) {
