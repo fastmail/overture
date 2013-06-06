@@ -25,7 +25,6 @@
 
     Will animate from current values
 */
-var canTransform3d = !!NS.UA.cssProps.transform3d;
 
 /**
     Object: O.CSSStyleAnimationController
@@ -236,10 +235,6 @@ var CSSStyleAnimation = NS.Class({
         if ( index > -1 ) {
             animating.splice( index, 1 );
             if ( !animating.length ) { this.stop(); }
-        }
-        if ( property === 'transform' && canTransform3d ) {
-            NS.Element.setStyle(
-                this.element, 'transform', this.current.transform );
         }
     },
 
