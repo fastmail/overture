@@ -129,15 +129,24 @@ var RunLoop = {
         var toInvoke = this._queues[ queue ],
             l = toInvoke.length,
             i, tuple;
-        if ( !allowDups ) {
-            for ( i = 0; i < l; i += 1 ) {
-                tuple = toInvoke[i];
-                if ( tuple[0] === fn && tuple[1] === bind ) {
-                    return this;
+        // Log error here, as the stack trace is useless inside flushQueue.
+        if ( !fn ) {
+            try {
+                fn();
+            } catch ( error ) {
+                RunLoop.didError( error );
+            }
+        } else {
+            if ( !allowDups ) {
+                for ( i = 0; i < l; i += 1 ) {
+                    tuple = toInvoke[i];
+                    if ( tuple[0] === fn && tuple[1] === bind ) {
+                        return this;
+                    }
                 }
             }
+            toInvoke[l] = [ fn, bind ];
         }
-        toInvoke[l] = [ fn, bind ];
         return this;
     },
 
