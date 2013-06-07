@@ -171,11 +171,15 @@ NS.EventTarget = {
             handlers = meta( target ).observers[ typeKey ];
             length = handlers ? handlers.length : 0;
             while ( length-- ) {
-                handler = handlers[ length ];
-                if ( handler instanceof Function ) {
-                    handler.call( target, event );
-                } else {
-                    ( handler.object || target )[ handler.method ]( event );
+                try {
+                    handler = handlers[ length ];
+                    if ( handler instanceof Function ) {
+                        handler.call( target, event );
+                    } else {
+                        ( handler.object || target )[ handler.method ]( event );
+                    }
+                } catch ( error ) {
+                    NS.RunLoop.didError( error );
                 }
             }
             // Did someone cancel the bubble
