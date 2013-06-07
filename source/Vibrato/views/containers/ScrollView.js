@@ -30,7 +30,7 @@ var ScrollAnimation = NS.Class({
 
     drawFrame: function ( position ) {
         var x = position < 1 ?
-                this.startX + ( position * this.deltaX ) : this.endY,
+                this.startX + ( position * this.deltaX ) : this.endX,
             y = position < 1 ?
                 this.startY + ( position * this.deltaY ) : this.endY;
         this.object.scrollTo( x, y, false, true );
