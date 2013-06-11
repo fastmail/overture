@@ -17,6 +17,8 @@ var allowedInputs = {
     submit: 1
 };
 
+var handleOnDown = {};
+
 /**
     Class: O.GlobalKeyboardShortcuts
 
@@ -170,12 +172,17 @@ var GlobalKeyboardShortcuts = NS.Class({
             return;
         }
         key = NS.DOMEvent.lookupKey( event );
+        if ( event.type === 'keydown' ) {
+            handleOnDown[ key ] = true;
+        } else if ( handleOnDown[ key ] ) {
+            return;
+        }
         handler = this.getHandlerForKey( key );
         if ( handler ) {
             handler[0][ handler[1] ]( event );
             event.preventDefault();
         }
-    }.on( 'keypress' )
+    }.on( 'keydown', 'keypress' )
 });
 
 NS.GlobalKeyboardShortcuts = GlobalKeyboardShortcuts;
