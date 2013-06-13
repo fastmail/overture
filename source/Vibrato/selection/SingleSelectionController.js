@@ -154,6 +154,11 @@ var SingleSelectionController = NS.Class({
             change = 0,
             i, l;
 
+        // No current record, no update of position required.
+        if ( !record ) {
+            return;
+        }
+
         if ( index > -1 ) {
             index = addedIndexes[ index ];
         } else {
