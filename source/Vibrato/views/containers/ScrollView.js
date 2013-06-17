@@ -387,7 +387,8 @@ if ( NS.UA.isIOS ) {
             wrapper.appendChild(
                 contents = el( 'div.ScrollViewContents', {
                     style: 'position:relative;' + (
-                        this.get( 'showScrollbarX' ) ? '' : 'overflow:hidden;'
+                        this.get( 'showScrollbarX' ) ?
+                            '' : 'overflow:hidden;min-height:100%;'
                     )
                 })
             );
