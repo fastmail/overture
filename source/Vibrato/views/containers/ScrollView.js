@@ -366,10 +366,11 @@ if ( NS.UA.isIOS ) {
     ScrollView.implement({
         draw: function ( layer ) {
             var el = NS.Element.create,
+                isFixedHeight = this.get( 'positioning' ) === 'absolute',
                 contents, scrollFixerHeight, wrapper;
 
             // Preferred solution if height of div is fixed.
-            if ( this.get( 'positioning' ) === 'absolute' ) {
+            if ( isFixedHeight ) {
                 wrapper = this.scrollLayer = el( 'div', {
                     style: 'position:relative;height:100%;overflow:auto;' +
                         '-webkit-overflow-scrolling:touch;'
@@ -386,10 +387,10 @@ if ( NS.UA.isIOS ) {
             }
             wrapper.appendChild(
                 contents = el( 'div.ScrollViewContents', {
-                    style: 'position:relative;' + (
-                        this.get( 'showScrollbarX' ) ?
-                            '' : 'overflow:hidden;min-height:100%;'
-                    )
+                    style: 'position:relative;' +
+                        ( !isFixedHeight ? 'padding:1px 0;' : '' ) +
+                        ( this.get( 'showScrollbarX' ) ?
+                            '' : 'overflow:hidden;min-height:100%;' )
                 })
             );
             wrapper.appendChild(
