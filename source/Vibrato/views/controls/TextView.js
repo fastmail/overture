@@ -39,19 +39,6 @@ var TextView = NS.Class({
     },
 
     /**
-        Property: O.TextView#isMasked
-        Type: Boolean
-        Default: false
-
-        If true, an input of type `password` will be used for the DOM node, so
-        all values will be masked. Note, this property is ignored if
-        <#isMultiline> is set to true.
-
-        This property *must not* be changed after the view has been rendered.
-    */
-    isMasked: false,
-
-    /**
         Property: O.TextView#isMultiline
         Type: Boolean
         Default: false
@@ -104,6 +91,17 @@ var TextView = NS.Class({
         (default).
     */
     maxLength: undefined,
+
+    /**
+        Property: O.TextView#inputType
+        Type: String
+        Default: "text"
+
+        The type property for the <input> DOM node (e.g. "password", "tel" etc.)
+
+        This property *must not* be changed after the view has been rendered.
+    */
+    inputType: 'text',
 
     /**
         Property: O.TextView#placeholder
@@ -246,7 +244,7 @@ var TextView = NS.Class({
             control = this._domControl = el(
                 this.get( 'isMultiline' ) ? 'textarea' : 'input', {
                     id: this.get( 'id' ) + '-input',
-                    type: this.get( 'isMasked' ) ? 'password' : 'text',
+                    type: this.get( 'inputType' ),
                     autocomplete: 'off',
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
