@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: SingleSelectionController.js                                         \\
 // Module: Selection                                                          \\
-// Requires: Core, Foundation                                                 \\
+// Requires: Core, Foundation, DataStore                                      \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -9,6 +9,8 @@
 "use strict";
 
 ( function ( NS ) {
+
+var READY = NS.Status.READY;
 
 var SingleSelectionController = NS.Class({
 
@@ -29,17 +31,7 @@ var SingleSelectionController = NS.Class({
         var content = this.get( 'content' ),
             range = this._range = { start: -1, end: 0 };
         if ( content ) {
-            content.addObserverForRange(
-                range, this, 'recordAtIndexDidChange' );
-            content.on( 'query:updated', this, 'contentWasUpdated' )
-                   .on( 'query:reset', this, 'contentWasReset' );
-        }
-        if ( this.get( 'record' ) ) {
-            this._recordDidChange();
-        } else if ( this.get( 'index' ) > -1 ) {
-            this._indexDidChange();
-        } else if ( !this.get( 'allowNoSelection' ) ) {
-            this.set( 'index', 0 );
+            this.contentDidChange( null, '', null, content );
         }
     },
 
@@ -112,36 +104,53 @@ var SingleSelectionController = NS.Class({
         }
     }.observes( 'record' ),
 
-    contentDidChange: function ( _, __, oldVal, newVal ) {
-        var range = this._range,
-            allowNoSelection = this.get( 'allowNoSelection' ),
+    contentBecameReady: function ( list, key ) {
+        var allowNoSelection = this.get( 'allowNoSelection' ),
             record = this.get( 'record' ),
             index = allowNoSelection ? -1 : 0;
 
-        if ( oldVal ) {
-            oldVal.off( 'query:reset', this, 'contentWasReset' )
-                  .off( 'query:updated', this, 'contentWasUpdated' );
-            oldVal.removeObserverForRange(
-                range, this, 'recordAtIndexDidChange' );
-        }
-        if ( newVal ) {
-            newVal.addObserverForRange( range, this, 'recordAtIndexDidChange' );
-            newVal.on( 'query:updated', this, 'contentWasUpdated' )
-                  .on( 'query:reset', this, 'contentWasReset' );
+        if ( key ) {
+            if ( !list.is( READY ) ) {
+                return;
+            }
+            list.removeObserverForKey( key, this, 'contentBecameReady' );
         }
 
-        if ( record && newVal ) {
-            index = newVal.indexOfId( record.get( 'id' ) );
+        if ( record ) {
+            index = list.indexOfId( record.get( 'id' ) );
             if ( !allowNoSelection && index < 0 ) {
                 index = 0;
             }
         }
 
         if ( index === this.get( 'index' ) ) {
-            record = newVal && newVal.getObjectAt( index );
+            record = list.getObjectAt( index );
             this.set( 'record', record || null );
         } else {
             this.set( 'index', index );
+        }
+    },
+
+    contentDidChange: function ( _, __, oldVal, newVal ) {
+        var range = this._range;
+        if ( oldVal ) {
+            oldVal.off( 'query:reset', this, 'contentWasReset' )
+                  .off( 'query:updated', this, 'contentWasUpdated' );
+            oldVal.removeObserverForRange(
+                range, this, 'recordAtIndexDidChange' );
+            oldVal.removeObserverForKey( 'status', this, 'contentBecameReady' );
+        }
+        if ( newVal ) {
+            newVal.addObserverForRange( range, this, 'recordAtIndexDidChange' );
+            newVal.on( 'query:updated', this, 'contentWasUpdated' )
+                  .on( 'query:reset', this, 'contentWasReset' );
+
+            if ( newVal.is( READY ) ) {
+                this.contentBecameReady( newVal );
+            } else {
+                newVal.addObserverForKey(
+                    'status', this, 'contentBecameReady' );
+            }
         }
     }.observes( 'content' ),
 

@@ -88,6 +88,8 @@ var NestedStore = NS.Class({
         // Type -> [ store key ] of changed records.
         this._typeToChangedSks = {};
 
+        this._typeToStatus = store._typeToStatus;
+
         store.addNested( this );
 
         this._source = store._source;

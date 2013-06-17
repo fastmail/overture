@@ -681,6 +681,21 @@ var Store = NS.Class({
     // === Low level (primarily internal) API: uses storeKey ===================
 
     /**
+        Method: O.Store#getTypeStatus
+
+        Get the status of a type
+
+        Parameters:
+            Type - {O.Class} The record type.
+
+        Returns:
+            {O.Status} The status of the type in the store.
+    */
+    getTypeStatus: function ( Type ) {
+        return this._typeToStatus[ Type.className ] || EMPTY;
+    },
+
+    /**
         Method: O.Store#getStatus
 
         Get the status of a record with a given store key.
@@ -1343,6 +1358,8 @@ var Store = NS.Class({
             this._typeToClientState[ typeName ] = state;
         }
         this._typeToStatus[ typeName ] = READY;
+        NS.RunLoop.queueFn( 'middle',
+            this.liveQueriesAreReady.bind( this, Type ) );
         return this;
     },
 
@@ -2248,6 +2265,14 @@ var Store = NS.Class({
 
         this._typeToChangedSks = {};
         return this;
+    },
+
+    liveQueriesAreReady: function ( Type ) {
+        var _liveQueries = this._liveQueries[ Type.className ],
+            l = _liveQueries ? _liveQueries.length : 0;
+        while ( l-- ) {
+            _liveQueries[l].set( 'status', READY );
+        }
     }
 });
 

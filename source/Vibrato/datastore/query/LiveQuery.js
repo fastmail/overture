@@ -116,20 +116,21 @@ var LiveQuery = NS.Class({
             mixin - {Object} The properties for the query.
     */
     init: function ( mixin ) {
-        var sort = mixin.sort,
+        var Type = mixin.Type,
+            sort = mixin.sort,
             store = mixin.store || this.store,
             results;
 
         if ( sort && !( sort instanceof Function ) ) {
             sort = mixin.sort = NS.sortByProperties( sort );
         }
-        results = store.findAll( mixin.Type, mixin.filter, sort );
+        results = store.findAll( Type, mixin.filter, sort );
 
         this._storeKeys = results;
         this._sort = results.sortFn;
         this._filter = results.filterFn;
 
-        this.status = READY;
+        this.status = store.getTypeStatus( Type ) & READY;
 
         this.length = results.length;
 
@@ -149,6 +150,21 @@ var LiveQuery = NS.Class({
         this.set( 'status', DESTROYED );
         this.get( 'store' ).removeQuery( this );
         LiveQuery.parent.destroy.call( this );
+    },
+
+    /**
+        Method: O.LiveQuery#is
+
+        Checks whether the query has a particular status.
+
+        Parameters:
+            status - {O.Status} The status to check.
+
+        Returns:
+            {Boolean} True if the record has the queried status.
+    */
+    is: function ( status ) {
+        return !!( this.get( 'status' ) & status );
     },
 
     /**
