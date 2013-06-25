@@ -42,6 +42,14 @@ var MouseEventRemover = NS.Class({
     }
 });
 
+var TapEvent = function ( type, target, preventDefault ) {
+    this.isEvent = true;
+    this.type = type;
+    this.originalType = 'tap';
+    this.target = target;
+    this.preventDefault = preventDefault;
+};
+
 /*  A tap is defined as a touch which:
 
     * Lasts less than 200ms.
@@ -99,7 +107,7 @@ NS.Tap = new NS.Gesture({
         var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
-            i, l, touch, id, start, defaultPrevented, tapEvent,
+            i, l, touch, id, start, defaultPrevented, target,
             ViewEventsController = NS.ViewEventsController,
             preventDefault = function () {
                 defaultPrevented = true;
@@ -111,17 +119,14 @@ NS.Tap = new NS.Gesture({
             if ( start ) {
                 if ( now - start.time < 200 ) {
                     defaultPrevented = false;
-                    tapEvent = {
-                        isEvent: true,
-                        originalType: 'tap',
-                        type: 'tap',
-                        target: touch.target,
-                        preventDefault: preventDefault
-                    };
-                    ViewEventsController.handleEvent( tapEvent );
-                    tapEvent.type = 'click';
-                    ViewEventsController.handleEvent( tapEvent );
-                    new MouseEventRemover( touch.target, defaultPrevented );
+                    target = touch.target;
+                    ViewEventsController.handleEvent(
+                        new TapEvent( 'tap', target, preventDefault )
+                    );
+                    ViewEventsController.handleEvent(
+                        new TapEvent( 'click', target, preventDefault )
+                    );
+                    new MouseEventRemover( target, defaultPrevented );
                 }
                 delete tracking[ id ];
             }
