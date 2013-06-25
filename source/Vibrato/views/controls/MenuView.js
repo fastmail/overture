@@ -263,12 +263,43 @@ var MenuView = NS.Class({
         MenuView.parent.didCreateLayer.call( this, layer );
         layer.addEventListener( 'mousemove', this, false );
         layer.addEventListener( 'mouseout', this, false );
+        return this;
     },
 
     willDestroyLayer: function ( layer ) {
         layer.removeEventListener( 'mouseout', this, false );
         layer.removeEventListener( 'mousemove', this, false );
-        MenuView.parent.willDestroyLayer.call( this, layer );
+        return MenuView.parent.willDestroyLayer.call( this, layer );
+    },
+
+    didEnterDocument: function () {
+        MenuView.parent.didEnterDocument.call( this );
+        var scrollView = this._scrollView,
+            delta, controller, input;
+        if ( scrollView && !this.getParent( NS.ScrollView ) ) {
+            delta = this.get( 'layer' ).getBoundingClientRect().bottom -
+                this.getParent( NS.RootView ).get( 'pxHeight' );
+            // Must redraw immediately so size is correct when PopOverView
+            // checks if it is positioned off screen.
+            scrollView.set( 'layout', {
+                maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
+            }).redraw();
+        }
+
+        if ( this.get( 'showFilter' ) ) {
+            controller = this.get( 'controller' );
+            input = this._input;
+            if ( !controller.get( 'focussedOption' ) ) {
+                controller.focusNext();
+            }
+            NS.RunLoop.invokeInNextEventLoop( function () {
+                input.focus().set( 'selection', {
+                    start: 0,
+                    end: input.get( 'value' ).length
+                });
+            });
+        }
+        return this;
     },
 
     didLeaveDocument: function () {
@@ -280,36 +311,6 @@ var MenuView = NS.Class({
         }
         return MenuView.parent.didLeaveDocument.call( this );
     },
-
-    _checkSize: function () {
-        if ( !this.get( 'isInDocument' ) ) {
-            return;
-        }
-        var scrollView = this._scrollView;
-        if ( scrollView && !this.getParent( NS.ScrollView ) ) {
-            var layer = this.get( 'layer' ),
-                rootView = this.getParent( NS.RootView ),
-                delta = layer.getBoundingClientRect().bottom -
-                    rootView.get( 'pxHeight' );
-            scrollView.set( 'layout', {
-                maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
-            });
-        }
-
-        if ( this.get( 'showFilter' ) ) {
-            var controller = this.get( 'controller' ),
-                input = this._input;
-            if ( !controller.get( 'focussedOption' ) ) {
-                controller.focusNext();
-            }
-            NS.RunLoop.invokeInNextEventLoop( function () {
-                input.focus().set( 'selection', {
-                    start: 0,
-                    end: input.get( 'value' ).length
-                });
-            });
-        }
-    }.queue( 'after' ).observes( 'isInDocument' ),
 
     mayHaveResized: function () {
         this.parentViewDidResize();

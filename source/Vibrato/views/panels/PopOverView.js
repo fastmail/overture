@@ -52,7 +52,15 @@ var PopOverView = NS.Class({
             positionToThe = options.positionToThe || 'bottom',
             alignEdge = options.alignEdge || 'left',
             parent = options.inParent,
-            position, layer;
+            deltaLeft = 0,
+            deltaTop = 0,
+            calloutDelta = 0,
+            calloutIsAtTopOrBottom =
+                ( positionToThe === 'top' || positionToThe === 'bottom' ),
+            callout, layout, position, gap, layer,
+            Element = NS.Element,
+            el = Element.create,
+            getPosition = Element.getPosition;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
@@ -67,11 +75,11 @@ var PopOverView = NS.Class({
         }
 
         // Now find out our offsets;
-        position = NS.Element.getPosition( atNode, parent.get( 'layer' ) );
+        layout = getPosition( atNode, parent.get( 'layer' ) );
 
         switch ( positionToThe ) {
         case 'right':
-            position.left += atNodeWidth;
+            layout.left += atNodeWidth;
             /* falls through */
         case 'left':
             switch ( alignEdge ) {
@@ -81,12 +89,12 @@ var PopOverView = NS.Class({
                 atNodeHeight = atNodeHeight >> 1;
                 /* falls through */
             case 'bottom':
-                position.top += atNodeHeight;
+                layout.top += atNodeHeight;
                 break;
             }
             break;
         case 'bottom':
-            position.top += atNodeHeight;
+            layout.top += atNodeHeight;
             /* falls through */
         case 'top':
             switch ( alignEdge ) {
@@ -96,18 +104,18 @@ var PopOverView = NS.Class({
                 atNodeWidth = atNodeWidth >> 1;
                 /* falls through */
             case 'right':
-                position.left += atNodeWidth;
+                layout.left += atNodeWidth;
                 break;
             }
             break;
         }
 
-        position.top += options.offsetTop || 0;
-        position.left += options.offsetLeft || 0;
-        position.zIndex = 1000;
+        layout.top += options.offsetTop || 0;
+        layout.left += options.offsetLeft || 0;
+        layout.zIndex = 1000;
 
         // Set layout
-        this.set( 'layout', position );
+        this.set( 'layout', layout );
 
         // Insert view
         this.insertView( view );
@@ -117,10 +125,14 @@ var PopOverView = NS.Class({
         layer = this.get( 'layer' );
         if ( options.showCallout ) {
             layer.appendChild(
-                NS.Element.create( 'b', {
+                el( 'b', {
                     className: 'callout ' +
                         positionToThe.charAt( 0 ) + ' ' + alignEdge
-                })
+                }, [
+                    callout = el( 'b', {
+                        className: 'callout-inner ' + positionToThe.charAt( 0 )
+                    })
+                ])
             );
         }
 
@@ -130,39 +142,93 @@ var PopOverView = NS.Class({
         // Adjust positioning
         switch ( positionToThe ) {
         case 'left':
-            position.left -= layer.offsetWidth;
+            deltaLeft -= layer.offsetWidth;
             /* falls through */
         case 'right':
             switch ( alignEdge ) {
             // case 'top':
             //    break; // nothing to do
             case 'middle':
-                position.top -= layer.offsetHeight >> 1;
+                deltaTop -= layer.offsetHeight >> 1;
                 break;
             case 'bottom':
-                position.top -= layer.offsetHeight;
+                deltaTop -= layer.offsetHeight;
                 break;
             }
             break;
         case 'top':
-            position.top -= layer.offsetHeight;
+            deltaTop -= layer.offsetHeight;
             /* falls through */
         case 'bottom':
             switch ( alignEdge ) {
             // case 'left':
             //     break; // nothing to do
             case 'centre':
-                position.left -= layer.offsetWidth >> 1;
+                deltaLeft -= layer.offsetWidth >> 1;
                 break;
             case 'right':
-                position.left -= layer.offsetWidth;
+                deltaLeft -= layer.offsetWidth;
                 break;
             }
             break;
         }
-        if ( positionToThe === 'left' || positionToThe === 'top' ||
-                ( alignEdge !== 'left' && alignEdge !== 'top' ) ) {
+
+        // Check not run off screen.
+        if ( parent instanceof NS.RootView ) {
+            position = getPosition( layer );
+            // Check left edge
+            gap = position.left + deltaLeft;
+            if ( gap < 0 ) {
+                deltaLeft -= gap;
+                deltaLeft += 10;
+                if ( callout && calloutIsAtTopOrBottom ) {
+                    calloutDelta -= gap;
+                    calloutDelta += 10;
+                }
+            }
+            // Check right edge
+            gap = parent.get( 'pxWidth' ) - gap - layer.offsetWidth;
+            // If gap is negative, move the view.
+            if ( gap < 0 ) {
+                deltaLeft += gap;
+                deltaLeft -= 10;
+                if ( callout && calloutIsAtTopOrBottom ) {
+                    calloutDelta += gap;
+                    calloutDelta -= 10;
+                }
+            }
+            // Check top edge
+            gap = position.top + deltaTop;
+            if ( gap < 0 ) {
+                deltaTop -= gap;
+                deltaTop += 10;
+                if ( callout && !calloutIsAtTopOrBottom ) {
+                    calloutDelta -= gap;
+                    calloutDelta += 10;
+                }
+            }
+            // Check bottom edge
+            gap = parent.get( 'pxHeight' )  - gap - layer.offsetHeight;
+            if ( gap < 0 ) {
+                deltaTop += gap;
+                deltaTop -= 10;
+                if ( callout && !calloutIsAtTopOrBottom ) {
+                    calloutDelta += gap;
+                    calloutDelta -= 10;
+                }
+            }
+        }
+
+        if ( deltaLeft || deltaTop ) {
+            layout.left += deltaLeft;
+            layout.top += deltaTop;
             this.propertyDidChange( 'layout' );
+        }
+        if ( calloutDelta ) {
+            Element.setStyle( callout,
+                calloutIsAtTopOrBottom ? 'left' : 'top',
+                -calloutDelta + 'px'
+            );
         }
 
         if ( eventHandler ) {
