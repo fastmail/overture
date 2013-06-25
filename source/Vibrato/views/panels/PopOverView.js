@@ -166,7 +166,7 @@ var PopOverView = NS.Class({
         }
 
         if ( eventHandler ) {
-            NS.ViewEventsController.pushEventTarget( eventHandler );
+            NS.ViewEventsController.addEventTarget( eventHandler, 10 );
         }
         this.set( 'isVisible', true );
 

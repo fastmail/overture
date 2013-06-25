@@ -10,6 +10,11 @@
 
 ( function ( NS ) {
 
+var etSearch = function ( candidate, b ) {
+    var a = candidate[0];
+    return a < b ? -1 : a > b ? 1 : 0;
+};
+
 /**
     Object: O.ViewEventsController
 
@@ -24,6 +29,14 @@
     all the targets that are queued to handle it after the view. Any event
     handler may call `event.stopPropagation()`, which will stop the view from
     passing to any further targets.
+
+    Standard event target priorities used in library:
+
+    30  - MouseEventRemover
+    20  - GestureManager
+    20  - DragController
+    10  - ModalViewHandler
+    -10 - GlobalKeyboardShortcuts
 
 */
 var ViewEventsController = {
@@ -94,50 +107,42 @@ var ViewEventsController = {
 
     /**
         Property (private): O.ViewEventsController._eventTargets
-        Type: Array.<O.EventTarget>
+        Type: Array.<Array.<Number,O.EventTarget>>
 
         List of event targets to dispatch events to.
     */
     _eventTargets: [],
 
     /**
-        Method: O.ViewEventsController.pushEventTarget
+        Method: O.ViewEventsController.addEventTarget
 
-        Adds an event target to the head of the queue. It will be the first to
-        receive any future events (unless future calls to pushEventTarget add a
-        new target ahead of it in the queue), and will always intercept an event
-        before it reaches the view hierarchy.
+        Adds an event target to queue to receive view events. The position in
+        the queue is determined by the priority argument:
+
+        * Greater than 0 => before the view hierarchy receives the event.
+        * Less than 0 => after the view hierarchy receives the event.
+
+        If an existing target in the queue has the same priority as the new one,
+        the new one will be inserted such that it fires before the old one.
 
         Parameters:
-            eventTarget - {O.EventTarget} The event target to add to the head of
-                          the queue.
+            eventTarget - {O.EventTarget} The event target to add.
+            priority    - {Number} The priority of the event target.
 
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    pushEventTarget: function ( eventTarget ) {
-        this._eventTargets.push( eventTarget );
-        return this;
-    },
+    addEventTarget: function ( eventTarget, priority ) {
+        if ( !priority ) { priority = 0; }
+        var eventTargets = this._eventTargets,
+            index = eventTargets.binarySearch( priority, etSearch ),
+            length = eventTargets.length;
 
-    /**
-        Method: O.ViewEventsController.queueEventTarget
+        while ( index < length && eventTargets[ index ][0] === priority ) {
+            index += 1;
+        }
 
-        Adds an event target to the back of the queue. It will be the last to
-        receive any future events (unless future calls to queueEventTarget add a
-        new target behind it in the queue), and will only receive an event after
-        it has traversed the full view hierarchy without
-        `event.stopPropagation()` being called.
-
-        Parameters:
-            eventTarget - {O.EventTarget} The event target to add to the back of
-                          the queue.
-
-        Returns:
-            {O.ViewEventsController} Returns self.
-    */
-    queueEventTarget: function ( eventTarget ) {
-        this._eventTargets.unshift( eventTarget );
+        eventTargets.splice( index, 0, [ priority, eventTarget ] );
         return this;
     },
 
@@ -145,8 +150,7 @@ var ViewEventsController = {
         Method: O.ViewEventsController.removeEventTarget
 
         Removes an event target from the queue that was previously added via
-        <O.ViewEventsController.pushEventTarget> or
-        <O.ViewEventsController.queueEventTarget>.
+        <O.ViewEventsController.addEventTarget>.
 
         Parameters:
             eventTarget - {O.EventTarget} The event target to remove from the
@@ -156,7 +160,13 @@ var ViewEventsController = {
             {O.ViewEventsController} Returns self.
     */
     removeEventTarget: function ( eventTarget ) {
-        this._eventTargets.erase( eventTarget );
+        var eventTargets = this._eventTargets,
+            l = eventTargets.length;
+        while ( l-- ) {
+            if ( eventTargets[l][1] === eventTarget ) {
+                eventTargets.splice( l, 1 );
+            }
+        }
         return this;
     },
 
@@ -184,24 +194,19 @@ var ViewEventsController = {
             view = this.getViewFromNode( event.target );
         }
         event.targetView = view;
-        event.phase = 'beforeViews';
 
         while ( l-- ) {
-            eventTarget = eventTargets[l];
+            eventTarget = eventTargets[l][1];
             if ( eventTarget === this ) {
                 eventTarget = view;
-                event.phase = 'views';
             }
             if ( eventTarget && eventTarget.fire( event.type, event ) ) {
                 break;
             }
-            if ( eventTargets[l] === this ) {
-                event.phase = 'afterViews';
-            }
         }
     }.invokeInRunLoop()
 };
-ViewEventsController.pushEventTarget( ViewEventsController );
+ViewEventsController.addEventTarget( ViewEventsController, 0 );
 
 NS.ViewEventsController = ViewEventsController;
 

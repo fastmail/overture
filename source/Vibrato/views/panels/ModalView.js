@@ -39,7 +39,8 @@ var ModalView = NS.Class({
     }.property(),
 
     didEnterDocument: function () {
-        NS.ViewEventsController.pushEventTarget( this.get( 'eventHandler' ) );
+        NS.ViewEventsController.addEventTarget(
+            this.get( 'eventHandler' ), 10 );
         return ModalView.parent.didEnterDocument.call( this );
     },
     willLeaveDocument: function () {

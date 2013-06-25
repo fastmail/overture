@@ -57,7 +57,7 @@ var GlobalKeyboardShortcuts = NS.Class({
 
         var ViewEventsController = NS.ViewEventsController;
         ViewEventsController.kbShortcuts = this;
-        ViewEventsController.queueEventTarget( this );
+        ViewEventsController.addEventTarget( this, -10 );
     },
 
     /**

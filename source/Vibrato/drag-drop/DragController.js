@@ -412,7 +412,7 @@ var DragController = new NS.Object({
         document.addEventListener( type, DragController, false );
     });
 
-NS.ViewEventsController.pushEventTarget( DragController );
+NS.ViewEventsController.addEventTarget( DragController, 20 );
 
 NS.DragController = DragController;
 

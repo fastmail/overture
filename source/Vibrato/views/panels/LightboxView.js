@@ -442,7 +442,8 @@ var LightboxView = NS.Class({
         this._rootView.insertView( this );
 
         // Capture events
-        NS.ViewEventsController.pushEventTarget( this.get( 'eventHandler' ) );
+        NS.ViewEventsController.addEventTarget(
+            this.get( 'eventHandler' ), 10 );
 
         // Now, fade in gradient background and views.
         this.set( 'isActive', true );

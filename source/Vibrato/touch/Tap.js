@@ -19,16 +19,10 @@
 */
 var MouseEventRemover = NS.Class({
     init: function ( target, defaultPrevented ) {
-        this.time = Date.now();
         this.target = target;
         this.stop = defaultPrevented;
-        this.activate();
+        NS.ViewEventsController.addEventTarget( this, 30 );
     },
-    // If a pop over view opens during the render phase, it may usurped us, so
-    // we wait until the 'after' phase to add ourselves to the responder queue.
-    activate: function () {
-        NS.ViewEventsController.pushEventTarget( this );
-    }.queue( 'after' ),
     fire: function ( type, event ) {
         var isClick = ( type === 'click' ) && !event.originalType,
             isMouse = isClick || /^mouse/.test( type );
