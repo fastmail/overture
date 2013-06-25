@@ -839,9 +839,12 @@ var View = NS.Class({
             number of pixels this view is offset from the given view.
     */
     getPositionRelativeTo: function ( view ) {
-        return NS.Element.getPosition(
-            this.get( 'layer' ), view.get( 'layer' )
-        );
+        var getPosition = NS.Element.getPosition,
+            selfPosition = getPosition( this.get( 'layer' ) ),
+            viewPosition = getPosition( view.get( 'layer' ) );
+        selfPosition.top -= viewPosition.top - view.get( 'scrollTop' );
+        selfPosition.left -= viewPosition.left - view.get( 'scrollLeft' );
+        return selfPosition;
     },
 
     // --- Insertion and deletion ---

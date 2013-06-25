@@ -329,13 +329,12 @@ var ScrollView = NS.Class({
             {O.ScrollView} Returns self.
     */
     scrollToView: function ( view, offset, withAnimation ) {
-        var position = NS.Element.getPosition(
-            view.get( 'layer' ), this.get( 'layer' ) );
-        if ( !offset ) {
-            offset = { x: 0, y: 0 };
-        }
+        var position = view.getPositionRelativeTo( this );
         return this.scrollTo(
-            position.left + offset.x, position.top + offset.y, withAnimation );
+            position.left + ( offset && offset.x || 0 ),
+            position.top + ( offset && offset.y || 0 ),
+            withAnimation
+        );
     },
 
     /**

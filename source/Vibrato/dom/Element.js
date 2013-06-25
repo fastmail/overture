@@ -528,14 +528,10 @@ NS.Element = {
                 top: rect.top,
                 left: rect.left
             };
-        while ( el = el.parentNode ) {
-            position.top += el.scrollTop || 0;
-            position.left += el.scrollLeft || 0;
-        }
         if ( ancestor ) {
             rect = getPosition( ancestor );
-            position.top -= rect.top;
-            position.left -= rect.left;
+            position.top -= rect.top - ancestor.scrollTop;
+            position.left -= rect.left - ancestor.scrollLeft;
         }
         return position;
     }
