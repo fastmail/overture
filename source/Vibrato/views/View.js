@@ -332,7 +332,7 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#didEnterDocument
+        Method: O.View#willEnterDocument
 
         Called immediately before the layer is appended to the document.
 
