@@ -18,7 +18,7 @@ var AutoCompleteSource = NS.Class({
     suggestions: [],
 
     getTestFn: function ( value ) {
-        var regexp = new RegExp( '\\b' + value.escapeRegExp(), 'i' );
+        var regexp = new RegExp( '(?:^|\\W)' + value.escapeRegExp(), 'i' );
         return regexp.test.bind( regexp );
     },
     renderSuggestion: function ( suggestion, current ) {
