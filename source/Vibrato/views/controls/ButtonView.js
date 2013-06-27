@@ -299,6 +299,7 @@ var ButtonView = NS.Class({
             this._ignore = true;
             NS.RunLoop.invokeAfterDelay( this._monitorClicks, 200, this );
             this.activate();
+            event.preventDefault();
         }
     }.on( 'mouseup', 'click' ),
 
