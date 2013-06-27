@@ -82,7 +82,10 @@ var AbstractControlView = NS.Class({
         var shortcut = this.get( 'shortcut' );
         return shortcut ?
             NS.loc( 'Shortcut: [_1]',
-                shortcut.split( ' ' ).join( ' ' + NS.loc( 'or' ) + ' ' )
+                shortcut
+                    .split( ' ' )
+                    .map( NS.formatKeyForPlatform )
+                    .join( ' ' + NS.loc( 'or' ) + ' ' )
             ) : '';
     }.property( 'shortcut' ),
 

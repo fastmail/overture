@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: GlobalKeyboardShortcuts.js                                           \\
 // Module: Application                                                        \\
-// Requires: Core, Foundation                                                 \\
+// Requires: Core, Foundation, UA                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -9,6 +9,32 @@
 "use strict";
 
 ( function ( NS ) {
+
+var isMac = NS.UA.isMac;
+var platformKeys = {
+    alt: isMac ? '⌥' : 'Alt-',
+    cmd: isMac ? '⌘' : 'Ctrl-',
+    meta: isMac ? '⌘' : 'Meta-',
+    shift: isMac ? '⇧' : 'Shift-',
+    enter: isMac ? '↵' : 'Enter',
+    backspace: isMac ? '⌫' : 'Backspace'
+};
+
+/**
+    Function: O.formatKeyForPlatform
+
+    Parameters:
+        shortcut - {String} The keyboard shorcut, in the same format as
+                   taken by <O.GlobalKeyboardShortcuts#register>.
+
+    Returns:
+        {String} The shortcut formatted for display on the user's platform.
+*/
+NS.formatKeyForPlatform = function ( shortcut ) {
+    return shortcut.split( '-' ).map( function ( key ) {
+        return platformKeys[ key ] || key.capitalise();
+    }).join( '' );
+};
 
 var allowedInputs = {
     checkbox: 1,
@@ -86,6 +112,10 @@ var GlobalKeyboardShortcuts = NS.Class({
                      (alt, ctrl, meta, shift) should be prefixed in alphabetical
                      order and with a hypen after each one. Letters should be
                      lower case. e.g. `ctrl-f`.
+
+                     The special modifier "cmd-" may be used, which will map
+                     to "meta-" on a Mac (the command key) and "Ctrl-"
+                     elsewhere.
             object - {Object} The object to trigger the callback on.
             method - {String} The name of the method to trigger.
 
@@ -93,6 +123,7 @@ var GlobalKeyboardShortcuts = NS.Class({
             {O.GlobalKeyboardShortcuts} Returns self.
     */
     register: function ( key, object, method ) {
+        key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
         var shortcuts = this._shortcuts;
         ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
             .push([ object, method ]);
@@ -114,6 +145,7 @@ var GlobalKeyboardShortcuts = NS.Class({
             {O.GlobalKeyboardShortcuts} Returns self.
    */
     deregister: function ( key, object, method ) {
+        key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
         var current = this._shortcuts[ key ],
             length = current ? current.length : 0,
             l = length,
