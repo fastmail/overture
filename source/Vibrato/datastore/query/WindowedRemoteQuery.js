@@ -1363,6 +1363,7 @@ var WindowedRemoteQuery = NS.Class({
                 this._windows = this._windows.map( function ( status ) {
                     return status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING);
                 });
+                this.set( 'status', this.get( 'status' ) & ~LOADING );
             }.bind( this )
         };
     }
