@@ -9,6 +9,12 @@
 TOOLS := node $(PATH_TO_TOOLS)
 
 # Args:
+# Comma separated list of defined vars
+# inputFileName
+# outputFileName
+IFDEF := $(TOOLS)/ifdef.js
+
+# Args:
 # pathToEnglishDB
 # var_args... pathsToFilesToScan
 # outputFileName (strings.json)
