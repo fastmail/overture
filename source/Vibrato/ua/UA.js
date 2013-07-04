@@ -83,6 +83,15 @@ var ua = navigator.userAgent.toLowerCase(),
         cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
     });
     el = null;
+
+    // Browser bugs:
+    // 1. iOS5 Sometimes fails to transform stuff.
+    // 2. Chrome on Windows XP has edge case bugs like
+    //    not rendering scroll bars in transformed elements.
+    if ( ( platform === 'ios' && version < 6 ) ||
+            /Windows NT 5.1/.test( navigator.platform ) ) {
+        cssProps.transform3d = false;
+    }
 }() );
 
 /**
