@@ -143,10 +143,11 @@ var ButtonView = NS.Class({
         var type = this.get( 'type' );
         return 'ButtonView' +
             ( type ? ' ' + type : '' ) +
+            ( this.get( 'icon' ) ? ' hasIcon' : '' ) +
             ( this.get( 'shortcut' ) ? ' hasShortcut' : '' ) +
             ( this.get( 'isActive' ) ? ' active' : '' ) +
             ( this.get( 'isDisabled' ) ? ' disabled' : '' );
-    }.property( 'type', 'shortcut', 'isActive', 'isDisabled' ),
+    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isDisabled' ),
 
     /**
         Method: O.ButtonView#draw
@@ -155,9 +156,10 @@ var ButtonView = NS.Class({
         general <O.ButtonView> notes.
     */
     draw: function ( layer ) {
+        var icon = this.get( 'icon' );
         layer.appendChild(
             NS.Element.create( 'i', {
-                className: this.get( 'icon' ) || 'hidden'
+                className: icon ? 'icon ' + icon : 'hidden'
             })
         );
         this._domControl = layer;
@@ -182,7 +184,8 @@ var ButtonView = NS.Class({
         Updates the className of the <i> representing the button's icon.
     */
     redrawIcon: function ( layer ) {
-        layer.firstChild.className = this.get( 'icon' ) || 'hidden';
+        var icon = this.get( 'icon' );
+        layer.firstChild.className = icon ? 'icon ' + icon : 'hidden';
     },
 
     // --- Activate ---

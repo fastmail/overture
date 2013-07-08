@@ -172,7 +172,7 @@ var AbstractControlView = NS.Class({
         }
 
         Element.appendChildren( layer, [
-            this._domLabel = el( 'span', [ this.get( 'label' ) ] )
+            this._domLabel = el( 'span.label', [ this.get( 'label' ) ] )
         ]);
         layer.title = this.get( 'tooltip' );
     },

@@ -101,10 +101,11 @@ var FileButtonView = NS.Class({
     */
     draw: function ( layer ) {
         var Element = NS.Element,
-            el = Element.create;
+            el = Element.create,
+            icon = this.get( 'icon' );
         Element.appendChildren( layer, [
             el( 'i', {
-                className: this.get( 'icon' ) || 'hidden'
+                className: icon ? 'icon ' + icon : 'hidden'
             }),
             this._domControl = NS.Element.create( 'input', {
                 type: 'file',
