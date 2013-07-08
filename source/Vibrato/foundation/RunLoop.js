@@ -68,15 +68,21 @@ var RunLoop = {
     flushQueue: function ( queue ) {
         var toInvoke = this._queues[ queue ],
             l = toInvoke.length,
-            i, tuple;
+            i, tuple, fn, bind;
 
         if ( l ) {
             this._queues[ queue ] = [];
 
             for ( i = 0; i < l; i += 1 ) {
                 tuple = toInvoke[i];
+                fn = tuple[0];
+                bind = tuple[1];
                 try {
-                    tuple[0].call( tuple[1] );
+                    if ( bind ) {
+                        fn.call( bind );
+                    } else {
+                        fn();
+                    }
                 }
                 catch ( error ) {
                     RunLoop.didError( error );
@@ -205,11 +211,17 @@ var RunLoop = {
     */
     _callNextLoopQueue: function () {
         var nextLoopQueue = this._nextLoopQueue,
-            i, l, tuple;
+            i, l, tuple, fn, bind;
         this._nextLoopQueue = null;
         for ( i = 0, l = nextLoopQueue.length; i < l; i += 1 ) {
             tuple = nextLoopQueue[i];
-            tuple[0].call( tuple[1] );
+            fn = tuple[0];
+            bind = tuple[1];
+            if ( bind ) {
+                fn.call( bind );
+            } else {
+                fn();
+            }
         }
     },
 

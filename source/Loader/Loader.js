@@ -43,7 +43,7 @@ var afterModuleExecute = function ( name ) {
     var info = moduleInfo[ name ],
         callbacks = info.callbacks,
         loader = NS.loader,
-        i, l, callback;
+        i, l, callback, fn, bind;
 
     if ( loader.fire ) {
         NS.loader.fire( 'loader:didLoadModule', { module: name } );
@@ -57,7 +57,13 @@ var afterModuleExecute = function ( name ) {
         for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
             callback = callbacks[i];
             if ( !( callback.refCount -= 1 ) ) {
-                callback.fn.call( callback.bind );
+                fn = callback.fn;
+                bind = callback.bind;
+                if ( bind ) {
+                    fn.call( bind );
+                } else {
+                    fn();
+                }
             }
         }
     }
@@ -250,7 +256,13 @@ require = function ( modules, fn, bind ) {
     }
 
     // Everything already loaded, synchronously callback the fn.
-    if ( allLoaded && fn ) { fn.call( bind ); }
+    if ( allLoaded && fn ) {
+        if ( bind ) {
+            fn.call( bind );
+        } else {
+            fn();
+        }
+    }
 
     return allLoaded;
 };

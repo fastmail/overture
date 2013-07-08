@@ -13,6 +13,14 @@
 var defaultComparator = function ( a, b ) {
     return a < b ? -1 : a > b ? 1 : 0;
 };
+var createCallback = function ( callback, bind ) {
+    if ( !bind ) {
+        return callback;
+    }
+    return function ( value, index, enumerable ) {
+        callback.call( bind, value, index, enumerable );
+    };
+};
 
 /**
     Mixin: O.Enumerable
@@ -166,8 +174,9 @@ var Enumerable = {
             {O.Enumerable} Returns self.
     */
     forEach: function ( fn, bind ) {
+        var callback = createCallback( fn, bind );
         for ( var i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
-            fn.call( bind, this.getObjectAt( i ), i, this );
+            callback( this.getObjectAt( i ), i, this );
         }
         return this;
     },
@@ -192,10 +201,11 @@ var Enumerable = {
             {Array} The items which were accepted by the function.
     */
     filter: function ( fn, bind ) {
-        var results = [];
+        var callback = createCallback( fn, bind ),
+            results = [];
         for ( var i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             var value = this.getObjectAt( i );
-            if ( fn.call( bind, value, i, this ) ) {
+            if ( callback( value, i, this ) ) {
                 results.push( value );
             }
         }
@@ -222,9 +232,10 @@ var Enumerable = {
             {Array} The result of each function call.
     */
     map: function ( fn, bind ) {
-        var results = [];
+        var callback = createCallback( fn, bind ),
+            results = [];
         for ( var i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
-            results[i] = fn.call( bind, this.getObjectAt( i ), i, this );
+            results[i] = callback( this.getObjectAt( i ), i, this );
         }
         return results;
     },
@@ -284,8 +295,9 @@ var Enumerable = {
             {Boolean} Were all items accepted by the function?
     */
     every: function ( fn, bind ) {
+        var callback = createCallback( fn, bind );
         for ( var i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
-            if ( !fn.call( bind, this.getObjectAt( i ), i, this ) ) {
+            if ( !callback( this.getObjectAt( i ), i, this ) ) {
                 return false;
             }
         }
@@ -312,8 +324,9 @@ var Enumerable = {
             {Boolean} Did the function accept at least one item?
     */
     some: function ( fn, bind ) {
+        var callback = createCallback( fn, bind );
         for ( var i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
-            if ( fn.call( bind, this.getObjectAt( i ), i, this ) ) {
+            if ( callback( this.getObjectAt( i ), i, this ) ) {
                 return true;
             }
         }
