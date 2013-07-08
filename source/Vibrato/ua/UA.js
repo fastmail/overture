@@ -89,7 +89,7 @@ var ua = navigator.userAgent.toLowerCase(),
     // 2. Chrome on Windows XP has edge case bugs like
     //    not rendering scroll bars in transformed elements.
     if ( ( platform === 'ios' && version < 6 ) ||
-            /Windows NT 5.1/.test( navigator.platform ) ) {
+            /windows nt 5.1/.test( ua ) ) {
         cssProps.transform3d = false;
     }
 }() );
