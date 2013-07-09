@@ -101,7 +101,7 @@ NS.Tap = new NS.Gesture({
         var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
-            i, l, touch, id, start, defaultPrevented, target,
+            i, l, touch, id, start, defaultPrevented, target, nodeName,
             ViewEventsController = NS.ViewEventsController,
             preventDefault = function () {
                 defaultPrevented = true;
@@ -120,6 +120,17 @@ NS.Tap = new NS.Gesture({
                     ViewEventsController.handleEvent(
                         new TapEvent( 'click', target, preventDefault )
                     );
+                    // The tap could trigger a UI change. When the click event
+                    // is fired 300ms later, if there is now an input under the
+                    // area the touch took place, in iOS the keyboard will
+                    // appear, even though the preventDefault on the click event
+                    // stops it actually being focussed. Calling preventDefault
+                    // on the touchend event stops this happening, however we
+                    // must not do this if the user actually taps an input!
+                    nodeName = target.nodeName;
+                    if ( nodeName !== 'INPUT' && nodeName !== 'TEXTAREA' ) {
+                        event.preventDefault();
+                    }
                     new MouseEventRemover( target, defaultPrevented );
                 }
                 delete tracking[ id ];
