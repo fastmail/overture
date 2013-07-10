@@ -190,15 +190,19 @@ function inlineImportsAndImages( src, css, callback ) {
 }
 
 var mapURLs = {};
+var importedURLS = {};
 
 // Returns the CSS with all @imports replaced by the actual file contents.
 function inlineImports ( src, css, callback ) {
     var importRegExp = /@import\s*['"](.*)["']\s*;\n?/g;
-    
     css = css.replace( importRegExp, function ( _, url ) {
         var importSrc = mapURLs[ url ] || pathOf( src, url );
-        return inlineImports(
-            importSrc, fs.readFileSync( importSrc, 'utf8' ) );
+        if ( !importedURLS[ url ] ) {
+            importedURLS[ url ] = true;
+            return inlineImports(
+                importSrc, fs.readFileSync( importSrc, 'utf8' ) );
+        }
+        return '';
     });
     callback && callback( css );
     return css;
