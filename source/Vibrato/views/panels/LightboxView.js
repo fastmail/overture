@@ -26,6 +26,7 @@ var LightboxItemView = NS.Class({
     activeIndex: -1,
 
     frameThickness: 30,
+    margin: 76,
 
     position: function () {
         return this.get( 'index' ) - this.get( 'activeIndex' );
@@ -109,14 +110,14 @@ var LightboxItemView = NS.Class({
             width = content.width,
             height = content.height,
             frame = this.get( 'frameThickness' ),
+            margin = this.get( 'margin' ),
 
             lightbox = this.get( 'lightbox' ),
             lightboxWidth = lightbox.get( 'pxWidth' ),
             lightboxHeight = lightbox.get( 'pxHeight' ),
 
-            // 75 is the minimum gap to the edge of the screen.
-            maxWidth = Math.min( width, lightboxWidth - frame - 75 ),
-            maxHeight = Math.min( height, lightboxHeight - frame - 75 ),
+            maxWidth = Math.min( width, lightboxWidth - frame - margin ),
+            maxHeight = Math.min( height, lightboxHeight - frame - margin ),
 
             ratio = Math.max( width / maxWidth, height / maxHeight );
 
