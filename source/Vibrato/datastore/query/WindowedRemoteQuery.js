@@ -1252,8 +1252,10 @@ var WindowedRemoteQuery = NS.Class({
         }
 
         // All that's left is to inform observers of the changes.
-        return this.set( 'status', (status & EMPTY) ? READY : status )
+        return this.beginPropertyChanges()
                    .set( 'length', total )
+                   .set( 'status', (status & EMPTY) ? READY : status )
+                   .endPropertyChanges()
                    .rangeDidChange(
                        informAllRangeObservers ? 0 : position,
                        informAllRangeObservers ? oldLength : end

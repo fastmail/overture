@@ -104,18 +104,25 @@ var SingleSelectionController = NS.Class({
         }
     }.observes( 'record' ),
 
-    contentBecameReady: function ( list, key ) {
+    setRecordInNewContent: function ( list ) {
+        // If fetching an explicit index, we've already set the explicit
+        // record we want; don't change it.
+        if ( this.get( 'isFetchingIndex' ) ) {
+            return;
+        }
+
         var allowNoSelection = this.get( 'allowNoSelection' ),
             record = this.get( 'record' ),
             index = allowNoSelection ? -1 : 0;
 
-        if ( key ) {
-            if ( !list.is( READY ) ) {
-                return;
-            }
-            list.removeObserverForKey( key, this, 'contentBecameReady' );
+        // Race condition check: has the content property changed since the
+        // SingleSelectionController#contentBecameReady call?
+        if ( list !== this.get( 'content' ) ) {
+            return;
         }
 
+        // See if the currently set record exists in the new list. If it does,
+        // we'll use that.
         if ( record ) {
             index = list.indexOfId( record.get( 'id' ) );
             if ( !allowNoSelection && index < 0 ) {
@@ -144,15 +151,25 @@ var SingleSelectionController = NS.Class({
             newVal.addObserverForRange( range, this, 'recordAtIndexDidChange' );
             newVal.on( 'query:updated', this, 'contentWasUpdated' )
                   .on( 'query:reset', this, 'contentWasReset' );
-
+            this.set( 'isFetchingIndex', false );
             if ( newVal.is( READY ) ) {
-                this.contentBecameReady( newVal );
+                this.setRecordInNewContent( newVal );
             } else {
                 newVal.addObserverForKey(
                     'status', this, 'contentBecameReady' );
             }
         }
     }.observes( 'content' ),
+
+    contentBecameReady: function ( list, key ) {
+        if ( list.is( READY ) ) {
+            list.removeObserverForKey( key, this, 'contentBecameReady' );
+            // Queue so that all data from the server will have been loaded
+            // into the list.
+            NS.RunLoop.queueFn( 'before',
+                this.setRecordInNewContent.bind( this, list ) );
+        }
+    },
 
     contentWasUpdated: function ( updates ) {
         var record = this.get( 'record' ),
