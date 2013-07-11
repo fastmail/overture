@@ -44,6 +44,26 @@ var TapEvent = function ( type, target, preventDefault ) {
     this.preventDefault = preventDefault;
 };
 
+var TrackedTouch = function ( x, y, time, target ) {
+    this.x = x;
+    this.y = y;
+    this.time = time;
+    while ( target && !/^(?:A|BUTTON|INPUT)$/.test( target.nodeName ) ) {
+        target = target.parentNode;
+    }
+    this.target = target;
+    if ( target ) {
+        NS.Element.addClass( target, 'tap-active' );
+    }
+};
+
+TrackedTouch.prototype.done  = function () {
+    var target = this.target;
+    if ( target ) {
+        NS.Element.removeClass( target, 'tap-active' );
+    }
+};
+
 /*  A tap is defined as a touch which:
 
     * Lasts less than 200ms.
@@ -58,6 +78,11 @@ NS.Tap = new NS.Gesture({
     _tracking: {},
 
     cancel: function () {
+        var tracking = this._tracking,
+            id;
+        for ( id in tracking ) {
+            tracking[ id ].done();
+        }
         this._tracking = {};
     },
 
@@ -70,11 +95,8 @@ NS.Tap = new NS.Gesture({
             touch = touches[i];
             id = touch.identifier;
             if ( !tracking[ id ] ) {
-                tracking[ id ] = {
-                    x: touch.screenX,
-                    y: touch.screenY,
-                    time: now
-                };
+                tracking[ id ] = new TrackedTouch(
+                    touch.screenX, touch.screenY, now, touch.target );
             }
         }
     },
@@ -82,15 +104,16 @@ NS.Tap = new NS.Gesture({
     move: function ( event ) {
         var touches = event.changedTouches,
             tracking = this._tracking,
-            i, l, touch, id, start, deltaX, deltaY;
+            i, l, touch, id, trackedTouch, deltaX, deltaY;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
             id = touch.identifier;
-            start = tracking[ id ];
-            if ( start ) {
-                deltaX = touch.screenX - start.x;
-                deltaY = touch.screenY - start.y;
+            trackedTouch = tracking[ id ];
+            if ( trackedTouch ) {
+                deltaX = touch.screenX - trackedTouch.x;
+                deltaY = touch.screenY - trackedTouch.y;
                 if ( deltaX * deltaX + deltaY * deltaY > 100 ) {
+                    trackedTouch.done();
                     delete tracking[ id ];
                 }
             }
@@ -101,7 +124,7 @@ NS.Tap = new NS.Gesture({
         var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
-            i, l, touch, id, start, defaultPrevented, target, nodeName,
+            i, l, touch, id, trackedTouch, defaultPrevented, target, nodeName,
             ViewEventsController = NS.ViewEventsController,
             preventDefault = function () {
                 defaultPrevented = true;
@@ -109,9 +132,9 @@ NS.Tap = new NS.Gesture({
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
             id = touch.identifier;
-            start = tracking[ id ];
-            if ( start ) {
-                if ( now - start.time < 200 ) {
+            trackedTouch = tracking[ id ];
+            if ( trackedTouch ) {
+                if ( now - trackedTouch.time < 200 ) {
                     defaultPrevented = false;
                     target = touch.target;
                     ViewEventsController.handleEvent(
@@ -133,6 +156,7 @@ NS.Tap = new NS.Gesture({
                     }
                     new MouseEventRemover( target, defaultPrevented );
                 }
+                trackedTouch.done();
                 delete tracking[ id ];
             }
         }
