@@ -84,14 +84,16 @@ var FileButtonView = NS.Class({
         the <O.FileButtonView#type> property. In addition, it may have the
         following class depending on the state:
 
+        hasIcon  - If the view has an icon property set.
         disabled - If the view's isDisabled property is true.
     */
     className: function () {
         var type = this.get( 'type' );
         return 'ButtonView FileButtonView' +
             ( type ? ' ' + type : '' ) +
+            ( this.get( 'icon' ) ? ' hasIcon' : '' ) +
             ( this.get( 'isDisabled' ) ? ' disabled' : '' );
-    }.property( 'type', 'isDisabled' ),
+    }.property( 'type', 'icon', 'isDisabled' ),
 
     /**
         Method: O.FileButtonView#draw

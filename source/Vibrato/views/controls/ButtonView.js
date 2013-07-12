@@ -135,6 +135,7 @@ var ButtonView = NS.Class({
         property. In addition, it may have the following classes depending on
         the state:
 
+        hasIcon     - If the view has an icon property set.
         hasShortcut - If the view has a shortcut property set.
         active      - If the view's isActive property is true.
         disabled    - If the view's isDisabled property is true.
