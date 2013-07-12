@@ -112,8 +112,10 @@ var NotificationView = NS.Class({
     draw: function ( layer ) {
         this.drawNotification( layer );
         if ( this.get( 'userMayClose' ) ) {
+            var el = NS.Element.create;
             layer.appendChild(
-                NS.Element.create( 'a.close', [
+                this._close = el( 'a.close', [
+                    el( 'i.close-image' ),
                     NS.loc( 'Close' )
                 ])
             );
@@ -147,7 +149,7 @@ var NotificationView = NS.Class({
     },
 
     hideOnClick: function ( event ) {
-        if ( event.target.className === 'close' ) {
+        if ( NS.Element.contains( this._close, event.target ) ) {
             event.preventDefault();
             this.hide();
         }
