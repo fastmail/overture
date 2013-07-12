@@ -75,7 +75,8 @@ var PopOverView = NS.Class({
         }
 
         // Now find out our offsets;
-        layout = getPosition( atNode, parent.get( 'layer' ) );
+        layout = getPosition( atNode, parent instanceof NS.ScrollView ?
+            parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
 
         switch ( positionToThe ) {
         case 'right':
