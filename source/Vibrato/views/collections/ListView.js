@@ -33,14 +33,6 @@ var ListView = NS.Class({
     ItemView: null,
     itemHeight: 0,
 
-    childViews: function () {
-        var views = Object.values( this._rendered );
-        if ( this.get( 'renderInOrder' ) ) {
-            views.sort( byIndex );
-        }
-        return views;
-    }.property(),
-
     init: function ( mixin ) {
         this._added = null;
         this._removed = null;
@@ -167,6 +159,7 @@ var ListView = NS.Class({
 
     redrawLayer: function ( layer ) {
         var list = this.get( 'content' ) || [],
+            childViews = this.get( 'childViews' ),
 
             // Limit to this range in the content array.
             renderRange = this._renderRange,
@@ -182,6 +175,7 @@ var ListView = NS.Class({
             rendered = this._rendered,
             currentColour = this._currentColour,
             viewsToInsert = [],
+            isStillRequired = {},
 
             // Are they new or always been there?
             added = this._added,
@@ -202,24 +196,42 @@ var ListView = NS.Class({
             lastExistingView = dirty[2];
         }
 
-        // Get list to be rendered.
+        // Mark views we still need.
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
             id = item ? NS.guid( item ) : 'null:' + i;
             view = rendered[ id ];
-            if ( view && !this.isCorrectItemView( view, item, i ) ) {
-                view.detach( false );
+            if ( view && this.isCorrectItemView( view, item, i ) ) {
+                isStillRequired[ id ] = true;
+            }
+        }
+
+        // Remove ones which are no longer needed
+        for ( id in rendered ) {
+            view = rendered[ id ];
+            if ( !isStillRequired[ id ] ) {
+                isRemoved = removed && ( item = view.get( 'content' ) ) ?
+                    removed[ item.get( 'id' ) ] : false;
+                view.detach( isRemoved );
                 this.destroyItemView( view );
                 delete rendered[ id ];
-                view = null;
             }
+        }
+
+        // Create/update views in render range
+        for ( i = start, l = end; i < l; i += 1 ) {
+            item = list.getObjectAt( i );
+            id = item ? NS.guid( item ) : 'null:' + i;
+            view = rendered[ id ];
             if ( !view ) {
                 isAdded = added && item ? added[ item.get( 'id' ) ] : false;
                 view = this.createItemView( item, i, list, isAdded );
                 if ( view ) {
                     rendered[ id ] = view;
+                    childViews.include( view );
                 }
-                viewToInsert = !!view;
+                // If reusing views, may not need to reinsert.
+                viewToInsert = !!view && !view.get( 'isInDocument' );
             } else {
                 viewToInsert = ( renderInOrder &&
                     i >= dirtyStart && i < dirtyEnd );
@@ -235,9 +247,6 @@ var ListView = NS.Class({
                 view.set( 'index', i )
                     .set( 'list', list );
             }
-            if ( view ) {
-                view._ucv_gc = currentColour;
-            }
             if ( viewToInsert ) {
                 frag.appendChild( view.render().get( 'layer' ) );
                 if ( isInDocument ) {
@@ -247,19 +256,7 @@ var ListView = NS.Class({
             }
         }
 
-        // Remove ones which have gone.
-        for ( id in rendered ) {
-            view = rendered[ id ];
-            if ( view._ucv_gc !== currentColour ) {
-                isRemoved = removed && ( item = view.get( 'content' ) ) ?
-                    removed[ item.get( 'id' ) ]: false;
-                view.detach( isRemoved );
-                this.destroyItemView( view );
-                delete rendered[ id ];
-            }
-        }
-
-        // Add new ones
+        // Append new views to layer
         if ( viewsToInsert.length ) {
             if ( lastExistingView ) {
                 layer.insertBefore( frag, lastExistingView.get( 'layer' ) );
@@ -273,29 +270,20 @@ var ListView = NS.Class({
             }
         }
 
+        if ( renderInOrder ) {
+            childViews.sort( byIndex );
+        }
+
         this._added = null;
         this._removed = null;
         this._currentColour = !currentColour;
-        this.computedPropertyDidChange( 'childViews' );
+        this.propertyDidChange( 'childViews' );
     },
 
     // --- Can't add views by hand; just bound to content ---
 
     insertView: null,
-    replaceView: null,
-    removeView: function ( view ) {
-        var isInDocument = this.get( 'isInDocument' ),
-            layer = view.get( 'layer' );
-        if ( isInDocument ) {
-            view.willLeaveDocument();
-        }
-        layer.parentNode.removeChild( layer );
-        if ( isInDocument ) {
-            view.didLeaveDocument();
-        }
-        view.set( 'parentView', null );
-        return this;
-    }
+    replaceView: null
 });
 
 NS.ListView = ListView;
