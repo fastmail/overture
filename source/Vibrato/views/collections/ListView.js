@@ -207,6 +207,7 @@ var ListView = NS.Class({
         }
 
         // Remove ones which are no longer needed
+        this.beginPropertyChanges();
         for ( id in rendered ) {
             view = rendered[ id ];
             if ( !isStillRequired[ id ] ) {
@@ -278,6 +279,7 @@ var ListView = NS.Class({
         this._removed = null;
         this._currentColour = !currentColour;
         this.propertyDidChange( 'childViews' );
+        this.endPropertyChanges();
     },
 
     // --- Can't add views by hand; just bound to content ---

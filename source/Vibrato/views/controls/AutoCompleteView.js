@@ -35,10 +35,15 @@ var AutoCompleteController = NS.Class({
 
     init: function ( mixin ) {
         AutoCompleteController.parent.init.call( this, mixin );
+        this.setOptions();
         this.filterDidChange();
     },
 
-    options: NS.bind( 'view.collection.childViews' ),
+    setOptions: function () {
+        var options = this.getFromPath( 'view.collection.childViews' );
+        this.set( 'options', options ? options.slice() : [] );
+    }.observes( 'view.collection.childViews' ),
+
     selectFirst: function ( _, __, ___, options ) {
         this.focusOption( options[0] || null );
     }.observes( 'options' ),
