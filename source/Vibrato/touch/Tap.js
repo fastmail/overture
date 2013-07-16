@@ -151,7 +151,8 @@ NS.Tap = new NS.Gesture({
                     // on the touchend event stops this happening, however we
                     // must not do this if the user actually taps an input!
                     nodeName = target.nodeName;
-                    if ( nodeName !== 'INPUT' && nodeName !== 'TEXTAREA' ) {
+                    if ( nodeName !== 'INPUT' && nodeName !== 'TEXTAREA' &&
+                            nodeName !== 'SELECT' ) {
                         event.preventDefault();
                     }
                     new MouseEventRemover( target, defaultPrevented );
