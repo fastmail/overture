@@ -60,22 +60,24 @@ var PopOverView = NS.Class({
             callout, layout, position, gap, layer,
             Element = NS.Element,
             el = Element.create,
-            getPosition = Element.getPosition;
+            getPosition = Element.getPosition,
+            RootView = NS.RootView,
+            ScrollView = NS.ScrollView;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
         if ( !parent ) {
             parent = options.atNode ?
                 alignWithView : alignWithView.get( 'parentView' );
-            while ( !( parent instanceof NS.RootView ) &&
-                    !( parent instanceof NS.ScrollView ) &&
+            while ( !( parent instanceof RootView ) &&
+                    !( parent instanceof ScrollView ) &&
                     !( parent instanceof PopOverView ) ) {
                 parent = parent.get( 'parentView' );
             }
         }
 
         // Now find out our offsets;
-        layout = getPosition( atNode, parent instanceof NS.ScrollView ?
+        layout = getPosition( atNode, parent instanceof ScrollView ?
             parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
 
         switch ( positionToThe ) {
@@ -175,8 +177,10 @@ var PopOverView = NS.Class({
         }
 
         // Check not run off screen.
-        if ( parent instanceof NS.RootView ) {
-            position = getPosition( layer );
+        position = getPosition( layer, parent.get( 'layer' ) );
+        if ( parent instanceof RootView ||
+                ( parent instanceof ScrollView &&
+                !parent.get( 'showScrollbarX' ) ) ) {
             // Check left edge
             gap = position.left + deltaLeft;
             if ( gap < 0 ) {
@@ -198,6 +202,10 @@ var PopOverView = NS.Class({
                     calloutDelta -= 10;
                 }
             }
+        }
+        if ( parent instanceof RootView ||
+                ( parent instanceof ScrollView &&
+                !parent.get( 'showScrollbarY' ) ) ) {
             // Check top edge
             gap = position.top + deltaTop;
             if ( gap < 0 ) {
