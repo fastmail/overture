@@ -25,7 +25,6 @@ var ModalView = NS.Class({
             height: '100%',
             zIndex: this.get( 'zIndex' )
         }) );
-        return this;
     },
 
     positioning: 'absolute',

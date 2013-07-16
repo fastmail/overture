@@ -307,13 +307,8 @@ var View = NS.Class({
 
         Parameters:
             layer - {Element} The DOM node.
-
-        Returns:
-            {O.View} Returns self.
     */
-    didCreateLayer: function ( layer ) {
-        return this;
-    },
+    didCreateLayer: function ( layer ) {},
 
     /**
         Method: O.View#willDestroyLayer
@@ -322,13 +317,9 @@ var View = NS.Class({
 
         Parameters:
             layer - {Element} The DOM node.
-
-        Returns:
-            {O.View} Returns self.
     */
     willDestroyLayer: function ( layer ) {
         this.set( 'isRendered', false );
-        return this;
     },
 
     /**

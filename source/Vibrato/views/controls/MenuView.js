@@ -263,13 +263,12 @@ var MenuView = NS.Class({
         MenuView.parent.didCreateLayer.call( this, layer );
         layer.addEventListener( 'mousemove', this, false );
         layer.addEventListener( 'mouseout', this, false );
-        return this;
     },
 
     willDestroyLayer: function ( layer ) {
         layer.removeEventListener( 'mouseout', this, false );
         layer.removeEventListener( 'mousemove', this, false );
-        return MenuView.parent.willDestroyLayer.call( this, layer );
+        MenuView.parent.willDestroyLayer.call( this, layer );
     },
 
     didEnterDocument: function () {
