@@ -36,7 +36,6 @@ var ListView = NS.Class({
     init: function ( mixin ) {
         this._added = null;
         this._removed = null;
-        this._currentColour = true;
         this._rendered = {};
         this._renderRange = {
             start: 0,
@@ -173,7 +172,6 @@ var ListView = NS.Class({
 
             // Set of already rendered views.
             rendered = this._rendered,
-            currentColour = this._currentColour,
             viewsToInsert = [],
             isStillRequired = {},
 
@@ -277,7 +275,6 @@ var ListView = NS.Class({
 
         this._added = null;
         this._removed = null;
-        this._currentColour = !currentColour;
         this.propertyDidChange( 'childViews' );
         this.endPropertyChanges();
     },
