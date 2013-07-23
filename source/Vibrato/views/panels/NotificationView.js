@@ -149,7 +149,8 @@ var NotificationView = NS.Class({
     },
 
     hideOnClick: function ( event ) {
-        if ( NS.Element.contains( this._close, event.target ) ) {
+        if ( this.get( 'userMayClose' ) &&
+                NS.Element.contains( this._close, event.target ) ) {
             event.preventDefault();
             this.hide();
         }
