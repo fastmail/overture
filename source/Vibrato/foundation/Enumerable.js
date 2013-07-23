@@ -18,7 +18,7 @@ var createCallback = function ( callback, bind ) {
         return callback;
     }
     return function ( value, index, enumerable ) {
-        callback.call( bind, value, index, enumerable );
+        return callback.call( bind, value, index, enumerable );
     };
 };
 
