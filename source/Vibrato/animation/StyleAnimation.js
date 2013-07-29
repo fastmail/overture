@@ -10,35 +10,48 @@
 
 ( function ( NS ) {
 
-var matrix = /matrix\((.*?)\)/;
+var transformSplitter = /(\-?\d*\.\d+|\-?\d+)/;
+var numbersToNumber = function ( item, index ) {
+    return index & 1 ? parseFloat( item ) : item;
+};
 var styleAnimators = {
     display: {
         calcDelta: function ( startValue, endValue ) {
             return endValue === 'none' ? startValue : endValue;
         },
-        calcValue: function ( position, deltaValue, startValue, endValue ) {
-            return position ? position < 1 ?
-                deltaValue : endValue : startValue;
+        calcValue: function ( position, deltaValue, startValue ) {
+            return position ? deltaValue : startValue;
         }
     },
     transform: {
         calcDelta: function ( startValue, endValue ) {
-            if ( !startValue ) { startValue = 'matrix(1,0,0,1,0,0)'; }
-            if ( !endValue ) { endValue = 'matrix(1,0,0,1,0,0)'; }
-            var start = matrix.exec( startValue )[1].split( ',' ).map( Number ),
-                end = matrix.exec( endValue )[1].split( ',' ).map( Number );
+            var start = startValue
+                    .split( transformSplitter )
+                    .map( numbersToNumber ),
+                end = endValue
+                    .split( transformSplitter )
+                    .map( numbersToNumber );
+            if ( start.length !== end.length ) {
+                start = [ startValue ];
+                end = [ endValue ];
+            }
             return {
                 start: start,
                 delta: end.map( function ( value, index ) {
-                    return value - start[ index ];
+                    return index & 1 ? value - start[ index ] : 0;
                 })
             };
         },
         calcValue: function ( position, deltaValue ) {
-            var start = deltaValue.start, delta = deltaValue.delta;
-            return 'matrix(' + start.map( function ( value, index ) {
-                return value + ( position * delta[ index ] );
-            }).join( ',' ) + ')';
+            var start = deltaValue.start,
+                delta = deltaValue.delta,
+                transform = start[0],
+                i, l;
+            for ( i = 1, l = start.length; i < l; i += 2 ) {
+                transform += start[ i ] + ( position * delta[ i ] );
+                transform += start[ i + 1 ];
+            }
+            return transform;
         }
     }
 };
@@ -173,9 +186,11 @@ var StyleAnimation = NS.Class({
 
             animator = styleAnimators[ property ];
 
-            value = current[ property ] = animator ?
-                animator.calcValue( position, delta, start, end ) :
-                position < 1 ? ( start + ( position * delta ) ) + unit : end;
+            value = current[ property ] = position < 1 ?
+                animator ?
+                    animator.calcValue( position, delta, start, end ) :
+                    ( start + ( position * delta ) ) + unit :
+                end;
 
             // And set.
             setStyle( el, property, value );
