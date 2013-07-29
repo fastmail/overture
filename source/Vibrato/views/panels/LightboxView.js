@@ -179,7 +179,8 @@ var LightboxItemView = NS.Class({
                     ( canTransform3d ?
                     'translate3d(' + left + 'px,' + top + 'px,0) ' :
                     'translate(' + left + 'px,' + top + 'px) '
-                    )
+                    ) +
+                    'scale(1)'
             } : {
                 top: top,
                 left: left,
