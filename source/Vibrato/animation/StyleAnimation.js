@@ -139,7 +139,10 @@ var StyleAnimation = NS.Class({
                                 start.replace( /[\.\-\d]/g, '' ) ) ||
                             ( typeof end === 'string' &&
                                 end.replace( /[\.\-\d]/g, '' ) ) ||
-                            'px';
+                            // If no unit specified, using 0 will ensure
+                            // the value passed to setStyle is a number, so
+                            // it will add 'px' if appropriate.
+                            0;
                         start = from[ property ] = parseInt( start, 10 );
                         delta[ property ] = parseInt( end, 10 ) - start;
                     }
