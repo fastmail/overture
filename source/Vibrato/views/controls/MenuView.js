@@ -108,7 +108,7 @@ var MenuController = NS.Class({
             options.getObjectAt( l ).filter( pattern );
         }
         if ( !focussedOption || !this.canSelect( focussedOption ) ) {
-            this.focusNext();
+            this.focusOption( null ).focusNext();
         }
     }.observes( 'filter' ),
 
