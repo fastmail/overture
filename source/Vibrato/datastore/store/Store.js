@@ -2085,28 +2085,6 @@ var Store = NS.Class({
     },
 
     /**
-        Method (deprecated): O.Store#getAllLoadedRecords
-
-        This method is deprecated. Please use <O.Store#getAll> instead.
-
-        Materialises and returns an array of record objects for all records of a
-        particular type currently loaded in memory.
-
-        Parameters:
-            Type - {O.Class} The type of records to fetch.
-
-        Returns:
-            {Array.<O.Record>} An array of all loaded records of the requested
-            type.
-    */
-    getAllLoadedRecords: function ( Type ) {
-        console.log( "O.Store#getAllLoadedRecords is deprecated" );
-        return this.findAll( Type ).map( function ( storeKey ) {
-            return this.materialiseRecord( storeKey, Type );
-        }, this );
-    },
-
-    /**
         Method: O.Store#addQuery
 
         Registers a query with the store. This is automatically called by the
