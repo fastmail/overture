@@ -1156,15 +1156,15 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     setData: function ( storeKey, data ) {
-        if ( this.getStatus( storeKey ) & EMPTY ) {
-            this._skToData[ storeKey ] = data;
+        if ( this.getStatus( storeKey ) & READY ) {
+            this.updateData( storeKey, data, false );
+        } else {
             var changedKeys = Object.keys( data );
+            this._skToData[ storeKey ] = data;
             this._notifyRecordOfChanges( storeKey, changedKeys );
             this._nestedStores.forEach( function ( store ) {
                 store.parentDidSetData( storeKey, changedKeys );
             });
-        } else {
-            this.updateData( storeKey, data, false );
         }
         return this;
     },
