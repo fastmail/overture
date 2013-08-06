@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: TextView.js                                                          \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, Validate, AbstractControlView.js    \\
+// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
@@ -21,8 +21,6 @@ var nativePlaceholder = !isOperaMini &&
 
     Extends: O.AbstractControlView
 
-    Includes: O.Validate
-
     A text input control. The `value` property is two-way bindable, representing
     the input text.
 */
@@ -30,12 +28,9 @@ var TextView = NS.Class({
 
     Extends: NS.AbstractControlView,
 
-    Mixin: NS.Validate,
-
     init: function ( mixin ) {
         TextView.parent.init.call( this, mixin );
         this._settingFromInput = false;
-        this.initValidate();
     },
 
     /**
@@ -61,6 +56,15 @@ var TextView = NS.Class({
         This property *must not* be changed after the view has been rendered.
     */
     isExpanding: false,
+
+    /**
+        Property: O.TextView#isValid
+        Type: Boolean
+        Default: true
+
+        If false, an `invalid' class will be added to the view's class name.
+    */
+    isValid: true,
 
     /**
         Property: O.TextView#isHighlighted
