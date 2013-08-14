@@ -175,8 +175,8 @@ var RecordAttribute = NS.Class({
             record      - {O.Record} The record on which the value is being set.
 
         Returns:
-            {String} A string describing the error if this is not a valid value
-            for the attribute. Otherwise, returns the empty string if the value
+            {O.ValidationError} An object describing the error if this is not a
+            valid value for the attribute. Otherwise, returns null if the value
             is valid.
     */
     validate: null,

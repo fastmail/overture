@@ -52,7 +52,7 @@ var AttributeErrors = NS.Class({
                 attribute = record[ propKey ];
                 error = this[ propKey ] = attribute.validate ?
                   attribute.validate( record.get( propKey ), propKey, record ) :
-                  '';
+                  null;
 
                 // Keep an error count
                 if ( error ) { errorCount += 1; }
@@ -104,7 +104,7 @@ var AttributeErrors = NS.Class({
                 oldValue: this[ propKey ],
                 newValue: this[ propKey ] = ( attribute.validate ?
                   attribute.validate( record.get( propKey ), propKey, record ) :
-                  '' )
+                  null )
             };
         }
         this.endPropertyChanges();
@@ -474,12 +474,12 @@ var Record = NS.Class({
             value - {*} The proposed value to set it to.
 
         Returns:
-            {String} The error message, or an empty string if the assignment
-            would be valid.
+            {O.ValidationError|null} The error, or null if the assignment would
+            be valid.
     */
     errorToSet: function ( key, value ) {
         var attr = this[ key ];
-        return attr.validate ? attr.validate( value, key, this ) : '';
+        return attr.validate ? attr.validate( value, key, this ) : null;
     },
 
     /**
