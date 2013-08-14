@@ -42,6 +42,15 @@ var AbstractControlView = NS.Class({
     label: '',
 
     /**
+        Property: O.AbstractControlView#name
+        Type: String|undefined
+        Default: undefined
+
+        If set, this will be the name attribute of the control.
+    */
+    name: undefined,
+
+    /**
         Property: O.AbstractControlView#value
         Type: *
         Default: false
@@ -158,10 +167,15 @@ var AbstractControlView = NS.Class({
         var Element = NS.Element,
             el = Element.create,
             control = this._domControl,
+            name = this.get( 'name' ),
             shortcut = this.get( 'shortcut' ),
             tabIndex = this.get( 'tabIndex' );
 
         control.disabled = this.get( 'isDisabled' );
+
+        if ( name !== undefined ) {
+            control.name = name;
+        }
 
         if ( tabIndex !== undefined ) {
             control.tabIndex = tabIndex;
@@ -181,7 +195,7 @@ var AbstractControlView = NS.Class({
 
     abstractControlNeedsRedraw: function ( self, property, oldValue ) {
        return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'isDisabled', 'label', 'tooltip', 'tabIndex' ),
+    }.observes( 'isDisabled', 'label', 'name', 'tooltip', 'tabIndex' ),
 
     /**
         Method: O.AbstractControlView#redrawIsDisabled
@@ -207,6 +221,16 @@ var AbstractControlView = NS.Class({
         NS.Element.appendChildren( label, [
             this.get( 'label' )
         ]);
+    },
+
+    /**
+        Method: O.AbstractControlView#redrawName
+
+        Updates the name attribute on the DOM control to match the name
+        property of the view.
+    */
+    redrawName: function () {
+        this._domControl.name = this.get( 'name' );
     },
 
     /**

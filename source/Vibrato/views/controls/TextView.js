@@ -248,6 +248,7 @@ var TextView = NS.Class({
             control = this._domControl = el(
                 this.get( 'isMultiline' ) ? 'textarea' : 'input', {
                     id: this.get( 'id' ) + '-input',
+                    name: this.get( 'name' ),
                     type: this.get( 'inputType' ),
                     autocomplete: 'off',
                     disabled: this.get( 'isDisabled' ),
