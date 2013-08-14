@@ -276,15 +276,21 @@ Date.implement({
         Parameters:
             number - {Number} How many days/weeks etc. to move forward.
             unit   - {String} (optional) The unit of the first argument. Must be
-                     one of 'minute'/'hour'/'day'/'week'. If not supplied,
-                     defaults to 'day'.
+                     one of 'minute'/'hour'/'day'/'week'/'month'/'year'.
+                     If not supplied, defaults to 'day'.
 
         Returns:
             {Date} Returns self.
     */
     add: function ( number, unit ) {
-        this.setTime(
-            this.getTime() + number * ( duration[ unit || 'day' ] || 0 ) );
+        if ( unit === 'year' ) {
+            this.setFullYear( this.getFullYear() + number );
+        } else if ( unit === 'month' ) {
+            this.setMonth( this.getMonth() + number );
+        } else {
+            this.setTime(
+                this.getTime() + number * ( duration[ unit || 'day' ] || 0 ) );
+        }
         return this;
     },
 
@@ -296,16 +302,14 @@ Date.implement({
         Parameters:
             number - {Number} How many days/weeks etc. to move backwards.
             unit   - {String} (optional) The unit of the first argument. Must be
-                     one of 'minute'/'hour'/'day'/'week'. If not supplied,
-                     defaults to 'day'.
+                     one of 'minute'/'hour'/'day'/'week'/'month'/'year'.
+                     If not supplied, defaults to 'day'.
 
         Returns:
             {Date} Returns self.
     */
     subtract: function ( number, unit ) {
-        this.setTime(
-            this.getTime() - number * ( duration[ unit || 'day' ] || 0 ) );
-        return this;
+        return this.add( -number, unit );
     },
 
     /**
