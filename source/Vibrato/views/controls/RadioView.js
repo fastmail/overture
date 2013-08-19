@@ -75,7 +75,9 @@ var RadioView = NS.Class({
         <O.AbstractControlView#activate>.
     */
     activate: function () {
-        this.set( 'value', true );
+        if ( !this.get( 'isDisabled' ) ) {
+            this.set( 'value', true );
+        }
     }.on( 'click' )
 });
 

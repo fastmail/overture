@@ -79,7 +79,9 @@ var CheckboxView = NS.Class({
         <O.AbstractControlView#activate>.
     */
     activate: function () {
-        this.toggle( 'value' );
+        if ( !this.get( 'isDisabled' ) ) {
+            this.toggle( 'value' );
+        }
     },
 
     // --- Keep state in sync with render ---
@@ -93,7 +95,7 @@ var CheckboxView = NS.Class({
     syncBackValue: function ( event ) {
         var isTap = ( event.type === 'tap' );
         // Ignore simulated click events
-        if ( isTap || !event.originalType ) {
+        if ( ( isTap || !event.originalType ) && !this.get( 'isDisabled' ) ) {
             var control = this._domControl,
                 value = control.checked;
             if ( isTap ) {
