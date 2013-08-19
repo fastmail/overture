@@ -58,6 +58,10 @@ var ua = navigator.userAgent.toLowerCase(),
                 name: 'transition',
                 value: 'all .3s'
             },
+            perspective: {
+                name: 'perspective',
+                value: '1px'
+            },
             'user-select': {
                 name: 'user-select',
                 value: 'none'
