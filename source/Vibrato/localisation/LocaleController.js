@@ -186,13 +186,15 @@ var LocaleController = {
         Format a number of bytes into a locale-specific file size string.
 
         Parameters:
-            bytes - {Number} The number of bytes.
+            bytes         - {Number} The number of bytes.
+            decimalPlaces - {Number} (optional) The number of decimal places to
+                            use in the result, if in MB or GB.
 
         Returns:
             {String} The localised, human-readable file size.
     */
-    fileSize: function ( bytes ) {
-        return active.getFormattedFileSize( bytes );
+    fileSize: function ( bytes, decimalPlaces ) {
+        return active.getFormattedFileSize( bytes, decimalPlaces );
     }
 };
 

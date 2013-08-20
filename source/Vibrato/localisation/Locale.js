@@ -251,25 +251,27 @@ var Locale = NS.Class({
         Format a number of bytes into a locale-specific file size string.
 
         Parameters:
-            bytes - {Number} The number of bytes.
+            bytes         - {Number} The number of bytes.
+            decimalPlaces - {Number} (optional) The number of decimal places to
+                            use in the result, if in MB or GB.
 
         Returns:
             {String} The localised, human-readable file size.
     */
-    getFormattedFileSize: function ( bytes ) {
+    getFormattedFileSize: function ( bytes, decimalPlaces ) {
         var units = this.fileSizeUnits,
             l = units.length - 1,
             i = 0,
             ORDER_MAGNITUDE = 1000,
             number;
-        while ( i < l && bytes > ORDER_MAGNITUDE ) {
+        while ( i < l && bytes >= ORDER_MAGNITUDE ) {
             bytes /= ORDER_MAGNITUDE;
             i += 1;
         }
         // B/KB to nearest whole number, MB/GB to 1 decimal place.
         number = ( i < 2 ) ?
             Math.round( bytes ) + '' :
-            bytes.toFixed( 1 );
+            bytes.toFixed( decimalPlaces || 0 );
         // Use a &nbsp; to join the number to the unit.
         return this.getFormattedNumber( number ) + ' ' + units[i];
     },
