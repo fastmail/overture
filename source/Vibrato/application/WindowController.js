@@ -6,7 +6,7 @@
 // License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
 // -------------------------------------------------------------------------- \\
 
-/*global O, OperaMail, window, document, localStorage */
+/*global window, document, localStorage */
 
 "use strict";
 
@@ -40,16 +40,6 @@ var WindowController = NS.Class({
     Extends: NS.Object,
 
     /**
-        Property: O.WindowController#pingKey
-        Type: String
-        Default: "owm:ping"
-
-        The key to use for the local storage property that will be set
-        periodically by the master tab to tell other tabs it is still alive.
-    */
-    pingKey: 'owm:ping',
-
-    /**
         Property: O.WindowController#broadcastKey
         Type: String
         Default: "owm:broadcast"
@@ -78,40 +68,55 @@ var WindowController = NS.Class({
         Is the tab/window currently focussed?
     */
 
+    /**
+        Property: O.WindowController#id
+        Type: String
+
+        A unique id for the window, guaranteed to be different than for any
+        other open window.
+    */
+
     init: function ( mixin ) {
+        this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocussed = ( NS.UA.msie !== 8 && document.hasFocus ) ?
             document.hasFocus() : true;
+        this._seenWCs = {};
 
         WindowController.parent.init.call( this, mixin );
-
-        var now = Date.now(),
-            pingKey = this.get( 'pingKey' ),
-            masterLastSeen = 0;
-        try {
-            masterLastSeen = +localStorage.getItem( pingKey ) || 0;
-        } catch ( error ) {}
-        if ( now - masterLastSeen > 45000 ) {
-            this.becomeMaster();
-        } else {
-            this.loseMaster();
-        }
 
         window.addEventListener( 'storage', this, false );
         window.addEventListener( 'unload', this, false );
         window.addEventListener( 'focus', this, false );
         window.addEventListener( 'blur', this, false );
+
+        this.broadcast( 'wc:hello' );
+
+        var RunLoop = NS.RunLoop;
+
+        var that = this;
+        var check = function check () {
+            that.checkMaster();
+            that._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
+        };
+        var ping = function ping () {
+            that.sendPing();
+            that._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
+        };
+        this._checkTimeout = RunLoop.invokeAfterDelay( check, 500 );
+        this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
     },
 
     destroy: function () {
-        if ( this.get( 'isMaster' ) ) {
-            try {
-                localStorage.setItem( this.get( 'pingKey' ), 0 );
-            } catch ( error ) {}
-        }
+        NS.RunLoop.cancel( this._pingTimeout )
+                  .cancel( this._checkTimeout );
 
         window.removeEventListener( 'storage', this, false );
         window.removeEventListener( 'unload', this, false );
+        window.removeEventListener( 'focus', this, false );
+        window.removeEventListener( 'blur', this, false );
+
+        this.broadcast( 'wc:bye' );
 
         WindowController.parent.destroy.call( this );
     },
@@ -127,31 +132,14 @@ var WindowController = NS.Class({
     handleEvent: function ( event ) {
         switch( event.type ) {
         case 'storage':
-            var type = event.key,
-                masterLastSeen = 0,
-                pingKey = this.get( 'pingKey' ),
-                broadcastKey = this.get( 'broadcastKey' ),
-                data;
-            if ( type === pingKey ) {
+            if ( event.key === this.get( 'broadcastKey' ) ) {
                 try {
-                    masterLastSeen = +localStorage.getItem( pingKey ) || 0;
-                } catch ( error ) {}
-                if ( masterLastSeen ) {
-                    this.loseMaster();
-                } else {
-                    // We add a random delay to try avoid the race condition in
-                    // Chrome, which doesn't take out a mutex on local storage.
-                    // It's imperfect, but will eventually work out.
-                    NS.RunLoop.cancel( this._ping );
-                    this._ping = NS.RunLoop.invokeAfterDelay(
-                        this.becomeMaster, ~~( Math.random() * 1000 ), this );
-                }
-            } else if ( type === broadcastKey ) {
-                try {
-                    data = JSON.parse(
-                        localStorage.getItem( broadcastKey )
-                    );
-                    this.fire( data.type, data );
+                    var data = JSON.parse( event.newValue );
+                    // IE fires events in the same window that set the
+                    // property. Ignore these.
+                    if ( data.wcId !== this.id ) {
+                        this.fire( data.type, data );
+                    }
                 } catch ( error ) {}
             }
             break;
@@ -167,52 +155,99 @@ var WindowController = NS.Class({
         }
     }.invokeInRunLoop(),
 
-    /**
-        Method: O.WindowController#becomeMaster
 
-        Force this tab/window to become the master tab if it is not already (and
-        force the current master tab to lose its master status).
+    /**
+        Method (protected): O.WindowController#sendPing
+
+        Sends a ping to let other windows know about the existence of this one.
+        Automatically called periodically.
     */
-    becomeMaster: function () {
-        try {
-            localStorage.setItem( this.get( 'pingKey' ), Date.now() );
-        } catch ( error ) {}
-        this.set( 'isMaster', true );
-        NS.RunLoop.cancel( this._ping );
-        this._ping = NS.RunLoop.invokeAfterDelay(
-            this.becomeMaster, 20000 + ~~( Math.random() * 10000 ), this );
+    sendPing: function () {
+        this.broadcast( 'wc:ping' );
     },
 
     /**
-        Method: O.WindowController#loseMaster
+        Method (private): O.WindowController#_hello
 
-        Resign status as the master tab; another open tab will take over soon
-        after. Note, if no other tab is open, this one will take back master
-        status after a delay.
+        Handles the arrival of a new window.
+
+        Parameters:
+            event - {Event} An event object containing the window id.
     */
-    loseMaster: function () {
-        this.set( 'isMaster', false );
-        NS.RunLoop.cancel( this._ping );
-        this._ping = NS.RunLoop.invokeAfterDelay(
-            this.becomeMaster, 35000 + ~~( Math.random() * 20000 ), this );
+    _hello: function ( event ) {
+        this.onPing( event );
+        if ( event.wcId < this.id ) {
+            this.checkMaster();
+        } else {
+            this.sendPing();
+        }
+    }.on( 'wc:hello' ),
+
+    /**
+        Method (private): O.WindowController#_ping
+
+        Handles a ping from another window.
+
+        Parameters:
+            event - {Event} An event object containing the window id.
+    */
+    _ping: function ( event ) {
+        this._seenWCs[ event.wcId ] = Date.now();
+    }.on( 'wc:ping' ),
+
+
+    /**
+        Method (private): O.WindowController#_hello
+
+        Handles the departure of another window.
+
+        Parameters:
+            event - {Event} An event object containing the window id.
+    */
+    _bye: function ( event ) {
+        delete this._seenWCs[ event.wcId ];
+        this.checkMaster();
+    }.on( 'wc:bye' ),
+
+    /**
+        Method: O.WindowController#checkMaster
+
+        Looks at the set of other windows it knows about and sets the isMaster
+        property based on whether this window has the lowest ordered id.
+    */
+    checkMaster: function () {
+        var now = Date.now(),
+            isMaster = true,
+            seenWCs = this._seenWCs,
+            ourId = this.id,
+            id;
+        for ( id in seenWCs ) {
+            if ( seenWCs[ id ] + 23000 < now ) {
+                delete seenWCs[ id ];
+            } else if ( id < ourId ) {
+                isMaster = false;
+            }
+        }
+        this.set( 'isMaster', isMaster );
     },
 
     /**
         Method: O.WindowController#broadcast
 
-        Broadcast a JSON-serialisable object to other tabs. The object MUST
-        contain a `type` property with the name of the event to be fired on the
-        window controller instance in other windows
+        Broadcast an event with JSON-serialisable data to other tabs.
 
         Parameters:
-            data - {Object} The data to broadcast. Must include a `type`
-                   property.
+            type - {String} The name of the event being broadcast.
+            data - {Object} (optional). The data to broadcast.
     */
-    broadcast: function ( data ) {
+    broadcast: function ( type, data ) {
         try {
             localStorage.setItem(
                 this.get( 'broadcastKey' ),
-                JSON.stringify( data )
+                JSON.stringify( NS.extend({
+                    wcId: this.id,
+                    type: type
+                }, data ))
             );
         } catch ( error ) {}
     }
