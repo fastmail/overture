@@ -166,6 +166,9 @@ var Router = NS.Class({
 
         Parameters:
             url - {String} The url to restore state from.
+
+        Returns:
+            {O.Router} Returns self.
     */
     restoreStateFromUrl: function ( url ) {
         var routes = this.get( 'routes' ),
@@ -180,6 +183,7 @@ var Router = NS.Class({
                 break;
             }
         }
+        return this;
     },
 
     /**
