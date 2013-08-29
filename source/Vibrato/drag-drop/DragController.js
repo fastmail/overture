@@ -20,6 +20,7 @@ var isControl = {
     TEXTAREA: 1
 };
 var effectToString = NS.DragEffect.effectToString;
+var DEFAULT = NS.DragEffect.DEFAULT;
 
 /**
     Class: O.DragController
@@ -274,7 +275,7 @@ var DragController = new NS.Object({
         var drag = this._drag,
             dataTransfer = event.dataTransfer,
             notify = true,
-            effect;
+            dropEffect;
         // Probably hasn't come via root view controller, so doesn't have target
         // view property
         if ( !event.targetView ) {
@@ -302,9 +303,10 @@ var DragController = new NS.Object({
         if ( notify ) {
             drag.move( event );
         }
-        effect = drag.get( 'dropEffect' ) & drag.get( 'allowedEffects' );
-        dataTransfer.dropEffect = effectToString[ effect ];
-        if ( effect ) {
+        dropEffect = drag.get( 'dropEffect' );
+        if ( dropEffect !== DEFAULT ) {
+            dataTransfer.dropEffect =
+                effectToString[ dropEffect & drag.get( 'allowedEffects' ) ];
             event.preventDefault();
         }
     }.on( 'dragover' ),
@@ -364,9 +366,11 @@ var DragController = new NS.Object({
             event - {Event} The drop event.
     */
     _onDrop: function ( event ) {
-        event.preventDefault();
         var drag = this._drag;
         if ( drag ) {
+            if ( drag.get( 'dropEffect' ) !== DEFAULT ) {
+                event.preventDefault();
+            }
             // Dragend doesn't fire if the drag didn't start
             // inside the window, so we also call drag end on drop.
             drag.drop( event ).endDrag();

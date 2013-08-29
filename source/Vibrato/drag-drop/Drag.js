@@ -54,6 +54,7 @@ var NONE = 0,
     MOVE = 2,
     LINK = 4,
     ALL = COPY|MOVE|LINK,
+    DEFAULT = 8,
     effectToString = NS.DragEffect.effectToString;
 
 /**
@@ -91,7 +92,7 @@ var Drag = NS.Class({
         this.allowedEffects = ALL;
         this.dataSource = null;
         this.dropTarget = null;
-        this.dropEffect = NONE;
+        this.dropEffect = DEFAULT;
         this.cursorPosition = this.startPosition = {
             x: event.clientX,
             y: event.clientY
@@ -151,7 +152,7 @@ var Drag = NS.Class({
     /**
         Property: O.Drag#dropEffect
         Type: O.DragEffect
-        Default: O.DragEffect.NONE
+        Default: O.DragEffect.DEFAULT
 
         The effect of the action that will be performed on the data should a
         drop be performed. This should be set by the current drop target.
@@ -265,9 +266,9 @@ var Drag = NS.Class({
         }
         if ( set ) {
             switch ( this.get( 'dropEffect' ) ) {
-                // case NONE:
-                //     cursor = 'no-drop';
-                //     break;
+                case NONE:
+                    cursor = 'no-drop';
+                    break;
                 case COPY:
                     cursor = 'copy';
                     break;
@@ -749,7 +750,9 @@ var Drag = NS.Class({
     */
     drop: function ( event ) {
         this.event = event;
-        if ( this.dropTarget && this.dropEffect ) {
+        var dropEffect = this.dropEffect;
+        if ( this.dropTarget &&
+                dropEffect !== NONE && dropEffect !== DEFAULT ) {
             this.dropTarget.drop( this );
         }
         return this;
