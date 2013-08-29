@@ -91,7 +91,7 @@ var Drag = NS.Class({
         this.allowedEffects = ALL;
         this.dataSource = null;
         this.dropTarget = null;
-        this.dropEffect = MOVE;
+        this.dropEffect = NONE;
         this.cursorPosition = this.startPosition = {
             x: event.clientX,
             y: event.clientY
@@ -151,7 +151,7 @@ var Drag = NS.Class({
     /**
         Property: O.Drag#dropEffect
         Type: O.DragEffect
-        Defatul: O.DragEffect.MOVE
+        Default: O.DragEffect.NONE
 
         The effect of the action that will be performed on the data should a
         drop be performed. This should be set by the current drop target.
@@ -265,9 +265,9 @@ var Drag = NS.Class({
         }
         if ( set ) {
             switch ( this.get( 'dropEffect' ) ) {
-                case NONE:
-                    cursor = 'no-drop';
-                    break;
+                // case NONE:
+                //     cursor = 'no-drop';
+                //     break;
                 case COPY:
                     cursor = 'copy';
                     break;
