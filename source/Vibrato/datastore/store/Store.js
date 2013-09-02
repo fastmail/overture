@@ -845,7 +845,8 @@ var Store = NS.Class({
         var record = this._skToRecord[ storeKey ],
             status = this.getStatus( storeKey );
         // Only unload unwatched clean empty, ready or destroyed records.
-        if ( ( status & ~(EMPTY|READY|DESTROYED) ) ||
+        // Doesn't matter if it's also OBSOLETE.
+        if ( ( status & ~(EMPTY|READY|DESTROYED|OBSOLETE) ) ||
                 ( record && record.hasObservers() ) ) {
             return false;
         }
@@ -943,7 +944,7 @@ var Store = NS.Class({
                         ( Object.keyOf( Status, status ) || status ) +
                     '\nData: ' + JSON.stringify( data )
             });
-            return null;
+            return this;
         }
 
         this._created[ storeKey ] = 1;
@@ -1990,7 +1991,9 @@ var Store = NS.Class({
                 this.unloadRecord( storeKey );
             // Newly destroyed or updated -> revert to ready + obsolete
             } else {
-                this.setData( storeKey, _skToRollback[ storeKey ] );
+                if ( _skToRollback[ storeKey ] ) {
+                    this.setData( storeKey, _skToRollback[ storeKey ] );
+                }
                 delete _skToChanged[ storeKey ];
                 delete _skToCommitted[ storeKey ];
                 delete _skToRollback[ storeKey ];
