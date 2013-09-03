@@ -20,6 +20,7 @@ var SingleSelectionController = NS.Class({
 
     init: function ( mixin ) {
         this._ignore = false;
+        this._range = { start: -1, end: 0 };
 
         this.content = null;
         this.record = null;
@@ -28,8 +29,7 @@ var SingleSelectionController = NS.Class({
 
         SingleSelectionController.parent.init.call( this, mixin );
 
-        var content = this.get( 'content' ),
-            range = this._range = { start: -1, end: 0 };
+        var content = this.get( 'content' );
         if ( content ) {
             this.contentDidChange( null, '', null, content );
         }

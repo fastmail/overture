@@ -19,8 +19,7 @@ var POSITION_SAME = 0x00,
     POSITION_CONTAINS = 0x08,
     POSITION_CONTAINED_BY = 0x10;
 
-var canTransform = !!NS.UA.cssProps.transform,
-    userSelectNone =
+var userSelectNone =
         ( NS.UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
             '-moz-none' : 'none';
 
