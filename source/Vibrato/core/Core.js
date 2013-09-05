@@ -204,7 +204,10 @@ NS.guid = function ( item ) {
         case 'string':
             return 'str:' + item;
         case 'undefined':
-            return item;
+            return 'undefined';
+    }
+    if ( item instanceof Date ) {
+        return 'date:' + (+item);
     }
     return item.__guid__ || ( item.__guid__ =
         'id:' + ( guid += 1 ).toString( 36 )
