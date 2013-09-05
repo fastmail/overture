@@ -175,7 +175,7 @@ var WindowController = NS.Class({
             event - {Event} An event object containing the window id.
     */
     _hello: function ( event ) {
-        this.onPing( event );
+        this._ping( event );
         if ( event.wcId < this.id ) {
             this.checkMaster();
         } else {
@@ -197,7 +197,7 @@ var WindowController = NS.Class({
 
 
     /**
-        Method (private): O.WindowController#_hello
+        Method (private): O.WindowController#_bye
 
         Handles the departure of another window.
 
