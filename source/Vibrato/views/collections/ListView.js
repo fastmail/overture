@@ -188,7 +188,7 @@ var ListView = NS.Class({
         // have to remove existing views from the DOM. To optimise this, we
         // check from both ends whether the views are already correct.
         if ( renderInOrder ) {
-            dirty = this.calculateDirtyRange( list, start, end ),
+            dirty = this.calculateDirtyRange( list, start, end );
             dirtyStart = dirty[0];
             dirtyEnd = dirty[1];
             lastExistingView = dirty[2];
