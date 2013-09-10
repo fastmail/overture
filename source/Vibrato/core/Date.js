@@ -438,7 +438,7 @@ Date.implement({
                 return '\n';
             case 'p':
                 // Localised equivalent of AM or PM.
-                str = ( utc ? date.getUTCHours() : date.getHours() < 12 ) ?
+                str = ( utc ? date.getUTCHours() : date.getHours() ) < 12 ?
                     'am' : 'pm';
                 return NS.i18n ?
                     NS.i18n.get( str + 'Designator' ) : str.toUpperCase();
