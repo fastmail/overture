@@ -153,6 +153,36 @@ var Enumerable = {
         return this.indexOf( item ) > -1;
     },
 
+    /**
+        Method: O.Enumerable#find
+
+        Tests each item in the enumerable with a given function and returns the
+        first item for which the function returned a truthy value. The function
+        will be supplied with 3 parameters when called:
+
+        1. The value.
+        2. The index of the value in the enumerable.
+        3. The enumerable itself.
+
+        Parameters:
+            fn   - {Function} The function to test each value with.
+            bind - {Object} (optional) The object to bind the 'this' parameter
+                   to on each call of the function.
+
+        Returns:
+            {*} The object found, or null if none found.
+    */
+    find: function ( fn, bind ) {
+        var callback = createCallback( fn, bind );
+        for ( var i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
+            var value = this.getObjectAt( i );
+            if ( callback( value, i, this ) ) {
+                return value;
+            }
+        }
+        return null;
+    },
+
     // :: Iteration methods ====================================================
 
     /**
