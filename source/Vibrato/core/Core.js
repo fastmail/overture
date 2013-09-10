@@ -380,6 +380,8 @@ var isEqual = NS.isEqual = function ( a, b ) {
                 }
                 return true;
             }
+        } else if ( a instanceof Date ) {
+            return ( +a === +b );
         } else {
             for ( key in a ) {
                 if ( !isEqual( a[ key ], b[ key ] ) ) {
