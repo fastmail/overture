@@ -155,12 +155,14 @@ var LocaleController = {
             date - {...(String|Number|Object)} The arguments to interpolate.
             type - {String} The type of result you want, e.g. 'shortDate',
                    'time', 'fullDateAndTime'.
+            utc  - {Boolean} (optional) If true, the UTC time of this date
+                   object will be used when determining the day.
 
         Returns:
             {String} The localised date.
     */
-    date: function ( date, type ) {
-        return active.getFormattedDate( date, type );
+    date: function ( date, type, utc ) {
+        return active.getFormattedDate( date, type, utc );
     },
 
     /**

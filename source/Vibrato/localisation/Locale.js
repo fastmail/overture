@@ -356,9 +356,9 @@ var Locale = NS.Class({
     */
     dateFormats: {
         date: '%d/%m/%Y',
-        time: function ( date, locale ) {
+        time: function ( date, locale, utc ) {
             return date.format(
-                locale.use24hClock ? this.time24 : this.time12 );
+                locale.use24hClock ? this.time24 : this.time12, utc );
         },
         time12: '%-I:%M %p',
         time24: '%H:%M',
@@ -385,15 +385,17 @@ var Locale = NS.Class({
             date - {Date} The date object to format.
             type - {String} The type of result you want, e.g. 'shortDate',
                    'time', 'fullDateAndTime'.
+            utc  - {Boolean} (optional) If true, the UTC time of this date
+                   object will be used when determining the date.
 
         Returns:
             {String} The localised date.
     */
-    getFormattedDate: function ( date, type ) {
+    getFormattedDate: function ( date, type, utc ) {
         var dateFormats = this.dateFormats,
             format = dateFormats[ type ] || dateFormats.date;
         return format instanceof Function ?
-            dateFormats[ type ]( date, this ) : date.format( format );
+            dateFormats[ type ]( date, this, utc ) : date.format( format, utc );
     },
 
     // === Strings ===
