@@ -12,7 +12,11 @@
 
 // --- Date Grammar ---
 
-var generateLocalisedDateParser = function ( locale ) {
+var JUST_TIME = 1,
+    JUST_DATE = 2,
+    DATE_AND_TIME = 3;
+
+var generateLocalisedDateParser = function ( locale, mode ) {
     var Parse = NS.Parse,
         define = Parse.define,
         optional = Parse.optional,
@@ -59,9 +63,16 @@ var generateLocalisedDateParser = function ( locale ) {
             optional(
                 timeSuffix
             )
-        ]),
+        ]);
 
-        ordinalSuffix = define( 'ordinalSuffix', datePatterns.ordinalSuffix ),
+    if ( mode === JUST_TIME ) {
+        return firstMatch([
+            time,
+            whitespace
+        ]);
+    }
+
+    var ordinalSuffix = define( 'ordinalSuffix', datePatterns.ordinalSuffix ),
 
         weekday = anyInLocale( 'weekday', 'sun mon tue wed thu fri sat' ),
         day = sequence([
@@ -170,6 +181,18 @@ var generateLocalisedDateParser = function ( locale ) {
             ),
             not( define( '', /^\d/ ) )
         ]);
+
+    if ( mode === JUST_DATE ) {
+        return firstMatch([
+            date,
+            weekday,
+            monthname,
+            year,
+            relativeDate,
+            searchMethod,
+            whitespace
+        ]);
+    }
 
     return firstMatch([
         date,
@@ -470,14 +493,13 @@ var interpreter = {
 var unknown = NS.Parse.define( 'unknown', /^[^\s]+/ );
 
 var dateParsers = {};
-
-NS.parse.date = function ( string, implicitPast, locale ) {
+var parseDateTime = function ( string, locale, implicitPast, mode ) {
     if ( !locale ) {
         locale = NS.i18n.getLocale();
     }
-    var code = locale.code;
+    var code = locale.code + mode;
     var dateParser = dateParsers[ code ] ||
-        ( dateParsers[ code ] = generateLocalisedDateParser( locale ) );
+        ( dateParsers[ code ] = generateLocalisedDateParser( locale, mode ) );
     var parse = new NS.Parse( string.trim() );
     while ( parse.string.length ) {
         if ( !dateParser( parse ) ) {
@@ -485,7 +507,24 @@ NS.parse.date = function ( string, implicitPast, locale ) {
             unknown( parse );
         }
     }
-    return interpreter.interpret( parse.tokens, implicitPast ? PAST : NOW );
+    return parse.tokens;
+};
+
+NS.parse.tokeniseDateTime = parseDateTime;
+
+NS.parse.time = function ( string, locale ) {
+    var tokens = parseDateTime( string, locale, false, JUST_TIME );
+    return interpreter.interpret( tokens );
+};
+
+NS.parse.date = function ( string, locale, implicitPast ) {
+    var tokens = parseDateTime( string, locale, implicitPast, JUST_DATE );
+    return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
+};
+
+NS.parse.dateTime = function ( string, locale, implicitPast ) {
+    var tokens = parseDateTime( string, locale, implicitPast, DATE_AND_TIME );
+    return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
 }( this.O ) );
