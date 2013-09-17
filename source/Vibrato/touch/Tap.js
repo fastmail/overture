@@ -29,7 +29,7 @@ var MouseEventRemover = NS.Class({
         if ( isMouse && ( this.stop || event.target !== this.target ) ) {
             event.preventDefault();
         }
-        if ( type === 'touchstart' ) {
+        if ( type === 'touchstart' || type === 'MSPointerStart' ) {
             NS.ViewEventsController.removeEventTarget( this );
         }
         return isMouse;
@@ -87,13 +87,13 @@ NS.Tap = new NS.Gesture({
     },
 
     start: function ( event ) {
-        var touches = event.changedTouches,
+        var touches = event.changedTouches || [ event ],
             tracking = this._tracking,
             now = Date.now(),
             i, l, touch, id;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier;
+            id = touch.identifier || touch.pointerId;
             if ( !tracking[ id ] ) {
                 tracking[ id ] = new TrackedTouch(
                     touch.screenX, touch.screenY, now, touch.target );
@@ -102,12 +102,12 @@ NS.Tap = new NS.Gesture({
     },
 
     move: function ( event ) {
-        var touches = event.changedTouches,
+        var touches = event.changedTouches || [ event ],
             tracking = this._tracking,
             i, l, touch, id, trackedTouch, deltaX, deltaY;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier;
+            id = touch.identifier || touch.pointerId;
             trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 deltaX = touch.screenX - trackedTouch.x;
@@ -121,7 +121,7 @@ NS.Tap = new NS.Gesture({
     },
 
     end: function ( event ) {
-        var touches = event.changedTouches,
+        var touches = event.changedTouches || [ event ],
             tracking = this._tracking,
             now = Date.now(),
             i, l, touch, id, trackedTouch, defaultPrevented, target, nodeName,
@@ -131,7 +131,7 @@ NS.Tap = new NS.Gesture({
             };
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier;
+            id = touch.identifier || touch.pointerId;
             trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 if ( now - trackedTouch.time < 200 ) {
