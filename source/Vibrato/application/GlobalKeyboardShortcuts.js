@@ -185,14 +185,14 @@ var GlobalKeyboardShortcuts = NS.Class({
     },
 
     /**
-        Method (private): O.GlobalKeyboardShortcuts#_trigger
+        Method: O.GlobalKeyboardShortcuts#trigger
 
         Keypress event handler. Triggers any registered callback.
 
         Parameters:
-            event - {DOMEvent} The keypress event.
+            event - {DOMEvent} The keydown/keypress event.
    */
-    _trigger: function ( event ) {
+    trigger: function ( event ) {
         var target = event.target,
             nodeName = target.nodeName,
             isSpecialKey = event.ctrlKey || event.metaKey,
