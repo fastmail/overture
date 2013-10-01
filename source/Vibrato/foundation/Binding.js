@@ -69,6 +69,8 @@ var _resolveRootAndPath = function ( binding, direction, path, root ) {
     binding[ direction + 'Key' ] = observablePath.slice( lastDot + 1 );
 };
 
+var isNum = /^\d+$/;
+
 /**
     Method (private): O.Binding-identity
 
@@ -516,7 +518,11 @@ var Binding = NS.Class({
             syncForward
         );
         if ( value !== undefined ) {
-            toObject.set( key, value );
+            if ( isNum.test( key ) ) {
+                toObject.setObjectAt( +key, value );
+            } else {
+                toObject.set( key, value );
+            }
         }
         return true;
     }
