@@ -222,15 +222,8 @@ var dayNameToIndex = 'sun mon tue wed thu fri sat'
         return dayNameToIndex;
     }, {} );
 
-var isLeapYear = function ( year ) {
-    return (
-        ( ( year % 4 === 0 ) && ( year % 100 !== 0 ) ) || ( year % 400 === 0 )
-    );
-};
-var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
-var getDaysInMonth = function ( month, year ) {
-    return ( month === 1 && isLeapYear( year ) ) ? 29 : daysInMonths[ month ];
-};
+var isLeapYear = Date.isLeapYear;
+var getDaysInMonth = Date.getDaysInMonth;
 
 var NOW = 0;
 var PAST = -1;
@@ -511,6 +504,9 @@ var parseDateTime = function ( string, locale, implicitPast, mode ) {
 };
 
 NS.parse.tokeniseDateTime = parseDateTime;
+NS.parse.interpretDateTime = function ( tokens, implicitSearchMethod ) {
+    return interpreter.interpret( tokens, implicitSearchMethod || NOW );
+};
 
 NS.parse.time = function ( string, locale ) {
     var tokens = parseDateTime( string, locale, false, JUST_TIME );

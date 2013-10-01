@@ -10,6 +10,13 @@
 
 ( function ( NS ) {
 
+var isLeapYear = function ( year ) {
+    return (
+        ( ( year % 4 === 0 ) && ( year % 100 !== 0 ) ) || ( year % 400 === 0 )
+    );
+};
+var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
 Date.extend({
     /**
         Function: Date.now
@@ -22,7 +29,22 @@ Date.extend({
     */
     now: function () {
         return +( new Date() );
-    }
+    },
+
+    fromJSON: function ( value ) {
+        return value ?
+            new Date( Date.parse( value ) ) :
+            null;
+    },
+
+    getDaysInMonth: function ( month, year ) {
+        return ( month === 1 && isLeapYear( year ) ) ?
+            29 : daysInMonths[ month ];
+    },
+    getDaysInYear: function ( year ) {
+        return isLeapYear( year ) ? 366 : 365;
+    },
+    isLeapYear: isLeapYear
 });
 
 if ( Date.parse( '1970-01-01T00:00Z' ) !== 0 ) {
@@ -108,8 +130,18 @@ Date.implement({
         Returns:
             {Boolean} Is the date today?
     */
-    isToday: function () {
-        return this.isOnSameDayAs( new Date() );
+    isToday: function ( utc ) {
+        var now = new Date(),
+            date = now.getDate(),
+            month = now.getMonth(),
+            year = now.getFullYear();
+        return utc ?
+            this.getUTCFullYear() === year &&
+            this.getUTCMonth() === month &&
+            this.getUTCDate() === date :
+            this.getFullYear() === year &&
+            this.getMonth() === month &&
+            this.getDate() === date;
     },
 
     /**
@@ -126,8 +158,12 @@ Date.implement({
         Returns:
             {Boolean} Are the dates on the same day?
     */
-    isOnSameDayAs: function ( date ) {
-        return date.getFullYear() === this.getFullYear() &&
+    isOnSameDayAs: function ( date, utc ) {
+        return utc ?
+            date.getUTCFullYear() === this.getUTCFullYear() &&
+            date.getUTCMonth() === this.getUTCMonth() &&
+            date.getUTCDate() === this.getUTCDate() :
+            date.getFullYear() === this.getFullYear() &&
             date.getMonth() === this.getMonth() &&
             date.getDate() === this.getDate();
     },
@@ -234,38 +270,46 @@ Date.implement({
         This is how week numbers are defined in ISO 8601.
 
         Parameters:
-            utc - {Boolean} (optional) If true, the UTC time of this date object
-                  will be used when determining the day.
+            firstDayOfWeek - {Number} (optional) The day of the week that should
+                             be considered the first day of the week.
+                             `1` => Monday (default if none supplied)
+                             `0` => Sunday
+                             `6` => Saturday etc.
+            utc            - {Boolean} (optional) If true, the UTC time of this
+                             date object will be used when determining the day.
 
         Returns:
             {Number} The week of the year (1--53).
     */
-    getISOWeekNumber: function ( utc ) {
+    getISOWeekNumber: function ( firstDayOfWeek, utc ) {
         // The week number of the year (Monday as the first day of
         // the week) as a decimal number [01,53]. If the week containing
         // 1 January has four or more days in the new year, then it is
         // considered week 1. Otherwise, it is the last week of the
         // previous year, and the next week is week 1.
+        if ( firstDayOfWeek == null ) { firstDayOfWeek = 1; }
 
         // 4th January is always in week 1.
         var jan4 = utc ?
-            new Date( Date.UTC( this.getUTCFullYear(), 0, 4 ) ) :
-            new Date( this.getFullYear(), 0, 4 );
-        // Find Monday before 4th Jan
-        var wk1Start = jan4 - (
-            ( ( utc ? jan4.getUTCDay() : jan4.getDay() ) + 6 ) % 7
-        ) * aDay;
-        // Week No == How many weeks have past since then, + 1.
-        var week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1;
-        if ( week === 53 &&
-            // Date of Monday must be no greater than 28th December
-            ( utc ? this.getUTCDate() : this.getDate() ) -
-            ( ( ( utc ? this.getUTCDay() : this.getDay() ) + 6 ) % 7 ) > 28  ) {
-            week = 1;
+                new Date( Date.UTC( this.getUTCFullYear(), 0, 4 ) ) :
+                new Date( this.getFullYear(), 0, 4 ),
+            jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay(),
+            // Find Monday before 4th Jan
+            wk1Start = jan4 - ( jan4WeekDay - firstDayOfWeek ).mod( 7 ) * aDay,
+            // Week No == How many weeks have past since then, + 1.
+            week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1,
+            date, day;
+        if ( week === 53 ) {
+            date = utc ? this.getUTCDate() : this.getDate();
+            day = utc ? this.getUTCDay() : this.getDay();
+            // First day of week must be no greater than 28th December
+            if ( date - ( day - firstDayOfWeek ).mod( 7 ) > 28 ) {
+                week = 1;
+            }
         }
         return week || new Date(
             ( utc ? this.getUTCFullYear() : this.getFullYear() ) - 1, 11, 31, 12
-        ).getISOWeekNumber();
+        ).getISOWeekNumber( firstDayOfWeek, false );
     },
 
     /**
@@ -472,7 +516,7 @@ Date.implement({
                 // 1 January has four or more days in the new year, then it is
                 // considered week 1. Otherwise, it is the last week of the
                 // previous year, and the next week is week 1.
-                return pad( this.getISOWeekNumber( utc ), nopad );
+                return pad( this.getISOWeekNumber( 1, utc ), nopad );
             case 'w':
                 // Weekday (0-6) where Sunday is 0.
                 return utc ? date.getUTCDay() : date.getDay();
