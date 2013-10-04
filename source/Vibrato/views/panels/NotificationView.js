@@ -37,7 +37,7 @@ var NotificationView = NS.Class({
     hiddenLayout: hiddenLayout,
     visibleLayout: function () {
         return {
-            top: this.get( 'pxHeight' )
+            top: -this.get( 'pxHeight' ) - 10
         };
     }.property(),
 
@@ -115,7 +115,7 @@ var NotificationView = NS.Class({
             var el = NS.Element.create;
             layer.appendChild(
                 this._close = el( 'a.close', [
-                    el( 'i.close-image' ),
+                    el( 'i.icon.icon-close' ),
                     NS.loc( 'Close' )
                 ])
             );
