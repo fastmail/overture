@@ -120,7 +120,7 @@ var ThemeManager = NS.Class({
 
         var styles = this._styles[ theme ],
             data = styles[ id ] || this._styles.all[ id ],
-            images = this._images[ theme ],
+            images = this._images[ theme ] || {},
             themeIndependentImages = this._images.all,
             active = this._activeStylesheets;
 
@@ -175,10 +175,10 @@ var ThemeManager = NS.Class({
             available, otherwise null.
     */
     getImageSrc: function ( id ) {
-        var _images = this._images;
-        return _images[ this.get( 'theme' ) ][ id ] ||
-               _images.all[ id ] ||
-               null;
+        var _images = this._images,
+            themeImages = _images[ this.get( 'theme' ) ] || {},
+            themeIndependentImages = _images.all;
+        return themeImages[ id ] || themeIndependentImages[ id ] || null;
     }
 });
 
