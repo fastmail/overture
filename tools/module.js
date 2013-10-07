@@ -147,10 +147,19 @@ var sortByDependencies = function ( files ) {
     }, [] );
 };
 
+var fontToMIME = {
+    woff: 'application/font-woff',
+    svg: 'image/svg+xml',
+    eot: 'application/vnd.ms-fontobject'
+};
+
 var makeModule = function ( themeManager, theme, inputs, output ) {
     // Always keep in the same order.
     inputs.sort();
     // 1. Divide by type
+    var fonts = inputs.filter( function ( input ) {
+        return ( /\.(?:woff|svg|eot)$/i.test( input ) );
+    });
     var images = inputs.filter( function ( input ) {
         return ( /\.(?:png|jpe?g|gif)$/i.test( input ) );
     });
@@ -161,6 +170,22 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         return ( /\.js$/i.test( input ) );
     });
     var module = '"use strict";\n\n';
+    fonts.forEach( function ( input ) {
+        var data = fs.readFileSync( input );
+        var filename = input.replace( /.*\//, '' );
+        var type = filename.slice( filename.lastIndexOf( '.' ) + 1 );
+        
+        module += themeManager;
+        module += '.imageDidLoad("';
+        module += theme;
+        module += '", "';
+        module += filename;
+        module += '", "data:';
+        module += fontToMIME[ type ];
+        module += ';base64,';
+        module += data.toString( 'base64' );
+        module += '");\n';
+    });
     images.forEach( function ( input ) {
         var data = fs.readFileSync( input );
         var filename = input.replace( /.*\//, '' );
