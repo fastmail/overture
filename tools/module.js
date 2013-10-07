@@ -150,7 +150,8 @@ var sortByDependencies = function ( files ) {
 var fontToMIME = {
     woff: 'application/font-woff',
     svg: 'image/svg+xml',
-    eot: 'application/vnd.ms-fontobject'
+    eot: 'application/vnd.ms-fontobject',
+    ttf: 'application/x-font-ttf'
 };
 
 var makeModule = function ( themeManager, theme, inputs, output ) {
@@ -158,7 +159,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
     inputs.sort();
     // 1. Divide by type
     var fonts = inputs.filter( function ( input ) {
-        return ( /\.(?:woff|svg|eot)$/i.test( input ) );
+        return ( /\.(?:ttf|woff|svg|eot)$/i.test( input ) );
     });
     var images = inputs.filter( function ( input ) {
         return ( /\.(?:png|jpe?g|gif)$/i.test( input ) );
@@ -182,7 +183,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         module += filename;
         module += '", "data:';
         module += fontToMIME[ type ];
-        module += ';base64,';
+        module += ';charset=utf-8;base64,';
         module += data.toString( 'base64' );
         module += '");\n';
     });
