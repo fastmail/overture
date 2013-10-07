@@ -183,7 +183,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         module += filename;
         module += '", "data:';
         module += fontToMIME[ type ];
-        module += ';charset=utf-8;base64,';
+        module += ';base64,';
         module += data.toString( 'base64' );
         module += '");\n';
     });
@@ -210,7 +210,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         
         data = data.replace( /url\(\s*["']?(.*?)["']?\s*\)/g,
                     function ( original, img ) {
-               return /data:/.test( img ) ?
+               return /data:|\.eot/.test( img ) ?
                     original :
                     'url(' + img.replace( /.*\//g, '' ) + ')';
         });
