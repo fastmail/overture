@@ -509,6 +509,25 @@ var Store = NS.Class({
     },
 
     /**
+        Method: O.Store#getDoppelganger
+
+        Parameters:
+            record - {O.Record} A record instance from a store which is nested
+                     in this one, or which this one nests in.
+
+        Returns:
+            {O.Record} Returns the record instance for the same record in this
+            store.
+    */
+    getDoppelganger: function ( record ) {
+        if ( record.get( 'store' ) === this ) {
+            return record;
+        }
+        var storeKey = record.get( 'storeKey' );
+        return this.materialiseRecord( storeKey, record.constructor );
+    },
+
+    /**
         Method: O.Store#hasChanges
 
         Returns:
