@@ -259,7 +259,7 @@ var PopOverView = NS.Class({
                 subPopOverView.hide();
             }
             this.set( 'isVisible', false );
-            view = options.view;
+            view = this.get( 'childViews' )[0];
             this.get( 'parentView' ).removeView( this );
             this.removeView( view );
             if ( options.showCallout ) {
@@ -272,7 +272,7 @@ var PopOverView = NS.Class({
             }
             this._options = null;
             if ( onHide = options.onHide ) {
-                onHide();
+                onHide( options, this );
             }
         }
         return this;
@@ -301,7 +301,7 @@ var PopOverView = NS.Class({
         while ( view.hasSubView() ) {
             view = view.get( 'subPopOverView' );
         }
-        view._options.view.fire( event.type, event );
+        view.get( 'childViews' )[0].fire( event.type, event );
         if ( event.type === 'keydown' &&
                 NS.DOMEvent.lookupKey( event ) === 'esc' ) {
             view.hide();
