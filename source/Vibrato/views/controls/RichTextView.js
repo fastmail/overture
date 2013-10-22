@@ -901,7 +901,7 @@ RichTextView.pathToDocument = 'document.html';
 RichTextView.isSupported = !!(
     ( 'contentEditable' in document.body ) &&
     ( !NS.UA.operaMobile ) &&
-    ( !NS.UA.isIOS || NS.UA.version >= 7 )
+    ( !NS.UA.isIOS || NS.UA.version >= 8 )
 );
 
 NS.RichTextView = RichTextView;
