@@ -240,10 +240,8 @@ var TextView = NS.Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = NS.Element.create,
-            value = this.get( 'value' ),
+    draw: function ( layer, Element, el ) {
+        var value = this.get( 'value' ),
             placeholder = this.get( 'placeholder' ),
             control = this._domControl = el(
                 this.get( 'isMultiline' ) ? 'textarea' : 'input', {
@@ -274,7 +272,8 @@ var TextView = NS.Class({
         }
 
         layer.title = this.get( 'tooltip' );
-        Element.appendChildren( layer, [
+
+        return [
             this._domLabel = el( 'span', [ this.get( 'label' ) ] ),
             this.get( 'isExpanding' ) ? el( 'pre', [
                 this._mirror = el( 'span', {
@@ -283,7 +282,7 @@ var TextView = NS.Class({
                 el( 'br' )
             ]) : null,
             control
-        ]);
+        ];
     },
 
     // --- Keep render in sync with state ---

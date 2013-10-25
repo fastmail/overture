@@ -163,10 +163,8 @@ var AbstractControlView = NS.Class({
 
         Overridden to set properties and add label. See <O.View#draw>.
     */
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create,
-            control = this._domControl,
+    draw: function ( layer, Element, el ) {
+        var control = this._domControl,
             name = this.get( 'name' ),
             shortcut = this.get( 'shortcut' ),
             tabIndex = this.get( 'tabIndex' );
@@ -185,10 +183,8 @@ var AbstractControlView = NS.Class({
             control.accessKey = shortcut;
         }
 
-        Element.appendChildren( layer, [
-            this._domLabel = el( 'span.label', [ this.get( 'label' ) ] )
-        ]);
         layer.title = this.get( 'tooltip' );
+        return this._domLabel = el( 'span.label', [ this.get( 'label' ) ] );
     },
 
     // --- Keep render in sync with state ---

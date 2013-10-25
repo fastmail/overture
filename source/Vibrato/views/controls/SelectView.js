@@ -53,11 +53,13 @@ var SelectView = NS.Class({
 
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
-    draw: function ( layer ) {
+    draw: function ( layer, Element, el ) {
         var control = this._domControl =
             this._drawSelect( this.get( 'options' ) );
-        SelectView.parent.draw.call( this, layer );
-        layer.appendChild( control );
+        return [
+            SelectView.parent.draw.call( this, layer, Element, el ),
+            control
+        ];
     },
 
     /**

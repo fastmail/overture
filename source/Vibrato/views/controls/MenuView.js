@@ -327,13 +327,14 @@ var MenuView = NS.Class({
 
     ItemView: MenuOptionView,
 
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create,
-            controller = this.get( 'controller' ),
+    draw: function ( layer, Element, el ) {
+        var controller = this.get( 'controller' ),
             MenuOptionView = this.get( 'ItemView' ),
-            optionViews;
-        Element.appendChildren( layer, [
+            optionViews = this.get( 'options' ).map( function ( view ) {
+                return new MenuOptionView( view, controller );
+            });
+        controller.set( 'options', optionViews );
+        return [
             this.get( 'showFilter' ) ? el( 'div', [
                 this._input = new NS.TextView({
                     blurOnEscape: false,
@@ -345,13 +346,9 @@ var MenuView = NS.Class({
                 positioning: 'relative',
                 layout: {},
                 layerTag: 'ul',
-                childViews:
-                    optionViews = this.get( 'options' ).map( function ( view ) {
-                        return new MenuOptionView( view, controller );
-                    })
+                childViews: optionViews
             })
-        ]);
-        controller.set( 'options', optionViews );
+        ];
     },
 
     hide: function () {

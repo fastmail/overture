@@ -31,21 +31,24 @@ var CheckboxView = NS.Class({
 
         Overrides default in <O.View#className>.
     */
-    className: 'CheckboxView',
+    className: function () {
+        return 'CheckboxView' +
+            ( this.get( 'value' ) ? ' checked' : '' );
+    }.property( 'value' ),
 
     /**
         Method: O.CheckboxView#draw
 
         Overridden to draw checkbox in layer. See <O.View#draw>.
     */
-    draw: function ( layer ) {
-        layer.appendChild(
-            this._domControl = NS.Element.create( 'input', {
+    draw: function ( layer, Element, el ) {
+        return [
+            this._domControl = el( 'input', {
                 type: 'checkbox',
                 checked: this.get( 'value' )
-            })
-        );
-        CheckboxView.parent.draw.call( this, layer );
+            }),
+            CheckboxView.parent.draw.call( this, layer, Element, el )
+        ];
     },
 
     // --- Keep render in sync with state ---

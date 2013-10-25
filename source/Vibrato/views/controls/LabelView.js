@@ -58,7 +58,7 @@ var LabelView = NS.Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw: function ( layer ) {
+    draw: function ( layer, Element, el ) {
         layer.title = this.get( 'tooltip' );
         layer.textContent = this.get( 'value' );
     },

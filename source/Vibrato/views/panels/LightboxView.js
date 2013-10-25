@@ -42,16 +42,13 @@ var LightboxItemView = NS.Class({
 
     positioning: 'absolute',
 
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create;
-
-        Element.appendChildren( layer, [
+    draw: function ( layer, Element, el ) {
+        return [
             this.renderContent(),
             this._close = el( 'a.close', { href: location.href }, [
                 el( 'span.navLink', [ NS.loc( 'Close' ) ] )
             ])
-        ]);
+        ];
     },
 
     updateDrawProperties: function () {
@@ -375,20 +372,17 @@ var LightboxView = NS.Class({
     positioning: 'absolute',
     layout: NS.View.LAYOUT_FILL_PARENT,
 
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create;
-
-        Element.appendChildren( layer, [
+    draw: function ( layer, Element, el ) {
+        return [
             el( 'div.background' ),
             el( 'a.prev.navLink', { href: location.href }, [
                 NS.loc( 'Previous' )
             ]),
             el( 'a.next.navLink', { href: location.href }, [
                 NS.loc( 'Next' )
-            ])
-        ]);
-        LightboxView.parent.draw.call( this, layer );
+            ]),
+            LightboxView.parent.draw.call( this, layer, Element, el )
+        ];
     },
 
     // add/remove

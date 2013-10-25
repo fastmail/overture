@@ -117,11 +117,8 @@ var RichTextView = NS.Class({
 
     className: 'RichTextView' + ( NS.UA.isIOS ? ' iOS' : '' ),
 
-    draw: function ( layer ) {
-        var el = NS.Element.create,
-            richTextView = this;
-
-        // Editor
+    draw: function ( layer, Element, el ) {
+        var richTextView = this;
         var iframe = el( 'iframe', {
             src: RichTextView.pathToDocument,
             // IE8 ignores the CSS telling it not to give the iframe a border.
@@ -154,7 +151,7 @@ var RichTextView = NS.Class({
                     .addEventListener( 'undoStateChange', richTextView )
                 ).set( 'path', editor.getPath() )
                  .expand();
-                NS.Element.addClass( richTextView._loadingOverlay, 'hidden' );
+                Element.addClass( richTextView._loadingOverlay, 'hidden' );
                 if ( richTextView.get( 'isFocussed' ) ) {
                     editor.focus();
                 }
@@ -163,11 +160,11 @@ var RichTextView = NS.Class({
 
         iframe.addEventListener( 'load', onload, false );
 
-        NS.Element.appendChildren( layer, [
+        return [
             this.get( 'toolbarView' ),
             el( 'div.editor', [ iframe ] ),
             this._loadingOverlay = el( 'div.LoadingAnimation' )
-        ]);
+        ];
     },
 
     expand: function () {
@@ -631,10 +628,8 @@ var RichTextView = NS.Class({
                 this._input.fire( 'focus' );
                 return NS.View.prototype.didEnterDocument.call( this );
             },
-            draw: function ( layer ) {
-                var Element = NS.Element,
-                    el = Element.create;
-                Element.appendChildren( layer, [
+            draw: function ( layer, Element, el ) {
+                return [
                     el( 'h3', [
                         NS.loc( 'Add a link to the following URL or email:' )
                     ]),
@@ -656,7 +651,7 @@ var RichTextView = NS.Class({
                             method: 'addLink'
                         })
                     ])
-                ]);
+                ];
             },
             addLinkOnEnter: function ( event ) {
                 event.stopPropagation();

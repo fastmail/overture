@@ -363,10 +363,9 @@ var ScrollView = NS.Class({
 
 if ( NS.UA.isIOS ) {
     ScrollView.implement({
-        draw: function ( layer ) {
-            var el = NS.Element.create,
-                isFixedHeight = this.get( 'positioning' ) === 'absolute',
-                contents, scrollFixerHeight, wrapper;
+        draw: function ( layer, Element, el ) {
+            var isFixedHeight = this.get( 'positioning' ) === 'absolute',
+                contents, scrollFixerHeight, wrapper, children;
 
             // Preferred solution if height of div is fixed.
             if ( isFixedHeight ) {
@@ -398,7 +397,10 @@ if ( NS.UA.isIOS ) {
                         'width:1px;height:' + scrollFixerHeight + 'px;'
                 })
             );
-            ScrollView.parent.draw.call( this, contents );
+            children = ScrollView.parent.draw.call( this, layer, Element, el );
+            if ( children ) {
+                Element.appendChildren( contents, children );
+            }
         },
         _iosScroll: function () {
             if ( this.get( 'isInDocument' ) ) {

@@ -210,9 +210,11 @@ var ToolbarView = NS.Class({
                                   .filter( function ( view ) {
                     return !view.get( 'parentView' );
                 }),
-                draw: function ( layer ) {
-                    layer.appendChild( NS.Element.create( 'span.divider' ) );
-                    NS.View.prototype.draw.call( this, layer );
+                draw: function ( layer, Element, el ) {
+                    return [
+                        el( 'span.divider' ),
+                        NS.View.prototype.draw.call( this, layer, Element, el )
+                    ];
                 }
             }),
             this.get( 'layer' ).lastChild,
@@ -270,17 +272,15 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create;
-        Element.appendChildren( layer, [
+    draw: function ( layer, Element, el ) {
+        return [
             el( 'div.left',
                 this.get( 'left' )
             ),
             el( 'div.right', [
                 this.get( 'right' )
             ])
-        ]);
+        ];
     },
 
     toolbarNeedsRedraw: function ( self, property, oldValue ) {

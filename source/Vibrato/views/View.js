@@ -50,11 +50,8 @@ var userSelectNone =
                 return 'MessageView' +
                     ( this.get( 'isImportant' ) ? ' important' : '' );
             }.property( 'isImportant' ),
-            draw: function ( layer ) {
-                var Element = O.Element,
-                    el = Element.create;
-
-                Element.appendChildren( layer, [
+            draw: function ( layer, Element, el ) {
+                return [
                     el( 'h1#title', {
                         text: O.bind( 'title', this )
                     }),
@@ -67,7 +64,7 @@ var userSelectNone =
                             'opera.com'
                         ])
                     ])
-                ]);
+                ];
             }
         });
 
@@ -116,12 +113,9 @@ var userSelectNone =
     O.CheckboxView etc. For example:
 
         new O.View({
-            draw: function ( layer ) {
-                var Element = O.Element,
-                    el = Element.create,
-                    content = this.get( 'content' );
-
-                Element.appendChildren( layer, [
+            draw: function ( layer, Element, el ) {
+                var content = this.get( 'content' );
+                return [
                     el( 'h1#title', {
                         className: O.bind( 'isDone', content,
                                 function ( isDone ) {
@@ -135,7 +129,7 @@ var userSelectNone =
                             label: O.bind( 'description', content )
                         })
                     ])
-                ])
+                ];
             }
         });
 
@@ -170,6 +164,10 @@ var userSelectNone =
     common to make className a computed property that updates depending on the
     state of the view.
 */
+
+var renderView = function ( view ) {
+    return view.render().get( 'layer' );
+};
 
 var View = NS.Class({
 
@@ -535,14 +533,19 @@ var View = NS.Class({
     render: function () {
         if ( !this.get( 'isRendered' ) ) {
             var Element = NS.Element,
-                prevView = Element.forView( this );
+                prevView = Element.forView( this ),
+                layer = this.get( 'layer' ),
+                children;
             // render() called just before inserting in doc, so should
             // resume bindings early to ensure initial render is correct.
             if ( this.get( 'syncOnlyInDocument' ) ) {
                 this.resumeBindings();
             }
             this.set( 'isRendered', true );
-            this.draw( this.get( 'layer' ) );
+            children = this.draw( layer, Element, Element.create );
+            if ( children ) {
+                Element.appendChildren( layer, children );
+            }
             Element.forView( prevView );
         }
         return this;
@@ -555,12 +558,8 @@ var View = NS.Class({
         draw your views. By default, it simply calls <O.View#render> on all
         child views and appends them to the view's DOM node.
     */
-    draw: function ( layer ) {
-        var children = this.get( 'childViews' ),
-            i, l;
-        for ( i = 0, l = children.length; i < l; i += 1 ) {
-            layer.appendChild( children[i].render().get( 'layer' ) );
-        }
+    draw: function ( layer, Element, el ) {
+        return this.get( 'childViews' ).map( renderView );
     },
 
     /**
@@ -624,6 +623,28 @@ var View = NS.Class({
                 this[ 'redraw' + prop[0].capitalise() ]( layer, prop[1] );
             }
         }
+    },
+
+    /**
+        Method: O.View#redrawLayer
+
+        Redraws the entire layer by removing all existing children and then
+        calling <O.View#draw> again. Warning: it is only safe to use this
+        implementation if the view has no child views and no bindings to any of
+        its DOM elements.
+
+        Parameters:
+            layer - {Element} The view's layer.
+    */
+    redrawLayer: function ( layer ) {
+        var Element = O.Element,
+            child;
+        while ( child = layer.lastChild ) {
+            layer.removeChild( child );
+        }
+        Element.appendChildren( layer,
+            this.draw( layer, Element, Element.create )
+        );
     },
 
     /**

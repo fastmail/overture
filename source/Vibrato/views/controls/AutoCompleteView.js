@@ -116,7 +116,7 @@ var AutoCompleteOptionView = NS.Class({
         this.get( 'content' ).controller.blurOption( this );
     }.on( 'mouseout' ),
 
-    draw: function ( layer ) {
+    draw: function ( layer, Element, el ) {
         var content = this.get( 'content' ),
             source = content.source,
             suggestion = content.suggestion,
@@ -214,16 +214,14 @@ var AutoCompleteView = NS.Class({
 
     positioning: 'absolute',
 
-    draw: function ( layer ) {
-        var collection;
-        NS.Element.appendChildren( layer, [
-            collection = new NS.ListView({
-                content: this.get( 'controller' ).get( 'suggestions' ),
-                layerTag: 'ul',
-                ItemView: this.get( 'ItemView' )
-            })
-        ]);
+    draw: function ( layer, Element, el ) {
+        var collection = new NS.ListView({
+            content: this.get( 'controller' ).get( 'suggestions' ),
+            layerTag: 'ul',
+            ItemView: this.get( 'ItemView' )
+        });
         this.set( 'collection', collection );
+        return collection;
     },
 
     fireShortcut: function () {}

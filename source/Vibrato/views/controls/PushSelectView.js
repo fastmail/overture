@@ -20,13 +20,8 @@ var PushSelectView = NS.Class({
 
     className: 'PushSelectView',
 
-    draw: function ( layer ) {
-        layer.appendChild( this._drawSelect() );
-    },
-    _drawSelect: function () {
-        var el = NS.Element.create,
-            selected = this.get( 'value' );
-
+    draw: function ( layer, Element, el ) {
+        var selected = this.get( 'value' );
         return el( 'div',
             this.get( 'options' ).reduce( function ( children, option, i ) {
                 if ( i ) {
@@ -52,7 +47,11 @@ var PushSelectView = NS.Class({
     }.observes( 'options', 'value' ),
 
     redrawOptions: function ( layer ) {
-        layer.replaceChild( this._drawSelect(), layer.firstChild );
+        var Element = NS.Element;
+        layer.replaceChild(
+            this.draw( layer, Element, Element.create ),
+            layer.firstChild
+        );
     },
 
     redrawValue: function ( layer, oldValue ) {

@@ -93,10 +93,13 @@ var ListView = NS.Class({
         } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
-    draw: function ( layer ) {
+    draw: function ( layer, Element, el ) {
         // Render any unmanaged child views first.
-        ListView.parent.draw.call( this, layer );
-        var content = this.get( 'content' );
+        var children = ListView.parent.draw.call( this, layer ),
+            content = this.get( 'content' );
+        if ( children ) {
+            Element.appendChildren( layer, children );
+        }
         if ( content ) {
             content.addObserverForRange( this._renderRange, this, '_redraw' );
             content.on( 'query:updated', this, 'contentWasUpdated' );

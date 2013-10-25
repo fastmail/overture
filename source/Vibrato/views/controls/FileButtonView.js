@@ -101,21 +101,20 @@ var FileButtonView = NS.Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.FileButtonView> notes.
     */
-    draw: function ( layer ) {
-        var Element = NS.Element,
-            el = Element.create,
-            icon = this.get( 'icon' );
-        Element.appendChildren( layer, [
+    draw: function ( layer, Element, el ) {
+        var icon = this.get( 'icon' );
+        return [
             el( 'i', {
                 className: icon ? 'icon ' + icon : 'hidden'
             }),
-            this._domControl = NS.Element.create( 'input', {
+            this._domControl = el( 'input', {
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
-            })
-        ]);
-        NS.AbstractControlView.prototype.draw.call( this, layer );
+            }),
+            NS.AbstractControlView.prototype.draw
+                .call( this, layer, Element, el )
+        ];
     },
 
     // --- Activate ---

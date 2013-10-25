@@ -109,10 +109,9 @@ var NotificationView = NS.Class({
 
     layout: hiddenLayout,
 
-    draw: function ( layer ) {
+    draw: function ( layer, Element, el ) {
         this.drawNotification( layer );
         if ( this.get( 'userMayClose' ) ) {
-            var el = NS.Element.create;
             layer.appendChild(
                 this._close = el( 'a.close', [
                     el( 'i.icon.icon-close' ),

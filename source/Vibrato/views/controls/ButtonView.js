@@ -156,15 +156,15 @@ var ButtonView = NS.Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.ButtonView> notes.
     */
-    draw: function ( layer ) {
+    draw: function ( layer, Element, el ) {
         var icon = this.get( 'icon' );
-        layer.appendChild(
-            NS.Element.create( 'i', {
-                className: icon ? 'icon ' + icon : 'hidden'
-            })
-        );
         this._domControl = layer;
-        ButtonView.parent.draw.call( this, layer );
+        return [
+            el( 'i', {
+                className: icon ? 'icon ' + icon : 'hidden'
+            }),
+            ButtonView.parent.draw.call( this, layer, Element, el )
+        ];
     },
 
     // --- Keep render in sync with state ---
