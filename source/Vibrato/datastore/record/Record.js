@@ -287,7 +287,7 @@ var Record = NS.Class({
         var storeKey = this.get( 'storeKey' );
         return storeKey ?
             this.get( 'store' ).getIdFromStoreKey( storeKey ) ||
-            ( '#' + storeKey ):
+            ( '#' + storeKey ) :
             this.get( this.constructor.primaryKey );
     }.property(),
 
