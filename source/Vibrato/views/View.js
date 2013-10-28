@@ -532,17 +532,16 @@ var View = NS.Class({
     */
     render: function () {
         if ( !this.get( 'isRendered' ) ) {
-            var Element = NS.Element,
-                prevView = Element.forView( this ),
-                layer = this.get( 'layer' ),
-                children;
             // render() called just before inserting in doc, so should
             // resume bindings early to ensure initial render is correct.
             if ( this.get( 'syncOnlyInDocument' ) ) {
                 this.resumeBindings();
             }
             this.set( 'isRendered', true );
-            children = this.draw( layer, Element, Element.create );
+            var Element = NS.Element,
+                prevView = Element.forView( this ),
+                layer = this.get( 'layer' ),
+                children = this.draw( layer, Element, Element.create );
             if ( children ) {
                 Element.appendChildren( layer, children );
             }
