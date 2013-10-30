@@ -56,6 +56,11 @@ var nextFrame = function ( time ) {
             while ( i-- ) {
                 animation = objAnimations[i];
                 animTime = time - animation.startTime;
+                // For Safari 7, sigh.
+                if ( animTime === time ) {
+                    animation.startTime = time;
+                    animTime = 0;
+                }
                 duration = animation.duration;
                 if ( animTime < duration ) {
                     animation.drawFrame(
@@ -87,9 +92,11 @@ requestAnimFrame( function ( time ) {
     // few milliseconds before then. Add a second to it to ensure this isn't a
     // factor.
     if ( time + 1000 < then ) {
-        timestamp = performance;
+        // Safari doesn't have a performance object, but does return high
+        // resolution time in the requestAnimFrame callback.
+        timestamp = win.performance || null;
         // For Chrome v21-23 (inclusive):
-        if ( !timestamp.now ) {
+        if ( timestamp && !timestamp.now ) {
             timestamp.now = timestamp.webkitNow;
         }
     }
@@ -207,7 +214,7 @@ NS.Animation = NS.Class({
             metadata = meta( object ),
             objAnimations = metadata.animations || ( metadata.animations = [] );
 
-        this.startTime = timestamp.now();
+        this.startTime = timestamp ? timestamp.now() : 0;
 
         // Start loop if no current animations
         if ( !animations.length ) {
