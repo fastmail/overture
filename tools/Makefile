@@ -87,6 +87,8 @@ ADD_MODULE_LIST := $(TOOLS)/module.js addModuleList
 # output
 MAKE_MODULE := $(TOOLS)/module.js makeModule
 
+MAKE_TZ := $(TOOLS)/olsonParser.js
+
 UPDATE_PO := $(TOOLS)/localise.js updatePo
 DB_TO_PO := $(TOOLS)/localise.js dbToPo
 
