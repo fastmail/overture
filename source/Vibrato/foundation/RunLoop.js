@@ -3,7 +3,7 @@
 // Module: Foundation                                                         \\
 // Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2013 Opera Software ASA. All rights reserved.              \\
+// License: © 2010–2013 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
 /*global setTimeout, clearTimeout, setInterval, clearInterval, setImmediate,
