@@ -216,7 +216,7 @@ var formatHeaderLine = function ( text, length ) {
         '\n' +
         'O.TimeZone.load(' +
             JSON.stringify( json, null, 2 )
-                .replace( /\n\s+((?:"[^"]*"|\d+),?)$/gm, ' $1' )
+                .replace( /\n\s+((?:"[^"]*"|\-?\d+),?)$/gm, ' $1' )
                 .replace( /([\d\"])\n\s*\]/g, '$1 ]' ) +
          ');\n'
     );
