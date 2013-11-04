@@ -364,6 +364,7 @@ var Locale = NS.Class({
         time24: '%H:%M',
         fullDate: '%A, %-d %B %Y',
         fullDateAndTime: '%A, %-d %B %Y %H:%M',
+        abbreviatedFullDate: '%a, %-d %b %Y',
         shortDayMonth: '%-d %b',
         shortDayMonthYear: '%-d %b ’%y'
     },

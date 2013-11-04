@@ -334,7 +334,7 @@ var makeRegExp = function ( strings ) {
 
 var formatHeaderLine = function ( text, length ) {
     return '// ' + text +
-        new Array( length - 6 - text.length ).join(' ') + ' \\\\\n';
+        new Array( length - 6 - text.length + 1 ).join(' ') + ' \\\\\n';
 };
 
 var _makeLangModule = function ( code, idList, idToEntry ) {
@@ -417,6 +417,8 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             fullDate: getString( 'S_CALENDAR_FORMAT_FULL_DATE' ),
             fullDateAndTime:
                 getString( 'S_CALENDAR_FORMAT_FULL_DATE_TIME' ),
+            abbreviatedFullDate: getString( 'S_CALENDAR_FORMAT_FULL_DATE' )
+                .replace( '%A', '%a' ).replace( '%B', '%b' ),
             shortDayMonth: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_MONTH' ),
             shortDayMonthYear:
                 getString( 'S_CALENDAR_FORMAT_SHORT_DAY_MONTH_YEAR' ),
@@ -545,7 +547,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         formatHeaderLine( 'File: ' + code + '.js', 80 ) +
         formatHeaderLine( 'Module: Locale', 80 ) +
         formatHeaderLine(
-            'License: © 2010–2013 Opera Software ASA. All rights reserved.', 80
+            'License: © 2010–' + new Date().getFullYear() + ' FastMail Pty Ltd. All rights reserved.', 80
         ) +
         formatHeaderLine( new Array( 80 - 6 + 1 ).join( '-' ), 80 ) +
         '\n' +
