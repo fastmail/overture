@@ -114,6 +114,7 @@ var pad = function ( num, nopad, character ) {
 var aDay = 86400000; // milliseconds in a day
 
 var duration = {
+    second: 1000,
     minute: 60000,
     hour: 3600000,
     day: aDay,
@@ -320,7 +321,7 @@ Date.implement({
         Parameters:
             number - {Number} How many days/weeks etc. to move forward.
             unit   - {String} (optional) The unit of the first argument. Must be
-                     one of 'minute'/'hour'/'day'/'week'/'month'/'year'.
+                     one of 'second'/minute'/'hour'/'day'/'week'/'month'/'year'.
                      If not supplied, defaults to 'day'.
 
         Returns:
@@ -346,7 +347,7 @@ Date.implement({
         Parameters:
             number - {Number} How many days/weeks etc. to move backwards.
             unit   - {String} (optional) The unit of the first argument. Must be
-                     one of 'minute'/'hour'/'day'/'week'/'month'/'year'.
+                     one of 'second'/minute'/'hour'/'day'/'week'/'month'/'year'.
                      If not supplied, defaults to 'day'.
 
         Returns:
