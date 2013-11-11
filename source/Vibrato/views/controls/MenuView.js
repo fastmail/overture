@@ -154,7 +154,7 @@ var MenuController = NS.Class({
 
     activateIfMenu: function () {
         var focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption && !this.get( 'view' ).get( 'showFilter' ) &&
+        if ( focussedOption &&
                 focussedOption.get( 'button' ) instanceof NS.MenuButtonView ) {
             this.selectFocussed();
         }
