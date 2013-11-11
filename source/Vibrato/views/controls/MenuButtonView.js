@@ -109,35 +109,40 @@ var MenuButtonView = NS.Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             var buttonView = this,
-                isInMenu = this.get( 'isInMenu' ),
-                popOverView, offsetTop, offsetLeft, menuOptionView;
-            if ( isInMenu ) {
+                popOverOptions = NS.extend({
+                    view: this.get( 'menuView' ),
+                    alignWithView: buttonView,
+                    alignEdge: this.get( 'alignMenu' ),
+                    onHide: function () {
+                        buttonView.set( 'isActive', false );
+                        if ( menuOptionView ) {
+                            menuOptionView.removeObserverForKey(
+                                'isFocussed', popOverView, 'hide' );
+                        }
+                    }
+                }, this.get( 'popOverOptions' ) ),
+                popOverView, menuOptionView, rootView;
+            if ( this.get( 'isInMenu' ) ) {
                 popOverView = this.getParent( NS.PopOverView );
-                // Align top of submenu with top of menu button.
-                offsetTop = -this.get( 'pxHeight' ) - 4;
-                // And to the right hand side
-                offsetLeft = this.get( 'pxWidth' );
                 menuOptionView = this.get( 'parentView' );
+                rootView = buttonView.getParent( NS.RootView );
+
+                popOverOptions.alignWithView = popOverView;
+                popOverOptions.atNode = this.get( 'layer' );
+                popOverOptions.positionToThe =
+                    buttonView.getPositionRelativeTo( rootView ).left +
+                    buttonView.get( 'pxWidth' ) + 180 <
+                        rootView.get( 'pxWidth' ) ?
+                            'right' : 'left';
+                popOverOptions.alignEdge = 'top';
+                popOverOptions.offsetTop =
+                    popOverOptions.view.get( 'showFilter' ) ? -35 : -5;
             } else {
                 popOverView = this.get( 'popOverView' );
             }
             // If the isInMenu, the popOverView used will actually be a subview
             // of this popOverView, and is returned from the show method.
-            popOverView = popOverView.show( NS.extend({
-                view: this.get( 'menuView' ),
-                alignWithView: isInMenu ? popOverView : this,
-                atNode: isInMenu ? this.get( 'layer' ) : null,
-                alignEdge: this.get( 'alignMenu' ),
-                offsetTop: offsetTop,
-                offsetLeft: offsetLeft,
-                onHide: function () {
-                    buttonView.set( 'isActive', false );
-                    if ( menuOptionView ) {
-                        menuOptionView.removeObserverForKey(
-                            'isFocussed', popOverView, 'hide' );
-                    }
-                }
-            }, this.get( 'popOverOptions' ) ) );
+            popOverView = popOverView.show( popOverOptions );
             if ( menuOptionView ) {
                 menuOptionView.addObserverForKey(
                     'isFocussed', popOverView, 'hide' );

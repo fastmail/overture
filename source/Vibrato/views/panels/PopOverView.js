@@ -177,10 +177,11 @@ var PopOverView = NS.Class({
         }
 
         // Check not run off screen.
+        if ( parent instanceof PopOverView ) {
+            parent = parent.getParent( RootView );
+        }
         position = getPosition( layer, parent.get( 'layer' ) );
-        if ( parent instanceof RootView ||
-                ( parent instanceof ScrollView &&
-                !parent.get( 'showScrollbarX' ) ) ) {
+        if ( !parent.get( 'showScrollbarX' ) ) {
             // Check left edge
             gap = position.left + deltaLeft;
             if ( gap < 0 ) {
@@ -203,9 +204,7 @@ var PopOverView = NS.Class({
                 }
             }
         }
-        if ( parent instanceof RootView ||
-                ( parent instanceof ScrollView &&
-                !parent.get( 'showScrollbarY' ) ) ) {
+        if ( !parent.get( 'showScrollbarY' ) ) {
             // Check top edge
             gap = position.top + deltaTop;
             if ( gap < 0 ) {
