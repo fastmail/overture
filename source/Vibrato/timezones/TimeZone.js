@@ -36,7 +36,7 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
     var l = rules.length,
         year = datetime.getUTCFullYear(),
         rule, ruleDate, ruleIsUTC, ruleInEffect = null, dateInEffect,
-        clock, month, date, day, difference;
+        month, date, day, difference;
     while ( l-- ) {
         rule = rules[l];
         // Sorted by end year. So if ends before this date, no further rules
@@ -131,11 +131,20 @@ var TimeZone = NS.Class({
         return this.convert( date, true );
     },
     getSuffix: function ( date ) {
-        var period = getPeriod( this.periods, date ),
+        var period = getPeriod( this.periods, date, false ),
             offset = period[1],
             rule = getRule( TimeZone.rules[ period[2] ],
-                offset, date, false, true );
-        return period[3].format( rule[10] );
+                offset, date, false, true ),
+            suffix = period[3],
+            slashIndex = suffix.indexOf( '/' );
+        // If there's a slash, e.g. "GMT/BST", presume first if no time offset,
+        // second if time offset.
+        if ( rule && slashIndex > - 1 ) {
+            suffix = rule[9] ?
+                suffix.slice( slashIndex + 1 ) : suffix.slice( 0, slashIndex );
+            rule = null;
+        }
+        return rule ? suffix.format( rule[10] ) : suffix;
     },
     toJSON: function () {
         return this.id;
@@ -149,20 +158,32 @@ TimeZone.fromJSON = function ( id ) {
 TimeZone.rules = {
     '-': []
 };
+TimeZone.areas = {};
 
 TimeZone.load = function ( json ) {
     var zones = json.zones,
         link = json.link,
-        id;
+        areas = TimeZone.areas,
+        timeZone, id, parts, area, i, l;
 
     for ( id in zones ) {
-        TimeZone[ id ] = new TimeZone({
+        timeZone = new TimeZone({
             id: id,
             periods: zones[ id ]
         });
+        TimeZone[ id ] = timeZone;
+
+        area = areas;
+        parts = id.replace( /_/g, ' ' ).split( '/' );
+        l = parts.length - 1;
+        for ( i = 0; i < l; i += 1 ) {
+            area = area[ parts[i] ] || ( area[ parts[i] ] = {} );
+        }
+        area[ parts[l] ] = timeZone;
     }
     for ( id in link ) {
-        TimeZone[ id ] = TimeZone[ link[ id ] ];
+        timeZone = TimeZone[ link[ id ] ];
+        TimeZone[ id ] = timeZone;
     }
     NS.extend( TimeZone.rules, json.rules );
 };
