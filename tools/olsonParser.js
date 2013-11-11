@@ -1,4 +1,4 @@
-/*global console, require, process */
+/*global require, process */
 
 "use strict";
 
@@ -103,7 +103,7 @@ var formatZone = function ( parts ) {
         month = parts[4] ? parseMonth( parts[4] ) : 0,
         date = parts[5] ? parseInt( parts[5], 10 ) : 0,
         time = parseTime( parts[6] || '-' ),
-        // TODO: We should check if a rule still applies at the transition point 
+        // TODO: We should check if a rule still applies at the transition point
         // and if so, adjust the offset to get UTC correctly.
         until = year ? new Date(Date.UTC(
             year, month, date, time[0], time[1], time[2]
@@ -139,7 +139,7 @@ var convertFile = function ( text ) {
             zones: zones,
             rules: rules,
         },
-        i, l, line, parts, zone, rule, parsedZone, id;
+        i, l, line, parts, zone, rule, parsedZone, id, periods;
     for ( i = 0, l = lines.length; i < l; i += 1 ) {
         line = lines[i].trim();
         // Comment
@@ -156,7 +156,7 @@ var convertFile = function ( text ) {
                 result.link[ parts[2] ] = parts[1];
                 break;
             case 'Rule':
-                rule = formatRule( parts )
+                rule = formatRule( parts );
                 // Ignore rules pre 1970
                 if ( rule[1] < 1970 ) {
                     continue;
@@ -165,6 +165,10 @@ var convertFile = function ( text ) {
                 break;
             case 'Zone':
                 zone = parts[1];
+                // Skip obsolete legacy timezones.
+                if ( zone.indexOf( '/' ) === -1 ) {
+                    continue;
+                }
                 parts = parts.slice( 2 );
                 /* falls through */
             default:
@@ -182,12 +186,20 @@ var convertFile = function ( text ) {
 
     // Now sort
     for ( id in zones ) {
-        zones[id].sort( sortZones );
+        periods = zones[id];
+        periods.sort( sortZones );
+        // If the only rules are pre 1970, we may not have a rule block at all,
+        // but the period could still reference it.
+        periods.forEach( function( period ) {
+            if ( !rules[ period[2] ] ) {
+                period[2] = '-';
+            }
+        });
     }
     for ( id in rules ) {
         if ( !usedRules[ id ] ) {
             delete rules[ id ];
-        } else {            
+        } else {
             rules[ id ].sort( sortRules );
         }
     }
