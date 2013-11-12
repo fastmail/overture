@@ -274,14 +274,19 @@ var MenuView = NS.Class({
     didEnterDocument: function () {
         MenuView.parent.didEnterDocument.call( this );
         var scrollView = this._scrollView,
-            delta, controller, input;
-        if ( scrollView && !this.getParent( NS.ScrollView ) ) {
+            windowHeight, delta, controller, input;
+        if ( scrollView ) {
+            windowHeight = ( this.getParent( NS.ScrollView ) ||
+                this.getParent( NS.RootView ) ).get( 'pxHeight' );
             delta = this.get( 'layer' ).getBoundingClientRect().bottom -
-                this.getParent( NS.RootView ).get( 'pxHeight' );
+                windowHeight;
             // Must redraw immediately so size is correct when PopOverView
             // checks if it is positioned off screen.
             scrollView.set( 'layout', {
-                maxHeight: scrollView.get( 'pxHeight' ) - delta - 10
+                maxHeight: Math.max(
+                    scrollView.get( 'pxHeight' ) - delta - 10,
+                    windowHeight / 2
+                )
             }).redraw();
         }
 
