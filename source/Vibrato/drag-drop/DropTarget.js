@@ -123,7 +123,7 @@ NS.DropTarget = {
             drag - {O.Drag} The drag instance.
     */
     dropExited: function ( drag ) {
-        drag.set( 'dropEffect', NS.DragEffect.MOVE );
+        drag.set( 'dropEffect', NS.DragEffect.DEFAULT );
         this.set( 'hasDragOver', false );
     },
 
