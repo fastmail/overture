@@ -9,6 +9,44 @@
 
 ( function ( NS ) {
 
+/**
+    Function: Date.formatDuration
+
+    Formats the duration given into a localised string, e.g. "5 hours" or
+    "3 weeks 2 days".
+
+    Parameters:
+        durationInMS - The duration in milliseconds to format.
+        approx       - If true, only show most significant unit.
+
+    Returns:
+        {String} The formatted duration.
+*/
+var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
+    var durationInSeconds = Math.abs( Math.floor( durationInMS / 1000 ) ),
+        time;
+
+    if ( durationInSeconds < 60 ) {
+        time = NS.loc( 'less than a minute' );
+    } else if ( durationInSeconds < 3600 ) {
+        time = NS.loc( '[*2,_1,%n minute,%n minutes]',
+            ~~( durationInSeconds / 60 ) );
+    } else if ( durationInSeconds < 86400 ) {
+        time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
+            ~~( durationInSeconds / 3600 ),
+            approx ? 0 : ~~( durationInSeconds / 60 ) % 60 );
+    } else if ( durationInSeconds < 604800 ) {
+        time = NS.loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
+            ~~( durationInSeconds / 86400 ),
+            approx ? 0 : ~~( durationInSeconds / 3600 ) % 24 );
+    } else {
+        time = NS.loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
+            ~~( durationInSeconds / 604800 ),
+            approx ? 0 : ~~( durationInSeconds / 86400 ) % 7 );
+    }
+    return time.trim();
+};
+
 Date.implement({
     /**
         Method: Date#relativeTo
@@ -29,34 +67,18 @@ Date.implement({
     relativeTo: function ( date, approx ) {
         if ( !date ) { date = new Date(); }
 
-        var diffSeconds = ( date - this ) / 1000,
-            isFuture = ( diffSeconds < 0 ),
-            time;
+        var duration = ( date - this ),
+            isFuture = ( duration < 0 ),
+            time, years, months;
 
         if ( isFuture ) {
-            diffSeconds = -diffSeconds;
+            duration = -duration;
         }
-
-        if ( diffSeconds < 60 ) {
-            time = NS.loc( 'less than a minute' );
-        } else if ( diffSeconds < 3600 ) {
-            time = NS.loc( '[*2,_1,%n minute,%n minutes]',
-                ~~( diffSeconds / 60 ) );
-        } else if ( diffSeconds < 86400 ) {
-            time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
-                ~~( diffSeconds / 3600 ),
-                approx ? 0 : ~~( diffSeconds / 60 ) % 60 );
-        } else if ( diffSeconds < 604800 ) {
-            time = NS.loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
-                ~~( diffSeconds / 86400 ),
-                approx ? 0 : ~~( diffSeconds / 3600 ) % 24 );
-        } else if ( diffSeconds < 3628800 ) {
-            time = NS.loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
-                ~~( diffSeconds / 604800 ),
-                approx ? 0 : ~~( diffSeconds / 86400 ) % 7 );
+        if ( duration < 3628800 ) {
+            time = formatDuration( duration, approx );
         } else {
-            var years = date.getFullYear() - this.getFullYear(),
-                months = date.getMonth() - this.getMonth();
+            years = date.getFullYear() - this.getFullYear();
+            months = date.getMonth() - this.getMonth();
 
             if ( isFuture ) {
                 years = -years;
@@ -68,10 +90,8 @@ Date.implement({
             }
             time =
                 NS.loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
-                    years, months );
+                    years, months ).trim();
         }
-
-        time = time.trim();
 
         return isFuture ?
             NS.loc( '[_1] from now', time ) : NS.loc( '[_1] ago', time );
