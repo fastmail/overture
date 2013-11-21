@@ -47,7 +47,8 @@ Date.extend({
     isLeapYear: isLeapYear
 });
 
-if ( Date.parse( '1970-01-01T00:00Z' ) !== 0 ) {
+if ( Date.parse( '1970-01-01T00:00' ) !== 0 ||
+        Date.parse( '1970-01-01T00:00Z' ) !== 0 ) {
     Date.parse = ( function ( Date ) {
         /*
             /^
