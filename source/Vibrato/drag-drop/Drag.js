@@ -97,6 +97,7 @@ var Drag = NS.Class({
             x: event.clientX,
             y: event.clientY
         };
+        this.defaultCursor = 'default';
         this.dragImage = null;
 
         Drag.parent.init.call( this, mixin );
@@ -172,6 +173,15 @@ var Drag = NS.Class({
 
         Contains `x` and `y` values indicating the cursor position when the drag
         was initiated, relative to the browser window.
+    */
+
+    /**
+        Property: O.Drag#defaultCursor
+        Type: String
+        Default: 'default'
+
+        The CSS cursor property value for the cursor to use when no drop effect
+        has been set.
     */
 
     /**
@@ -259,7 +269,7 @@ var Drag = NS.Class({
     */
     _setCursor: function ( set ) {
         var stylesheet = this._stylesheet,
-            cursor = 'default';
+            cursor = this.get( 'defaultCursor' );
         if ( stylesheet ) {
             stylesheet.parentNode.removeChild( stylesheet );
             stylesheet = null;
@@ -282,7 +292,7 @@ var Drag = NS.Class({
             );
         }
         this._stylesheet = stylesheet;
-    }.observes( 'dropEffect' ),
+    }.observes( 'defaultCursor', 'dropEffect' ),
 
     /**
         Property: O.Drag#dataTypes
