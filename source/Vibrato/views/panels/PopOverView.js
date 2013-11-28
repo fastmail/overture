@@ -178,7 +178,8 @@ var PopOverView = NS.Class({
 
         // Check not run off screen.
         if ( parent instanceof PopOverView ) {
-            parent = parent.getParent( RootView );
+            parent = parent.getParent( ScrollView ) ||
+                parent.getParent( RootView );
         }
         position = getPosition( layer, parent.get( 'layer' ) );
         if ( !parent.get( 'showScrollbarX' ) ) {
