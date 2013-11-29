@@ -182,18 +182,18 @@ var PopOverView = NS.Class({
                 parent.getParent( RootView );
         }
         position = getPosition( layer, parent.get( 'layer' ) );
-        if ( !parent.get( 'showScrollbarX' ) ) {
-            // Check left edge
-            gap = position.left + deltaLeft;
-            if ( gap < 0 ) {
-                deltaLeft -= gap;
-                deltaLeft += 10;
-                if ( callout && calloutIsAtTopOrBottom ) {
-                    calloutDelta -= gap;
-                    calloutDelta += 10;
-                }
+        // Check left edge
+        gap = position.left + deltaLeft;
+        if ( gap < 0 ) {
+            deltaLeft -= gap;
+            deltaLeft += 10;
+            if ( callout && calloutIsAtTopOrBottom ) {
+                calloutDelta -= gap;
+                calloutDelta += 10;
             }
-            // Check right edge
+        }
+        // Check right edge
+        if ( !parent.get( 'showScrollbarX' ) ) {
             gap = parent.get( 'pxWidth' ) - gap - layer.offsetWidth;
             // If gap is negative, move the view.
             if ( gap < 0 ) {
@@ -205,18 +205,18 @@ var PopOverView = NS.Class({
                 }
             }
         }
-        if ( !parent.get( 'showScrollbarY' ) ) {
-            // Check top edge
-            gap = position.top + deltaTop;
-            if ( gap < 0 ) {
-                deltaTop -= gap;
-                deltaTop += 10;
-                if ( callout && !calloutIsAtTopOrBottom ) {
-                    calloutDelta -= gap;
-                    calloutDelta += 10;
-                }
+        // Check top edge
+        gap = position.top + deltaTop;
+        if ( gap < 0 ) {
+            deltaTop -= gap;
+            deltaTop += 10;
+            if ( callout && !calloutIsAtTopOrBottom ) {
+                calloutDelta -= gap;
+                calloutDelta += 10;
             }
-            // Check bottom edge
+        }
+        // Check bottom edge
+        if ( !parent.get( 'showScrollbarY' ) ) {
             gap = parent.get( 'pxHeight' )  - gap - layer.offsetHeight;
             if ( gap < 0 ) {
                 deltaTop += gap;
