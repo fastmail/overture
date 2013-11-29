@@ -144,7 +144,7 @@ var TimeZone = NS.Class({
                 suffix.slice( slashIndex + 1 ) : suffix.slice( 0, slashIndex );
             rule = null;
         }
-        return rule ? suffix.format( rule[10] ) : suffix;
+        return suffix.format( rule ? rule[10] : '' );
     },
     toJSON: function () {
         return this.id;
