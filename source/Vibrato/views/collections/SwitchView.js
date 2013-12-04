@@ -94,14 +94,18 @@ var SwitchView = NS.Class({
     _index: 0,
     index: 0,
 
-    indexDidChange: function () {
+    redrawIndex: function () {
         if ( this.get( 'index' ) !== this._index ) {
             var parentView = this.get( 'parentView' );
             if ( parentView ) {
                 this.remove( parentView ).add();
             }
         }
-    }.queue( 'render' ).observes( 'index' ),
+    },
+
+    switchNeedsRedraw: function ( self, property, oldValue ) {
+        this.propertyNeedsRedraw( self, property, oldValue )
+    }.observes( 'index' ),
 
     parentViewDidChange: function ( _, __, oldParent, newParent ) {
         if ( oldParent ) {
