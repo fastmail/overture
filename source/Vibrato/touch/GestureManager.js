@@ -31,6 +31,8 @@ var GestureManager = new NS.Object({
         this._gestures.erase( gesture );
     },
 
+    isMouseDown: false,
+
     fire: function ( type, event ) {
         if ( /^touch/.test( type ) ||
                 ( /^MSPointer/.test( type ) && event.pointerType === 'touch' ) ) {
@@ -39,6 +41,14 @@ var GestureManager = new NS.Object({
             type = event.pointerId ? methodForType[ type ] : type.slice( 5 );
             while ( l-- ) {
                 gestures[l][ type ]( event );
+            }
+        }
+        if ( !event.button ) {
+            if ( type === 'mousedown' ) {
+                this.set( 'isMouseDown', true );
+            }
+            if ( type === 'mouseup' ) {
+                this.set( 'isMouseDown', false );
             }
         }
         return false;
