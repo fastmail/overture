@@ -74,10 +74,17 @@ var SwitchView = NS.Class({
     }.property(),
 
     willEnterDocument: function () {
-        return this.resumeBindings();
+        this.resumeBindings();
+        if ( this._needsRedraw ) {
+            this.redraw();
+        }
+        return this;
     },
 
     didEnterDocument: function () {
+        if ( this._needsRedraw ) {
+            NS.RunLoop.queueFn( 'render', this.redraw, this );
+        }
         return this.set( 'isInDocument', true );
     },
 
