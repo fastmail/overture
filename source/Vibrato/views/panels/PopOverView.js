@@ -115,7 +115,6 @@ var PopOverView = NS.Class({
 
         layout.top += options.offsetTop || 0;
         layout.left += options.offsetLeft || 0;
-        layout.zIndex = 1000;
 
         // Set layout
         this.set( 'layout', layout );
