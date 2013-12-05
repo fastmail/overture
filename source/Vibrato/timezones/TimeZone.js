@@ -182,8 +182,19 @@ TimeZone.load = function ( json ) {
         area[ parts[l] ] = timeZone;
     }
     for ( id in link ) {
-        timeZone = TimeZone[ link[ id ] ];
+        timeZone = new TimeZone({
+            id: id,
+            periods: zones[ link[ id ] ]
+        });
         TimeZone[ id ] = timeZone;
+
+        area = areas;
+        parts = id.replace( /_/g, ' ' ).split( '/' );
+        l = parts.length - 1;
+        for ( i = 0; i < l; i += 1 ) {
+            area = area[ parts[i] ] || ( area[ parts[i] ] = {} );
+        }
+        area[ parts[l] ] = timeZone;
     }
     NS.extend( TimeZone.rules, json.rules );
 };
