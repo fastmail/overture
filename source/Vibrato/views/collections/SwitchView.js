@@ -75,15 +75,13 @@ var SwitchView = NS.Class({
 
     willEnterDocument: function () {
         this.resumeBindings();
-        if ( this._needsRedraw ) {
-            this.redraw();
-        }
+        this.redraw( true );
         return this;
     },
 
     didEnterDocument: function () {
-        if ( this._needsRedraw ) {
-            NS.RunLoop.queueFn( 'render', this.redraw, this );
+        if ( this.get( 'index' ) !== this._index ) {
+            this.switchNeedsRedraw();
         }
         return this.set( 'isInDocument', true );
     },
@@ -101,41 +99,63 @@ var SwitchView = NS.Class({
     _index: 0,
     index: 0,
 
-    redrawIndex: function () {
-        if ( this.get( 'index' ) !== this._index ) {
-            var parentView = this.get( 'parentView' );
+    redraw: function ( willEnterDocument ) {
+        if ( !this.isDestroyed && this.get( 'index' ) !== this._index ) {
+            var parentView = this.get( 'parentView' ),
+                view, l, node;
             if ( parentView ) {
-                this.remove( parentView ).add();
+                view = this._remove( parentView );
+                if ( willEnterDocument ) {
+                    l = view ? view.length : 0;
+                    while ( l-- ) {
+                        node = view[l];
+                        if ( node instanceof View ) {
+                            node.didLeaveDocument();
+                        }
+                    }
+                }
+                view = this._add();
+                if ( willEnterDocument ) {
+                    l = view ? view.length : 0;
+                    while ( l-- ) {
+                        node = view[l];
+                        if ( node instanceof View ) {
+                            node.willEnterDocument();
+                        }
+                    }
+                }
             }
         }
     },
 
-    switchNeedsRedraw: function ( self, property, oldValue ) {
-        this.propertyNeedsRedraw( self, property, oldValue )
+    switchNeedsRedraw: function () {
+        if ( this.get( 'isInDocument' ) ) {
+            NS.RunLoop.queueFn( 'render', this.redraw, this );
+        }
     }.observes( 'index' ),
 
     parentViewDidChange: function ( _, __, oldParent, newParent ) {
         if ( oldParent ) {
-            this.remove( oldParent );
+            this._remove( oldParent );
         }
         if ( newParent ) {
             if ( newParent.get( 'isRendered' ) ) {
                 // We need to wait until we've been inserted to know where our
                 // DOM marker has been place, and so where to insert the real
                 // view(s).
-                newParent.addObserverForKey( 'childViews', this, 'add' );
+                newParent.addObserverForKey( 'childViews', this, '_add' );
             } else {
                 // If not rendered, just add our views in the right place in the
                 // parent's childView list. They'll be rendered in the right
                 // spot.
-                this.add();
+                this._add();
             }
         }
     }.observes( 'parentView' ),
 
-    add: function ( object, key ) {
+    _add: function ( object, key ) {
         if ( object ) {
-            object.removeObserverForKey( key, this, 'add' );
+            object.removeObserverForKey( key, this, '_add' );
         }
         var index = this.get( 'index' ),
             view = this.get( 'views' )[ index ],
@@ -177,10 +197,10 @@ var SwitchView = NS.Class({
                 parent.get( 'childViews' ).concat( subView ) );
         }
         this._index = index;
-        return this;
+        return view;
     },
 
-    remove: function ( parent ) {
+    _remove: function ( parent ) {
         var oldIndex = this._index,
             view = this.get( 'views' )[ oldIndex ],
             subView = this.get( 'subViews' )[ oldIndex ],
@@ -211,7 +231,7 @@ var SwitchView = NS.Class({
             );
         }
         this._index = -1;
-        return this;
+        return view;
     },
 
     // ---
