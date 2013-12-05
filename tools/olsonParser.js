@@ -43,6 +43,16 @@ var parseMonth = function ( month ) {
     }
     return monthNum;
 };
+var isLeapYear = function ( year ) {
+    return (
+        ( ( year % 4 === 0 ) && ( year % 100 !== 0 ) ) || ( year % 400 === 0 )
+    );
+};
+var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+var getDaysInMonth = function ( month, year ) {
+    return ( month === 1 && isLeapYear( year ) ) ?
+        29 : daysInMonths[ month ];
+};
 
 var parseDateDay = function ( dateDay ) {
     var date = parseInt( dateDay.replace(/\D/g, '' ), 10 ) || 0;
@@ -101,13 +111,25 @@ var formatZone = function ( parts ) {
         offsetInSeconds = 60 * ((60 * offset[0]) + offset[1]) + offset[2],
         year = parts[3] ? parseYear( parts[3] ) : 0,
         month = parts[4] ? parseMonth( parts[4] ) : 0,
-        date = parts[5] ? parseInt( parts[5], 10 ) : 0,
+        dateDay = parts[5] ? parseDateDay( parts[5] ) : [ 1, 0 ],
+        date = dateDay[0] || getDaysInMonth( month, year ),
+        day = dateDay[1],
         time = parseTime( parts[6] || '-' ),
         // TODO: We should check if a rule still applies at the transition point
         // and if so, adjust the offset to get UTC correctly.
         until = year ? new Date(Date.UTC(
             year, month, date, time[0], time[1], time[2]
-        ) - ( time[3] ? offsetInSeconds * 1000 : 0 ) ) : 0 ;
+        )) : 0;
+    if ( day ) {
+        offset = day > 0 ? 86400000 : -86400000;
+        day = Math.abs( day ) - 1;
+        while ( until.getUTCDay() !== day ) {
+            until.setTime( +until + offset );
+        }
+    }
+    if ( until && time[3] ) {
+        until.setTime( until - offsetInSeconds * 1000 );
+    }
     return [
         +until,          // Until (JS timestamp)
         offsetInSeconds, // offset (seconds)
