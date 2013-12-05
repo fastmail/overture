@@ -96,11 +96,19 @@ var SwitchView = NS.Class({
 
     // ---
 
-    _index: 0,
+    // -1 => Not yet added to parent
+    // Otherwise, index of view(s) currently in parent
+    _index: -1,
+
+    // Index of view that should be in parent.
     index: 0,
 
     redraw: function ( willEnterDocument ) {
-        if ( !this.isDestroyed && this.get( 'index' ) !== this._index ) {
+        var index = this._index;
+        // If not yet added to parent, nothing to redraw; _add will be called
+        // automatically soon.
+        if ( !this.isDestroyed && index > -1 &&
+                this.get( 'index' ) !== index ) {
             var parentView = this.get( 'parentView' ),
                 view, l, node;
             if ( parentView ) {
@@ -136,6 +144,8 @@ var SwitchView = NS.Class({
 
     parentViewDidChange: function ( _, __, oldParent, newParent ) {
         if ( oldParent ) {
+            // May be a NOP, but just in case.
+            oldParent.removeObserverForKey( 'childViews', this, '_add' );
             this._remove( oldParent );
         }
         if ( newParent ) {
