@@ -323,11 +323,11 @@ var NestedStore = NS.Class({
                 this.setData( storeKey, newData );
                 return;
             }
+            this.setStatus( storeKey,
+                parent.getStatus( storeKey ) & ~(NEW|COMMITTING|DIRTY) );
             delete _skToData[ storeKey ];
             delete _skToChanged[ storeKey ];
             delete _skToCommitted[ storeKey ];
-            this.setStatus( storeKey,
-                parent.getStatus( storeKey ) & ~(NEW|COMMITTING|DIRTY) );
             delete this._skToStatus[ storeKey ];
         }
         this._notifyRecordOfChanges( storeKey, changedKeys );
