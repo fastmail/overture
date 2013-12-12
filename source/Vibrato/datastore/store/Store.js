@@ -1008,7 +1008,7 @@ var Store = NS.Class({
             delete this._created[ storeKey ];
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
-        } else {
+        } else if ( status & READY ) {
             // Discard changes if dirty.
             if ( status & DIRTY ) {
                 this.setData( storeKey, this._skToCommitted[ storeKey ] );
