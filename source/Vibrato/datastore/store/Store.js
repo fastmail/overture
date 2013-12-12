@@ -291,9 +291,15 @@ var Store = NS.Class({
             }
             _idToSk[ id ] = storeKey;
 
-            update[ idAttrKey ] = id;
-            this.updateData( storeKey, update, false );
-            this.updateDataLinkedToId( storeKey, id );
+            // May have already been destroyed since it was created.
+            if ( this.getStatus( storeKey ) & READY ) {
+                update[ idAttrKey ] = id;
+                this.updateData( storeKey, update, false );
+                this.updateDataLinkedToId( storeKey, id );
+            } else {
+                // Update in case of discard changes.
+                this._skToData[ storeKey ][ idAttrKey ] = id;
+            }
         }
 
         return this;
