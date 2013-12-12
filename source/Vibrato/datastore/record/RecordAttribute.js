@@ -229,6 +229,7 @@ var RecordAttribute = NS.Class({
                         update[ attrKey ] = attrValue;
                         store.updateData( storeKey, update,
                             !( this.noSync || record._noSync ) );
+                        store.fire( 'record:user:update', { record: this });
                     } else {
                         data[ attrKey ] = attrValue;
                         record.computedPropertyDidChange( propKey );

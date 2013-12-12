@@ -125,6 +125,7 @@ var NestedStore = NS.Class({
             {O.NestedStore} Returns self.
     */
     commitChanges: function ( callback ) {
+        this.fire( 'willCommit' );
         var _created = this._created,
             _destroyed = this._destroyed,
             _skToData = this._skToData,
@@ -152,7 +153,7 @@ var NestedStore = NS.Class({
 
         if ( callback ) { callback(); }
 
-        return this;
+        return this.fire( 'didCommit' );
     },
 
     /**

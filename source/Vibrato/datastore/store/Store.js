@@ -574,6 +574,7 @@ var Store = NS.Class({
         NS.RunLoop.queueFn( 'middle', this._commitChanges, this );
     },
     _commitChanges: function () {
+        this.fire( 'willCommit' );
         var _created = this._created,
             _destroyed = this._destroyed,
             _skToData = this._skToData,
@@ -660,7 +661,8 @@ var Store = NS.Class({
         }
 
         this._source.commitChanges( changes, callback );
-        return this;
+
+        return this.fire( 'didCommit' );
     },
 
     /**
@@ -684,14 +686,8 @@ var Store = NS.Class({
             this.unloadRecord( storeKey );
         }
         for ( storeKey in _skToChanged ) {
-            this.setData( storeKey, _skToCommitted[ storeKey ] );
-            this.setStatus( storeKey, READY|(
-                this.getStatus( storeKey ) & (OBSOLETE|LOADING|COMMITTING)
-            ) );
+            this.updateData( storeKey, _skToCommitted[ storeKey ], false );
         }
-        this._skToChanged = {};
-        this._skToCommitted = {};
-
         for ( storeKey in _destroyed ) {
             this.setStatus( storeKey,
                 READY|( this.getStatus( storeKey ) & OBSOLETE ) );
@@ -701,6 +697,67 @@ var Store = NS.Class({
         this._destroyed = {};
 
         return this;
+    },
+
+    getInverseChanges: function () {
+        var _created = this._created,
+            _destroyed = this._destroyed,
+            _skToType = this._skToType,
+            _skToData = this._skToData,
+            _skToChanged = this._skToChanged,
+            _skToCommitted = this._skToCommitted,
+            inverse = {
+                create: [],
+                update: [],
+                destroy: []
+            },
+            storeKey;
+
+        for ( storeKey in _created ) {
+            inverse.destroy.push( storeKey );
+        }
+        for ( storeKey in _skToChanged ) {
+            inverse.update.push([
+                storeKey,
+                Object.filter(
+                    _skToCommitted[ storeKey ], _skToChanged[ storeKey ]
+                )
+            ]);
+        }
+        for ( storeKey in _destroyed ) {
+            inverse.create.push([
+                storeKey,
+                _skToType[ storeKey ],
+                NS.clone( _skToData[ storeKey ] )
+            ]);
+        }
+
+        return inverse;
+    },
+
+    applyChanges: function ( changes ) {
+        var create = changes.create,
+            update = changes.update,
+            destroy = changes.destroy,
+            created = {},
+            createObj, updateObj, destroyObj,
+            i, l, storeKey;
+
+        for ( i = 0, l = create.length; i < l; i += 1 ) {
+            createObj = create[i];
+            storeKey = this.getStoreKey( createObj[1] );
+            created[ createObj[0] ] = storeKey;
+            this.createRecord( storeKey, createObj[2] );
+        }
+        for ( i = 0, l = update.length; i < l; i += 1 ) {
+            updateObj = update[i];
+            this.updateData( updateObj[0], updateObj[1], true );
+        }
+        for ( i = 0, l = destroy.length; i < l; i += 1 ) {
+            storeKey = destroy[i];
+            this.destroyRecord( storeKey );
+        }
+        return created;
     },
 
     // === Low level (primarily internal) API: uses storeKey ===================
