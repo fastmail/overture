@@ -12,9 +12,7 @@
 
 ( function ( NS, undefined ) {
 
-var isOperaMini = !!NS.UA.operaMini;
-var nativePlaceholder = !isOperaMini &&
-        'placeholder' in document.createElement( 'input' );
+var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
 
 /**
     Class: O.TextView
@@ -255,12 +253,6 @@ var TextView = NS.Class({
                     value: value
                 });
 
-        // Need to add explicit handlers, or Opera Mini won't fire the events
-        if ( isOperaMini ) {
-            control.onfocus = function () {};
-            control.onblur = function () {};
-        }
-
         if ( placeholder ) {
             if ( nativePlaceholder ) {
                 control.placeholder = placeholder;
@@ -434,13 +426,11 @@ var TextView = NS.Class({
         Parameters:
             event - {Event} The input event.
     */
-    syncBackValue: function ( event ) {
-        if ( !event || this.get( 'isFocussed' ) ) {
-            this._settingFromInput = true;
-            this.set( 'value', this._domControl.value );
-            this._settingFromInput = false;
-        }
-    }.on( isOperaMini ? 'change' : 'input' ),
+    syncBackValue: function () {
+        this._settingFromInput = true;
+        this.set( 'value', this._domControl.value );
+        this._settingFromInput = false;
+    }.on( 'input' ),
 
     /**
         Method (private): O.TextView#_onFocus
