@@ -686,7 +686,7 @@ var Store = NS.Class({
             this.unloadRecord( storeKey );
         }
         for ( storeKey in _skToChanged ) {
-            this.updateData( storeKey, _skToCommitted[ storeKey ], false );
+            this.updateData( storeKey, _skToCommitted[ storeKey ], true );
         }
         for ( storeKey in _destroyed ) {
             this.setStatus( storeKey,
