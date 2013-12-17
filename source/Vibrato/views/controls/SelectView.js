@@ -102,9 +102,9 @@ var SelectView = NS.Class({
     }.observes( 'options', 'value' ),
 
     /**
-        Method: O.RadioView#redrawOptions
+        Method: O.SelectView#redrawOptions
 
-        Updates the DOM representation when the <O.RadioView#options> property
+        Updates the DOM representation when the <O.SelectView#options> property
         changes.
     */
     redrawOptions: function ( layer ) {
@@ -114,10 +114,10 @@ var SelectView = NS.Class({
     },
 
     /**
-        Method: O.RadioView#redrawValue
+        Method: O.SelectView#redrawValue
 
         Selects the corresponding option in the select when the
-        <O.RadioView#value> property changes.
+        <O.SelectView#value> property changes.
     */
     redrawValue: function () {
         var value = this.get( 'value' ),
@@ -135,7 +135,7 @@ var SelectView = NS.Class({
     // --- Keep state in sync with render ---
 
     /**
-        Method: O.RadioView#syncBackValue
+        Method: O.SelectView#syncBackValue
 
         Observes the `change` event to update the view's `value` property when
         the user selects a different option.
