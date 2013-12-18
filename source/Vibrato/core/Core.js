@@ -366,7 +366,7 @@ var clone = NS.clone = function ( value ) {
         are the both arrays or objects with equal members?
 */
 var isEqual = NS.isEqual = function ( a, b ) {
-    var i, l, key;
+    var i, l, key, constructor;
     if ( a === b ) {
         return true;
     }
@@ -383,6 +383,13 @@ var isEqual = NS.isEqual = function ( a, b ) {
         } else if ( a instanceof Date ) {
             return ( +a === +b );
         } else {
+            constructor = a.constructor;
+            if ( a.constructor !== b.constructor ) {
+                return false;
+            }
+            if ( constructor.isEqual ) {
+                return constructor.isEqual( a, b );
+            }
             for ( key in a ) {
                 if ( !isEqual( a[ key ], b[ key ] ) ) {
                     return false;

@@ -155,6 +155,10 @@ TimeZone.fromJSON = function ( id ) {
     return TimeZone[ id ] || TimeZone.UTC;
 };
 
+TimeZone.isEqual = function ( a, b ) {
+    return a.id === b.id;
+};
+
 TimeZone.rules = {
     '-': []
 };
