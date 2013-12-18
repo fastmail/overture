@@ -6,8 +6,6 @@
 // License: © 2010–2013 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {
@@ -399,6 +397,24 @@ var Record = NS.Class({
             store.fire( 'record:user:destroy', { record: this });
             store.destroyRecord( storeKey );
         }
+    },
+
+    /**
+        Method: O.Record#getDoppelganger
+
+        Parameters:
+            store - {O.Store} A store to get this event in.
+
+        Returns:
+            {O.Record} Returns the record instance for the same record in the
+            given store.
+    */
+    getDoppelganger: function ( store ) {
+        if ( this.get( 'store' ) === store ) {
+            return this;
+        }
+        return store.materialiseRecord(
+            this.get( 'storeKey' ), this.constructor );
     },
 
     /**

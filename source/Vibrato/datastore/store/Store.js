@@ -515,25 +515,6 @@ var Store = NS.Class({
     },
 
     /**
-        Method: O.Store#getDoppelganger
-
-        Parameters:
-            record - {O.Record} A record instance from a store which is nested
-                     in this one, or which this one nests in.
-
-        Returns:
-            {O.Record} Returns the record instance for the same record in this
-            store.
-    */
-    getDoppelganger: function ( record ) {
-        if ( record.get( 'store' ) === this ) {
-            return record;
-        }
-        var storeKey = record.get( 'storeKey' );
-        return this.materialiseRecord( storeKey, record.constructor );
-    },
-
-    /**
         Method: O.Store#hasChanges
 
         Returns:
@@ -926,10 +907,9 @@ var Store = NS.Class({
     mayUnloadRecord: function ( storeKey ) {
         var record = this._skToRecord[ storeKey ],
             status = this.getStatus( storeKey );
-        // Only unload unwatched clean empty, ready or destroyed records.
-        // Doesn't matter if it's also OBSOLETE.
-        if ( ( status & ~(EMPTY|READY|DESTROYED|OBSOLETE) ) ||
-                ( record && record.hasObservers() ) ) {
+        // Only unload unwatched clean, non-committing records.
+        if ( ( status & (COMMITTING|NEW|DIRTY) ) ||
+                ( ( status & READY ) && record && record.hasObservers() ) ) {
             return false;
         }
         return this._nestedStores.every( function ( store ) {
