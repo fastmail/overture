@@ -41,6 +41,7 @@ var ua = navigator.userAgent.toLowerCase(),
 
 ( function () {
     var el = document.createElement( 'div' ),
+        style = el.style,
         props = {
             'box-shadow': {
                 name: 'box-shadow',
@@ -73,20 +74,27 @@ var ua = navigator.userAgent.toLowerCase(),
     for ( prop in props ) {
         test = props[ prop ];
         css = test.name + ':' + test.value;
-        el.style.cssText = css;
-        if ( el.style.length ) {
+        style.cssText = css;
+        if ( style.length ) {
             cssProps[ prop ] = test.name;
         } else {
-            el.style.cssText = prefix + css;
-            cssProps[ prop ] = el.style.length ?
-                prefix + test.name : null;
+            style.cssText = prefix + css;
+            cssProps[ prop ] = style.length ? prefix + test.name : null;
         }
+    }
+    style.cssText = 'display:flex';
+    if ( style.length ) {
+        cssProps.flexbox = 'flex';
+    } else {
+        style.cssText = 'display:' + prefix + 'flex';
+        cssProps.flexbox = el.style.length ? prefix + 'flex' : null;
     }
     css = cssProps.transition;
     [ 'delay', 'timing', 'duration', 'property' ].forEach( function ( prop ) {
         cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
     });
     el = null;
+    style = null;
 
     // Browser bugs:
     // 1. iOS5 Sometimes fails to transform stuff.
