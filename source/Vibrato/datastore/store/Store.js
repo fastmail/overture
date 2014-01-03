@@ -47,7 +47,7 @@ var CANNOT_CREATE_EXISTING_RECORD_ERROR =
 
 var sk = 1;
 var generateStoreKey = function () {
-    return '' + ( sk++ );
+    return 'k' + ( sk++ );
 };
 
 var set = function ( status ) {
