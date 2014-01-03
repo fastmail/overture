@@ -107,10 +107,14 @@ var SelectView = NS.Class({
         Updates the DOM representation when the <O.SelectView#options> property
         changes.
     */
-    redrawOptions: function ( layer ) {
-        var select = this._drawSelect( this.get( 'options' ) );
-        layer.replaceChild( select, this._domControl );
-        this._domControl = select;
+    redrawOptions: function ( layer, oldOptions ) {
+        var options = this.get( 'options' ),
+            select;
+        if ( !NS.isEqual( options, oldOptions ) ) {
+            select = this._drawSelect( options );
+            layer.replaceChild( select, this._domControl );
+            this._domControl = select;
+        }
     },
 
     /**
@@ -140,7 +144,7 @@ var SelectView = NS.Class({
         Observes the `change` event to update the view's `value` property when
         the user selects a different option.
     */
-    syncBackValue: function ( event ) {
+    syncBackValue: function () {
         var i = this._domControl.selectedIndex;
         this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
     }.on( 'change' )
