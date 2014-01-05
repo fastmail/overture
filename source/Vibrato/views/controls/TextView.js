@@ -247,6 +247,7 @@ var TextView = NS.Class({
                     name: this.get( 'name' ),
                     type: this.get( 'inputType' ),
                     autocomplete: 'off',
+                    pattern: this.get( 'pattern' ),
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
                     maxLength: this.get( 'maxLength' ),
