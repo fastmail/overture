@@ -30,6 +30,15 @@ var forEachView = function ( views, method, args ) {
     }
 };
 
+var flattenAndPrune = function ( array, node ) {
+    if ( node instanceof Array ) {
+        node.reduce( flattenAndPrune, array );
+    } else if ( node ) {
+        array.push( node );
+    }
+    return array;
+};
+
 var SwitchView = NS.Class({
 
     Extends: View,
@@ -258,7 +267,7 @@ var SwitchView = NS.Class({
                 view :
                 [ view ] :
             null;
-        this.views[ index ] = view;
+        this.views[ index ] = view.reduce( flattenAndPrune, [] );
         var subView = this.childViews;
         if ( subView.length ) {
             this.subViews[ index ] = subView;
