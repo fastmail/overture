@@ -104,33 +104,24 @@ var SwitchView = NS.Class({
     index: 0,
 
     redraw: function ( willEnterDocument ) {
-        var index = this._index;
+        var oldIndex = this._index,
+            newIndex = this.get( 'index' ),
+            parentView, view, subViews;
         // If not yet added to parent, nothing to redraw; _add will be called
         // automatically soon.
-        if ( !this.isDestroyed && index > -1 &&
-                this.get( 'index' ) !== index ) {
-            var parentView = this.get( 'parentView' ),
-                view, l, node;
+        if ( !this.isDestroyed && oldIndex > -1 && oldIndex !== newIndex ) {
+            parentView = this.get( 'parentView' );
             if ( parentView ) {
                 view = this._remove( parentView );
+                subViews = this.get( 'subViews' );
                 if ( willEnterDocument ) {
-                    l = view ? view.length : 0;
-                    while ( l-- ) {
-                        node = view[l];
-                        if ( node instanceof View ) {
-                            node.didLeaveDocument();
-                        }
-                    }
+                    forEachView( view, 'didLeaveDocument' );
+                    forEachView( subViews[ oldIndex ], 'didLeaveDocument' );
                 }
                 view = this._add();
                 if ( willEnterDocument ) {
-                    l = view ? view.length : 0;
-                    while ( l-- ) {
-                        node = view[l];
-                        if ( node instanceof View ) {
-                            node.willEnterDocument();
-                        }
-                    }
+                    forEachView( view, 'willEnterDocument' );
+                    forEachView( subViews[ newIndex ], 'willEnterDocument' );
                 }
             }
         }
