@@ -308,11 +308,17 @@ var createView = function ( object, property, transform ) {
     return switchView;
 };
 
-Element.when = function ( object, property ) {
-    return createView( object, property, pickViewWhen );
+Element.when = function ( object, property, transform ) {
+    var pickView = transform ? function ( value, syncForward ) {
+        return pickViewWhen( transform( value, syncForward ) );
+    } : pickViewWhen;
+    return createView( object, property, pickView );
 };
-Element.unless = function ( object, property ) {
-    return createView( object, property, pickViewUnless );
+Element.unless = function ( object, property, transform ) {
+    var pickView = transform ? function ( value, syncForward ) {
+        return pickViewUnless( transform( value, syncForward ) );
+    } : pickViewUnless;
+    return createView( object, property, pickView );
 };
 
 }( this.O ) );
