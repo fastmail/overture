@@ -267,7 +267,7 @@ var SwitchView = NS.Class({
                 view :
                 [ view ] :
             null;
-        this.views[ index ] = view.reduce( flattenAndPrune, [] );
+        this.views[ index ] = view && view.reduce( flattenAndPrune, [] );
         var subView = this.childViews;
         if ( subView.length ) {
             this.subViews[ index ] = subView;
