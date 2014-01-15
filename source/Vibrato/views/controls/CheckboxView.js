@@ -98,10 +98,12 @@ var CheckboxView = NS.Class({
     syncBackValue: function ( event ) {
         var isTap = ( event.type === 'tap' );
         // Ignore simulated click events
-        if ( ( isTap || !event.originalType ) && !this.get( 'isDisabled' ) ) {
+        if ( ( isTap || !event.originalType ) &&
+                event.targetView === this &&
+                !this.get( 'isDisabled' ) ) {
             var control = this._domControl,
                 value = control.checked;
-            if ( isTap ) {
+            if ( isTap || event.target !== control ) {
                 event.preventDefault();
                 value = !value;
             }
