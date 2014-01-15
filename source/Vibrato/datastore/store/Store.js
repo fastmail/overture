@@ -63,7 +63,7 @@ var filter = function ( filter, storeKey ) {
 var sort = function ( sort, a, b ) {
     var _skToData = this._skToData,
         aIsFirst = sort( _skToData[ a ], _skToData[ b ], this );
-    return aIsFirst || ( ~~a - ~~b );
+    return aIsFirst || ( ~~a.slice( 1 ) - ~~b.slice( 1 ) );
 };
 var isEqual = NS.isEqual;
 
