@@ -149,7 +149,8 @@ var SwitchView = NS.Class({
             this._remove( oldParent );
         }
         if ( newParent ) {
-            if ( newParent.get( 'isRendered' ) ) {
+            if ( newParent.get( 'isRendered' ) &&
+                    !this.get( 'layer' ).parentNode ) {
                 // We need to wait until we've been inserted to know where our
                 // DOM marker has been place, and so where to insert the real
                 // view(s).
@@ -163,10 +164,7 @@ var SwitchView = NS.Class({
         }
     }.observes( 'parentView' ),
 
-    _add: function ( object, key ) {
-        if ( object ) {
-            object.removeObserverForKey( key, this, '_add' );
-        }
+    _add: function () {
         var index = this.get( 'index' ),
             view = this.get( 'views' )[ index ],
             subView = this.get( 'subViews' )[ index ],
@@ -176,6 +174,13 @@ var SwitchView = NS.Class({
             layer = position.parentNode,
             l = view ? view.length : 0,
             node, before;
+
+        // May be a NOP, but just in case.
+        parent.removeObserverForKey( 'childViews', this, '_add' );
+        if ( this._index !== -1 ) {
+            return;
+        }
+        this._index = index;
 
         if ( subView ) {
             forEachView( subView, 'set', [ 'parentView', parent ] );
@@ -206,7 +211,6 @@ var SwitchView = NS.Class({
             parent.set( 'childViews',
                 parent.get( 'childViews' ).concat( subView ) );
         }
-        this._index = index;
         return view;
     },
 
