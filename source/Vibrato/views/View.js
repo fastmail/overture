@@ -636,14 +636,24 @@ var View = NS.Class({
             layer - {Element} The view's layer.
     */
     redrawLayer: function ( layer ) {
-        var Element = O.Element,
-            child;
-        while ( child = layer.lastChild ) {
-            layer.removeChild( child );
+        var Element = NS.Element,
+            prevView = Element.forView( this ),
+            childViews = this.get( 'childViews' ),
+            l = childViews.length,
+            node, view;
+
+        while ( l-- ) {
+            view = childViews[l];
+            this.removeView( view );
+            view.destroy();
+        }
+        while ( node = layer.lastChild ) {
+            layer.removeChild( node );
         }
         Element.appendChildren( layer,
             this.draw( layer, Element, Element.create )
         );
+        Element.forView( prevView );
     },
 
     /**
@@ -1006,12 +1016,16 @@ var View = NS.Class({
     */
     removeView: function ( view ) {
         var children = this.get( 'childViews' ),
-            i = children.indexOf( view );
-        if ( i === -1 ) { return this; }
+            i = children.lastIndexOf( view ),
+            isInDocument, layer;
+
+        if ( i === -1 ) {
+            return this;
+        }
 
         if ( this.get( 'isRendered' ) ) {
-            var isInDocument = this.get( 'isInDocument' ),
-                layer = view.get( 'layer' );
+            isInDocument = this.get( 'isInDocument' );
+            layer = view.get( 'layer' );
             if ( isInDocument ) {
                 view.willLeaveDocument();
             }
