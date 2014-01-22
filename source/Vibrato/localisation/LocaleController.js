@@ -183,6 +183,22 @@ var LocaleController = {
     },
 
     /**
+        Function: O.LocaleController.ordinal
+
+        Format an ordinal number according to local conventions, e.g. "1st",
+        "42nd" or "53rd".
+
+        Parameters:
+            n - {Number} The number to format.
+
+        Returns:
+            {String} The localised ordinal.
+    */
+    ordinal: function ( n ) {
+        return active.getFormattedOrdinal( n );
+    },
+
+    /**
         Function: O.LocaleController.fileSize
 
         Format a number of bytes into a locale-specific file size string.

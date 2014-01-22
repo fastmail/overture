@@ -12,7 +12,7 @@ var parseDB = function ( text ) {
     var lines = text.split( '\n' ),
         db = [],
         obj, id;
-    
+
     lines.forEach( function ( line ) {
         line = line.trim();
         // ID
@@ -72,6 +72,10 @@ var translateCommentPart = {
     ',': 'flag',
     '.': 'description',
     ':': 'context'
+};
+
+var trim = function ( string ) {
+    return string.trim();
 };
 
 var parsePo = function ( text ) {
@@ -138,9 +142,7 @@ var parsePo = function ( text ) {
             part = translateCommentPart[ match[1] ];
             string = match[2];
             if ( part === 'flag' ) {
-                flags = string.split( ',' ).map( function ( flag ) {
-                    return flag.trim();
-                });
+                flags = string.split( ',' ).map( trim );
                 if ( obj.flags ) {
                     obj.flags = obj.flags.concat( flags );
                 } else {
@@ -337,6 +339,11 @@ var formatHeaderLine = function ( text, length ) {
         new Array( length - 6 - text.length + 1 ).join(' ') + ' \\\\\n';
 };
 
+// Going to insert functions into our object.
+Function.prototype.toJSON = function () {
+    return this.toString();
+};
+
 var _makeLangModule = function ( code, idList, idToEntry ) {
 
     var getString = function ( id ) {
@@ -349,6 +356,18 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
 
         decimalPoint: getString( 'S_FORMAT_DECIMAL_POINT' ),
         thousandsSeparator: getString( 'S_FORMAT_THOUSANDS_SEPARATOR' ),
+
+        getFormattedOrdinal: /^en/.test( code ) ?
+  function ( number ) {
+      var mod10 = number % 10,
+          mod100 = number % 100;
+      return number + (
+          mod10 === 1 && mod100 !== 11 ? 'st' :
+          mod10 === 2 && mod100 !== 12 ? 'nd' :
+          mod10 === 3 && mod100 !== 13 ? 'rd' :
+                                         'th'
+      );
+  } : undefined,
 
         dayNames: [
             getString( 'S_CALENDAR_SUNDAY' ),
@@ -401,14 +420,14 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         pmDesignator: getString( 'S_CALENDAR_PM' ),
 
         use24hClock: getString( 'S_CALENDAR_FORMAT_TIME_DEFAULT' ) === '24h',
-        dateElementOrder: function () {
+        dateElementOrder: ( function () {
             var format = getString( 'S_CALENDAR_FORMAT_DATE' ),
                 year = /%\-?Y/i.exec( format ).index,
                 month = /%\-?[mb]/i.exec( format ).index,
                 day = /%\-?d/i.exec( format ).index;
             return year < month && year < day ? 'ymd' :
                 month < day ? 'mdy' : 'dmy';
-        }(),
+        }() ),
 
         dateFormats: {
             date: getString( 'S_CALENDAR_FORMAT_DATE' ),
@@ -538,7 +557,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             ordinalSuffix: '/^\\s*(?:st|nd|rd|th)\\b/i',
             timeContext: '/^\\s*(?:\\:|am|pm)/i'
         },
-        
+
         translations: idList.map( getString )
     };
 
@@ -555,6 +574,9 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             JSON.stringify( localisation, null, 2 )
                 .replace( /"(\/\^.*?\/i)"/g, function ( _, regexp ) {
                     return regexp.replace( /\\\\/g, '\\' );
+                })
+                .replace( /"(function[\s\S]*?})"/g, function ( _, fn ) {
+                    return fn.replace( /\\n/g, '\n' );
                 }) +
         ');\nO.i18n.addLocale( x ).setLocale("' + code + '")}() );';
 };
@@ -584,7 +606,7 @@ var insertLocale = function ( englishDbPath, strings, input, output ) {
     var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
         stringToEntry = indexDB( db, 'string' ),
         index = {};
-    strings = JSON.parse( fs.readFileSync( strings, 'utf8' ) ),
+    strings = JSON.parse( fs.readFileSync( strings, 'utf8' ) );
     strings.forEach( function ( string, i ) {
         index[ string ] = i;
     });
@@ -602,13 +624,13 @@ var insertLocale = function ( englishDbPath, strings, input, output ) {
 var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) {
     var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
         inputPo = parsePo( fs.readFileSync( inputPoPath, 'utf8' ) ),
-        usage = JSON.parse( fs.readFileSync( usagePath, 'utf8' ) ),
+        // usage = JSON.parse( fs.readFileSync( usagePath, 'utf8' ) ),
         output = '';
 
     db.forEach( function ( dbObj ) {
         var id = dbObj.id,
             poObj = inputPo[ id ],
-            useObj = usage[ id ],
+            // useObj = usage[ id ],
 
             description = dbObj.description,
             flags = poObj && poObj.flags || [],
@@ -635,11 +657,11 @@ var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) 
                 }
             }
         }
-        if ( useObj ) {
-            useObj.uses.forEach( function ( reference ) {
-                output += '#: ' + reference + '\n';
-            });
-        }
+        // if ( useObj ) {
+        //     useObj.uses.forEach( function ( reference ) {
+        //         output += '#: ' + reference + '\n';
+        //     });
+        // }
         if ( ( !poObj || poObj.string !== dbObj.string ) &&
                 flags.indexOf( 'fuzzy' ) < 0 ) {
             flags.push( 'fuzzy' );

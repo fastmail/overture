@@ -246,6 +246,22 @@ var Locale = NS.Class({
     },
 
     /**
+        Method: O.Locale#getFormattedOrdinal
+
+        Format an ordinal number according to local conventions, e.g. "1st",
+        "42nd" or "53rd".
+
+        Parameters:
+            number - {Number} The number to format.
+
+        Returns:
+            {String} The localised ordinal.
+    */
+    getFormattedOrdinal: function ( number ) {
+        return number + '.';
+    },
+
+    /**
         Method: O.Locale#getFormattedFileSize
 
         Format a number of bytes into a locale-specific file size string.
