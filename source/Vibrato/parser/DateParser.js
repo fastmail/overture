@@ -240,20 +240,25 @@ var interpreter = {
                 this[ name ]( date, token[1], token[2], tokens );
             }
         }
-        return this.findDate(
-            date, null, date.searchMethod || implicitSearchMethod );
+        return this.findDate( date, date.searchMethod || implicitSearchMethod );
     },
-    findDate: function ( constraints, relativeTo, searchMethod ) {
+    findDate: function ( constraints, searchMethod ) {
         var keys = Object.keys( constraints );
         if ( !keys.length ) {
             return null;
         }
-        var date = relativeTo || new Date();
+        var date = new Date();
+
+        // If we don't do this, setting month lower down could go wrong,
+        // because if the date is 30th and we set month as Feb, we'll end up
+        // in March!
+        date.setDate( 1 );
 
         // Time:
         date.setHours( constraints.hour || 0 );
         date.setMinutes( constraints.minute || 0 );
         date.setSeconds( constraints.second || 0 );
+        date.setMilliseconds( 0 );
 
         // Date:
         var day = constraints.day,
@@ -280,7 +285,7 @@ var interpreter = {
             date.setMonth( month );
             if ( hasWeekday ) {
                 if ( searchMethod !== PAST ) {
-                    date.setDate( 1 );
+                    // Date is currently 1.
                     day = ( weekday - date.getDay() ).mod( 7 ) + 1;
                 } else {
                     date.setDate( day = getDaysInMonth( month, year ) );
@@ -298,15 +303,13 @@ var interpreter = {
             // that.
             if ( searchMethod === FUTURE ) {
                 if ( month < currentMonth ||
-                        ( month === currentMonth &&
-                          day <= date.getDate() ) ) {
+                        ( month === currentMonth && day <= date.getDate() ) ) {
                     year += 1;
                 }
             }
             if ( searchMethod === PAST ) {
                 if ( month > currentMonth ||
-                        ( month === currentMonth &&
-                          day >= date.getDate() ) ) {
+                        ( month === currentMonth && day >= date.getDate() ) ) {
                     year -= 1;
                 }
             }
@@ -372,7 +375,6 @@ var interpreter = {
             }
             date.setFullYear( year );
             date.setMonth( month );
-            date.setDate( 1 );
 
             if ( hasWeekday ) {
                 if ( searchMethod !== PAST ) {
@@ -386,7 +388,6 @@ var interpreter = {
         } else if ( year ) {
             date.setFullYear( year );
             date.setMonth( 0 );
-            date.setDate( 1 );
             if ( hasWeekday ) {
                 if ( searchMethod !== PAST ) {
                     day = ( weekday - date.getDay() ).mod( 7 ) + 1;
