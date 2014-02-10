@@ -84,17 +84,6 @@ var TextView = NS.Class({
     isFocussed: false,
 
     /**
-        Property: O.TextView#maxLength
-        Type: Number|undefined
-        Default: undefined
-
-        If set to a number, this will be the maximum number of characters
-        allowed in the text input. If undefined, no limit will be placed
-        (default).
-    */
-    maxLength: undefined,
-
-    /**
         Property: O.TextView#inputType
         Type: String
         Default: "text"
@@ -122,6 +111,22 @@ var TextView = NS.Class({
         The value currently input in the text field.
     */
     value: '',
+
+    /**
+        Property: O.TextView#inputAttributes
+        Type: Object
+
+        Extra attributes to add to the text view. Examples include:
+
+        - maxLength: Number
+        - autocomplete: 'on' or 'off'
+        - autocapitalize: 'on' or 'off'
+        - autocorrect: 'on' or 'off'
+        - pattern: String (regexp)
+    */
+    inputAttributes: {
+        autocomplete: 'off'
+    },
 
     /**
         Property: O.TextView#selection
@@ -246,13 +251,12 @@ var TextView = NS.Class({
                     id: this.get( 'id' ) + '-input',
                     name: this.get( 'name' ),
                     type: this.get( 'inputType' ),
-                    autocomplete: 'off',
-                    pattern: this.get( 'pattern' ),
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
-                    maxLength: this.get( 'maxLength' ),
                     value: value
                 });
+
+        this.redrawInputAttributes();
 
         if ( placeholder ) {
             if ( nativePlaceholder ) {
@@ -294,7 +298,7 @@ var TextView = NS.Class({
         if ( isValue && this.get( 'isExpanding' ) ) {
             NS.RunLoop.queueFn( 'after', this.parentViewDidResize, this );
         }
-    }.observes( 'value', 'placeholder', 'maxLength' ),
+    }.observes( 'value', 'placeholder', 'inputAttributes' ),
 
     /**
         Method: O.TextView#redrawValue
@@ -328,13 +332,17 @@ var TextView = NS.Class({
     },
 
     /**
-        Method: O.TextView#redrawMaxLength
+        Method: O.TextView#redrawInputAttributes
 
-        Updates the maxLength property of the `<textarea>` or `<input>` to match
-        the <#maxLength> property.
+        Updates any other properties of the `<input>` element.
     */
-    redrawMaxLength: function () {
-        this._domControl.maxLength = this.get( 'maxLength' );
+    redrawInputAttributes: function () {
+        var inputAttributes = this.get( 'inputAttributes' ),
+            control = this._domControl,
+            property;
+        for ( property in inputAttributes ) {
+            control.set( property, inputAttributes[ property ] );
+        }
     },
 
     // --- Activate ---
