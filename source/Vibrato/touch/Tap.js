@@ -48,7 +48,7 @@ var TrackedTouch = function ( x, y, time, target ) {
     this.x = x;
     this.y = y;
     this.time = time;
-    while ( target && !/^(?:A|BUTTON|INPUT)$/.test( target.nodeName ) ) {
+    while ( target && !/^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
         target = target.parentNode;
     }
     this.target = target;
