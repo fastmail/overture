@@ -35,9 +35,9 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         );
     };
 
-    var whitespace = define( 'whitespace', (/^[\s"']+/) );
+    var whitespace = define( 'whitespace', (/^(?:[\s"']+|$)/) );
 
-    var hours = define( 'hour', /^(?:2[0-3]|[0-1]?\d)/ ),
+    var hours = define( 'hour', /^(?:2[0-3]|[01]?\d)/ ),
         minutes = define( 'minute', /^[0-5][0-9]/ ),
         seconds = define( 'second', /^[0-5][0-9]/ ),
         meridian = firstMatch([
@@ -46,7 +46,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         ]),
         timeSuffix = sequence([
             optional( whitespace ),
-            optional( meridian )
+            meridian
         ]),
         timeDelimiter = define( 'timeDelimiter', ( /^[:.]/ ) ),
         timeContext = define( 'timeContext', datePatterns.timeContext ),
@@ -62,12 +62,17 @@ var generateLocalisedDateParser = function ( locale, mode ) {
             ])),
             optional(
                 timeSuffix
-            )
+            ),
+            whitespace
         ]);
 
     if ( mode === JUST_TIME ) {
         return firstMatch([
             time,
+            sequence([
+                hours,
+                minutes
+            ]),
             whitespace
         ]);
     }
