@@ -48,19 +48,20 @@ var TrackedTouch = function ( x, y, time, target ) {
     this.x = x;
     this.y = y;
     this.time = time;
-    while ( target && !/^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
-        target = target.parentNode;
-    }
-    this.target = target;
-    if ( target ) {
-        NS.Element.addClass( target, 'tap-active' );
-    }
+    var activeEls = this.activeEls = [];
+    do {
+        if ( /^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
+            activeEls.push( target );
+            NS.Element.addClass( target, 'tap-active' );
+        }
+    } while ( target = target.parentNode );
 };
 
 TrackedTouch.prototype.done  = function () {
-    var target = this.target;
-    if ( target ) {
-        NS.Element.removeClass( target, 'tap-active' );
+    var activeEls = this.activeEls,
+        i, l;
+    for ( i = 0, l = activeEls.length; i < l; i += 1 ) {
+        NS.Element.removeClass( activeEls[i], 'tap-active' );
     }
 };
 
