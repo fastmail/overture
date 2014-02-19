@@ -198,6 +198,7 @@ var GlobalKeyboardShortcuts = NS.Class({
             isSpecialKey = event.ctrlKey || event.metaKey,
             handler, key;
         if ( !isSpecialKey && ( nodeName === 'TEXTAREA' ||
+                ( nodeName === 'SELECT' ) ||
                 ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
                 ( event.targetView instanceof NS.RichTextView )
              ) ) {
