@@ -24,7 +24,7 @@
 */
 var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
     var durationInSeconds = Math.abs( Math.floor( durationInMS / 1000 ) ),
-        time;
+        time, weeks, days, hours, minutes;
 
     if ( durationInSeconds < 60 ) {
         time = NS.loc( 'less than a minute' );
@@ -32,17 +32,35 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
         time = NS.loc( '[*2,_1,%n minute,%n minutes]',
             ~~( durationInSeconds / 60 ) );
     } else if ( durationInSeconds < 60 * 60 * 24 ) {
-        time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
-            ~~( durationInSeconds / ( 60 * 60 ) ),
-            approx ? 0 : ~~( durationInSeconds / 60 ) % 60 );
-    } else if ( durationInSeconds < 60 * 60 * 24 * 7 ) {
+        if ( approx ) {
+            hours = Math.round( durationInSeconds / ( 60 * 60 ) );
+            minutes = 0;
+        } else {
+            hours = ~~( durationInSeconds / ( 60 * 60 ) );
+            minutes = ~~( ( durationInSeconds / 60 ) % 60 );
+        }
+        time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]', hours, minutes );
+    } else if ( approx ? durationInSeconds < 60 * 60 * 24 * 21 :
+            durationInSeconds < 60 * 60 * 24 * 7 ) {
+        if ( approx ) {
+            days = Math.round( durationInSeconds / ( 60 * 60 * 24 ) );
+            hours = 0;
+        } else {
+            days = ~~( durationInSeconds / ( 60 * 60 * 24 ) );
+            hours = ~~( ( durationInSeconds / ( 60 * 60 ) ) % 24 );
+        }
         time = NS.loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
-            ~~( durationInSeconds / ( 60 * 60 * 24 ) ),
-            approx ? 0 : ~~( durationInSeconds / ( 60 * 60 ) ) % 24 );
+            days, hours );
     } else {
+        if ( approx ) {
+            weeks = Math.round( durationInSeconds / ( 60 * 60 * 24 * 7 ) );
+            days = 0;
+        } else {
+            weeks = ~~( durationInSeconds / ( 60 * 60 * 24 * 7 ) );
+            days = ~~( durationInSeconds / ( 60 * 60 * 24 ) ) % 7;
+        }
         time = NS.loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
-            ~~( durationInSeconds / ( 60 * 60 * 24 * 7 ) ),
-            approx ? 0 : ~~( durationInSeconds / ( 60 * 60 * 24 ) ) % 7 );
+            weeks, days );
     }
     return time.trim();
 };
@@ -74,10 +92,26 @@ Date.implement({
         if ( isFuture ) {
             duration = -duration;
         }
-        // Less than 6 weeks
-        if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
+        // Less than a day
+        if ( duration < 1000 * 60 * 60 * 24 ) {
             time = formatDuration( duration, approx );
-        } else {
+        }
+        // Less than 6 weeks
+        else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
+            if ( approx ) {
+                duration = new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate()
+                ) - new Date(
+                    this.getFullYear(),
+                    this.getMonth(),
+                    this.getDate()
+                );
+            }
+            time = formatDuration( duration, approx );
+        }
+        else {
             years = date.getFullYear() - this.getFullYear();
             months = date.getMonth() - this.getMonth();
 
