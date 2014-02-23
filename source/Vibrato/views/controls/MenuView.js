@@ -296,7 +296,7 @@ var MenuView = NS.Class({
             if ( !controller.get( 'focussedOption' ) ) {
                 controller.focusNext();
             }
-            NS.RunLoop.invokeInNextEventLoop( function () {
+            NS.RunLoop.invokeInNextFrame( function () {
                 input.focus().set( 'selection', {
                     start: 0,
                     end: input.get( 'value' ).length
@@ -359,7 +359,7 @@ var MenuView = NS.Class({
     hide: function () {
         var parent = this.get( 'parentView' );
         if ( parent ) {
-            NS.RunLoop.invokeInNextEventLoop( parent.hide, parent );
+            NS.RunLoop.invokeInNextFrame( parent.hide, parent );
         }
     },
 
@@ -372,8 +372,7 @@ var MenuView = NS.Class({
                 while ( parent = popOverView.get( 'parentPopOverView' ) ) {
                     popOverView = parent;
                 }
-                NS.RunLoop.invokeInNextEventLoop(
-                    popOverView.hide, popOverView );
+                NS.RunLoop.invokeInNextFrame( popOverView.hide, popOverView );
             }
         }
     }.on( 'button:activate' ),

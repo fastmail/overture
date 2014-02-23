@@ -64,7 +64,7 @@ var NotificationView = NS.Class({
         if ( this.get( 'isShowing' ) ) {
             this.set( 'layout',  this.get( 'visibleLayout' ) );
         }
-    }.later(),
+    }.nextFrame(),
 
     hide: function ( doNotAnimate ) {
         if ( this.get( 'isShowing' ) ) {

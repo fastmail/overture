@@ -12,38 +12,21 @@
 
 ( function ( NS, win ) {
 
-var requestAnimFrame =
-    win.requestAnimationFrame       ||
-    win.oRequestAnimationFrame      ||
-    win.webkitRequestAnimationFrame ||
-    win.mozRequestAnimationFrame    ||
-    win.msRequestAnimationFrame     ||
-    ( function () {
-        var lastTime = 0;
-        return function ( callback ) {
-            var time = Date.now(),
-                timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
-                lastTime = time;
-            win.setTimeout( function () {
-                callback( time + timeToNextCall );
-            }, timeToNextCall );
-        };
-    }() );
-
 // List of currently active animations
 var animations = [];
 
 // Draw the next frame in all currently active animations.
-var nextFrame = function ( time ) {
+var nextFrame = function () {
     // Cache to local variable for speed
     var anims = animations,
         l = anims.length,
+        time = O.RunLoop.frameStartTime,
         objAnimations, i,
         hasMultiple, animation, object, animTime, duration;
 
     if ( l ) {
         // Request first to get in shortest time.
-        requestAnimFrame( nextFrame );
+        NS.RunLoop.invokeInNextFrame( nextFrame );
 
         while ( l-- ) {
             objAnimations = anims[l];
@@ -79,28 +62,9 @@ var nextFrame = function ( time ) {
             }
         }
     }
-}.invokeInRunLoop();
+};
 
 var meta = NS.meta;
-var timestamp = Date;
-
-// Feature detect what timestamp is actually passed to the requestAnimFrame
-// method
-var then = timestamp.now();
-requestAnimFrame( function ( time ) {
-    // Older Webkit gives a high-resolution timestamp, which may actually be a
-    // few milliseconds before then. Add a second to it to ensure this isn't a
-    // factor.
-    if ( time + 1000 < then ) {
-        // Safari doesn't have a performance object, but does return high
-        // resolution time in the requestAnimFrame callback.
-        timestamp = win.performance || null;
-        // For Chrome v21-23 (inclusive):
-        if ( timestamp && !timestamp.now ) {
-            timestamp.now = timestamp.webkitNow;
-        }
-    }
-});
 
 /**
     Class: O.Animation
@@ -214,11 +178,11 @@ NS.Animation = NS.Class({
             metadata = meta( object ),
             objAnimations = metadata.animations || ( metadata.animations = [] );
 
-        this.startTime = timestamp ? timestamp.now() : 0;
+        this.startTime = 0;
 
         // Start loop if no current animations
         if ( !animations.length ) {
-            requestAnimFrame( nextFrame );
+            NS.RunLoop.invokeInNextFrame( nextFrame );
         }
 
         // And add objectAnimations to animation queue

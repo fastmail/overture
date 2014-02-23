@@ -6,12 +6,50 @@
 // License: © 2010–2013 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global setTimeout, clearTimeout, setInterval, clearInterval, setImmediate,
-         console */
+/*global setTimeout, clearTimeout, setInterval, clearInterval,
+    setImmediate, console */
 
 "use strict";
 
-( function ( NS, setImmediate ) {
+( function ( NS, win, setImmediate ) {
+
+var requestAnimFrame =
+    win.requestAnimationFrame       ||
+    win.oRequestAnimationFrame      ||
+    win.webkitRequestAnimationFrame ||
+    win.mozRequestAnimationFrame    ||
+    win.msRequestAnimationFrame     ||
+    ( function () {
+        var lastTime = 0;
+        return function ( callback ) {
+            var time = Date.now(),
+                timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
+                lastTime = time;
+            win.setTimeout( function () {
+                callback( time + timeToNextCall );
+            }, timeToNextCall );
+        };
+    }() );
+
+var nextFrame = function ( time ) {
+    var RunLoop_ = RunLoop,
+        nextFrameQueue = RunLoop_._queues.nextFrame,
+        i = 0,
+        l = nextFrameQueue.length,
+        tuple;
+    RunLoop_.frameStartTime = time;
+    if ( l === 1 ) {
+        tuple = nextFrameQueue[0];
+        nextFrameQueue.length = 0;
+        RunLoop_.invoke( tuple[0], tuple[1] );
+    } else {
+        RunLoop_._queues.nextFrame = [];
+        for ( ;i < l; i += 1 ) {
+            tuple = nextFrameQueue[i];
+            RunLoop_.invoke( tuple[0], tuple[1] );
+        }
+    }
+};
 
 /**
     Class: O.RunLoop
@@ -22,6 +60,7 @@
 */
 
 var RunLoop = {
+
     /**
         Property (private): NS.RunLoop._queueOrder
         Type: Array.<String>
@@ -42,7 +81,9 @@ var RunLoop = {
         bindings: [],
         middle: [],
         render: [],
-        after: []
+        after: [],
+        nextLoop: [],
+        nextFrame: []
     },
 
     /**
@@ -196,36 +237,6 @@ var RunLoop = {
     },
 
     /**
-        Property (private): NS.RunLoop._nextLoopQueue
-        Type: Array.<Array>
-
-        An array of `[fn,bind]` tuples which are to be invoked in the next event
-        loop.
-    */
-    _nextLoopQueue: null,
-
-    /**
-        Method (private): O.RunLoop._callNextLoopQueue
-
-        Invokes all the functions waiting in the <#_nextLoopQueue> queue.
-    */
-    _callNextLoopQueue: function () {
-        var nextLoopQueue = this._nextLoopQueue,
-            i, l, tuple, fn, bind;
-        this._nextLoopQueue = null;
-        for ( i = 0, l = nextLoopQueue.length; i < l; i += 1 ) {
-            tuple = nextLoopQueue[i];
-            fn = tuple[0];
-            bind = tuple[1];
-            if ( bind ) {
-                fn.call( bind );
-            } else {
-                fn();
-            }
-        }
-    },
-
-    /**
         Method: O.RunLoop.invokeInNextEventLoop
 
         Use this to invoke a function in a new browser event loop, immediately
@@ -240,15 +251,33 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     invokeInNextEventLoop: function ( fn, bind ) {
-        var nextLoopQueue = this._nextLoopQueue,
-            that = this;
-        if ( !nextLoopQueue ) {
-            this._nextLoopQueue = nextLoopQueue = [];
-            setImmediate( function () {
-                RunLoop.invoke( that._callNextLoopQueue, that );
-            });
+        var nextLoopQueue = this._queues.nextLoop;
+        if ( !nextLoopQueue.length ) {
+            setImmediate( this.flushQueue.bind( this, 'nextLoop' ) );
         }
         nextLoopQueue.push([ fn, bind ]);
+        return this;
+    },
+
+    /**
+        Method: O.RunLoop.invokeInNextFrame
+
+        Use this to invoke a function just before the browser next redraws.
+
+        Parameters:
+            fn   - {Function} The function to invoke.
+            bind - {Object} (optional) The object to make the 'this' parameter
+                   when the function is invoked.
+
+        Returns:
+            {O.RunLoop} Returns self.
+    */
+    invokeInNextFrame: function ( fn, bind ) {
+        var nextFrameQueue = this._queues.nextFrame;
+        if ( !nextFrameQueue.length ) {
+            requestAnimFrame( nextFrame );
+        }
+        nextFrameQueue.push([ fn, bind ]);
         return this;
     },
 
@@ -358,18 +387,31 @@ Function.implement({
     },
 
     /**
-        Method: Function#later
-
-        Modifies the function so that when it is called, it will actually be
-        invoked in the next event loop.
+        Method: Function#nextLoop
 
         Returns:
-            {Function} Returns wrapped function.
+            {Function} Returns wrapper that passes calls to
+            <O.RunLoop.invokeInNextEventLoop>.
     */
-    later: function () {
+    nextLoop: function () {
         var fn = this;
         return function () {
             RunLoop.invokeInNextEventLoop( fn, this );
+            return this;
+        };
+    },
+
+    /**
+        Method: Function#nextFrame
+
+        Returns:
+            {Function} Returns wrapper that passes calls to
+            <O.RunLoop.invokeInNextFrame>.
+    */
+    nextFrame: function () {
+        var fn = this;
+        return function () {
+            RunLoop.invokeInNextFrame( fn, this );
             return this;
         };
     },
@@ -390,10 +432,9 @@ Function.implement({
     }
 });
 
-}( this.O,
-   typeof setImmediate !== 'undefined' ?
-        setImmediate :
-        function ( fn ) {
-            return setTimeout( fn, 0 );
-        }
+}( this.O, window, typeof setImmediate !== 'undefined' ?
+    setImmediate :
+    function ( fn ) {
+        return setTimeout( fn, 0 );
+    }
 ) );
