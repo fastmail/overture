@@ -33,7 +33,7 @@ var ScrollAnimation = NS.Class({
                 this.startX + ( position * this.deltaX ) : this.endX,
             y = position < 1 ?
                 this.startY + ( position * this.deltaY ) : this.endY;
-        this.object.scrollTo( x, y, false, true );
+        this.object._scrollTo( x, y );
     }
 });
 
@@ -182,7 +182,7 @@ var ScrollView = NS.Class({
             layer.scrollLeft = this.get( 'scrollLeft' );
             layer.scrollTop = this.get( 'scrollTop' );
         }
-    }.queue( 'after' ).observes( 'isInDocument' ),
+    }.queue( 'render' ).observes( 'isInDocument' ),
 
     /**
         Property: O.ScrollView#scrollAnimation
@@ -263,56 +263,6 @@ var ScrollView = NS.Class({
     },
 
     /**
-        Method: O.ScrollView#scrollBy
-
-        Scroll the view to a given position, where (0,0) represents the scroll
-        view fully .
-
-        Parameters:
-            x             - {Number} The number of pixels to set the horizontal
-                            scroll-position to.
-            y             - {Number} The number of pixels to set the vertical
-                            scroll-position to.
-            withAnimation - {Boolean} (optional) If true, animate the scroll.
-
-        Returns:
-            {O.ScrollView} Returns self.
-    */
-    scrollTo: function ( x, y, withAnimation, _isAnimation ) {
-        var scrollAnimation = this.get( 'scrollAnimation' );
-        if ( withAnimation ) {
-            scrollAnimation.animate({
-                x: x,
-                y: y
-            });
-            return this;
-        } else if ( !_isAnimation ) {
-            scrollAnimation.stop();
-        }
-
-        // Can't have negative scroll values.
-        if ( x < 0 ) { x = 0; }
-        if ( y < 0 ) { y = 0; }
-
-        // Can only scroll when in the document; we'll scroll
-        // on attachment anyway so just store the values otherwise.
-        if ( this.get( 'isInDocument' ) ) {
-            var layer = this.get( 'scrollLayer' );
-            layer.scrollLeft = x;
-            layer.scrollTop = y;
-            // We don't know if they were greater than the max allowed value
-            // (except if === 0).
-            if ( x ) { x = layer.scrollLeft; }
-            if ( y ) { y = layer.scrollTop; }
-        }
-
-        return this.beginPropertyChanges()
-              .set( 'scrollLeft', x )
-              .set( 'scrollTop', y )
-            .endPropertyChanges();
-    },
-
-    /**
         Method: O.ScrollView#scrollToView
 
         Scroll the view to show a sub-view in the top left of the view.
@@ -338,25 +288,98 @@ var ScrollView = NS.Class({
     },
 
     /**
-        Method (private): O.ScrollView#_onScroll
+        Method: O.ScrollView#scrollBy
+
+        Scroll the view to a given position, where (0,0) represents the scroll
+        view fully .
 
         Parameters:
-            event - {Event} The scroll event object.
+            x             - {Number} The number of pixels to set the horizontal
+                            scroll-position to.
+            y             - {Number} The number of pixels to set the vertical
+                            scroll-position to.
+            withAnimation - {Boolean} (optional) If true, animate the scroll.
+
+        Returns:
+            {O.ScrollView} Returns self.
+    */
+    scrollTo: function ( x, y, withAnimation ) {
+        // Can't have negative scroll values.
+        if ( x < 0 ) { x = 0; }
+        if ( y < 0 ) { y = 0; }
+
+        var scrollAnimation = this.get( 'scrollAnimation' );
+        scrollAnimation.stop();
+
+        if ( withAnimation ) {
+            scrollAnimation.animate({
+                x: x,
+                y: y
+            });
+        } else {
+            this.beginPropertyChanges()
+                .set( 'scrollLeft', x )
+                .set( 'scrollTop', y )
+            .endPropertyChanges()
+            .propertyNeedsRedraw( this, 'scroll' );
+        }
+        return this;
+    },
+
+    /**
+        Method (private): O.ScrollView#_scrollTo
+
+        Set the new values and immediately redraw. Fast path for animation.
+    */
+    _scrollTo: function ( x, y ) {
+        this.set( 'scrollLeft', x )
+            .set( 'scrollTop', y );
+        this.redrawScroll();
+    },
+
+    /**
+        Method: O.ScrollView#redrawScroll
+
+        Redraws the scroll position in the layer to match the view's state.
+    */
+    redrawScroll: function () {
+        var layer = this.get( 'scrollLayer' ),
+            x = this.get( 'scrollLeft' ),
+            y = this.get( 'scrollTop' );
+        layer.scrollLeft = x;
+        layer.scrollTop = y;
+        // In case we've gone past the end.
+        if ( x || y ) {
+            O.RunLoop.queueFn( 'after', this.syncBackScroll, this );
+        }
+    },
+
+    /**
+        Method: O.ScrollView#syncBackScroll
+
+        Parameters:
+            event - {Event} (optional) The scroll event object.
 
         Updates the view properties when the layer scrolls.
     */
-    _onScroll: function ( event ) {
+    syncBackScroll: function ( event ) {
+        if ( this._needsRedraw ) {
+            O.RunLoop.queueFn( 'after', this.syncBackScroll, this );
+            return;
+        }
         var layer = this.get( 'scrollLayer' ),
-            left = layer.scrollLeft,
-            top = layer.scrollTop;
+            x = layer.scrollLeft,
+            y = layer.scrollTop;
         this.beginPropertyChanges()
-            .set( 'scrollLeft', left )
-            .set( 'scrollTop', top )
+            .set( 'scrollLeft', x )
+            .set( 'scrollTop', y )
             .endPropertyChanges();
-        event.stopPropagation();
-        // Don't interpret tap to stop scroll as a real tap.
-        if ( NS.Tap ) {
-            NS.Tap.cancel();
+        if ( event ) {
+            event.stopPropagation();
+            // Don't interpret tap to stop scroll as a real tap.
+            if ( NS.Tap ) {
+                NS.Tap.cancel();
+            }
         }
     }.on( 'scroll' )
 });
