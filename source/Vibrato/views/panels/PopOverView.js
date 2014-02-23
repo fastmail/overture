@@ -230,7 +230,9 @@ var PopOverView = NS.Class({
         if ( deltaLeft || deltaTop ) {
             layout.left += deltaLeft;
             layout.top += deltaTop;
-            this.propertyDidChange( 'layout' );
+            // Redraw immediately to prevent "flashing"
+            this.propertyDidChange( 'layout' )
+                .redraw();
         }
         if ( calloutDelta ) {
             Element.setStyle( callout,
