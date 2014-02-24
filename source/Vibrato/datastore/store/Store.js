@@ -2269,11 +2269,10 @@ var Store = NS.Class({
     */
     _recordDidChange: function ( storeKey ) {
         var typeName = this._skToType[ storeKey ].className,
-            _typeToChangedSks = this._typeToChangedSks;
-        if ( this._liveQueries[ typeName ] ) {
-            ( _typeToChangedSks[ typeName ] ||
-                ( _typeToChangedSks[ typeName ] = [] ) ).include( storeKey );
-        }
+            _typeToChangedSks = this._typeToChangedSks,
+            changedSks = _typeToChangedSks[ typeName ] ||
+                ( _typeToChangedSks[ typeName ] = {} );
+        changedSks[ storeKey ] = true;
         NS.RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
     },
 
@@ -2293,20 +2292,21 @@ var Store = NS.Class({
             typeName, typeChanges, typeQueries,
             l;
 
+        this._typeToChangedSks = {};
+
         for ( typeName in _typeToChangedSks ) {
-            typeChanges = _typeToChangedSks[ typeName ];
+            typeChanges = Object.keys( _typeToChangedSks[ typeName ] );
             typeQueries = _liveQueries[ typeName ];
-            l = typeQueries.length;
+            l = typeQueries ? typeQueries.length : 0;
 
             while ( l-- ) {
                 typeQueries[l].storeDidChangeRecords( typeChanges );
             }
             this.fire( typeName + 'Changed', {
-                storeKeys: typeQueries
+                storeKeys: typeChanges
             });
         }
 
-        this._typeToChangedSks = {};
         return this;
     },
 
