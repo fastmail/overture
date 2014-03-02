@@ -198,7 +198,7 @@ var RichTextView = NS.Class({
             offsetTop = this._offsetTop,
             now = Date.now(),
             wasSticky = toolbarView.get( 'parentView' ) !== this,
-            isSticky, position;
+            isSticky;
 
         // For performance, cache the size and position for 1/2 second from last
         // use.
@@ -621,13 +621,6 @@ var RichTextView = NS.Class({
         return new NS.View({
             className: 'URLPopOver',
             value: '',
-            didEnterDocument: function () {
-                this._input.set( 'selection', this.get( 'value' ).length )
-                           .focus();
-                // IE8 and Safari 6 don't fire this event for some reason.
-                this._input.fire( 'focus' );
-                return NS.View.prototype.didEnterDocument.call( this );
-            },
             draw: function ( layer, Element, el ) {
                 return [
                     el( 'h3', [
@@ -653,6 +646,14 @@ var RichTextView = NS.Class({
                     ])
                 ];
             },
+            focus: function () {
+                if ( this.get( 'isInDocument' ) ) {
+                    this._input.set( 'selection', this.get( 'value' ).length )
+                               .focus();
+                    // IE8 and Safari 6 don't fire this event for some reason.
+                    this._input.fire( 'focus' );
+                }
+            }.nextFrame().observes( 'isInDocument' ),
             addLinkOnEnter: function ( event ) {
                 event.stopPropagation();
                 if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
@@ -769,6 +770,17 @@ var RichTextView = NS.Class({
         var editor = this.get( 'editor' );
         return editor ? editor.getSelectedText() : '';
     },
+
+    kbShortcuts: function ( event ) {
+        switch ( NS.DOMEvent.lookupKey( event ) ) {
+        case NS.UA.isMac ? 'meta-k' : 'ctrl-k':
+            event.preventDefault();
+            this.showLinkOverlay(
+                this.get( 'toolbarView' ).getView( 'link' )
+            );
+            break;
+        }
+    }.on( 'keydown' ),
 
     // Low level commands
 
