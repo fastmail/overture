@@ -26,6 +26,8 @@ var delta = function ( update, primaryKey ) {
     return delta;
 };
 
+var idCounter = 0;
+
 /**
     Class: O.RPCSource
 
@@ -182,7 +184,7 @@ var RPCSource = NS.Class({
         Parameters:
             event - {IOEvent}
     */
-    ioDidFail: function ( event ) {
+    ioDidFail: function (/* event */) {
         if ( !this.get( 'willRetry' ) ) {
             this._inFlightRemoteCalls = this._inFlightCallbacks = null;
         }
@@ -202,6 +204,22 @@ var RPCSource = NS.Class({
             .send();
     },
 
+
+
+    /**
+        Method: O.RPCSource#generateCallId
+
+        Generate an ID for a message call, in order to match it with the
+        response.
+
+        Returns:
+            {String} A unique ID for the method call
+    */
+    generateCallId: function () {
+        idCounter += 1;
+        return 'call-' + idCounter;
+    },
+
     /**
         Method: O.RPCSource#callMethod
 
@@ -215,9 +233,10 @@ var RPCSource = NS.Class({
                        request completes successfully.
     */
     callMethod: function ( name, args, callback ) {
-        this._sendQueue.push([ name, args || {} ]);
+        var id = this.generateCallId();
+        this._sendQueue.push([ name, args || {}, id ]);
         if ( callback ) {
-            this._callbackQueue.push( callback );
+            this._callbackQueue.push([ id, callback ]);
         }
         this.send();
         return this;
@@ -254,16 +273,18 @@ var RPCSource = NS.Class({
         response returned by the server.
 
         Parameters:
-            data      - {Array} The array of method calls to execute in response
-                        to the request.
-            callbacks - {Array} The array of callbacks to execute after the data
-                        has been processed.
-            request   - {Array} The array of method calls that was executed on
-                        the server.
+            data        - {Array} The array of method calls to execute in
+                          response to the request.
+            callbacks   - {Array} The array of callbacks to execute after the
+                          data has been processed.
+            remoteCalls - {Array} The array of method calls that was executed on
+                          the server.
     */
     receive: function ( data, callbacks, remoteCalls ) {
         var handlers = this.response,
-            i, l, response, handler;
+            i, l, response, handler,
+            j, remoteCallsLength,
+            tuple, id, callback, request;
         for ( i = 0, l = data.length; i < l; i += 1 ) {
             response = data[i];
             handler = handlers[ response[0] ];
@@ -282,8 +303,28 @@ var RPCSource = NS.Class({
             }
         }
         // Invoke after bindings to ensure all data has propagated through.
-        for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
-            NS.RunLoop.queueFn( 'middle', callbacks[i] );
+        if ( l = callbacks.length ) {
+            j = 0;
+            remoteCallsLength = remoteCalls.length;
+            for ( i = 0; i < l; i += 1 ) {
+                tuple = callbacks[i];
+                id = tuple[0];
+                callback = tuple[1];
+                if ( id ) {
+                    while ( remoteCalls[j][2] !== id &&
+                            j < remoteCallsLength ) {
+                        j += 1;
+                    }
+                    request = remoteCalls[j];
+                    /* jshint ignore:start */
+                    response = data.filter( function ( call ) {
+                        return call[2] === id;
+                    });
+                    /* jshint ignore:end */
+                    callback = callback.bind( null, response, request );
+                }
+                NS.RunLoop.queueFn( 'middle', callback );
+            }
         }
     },
 
@@ -417,7 +458,7 @@ var RPCSource = NS.Class({
             handler.call( this, ids );
         }
         if ( callback ) {
-            this._callbackQueue.push( callback );
+            this._callbackQueue.push([ '', callback ]);
         }
         this.send();
         return true;
@@ -482,7 +523,7 @@ var RPCSource = NS.Class({
                 handler.call( this, ids, state );
             }
             if ( callback ) {
-                this._callbackQueue.push( callback );
+                this._callbackQueue.push([ '', callback ]);
             }
             this.send();
         } else {
@@ -631,7 +672,7 @@ var RPCSource = NS.Class({
             handledAny = handledAny || handledType;
         }
         if ( handledAny && callback ) {
-            this._callbackQueue.push( callback );
+            this._callbackQueue.push([ '', callback ]);
         }
         return handledAny;
     },
@@ -656,7 +697,7 @@ var RPCSource = NS.Class({
         this._queriesToFetch[ id ] = query;
 
         if ( callback ) {
-            this._callbackQueue.push( callback );
+            this._callbackQueue.push([ '', callback ]);
         }
         this.send();
         return true;
