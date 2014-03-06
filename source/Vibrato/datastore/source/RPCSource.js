@@ -294,12 +294,6 @@ var RPCSource = NS.Class({
                 } catch ( error ) {
                     NS.RunLoop.didError( error );
                 }
-            } else {
-                NS.RunLoop.didError({
-                    name: 'O.RPCSource#receive',
-                    message: 'Unknown response received: ' + response[0],
-                    details: 'Request was: ' + JSON.stringify( remoteCalls )
-                });
             }
         }
         // Invoke after bindings to ensure all data has propagated through.
