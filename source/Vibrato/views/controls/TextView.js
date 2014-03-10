@@ -262,9 +262,9 @@ var TextView = NS.Class({
             if ( nativePlaceholder ) {
                 control.placeholder = placeholder;
             } else if ( !value ) {
+                this._placeholderShowing = true;
                 control.className = 'placeholder';
                 control.value = placeholder;
-                this._placeholderShowing = true;
             }
         }
 
@@ -437,7 +437,9 @@ var TextView = NS.Class({
     */
     syncBackValue: function () {
         this._settingFromInput = true;
-        this.set( 'value', this._domControl.value );
+        if ( nativePlaceholder || !this._placeholderShowing ) {
+            this.set( 'value', this._domControl.value );
+        }
         this._settingFromInput = false;
     }.on( 'input' ),
 
@@ -452,10 +454,10 @@ var TextView = NS.Class({
     */
     _onFocus: function () {
         if ( this._placeholderShowing ) {
+            this._placeholderShowing = false;
             var control = this._domControl;
             control.className = '';
             control.value = '';
-            this._placeholderShowing = false;
         }
         this.set( 'isFocussed', true );
     }.on( 'focus' ),
@@ -474,10 +476,10 @@ var TextView = NS.Class({
         if ( !nativePlaceholder ) {
             var placeholder = this.get( 'placeholder' );
             if ( placeholder && !this.get( 'value' ) ) {
+                this._placeholderShowing = true;
                 var control = this._domControl;
                 control.className = 'placeholder';
                 control.value = placeholder;
-                this._placeholderShowing = true;
             }
         }
     }.on( 'blur' ),
