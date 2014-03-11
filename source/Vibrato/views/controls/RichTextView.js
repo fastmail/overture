@@ -679,6 +679,7 @@ var RichTextView = NS.Class({
                 }
                 richTextView.makeLink( url );
                 popOver.hide();
+                richTextView.focus();
             }
         });
     }.property(),
