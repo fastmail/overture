@@ -314,14 +314,22 @@ var Drag = NS.Class({
             var items = dataTransfer.items,
                 types = [],
                 hasFiles = false,
-                l;
+                l, item, itemType;
             if ( items ) {
                 l = items.length;
                 while ( l-- ) {
-                    if ( !hasFiles ) {
-                        hasFiles = ( items[l].kind === 'file' );
+                    item = items[l];
+                    itemType = item.type;
+                    // itemType === '' -> folder.
+                    // Could read these in Chrome 21+/Opera 15+, using
+                    // webkitGetAsEntry. Hopefully there'll be more
+                    // browser support soon.
+                    if ( itemType ) {
+                        if ( !hasFiles ) {
+                            hasFiles = ( item.kind === 'file' );
+                        }
+                        types.include( itemType );
                     }
-                    types[l] = items[l].type;
                 }
                 if ( hasFiles ) {
                     types.push( 'Files' );
@@ -364,14 +372,18 @@ var Drag = NS.Class({
     getFiles: function ( typeRegExp ) {
         var files = [],
             dataTransfer = this.event.dataTransfer,
-            items, i, l, item;
+            items, i, l, item, itemType;
         if ( dataTransfer ) {
             // Current HTML5 DnD interface
             if ( items = dataTransfer.items ) {
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
-                    if ( item.kind === 'file' &&
-                            ( !typeRegExp || typeRegExp.test( item.type ) ) ) {
+                    itemType = item.type;
+                    // itemType === '' means a folder. Ignore for now.
+                    // Chrome 21+/Opera 15+ can access them if you use
+                    // webkitGetAsEntry instead of getAsFile.
+                    if ( item.kind === 'file' && itemType &&
+                            ( !typeRegExp || typeRegExp.test( itemType ) ) ) {
                         files.push( item.getAsFile() );
                     }
                 }
@@ -380,7 +392,11 @@ var Drag = NS.Class({
             else if ( items = dataTransfer.files ) {
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
-                    if ( !typeRegExp || typeRegExp.test( item.type ) ) {
+                    itemType = item.type;
+                    // Check it's not a folder and it matches any type
+                    // requirements
+                    if ( itemType &&
+                            ( !typeRegExp || typeRegExp.test( itemType ) ) ) {
                         files.push( item );
                     }
                 }
