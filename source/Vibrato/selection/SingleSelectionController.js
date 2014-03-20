@@ -87,7 +87,9 @@ var SingleSelectionController = NS.Class({
                 list = this.get( 'content' );
             if ( record && list ) {
                 this.set( 'isFetchingIndex', true );
-                list.indexOfId( record.get( 'id' ), 0, function ( index ) {
+                list.indexOfId(
+                    record.get( 'id' ) || ( '#' + record.get( 'storeKey' ) ), 0,
+                function ( index ) {
                     if ( this.get( 'record' ) === record &&
                             this.get( 'content' ) === list ) {
                         this._ignore = true;
