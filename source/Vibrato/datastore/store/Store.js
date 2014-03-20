@@ -453,7 +453,7 @@ var Store = NS.Class({
     */
     getRecord: function ( Type, id, doNotFetch ) {
         if ( !Type || !id ) { return null; }
-        var storeKey = ( id[0] === '#' ) ?
+        var storeKey = ( id.charAt( 0 ) === '#' ) ?
                 id.slice( 1 ) : this.getStoreKey( Type, id ),
             record = this.materialiseRecord( storeKey, Type );
 

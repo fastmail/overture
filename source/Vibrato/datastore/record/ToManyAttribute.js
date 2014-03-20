@@ -122,7 +122,7 @@ var RecordArray = NS.Class({
 
         while ( l-- ) {
             id = array[l];
-            if ( id[0] === '#' ) {
+            if ( id.charAt( 0 ) === '#' ) {
                 store.attrMapsToStoreKey( id.slice( 1 ), storeKey, propKey );
             }
         }
@@ -135,7 +135,7 @@ var RecordArray = NS.Class({
 
         while ( l-- ) {
             id = array[l];
-            if ( id[0] === '#' ) {
+            if ( id.charAt( 0 ) === '#' ) {
                 record = this.getObjectAt( l );
                 id = record.get( 'id' );
                 if ( id ) {
