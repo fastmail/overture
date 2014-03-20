@@ -305,7 +305,7 @@ var NestedStore = NS.Class({
             changedKeys = [];
 
             for ( key in oldData ) {
-                isChanged = !O.isEqual( oldData[ key ], newBase[ key ] );
+                isChanged = !NS.isEqual( oldData[ key ], newBase[ key ] );
                 if ( rebase && ( key in oldChanged ) ) {
                     if ( isChanged ) {
                         newChanged[ key ] = true;
