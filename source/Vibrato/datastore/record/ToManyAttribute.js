@@ -88,7 +88,7 @@ var RecordArray = NS.Class({
             });
             newItems.forEach( function ( foreignRecord ) {
                 if ( !foreignRecord.get( 'id' ) ) {
-                    store.attrMapsToStorekey(
+                    store.attrMapsToStoreKey(
                         foreignRecord.get( 'storeKey' ), storeKey, propKey );
                 }
             });
@@ -123,7 +123,7 @@ var RecordArray = NS.Class({
         while ( l-- ) {
             id = array[l];
             if ( id[0] === '#' ) {
-                store.attrMapsToStorekey( id.slice( 1 ), storeKey, propKey );
+                store.attrMapsToStoreKey( id.slice( 1 ), storeKey, propKey );
             }
         }
     },
