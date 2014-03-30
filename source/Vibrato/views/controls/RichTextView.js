@@ -245,8 +245,8 @@ var RichTextView = NS.Class({
 
     toolbarConfig: {
         left: [
-            'bold', 'italic', 'underline', '-',
-            'size', 'font', '-',
+            'bold', 'italic', 'underline', 'strikethrough', '-',
+            'font', 'size', '-',
             'colour', 'bgcolour', '-',
             'image', '-',
             'link', '-',
@@ -279,7 +279,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Bold' ),
                 tooltip: NS.loc( 'Bold' ),
                 type: 'iconOnly',
-                icon: 'bold',
+                icon: 'icon-bold',
                 activate: function () {
                     if ( richTextView.get( 'isBold' ) ) {
                         richTextView.removeBold();
@@ -294,7 +294,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Italic' ),
                 tooltip: NS.loc( 'Italic' ),
                 type: 'iconOnly',
-                icon: 'italic',
+                icon: 'icon-italic',
                 activate: function () {
                     if ( richTextView.get( 'isItalic' ) ) {
                         richTextView.removeItalic();
@@ -309,7 +309,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Underline' ),
                 tooltip: NS.loc( 'Underline' ),
                 type: 'iconOnly',
-                icon: 'underline',
+                icon: 'icon-underline',
                 activate: function () {
                     if ( richTextView.get( 'isUnderlined' ) ) {
                         richTextView.removeUnderline();
@@ -319,11 +319,26 @@ var RichTextView = NS.Class({
                     this.fire( 'button:activate' );
                 }
             }),
+            strikethrough: new ButtonView({
+                isActive: bind( 'isStriked', this ),
+                label: 'Strikethrough',
+                tooltip: 'Strikethrough',
+                type: 'iconOnly',
+                icon: 'icon-strikethrough',
+                activate: function () {
+                    if ( richTextView.get( 'isStriked' ) ) {
+                        richTextView.removeStrikethrough();
+                    } else {
+                        richTextView.strikethrough();
+                    }
+                    this.fire( 'button:activate' );
+                }
+            }),
             size: new ButtonView({
                 label: NS.loc( 'Font Size' ),
                 tooltip: NS.loc( 'Font Size' ),
                 type: 'iconOnly',
-                icon: 'fontSize',
+                icon: 'icon-font-size',
                 target: this,
                 method: 'showFontSizeMenu'
             }),
@@ -331,7 +346,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Font Face' ),
                 tooltip: NS.loc( 'Font Face' ),
                 type: 'iconOnly',
-                icon: 'fontFace',
+                icon: 'icon-font',
                 target: this,
                 method: 'showFontFaceMenu'
             }),
@@ -339,7 +354,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Text Color' ),
                 tooltip: NS.loc( 'Text Color' ),
                 type: 'iconOnly',
-                icon: 'textColour',
+                icon: 'icon-palette',
                 target: this,
                 method: 'showTextColourMenu'
             }),
@@ -347,7 +362,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Text Highlight' ),
                 tooltip: NS.loc( 'Text Highlight' ),
                 type: 'iconOnly',
-                icon: 'highlightColour',
+                icon: 'icon-highlight',
                 target: this,
                 method: 'showTextHighlightColourMenu'
             }),
@@ -356,7 +371,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Link' ),
                 tooltip: NS.loc( 'Link' ),
                 type: 'iconOnly',
-                icon: 'link',
+                icon: 'icon-link',
                 activate: function () {
                     if ( richTextView.get( 'isLink' ) ) {
                         richTextView.removeLink();
@@ -372,7 +387,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Insert Image' ),
                 tooltip: NS.loc( 'Insert Image' ),
                 type: 'iconOnly',
-                icon: 'image',
+                icon: 'icon-image',
                 target: this,
                 method: 'insertImagesFromFiles'
             }),
@@ -381,7 +396,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Left' ),
                 tooltip: NS.loc( 'Left' ),
                 type: 'iconOnly',
-                icon: 'alignLeft',
+                icon: 'icon-paragraph-left',
                 activate: function () {
                     richTextView.setTextAlignment( 'left' );
                     this.fire( 'button:activate' );
@@ -392,7 +407,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Center' ),
                 tooltip: NS.loc( 'Center' ),
                 type: 'iconOnly',
-                icon: 'alignCentre',
+                icon: 'icon-paragraph-centre',
                 activate: function () {
                     richTextView.setTextAlignment( 'center' );
                     this.fire( 'button:activate' );
@@ -403,7 +418,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Right' ),
                 tooltip: NS.loc( 'Right' ),
                 type: 'iconOnly',
-                icon: 'alignRight',
+                icon: 'icon-paragraph-right',
                 activate: function () {
                     richTextView.setTextAlignment( 'right' );
                     this.fire( 'button:activate' );
@@ -414,7 +429,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Justify' ),
                 tooltip: NS.loc( 'Justify' ),
                 type: 'iconOnly',
-                icon: 'alignJustify',
+                icon: 'icon-paragraph-justify',
                 activate: function () {
                     richTextView.setTextAlignment( 'justify' );
                     this.fire( 'button:activate' );
@@ -425,7 +440,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Text Direction: Left to Right' ),
                 tooltip: NS.loc( 'Text Direction: Left to Right' ),
                 type: 'iconOnly',
-                icon: 'ltr',
+                icon: 'icon-lefttoright',
                 activate: function () {
                     richTextView.setTextDirection( 'ltr' );
                     this.fire( 'button:activate' );
@@ -436,7 +451,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Text Direction: Right to Left' ),
                 tooltip: NS.loc( 'Text Direction: Right to Left' ),
                 type: 'iconOnly',
-                icon: 'rtl',
+                icon: 'icon-righttoleft',
                 activate: function () {
                     richTextView.setTextDirection( 'rtl' );
                     this.fire( 'button:activate' );
@@ -446,7 +461,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Quote' ),
                 tooltip: NS.loc( 'Quote' ),
                 type: 'iconOnly',
-                icon: 'incQuote',
+                icon: 'icon-quotes-left',
                 target: richTextView,
                 method: 'increaseQuoteLevel'
             }),
@@ -454,7 +469,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Unquote' ),
                 tooltip: NS.loc( 'Unquote' ),
                 type: 'iconOnly',
-                icon: 'decQuote',
+                icon: 'icon-quotes-right',
                 target: richTextView,
                 method: 'decreaseQuoteLevel'
             }),
@@ -463,7 +478,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Unordered List' ),
                 tooltip: NS.loc( 'Unordered List' ),
                 type: 'iconOnly',
-                icon: 'ul',
+                icon: 'icon-list',
                 activate: function () {
                     if ( richTextView.get( 'isUnorderedList' ) ) {
                         richTextView.removeList();
@@ -478,7 +493,7 @@ var RichTextView = NS.Class({
                 label: NS.loc( 'Ordered List' ),
                 tooltip: NS.loc( 'Ordered List' ),
                 type: 'iconOnly',
-                icon: 'ol',
+                icon: 'icon-numbered-list',
                 activate: function () {
                     if ( richTextView.get( 'isOrderedList' ) ) {
                         richTextView.removeList();
@@ -728,10 +743,12 @@ var RichTextView = NS.Class({
     bold: execCommand( 'bold' ),
     italic: execCommand( 'italic' ),
     underline: execCommand( 'underline' ),
+    strikethrough: execCommand( 'strikethrough' ),
 
     removeBold: execCommand( 'removeBold' ),
     removeItalic: execCommand( 'removeItalic' ),
     removeUnderline: execCommand( 'removeUnderline' ),
+    removeStrikethrough: execCommand( 'removeStrikethrough' ),
 
     makeLink: execCommand( 'makeLink' ),
     removeLink: execCommand( 'removeLink' ),
@@ -812,6 +829,7 @@ var RichTextView = NS.Class({
     isBold: queryCommandState( 'B', ( />B\b/ ) ),
     isItalic: queryCommandState( 'I', ( />I\b/ ) ),
     isUnderlined: queryCommandState( 'U', ( />U\b/ ) ),
+    isStriked: queryCommandState( 'S', ( />S\b/ ) ),
     isLink: queryCommandState( 'A', ( />A\b/ ) ),
 
     alignment: function () {
