@@ -321,8 +321,8 @@ var RichTextView = NS.Class({
             }),
             strikethrough: new ButtonView({
                 isActive: bind( 'isStriked', this ),
-                label: 'Strikethrough',
-                tooltip: 'Strikethrough',
+                label: NS.loc( 'Strikethrough' ),
+                tooltip: NS.loc( 'Strikethrough' ),
                 type: 'iconOnly',
                 icon: 'icon-strikethrough',
                 activate: function () {
