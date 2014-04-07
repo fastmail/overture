@@ -17,6 +17,8 @@ var isLeapYear = function ( year ) {
 };
 var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 
+var dateFormat = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+\-])(\d{2})(?::(\d{2}))?)?)?)?$/;
+
 Date.extend({
     /**
         Function: Date.now
@@ -32,24 +34,6 @@ Date.extend({
     },
 
     fromJSON: function ( value ) {
-        return value ?
-            new Date( Date.parse( value ) ) :
-            null;
-    },
-
-    getDaysInMonth: function ( month, year ) {
-        return ( month === 1 && isLeapYear( year ) ) ?
-            29 : daysInMonths[ month ];
-    },
-    getDaysInYear: function ( year ) {
-        return isLeapYear( year ) ? 366 : 365;
-    },
-    isLeapYear: isLeapYear
-});
-
-if ( Date.parse( '1970-01-01T00:00' ) !== 0 ||
-        Date.parse( '1970-01-01T00:00Z' ) !== 0 ) {
-    Date.parse = ( function ( Date ) {
         /*
             /^
             (\d{4}|[+\-]\d{6})      // 1. Year
@@ -79,34 +63,36 @@ if ( Date.parse( '1970-01-01T00:00' ) !== 0 ||
                 )?
             )?$/;
         */
-        var nativeParse = Date.parse,
-            format = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+\-])(\d{2})(?::(\d{2}))?)?)?)?$/;
+        var results = value ? dateFormat.exec( value ) : null;
+        return results ?
+            new Date( Date.UTC(
+                +results[1] || 0,            // Year
+                ( +results[2] || 1 ) - 1,    // Month
+                +results[3] || 1,            // Day
+                +results[4] || 0,            // Hours
+                +results[5] || 0,            // Minutes
+                +results[6] || 0,            // Seconds
+                +results[7] || 0             // MS
+            ) + ( results[8] ?               // Has offset?
+                // +- 1 minute in ms
+                ( results[8] === '+' ? -1 : 1 ) * 60000 *
+                // Offset in minutes
+                ( ( ( +results[9] || 0 ) * 60 ) + ( +results[10] || 0 ) ) :
+                // No offset
+                0
+            )) :
+            null;
+    },
 
-        return function ( date ) {
-            var results = format.exec( date );
-            return results ?
-                Date.UTC(
-                    +results[1] || 0,            // Year
-                    ( +results[2] || 1 ) - 1,    // Month
-                    +results[3] || 1,            // Day
-                    +results[4] || 0,            // Hours
-                    +results[5] || 0,            // Minutes
-                    +results[6] || 0,            // Seconds
-                    +results[7] || 0             // MS
-                ) + ( results[8] ?               // Has offset?
-                    // +- 1 minute in ms
-                    ( results[8] === '+' ? -1 : 1 ) * 60000 *
-                    // Offset in minutes
-                    ( ( ( +results[9] || 0 ) * 60 ) + ( +results[10] || 0 ) ) :
-                    // No offset
-                    0
-                ):
-                nativeParse ?
-                    nativeParse( date ) :
-                    NaN;
-        };
-    }( Date ) );
-}
+    getDaysInMonth: function ( month, year ) {
+        return ( month === 1 && isLeapYear( year ) ) ?
+            29 : daysInMonths[ month ];
+    },
+    getDaysInYear: function ( year ) {
+        return isLeapYear( year ) ? 366 : 365;
+    },
+    isLeapYear: isLeapYear
+});
 
 var pad = function ( num, nopad, character ) {
     return ( nopad || num > 9 ) ? num : ( character || '0' ) + num;
