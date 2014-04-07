@@ -250,9 +250,9 @@ var RichTextView = NS.Class({
             'colour', 'bgcolour', '-',
             'image', '-',
             'link', '-',
+            'ul', 'ol', '-',
             'quote', 'unquote', '-',
             'left', 'centre', 'right', 'justify', '-',
-            'ul', 'ol', '-',
             'ltr', 'rtl'
         ],
         right: []
@@ -762,12 +762,15 @@ var RichTextView = NS.Class({
     setTextAlignment: execCommand( 'setTextAlignment' ),
     setTextDirection: execCommand( 'setTextDirection' ),
 
-    increaseQuoteLevel: execCommand( 'increaseQuoteLevel' ),
-    decreaseQuoteLevel: execCommand( 'decreaseQuoteLevel' ),
+    increaseQuoteLevel: execCommand( 'increaseListLevel' ),
+    decreaseQuoteLevel: execCommand( 'decreaseListLevel' ),
 
     makeUnorderedList: execCommand( 'makeUnorderedList' ),
     makeOrderedList: execCommand( 'makeOrderedList' ),
     removeList: execCommand( 'removeList' ),
+
+    increaseListLevel: execCommand( 'increaseListLevel' ),
+    decreaseListLevel: execCommand( 'decreaseListLevel' ),
 
     insertImage: execCommand( 'insertImage' ),
     insertImagesFromFiles: function ( files ) {
