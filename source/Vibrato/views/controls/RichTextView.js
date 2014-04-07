@@ -277,7 +277,8 @@ var RichTextView = NS.Class({
             bold: new ButtonView({
                 isActive: bind( 'isBold', this ),
                 label: NS.loc( 'Bold' ),
-                tooltip: NS.loc( 'Bold' ),
+                tooltip: NS.loc( 'Bold' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-b' ),
                 type: 'iconOnly',
                 icon: 'icon-bold',
                 activate: function () {
@@ -292,7 +293,8 @@ var RichTextView = NS.Class({
             italic: new ButtonView({
                 isActive: bind( 'isItalic', this ),
                 label: NS.loc( 'Italic' ),
-                tooltip: NS.loc( 'Italic' ),
+                tooltip: NS.loc( 'Italic' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-i' ),
                 type: 'iconOnly',
                 icon: 'icon-italic',
                 activate: function () {
@@ -307,7 +309,8 @@ var RichTextView = NS.Class({
             underline: new ButtonView({
                 isActive: bind( 'isUnderlined', this ),
                 label: NS.loc( 'Underline' ),
-                tooltip: NS.loc( 'Underline' ),
+                tooltip: NS.loc( 'Underline' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-u' ),
                 type: 'iconOnly',
                 icon: 'icon-underline',
                 activate: function () {
@@ -322,7 +325,8 @@ var RichTextView = NS.Class({
             strikethrough: new ButtonView({
                 isActive: bind( 'isStriked', this ),
                 label: NS.loc( 'Strikethrough' ),
-                tooltip: NS.loc( 'Strikethrough' ),
+                tooltip: NS.loc( 'Strikethrough' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-shift-7' ),
                 type: 'iconOnly',
                 icon: 'icon-strikethrough',
                 activate: function () {
@@ -369,7 +373,8 @@ var RichTextView = NS.Class({
             link: new ButtonView({
                 isActive: bind( 'isLink', this ),
                 label: NS.loc( 'Link' ),
-                tooltip: NS.loc( 'Link' ),
+                tooltip: NS.loc( 'Link' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-k' ),
                 type: 'iconOnly',
                 icon: 'icon-link',
                 activate: function () {
@@ -459,7 +464,8 @@ var RichTextView = NS.Class({
             }),
             quote: new ButtonView({
                 label: NS.loc( 'Quote' ),
-                tooltip: NS.loc( 'Quote' ),
+                tooltip: NS.loc( 'Quote' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-]' ),
                 type: 'iconOnly',
                 icon: 'icon-quotes-left',
                 target: richTextView,
@@ -467,7 +473,8 @@ var RichTextView = NS.Class({
             }),
             unquote: new ButtonView({
                 label: NS.loc( 'Unquote' ),
-                tooltip: NS.loc( 'Unquote' ),
+                tooltip: NS.loc( 'Unquote' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-[' ),
                 type: 'iconOnly',
                 icon: 'icon-quotes-right',
                 target: richTextView,
@@ -476,7 +483,8 @@ var RichTextView = NS.Class({
             ul: new ButtonView({
                 isActive: bind( 'isUnorderedList', this ),
                 label: NS.loc( 'Unordered List' ),
-                tooltip: NS.loc( 'Unordered List' ),
+                tooltip: NS.loc( 'Unordered List' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-shift-8' ),
                 type: 'iconOnly',
                 icon: 'icon-list',
                 activate: function () {
@@ -491,7 +499,8 @@ var RichTextView = NS.Class({
             ol: new ButtonView({
                 isActive: bind( 'isOrderedList', this ),
                 label: NS.loc( 'Ordered List' ),
-                tooltip: NS.loc( 'Ordered List' ),
+                tooltip: NS.loc( 'Ordered List' ) + '\n' +
+                    NS.formatKeyForPlatform( 'cmd-shift-9' ),
                 type: 'iconOnly',
                 icon: 'icon-numbered-list',
                 activate: function () {
