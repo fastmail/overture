@@ -771,8 +771,8 @@ var RichTextView = NS.Class({
     setTextAlignment: execCommand( 'setTextAlignment' ),
     setTextDirection: execCommand( 'setTextDirection' ),
 
-    increaseQuoteLevel: execCommand( 'increaseListLevel' ),
-    decreaseQuoteLevel: execCommand( 'decreaseListLevel' ),
+    increaseQuoteLevel: execCommand( 'increaseQuoteLevel' ),
+    decreaseQuoteLevel: execCommand( 'decreaseQuoteLevel' ),
 
     makeUnorderedList: execCommand( 'makeUnorderedList' ),
     makeOrderedList: execCommand( 'makeOrderedList' ),
