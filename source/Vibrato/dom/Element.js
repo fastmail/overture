@@ -530,6 +530,11 @@ NS.Element = {
             };
         if ( ancestor ) {
             rect = getPosition( ancestor );
+            if ( ancestor.nodeName === 'BODY' ) {
+                // document.documentElement - use of
+                // body.scroll(Top|Left) is deprecated.
+                ancestor = ancestor.parentNode;
+            }
             position.top -= rect.top - ancestor.scrollTop;
             position.left -= rect.left - ancestor.scrollLeft;
         }
