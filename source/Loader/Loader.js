@@ -184,7 +184,7 @@ var load = function ( name, executeOnLoad, force ) {
             xhr.onload = function () {
                 xhr.onload = xhr.onerror = null;
                 var data = this.responseText +
-                    '\n//@ sourceURL=' + src;
+                    '\n//# sourceURL=' + src;
                 if ( loader.cacheModules ) {
                     try {
                         ls.setItem( LS_V_PREFIX + name, src );
