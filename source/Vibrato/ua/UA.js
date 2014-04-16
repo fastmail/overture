@@ -241,7 +241,15 @@ NS.UA = {
 
         The CSS prefix to use for this browser.
     */
-    cssPrefix: cssPrefixes[ browser ]
+    cssPrefix: cssPrefixes[ browser ],
+
+    /**
+        Property: O.UA.canTouch
+        Type: Boolean
+
+        Does the browser support touch events?
+    */
+    canTouch: 'ontouchstart' in document.documentElement
 };
 
 }( this.O ) );
