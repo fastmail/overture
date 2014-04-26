@@ -558,6 +558,7 @@ var RichTextView = NS.Class({
                 [ 'Georgia', 'georgia, serif' ],
                 [ 'Helvetica', 'helvetica, arial, sans-serif' ],
                 [ 'Monospace', 'menlo, consolas, "courier new", monospace' ],
+                [ 'Tahoma', 'tahoma, sans-serif' ],
                 [ 'Times New Roman', '"Times New Roman", times, serif' ],
                 [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
                 [ 'Verdana', 'verdana, sans-serif' ]
