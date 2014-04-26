@@ -356,7 +356,7 @@ var interpreter = {
                             month = 11;
                         }
                     } else {
-                        if ( month === 11 ) {
+                        if ( month < 11 ) {
                             month += 1;
                         } else {
                             year += 1;
