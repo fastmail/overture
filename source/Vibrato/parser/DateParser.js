@@ -191,6 +191,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         return firstMatch([
             date,
             weekday,
+            day,
             monthname,
             year,
             relativeDate,
@@ -252,7 +253,8 @@ var interpreter = {
         if ( !keys.length ) {
             return null;
         }
-        var date = new Date();
+        var date = new Date(),
+            currentDay = date.getDate();
 
         // If we don't do this, setting month lower down could go wrong,
         // because if the date is 30th and we set month as Feb, we'll end up
@@ -308,13 +310,13 @@ var interpreter = {
             // that.
             if ( searchMethod === FUTURE ) {
                 if ( month < currentMonth ||
-                        ( month === currentMonth && day <= date.getDate() ) ) {
+                        ( month === currentMonth && day <= currentDay ) ) {
                     year += 1;
                 }
             }
             if ( searchMethod === PAST ) {
                 if ( month > currentMonth ||
-                        ( month === currentMonth && day >= date.getDate() ) ) {
+                        ( month === currentMonth && day >= currentDay ) ) {
                     year -= 1;
                 }
             }
@@ -397,12 +399,14 @@ var interpreter = {
                 if ( searchMethod !== PAST ) {
                     day = ( weekday - date.getDay() ).mod( 7 ) + 1;
                 } else {
-                    date.setDate( day = getDaysInMonth( month, year ) );
+                    date.setMonth( 11 );
+                    date.setDate( day = getDaysInMonth( 11, year ) );
                     day = day - ( date.getDay() - weekday ).mod( 7 );
                 }
                 date.setDate( day );
             }
         } else if ( hasWeekday ) {
+            date.setDate( currentDay );
             if ( searchMethod === PAST ) {
                 date.setTime( date.getTime() - dayInMs );
                 date.setTime( date.getTime() -
@@ -412,7 +416,6 @@ var interpreter = {
                 date.setTime( date.getTime() +
                     ( dayInMs * ( weekday - date.getDay() ).mod( 7 ) ) );
             }
-            return date;
         }
 
         return date;
@@ -492,7 +495,7 @@ var interpreter = {
 var unknown = NS.Parse.define( 'unknown', /^[^\s]+/ );
 
 var dateParsers = {};
-var parseDateTime = function ( string, locale, implicitPast, mode ) {
+var parseDateTime = function ( string, locale, mode ) {
     if ( !locale ) {
         locale = NS.i18n.getLocale();
     }
@@ -515,17 +518,17 @@ NS.parse.interpretDateTime = function ( tokens, implicitSearchMethod ) {
 };
 
 NS.parse.time = function ( string, locale ) {
-    var tokens = parseDateTime( string, locale, false, JUST_TIME );
+    var tokens = parseDateTime( string, locale, JUST_TIME );
     return interpreter.interpret( tokens );
 };
 
 NS.parse.date = function ( string, locale, implicitPast ) {
-    var tokens = parseDateTime( string, locale, implicitPast, JUST_DATE );
+    var tokens = parseDateTime( string, locale, JUST_DATE );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
 NS.parse.dateTime = function ( string, locale, implicitPast ) {
-    var tokens = parseDateTime( string, locale, implicitPast, DATE_AND_TIME );
+    var tokens = parseDateTime( string, locale, DATE_AND_TIME );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
