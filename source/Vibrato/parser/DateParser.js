@@ -98,6 +98,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
             monthnumber,
             monthname
         ]),
+        fullyear = define( 'year', /^\d{4}/ ),
         year = sequence([
             define( 'year', /^\d\d(?:\d\d)?/ ),
             not( firstMatch([
@@ -191,9 +192,9 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         return firstMatch([
             date,
             weekday,
-            day,
+            fullyear,
             monthname,
-            year,
+            day,
             relativeDate,
             searchMethod,
             whitespace
@@ -204,8 +205,9 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         date,
         time,
         weekday,
+        fullyear,
         monthname,
-        year,
+        day,
         relativeDate,
         searchMethod,
         whitespace
