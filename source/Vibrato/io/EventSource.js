@@ -232,7 +232,8 @@ var EventSource = NativeEventSource ? NS.Class({
     _poll: !!NS.UA.msie,
 
     // --- io ---
-    loading: function ( xhr ) {
+    loading: function () {
+        var xhr = this._xhr;
         // Must start with text/event-stream (i.e. indexOf must === 0)
         // If it doesn't, fail the connection.
         // IE doesn't let you read headers in the loading phase, so if we don't
@@ -244,15 +245,17 @@ var EventSource = NativeEventSource ? NS.Class({
             this._openConnection();
             this._processData( xhr.getResponse() );
         }
-    },
-    success: function ( xhr ) {
+    }.on( 'io:loading' ),
+
+    success: function ( event ) {
         this._openConnection();
-        this._processData( xhr.getResponse() + '\n\n' );
+        this._processData( event.data + '\n\n' );
         this._reconnect();
-    },
-    failure: function ( xhr ) {
+    }.on( 'io:success' ),
+
+    failure: function () {
         this._failConnection();
-    },
+    }.on( 'io:failure' ),
     // -- end io ---
 
     _openConnection: function () {

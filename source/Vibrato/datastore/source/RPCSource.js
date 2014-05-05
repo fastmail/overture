@@ -87,7 +87,7 @@ var RPCSource = NS.Class({
         this._inFlightRemoteCalls = null;
         this._inFlightCallbacks = null;
 
-        this.isSending = false;
+        this.inFlightRequest = null;
 
         RPCSource.parent.init.call( this, mixin );
     },
@@ -99,13 +99,6 @@ var RPCSource = NS.Class({
         The url to use for communicating with the server.
     */
     url: '/',
-
-    /**
-        Property: O.RPCSource#isSending
-        Type: Boolean
-
-        Is a request currently in flight?
-    */
 
     /**
         Property: O.RPCSource#willRetry
@@ -125,22 +118,12 @@ var RPCSource = NS.Class({
     timeout: 30000,
 
     /**
-        Property: O.RPCSource#io
-        Type: O.IO
+        Property: O.RPCSource#inFlightRequest
+        Type: (O.HttpRequest|null)
 
-        The IO object for communicating with the server.
+        The HttpRequest currently in flight.
     */
-    io: function () {
-        return new NS.IO({
-            contentType: 'application/json',
-            method: 'POST',
-            url: this.get( 'url' ),
-            timeout: this.get( 'timeout' )
-        }).on( 'io:success', this, 'ioDidSucceed' )
-          .on( 'io:failure', this, 'ioDidFail' )
-          .on( 'io:timeout', this, 'ioDidFail' )
-          .on( 'io:end', this, 'ioDidEnd' );
-    }.property(),
+    inFlightRequest: null,
 
     /**
         Method: O.RPCSource#ioDidSucceed
@@ -174,7 +157,7 @@ var RPCSource = NS.Class({
             data, this._inFlightCallbacks, this._inFlightRemoteCalls );
 
         this._inFlightRemoteCalls = this._inFlightCallbacks = null;
-    },
+    }.on( 'io:success' ),
 
     /**
         Method: O.RPCSource#ioDidSucceed
@@ -188,7 +171,7 @@ var RPCSource = NS.Class({
         if ( !this.get( 'willRetry' ) ) {
             this._inFlightRemoteCalls = this._inFlightCallbacks = null;
         }
-    },
+    }.on( 'io:failure', 'io:abort' ),
 
     /**
         Method: O.RPCSource#ioDidSucceed
@@ -198,13 +181,13 @@ var RPCSource = NS.Class({
         Parameters:
             event - {IOEvent}
     */
-    ioDidEnd: function () {
+    ioDidEnd: function ( event ) {
         // Send any waiting requests
-        this.set( 'isSending', false )
+        this.set( 'inFlightRequest', null )
             .send();
-    },
-
-
+        // Destroy old HttpRequest object.
+        event.target.destroy();
+    }.on( 'io:end' ),
 
     /**
         Method: O.RPCSource#generateCallId
@@ -248,7 +231,7 @@ var RPCSource = NS.Class({
         Send any queued method calls at the end of the current run loop.
     */
     send: function () {
-        if ( !this.get( 'isSending' ) ) {
+        if ( !this.get( 'inFlightRequest' ) ) {
             var remoteCalls = this._inFlightRemoteCalls,
                 request;
             if ( !this._inFlightRemoteCalls ) {
@@ -259,10 +242,16 @@ var RPCSource = NS.Class({
                 this._inFlightCallbacks = request[1];
             }
 
-            this.set( 'isSending', true )
-                .get( 'io' ).send({
+            this.set( 'inFlightRequest',
+                new NS.HttpRequest({
+                    nextEventTarget: this,
+                    timeout: this.get( 'timeout' ),
+                    method: 'POST',
+                    url: this.get( 'url' ),
+                    contentType: 'application/json',
                     data: JSON.stringify( request )
-                });
+                }).send()
+            );
         }
     }.queue( 'after' ),
 

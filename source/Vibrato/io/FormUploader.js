@@ -43,12 +43,12 @@ var hidden = {
 */
 NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     /**
-        Property (private): O.FormUploader-IFrameTransport#_io
+        Property: O.FormUploader-IFrameTransport#io
         Type: Object
 
         Reference to object on which callbacks are made.
     */
-    _io: {},
+    io: null,
 
     /**
         Constructor: O.FormUploader-IFrameTransport
@@ -59,10 +59,10 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
                  called by the FormUploader instance as these events occur.
     */
     init: function ( io ) {
-        this._io = io;
         this._isSuccess = false;
         this._isRunning = false;
         this._response = '';
+        this.io = io || null;
     },
 
     /**
@@ -189,9 +189,25 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         }, false );
 
         window[ transactionId ] = function ( data ) {
-            that._response = JSON.stringify( data );
+            var status = 200,
+                responseType = 'application/json',
+                response = JSON.stringify( data ),
+                io = that.io;
+            that._response = response;
             that._isSuccess = true;
-            that._io.success( that );
+            if ( io ) {
+                io.set( 'uploadProgress', 100 )
+                  .set( 'progress', 100 )
+                  .set( 'status', status )
+                  .set( 'responseType', responseType )
+                  .set( 'response', response )
+                  .fire( 'io:success', {
+                    status: status,
+                    type: responseType,
+                    data: response
+                  });
+                io.fire( 'io:end' );
+            }
         }.invokeInRunLoop();
 
         body.appendChild( iframe );
@@ -210,7 +226,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         // First load event is fired as soon as the frame is appended to the
         // DOM. Ignore this one; we're only interested in what happens after the
         // full page has loaded.
-        var iframeHref;
+        var iframeHref, io;
         // May throw a security error in old IE/Opera.
         try  {
             iframeHref = this._iframe.contentWindow.location.href;
@@ -220,7 +236,14 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         }
         this._isRunning = false;
         if ( !this._isSuccess ) {
-            this._io.failure( this );
+            io = this.io;
+            io.set( 'uploadProgress', 100 )
+               .set( 'progress', 100 )
+               .set( 'status', 400 )
+               .fire( 'io:failure', {
+                 status: 400
+               });
+            io.fire( 'io:end' );
         }
         this._complete();
     }.invokeInRunLoop(),
@@ -239,6 +262,8 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         if ( this._isRunning ) {
             this._isRunning = false;
             this._complete();
+            this.io.fire( 'io:abort' )
+                   .fire( 'io:end' );
         }
         return this;
     },

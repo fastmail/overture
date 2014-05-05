@@ -18,20 +18,15 @@ var isLocal = location.protocol === 'file:';
     Class: O.XHR
 
     Wrapper class for the native XMLHTTPRequest object in the browser. Hooks
-    into the more fully featured I/O class but can be used on its own
+    into the more fully featured <O.HttpRequest> class; you should use that
+    class for most things.
 */
 var XHR = NS.Class({
     /**
-        Property (private): O.XHR#_io
-        Type: Object
+        Property: O.XHR#io
+        Type: (O.Object|null)
 
-        Reference to object on which callbacks are made. The following callbacks
-        are supported (all optional):
-
-        * uploadProgress
-        * loading
-        * success
-        * failure
+        Reference to object on which properties are set and events fired.
     */
 
     /**
@@ -45,25 +40,26 @@ var XHR = NS.Class({
         Constructor: O.XHR
 
         Parameters:
-            io - {Object} (optional) An object containing any combination of the
-                 methods 'uploadProgress', 'loading', 'success' and 'failure',
-                 to be called by the XHR instance as these events occur.
+            io - {O.Object} (optional).
     */
     init: function ( io ) {
+        var xhr = new XMLHttpRequest();
         this._isRunning = false;
         this._status = 0;
-        this._io = io || {};
-        var xhr = this.xhr = new XMLHttpRequest(),
-            that = this;
-        if ( xhr.upload && io && io.uploadProgress ) {
-            xhr.upload.addEventListener( 'progress', function ( event ) {
-                io.uploadProgress( that, event );
-            }.invokeInRunLoop(), false );
+        this.io = io || null;
+        this.xhr = xhr;
+        if ( xhr.upload ) {
+            xhr.upload.addEventListener( 'progress', this, false );
+            xhr.addEventListener( 'progress', this, false );
         }
-        if ( xhr.addEventListener && io && io.progress ) {
-            xhr.addEventListener( 'progress', function ( event ) {
-                io.progress( that, event );
-            }.invokeInRunLoop(), false );
+    },
+
+    destroy: function () {
+        this.abort();
+        var xhr = this.xhr;
+        if ( xhr.upload ) {
+            xhr.upload.removeEventListener( 'progress', this, false );
+            xhr.removeEventListener( 'progress', this, false );
         }
     },
 
@@ -189,17 +185,15 @@ var XHR = NS.Class({
         this._isRunning = true;
 
         var xhr = this.xhr,
-            that = this;
-
-        // Let the browser set this automatically, otherwise it might be missing
-        // the boundary marker.
-        if ( data instanceof FormData ) {
-            delete headers[ 'Content-type' ];
-        }
+            io = this.io,
+            that = this,
+            name;
 
         xhr.open( method, url, true );
-        for ( var name in headers || {} ) {
-            if ( headers.hasOwnProperty( name ) ) {
+        for ( name in headers || {} ) {
+            // Let the browser set the Content-type automatically if submitting
+            // FormData, otherwise it might be missing the boundary marker.
+            if ( name !== 'Content-type' || !( data instanceof FormData ) ) {
                 xhr.setRequestHeader( name, headers[ name ] );
             }
         }
@@ -207,6 +201,10 @@ var XHR = NS.Class({
             that._xhrStateDidChange( this );
         };
         xhr.send( data );
+
+        if ( io ) {
+            io.fire( 'io:begin' );
+        }
 
         return this;
     },
@@ -222,30 +220,58 @@ var XHR = NS.Class({
     */
     _xhrStateDidChange: function ( xhr ) {
         var state = xhr.readyState,
-            io = this._io;
+            io = this.io,
+            status, responseType, response, eventType;
         if ( state < 3 || !this._isRunning ) { return; }
 
         if ( state === 3 ) {
-            if ( io.loading ) { io.loading( this ); }
+            if ( io ) {
+                io.set( 'uploadProgress', 100 )
+                  .fire( 'io:loading' );
+            }
             return;
         }
 
         this._isRunning = false;
         xhr.onreadystatechange = function () {};
 
-        var status = xhr.status;
-        this._status =
+        status = xhr.status;
+        this._status = status =
             // IE8 translates response code 204 to 1223
             ( status === 1223 ) ? 204 :
             // Local requests will have a 0 response
             ( !status && isLocal ) ? 200 :
             status;
 
-        if ( this.isSuccess() ) {
-            if ( io.success ) { io.success( this ); }
+        if ( io ) {
+            responseType = this.getResponseType();
+            response = this.getResponse();
+            eventType = this.isSuccess() ? 'io:success' : 'io:failure';
+            io.set( 'uploadProgress', 100 )
+              .set( 'progress', 100 )
+              .set( 'status', status )
+              .set( 'responseType', responseType )
+              .set( 'response', response )
+              .fire( eventType, {
+                status: status,
+                type: responseType,
+                data: response
+              });
+            io.fire( 'io:end' );
         }
-        else {
-            if ( io.failure ) { io.failure( this ); }
+    }.invokeInRunLoop(),
+
+    handleEvent: function ( event ) {
+        var io = this.io,
+            type;
+        if ( io && event.type === 'progress' ) {
+            type = event.target === this.xhr ? 'progress' : 'uploadProgress';
+            // CORE-47058. Limit to 99% on progress events, as Opera can report
+            // event.loaded > event.total! Will be set to 100 in onSuccess
+            // handler.
+            io.set( type, Math.min( 99,
+                    ~~( ( event.loaded / event.total ) * 100 ) ) )
+              .fire( 'io:' + type, event );
         }
     }.invokeInRunLoop(),
 
@@ -262,9 +288,14 @@ var XHR = NS.Class({
     abort: function () {
         if ( this._isRunning ) {
             this._isRunning = false;
-            var xhr = this.xhr;
+            var xhr = this.xhr,
+                io = this.io;
             xhr.abort();
             xhr.onreadystatechange = function () {};
+            if ( io ) {
+                io.fire( 'io:abort' );
+                io.fire( 'io:end' );
+            }
         }
         return this;
     }
