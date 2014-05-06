@@ -144,7 +144,7 @@ var RPCSource = NS.Class({
         // Check it's in the correct format
         if ( !( data instanceof Array ) ) {
             NS.RunLoop.didError({
-                name: 'APIConnection#ioDidSucceed',
+                name: 'O.RPCSource#ioDidSucceed',
                 message: 'Data from server is not JSON.',
                 details: 'Data:\n' + event.data +
                     '\n\nin reponse to request:\n' +
