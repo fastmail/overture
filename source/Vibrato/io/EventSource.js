@@ -199,6 +199,7 @@ var EventSource = NativeEventSource ? NS.Class({
         EventSource.parent.init.call( this, mixin );
         this._xhr = new NS.XHR( this );
     },
+
     open: function () {
         var headers = {
             'Accept': 'text/event-stream',
@@ -219,6 +220,7 @@ var EventSource = NativeEventSource ? NS.Class({
         this._xhr.send( 'GET', this.get( 'url' ), null, headers );
         return this;
     },
+
     close: function () {
         if ( this.get( 'readyState' ) !== CLOSED ) {
             this._xhr.abort();
@@ -229,10 +231,14 @@ var EventSource = NativeEventSource ? NS.Class({
 
     _reconnectAfter: 30000,
     _lastEventId: '',
-    _poll: !!NS.UA.msie,
 
-    // --- io ---
-    loading: function () {
+    // ---
+
+    // IE8 & IE9 can only read response text when readyState == 4.
+    // http://msdn.microsoft.com/en-us/library/ie/hh673569(v=vs.85).aspx
+    _poll: !!NS.UA.msie || NS.UA.msie < 10,
+
+    _dataDidArrive: function () {
         var xhr = this._xhr;
         // Must start with text/event-stream (i.e. indexOf must === 0)
         // If it doesn't, fail the connection.
@@ -247,16 +253,17 @@ var EventSource = NativeEventSource ? NS.Class({
         }
     }.on( 'io:loading' ),
 
-    success: function ( event ) {
+    _requestDidSucceed: function ( event ) {
         this._openConnection();
         this._processData( event.data + '\n\n' );
         this._reconnect();
     }.on( 'io:success' ),
 
-    failure: function () {
+    _requestDidFail: function () {
         this._failConnection();
     }.on( 'io:failure' ),
-    // -- end io ---
+
+    // ---
 
     _openConnection: function () {
         if ( this.get( 'readyState' ) === CONNECTING ) {
@@ -264,10 +271,12 @@ var EventSource = NativeEventSource ? NS.Class({
             this.fire( 'open' );
         }
     },
+
     _failConnection: function () {
         this.close();
         this.fire( 'error' );
     },
+
     _reconnect: function () {
         if ( this._poll ) {
             this.open();
@@ -276,6 +285,7 @@ var EventSource = NativeEventSource ? NS.Class({
                 this.open, this._reconnectAfter, this );
         }
     },
+
     _processData: function ( text ) {
         // Look for a new line character since the last processed
         var lastIndex = this._lastNewLineIndex,
@@ -295,6 +305,7 @@ var EventSource = NativeEventSource ? NS.Class({
         this._lastNewLineIndex = lastIndex;
         this._processedIndex = text.length;
     },
+
     _processLine: function ( line ) {
         // Blank line, dispatch event
         if ( /^\s*$/.test( line ) ) {
@@ -331,6 +342,7 @@ var EventSource = NativeEventSource ? NS.Class({
             }
         }
     },
+
     _dispatchEvent: function () {
         var data = this._data,
             type = this._eventName;
