@@ -303,11 +303,16 @@ var PopOverView = NS.Class({
             view = view.get( 'subPopOverView' );
         }
         view.get( 'childViews' )[0].fire( event.type, event );
-        if ( event.type === 'keydown' &&
-                NS.DOMEvent.lookupKey( event ) === 'esc' ) {
-            view.hide();
+        if ( event.type === 'keydown' ) {
+            view.closeOnEsc( event );
         }
     },
+
+    closeOnEsc: function ( event ) {
+        if ( NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+            this.hide();
+        }
+    }.on( 'keydown' ),
 
     stopEvents: function ( event ) {
         event.stopPropagation();
