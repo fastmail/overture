@@ -594,13 +594,18 @@ var RichTextView = NS.Class({
         return new NS.MenuView({
             className: 'ColourMenuView',
             showFilter: false,
-            options: ( '#000000 #777672 #a9a8a1 #d7d4c0 #ffffff ' +
-                       '#3b641a #56a3cb #88c5c8 #a0dca0 #d0f652 ' +
-                       '#0018a8 #3880ad #4b9293 #68a65e #99b446 ' +
-                       '#683c2d #753381 #a54062 #bd433d #e4b150 ' +
-                       '#381b9a #7561ac #e36a95 #e56d69 #ffe60c' )
+            options: (
+                '000000 b22222 ff0000 ffa07a fff0f5 ' +
+                '800000 a52a2a ff8c00 ffa500 faebd7 ' +
+                '8b4513 daa520 ffd700 ffff00 ffffe0 ' +
+                '2f4f4f 006400 008000 00ff00 f0fff0 ' +
+                '008080 40e0d0 00ffff afeeee f0ffff ' +
+                '000080 0000cd 0000ff add8e6 f0f8ff ' +
+                '4b0082 800080 ee82ee dda0dd e6e6fa ' +
+                '696969 808080 a9a9a9 d3d3d3 ffffff' )
                 .split( ' ' )
                 .map( function ( colour ) {
+                    colour = '#' + colour;
                     return new ButtonView({
                         label: colour,
                         layout: {
