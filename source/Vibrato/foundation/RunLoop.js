@@ -31,26 +31,6 @@ var requestAnimFrame =
         };
     }() );
 
-var nextFrame = function ( time ) {
-    var RunLoop_ = RunLoop,
-        nextFrameQueue = RunLoop_._queues.nextFrame,
-        i = 0,
-        l = nextFrameQueue.length,
-        tuple;
-    RunLoop_.frameStartTime = time;
-    if ( l === 1 ) {
-        tuple = nextFrameQueue[0];
-        nextFrameQueue.length = 0;
-        RunLoop_.invoke( tuple[0], tuple[1] );
-    } else {
-        RunLoop_._queues.nextFrame = [];
-        for ( ;i < l; i += 1 ) {
-            tuple = nextFrameQueue[i];
-            RunLoop_.invoke( tuple[0], tuple[1] );
-        }
-    }
-};
-
 /**
     Class: O.RunLoop
 
@@ -253,7 +233,7 @@ var RunLoop = {
     invokeInNextEventLoop: function ( fn, bind ) {
         var nextLoopQueue = this._queues.nextLoop;
         if ( !nextLoopQueue.length ) {
-            setImmediate( this.flushQueue.bind( this, 'nextLoop' ) );
+            setImmediate( nextLoop );
         }
         nextLoopQueue.push([ fn, bind ]);
         return this;
@@ -431,6 +411,15 @@ Function.implement({
         };
     }
 });
+
+var nextLoop = RunLoop.invoke.bind( RunLoop,
+    RunLoop.flushQueue, RunLoop, [ 'nextLoop' ]
+);
+
+var nextFrame = function ( time ) {
+    RunLoop.frameStartTime = time;
+    RunLoop.flushQueue( 'nextFrame' );
+}.invokeInRunLoop();
 
 }( this.O, window, typeof setImmediate !== 'undefined' ?
     setImmediate :
