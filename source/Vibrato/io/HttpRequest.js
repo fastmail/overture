@@ -173,7 +173,7 @@ var HttpRequest = NS.Class({
     },
 
     abort: function () {
-        var transport = this.get( 'transport' );
+        var transport = this._transport;
         if ( transport && transport.io === this ) {
             transport.abort();
         }
