@@ -43,20 +43,13 @@ function makeLangFile( defaults, strings, output ) {
     }
     strings = readPo( fs.readFileSync( strings, 'utf8' ) );
     defaults = readPo( fs.readFileSync( defaults, 'utf8' ) );
-    
+
     var code = /.*\/(.*)\.js/.exec( output )[1];
-    
+
     var getString = function ( id ) {
-        var string = strings[ id ];
-        if ( string === undefined ) {
-            string = defaults[ id ];
-        }
-        if ( string === undefined ) {
-            string = '';
-        }
-        return string;
+        return strings[ id ] || defaults[ id ] || '';
     };
-    
+
     var localisation = {
         code: code,
         dayNames: [
@@ -105,15 +98,15 @@ function makeLangFile( defaults, strings, output ) {
             getString( 'S_CALENDAR_NOV' ),
             getString( 'S_CALENDAR_DEC' )
         ],
-        
+
         decimalPoint: getString( 'S_FORMAT_DECIMAL_POINT' ),
         thousandsSeparator: getString( 'S_FORMAT_THOUSANDS_SEPARATOR' ),
-        
+
         amDesignator: getString( 'S_CALENDAR_AM' ),
         pmDesignator: getString( 'S_CALENDAR_PM' ),
-        
+
         use24hClock: getString( 'S_CALENDAR_FORMAT_TIME_DEFAULT' ) === '24h',
-        
+
         dateFormats: {
             date: getString( 'S_CALENDAR_FORMAT_DATE' ),
             time12: getString( 'S_CALENDAR_FORMAT_TIME_12' ),
@@ -127,7 +120,7 @@ function makeLangFile( defaults, strings, output ) {
             shortDayDate: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_DATE' )
         }
     };
-    
+
     fs.writeFile( output, JSON.stringify( localisation, null, 2 ) );
 }
 
