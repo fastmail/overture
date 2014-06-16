@@ -101,6 +101,17 @@ var RootView = NS.Class({
         window.scrollTo( 0, 0 );
     },
 
+    focus: function () {
+        var layer = this.get( 'layer' ),
+            activeElement = layer.ownerDocument.activeElement,
+            view = NS.ViewEventsController.getViewFromNode( activeElement );
+        if ( view instanceof NS.AbstractControlView ) {
+            view.blur();
+        } else if ( activeElement.blur ) {
+            activeElement.blur();
+        }
+    },
+
     pxTop: 0,
     pxLeft: 0,
 
