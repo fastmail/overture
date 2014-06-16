@@ -76,14 +76,6 @@ var TextView = NS.Class({
     isHighlighted: false,
 
     /**
-        Property: O.TextView#isFocussed
-        Type: Boolean
-
-        Represents whether the view currently has focus or not.
-    */
-    isFocussed: false,
-
-    /**
         Property: O.TextView#inputType
         Type: String
         Default: "text"
@@ -310,8 +302,8 @@ var TextView = NS.Class({
         var value = this.get( 'value' );
         this._domControl.value = value;
         // Ensure placeholder is updated.
-        if ( !this.get( 'isFocussed' ) ) {
-            this._onBlur();
+        if ( !nativePlaceholder && !this.get( 'isFocussed' ) ) {
+            this._setPlaceholder();
         }
     },
 
@@ -444,45 +436,30 @@ var TextView = NS.Class({
     }.on( 'input' ),
 
     /**
-        Method (private): O.TextView#_onFocus
+        Method (private): O.TextView#_setPlaceholder
 
-        Updates the <#isFocussed> property and removes the placholder text for
-        browsers that don't support this natively.
-
-        Parameters:
-            event - {Event} The focus event.
+        Sets/removes the placholder text for browsers that don't support this
+        natively.
     */
-    _onFocus: function () {
-        if ( this._placeholderShowing ) {
-            this._placeholderShowing = false;
-            var control = this._domControl;
-            control.className = '';
-            control.value = '';
-        }
-        this.set( 'isFocussed', true );
-    }.on( 'focus' ),
-
-    /**
-        Method (private): O.TextView#_onBlur
-
-        Updates the <#isFocussed> property and adds the placholder text for
-        browsers that don't support this natively.
-
-        Parameters:
-            event - {Event} The blur event.
-    */
-    _onBlur: function () {
-        this.set( 'isFocussed', false );
-        if ( !nativePlaceholder ) {
-            var placeholder = this.get( 'placeholder' );
+    _setPlaceholder: nativePlaceholder ? null :
+    function ( _, __, ___, isFocussed ) {
+        var control = this._domControl,
+            placeholder;
+        if ( isFocussed ) {
+            if ( this._placeholderShowing ) {
+                this._placeholderShowing = false;
+                control.className = '';
+                control.value = '';
+            }
+        } else {
+            placeholder = this.get( 'placeholder' );
             if ( placeholder && !this.get( 'value' ) ) {
                 this._placeholderShowing = true;
-                var control = this._domControl;
                 control.className = 'placeholder';
                 control.value = placeholder;
             }
         }
-    }.on( 'blur' ),
+    }.observes( 'isFocussed' ),
 
     /**
         Method (private): O.TextView#_onKeypress

@@ -33,6 +33,14 @@ var AbstractControlView = NS.Class({
     isDisabled: false,
 
     /**
+        Property: O.AbstractControlView#isFocussed
+        Type: Boolean
+
+        Represents whether the control currently has focus or not.
+    */
+    isFocussed: false,
+
+    /**
         Property: O.AbstractControlView#label
         Type: String|Element|null
         Default: ''
@@ -265,6 +273,10 @@ var AbstractControlView = NS.Class({
     focus: function () {
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.focus();
+            // Fire event synchronously.
+            if ( !this.get( 'isFocussed' ) ) {
+                this.fire( 'focus' );
+            }
         }
         return this;
     },
@@ -280,9 +292,25 @@ var AbstractControlView = NS.Class({
     blur: function () {
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.blur();
+            // Fire event synchronously.
+            if ( this.get( 'isFocussed' ) ) {
+                this.fire( 'blur' );
+            }
         }
         return this;
     },
+
+    /**
+        Method (private): O.AbstractControlView#_updateIsFocussed
+
+        Updates the <#isFocussed> property.
+
+        Parameters:
+            event - {Event} The focus event.
+    */
+    _updateIsFocussed: function ( event ) {
+        this.set( 'isFocussed', event.type === 'focus' );
+    }.on( 'focus', 'blur' ),
 
     // --- Activate ---
 
