@@ -574,12 +574,13 @@ var Store = NS.Class({
 
         var getEntry = function ( Type ) {
             var typeName = Type.className,
-                primaryKey;
+                idPropKey, idAttrKey;
             entry = changes[ typeName ];
             if ( !entry ) {
-                primaryKey = Type.primaryKey;
+                idPropKey = Type.primaryKey;
+                idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
                 entry = changes[ typeName ] = {
-                    primaryKey: Type.prototype[ primaryKey ].key || primaryKey,
+                    primaryKey: idAttrKey,
                     create: { storeKeys: [], records: [] },
                     update: { storeKeys: [], records: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
@@ -721,7 +722,7 @@ var Store = NS.Class({
             update = changes.update,
             destroy = changes.destroy,
             created = {},
-            createObj, updateObj, destroyObj,
+            createObj, updateObj,
             i, l, storeKey;
 
         for ( i = 0, l = create.length; i < l; i += 1 ) {
@@ -1636,7 +1637,8 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            primaryKey = Type.primaryKey,
+            idPropKey = Type.primaryKey,
+            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             id, storeKey, status, update, newId;
 
         for ( id in updates ) {
@@ -1699,7 +1701,7 @@ var Store = NS.Class({
                 delete _skToCommitted[ storeKey ];
             }
 
-            newId = update[ primaryKey ];
+            newId = update[ idAttrKey ];
             if ( newId && newId !== id ) {
                 _skToId[ storeKey ] = newId;
                 delete _idToSk[ id ];
