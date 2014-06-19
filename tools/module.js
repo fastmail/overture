@@ -29,12 +29,12 @@ var replaceFileNames = function ( names, input, output ) {
 
 var addModuleList = function ( variable, modules, input, output ) {
     var data = fs.readFileSync( input, 'utf8' );
-    
+
     data = data.replace( '// ' + variable,
             modules.reduce( function ( prev, name ) {
         return prev + '"' + name + '": "${' + name + '.js}",\n';
     }, '' ).slice( 0, -2 ) );
-    
+
     fs.writeFile( output, data );
 };
 
@@ -138,7 +138,7 @@ var sortByDependencies = function ( files ) {
         return info;
     });
     var modules = sort( groupIntoModules( parsed ) );
-    
+
     return modules.reduce( function ( array, module ) {
         sort( module.files ).forEach( function ( file ) {
             array.push( file.data );
@@ -175,7 +175,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         var data = fs.readFileSync( input );
         var filename = input.replace( /.*\//, '' );
         var type = filename.slice( filename.lastIndexOf( '.' ) + 1 );
-        
+
         module += themeManager;
         module += '.imageDidLoad("';
         module += theme;
@@ -192,7 +192,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         var filename = input.replace( /.*\//, '' );
         var type = filename.slice( filename.lastIndexOf( '.' ) + 1 );
         if ( type === 'jpg' ) { type = 'jpeg'; }
-        
+
         module += themeManager;
         module += '.imageDidLoad("';
         module += theme;
@@ -207,8 +207,8 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
     css.forEach( function ( input ) {
         var data = fs.readFileSync( input, 'utf8' );
         var filename = input.replace( /.*\//, '' );
-        
-        data = data.replace( /url\(\s*["']?(.*?)["']?\s*\)/g,
+
+        data = data.replace( /url\(\s*["']?([^\/].*?)["']?\s*\)/g,
                     function ( original, img ) {
                return /data:|\.eot/.test( img ) ?
                     original :
@@ -224,13 +224,13 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         module += data.replace( /\\/g, '\\\\' ).replace( /"/g, '\\"' );
         module += '");\n';
     });
-    
+
     var jsData = js.map( function ( input ) {
         return stripStrict( fs.readFileSync( input, 'utf8' ) );
     });
-    
+
     module += sortByDependencies( jsData ).join( '\n\n' );
-    
+
     fs.writeFile( output, module );
 };
 
