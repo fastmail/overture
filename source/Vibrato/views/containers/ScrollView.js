@@ -364,7 +364,6 @@ var ScrollView = NS.Class({
     */
     syncBackScroll: function ( event ) {
         if ( this._needsRedraw ) {
-            O.RunLoop.queueFn( 'after', this.syncBackScroll, this );
             return;
         }
         var layer = this.get( 'scrollLayer' ),
