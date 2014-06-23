@@ -62,7 +62,8 @@ var PopOverView = NS.Class({
             el = Element.create,
             getPosition = Element.getPosition,
             RootView = NS.RootView,
-            ScrollView = NS.ScrollView;
+            ScrollView = NS.ScrollView,
+            prop;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
@@ -115,6 +116,11 @@ var PopOverView = NS.Class({
 
         layout.top += options.offsetTop || 0;
         layout.left += options.offsetLeft || 0;
+
+        // Round values to prevent buggy callout rendering.
+        for ( prop in layout ) {
+            layout[ prop ] = Math.round( layout[prop] );
+        }
 
         // Set layout
         this.set( 'layout', layout );
