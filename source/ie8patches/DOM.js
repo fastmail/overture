@@ -2,7 +2,7 @@
 // File: DOM.js                                                               \\
 // Module: IEPatches                                                          \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010–2013 FastMail Pty Ltd. All rights reserved.                \\
+// License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
 /*global document, Element, HTMLInputElement, HTMLTextAreaElement */
