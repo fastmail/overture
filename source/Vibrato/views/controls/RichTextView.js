@@ -693,6 +693,10 @@ var RichTextView = NS.Class({
             addLink: function () {
                 var url = this.get( 'value' ).trim(),
                     email;
+                // Don't allow malicious links
+                if ( /^(?:javascript|data):/.test( url ) ) {
+                    return;
+                }
                 // If it appears to start with a url protocol,
                 // pass it through verbatim.
                 if ( !( /[a-z][\w\-]+:/i.test( url ) ) ) {
