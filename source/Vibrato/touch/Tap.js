@@ -21,16 +21,19 @@ var MouseEventRemover = NS.Class({
     init: function ( target, defaultPrevented ) {
         this.target = target;
         this.stop = defaultPrevented;
+        this.time = Date.now();
         NS.ViewEventsController.addEventTarget( this, 30 );
     },
     fire: function ( type, event ) {
         var isClick = ( type === 'click' ) && !event.originalType,
             isMouse = isClick || /^mouse/.test( type );
+        if ( type === 'touchstart' || type === 'MSPointerStart' ||
+                Date.now() - this.time > 1000 ) {
+            NS.ViewEventsController.removeEventTarget( this );
+            return false;
+        }
         if ( isMouse && ( this.stop || event.target !== this.target ) ) {
             event.preventDefault();
-        }
-        if ( type === 'touchstart' || type === 'MSPointerStart' ) {
-            NS.ViewEventsController.removeEventTarget( this );
         }
         return isMouse;
     }
