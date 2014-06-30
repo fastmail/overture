@@ -262,8 +262,8 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         if ( this._isRunning ) {
             this._isRunning = false;
             this._complete();
-            this.io.fire( 'io:abort' )
-                   .fire( 'io:end' );
+            this.io.fire( 'io:abort' );
+            this.io.fire( 'io:end' );
         }
         return this;
     },
