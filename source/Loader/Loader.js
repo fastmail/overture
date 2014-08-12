@@ -5,8 +5,7 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global window, document, setTimeout, XMLHttpRequest, XDomainRequest,
-         localStorage */
+/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage */
 
 "use strict";
 
@@ -284,11 +283,13 @@ NS.loader = {
     debug: false,
     cacheModules: false,
     modules: moduleInfo,
+    baseHref: '',
 
     register: function ( name, info ) {
         if ( !info.status ) {
             info.status = info.src ? UNREQUESTED : LOADED;
         }
+        info.src = this.baseHref + info.src;
         moduleInfo[ name ] = info;
         return this;
     },
@@ -312,8 +313,18 @@ NS.require = require;
 
 }( this.O || ( this.O = {} ), XMLHttpRequest ) );
 
+/**
+    Function: O.execute
+
+    Execute a string as JavaScript code in the global context (an always-global
+    `eval`).
+
+    Parameters:
+        code - {String} The code to evaluate.
+
+*/
+/* jshint ignore:start */
 O.execute = ( function ( global ) {
-    /*jshint evil: true */
     var isGlobal = function ( original, Object ) {
         try {
             // Indirect eval is our preferred method for execution in the global
@@ -339,7 +350,6 @@ O.execute = ( function ( global ) {
     var evaluate = function ( code ) {
         ( 1, eval )( code );
     };
-    /*jshint evil: false */
 
     return isGlobal ? function ( code ) {
         evaluate( code );
@@ -356,3 +366,4 @@ O.execute = ( function ( global ) {
         head.removeChild( script );
     };
 }( this ) );
+/* jshint ignore:end */
