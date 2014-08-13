@@ -7,12 +7,12 @@ var fs = require( 'fs' );
 ( function () {
     var args = process.argv.slice( 2 );
     var defs = args[0].split( ',' ).reduce( function ( defs, name ) {
-        defs[ name ] = true;
+        defs[ name.toUpperCase() ] = true;
         return defs;
     }, {} );
     var input = args[1];
     var output = args[2];
-    
+
     fs.readFile( input, 'utf8', function ( error, data ) {
         if ( !error ) {
             var stack = [];
