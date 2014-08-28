@@ -236,7 +236,7 @@ var EventSource = NativeEventSource ? NS.Class({
 
     // IE8 & IE9 can only read response text when readyState == 4.
     // http://msdn.microsoft.com/en-us/library/ie/hh673569(v=vs.85).aspx
-    _poll: !!NS.UA.msie || NS.UA.msie < 10,
+    _poll: !!NS.UA.msie && NS.UA.msie < 10,
 
     _dataDidArrive: function () {
         var xhr = this._xhr;
