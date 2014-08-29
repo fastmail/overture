@@ -55,7 +55,7 @@ var GestureManager = new NS.Object({
     }
 });
 
-NS.ViewEventsController.addEventTarget( GestureManager, 20 );
+NS.ViewEventsController.addEventTarget( GestureManager, 30 );
 
 NS.GestureManager = GestureManager;
 

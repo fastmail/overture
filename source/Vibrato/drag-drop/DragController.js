@@ -22,6 +22,30 @@ var isControl = {
 var effectToString = NS.DragEffect.effectToString;
 var DEFAULT = NS.DragEffect.DEFAULT;
 
+function TouchDragEvent ( touch ) {
+    var clientX = touch.clientX,
+        clientY = touch.clientY,
+        target = document.elementFromPoint( clientX, clientY );
+    this.touch = touch;
+    this.clientX = clientX;
+    this.clientY = clientY;
+    this.target = target;
+    this.targetView = NS.ViewEventsController.getViewFromNode( target );
+}
+
+var getTouch = function ( event, touchId ) {
+    var touches = event.changedTouches,
+        l = touches.length,
+        touch;
+    while ( l-- ) {
+        touch = touches[l];
+        if ( touch.identifier === touchId ) {
+            return touch;
+        }
+    }
+    return null;
+};
+
 /**
     Class: O.DragController
 
@@ -75,6 +99,15 @@ var DragController = new NS.Object({
     _ignore: true,
 
     /**
+        Property (private): O.DragController._touchId
+        Type: String|null
+
+        If a touch-inited drag is in progress, this holds the identifier of the
+        touch being tracked
+    */
+    _touchId: null,
+
+    /**
         Property (private): O.DragController._drag
         Type: O.Drag|null
 
@@ -111,6 +144,7 @@ var DragController = new NS.Object({
     deregister: function ( drag ) {
         if ( this._drag === drag ) {
             this._drag = null;
+            this._touchId = null;
         }
     },
 
@@ -147,7 +181,7 @@ var DragController = new NS.Object({
         this.fire( event.type, event );
     }.invokeInRunLoop(),
 
-    // === Non-native API version ===
+    // === Non-native mouse API version ===
 
     /**
         Method (private): O.DragController._onMousedown
@@ -181,7 +215,7 @@ var DragController = new NS.Object({
     */
     _onMousemove: function ( event ) {
         var drag = this._drag;
-        if ( drag ) {
+        if ( drag && !this._touchId ) {
             // Mousemove should only be fired if not native DnD, but sometimes
             // is fired even when there's a native drag
             if ( !drag.get( 'isNative' ) ) {
@@ -225,10 +259,85 @@ var DragController = new NS.Object({
         this._targetView = null;
         // Mouseup will not fire if native DnD
         var drag = this._drag;
-        if ( drag ) {
+        if ( drag && !this._touchId ) {
             drag.drop( event ).endDrag();
         }
     }.on( 'mouseup' ),
+
+    // === Non-native touch API version ===
+
+    /**
+        Method (private): O.DragController._onHold
+
+        Parameters:
+            event - {Event} The hold event.
+    */
+    _onHold: function ( event ) {
+        var touch = event.touch,
+            touchEvent = new TouchDragEvent( touch ),
+            view = this.getNearestDragView( touchEvent.targetView );
+        if ( view && !isControl[ touchEvent.target.nodeName ] ) {
+            this._drag = new NS.Drag({
+                dragSource: view,
+                event: touchEvent
+            });
+            this._touchId = touch.identifier;
+        }
+    }.on( 'hold' ),
+
+    /**
+        Method (private): O.DragController._onTouchemove
+
+        Parameters:
+            event - {Event} The touchmove event.
+    */
+    _onTouchmove: function ( event ) {
+        var touchId = this._touchId,
+            touch;
+        if ( touchId ) {
+            touch = getTouch( event, touchId );
+            if ( touch ) {
+                this._drag.move( new TouchDragEvent( touch ) );
+                // Don't propagate to views and don't trigger scroll.
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }
+    }.on( 'touchmove' ),
+
+    /**
+        Method (private): O.DragController._onTouchend
+
+        Parameters:
+            event - {Event} The touchend event.
+    */
+    _onTouchend: function ( event ) {
+        var touchId = this._touchId,
+            touch;
+        if ( touchId ) {
+            touch = getTouch( event, touchId );
+            if ( touch ) {
+                this._drag.drop( new TouchDragEvent( touch ) ).endDrag();
+            }
+        }
+    }.on( 'touchend' ),
+
+    /**
+        Method (private): O.DragController._onTouchcancel
+
+        Parameters:
+            event - {Event} The touchcancel event.
+    */
+    _onTouchcancel: function ( event ) {
+        var touchId = this._touchId,
+            touch;
+        if ( touchId ) {
+            touch = getTouch( event, touchId );
+            if ( touch ) {
+                this._drag.endDrag();
+            }
+        }
+    }.on( 'touchcancel' ),
 
     // === Native API version ===
 
@@ -336,7 +445,7 @@ var DragController = new NS.Object({
         Parameters:
             event - {Event} The dragenter event.
     */
-    _onDragenter: function ( event ) {
+    _onDragenter: function (/* event */) {
         this._nativeRefCount += 1;
     }.on( 'dragenter' ),
 
@@ -350,7 +459,7 @@ var DragController = new NS.Object({
         Parameters:
             event - {Event} The dragleave event.
     */
-    _onDragleave: function ( event ) {
+    _onDragleave: function (/* event */) {
         var drag = this._drag;
         if ( !( this._nativeRefCount -= 1 ) && drag ) {
             drag.endDrag();
@@ -385,7 +494,7 @@ var DragController = new NS.Object({
         Parameters:
             event - {Event} The dragend event.
     */
-    _onDragend: function ( event ) {
+    _onDragend: function (/* event */) {
         var drag = this._drag;
         if ( drag ) {
             drag.endDrag();

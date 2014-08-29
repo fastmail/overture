@@ -22,7 +22,7 @@ var MouseEventRemover = NS.Class({
         this.target = target;
         this.stop = defaultPrevented;
         this.time = Date.now();
-        NS.ViewEventsController.addEventTarget( this, 30 );
+        NS.ViewEventsController.addEventTarget( this, 40 );
     },
     fire: function ( type, event ) {
         var isClick = ( type === 'click' ) && !event.originalType,
