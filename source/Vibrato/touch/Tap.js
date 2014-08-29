@@ -71,7 +71,7 @@ TrackedTouch.prototype.done  = function () {
 /*  A tap is defined as a touch which:
 
     * Lasts less than 200ms.
-    * Moves less than 10px from the initial touch point.
+    * Moves less than 5px from the initial touch point.
 
     There may be other touches occurring at the same time (e.g. you could be
     holding one button and tap another; the tap gesture will still be
@@ -116,7 +116,7 @@ NS.Tap = new NS.Gesture({
             if ( trackedTouch ) {
                 deltaX = touch.screenX - trackedTouch.x;
                 deltaY = touch.screenY - trackedTouch.y;
-                if ( deltaX * deltaX + deltaY * deltaY > 100 ) {
+                if ( deltaX * deltaX + deltaY * deltaY > 25 ) {
                     trackedTouch.done();
                     delete tracking[ id ];
                 }
