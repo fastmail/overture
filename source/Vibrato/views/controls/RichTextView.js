@@ -163,8 +163,12 @@ var RichTextView = NS.Class({
         return [
             this.get( 'toolbarView' ),
             el( 'div.editor', [ iframe ] ),
-            this._loadingOverlay = el( 'div.LoadingAnimation' )
+            this._loadingOverlay = this.drawLoadingOverlay()
         ];
+    },
+
+    drawLoadingOverlay: function () {
+        return NS.Element.create( 'div.LoadingAnimation' );
     },
 
     expand: function () {
