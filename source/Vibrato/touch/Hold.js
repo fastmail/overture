@@ -50,12 +50,12 @@ NS.Hold = new NS.Gesture({
     cancel: NS.Tap.cancel,
 
     start: function ( event ) {
-        var touches = event.changedTouches || [ event ],
+        var touches = event.changedTouches,
             tracking = this._tracking,
             i, l, touch, id;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier || touch.pointerId;
+            id = touch.identifier;
             if ( !tracking[ id ] ) {
                 tracking[ id ] = new TrackedTouch( touch );
             }
@@ -65,12 +65,12 @@ NS.Hold = new NS.Gesture({
     move: NS.Tap.move,
 
     end: function ( event ) {
-        var touches = event.changedTouches || [ event ],
+        var touches = event.changedTouches,
             tracking = this._tracking,
             i, l, touch, id, trackedTouch;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier || touch.pointerId;
+            id = touch.identifier;
             trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 trackedTouch.done();

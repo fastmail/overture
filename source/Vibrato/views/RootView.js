@@ -51,7 +51,6 @@ var RootView = NS.Class({
             'keypress', 'keydown', 'keyup',
             'dragstart', 'selectstart',
             'touchstart', 'touchmove', 'touchend', 'touchcancel',
-            'MSPointerDown', 'MSPointerMove', 'MSPointerUp', 'MSPointerCancel',
             'cut'
         ];
         for ( l = events.length; l--; ) {

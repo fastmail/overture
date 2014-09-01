@@ -27,8 +27,7 @@ var MouseEventRemover = NS.Class({
     fire: function ( type, event ) {
         var isClick = ( type === 'click' ) && !event.originalType,
             isMouse = isClick || /^mouse/.test( type );
-        if ( type === 'touchstart' || type === 'MSPointerStart' ||
-                Date.now() - this.time > 1000 ) {
+        if ( type === 'touchstart' || Date.now() - this.time > 1000 ) {
             NS.ViewEventsController.removeEventTarget( this );
             return false;
         }
@@ -91,13 +90,13 @@ NS.Tap = new NS.Gesture({
     },
 
     start: function ( event ) {
-        var touches = event.changedTouches || [ event ],
+        var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
             i, l, touch, id;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier || touch.pointerId;
+            id = touch.identifier;
             if ( !tracking[ id ] ) {
                 tracking[ id ] = new TrackedTouch(
                     touch.screenX, touch.screenY, now, touch.target );
@@ -106,12 +105,12 @@ NS.Tap = new NS.Gesture({
     },
 
     move: function ( event ) {
-        var touches = event.changedTouches || [ event ],
+        var touches = event.changedTouches,
             tracking = this._tracking,
             i, l, touch, id, trackedTouch, deltaX, deltaY;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier || touch.pointerId;
+            id = touch.identifier;
             trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 deltaX = touch.screenX - trackedTouch.x;
@@ -125,7 +124,7 @@ NS.Tap = new NS.Gesture({
     },
 
     end: function ( event ) {
-        var touches = event.changedTouches || [ event ],
+        var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
             i, l, touch, id, trackedTouch, defaultPrevented, target, nodeName,
@@ -135,7 +134,7 @@ NS.Tap = new NS.Gesture({
             };
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
-            id = touch.identifier || touch.pointerId;
+            id = touch.identifier;
             trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 if ( now - trackedTouch.time < 200 ) {

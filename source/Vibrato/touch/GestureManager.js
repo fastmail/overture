@@ -12,13 +12,6 @@
 
 ( function ( NS ) {
 
-var methodForType = {
-    'MSPointerDown': 'start',
-    'MSPointerMove': 'move',
-    'MSPointerUp': 'end',
-    'MSPointerCancel': 'cancel'
-};
-
 var GestureManager = new NS.Object({
 
     _gestures: [],
@@ -34,11 +27,10 @@ var GestureManager = new NS.Object({
     isMouseDown: false,
 
     fire: function ( type, event ) {
-        if ( /^touch/.test( type ) ||
-                ( /^MSPointer/.test( type ) && event.pointerType === 'touch' ) ) {
+        if ( /^touch/.test( type ) ) {
             var gestures = this._gestures,
                 l = gestures.length;
-            type = event.pointerId ? methodForType[ type ] : type.slice( 5 );
+            type = type.slice( 5 );
             while ( l-- ) {
                 gestures[l][ type ]( event );
             }
