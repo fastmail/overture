@@ -114,6 +114,29 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         relativeDate = anyInLocale( 'relativeDate',
             'yesterday tomorrow today now' ),
 
+        standardDate = sequence(
+            locale.dateFormats.date.split( /%\-?([dmbY])/ ).map(
+            function ( part, i ) {
+                if ( i & 1 ) {
+                    switch ( part ) {
+                    case 'd':
+                        return day;
+                    case 'm':
+                        return monthnumber;
+                    case 'b':
+                        return monthname;
+                    case 'Y':
+                        return year;
+                    }
+                } else if ( part ) {
+                    return define( 'dateDelimiter',
+                        new RegExp( '^' + part.escapeRegExp() )
+                    );
+                }
+                return null;
+            }).filter( function ( x ) { return !!x; } )
+        ),
+
         dayMonthYear = sequence([
             day,
             dateDelimiter,
@@ -158,33 +181,36 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         ]),
 
         date = sequence([
-            longestMatch(
-                locale.dateElementOrder === 'dmy' ? [
-                    dayMonthYear,
-                    dayMonth,
-                    monthYear,
-                    monthDayYear,
-                    monthDay,
-                    yearMonthDay,
-                    yearMonth
-                ] : locale.dateElementOrder === 'mdy' ?     [
-                    monthDayYear,
-                    monthDay,
-                    monthYear,
-                    dayMonthYear,
-                    dayMonth,
-                    yearMonthDay,
-                    yearMonth
-                ] : [
-                    yearMonthDay,
-                    yearMonth,
-                    dayMonthYear,
-                    dayMonth,
-                    monthYear,
-                    monthDayYear,
-                    monthDay
-                ]
-            ),
+            firstMatch([
+                standardDate,
+                longestMatch(
+                    locale.dateElementOrder === 'dmy' ? [
+                        dayMonthYear,
+                        dayMonth,
+                        monthYear,
+                        monthDayYear,
+                        monthDay,
+                        yearMonthDay,
+                        yearMonth
+                    ] : locale.dateElementOrder === 'mdy' ?     [
+                        monthDayYear,
+                        monthDay,
+                        monthYear,
+                        dayMonthYear,
+                        dayMonth,
+                        yearMonthDay,
+                        yearMonth
+                    ] : [
+                        yearMonthDay,
+                        yearMonth,
+                        dayMonthYear,
+                        dayMonth,
+                        monthYear,
+                        monthDayYear,
+                        monthDay
+                    ]
+                )
+            ]),
             not( define( '', /^\d/ ) )
         ]);
 
