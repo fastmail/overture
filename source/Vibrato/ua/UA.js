@@ -117,7 +117,8 @@ NS.UA = {
         Property: O.UA.platform
         Type: String
 
-        The operating system being run. "mac", "win", "linux" or "ios".
+        The operating system being run: "mac", "win", "linux", "android",
+        "ios", "webos" or "other.
     */
     platform: platform,
 
@@ -149,6 +150,14 @@ NS.UA = {
         True if running on iOS.
     */
     isIOS: platform === 'ios',
+
+    /**
+        Property: O.UA.isAndroid
+        Type: Boolean
+
+        True if running on Android.
+    */
+    isAndroid: platform === 'android',
 
     /**
         Property: O.UA.browser
