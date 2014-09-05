@@ -348,6 +348,12 @@ var TextView = NS.Class({
         this.focus();
     },
 
+    // If you change the DOM as iOS is focussing a text field, it can sometimes
+    // show the keyborad but lose the focus, so we explicitly focus it again.
+    focus: function () {
+        return TextView.parent.focus.call( this );
+    }.on( 'tap' ),
+
     // --- Scrolling and focus ---
 
     savedSelection: null,
