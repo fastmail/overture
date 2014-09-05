@@ -54,13 +54,9 @@ var PopOverView = NS.Class({
             parent = options.inParent,
             deltaLeft = 0,
             deltaTop = 0,
-            calloutDelta = 0,
-            calloutIsAtTopOrBottom =
-                ( positionToThe === 'top' || positionToThe === 'bottom' ),
-            callout, layout, position, gap, layer,
+            layout, layer,
             Element = NS.Element,
             el = Element.create,
-            getPosition = Element.getPosition,
             RootView = NS.RootView,
             ScrollView = NS.ScrollView,
             prop;
@@ -78,7 +74,7 @@ var PopOverView = NS.Class({
         }
 
         // Now find out our offsets;
-        layout = getPosition( atNode, parent instanceof ScrollView ?
+        layout = Element.getPosition( atNode, parent instanceof ScrollView ?
             parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
 
         switch ( positionToThe ) {
@@ -137,7 +133,7 @@ var PopOverView = NS.Class({
                     className: 'callout ' +
                         positionToThe.charAt( 0 ) + ' ' + alignEdge
                 }, [
-                    callout = el( 'b', {
+                    this._callout = el( 'b', {
                         className: 'callout-inner ' + positionToThe.charAt( 0 )
                     })
                 ])
@@ -181,25 +177,42 @@ var PopOverView = NS.Class({
             break;
         }
 
+        this.adjustPosition( deltaLeft, deltaTop );
+
+        if ( eventHandler ) {
+            NS.ViewEventsController.addEventTarget( eventHandler, 10 );
+        }
+        this.set( 'isVisible', true );
+
+        return this;
+    },
+
+    adjustPosition: function ( deltaLeft, deltaTop ) {
+        var Element = NS.Element,
+            parent = this.get( 'parentView' ),
+            layer = this.get( 'layer' ),
+            layout = this.get( 'layout' ),
+            positionToThe = this._options.positionToThe || 'bottom',
+            callout = this._callout,
+            calloutDelta = 0,
+            calloutIsAtTopOrBottom =
+                ( positionToThe === 'top' || positionToThe === 'bottom' ),
+            position, gap;
+
+        if ( !deltaLeft ) { deltaLeft = 0; }
+        if ( !deltaTop ) { deltaTop = 0; }
+
         // Check not run off screen.
         if ( parent instanceof PopOverView ) {
-            parent = parent.getParent( ScrollView ) ||
-                parent.getParent( RootView );
+            parent = parent.getParent( NS.ScrollView ) ||
+                parent.getParent( NS.RootView );
         }
-        position = getPosition( layer, parent.get( 'layer' ) );
-        // Check left edge
-        gap = position.left + deltaLeft;
-        if ( gap < 0 ) {
-            deltaLeft -= gap;
-            deltaLeft += 10;
-            if ( callout && calloutIsAtTopOrBottom ) {
-                calloutDelta -= gap;
-                calloutDelta += 10;
-            }
-        }
+        position = Element.getPosition( layer, parent.get( 'layer' ) );
+
         // Check right edge
         if ( !parent.get( 'showScrollbarX' ) ) {
-            gap = parent.get( 'pxWidth' ) - gap - layer.offsetWidth;
+            gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
+                layer.offsetWidth;
             // If gap is negative, move the view.
             if ( gap < 0 ) {
                 deltaLeft += gap;
@@ -210,19 +223,22 @@ var PopOverView = NS.Class({
                 }
             }
         }
-        // Check top edge
-        gap = position.top + deltaTop;
+
+        // Check left edge
+        gap = position.left + deltaLeft;
         if ( gap < 0 ) {
-            deltaTop -= gap;
-            deltaTop += 10;
-            if ( callout && !calloutIsAtTopOrBottom ) {
+            deltaLeft -= gap;
+            deltaLeft += 10;
+            if ( callout && calloutIsAtTopOrBottom ) {
                 calloutDelta -= gap;
                 calloutDelta += 10;
             }
         }
+
         // Check bottom edge
         if ( !parent.get( 'showScrollbarY' ) ) {
-            gap = parent.get( 'pxHeight' )  - gap - layer.offsetHeight;
+            gap = parent.get( 'pxHeight' )  - position.top - deltaTop -
+                layer.offsetHeight;
             if ( gap < 0 ) {
                 deltaTop += gap;
                 deltaTop -= 10;
@@ -233,12 +249,23 @@ var PopOverView = NS.Class({
             }
         }
 
+        // Check top edge
+        gap = position.top + deltaTop;
+        if ( gap < 0 ) {
+            deltaTop -= gap;
+            deltaTop += 10;
+            if ( callout && !calloutIsAtTopOrBottom ) {
+                calloutDelta -= gap;
+                calloutDelta += 10;
+            }
+        }
+
         if ( deltaLeft || deltaTop ) {
-            layout.left += deltaLeft;
-            layout.top += deltaTop;
             // Redraw immediately to prevent "flashing"
-            this.propertyDidChange( 'layout' )
-                .redraw();
+            this.set( 'layout', {
+                top: layout.top + deltaTop,
+                left: layout.left + deltaLeft
+            }).redraw();
         }
         if ( calloutDelta ) {
             Element.setStyle( callout,
@@ -246,13 +273,6 @@ var PopOverView = NS.Class({
                 -calloutDelta + 'px'
             );
         }
-
-        if ( eventHandler ) {
-            NS.ViewEventsController.addEventTarget( eventHandler, 10 );
-        }
-        this.set( 'isVisible', true );
-
-        return this;
     },
 
     hide: function () {
@@ -272,6 +292,7 @@ var PopOverView = NS.Class({
             if ( options.showCallout ) {
                 layer = this.get( 'layer' );
                 layer.removeChild( layer.firstChild );
+                this._callout = null;
             }
             if ( eventHandler ) {
                 NS.ViewEventsController.removeEventTarget( eventHandler );
