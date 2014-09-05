@@ -96,6 +96,22 @@ var RootView = NS.Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
+    preventRootScroll: NS.UA.isIOS ? function ( event ) {
+        var view = event.targetView,
+            ScrollView = NS.ScrollView,
+            doc, win;
+        if ( !( view instanceof ScrollView ) &&
+                !view.getParent( ScrollView ) ) {
+            doc = this.layer.ownerDocument;
+            win = doc.defaultView;
+            if ( this.get( 'pxHeight' ) <= win.innerHeight &&
+                    !/^(?:INPUT|TEXTAREA)$/.test(
+                        doc.activeElement.nodeName ) ) {
+                event.preventDefault();
+            }
+        }
+    }.on( 'touchmove' ) : null,
+
     hideAddressBar: function () {
         window.scrollTo( 0, 0 );
     },

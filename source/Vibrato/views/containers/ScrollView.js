@@ -350,7 +350,7 @@ var ScrollView = NS.Class({
         layer.scrollTop = y;
         // In case we've gone past the end.
         if ( x || y ) {
-            O.RunLoop.queueFn( 'after', this.syncBackScroll, this );
+            NS.RunLoop.queueFn( 'after', this.syncBackScroll, this );
         }
     },
 
@@ -385,57 +385,43 @@ var ScrollView = NS.Class({
 
 if ( NS.UA.isIOS ) {
     ScrollView.implement({
-        draw: function ( layer, Element, el ) {
-            var isFixedHeight = this.get( 'positioning' ) === 'absolute',
-                contents, scrollFixerHeight, wrapper, children;
+        isFixedDimensions: function () {
+            var positioning = this.get( 'positioning' );
+            return positioning === 'absolute' || positioning === 'fixed';
+        }.property( 'positioning' ),
 
-            // Preferred solution if height of div is fixed.
-            if ( isFixedHeight ) {
-                wrapper = this.scrollLayer = el( 'div', {
-                    style: 'position:relative;height:100%;overflow:auto;' +
-                        '-webkit-overflow-scrolling:touch;'
-                });
-                layer.appendChild( wrapper );
-                scrollFixerHeight = '1';
-            }
-            // Fallback solution if we can't be sure.
-            else {
-                wrapper = layer;
-                this.on( 'scroll', this, '_iosScroll' )
-                    .addObserverForKey( 'isInDocument', this, '_iosScroll' );
-                scrollFixerHeight = '2';
-            }
-            wrapper.appendChild(
+        draw: function ( layer, Element, el ) {
+            var contents, wrapper, children;
+            wrapper = this.scrollLayer = el( 'div', {
+                style: 'position:relative;height:100%;overflow:auto;' +
+                    '-webkit-overflow-scrolling:touch;'
+            }, [
                 contents = el( 'div.ScrollViewContents', {
                     style: 'position:relative;' +
-                        ( !isFixedHeight ? 'padding:1px 0;' : '' ) +
                         ( this.get( 'showScrollbarX' ) ?
                             '' : 'overflow:hidden;min-height:100%;' )
-                })
-            );
-            wrapper.appendChild(
-                el( 'div', {
+                }),
+                this.get( 'isFixedDimensions' ) ? el( 'div', {
                     style: 'position:absolute;top:100%;left: 0px;' +
-                        'width:1px;height:' + scrollFixerHeight + 'px;'
-                })
-            );
+                        'width:1px;height:1px;'
+                }) : null
+            ]);
+            layer.appendChild( wrapper );
             children = ScrollView.parent.draw.call( this, layer, Element, el );
             if ( children ) {
                 Element.appendChildren( contents, children );
             }
         },
-        _iosScroll: function () {
-            if ( this.get( 'isInDocument' ) ) {
-                var scrollTop = this.get( 'scrollTop' ),
-                    scrollLeft = this.get( 'scrollLeft' );
-                if ( !scrollTop ) {
-                    this.scrollTo( scrollLeft, 1 );
-                } else if ( scrollTop + this.get( 'pxHeight' ) ===
-                        this.get( 'layer' ).scrollHeight ) {
-                    this.scrollTo( scrollLeft, scrollTop - 1 );
+
+        preventRootScroll: function ( event ) {
+            if ( !this.get( 'isFixedDimensions' ) ) {
+                var layer = this.get( 'layer' );
+                if ( layer.scrollHeight <= layer.offsetHeight ) {
+                    event.preventDefault();
                 }
             }
-        }.queue( 'after' ),
+        }.on( 'touchmove' ),
+
         insertView: function ( view, relativeTo, where ) {
             if ( !relativeTo && this.get( 'isRendered' ) &&
                     where !== 'before' && where !== 'after' ) {
