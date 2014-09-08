@@ -21,8 +21,8 @@
 var ua = navigator.userAgent.toLowerCase(),
     other = [ 'other', '0' ],
     platform = /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
-        /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
         /android|webos/.exec( ua ) ||
+        /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
         other
     )[0],
     browser = ( /chrome|opera|safari|firefox|msie/.exec( ua ) || other )[0],
