@@ -34,6 +34,26 @@ var CORSRequest =
     ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
     ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
 
+var getFile = function ( src, callback ) {
+    var xhr = new CORSRequest(),
+        send = function () {
+            xhr.open( 'GET', src );
+            xhr.send();
+        },
+        wait = 1000;
+    xhr.onload = function () {
+        xhr.onload = xhr.onerror = null;
+        callback( this.responseText );
+    };
+    xhr.onerror = function () {
+        setTimeout( send, wait = Math.min( wait * 2, 32000 ) );
+    };
+    // IE randomly aborts some requests if these handlers aren't set.
+    xhr.onprogress = function () {};
+    xhr.ontimeout = function () {};
+    setTimeout( send, 0 );
+};
+
 // Will the browser execute the scripts in the order they are injected into the
 // page?
 var inOrderScripts = ( CORSRequest === XMLHttpRequest );
@@ -116,7 +136,7 @@ var load = function ( name, executeOnLoad, force ) {
         status = info.status,
         loader = NS.loader,
         useScriptTag = !CORSRequest || loader.debug,
-        dependencies, data, doc, script, xhr, send, wait;
+        dependencies, data, doc, script;
 
     if ( useScriptTag ) {
         if ( !executeOnLoad ) {
@@ -174,16 +194,8 @@ var load = function ( name, executeOnLoad, force ) {
             script.src = src;
             doc.documentElement.firstChild.appendChild( script );
         } else {
-            xhr = new CORSRequest();
-            send = function () {
-                xhr.open( 'GET', src );
-                xhr.send();
-            };
-            wait = 1000;
-            xhr.onload = function () {
-                xhr.onload = xhr.onerror = null;
-                var data = this.responseText +
-                    '\n//# sourceURL=' + src;
+            getFile( src, function ( response ) {
+                var data = response + '\n//# sourceURL=' + src;
                 if ( loader.cacheModules ) {
                     try {
                         ls.setItem( LS_V_PREFIX + name, src );
@@ -191,14 +203,7 @@ var load = function ( name, executeOnLoad, force ) {
                     } catch ( error ) {}
                 }
                 moduleDidLoad( name, data );
-            };
-            xhr.onerror = function () {
-                setTimeout( send, wait = Math.min( wait * 2, 32000 ) );
-            };
-            // IE randomly aborts some requests if these handlers aren't set.
-            xhr.onprogress = function () {};
-            xhr.ontimeout = function () {};
-            setTimeout( send, 0 );
+            });
         }
     } else if ( executeOnLoad && !( status & (WILL_EXECUTE|EXECUTED) ) ) {
         if ( loader.fire ) {
@@ -284,6 +289,8 @@ NS.loader = {
     cacheModules: false,
     modules: moduleInfo,
     baseHref: '',
+
+    getFile: getFile,
 
     register: function ( name, info ) {
         if ( !info.status ) {
