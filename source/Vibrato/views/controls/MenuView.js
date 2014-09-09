@@ -205,6 +205,9 @@ var MenuOptionView = NS.Class({
                         top + height - scrollHeight + ( height >> 1 ), true );
                 }
             }
+            if ( !this.getParent( MenuView ).get( 'showFilter' ) ) {
+                this.button.focus();
+            }
         }
     }.observes( 'isFocussed' ),
 

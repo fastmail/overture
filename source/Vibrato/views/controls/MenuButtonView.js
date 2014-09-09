@@ -97,6 +97,25 @@ var MenuButtonView = NS.Class({
         return this.get( 'parentView' ) instanceof NS.MenuOptionView;
     }.property( 'parentView' ),
 
+    // --- Accessibility ---
+
+    didCreateLayer: function ( layer ) {
+        layer.setAttribute( 'aria-expanded', 'false' );
+    },
+
+    ariaNeedsRedraw: function ( self, property, oldValue ) {
+       return this.propertyNeedsRedraw( self, 'aria', oldValue );
+    }.observes( 'isActive' ),
+
+    redrawAria: function ( layer ) {
+        // Set ARIA attribute to link the menu DOM element to this
+        // button, so screen readers know what has opened.
+        layer.setAttribute( 'aria-controls',
+            this.getFromPath( 'menuView.id' ) );
+        // And set ARIA attribute to say that the menu is now open
+        layer.setAttribute( 'aria-expanded', this.get( 'isActive' ) + '' );
+    },
+
     // --- Activate ---
 
     /**
