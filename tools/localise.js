@@ -441,7 +441,8 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             shortDayMonth: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_MONTH' ),
             shortDayMonthYear:
                 getString( 'S_CALENDAR_FORMAT_SHORT_DAY_MONTH_YEAR' ),
-            shortDayDate: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_DATE' )
+            shortDayDate: getString( 'S_CALENDAR_FORMAT_SHORT_DAY_DATE' ),
+            shortMonthYear: getString( 'S_CALENDAR_FORMAT_SHORT_MONTH_YEAR' )
         },
         datePatterns: {
             jan: makeRegExp([
