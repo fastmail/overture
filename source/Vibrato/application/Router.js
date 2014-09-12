@@ -87,6 +87,16 @@ var Router = NS.Class({
     encodedState: '',
 
     /**
+        Property: O.Router#mayGoBack
+        Type: Boolean
+        Default: true
+
+        If false, the router will ignore history events (hashchange or
+        popstate).
+    */
+    mayGoBack: true,
+
+    /**
         Property: O.Router#replaceState
         Type: Boolean
         Default: false
@@ -151,7 +161,7 @@ var Router = NS.Class({
             path = this.useHash ?
                 getHash( location ) : getUrl( location, this.baseUrl );
 
-        if ( path !== this.get( 'currentPath' ) ) {
+        if ( this.get( 'mayGoBack' ) && path !== this.get( 'currentPath' ) ) {
             this.set( 'currentPath', path );
             this.restoreStateFromUrl( path );
         }
