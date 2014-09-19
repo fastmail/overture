@@ -134,6 +134,11 @@ var SelectView = NS.Class({
                 return;
             }
         }
+        // Work around Chrome on Android bug where it doesn't redraw the
+        // select control until the element blurs.
+        if ( this.get( 'isFocussed' ) ) {
+            this.blur().focus();
+        }
     },
 
     // --- Keep state in sync with render ---
