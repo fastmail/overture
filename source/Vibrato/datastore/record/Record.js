@@ -140,23 +140,6 @@ var AttributeErrors = NS.Class({
     }.observes( '*' )
 });
 
-// Sets up the id property to be dependent on the primary key.
-var initType = function ( Type ) {
-    var primaryKey = Type.primaryKey,
-        metadata, dependents;
-    if ( primaryKey !== 'id' ) {
-        metadata = NS.meta( Type.prototype );
-        dependents = metadata.dependents;
-        if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-            dependents = metadata.dependents = NS.clone( dependents );
-            metadata.allDependents = {};
-        }
-        ( dependents[ primaryKey ] ||
-            ( dependents[ primaryKey ] = [] ) ).push( 'id' );
-    }
-    Type.isInited = true;
-};
-
 /**
     Class: O.Record
 
@@ -180,12 +163,6 @@ var Record = NS.Class({
                        <O.Record#saveToStore> method.
     */
     init: function ( store, storeKey ) {
-        // Need to make sure special 'id' property triggers observers whenever
-        // it changes
-        var Type = this.constructor;
-        if ( !Type.isInited ) {
-            initType( Type );
-        }
         this._noSync = false;
         this._data = storeKey ? null : {};
         this.store = store;
@@ -526,8 +503,9 @@ var Record = NS.Class({
     Property: O.Record.primaryKey
     Type: String
 
-    Any Record subclass MUST define this property to be the name of the
-    instance property which is the primary key for the record.
+    Set automatically by the O.RecordAttribute with `isPrimaryKey: true`. If
+    no primary key is set, there is presumed to be a property called "id"
+    that is the primary key.
 */
 
 NS.Record = Record;

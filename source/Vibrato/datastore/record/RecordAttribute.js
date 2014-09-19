@@ -29,10 +29,22 @@ var instanceOf = function ( value, Type ) {
 */
 var RecordAttribute = NS.Class({
 
-    __setupProperty__: function ( metadata, propKey ) {
-        var attrs = metadata.attrs;
+    __setupProperty__: function ( metadata, propKey, object ) {
+        var attrs = metadata.attrs,
+            dependents;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
+        }
+        if ( this.isPrimaryKey ) {
+            object.constructor.primaryKey = propKey;
+            // Make the `id` property depend on the primary key.
+            dependents = metadata.dependents;
+            if ( !metadata.hasOwnProperty( 'dependents' ) ) {
+                dependents = metadata.dependents = NS.clone( dependents );
+                metadata.allDependents = {};
+            }
+            ( dependents[ propKey ] ||
+                ( dependents[ propKey ] = [] ) ).push( 'id' );
         }
         attrs[ this.key || propKey ] = propKey;
     },
@@ -114,6 +126,15 @@ var RecordAttribute = NS.Class({
         use the same key as the property name on the record.
     */
     key: null,
+
+    /**
+        Property: O.RecordAttribute#isPrimaryKey
+        Type: Boolean
+        Default: true
+
+        If true, this is the primary key for the record.
+    */
+    isPrimaryKey: false,
 
     /**
         Method: O.RecordAttribute#willSet
