@@ -290,8 +290,6 @@ var WindowedRemoteQuery = NS.Class({
 
     Extends: NS.RemoteQuery,
 
-    className: 'WindowedRemoteQuery',
-
     /**
         Property: O.WindowedRemoteQuery#windowSize
         Type: Number

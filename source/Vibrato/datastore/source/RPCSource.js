@@ -26,6 +26,17 @@ var delta = function ( update, primaryKey ) {
     return delta;
 };
 
+var handleProps = {
+    precedence: 'commitPrecedence',
+    fetch: 'recordFetchers',
+    refresh: 'recordRefreshers',
+    commit: 'recordCommitters',
+    create: 'recordCreators',
+    update: 'recordUpdaters',
+    destroy: 'recordDestroyers',
+    query: 'queryFetchers'
+};
+
 var idCounter = 0;
 
 /**
@@ -332,7 +343,7 @@ var RPCSource = NS.Class({
         // Query Fetches
         for ( id in _queriesToFetch ) {
             req = _queriesToFetch[ id ];
-            handler = this.queryFetchers[ req.className ];
+            handler = this.queryFetchers[ NS.guid( req.constructor ) ];
             if ( handler ) {
                 handler.call( this, req );
             }
@@ -421,8 +432,8 @@ var RPCSource = NS.Class({
             {Boolean} Returns true if the source handled the fetch.
     */
     fetchRecords: function ( Type, ids, callback ) {
-        var typeName = Type.className,
-            handler = this.recordFetchers[ typeName ];
+        var typeId = NS.guid( Type ),
+            handler = this.recordFetchers[ typeId ];
         if ( !handler ) {
             return false;
         }
@@ -430,7 +441,7 @@ var RPCSource = NS.Class({
             this.callMethod( handler );
         } else if ( ids instanceof Array ) {
             var reqs = this._recordsToFetch,
-                set = reqs[ typeName ] || ( reqs[ typeName ] = {} ),
+                set = reqs[ typeId ] || ( reqs[ typeId ] = {} ),
                 l = ids.length;
             while ( l-- ) {
                 set[ ids[l] ] = true;
@@ -487,15 +498,15 @@ var RPCSource = NS.Class({
             {Boolean} Returns true if the source handled the refresh.
     */
     refreshRecords: function ( Type, ids, state, callback ) {
-        var typeName = Type.className,
-            handler = this.recordRefreshers[ typeName ];
+        var typeId = NS.guid( Type ),
+            handler = this.recordRefreshers[ typeId ];
         if ( handler ) {
             if ( typeof handler === 'string' ) {
                 this.callMethod( handler, { state: state });
             }
             else if ( ids instanceof Array ) {
                 var reqs = this._recordsToRefresh,
-                    set = reqs[ typeName ] || ( reqs[ typeName ] = {} ),
+                    set = reqs[ typeId ] || ( reqs[ typeId ] = {} ),
                     l = ids.length;
                 while ( l-- ) {
                     set[ ids[l] ] = true;
@@ -573,7 +584,7 @@ var RPCSource = NS.Class({
             });
 
         Any types that are handled by the source are removed from the changes
-        object (`delete changes[ typeName ]`); any unhandled types are left
+        object (`delete changes[ typeId ]`); any unhandled types are left
         behind, so the object may be passed to several sources, with each
         handling their own types.
 
@@ -672,7 +683,7 @@ var RPCSource = NS.Class({
             {Boolean} Returns true if the source handled the fetch.
     */
     fetchQuery: function ( query, callback ) {
-        if ( !this.queryFetchers[ query.className ] ) {
+        if ( !this.queryFetchers[ NS.guid( query.constructor ) ] ) {
             return false;
         }
         var id = query.get( 'id' );
@@ -684,6 +695,25 @@ var RPCSource = NS.Class({
         }
         this.send();
         return true;
+    },
+
+    handle: function ( Type, handlers ) {
+        var typeId = NS.guid( Type ),
+            action, propName, isResponse, actionHandlers;
+        for ( action in handlers ) {
+            propName = handleProps[ action ];
+            isResponse = !propName;
+            if ( isResponse ) {
+                propName = 'response';
+            }
+            actionHandlers = this[ propName ];
+            if ( !this.hasOwnProperty( propName ) ) {
+                this[ propName ] = actionHandlers =
+                    Object.create( actionHandlers );
+            }
+            actionHandlers[ isResponse ? action : typeId ] = handlers[ action ];
+        }
+        return this;
     },
 
     /**

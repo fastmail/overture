@@ -493,13 +493,6 @@ var Record = NS.Class({
 });
 
 /**
-    Property: O.Record.className
-    Type: String
-
-    Any Record subclass MUST define this property with the name of the class to
-    allow for introspection and so the source knows what record type to fetch.
-*/
-/**
     Property: O.Record.primaryKey
     Type: String
 

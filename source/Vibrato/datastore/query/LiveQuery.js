@@ -46,8 +46,8 @@ var LiveQuery = NS.Class({
         A unique identifier for this query.
     */
     id: function () {
-        return this.get( 'className' ) + '-query-' + ( qid += 1 );
-    }.property(),
+        return NS.guid( this );
+    }.property().nocache(),
 
     /**
         Property (private): O.LiveQuery#_filter
@@ -84,14 +84,6 @@ var LiveQuery = NS.Class({
 
         Status of the query: READY|DESTROYED
     */
-
-    /**
-        Property: O.LiveQuery#className
-        Type: String
-
-        The string 'LiveQuery'. For introspection.
-    */
-    className: 'LiveQuery',
 
     /**
         Constructor: O.LiveQuery

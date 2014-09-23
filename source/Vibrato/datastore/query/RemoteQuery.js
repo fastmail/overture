@@ -21,8 +21,6 @@ var Status = NS.Status,
     // was initiated.
     OBSOLETE = Status.OBSOLETE;
 
-var qid = 0;
-
 /**
     Class: O.RemoteQuery
 
@@ -70,16 +68,8 @@ var RemoteQuery = NS.Class({
     Mixin: [ NS.Enumerable, NS.ObservableRange ],
 
     id: function () {
-        return this.get( 'className' ) + '-query-' + ( qid += 1 );
-    }.property(),
-
-    /**
-        Property: O.RemoteQuery#className
-        Type: String
-
-        Class name for introspection.
-    */
-    className: 'RemoteQuery',
+        return NS.guid( this );
+    }.property().nocache(),
 
     /**
         Property: O.RemoteQuery#sort
@@ -318,7 +308,7 @@ var RemoteQuery = NS.Class({
             store will be explicitly told not to fetch the data, as the fetching
             is being handled by the query.
     */
-    fetchDataForObjectAt: function ( index ) {
+    fetchDataForObjectAt: function (/* index */) {
         return false;
     },
 

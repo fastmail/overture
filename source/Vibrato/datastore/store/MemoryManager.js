@@ -136,7 +136,7 @@ var MemoryManager = NS.Class({
             _skToLastAccess = store._skToLastAccess,
             _skToData = store._skToData,
             storeKeys =
-                Object.keys( store._typeToSkToId[ Type.className ] || {} ),
+                Object.keys( store._typeToSkToId[ NS.guid( Type ) ] || {} ),
             l = storeKeys.length,
             numberToDelete = l - max,
             deleted = [],
