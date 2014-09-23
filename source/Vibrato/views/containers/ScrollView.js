@@ -391,27 +391,88 @@ if ( NS.UA.isIOS ) {
         }.property( 'positioning' ),
 
         draw: function ( layer, Element, el ) {
-            var contents, wrapper, children;
-            wrapper = this.scrollLayer = el( 'div', {
-                style: 'position:relative;height:100%;overflow:auto;' +
-                    '-webkit-overflow-scrolling:touch;'
-            }, [
-                contents = el( 'div.ScrollViewContents', {
-                    style: 'position:relative;' +
+            var isFixedDimensions = this.get( 'isFixedDimensions' ),
+                scrollFixerHeight = 1,
+                contentMargin = '',
+                wrapper = null,
+                safariVersion = NS.UA.safari,
+                children;
+
+            // Render the children.
+            children = ScrollView.parent.draw.call( this, layer, Element, el );
+
+            // Trick 1: The dual overflow:scroll view.
+            // By default, iOS Safari will scroll the containing scroll view
+            // if you are at the top/bottom of an overflow:scroll view. This
+            // means it scrolls the window instead of bouncing your scroll view.
+            // The dual overflow:scroll fixes this in iOS < 8. You only need
+            // this in Safari: if in a UIWebView you can disable the natural
+            // scrolling of the window.
+            if ( 0 < safariVersion && safariVersion < 8 ) {
+                wrapper = this.scrollLayer = el( 'div', {
+                    style: 'position:relative;height:100%;overflow:auto;' +
+                        '-webkit-overflow-scrolling:touch;'
+                });
+                layer.appendChild( wrapper );
+                layer = wrapper;
+            }
+
+            // Trick 2: Never leave the scroll view at the ends.
+            // As Trick 1 doesn't work in Safari on iOS8, we have to use a more
+            // crude method: ensure the scrollHeight is at least pxHeight + 2,
+            // then make sure scrollTop is never at the absolute end, so there
+            // is always room to scroll in both directions. We add an extra 1px
+            // margin to the top/bottom of the content so at scrollTop=1px, it
+            // looks like it should.
+            if ( safariVersion >= 8 ) {
+                scrollFixerHeight = 2;
+                contentMargin = 'margin:1px 0;';
+                this.on( 'scroll', this, '_setNotAtEnd' )
+                    .addObserverForKey( 'isInDocument', this, '_setNotAtEnd' );
+            }
+
+            // Append the actual children of the scroll view. The children are
+            // wrapped in a div to allow pull-to-refresh to easily shift
+            // everything down, and so we can tweak margins to compensate for
+            // Trick 2.
+            layer.appendChild(
+                el( 'div.ScrollViewContents', {
+                    style: 'position:relative;' + contentMargin +
                         ( this.get( 'showScrollbarX' ) ?
                             '' : 'overflow:hidden;min-height:100%;' )
-                }),
-                this.get( 'isFixedDimensions' ) ? el( 'div', {
-                    style: 'position:absolute;top:100%;left: 0px;' +
-                        'width:1px;height:1px;'
-                }) : null
-            ]);
-            layer.appendChild( wrapper );
-            children = ScrollView.parent.draw.call( this, layer, Element, el );
-            if ( children ) {
-                Element.appendChildren( contents, children );
+                }, [ children ] )
+            );
+
+            // Trick 3: Ensuring the view scrolls.
+            // Following platform conventions, we assume a fixed height
+            // ScrollView should always scroll, regardless of whether the
+            // content is taller than the view, whereas a variable height
+            // ScrollView just needs to scroll if the content requires it.
+            // Therefore, if it's a fixed height view, we add an extra
+            // invisible div permanently 1px below the height, so it always
+            // has scrollable content.
+            if ( isFixedDimensions ) {
+                layer.appendChild(
+                    el( 'div', {
+                        style: 'position:absolute;top:100%;left:0px;' +
+                            'width:1px;height:' + scrollFixerHeight + 'px;'
+                    })
+                );
             }
         },
+
+        _setNotAtEnd: function () {
+            if ( this.get( 'isInDocument' ) ) {
+                var scrollTop = this.get( 'scrollTop' ),
+                    scrollLeft = this.get( 'scrollLeft' );
+                if ( !scrollTop ) {
+                    this.scrollTo( scrollLeft, 1 );
+                } else if ( scrollTop + this.get( 'pxHeight' ) ===
+                        this.get( 'layer' ).scrollHeight ) {
+                    this.scrollTo( scrollLeft, scrollTop - 1 );
+                }
+            }
+        }.queue( 'after' ),
 
         preventRootScroll: function ( event ) {
             if ( !this.get( 'isFixedDimensions' ) ) {
