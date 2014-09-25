@@ -28,9 +28,6 @@ var translate = {
 
 var toCopy = 'altKey ctrlKey metaKey shiftKey clientX clientY charCode keyCode'.split( ' ' );
 
-var returnTrue = function () { return true; };
-var returnFalse = function () { return false; };
-
 function DOMEvent ( event ) {
     var type = event.type,
         doc = document,
@@ -68,17 +65,15 @@ function DOMEvent ( event ) {
 
 DOMEvent.prototype.isEvent = true;
 DOMEvent.prototype.preventDefault = function () {
-    this.isDefaultPrevented = returnTrue;
+    this.defaultPrevented = true;
     this._event.returnValue = false;
 };
 DOMEvent.prototype.stopPropagation = function () {
-    this.isPropagationStopped = returnTrue;
     this._event.cancelBubble = true;
 };
-DOMEvent.prototype.isDefaultPrevented = returnFalse;
-DOMEvent.prototype.isPropagationStopped = returnFalse;
+DOMEvent.prototype.defaultPrevented = false;
 
-var addEventListener = function ( type, handler, capture ) {
+var addEventListener = function ( type, handler/*, capture */) {
     var fn = handler._ie_handleEvent ||
             ( handler._ie_handleEvent = function () {
         var event = new DOMEvent( window.event );
@@ -94,7 +89,7 @@ var addEventListener = function ( type, handler, capture ) {
 };
 addEventListener.isFake = true;
 
-var removeEventListener = function ( type, handler, capture ) {
+var removeEventListener = function ( type, handler/*, capture */) {
     var fn = handler._ie_handleEvent;
     if ( !( handler._ie_registeredCount -= 1 ) ) {
         delete handler._ie_handleEvent;
