@@ -98,6 +98,7 @@ var HttpRequest = NS.Class({
 
         this.status = 0;
         this.responseType = '';
+        this.responseHeaders = {};
         this.response = '';
 
         HttpRequest.parent.init.call( this, mixin );
@@ -228,17 +229,23 @@ var HttpRequest = NS.Class({
         This event is fired if the request completes successfully. It includes
         the following properties:
 
-        type   - The MIME type of the response.
-        status - The HTTP status code of the response.
-        data   - The data returned by the response.
+        status  - The HTTP status code of the response.
+        headers - The headers of the response.
+        type    - The MIME type of the response.
+        data    - The data returned by the response.
     */
 
     /**
         Event: io:failure
 
         This event is fired if the request completes unsuccessfully (normally
-        determined by the HTTP status code). The status code is supplied as the
-        status property of the event.
+        determined by the HTTP status code). It includes the following
+        properties:
+
+        status  - The HTTP status code of the response.
+        headers - The headers of the response.
+        type    - The MIME type of the response.
+        data    - The data returned by the response.
     */
 
     /**

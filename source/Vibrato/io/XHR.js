@@ -14,6 +14,35 @@
 
 var isLocal = location.protocol === 'file:';
 
+var parseHeaders = function ( allHeaders ) {
+    var headers = {},
+        start = 0,
+        end, name;
+    while ( true ) {
+        // Look for ":"
+        end = allHeaders.indexOf( ':', start );
+        if ( end < 0 ) {
+            break;
+        }
+        // Slice out the header name
+        name = allHeaders.slice( start, end );
+        // Trim off any spaces after the colon.
+        start = end + 1;
+        while ( allHeaders.charAt( start ) === ' ' ) {
+            start += 1;
+        }
+        // And find the end of the header
+        end = allHeaders.indexOf( '\n', start );
+        if ( end < 0 ) {
+            end = allHeaders.length;
+        }
+        // Add to the headers object
+        headers[ name ] = allHeaders.slice( start, end );
+        start = end + 1;
+    }
+    return headers;
+};
+
 /**
     Class: O.XHR
 
@@ -61,24 +90,6 @@ var XHR = NS.Class({
             xhr.upload.removeEventListener( 'progress', this, false );
             xhr.removeEventListener( 'progress', this, false );
         }
-    },
-
-    /**
-        Method: O.XHR#isSuccess
-
-        Determines whether a request completed successfully, as determined by
-        the HTTP status code returned.
-
-        Returns:
-            {Boolean} Was the request successful?
-    */
-    isSuccess: function () {
-        var status = this._status;
-        // IE returns 200 status code when there's no network! But for a real
-        // connection there must have been at least one header, so check that's
-        // not empty
-        return ( status >= 200 && status < 300 ) &&
-            !!this.xhr.getAllResponseHeaders();
     },
 
     /**
@@ -221,7 +232,8 @@ var XHR = NS.Class({
     _xhrStateDidChange: function ( xhr ) {
         var state = xhr.readyState,
             io = this.io,
-            status, responseType, response, eventType;
+            status, allHeaders, isSuccess,
+            responseHeaders, responseType, response;
         if ( state < 3 || !this._isRunning ) { return; }
 
         if ( state === 3 ) {
@@ -244,16 +256,23 @@ var XHR = NS.Class({
             status;
 
         if ( io ) {
+            allHeaders = xhr.getAllResponseHeaders();
+            // IE returns 200 status code when there's no network! But for a
+            // real connection there must have been at least one header, so
+            // check that's not empty
+            isSuccess = !!allHeaders && ( status >= 200 && status < 300 );
+            responseHeaders = parseHeaders( allHeaders );
             responseType = this.getResponseType();
             response = this.getResponse();
-            eventType = this.isSuccess() ? 'io:success' : 'io:failure';
             io.set( 'uploadProgress', 100 )
               .set( 'progress', 100 )
               .set( 'status', status )
+              .set( 'responseHeaders', responseHeaders )
               .set( 'responseType', responseType )
               .set( 'response', response )
-              .fire( eventType, {
+              .fire( isSuccess ? 'io:success' : 'io:failure', {
                 status: status,
+                headers: responseHeaders,
                 type: responseType,
                 data: response
               });

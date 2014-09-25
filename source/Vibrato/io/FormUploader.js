@@ -73,17 +73,6 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
     */
 
     /**
-        Method: O.FormUploader-IFrameTransport#isSuccess
-            Determines whether a request completed successfully.
-
-        Returns:
-            {Boolean} Was it successful?
-    */
-    isSuccess: function () {
-        return this._isSuccess;
-    },
-
-    /**
         Property (private): O.FormUploader-IFrameTransport#_isRunning
         Type: Boolean
 
@@ -203,6 +192,7 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
                   .set( 'response', response )
                   .fire( 'io:success', {
                     status: status,
+                    headers: {},
                     type: responseType,
                     data: response
                   });
@@ -241,7 +231,10 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
                .set( 'progress', 100 )
                .set( 'status', 400 )
                .fire( 'io:failure', {
-                 status: 400
+                 status: 400,
+                 headers: {},
+                 type: '',
+                 data: ''
                });
             io.fire( 'io:end' );
         }
