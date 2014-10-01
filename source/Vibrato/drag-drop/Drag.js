@@ -320,14 +320,10 @@ var Drag = NS.Class({
                 while ( l-- ) {
                     item = items[l];
                     itemType = item.type;
-                    // itemType === '' -> folder.
-                    // Could read these in Chrome 21+/Opera 15+, using
-                    // webkitGetAsEntry. Hopefully there'll be more
-                    // browser support soon.
+                    if ( !hasFiles ) {
+                        hasFiles = ( item.kind === 'file' );
+                    }
                     if ( itemType ) {
-                        if ( !hasFiles ) {
-                            hasFiles = ( item.kind === 'file' );
-                        }
                         types.include( itemType );
                     }
                 }
@@ -379,23 +375,33 @@ var Drag = NS.Class({
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
                     itemType = item.type;
-                    // itemType === '' means a folder. Ignore for now.
-                    // Chrome 21+/Opera 15+ can access them if you use
-                    // webkitGetAsEntry instead of getAsFile.
-                    if ( item.kind === 'file' && itemType &&
-                            ( !typeRegExp || typeRegExp.test( itemType ) ) ) {
-                        files.push( item.getAsFile() );
+                    if ( item.kind === 'file' ) {
+                        // Ignore folders
+                        if ( !itemType ) {
+                            if ( item.getAsEntry &&
+                                    !item.getAsEntry().isFile ) {
+                                continue;
+                            }
+                            else if ( item.webkitGetAsEntry &&
+                                    !item.webkitGetAsEntry().isFile ) {
+                                continue;
+                            }
+                        }
+                        // Add to files if type matches.
+                        if ( !typeRegExp || typeRegExp.test( itemType ) ) {
+                            files.push( item.getAsFile() );
+                        }
                     }
                 }
             }
-            // Deprecated HTML5 DnD interface
+            // Deprecated HTML5 DnD interface (FF etc.)
             else if ( items = dataTransfer.files ) {
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
                     itemType = item.type;
-                    // Check it's not a folder and it matches any type
-                    // requirements
-                    if ( itemType &&
+                    // Check it's not a folder (size > 0) and it matches any
+                    // type requirements
+                    if ( item.size &&
                             ( !typeRegExp || typeRegExp.test( itemType ) ) ) {
                         files.push( item );
                     }
