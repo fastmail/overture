@@ -6,8 +6,6 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global document */
-
 "use strict";
 
 ( function ( NS ) {
@@ -38,13 +36,18 @@ var MouseEventRemover = NS.Class({
     }
 });
 
-var TapEvent = function ( type, target, preventDefault ) {
-    this.isEvent = true;
-    this.type = type;
-    this.originalType = 'tap';
-    this.target = target;
-    this.preventDefault = preventDefault;
-};
+var TapEvent = NS.Class({
+    init: function ( type, target ) {
+        this.isEvent = true;
+        this.type = type;
+        this.originalType = 'tap';
+        this.target = target;
+        this.defaultPrevented = false;
+    },
+    preventDefault: function () {
+        this.defaultPrevented = true;
+    }
+});
 
 var TrackedTouch = function ( x, y, time, target ) {
     this.x = x;
@@ -127,25 +130,21 @@ NS.Tap = new NS.Gesture({
         var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
-            i, l, touch, id, trackedTouch, defaultPrevented, target, nodeName,
-            ViewEventsController = NS.ViewEventsController,
-            preventDefault = function () {
-                defaultPrevented = true;
-            };
+            i, l, touch, id, trackedTouch, target, tapEvent, clickEvent,
+            nodeName,
+            ViewEventsController = NS.ViewEventsController;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
             id = touch.identifier;
             trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 if ( now - trackedTouch.time < 200 ) {
-                    defaultPrevented = false;
                     target = touch.target;
-                    ViewEventsController.handleEvent(
-                        new TapEvent( 'tap', target, preventDefault )
-                    );
-                    ViewEventsController.handleEvent(
-                        new TapEvent( 'click', target, preventDefault )
-                    );
+                    tapEvent = new TapEvent( 'tap', target );
+                    ViewEventsController.handleEvent( tapEvent );
+                    clickEvent = new TapEvent( 'click', target );
+                    clickEvent.defaultPrevented = tapEvent.defaultPrevented;
+                    ViewEventsController.handleEvent( clickEvent );
                     // The tap could trigger a UI change. When the click event
                     // is fired 300ms later, if there is now an input under the
                     // area the touch took place, in iOS the keyboard will
@@ -158,7 +157,7 @@ NS.Tap = new NS.Gesture({
                             nodeName !== 'SELECT' ) {
                         event.preventDefault();
                     }
-                    new MouseEventRemover( target, defaultPrevented );
+                    new MouseEventRemover( target, clickEvent.defaultPrevented );
                 }
                 trackedTouch.done();
                 delete tracking[ id ];
