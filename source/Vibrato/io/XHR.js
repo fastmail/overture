@@ -19,6 +19,10 @@ var parseHeaders = function ( allHeaders ) {
         start = 0,
         end, name;
     while ( true ) {
+        // Ignore any leading white space
+        while ( /\s/.test( allHeaders.charAt( start ) ) ) {
+            start += 1;
+        }
         // Look for ":"
         end = allHeaders.indexOf( ':', start );
         if ( end < 0 ) {
@@ -36,8 +40,13 @@ var parseHeaders = function ( allHeaders ) {
         if ( end < 0 ) {
             end = allHeaders.length;
         }
+        // Trim any trailing white space
+        while ( end > start && /\s/.test( allHeaders.charAt( end - 1 ) ) ) {
+            end -= 1;
+        }
         // Add to the headers object
         headers[ name ] = allHeaders.slice( start, end );
+        // And start looking for the next header
         start = end + 1;
     }
     return headers;
