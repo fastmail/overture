@@ -6,7 +6,7 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global document, window, FileReader */
+/*global document, window, FileReader, Squire */
 
 "use strict";
 
@@ -78,7 +78,6 @@ var RichTextView = NS.Class({
 
     willEnterDocument: function () {
         this.set( 'path', '' );
-        NS.Element.removeClass( this._loadingOverlay, 'hidden' );
         return RichTextView.parent.willEnterDocument.call( this );
     },
 
@@ -110,6 +109,7 @@ var RichTextView = NS.Class({
         var editor = this.get( 'editor' );
         if ( editor ) {
             this._value = editor.getHTML( this.get( 'isFocussed' ) );
+            editor.destroy();
             this.set( 'editor', null );
         }
         return RichTextView.parent.willLeaveDocument.call( this );
@@ -119,42 +119,40 @@ var RichTextView = NS.Class({
 
     draw: function ( layer, Element, el ) {
         var richTextView = this;
-        var iframe = el( 'iframe', {
-            src: RichTextView.pathToDocument,
-            // IE8 ignores the CSS telling it not to give the iframe a border.
-            frameborder: 0
-        });
+        var iframe = el( 'iframe' );
         var onload = function () {
-            var win = iframe.contentWindow,
-                editor = win.editor;
-            if ( !editor ) {
-                win.onEditorLoad = onload;
-            } else {
-                editor.didError = NS.RunLoop.didError;
-                richTextView.set( 'editor', editor
-                    .addStyles( richTextView.get( 'styles' ) )
-                    .setHTML( richTextView._value )
-                    .addEventListener( 'keydown', richTextView )
-                    .addEventListener( 'keypress', richTextView )
-                    .addEventListener( 'keyup', richTextView )
-                    .addEventListener( 'mousedown', richTextView )
-                    .addEventListener( 'click', richTextView )
-                    .addEventListener( 'focus', richTextView )
-                    .addEventListener( 'blur', richTextView )
-                    .addEventListener( 'input', richTextView )
-                    .addEventListener( 'dragenter', richTextView )
-                    .addEventListener( 'dragleave', richTextView )
-                    .addEventListener( 'dragover', richTextView )
-                    .addEventListener( 'drop', richTextView )
-                    .addEventListener( 'select', richTextView )
-                    .addEventListener( 'pathChange', richTextView )
-                    .addEventListener( 'undoStateChange', richTextView )
-                ).set( 'path', editor.getPath() )
-                 .expand();
-                Element.addClass( richTextView._loadingOverlay, 'hidden' );
-                if ( richTextView.get( 'isFocussed' ) ) {
-                    editor.focus();
-                }
+            // Make sure we're in standards mode.
+            var doc = iframe.contentDocument;
+            if ( doc.compatMode !== 'CSS1Compat' ) {
+                doc.open();
+                doc.write( '<!DOCTYPE html><title></title>' );
+                doc.close();
+            }
+            // Create Squire instance
+            var editor = new Squire( doc );
+            editor.didError = NS.RunLoop.didError;
+            richTextView.set( 'editor', editor
+                .addStyles( richTextView.get( 'styles' ) )
+                .setHTML( richTextView._value )
+                .addEventListener( 'keydown', richTextView )
+                .addEventListener( 'keypress', richTextView )
+                .addEventListener( 'keyup', richTextView )
+                .addEventListener( 'mousedown', richTextView )
+                .addEventListener( 'click', richTextView )
+                .addEventListener( 'focus', richTextView )
+                .addEventListener( 'blur', richTextView )
+                .addEventListener( 'input', richTextView )
+                .addEventListener( 'dragenter', richTextView )
+                .addEventListener( 'dragleave', richTextView )
+                .addEventListener( 'dragover', richTextView )
+                .addEventListener( 'drop', richTextView )
+                .addEventListener( 'select', richTextView )
+                .addEventListener( 'pathChange', richTextView )
+                .addEventListener( 'undoStateChange', richTextView )
+            ).set( 'path', editor.getPath() )
+             .expand();
+            if ( richTextView.get( 'isFocussed' ) ) {
+                editor.focus();
             }
         }.invokeInRunLoop();
 
@@ -162,13 +160,8 @@ var RichTextView = NS.Class({
 
         return [
             this.get( 'toolbarView' ),
-            el( 'div.editor', [ iframe ] ),
-            this._loadingOverlay = this.drawLoadingOverlay()
+            el( 'div.editor', [ iframe ] )
         ];
-    },
-
-    drawLoadingOverlay: function () {
-        return NS.Element.create( 'div.LoadingAnimation' );
     },
 
     expand: function () {
@@ -194,7 +187,7 @@ var RichTextView = NS.Class({
                 this.set( 'layout', layout );
             }
         }
-    }.on( 'input' ),
+    }.queue( 'after' ).on( 'input' ),
 
     _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
         var toolbarView = this.get( 'toolbarView' ),
@@ -231,7 +224,7 @@ var RichTextView = NS.Class({
                 .set( 'className', 'ToolbarView small RichTextToolbarView sticky' )
                 .set( 'layout', {
                     top: scrollView.get( 'pxTop' ),
-                    left: position.left,
+                    left: position.left - 1,
                     width: toolbarView.get( 'pxWidth' )
                 });
             newParent.insertView( toolbarView );
@@ -948,11 +941,10 @@ var RichTextView = NS.Class({
     }
 });
 
-RichTextView.pathToDocument = 'document.html';
-
 RichTextView.isSupported = !!(
     ( 'contentEditable' in document.body ) &&
     ( !NS.UA.operaMobile ) &&
+    ( !NS.UA.msie || NS.UA.msie > 8 ) &&
     ( !NS.UA.isIOS || NS.UA.version >= 8 )
 );
 
