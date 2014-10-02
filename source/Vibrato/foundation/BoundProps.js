@@ -111,7 +111,9 @@ NS.BoundProps = {
     /**
         Method: O.BoundProps#suspendBindings
 
-        Suspend all bindings to the object.
+        Suspend all bindings to the object. This means that any bindings to the
+        object will still note if there is a change, but will not sync that
+        change until the binding is resumed.
 
         Returns:
             {O.BoundProps} Returns self.

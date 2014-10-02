@@ -19,8 +19,9 @@ Function.implement({
     /**
         Method: Function#on
 
-        Defines the list of events this event is interested in. Whenever one of
-        these events is triggered, the method will automatically be called.
+        Defines the list of events this method is interested in. Whenever one of
+        these events is triggered on the object to which this method belongs,
+        the method will automatically be called.
 
         Parameters:
             var_args - {...String} All arguments are treated as the names of
