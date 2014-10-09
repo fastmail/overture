@@ -141,7 +141,8 @@ var SingleSelectionController = NS.Class({
     },
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
-        var range = this._range;
+        var range = this._range,
+            binding;
         if ( oldVal ) {
             oldVal.off( 'query:reset', this, 'contentWasReset' )
                   .off( 'query:updated', this, 'contentWasUpdated' );
@@ -154,6 +155,15 @@ var SingleSelectionController = NS.Class({
             newVal.on( 'query:updated', this, 'contentWasUpdated' )
                   .on( 'query:reset', this, 'contentWasReset' );
             this.set( 'isFetchingIndex', false );
+            // Now we need to see if the current record is in the new list.
+            // But, beware, if both content AND record are bound properties,
+            // which is quite likely, content may have changed, so force a sync
+            // of a binding to record first to make sure we're searching for
+            // the right record.
+            binding = NS.meta( this ).bindings.record;
+            if ( binding ) {
+                binding.sync();
+            }
             if ( newVal.is( READY ) ) {
                 this.setRecordInNewContent( newVal );
             } else {
