@@ -188,9 +188,6 @@ var CSSStyleAnimation = NS.Class({
 
         this.current = styles;
 
-        setStyle( el, 'transition',
-            'all ' + this.duration + 'ms ' + this.ease.cssName );
-
         for ( property in styles ) {
             value = styles[ property ];
             if ( value !== current[ property ] ) {
@@ -200,6 +197,9 @@ var CSSStyleAnimation = NS.Class({
         }
 
         if ( animating.length ) {
+            setStyle( el, 'transition',
+                'all ' + this.duration + 'ms ' + this.ease.cssName );
+
             this.isRunning = true;
             // If the CSS property was transitioning from x -> y, and now we ask
             // it to transition from y -> x, it may already be at x, even though
