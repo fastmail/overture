@@ -51,15 +51,6 @@ var ScrollView = NS.Class({
 
     Extends: NS.View,
 
-    /**
-        Property: O.ScrollView#className
-        Type: String
-        Default: 'ScrollView'
-
-        Overrides default in <O.View#className>.
-    */
-    className: 'ScrollView',
-
 
     /**
         Property: O.ScrollView#showScrollbarX
@@ -115,6 +106,7 @@ var ScrollView = NS.Class({
         var styles = NS.View.prototype.layerStyles.call( this );
         styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
         styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
+        styles.WebkitOverflowScrolling = 'touch';
         return styles;
     }.property( 'layout', 'allowTextSelection', 'positioning',
         'showScrollbarX', 'showScrollbarY' ),
@@ -393,7 +385,6 @@ if ( NS.UA.isIOS ) {
         draw: function ( layer, Element, el ) {
             var isFixedDimensions = this.get( 'isFixedDimensions' ),
                 scrollFixerHeight = 1,
-                contentMargin = '',
                 wrapper = null,
                 safariVersion = NS.UA.safari,
                 children;
@@ -410,8 +401,14 @@ if ( NS.UA.isIOS ) {
             // scrolling of the window.
             if ( 0 < safariVersion && safariVersion < 8 ) {
                 wrapper = this.scrollLayer = el( 'div', {
-                    style: 'position:relative;height:100%;overflow:auto;' +
-                        '-webkit-overflow-scrolling:touch;'
+                    style: 'position:relative;height:100%;' +
+                        '-webkit-overflow-scrolling:touch;' +
+                        'overflow-x:' +
+                            ( this.get( 'showScrollbarX' ) ?
+                                'auto;' : 'hidden;' ) +
+                        'overflow-y:' +
+                            ( this.get( 'showScrollbarY' ) ?
+                                'auto;' : 'hidden;' )
                 });
                 layer.appendChild( wrapper );
                 layer = wrapper;
@@ -421,27 +418,20 @@ if ( NS.UA.isIOS ) {
             // As Trick 1 doesn't work in Safari on iOS8, we have to use a more
             // crude method: ensure the scrollHeight is at least pxHeight + 2,
             // then make sure scrollTop is never at the absolute end, so there
-            // is always room to scroll in both directions. We add an extra 1px
-            // margin to the top/bottom of the content so at scrollTop=1px, it
+            // is always room to scroll in both directions. We add a 1px tall
+            // empty div at the top of the content so at scrollTop=1px, it
             // looks like it should.
             if ( safariVersion >= 8 ) {
                 scrollFixerHeight = 2;
-                contentMargin = 'margin:1px 0;';
+                layer.appendChild(
+                    el( 'div', { style: 'height:1px' } )
+                );
                 this.on( 'scroll', this, '_setNotAtEnd' )
                     .addObserverForKey( 'isInDocument', this, '_setNotAtEnd' );
             }
 
-            // Append the actual children of the scroll view. The children are
-            // wrapped in a div to allow pull-to-refresh to easily shift
-            // everything down, and so we can tweak margins to compensate for
-            // Trick 2.
-            layer.appendChild(
-                el( 'div.ScrollViewContents', {
-                    style: 'position:relative;' + contentMargin +
-                        ( this.get( 'showScrollbarX' ) ?
-                            '' : 'overflow:hidden;min-height:100%;' )
-                }, [ children ] )
-            );
+            // Append the actual children of the scroll view.
+            Element.appendChildren( layer, children );
 
             // Trick 3: Ensuring the view scrolls.
             // Following platform conventions, we assume a fixed height
