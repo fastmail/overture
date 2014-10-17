@@ -96,32 +96,34 @@ var Binding = NS.Class({
     },
 
     /**
-        Property (private): O.Binding#_isConnected
+        Property: O.Binding#isConnected
         Type: Boolean
 
         Is the instance currently observing for changes?
+        This property is READ ONLY.
     */
 
     /**
-        Property (private): O.Binding#_needsSync
+        Property: O.Binding#isNotInSync
         Type: Boolean
 
         Has the data changed on the from object (or the 'to' object if two-way)?
+        This property is READ ONLY.
     */
 
     /**
-        Property (private): O.Binding#_isSuspended
+        Property: O.Binding#isSuspended
         Type: Boolean
 
-        Should the binding stop propagating changes?
+        Should the binding stop propagating changes? This property is READ ONLY.
     */
 
     /**
-        Property (private): O.Binding#_syncFromToTo
+        Property: O.Binding#willSyncForward
         Type: Boolean
 
-        The direction to sync from. True if syncing from the 'from' object to
-        the 'to' object, false if it's going to do the reverse.
+        The direction to sync at the next sync. True if syncing from the 'from'
+        object to the 'to' object, false if it's going to do the reverse.
     */
 
     /**
@@ -150,10 +152,10 @@ var Binding = NS.Class({
                     use on the binding.
     */
     init: function ( mixin ) {
-        this._isConnected = false;
-        this._isSuspended = false;
-        this._needsSync = true;
-        this._syncFromToTo = true,
+        this.isConnected = false;
+        this.isSuspended = false;
+        this.isNotInSync = true;
+        this.willSyncForward = true;
 
         this._fromPath = null;
         this._fromRoot = null;
@@ -187,7 +189,7 @@ var Binding = NS.Class({
     destroy: function () {
         this.disconnect();
         // Ignore any remaining queued sync() or connect() calls.
-        this._isSuspended = this._isConnected = true;
+        this.isSuspended = this.isConnected = true;
     },
 
     /**
@@ -319,7 +321,7 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     connect: function () {
-        if ( this._isConnected ) { return this; }
+        if ( this.isConnected ) { return this; }
 
         // Resolve objects:
         _resolveRootAndPath(
@@ -350,7 +352,7 @@ var Binding = NS.Class({
         if ( this.isTwoWay ) {
             toObject.addObserverForPath( this.toPath, this, 'toDidChange' );
         }
-        this._isConnected = true;
+        this.isConnected = true;
         return this;
     },
 
@@ -363,7 +365,7 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     disconnect: function () {
-        if ( !this._isConnected ) { return this; }
+        if ( !this.isConnected ) { return this; }
 
         this.fromObject.removeObserverForPath(
             this.fromPath, this, 'fromDidChange' );
@@ -373,9 +375,9 @@ var Binding = NS.Class({
                 this.toPath, this, 'toDidChange' );
         }
 
-        this._isConnected = false;
-        this._needsSync = true;
-        this._syncFromToTo = true;
+        this.isConnected = false;
+        this.isNotInSync = true;
+        this.willSyncForward = true;
 
         return this;
     },
@@ -391,7 +393,7 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     suspend: function () {
-        this._isSuspended = true;
+        this.isSuspended = true;
         return this;
     },
 
@@ -405,8 +407,8 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     resume: function () {
-        if ( this._isSuspended ) {
-            this._isSuspended = false;
+        if ( this.isSuspended ) {
+            this.isSuspended = false;
             this.sync();
         }
         return this;
@@ -465,10 +467,10 @@ var Binding = NS.Class({
     */
     needsSync: function ( direction ) {
         var queue = this.queue,
-            inQueue = this._needsSync;
-        this._syncFromToTo = direction;
-        this._needsSync = true;
-        if ( !inQueue && !this._isSuspended ) {
+            inQueue = this.isNotInSync;
+        this.willSyncForward = direction;
+        this.isNotInSync = true;
+        if ( !inQueue && !this.isSuspended ) {
             if ( queue ) {
                 NS.RunLoop.queueFn( queue, this.sync, this, true );
             } else {
@@ -492,13 +494,13 @@ var Binding = NS.Class({
             {Boolean} Did the binding actually make a change?
     */
     sync: function ( force ) {
-        if ( !force && ( !this._needsSync || this._isSuspended ) ) {
+        if ( !force && ( !this.isNotInSync || this.isSuspended ) ) {
             return false;
         }
 
-        this._needsSync = false;
+        this.isNotInSync = false;
 
-        var syncForward = this._syncFromToTo,
+        var syncForward = this.willSyncForward,
             from = syncForward ? 'from' : 'to',
             to = syncForward ? 'to' : 'from',
             pathBeforeKey = this[ to + 'PathBeforeKey' ],

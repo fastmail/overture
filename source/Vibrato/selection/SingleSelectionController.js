@@ -85,6 +85,16 @@ var SingleSelectionController = NS.Class({
         if ( !this._ignore ) {
             var record = this.get( 'record' ),
                 list = this.get( 'content' );
+            // If both content and record are bound, content *must* be synced
+            // first in order to look for the new record in the new list.
+            // If changed, return as the new record will be handled by the
+            // setRecordInNewContent fn.
+            var binding = NS.meta( this ).bindings.content;
+            if ( binding ) {
+                this._ignore = true;
+                binding.sync();
+                this._ignore = false;
+            }
             if ( record && list ) {
                 this.set( 'isFetchingIndex', true );
                 list.indexOfId(
@@ -110,6 +120,11 @@ var SingleSelectionController = NS.Class({
         // If fetching an explicit index, we've already set the explicit
         // record we want; don't change it.
         if ( this.get( 'isFetchingIndex' ) ) {
+            return;
+        }
+        // If we're about to sync a new record, nothing to do
+        var binding = NS.meta( this ).bindings.record;
+        if ( binding && binding.isNotInSync && binding.willSyncForward ) {
             return;
         }
 
@@ -141,8 +156,7 @@ var SingleSelectionController = NS.Class({
     },
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
-        var range = this._range,
-            binding;
+        var range = this._range;
         if ( oldVal ) {
             oldVal.off( 'query:reset', this, 'contentWasReset' )
                   .off( 'query:updated', this, 'contentWasUpdated' );
@@ -155,20 +169,14 @@ var SingleSelectionController = NS.Class({
             newVal.on( 'query:updated', this, 'contentWasUpdated' )
                   .on( 'query:reset', this, 'contentWasReset' );
             this.set( 'isFetchingIndex', false );
-            // Now we need to see if the current record is in the new list.
-            // But, beware, if both content AND record are bound properties,
-            // which is quite likely, content may have changed, so force a sync
-            // of a binding to record first to make sure we're searching for
-            // the right record.
-            binding = NS.meta( this ).bindings.record;
-            if ( binding ) {
-                binding.sync();
-            }
-            if ( newVal.is( READY ) ) {
-                this.setRecordInNewContent( newVal );
-            } else {
-                newVal.addObserverForKey(
-                    'status', this, 'contentBecameReady' );
+            // If we're already setting the record, nothing to do.
+            if ( !this._ignore ) {
+                if ( newVal.is( READY ) ) {
+                    this.setRecordInNewContent( newVal );
+                } else {
+                    newVal.addObserverForKey(
+                        'status', this, 'contentBecameReady' );
+                }
             }
         }
     }.observes( 'content' ),
