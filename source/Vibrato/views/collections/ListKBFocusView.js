@@ -6,8 +6,6 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global document */
-
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -32,15 +30,16 @@ var ListKBFocusView = NS.Class({
         enter: 'trigger'
     },
 
-    className: 'ListKBFocusView',
+    className: 'ListKBFocus',
 
     positioning: 'absolute',
 
     layout: function () {
-        var itemHeight = this.get( 'itemHeight' );
+        var itemHeight = this.get( 'itemHeight' ),
+            index = this.get( 'index' );
         return {
-            top: itemHeight * this.get( 'index' ),
-            height: itemHeight
+            top: itemHeight * index,
+            height: index < 0 ? 0 : itemHeight
         };
     }.property( 'itemHeight', 'index' ),
 
