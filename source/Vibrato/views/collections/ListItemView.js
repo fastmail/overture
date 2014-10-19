@@ -33,11 +33,6 @@ var ListItemView = NS.Class({
         ListItemView.parent.init.call( this, mixin );
     },
 
-    className: function () {
-        return 'ListItemView' +
-            ( this.get( 'isSelected' ) ? ' selected' : '' );
-    }.property( 'isSelected' ),
-
     positioning: 'absolute',
 
     layout: ( NS.UA.cssProps.transform3d ? function () {
