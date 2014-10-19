@@ -59,7 +59,7 @@ var LightboxItemView = NS.Class({
                 position > 0 ?
                     'rightLayout' : 'leftLayout';
 
-        this.set( 'animateLayerDuration', layout === 'thumbLayout' ? 350: 500 )
+        this.set( 'animateLayerDuration', layout === 'thumbLayout' ? 350 : 500 )
             .set( 'hideControls', !!position )
             .set( 'layout', this.get( layout ) );
     }.observes( 'isActive', 'position', 'dimensions' ),
