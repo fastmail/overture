@@ -32,11 +32,11 @@ var SplitDividerView = NS.Class({
     /**
         Property: O.SplitDividerView#className
         Type: String
-        Default: 'SplitDividerView'
+        Default: 'v-SplitDivider'
 
         Overrides default in O.View#className.
     */
-    className: 'SplitDividerView',
+    className: 'v-SplitDivider',
 
     /**
         Property: O.SplitDividerView#thickness

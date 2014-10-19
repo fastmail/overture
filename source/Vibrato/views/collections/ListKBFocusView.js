@@ -30,7 +30,7 @@ var ListKBFocusView = NS.Class({
         enter: 'trigger'
     },
 
-    className: 'ListKBFocus',
+    className: 'v-ListKBFocus',
 
     positioning: 'absolute',
 
