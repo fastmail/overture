@@ -82,7 +82,7 @@ var RichTextView = NS.Class({
     },
 
     didEnterDocument: function () {
-        if ( this.get( 'isExpanding' ) ) {
+        if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.addObserverForKey(
@@ -93,7 +93,7 @@ var RichTextView = NS.Class({
     },
 
     willLeaveDocument: function () {
-        if ( this.get( 'isExpanding' ) ) {
+        if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.removeObserverForKey(
@@ -159,13 +159,13 @@ var RichTextView = NS.Class({
         iframe.addEventListener( 'load', onload, false );
 
         return [
-            this.get( 'toolbarView' ),
+            NS.UA.isIOS ? null : this.get( 'toolbarView' ),
             el( 'div.editor', [ iframe ] )
         ];
     },
 
     expand: function () {
-        if ( this.get( 'isExpanding' ) ) {
+        if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
             var editor = this.get( 'editor' ),
                 doc = editor && editor.getDocument(),
                 body = doc && doc.body,
@@ -219,12 +219,14 @@ var RichTextView = NS.Class({
     _setToolbarPosition: function ( scrollView, toolbarView, isSticky ) {
         if ( isSticky ) {
             var newParent = scrollView.get( 'parentView' ),
-                position = toolbarView.getPositionRelativeTo( newParent );
+                position = toolbarView.getPositionRelativeTo( newParent ),
+                // Need to account separately for any border in the new parent.
+                borders = scrollView.getPositionRelativeTo( newParent );
             toolbarView
                 .set( 'className', 'ToolbarView small RichTextToolbarView sticky' )
                 .set( 'layout', {
                     top: scrollView.get( 'pxTop' ),
-                    left: position.left - 1,
+                    left: position.left - borders.left,
                     width: toolbarView.get( 'pxWidth' )
                 });
             newParent.insertView( toolbarView );
