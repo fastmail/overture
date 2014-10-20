@@ -943,11 +943,13 @@ var RichTextView = NS.Class({
     }
 });
 
-RichTextView.isSupported = !!(
+RichTextView.isSupported = (
     ( 'contentEditable' in document.body ) &&
     ( !NS.UA.operaMobile ) &&
     ( !NS.UA.msie || NS.UA.msie > 8 ) &&
-    ( !NS.UA.isIOS || NS.UA.version >= 8 )
+    // WKWebView (introduced in iOS8) finally supports RTV without horrendous
+    // bugs. Can detect it from UIWebView by looking for indexedDB support.
+    ( !NS.UA.isIOS || !!window.indexedDB )
 );
 
 NS.RichTextView = RichTextView;
