@@ -474,9 +474,19 @@ if ( NS.UA.isIOS ) {
         }.on( 'touchmove' ),
 
         insertView: function ( view, relativeTo, where ) {
-            if ( !relativeTo && this.get( 'isRendered' ) &&
-                    where !== 'before' && where !== 'after' ) {
-                relativeTo = this.get( 'scrollLayer' ).firstChild;
+            if ( !relativeTo && this.get( 'isRendered' ) ) {
+                relativeTo = this.scrollLayer;
+                if ( where === 'top' ) {
+                    if ( NS.UA.safari >= 8 ) {
+                        relativeTo = relativeTo.firstChild;
+                        where = 'after';
+                    }
+                } else if ( where === 'bottom' ) {
+                    if ( this.get( 'isFixedDimensions' ) ) {
+                        relativeTo = relativeTo.lastChild;
+                        where = 'before';
+                    }
+                }
             }
             return ScrollView.parent.insertView.call(
                 this, view, relativeTo, where );
