@@ -1164,6 +1164,10 @@ View.POSITION_FOLLOWING = POSITION_FOLLOWING;
 View.POSITION_CONTAINS = POSITION_CONTAINS;
 View.POSITION_CONTAINED_BY = POSITION_CONTAINED_BY;
 
+View.peekId = function () {
+    return 'v' + UID;
+}
+
 NS.View = View;
 
 }( this.O ) );
