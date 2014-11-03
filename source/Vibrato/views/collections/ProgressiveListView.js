@@ -10,7 +10,7 @@
 
 ( function ( NS ) {
 
-var ListView = NS.Class({
+var ProgressiveListView = NS.Class({
 
     Extends: NS.ListView,
 
@@ -21,7 +21,7 @@ var ListView = NS.Class({
     triggerInPx: 200,
 
     init: function ( mixin ) {
-        ListView.parent.init.call( this, mixin );
+        ProgressiveListView.parent.init.call( this, mixin );
         this._renderRange.end = 0;
     },
 
@@ -30,17 +30,21 @@ var ListView = NS.Class({
         if ( scrollView ) {
             // Update scroll view correctly.
             var itemHeight = this.get( 'itemHeight' ),
+                y = Math.max( this.get( 'visibleRect' ).y, 0 ),
                 // Index of first item rendered
-                top = ~~( this.get( 'visibleRect' ).y / itemHeight ),
+                top = ~~( y / itemHeight ),
                 removedIndexes = event.removedIndexes,
                 addedIndexes = event.addedIndexes,
+                rendered = this._rendered,
                 change = 0,
-                i, l;
+                i, l, id, view;
 
-            if ( top < 3 && addedIndexes[0] < 3 ) {
-                change = -( top + 1 );
-            }
-            else {
+            // If we are within 3 items of the top, don't change anything.
+            // The new items will push down the old so you will see the change.
+            // Otherwise, adjust the scroll to make it appear as though it
+            // hasn't changed when the new items are inserted above, so a flood
+            // of items doesn't stop you from viewing a section of the list.
+            if ( top > 2 ) {
                 for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
                     if ( removedIndexes[i] < top ) { change -= 1; }
                     // Guaranteed in ascending order.
@@ -54,10 +58,18 @@ var ListView = NS.Class({
                 }
             }
             if ( change ) {
+                for ( id in rendered ) {
+                    view = rendered[ id ];
+                    view.set( 'animateLayer', false )
+                        .set( 'index', view.get( 'index' ) + change )
+                        .redraw()
+                        .set( 'animateLayer', true );
+                }
                 scrollView.scrollBy( 0, change * itemHeight );
+                scrollView.redraw();
             }
         }
-        return ListView.parent.contentWasUpdated.call( this, event );
+        return ProgressiveListView.parent.contentWasUpdated.call( this, event );
     },
 
     _simulateScroll: function ( _, __, oldLength, length ) {
@@ -99,6 +111,6 @@ var ListView = NS.Class({
     }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' )
 });
 
-NS.ProgressiveListView = ListView;
+NS.ProgressiveListView = ProgressiveListView;
 
 }( this.O ) );

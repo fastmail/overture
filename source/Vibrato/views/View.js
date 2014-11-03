@@ -610,6 +610,9 @@ var View = NS.Class({
         state of the view. By default, just calls
         `this.redraw<Property>( layer, oldValue )` for each property that has
         been passed to <O.View#propertyNeedsRedraw>.
+
+        Returns:
+            {O.View} Returns self.
     */
     redraw: function () {
         var needsRedraw = this._needsRedraw,
@@ -622,6 +625,7 @@ var View = NS.Class({
                 this[ 'redraw' + prop[0].capitalise() ]( layer, prop[1] );
             }
         }
+        return this;
     },
 
     /**
