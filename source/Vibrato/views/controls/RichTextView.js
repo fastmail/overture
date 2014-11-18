@@ -134,6 +134,7 @@ var RichTextView = NS.Class({
             richTextView.set( 'editor', editor
                 .addStyles( richTextView.get( 'styles' ) )
                 .setHTML( richTextView._value )
+                .addEventListener( 'load', richTextView )
                 .addEventListener( 'keydown', richTextView )
                 .addEventListener( 'keypress', richTextView )
                 .addEventListener( 'keyup', richTextView )
@@ -187,7 +188,7 @@ var RichTextView = NS.Class({
                 this.set( 'layout', layout );
             }
         }
-    }.queue( 'after' ).on( 'input' ),
+    }.queue( 'after' ).on( 'input', 'load' ),
 
     _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
         var toolbarView = this.get( 'toolbarView' ),
