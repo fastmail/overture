@@ -209,7 +209,7 @@ var AutoCompleteView = NS.Class({
 
     className: function () {
         return this.get( 'isActive' ) && this.get( 'hasSuggestions' ) ?
-            'AutoCompleteView' : 'hidden';
+            'AutoCompleteView' : 'u-hidden';
     }.property( 'isActive', 'hasSuggestions' ),
 
     positioning: 'absolute',

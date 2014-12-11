@@ -105,7 +105,7 @@ var FileButtonView = NS.Class({
         var icon = this.get( 'icon' );
         return [
             el( 'i', {
-                className: icon ? 'icon ' + icon : 'hidden'
+                className: icon ? 'icon ' + icon : 'u-hidden'
             }),
             this._domControl = el( 'input', {
                 type: 'file',

@@ -161,7 +161,7 @@ var ButtonView = NS.Class({
         this._domControl = layer;
         return [
             el( 'i', {
-                className: icon ? 'icon ' + icon : 'hidden'
+                className: icon ? 'icon ' + icon : 'u-hidden'
             }),
             ButtonView.parent.draw.call( this, layer, Element, el )
         ];
@@ -186,7 +186,7 @@ var ButtonView = NS.Class({
     */
     redrawIcon: function ( layer ) {
         var icon = this.get( 'icon' );
-        layer.firstChild.className = icon ? 'icon ' + icon : 'hidden';
+        layer.firstChild.className = icon ? 'icon ' + icon : 'u-hidden';
     },
 
     // --- Activate ---
