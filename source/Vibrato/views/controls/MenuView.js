@@ -344,9 +344,8 @@ var MenuView = NS.Class({
         controller.set( 'options', optionViews );
         return [
             this.get( 'showFilter' ) ? el( 'div', [
-                this._input = new NS.TextView({
+                this._input = new NS.SearchTextView({
                     blurOnEscape: false,
-                    type: 'text filter',
                     value: NS.bindTwoWay( 'filter', this.get( 'controller' ) )
                 })
             ]) : null,

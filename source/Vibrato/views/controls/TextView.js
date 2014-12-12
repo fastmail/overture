@@ -199,36 +199,42 @@ var TextView = NS.Class({
         Property: O.TextView#type
         Type: String
 
-        The type of the text view, as determined by the <#isMultiline> and
-        <#isExpanding> properties. Will be one of `'expanding'`, `'multiline'`
-        or `'text'`. Will be added to the view's class name.
+        Will be added to the view's class name.
     */
-    type: function () {
-        return this.get( 'isMultiline' ) ?
-            this.get( 'isExpanding' ) ? 'expanding' : 'multiline' : 'text';
-    }.property(),
+    type: '',
 
     /**
         Property: O.TextView#className
         Type: String
 
-        Overrides default in <O.View#className>. Will have the class `TextView`,
-        and the class given in the <#type> property, along with the following
+        Overrides default in <O.View#className>. Will have the class `v-Text`,
+        and any classes given in the <#type> property, along with the following
         other class names dependent on state:
 
-        highlight - The <#isHighlighted> property is true.
-        focussed  - The <#isFocussed> property is true.
-        invalid   - The <#isValid> property is false.
-        disabled  - The <#isDisabled> property is true.
+        is-highlight - The <#isHighlighted> property is true.
+        is-focussed  - The <#isFocussed> property is true.
+        is-invalid   - The <#isValid> property is false.
+        is-disabled  - The <#isDisabled> property is true.
     */
     className: function () {
-        return 'TextView ' + this.get( 'type' ) +
-            ( this.get( 'isHighlighted' ) ? ' highlight' : '' ) +
-            ( this.get( 'isFocussed' ) ? ' focussed' : '' ) +
-            ( this.get( 'isValid' ) ? '' : ' invalid' ) +
-            ( this.get( 'isDisabled' ) ? ' disabled' : '' );
+        var type = this.get( 'type' );
+        return 'v-Text' +
+            ( this.get( 'isHighlighted' ) ? ' is-highlighted' : '' ) +
+            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isValid' ) ? '' : ' is-invalid' ) +
+            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
+            ( type ? ' ' + type : '' );
     }.property( 'type', 'isHighlighted',
         'isFocussed', 'isValid', 'isDisabled' ),
+
+    layerStyles: function () {
+        return NS.extend({
+            position: this.get( 'positioning' ),
+            display: this.get( 'isMultiline' ) ? 'block' : 'inline-block',
+            cursor: 'text',
+            userSelect: 'text'
+        }, this.get( 'layout' ) );
+    }.property( 'layout', 'positioning' ),
 
     /**
         Method: O.TextView#draw
@@ -238,9 +244,12 @@ var TextView = NS.Class({
     draw: function ( layer, Element, el ) {
         var value = this.get( 'value' ),
             placeholder = this.get( 'placeholder' ),
+            isMultiline = this.get( 'isMultiline' ),
             control = this._domControl = el(
-                this.get( 'isMultiline' ) ? 'textarea' : 'input', {
+                isMultiline ? 'textarea' : 'input', {
                     id: this.get( 'id' ) + '-input',
+                    className: 'v-Text-input',
+                    rows: isMultiline ? '1' : undefined,
                     name: this.get( 'name' ),
                     type: this.get( 'inputType' ),
                     disabled: this.get( 'isDisabled' ),
@@ -255,7 +264,7 @@ var TextView = NS.Class({
                 control.placeholder = placeholder;
             } else if ( !value ) {
                 this._placeholderShowing = true;
-                control.className = 'placeholder';
+                NS.Element.addClass( control, 'v-Text-input--placeholder' );
                 control.value = placeholder;
             }
         }
@@ -264,12 +273,6 @@ var TextView = NS.Class({
 
         return [
             this._domLabel = el( 'span', [ this.get( 'label' ) ] ),
-            this.get( 'isExpanding' ) ? el( 'pre', [
-                this._mirror = el( 'span', {
-                    text: NS.bind( 'value', this )
-                }),
-                el( 'br' )
-            ]) : null,
             control
         ];
     },
@@ -288,7 +291,7 @@ var TextView = NS.Class({
             this.propertyNeedsRedraw( self, property, oldValue );
         }
         if ( isValue && this.get( 'isExpanding' ) ) {
-            NS.RunLoop.queueFn( 'after', this.parentViewDidResize, this );
+            this.propertyNeedsRedraw( self, 'textHeight', oldValue );
         }
     }.observes( 'value', 'placeholder', 'inputAttributes' ),
 
@@ -337,6 +340,13 @@ var TextView = NS.Class({
         }
     },
 
+    redrawTextHeight: function () {
+        var control = this._domControl,
+            style = control.style;
+        style.height = 'auto';
+        style.height = control.scrollHeight + 'px';
+    },
+
     // --- Activate ---
 
     /**
@@ -347,12 +357,6 @@ var TextView = NS.Class({
     activate: function () {
         this.focus();
     },
-
-    // If you change the DOM as iOS is focussing a text field, it can sometimes
-    // show the keyborad but lose the focus, so we explicitly focus it again.
-    focus: function () {
-        return TextView.parent.focus.call( this );
-    }.on( 'tap' ),
 
     // --- Scrolling and focus ---
 
@@ -366,6 +370,9 @@ var TextView = NS.Class({
     */
     didEnterDocument: function () {
         TextView.parent.didEnterDocument.call( this );
+        if ( this.get( 'isExpanding' ) ) {
+            this.redrawTextHeight();
+        }
         // Restore scroll positions:
         if ( this.get( 'isMultiline' ) ) {
             var control = this._domControl,
@@ -454,18 +461,33 @@ var TextView = NS.Class({
         if ( isFocussed ) {
             if ( this._placeholderShowing ) {
                 this._placeholderShowing = false;
-                control.className = '';
+                NS.Element.removeClass( control, 'v-Text-input--placeholder' );
                 control.value = '';
             }
         } else {
             placeholder = this.get( 'placeholder' );
             if ( placeholder && !this.get( 'value' ) ) {
                 this._placeholderShowing = true;
-                control.className = 'placeholder';
+                NS.Element.addClass( control, 'v-Text-input--placeholder' );
                 control.value = placeholder;
             }
         }
     }.observes( 'isFocussed' ),
+
+    /**
+        Method (private): O.TextView#_onClick
+
+        Focus and set selection to the end.
+
+        Parameters:
+            event - {Event} The click event.
+    */
+    _onClick: function ( event ) {
+        if ( event.target === this.get( 'layer' ) ) {
+            this.set( 'selection', this.get( 'value' ).length )
+                .focus();
+        }
+    }.on( 'click' ),
 
     /**
         Method (private): O.TextView#_onKeypress
