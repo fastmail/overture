@@ -24,17 +24,22 @@ var CheckboxView = NS.Class({
 
     // --- Render ---
 
+    type: '',
+
     /**
         Property: O.CheckboxView#className
         Type: String
-        Default: 'CheckboxView'
+        Default: 'v-Checkbox'
 
         Overrides default in <O.View#className>.
     */
     className: function () {
-        return 'CheckboxView' +
-            ( this.get( 'value' ) ? ' checked' : '' );
-    }.property( 'value' ),
+        var type = this.get( 'type' );
+        return 'v-Checkbox ' +
+            ( this.get( 'value' ) ? 'is-checked' : 'is-unchecked' ) +
+            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
+            ( type ? ' ' + type : '' );
+    }.property( 'type', 'value', 'isDisabled' ),
 
     /**
         Method: O.CheckboxView#draw
@@ -44,6 +49,7 @@ var CheckboxView = NS.Class({
     draw: function ( layer, Element, el ) {
         return [
             this._domControl = el( 'input', {
+                className: 'v-Checkbox-input',
                 type: 'checkbox',
                 checked: this.get( 'value' )
             }),

@@ -39,14 +39,22 @@ var SelectView = NS.Class({
 
     // --- Render ---
 
+    type: '',
+
     /**
         Property: O.SelectView#className
         Type: String
-        Default: 'SelectView'
+        Default: 'v-Select'
 
         Overrides default in <O.View#className>.
     */
-    className: 'SelectView',
+    className: function () {
+        var type = this.get( 'type' );
+        return 'v-Select' +
+            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
+            ( type ? ' ' + type : '' );
+    }.property( 'type', 'isFocussed', 'isDisabled' ),
 
     /**
         Method: O.SelectView#draw
@@ -76,7 +84,10 @@ var SelectView = NS.Class({
     _drawSelect: function ( options ) {
         var selected = this.get( 'value' ),
             el = NS.Element.create,
-            select = el( 'select', { disabled: this.get( 'isDisabled' ) },
+            select = el( 'select', {
+                className: 'v-Select-input',
+                disabled: this.get( 'isDisabled' )
+            },
                 options.map( function ( option, i ) {
                     return el( 'option', {
                         text: option.text,

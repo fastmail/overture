@@ -24,14 +24,22 @@ var RadioView = NS.Class({
 
     // --- Render ---
 
+    type: '',
+
     /**
         Property: O.RadioView#className
         Type: String
-        Default: 'RadioView'
+        Default: 'v-Radio'
 
         Overrides default in <O.View#className>.
     */
-    className: 'RadioView',
+    className: function () {
+        var type = this.get( 'type' );
+        return 'v-Radio ' +
+            ( this.get( 'value' ) ? 'is-checked' : 'is-unchecked' ) +
+            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
+            ( type ? ' ' + type : '' );
+    }.property( 'type', 'value', 'isDisabled' ),
 
     /**
         Method: O.RadioView#draw
@@ -41,6 +49,7 @@ var RadioView = NS.Class({
     draw: function ( layer, Element, el ) {
         return [
             this._domControl = el( 'input', {
+                className: 'v-Radio-input',
                 type: 'radio',
                 checked: this.get( 'value' )
             }),
