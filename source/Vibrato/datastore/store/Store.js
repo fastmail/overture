@@ -137,9 +137,9 @@ var Store = NS.Class({
         // Map store key -> last access timestamp for memory manager
         this._skToLastAccess = {};
 
-        // Set of ids created
+        // Set of store keys for created records
         this._created = {};
-        // Set of ids destroyed
+        // Set of store keys for destroyed records
         this._destroyed = {};
 
         // Queries
