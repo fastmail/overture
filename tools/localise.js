@@ -205,6 +205,9 @@ var enumerate = function ( fileName, stringToEntry, textToScan, seen, ids ) {
     while ( match = extractor.exec( textToScan ) ) {
         id = match[1];
         if ( !isId.test( id ) ) {
+            if ( !stringToEntry[ id ] ) {
+                console.log( id );
+            }
             id = stringToEntry[ id ].id;
         }
         lineNumber = indexFor( lines, match.index );
@@ -230,30 +233,20 @@ var extract = function ( dbFilePath, filesToScanPaths, outputPath, allData ) {
         var db = parseDB( dbText ),
             stringToEntry = indexDB( db, 'string' ),
             seen = {},
-            ids = [],
-            l = filesToScanPaths.length;
+            ids = [];
         filesToScanPaths.forEach( function ( filePath ) {
-            fs.readFile( filePath, 'utf8', function ( error, textToScan ) {
-                if ( error ) {
-                    console.log( 'Could not read ' + filePath );
-                    return;
-                }
-                var fileName =
-                        filePath.slice( filePath.lastIndexOf( '/' ) + 1 );
-                enumerate( fileName, stringToEntry, textToScan, seen, ids );
-                if ( ( l -= 1 ) ) {
-                    return;
-                }
-                ids.sort( function ( id1, id2 ) {
-                    return seen[ id1 ].count > seen[ id2 ].count ? -1 :
-                        seen[ id1 ].count < seen[ id2 ].count ? 1 :
-                        id1 < id2 ? -1 : 1;
-                });
-                fs.writeFile( outputPath,
-                    JSON.stringify( allData ? seen : ids )
-                );
-            });
+            var textToScan = fs.readFileSync( filePath, 'utf8' );
+            var fileName = filePath.slice( filePath.lastIndexOf( '/' ) + 1 );
+            enumerate( fileName, stringToEntry, textToScan, seen, ids );
         });
+        ids.sort( function ( id1, id2 ) {
+            return seen[ id1 ].count > seen[ id2 ].count ? -1 :
+                seen[ id1 ].count < seen[ id2 ].count ? 1 :
+                id1 < id2 ? -1 : 1;
+        });
+        fs.writeFile( outputPath,
+            JSON.stringify( allData ? seen : ids )
+        );
     });
 };
 

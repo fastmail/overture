@@ -2,9 +2,9 @@
 
 # Usage:
 # To use this, add the following two lines to your project makefile:
-# 1. A variable PATH_TO_DOC_SOURCES which points to the folder containing the 
+# 1. A variable PATH_TO_DOC_SOURCES which points to the folder containing the
 #    source code you want to generate documentation for.
-# 2. A variable PATH_TO_DOC_OUTPUT which points to the folder you wish to put 
+# 2. A variable PATH_TO_DOC_OUTPUT which points to the folder you wish to put
 #    the generated documentation in.
 # 3. A variable PATH_TO_DOC which points to the folder containing this
 #    makefile.
@@ -25,7 +25,7 @@ docs: $(DOCS_STYLES) $(DOCS_SCRIPTS) $(DOCS) $(PATH_TO_DOC_OUTPUT)/index.html
 
 $(PATH_TO_DOC_OUTPUT)/%.js: $(PATH_TO_DOC)/scripts/%.js
 	mkdir -p $(@D)
-	node $(PATH_TO_DOC)/../jstools.js compress $< $@
+	uglifyjs $< -c warnings=false -m -o $@
 
 $(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json
 	node $(PATH_TO_DOC)/engine/writeSearchIndex.js $^ $@
