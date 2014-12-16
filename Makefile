@@ -4,7 +4,7 @@
 
 all: build docs
 
-build: build/Loader-raw.js build/Vibrato-raw.js build/ie8patches-raw.js build/Vibrato-node.js
+build: build/Loader-raw.js build/Overture-raw.js build/ie8patches-raw.js
 
 clean:
 	rm -rf build docs
@@ -17,7 +17,7 @@ include $(PATH_TO_TOOLS)/Makefile
 # === Documentation ===
 
 PATH_TO_DOC := tools/docbuilder
-PATH_TO_DOC_SOURCES := source/Vibrato
+PATH_TO_DOC_SOURCES := source/Overture
 PATH_TO_DOC_OUTPUT := docs
 include $(PATH_TO_DOC)/Makefile
 
@@ -30,9 +30,3 @@ build/%-raw.js: $$(shell find source/% -name "*.js")
 	$(REMOVE_OLD)
 	$(MAKE_MODULE) _ _ $^ $@
 	$(GZIP_AND_COMPRESS)
-
-build/Vibrato-node.js: $$(shell find \
-    source/Vibrato/core source/Vibrato/datastore source/Vibrato/foundation \
-    source/Vibrato/localisation source/Vibrato/validate -name "*.js")
-	mkdir -p $(@D)
-	$(MAKE_MODULE) _ _ $^ $@
