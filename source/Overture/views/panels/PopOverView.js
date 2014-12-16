@@ -14,7 +14,7 @@ var PopOverView = NS.Class({
 
     Extends: NS.View,
 
-    className: 'PopOverView',
+    className: 'v-PopOver',
 
     positioning: 'absolute',
 
@@ -130,11 +130,13 @@ var PopOverView = NS.Class({
         if ( options.showCallout ) {
             layer.appendChild(
                 el( 'b', {
-                    className: 'callout ' +
-                        positionToThe.charAt( 0 ) + ' ' + alignEdge
+                    className: 'v-PopOver-callout' +
+                        ' v-PopOver-callout--' + positionToThe.charAt( 0 ) +
+                        ' v-PopOver-callout--' + alignEdge
                 }, [
                     this._callout = el( 'b', {
-                        className: 'callout-inner ' + positionToThe.charAt( 0 )
+                        className: 'v-PopOver-triangle' +
+                            ' v-PopOver-triangle--' + positionToThe.charAt( 0 )
                     })
                 ])
             );
