@@ -51,7 +51,7 @@ var MenuButtonView = NS.Class({
 
         Overrides default in <O.ButtonView#type>.
     */
-    type: 'MenuButtonView',
+    type: 'v-MenuButton',
 
     /**
         Property: O.MenuButtonView#popOverView

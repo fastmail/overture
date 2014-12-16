@@ -142,12 +142,12 @@ var ButtonView = NS.Class({
     */
     className: function () {
         var type = this.get( 'type' );
-        return 'ButtonView' +
+        return 'v-Button' +
             ( type ? ' ' + type : '' ) +
-            ( this.get( 'icon' ) ? ' hasIcon' : '' ) +
-            ( this.get( 'shortcut' ) ? ' hasShortcut' : '' ) +
-            ( this.get( 'isActive' ) ? ' active' : '' ) +
-            ( this.get( 'isDisabled' ) ? ' disabled' : '' );
+            ( this.get( 'icon' ) ? ' v-Button--hasIcon' : '' ) +
+            ( this.get( 'shortcut' ) ? ' v-Button--hasShortcut' : '' ) +
+            ( this.get( 'isActive' ) ? ' is-active' : '' ) +
+            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' );
     }.property( 'type', 'icon', 'shortcut', 'isActive', 'isDisabled' ),
 
     /**

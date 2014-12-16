@@ -76,24 +76,13 @@ var FileButtonView = NS.Class({
     layerTag: 'label',
 
     /**
-        Property: O.FileButtonView#className
+        Property: O.FileButtonView#type
         Type: String
+        Default: 'v-FileButton'
 
-        Overrides default in <O.View#className>. The layer will always have the
-        classes "ButtonView" and "FileButtonView", plus any classes listed in
-        the <O.FileButtonView#type> property. In addition, it may have the
-        following class depending on the state:
-
-        hasIcon  - If the view has an icon property set.
-        disabled - If the view's isDisabled property is true.
+        Overrides default in <O.ButtonView#type>.
     */
-    className: function () {
-        var type = this.get( 'type' );
-        return 'ButtonView FileButtonView' +
-            ( type ? ' ' + type : '' ) +
-            ( this.get( 'icon' ) ? ' hasIcon' : '' ) +
-            ( this.get( 'isDisabled' ) ? ' disabled' : '' );
-    }.property( 'type', 'icon', 'isDisabled' ),
+    type: 'v-FileButton',
 
     /**
         Method: O.FileButtonView#draw
@@ -108,6 +97,7 @@ var FileButtonView = NS.Class({
                 className: icon ? 'icon ' + icon : 'u-hidden'
             }),
             this._domControl = el( 'input', {
+                className: 'v-FileButton-input',
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
