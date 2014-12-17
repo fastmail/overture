@@ -12,7 +12,7 @@
 
 var toView = function ( name ) {
     return ( name === '-' ) ?
-        NS.Element.create( 'span.divider' ) :
+        NS.Element.create( 'span.v-Toolbar-divider' ) :
         this._views[ name ];
 };
 
@@ -72,7 +72,7 @@ var ToolbarView = NS.Class({
 
     Extends: NS.View,
 
-    className: 'ToolbarView',
+    className: 'v-Toolbar',
 
     config: 'standard',
     minimumGap: 20,
@@ -137,15 +137,13 @@ var ToolbarView = NS.Class({
     leftConfig: function () {
         var configs = this._configs,
             config = configs[ this.get( 'config' ) ];
-        return ( config && config.left ) ||
-            configs.standard.left;
+        return ( config && config.left ) || configs.standard.left;
     }.property( 'config' ),
 
     rightConfig: function () {
         var configs = this._configs,
             config = configs[ this.get( 'config' ) ];
-        return ( config && config.right ) ||
-            configs.standard.right;
+        return ( config && config.right ) || configs.standard.right;
     }.property( 'config' ),
 
     left: function () {
@@ -204,7 +202,7 @@ var ToolbarView = NS.Class({
     preMeasure: function () {
         this.insertView( this._measureView =
             new NS.View({
-                className: 'measure',
+                className: 'v-Toolbar-section v-Toolbar-section--measure',
                 layerStyles: {},
                 childViews: Object.values( this._views )
                                   .filter( function ( view ) {
@@ -212,7 +210,7 @@ var ToolbarView = NS.Class({
                 }),
                 draw: function ( layer, Element, el ) {
                     return [
-                        el( 'span.divider' ),
+                        el( 'span.v-Toolbar-divider' ),
                         NS.View.prototype.draw.call( this, layer, Element, el )
                     ];
                 }
@@ -274,12 +272,12 @@ var ToolbarView = NS.Class({
 
     draw: function ( layer, Element, el ) {
         return [
-            el( 'div.left',
+            el( 'div.v-Toolbar-section.v-Toolbar-section--left',
                 this.get( 'left' )
             ),
-            el( 'div.right', [
+            el( 'div.v-Toolbar-section.v-Toolbar-section--right',
                 this.get( 'right' )
-            ])
+            )
         ];
     },
 
