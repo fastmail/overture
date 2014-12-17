@@ -76,7 +76,7 @@ NS.DragDataSource = {
         Returns:
             {*} The data of the requested type, if available.
     */
-    getDragDataOfType: function ( type, drag ) {
+    getDragDataOfType: function ( type/*, drag*/ ) {
         return this._dragData[ type ];
     }
 };

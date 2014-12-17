@@ -10,15 +10,12 @@
 
 ( function ( NS ) {
 
-var VERTICAL = 1,
-    HORIZONTAL = 2,
-    TOP_LEFT = 4,
-    BOTTOM_RIGHT = 8,
+var VERTICAL = 1;
+var HORIZONTAL = 2;
+var TOP_LEFT = 4;
+var BOTTOM_RIGHT = 8;
 
-    topLeftView = 'topLeftView',
-    bottomRightView = 'bottomRightView',
-    dividerView = 'dividerView',
-    auto = 'auto';
+var auto = 'auto';
 
 /**
     Class: O.SplitViewController

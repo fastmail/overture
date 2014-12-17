@@ -90,7 +90,7 @@ var UndoManager = NS.Class({
 
     getUndoData: function () {},
 
-    applyChange: function ( data, isRedo ) {}
+    applyChange: function (/* data, isRedo */) {}
 });
 
 var StoreUndoManager = NS.Class({

@@ -47,7 +47,7 @@ var MenuButtonView = NS.Class({
     /**
         Property: O.MenuButtonView#type
         Type: String
-        Default: 'MenuButtonView'
+        Default: 'v-MenuButton'
 
         Overrides default in <O.ButtonView#type>.
     */

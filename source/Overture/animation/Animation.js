@@ -6,11 +6,9 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global window, performance */
-
 "use strict";
 
-( function ( NS, win ) {
+( function ( NS ) {
 
 // List of currently active animations
 var animations = [];
@@ -20,7 +18,7 @@ var nextFrame = function () {
     // Cache to local variable for speed
     var anims = animations,
         l = anims.length,
-        time = O.RunLoop.frameStartTime,
+        time = NS.RunLoop.frameStartTime,
         objAnimations, i,
         hasMultiple, animation, object, animTime, duration;
 
@@ -242,7 +240,7 @@ NS.Animation = NS.Class({
                        function (the easing function may cause the number to go
                        beyond 0 and 1).
     */
-    drawFrame: function ( position, time ) {
+    drawFrame: function ( position/*, time*/ ) {
         // And interpolate to find new value.
         var value = position < 1 ?
             this.startValue + ( position * this.deltaValue ) :
@@ -281,4 +279,4 @@ NS.Animation = NS.Class({
     }
 });
 
-}( this.O, window ) );
+}( this.O ) );

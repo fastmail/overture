@@ -14,8 +14,6 @@ var Status = NS.Status,
     READY = Status.READY,
     DESTROYED = Status.DESTROYED;
 
-var qid = 0;
-
 var numerically = function ( a, b ) {
     return a - b;
 };

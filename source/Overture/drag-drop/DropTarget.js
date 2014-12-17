@@ -109,7 +109,7 @@ NS.DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropMoved: function ( drag ) {},
+    dropMoved: function (/* drag */) {},
 
     /**
         Method: O.DropTarget#dropExited
@@ -135,7 +135,7 @@ NS.DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    drop: function ( drag ) {}
+    drop: function (/* drag */) {}
 };
 
 }( this.O ) );

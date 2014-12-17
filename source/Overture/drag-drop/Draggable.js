@@ -41,7 +41,7 @@ NS.Draggable = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragStarted: function ( drag ) {},
+    dragStarted: function (/* drag */) {},
 
     /**
         Method: O.Draggable#dragMoved
@@ -51,7 +51,7 @@ NS.Draggable = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragMoved: function ( drag ) {},
+    dragMoved: function (/* drag */) {},
 
     /**
         Method: O.Draggable#dragEnded
@@ -63,7 +63,7 @@ NS.Draggable = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragEnded: function ( drag ) {}
+    dragEnded: function (/* drag */) {}
 };
 
 }( this.O ) );

@@ -306,7 +306,7 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The DOM node.
     */
-    didCreateLayer: function ( layer ) {},
+    didCreateLayer: function (/* layer */) {},
 
     /**
         Method: O.View#willDestroyLayer
@@ -316,7 +316,7 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The DOM node.
     */
-    willDestroyLayer: function ( layer ) {
+    willDestroyLayer: function (/* layer */) {
         this.set( 'isRendered', false );
     },
 
@@ -557,8 +557,13 @@ var View = NS.Class({
         Draw the initial state of the view. You should override this method to
         draw your views. By default, it simply calls <O.View#render> on all
         child views and appends them to the view's DOM node.
+
+        Parameters:
+            layer   - {Element} The root DOM node of the view.
+            Element - {Object} A reference to the O.Element object.
+            el      - {Function} A reference to the O.Element.create function.
     */
-    draw: function ( layer, Element, el ) {
+    draw: function (/* layer, Element, el */) {
         return this.get( 'childViews' ).map( renderView );
     },
 
@@ -1171,7 +1176,7 @@ View.POSITION_CONTAINED_BY = POSITION_CONTAINED_BY;
 
 View.peekId = function () {
     return 'v' + UID;
-}
+};
 
 NS.View = View;
 

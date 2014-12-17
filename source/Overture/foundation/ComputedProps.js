@@ -287,7 +287,7 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    propertyDidChange: function ( key, oldValue, newValue ) {
+    propertyDidChange: function ( key/*, oldValue, newValue*/ ) {
         var dependents = this.propertiesDependentOnKey( key ),
             l = dependents.length,
             cache = meta( this ).cache;

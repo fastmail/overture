@@ -5,8 +5,6 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global O */
-
 "use strict";
 
 ( function ( NS ) {

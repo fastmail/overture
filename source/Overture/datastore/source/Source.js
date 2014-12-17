@@ -38,7 +38,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchRecord: function ( Type, id, callback ) {
+    fetchRecord: function (/* Type, id, callback */) {
         return false;
     },
 
@@ -58,7 +58,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords: function ( Type, state, callback ) {
+    fetchAllRecords: function (/* Type, state, callback */) {
         return false;
     },
 
@@ -92,7 +92,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchQuery: function ( query, callback ) {
+    fetchQuery: function (/* query, callback */) {
         return false;
     },
 
@@ -158,7 +158,7 @@ var Source = NS.Class({
             callback will only be called if the source is handling at least one
             of the types being committed.
     */
-    commitChanges: function ( changes, callback ) {
+    commitChanges: function (/* changes, callback */) {
         return false;
     }
 });
