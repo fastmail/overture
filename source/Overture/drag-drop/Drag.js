@@ -793,4 +793,4 @@ var Drag = NS.Class({
 
 NS.Drag = Drag;
 
-}( this.O ) );
+}( O ) );

@@ -279,4 +279,4 @@ NS.Animation = NS.Class({
     }
 });
 
-}( this.O ) );
+}( O ) );

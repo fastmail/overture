@@ -242,4 +242,4 @@ var SingleSelectionController = NS.Class({
 
 NS.SingleSelectionController = SingleSelectionController;
 
-}( this.O ) );
+}( O ) );

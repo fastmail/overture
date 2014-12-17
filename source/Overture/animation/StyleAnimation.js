@@ -203,4 +203,4 @@ var StyleAnimation = NS.Class({
 
 NS.StyleAnimation = StyleAnimation;
 
-}( this.O ) );
+}( O ) );

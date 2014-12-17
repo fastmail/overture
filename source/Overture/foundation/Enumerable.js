@@ -368,4 +368,4 @@ Array.implement( Enumerable );
 
 NS.Enumerable = Enumerable;
 
-}( this.O ) );
+}( O ) );

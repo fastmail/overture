@@ -120,4 +120,4 @@ var CheckboxView = NS.Class({
 
 NS.CheckboxView = CheckboxView;
 
-}( this.O ) );
+}( O ) );

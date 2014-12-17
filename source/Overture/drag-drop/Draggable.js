@@ -66,4 +66,4 @@ NS.Draggable = {
     dragEnded: function (/* drag */) {}
 };
 
-}( this.O ) );
+}( O ) );

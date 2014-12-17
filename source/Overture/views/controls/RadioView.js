@@ -92,4 +92,4 @@ var RadioView = NS.Class({
 
 NS.RadioView = RadioView;
 
-}( this.O ) );
+}( O ) );

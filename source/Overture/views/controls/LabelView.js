@@ -102,4 +102,4 @@ var LabelView = NS.Class({
 
 NS.LabelView = LabelView;
 
-}( this.O ) );
+}( O ) );

@@ -105,4 +105,4 @@ NS.MutableEnumerable = {
     }
 };
 
-}( this.O ) );
+}( O ) );

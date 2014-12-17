@@ -335,4 +335,4 @@ var ToolbarView = NS.Class({
 
 NS.ToolbarView = ToolbarView;
 
-}( this.O ) );
+}( O ) );

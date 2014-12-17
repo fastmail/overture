@@ -136,4 +136,4 @@ NS.ObservableRange = {
     }
 };
 
-}( this.O ) );
+}( O ) );

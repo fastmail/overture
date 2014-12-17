@@ -67,4 +67,4 @@ NS.Record.toOne = function ( mixin ) {
     return new ToOneAttribute( mixin );
 };
 
-}( this.O ) );
+}( O ) );

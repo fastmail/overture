@@ -560,4 +560,4 @@ NS.parse.dateTime = function ( string, locale, implicitPast ) {
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
-}( this.O ) );
+}( O ) );

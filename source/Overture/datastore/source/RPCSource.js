@@ -884,4 +884,4 @@ var RPCSource = NS.Class({
 
 NS.RPCSource = RPCSource;
 
-}( this.O ) );
+}( O ) );

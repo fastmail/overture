@@ -331,4 +331,4 @@ var XHR = NS.Class({
 
 NS.XHR = XHR;
 
-}( this.O ) );
+}( O ) );

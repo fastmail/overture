@@ -575,4 +575,4 @@ Object.toCSSString = function ( object ) {
     return result;
 };
 
-}( this.O ) );
+}( O ) );

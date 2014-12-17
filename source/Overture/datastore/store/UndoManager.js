@@ -163,4 +163,4 @@ var StoreUndoManager = NS.Class({
 NS.UndoManager = UndoManager;
 NS.StoreUndoManager = StoreUndoManager;
 
-}( this.O ) );
+}( O ) );

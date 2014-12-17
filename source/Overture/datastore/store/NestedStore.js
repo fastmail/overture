@@ -357,4 +357,4 @@ var NestedStore = NS.Class({
 
 NS.NestedStore = NestedStore;
 
-}( this.O ) );
+}( O ) );

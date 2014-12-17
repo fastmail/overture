@@ -5,7 +5,7 @@
 // License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
 // -------------------------------------------------------------------------- \\
 
-/*global module */
+/*global window, O */
 
 "use strict";
 
@@ -16,19 +16,18 @@
     and augments it with a few helper methods. It also contains extensions to
     the default types and class creation functionality.
 */
-
-( function ( NS ) {
-
 /**
     Namespace: O
 
     The only new global variable introduced by the library. All Classes and
     Functions are stored under this namespace.
 */
-// For Node.
-if ( typeof module === 'object' ) {
-    module.exports = NS;
+if ( typeof O === 'undefined' ) {
+    window.O = {};
 }
+
+( function ( NS ) {
+
 
 /**
     Method: O.meta
@@ -561,4 +560,4 @@ Function.prototype.extend = function ( methods, force ) {
     return this;
 };
 
-}( this.O || ( this.O = {} ) ) );
+}( O ) );

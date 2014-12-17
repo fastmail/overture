@@ -573,4 +573,4 @@ NS.ObservableProps = {
     }
 };
 
-}( this.O ) );
+}( O ) );

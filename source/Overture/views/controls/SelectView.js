@@ -168,4 +168,4 @@ var SelectView = NS.Class({
 
 NS.SelectView = SelectView;
 
-}( this.O ) );
+}( O ) );

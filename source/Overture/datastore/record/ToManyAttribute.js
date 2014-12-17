@@ -185,4 +185,4 @@ NS.Record.toMany = function ( mixin ) {
     return new ToManyAttribute( mixin );
 };
 
-}( this.O ) );
+}( O ) );

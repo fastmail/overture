@@ -153,4 +153,4 @@ NS.Easing = {
     easeInOut: cubicBezier( 0.42, 0, 0.58, 1 )
 };
 
-}( this.O ) );
+}( O ) );

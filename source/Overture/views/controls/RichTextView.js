@@ -955,4 +955,4 @@ RichTextView.isSupported = (
 
 NS.RichTextView = RichTextView;
 
-}( this.O ) );
+}( O ) );

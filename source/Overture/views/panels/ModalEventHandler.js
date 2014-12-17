@@ -86,4 +86,4 @@ var ModalEventHandler = NS.Class({
 
 NS.ModalEventHandler = ModalEventHandler;
 
-}( this.O ) );
+}( O ) );

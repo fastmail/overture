@@ -281,4 +281,4 @@ var ObservableArray = NS.Class({
 
 NS.ObservableArray = ObservableArray;
 
-}( this.O ) );
+}( O ) );

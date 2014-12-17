@@ -138,4 +138,4 @@ NS.DropTarget = {
     drop: function (/* drag */) {}
 };
 
-}( this.O ) );
+}( O ) );

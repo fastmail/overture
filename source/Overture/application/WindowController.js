@@ -255,4 +255,4 @@ var WindowController = NS.Class({
 
 NS.WindowController = WindowController;
 
-}( this.O, window, document, localStorage ) );
+}( O, window, document, localStorage ) );

@@ -113,4 +113,4 @@ var ProgressiveListView = NS.Class({
 
 NS.ProgressiveListView = ProgressiveListView;
 
-}( this.O ) );
+}( O ) );

@@ -503,4 +503,4 @@ var Record = NS.Class({
 
 NS.Record = Record;
 
-}( this.O ) );
+}( O ) );

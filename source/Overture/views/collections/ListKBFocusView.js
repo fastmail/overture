@@ -148,4 +148,4 @@ var ListKBFocusView = NS.Class({
 
 NS.ListKBFocusView = ListKBFocusView;
 
-}( this.O ) );
+}( O ) );

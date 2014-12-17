@@ -210,4 +210,4 @@ ViewEventsController.addEventTarget( ViewEventsController, 0 );
 
 NS.ViewEventsController = ViewEventsController;
 
-}( this.O ) );
+}( O ) );

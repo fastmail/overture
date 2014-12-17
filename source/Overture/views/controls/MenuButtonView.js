@@ -188,4 +188,4 @@ var MenuButtonView = NS.Class({
 
 NS.MenuButtonView = MenuButtonView;
 
-}( this.O ) );
+}( O ) );

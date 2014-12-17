@@ -270,4 +270,4 @@ var CSSStyleAnimation = NS.Class({
 NS.CSSStyleAnimationController = CSSStyleAnimationController;
 NS.CSSStyleAnimation = CSSStyleAnimation;
 
-}( this.O ) );
+}( O ) );

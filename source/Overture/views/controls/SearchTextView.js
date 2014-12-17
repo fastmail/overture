@@ -43,4 +43,4 @@ var SearchTextView = NS.Class({
 
 NS.SearchTextView = SearchTextView;
 
-}( this.O ) );
+}( O ) );

@@ -179,4 +179,4 @@ var SplitDividerView = NS.Class({
 
 NS.SplitDividerView = SplitDividerView;
 
-}( this.O ) );
+}( O ) );

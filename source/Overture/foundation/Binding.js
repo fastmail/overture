@@ -583,4 +583,4 @@ NS.bindTwoWay = function ( path, root, transform ) {
     return binding;
 };
 
-}( this.O, typeof Element !== undefined ? Element : function () {} ) );
+}( O, typeof Element !== undefined ? Element : function () {} ) );

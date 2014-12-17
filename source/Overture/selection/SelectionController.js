@@ -185,4 +185,4 @@ var SelectionController = NS.Class({
 
 NS.SelectionController = SelectionController;
 
-}( this.O ) );
+}( O ) );

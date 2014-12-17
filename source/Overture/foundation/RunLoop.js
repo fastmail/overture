@@ -421,7 +421,7 @@ var nextFrame = function ( time ) {
     RunLoop.flushQueue( 'nextFrame' );
 }.invokeInRunLoop();
 
-}( this.O, window, typeof setImmediate !== 'undefined' ?
+}( O, window, typeof setImmediate !== 'undefined' ?
     setImmediate :
     function ( fn ) {
         return setTimeout( fn, 0 );

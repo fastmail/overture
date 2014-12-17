@@ -137,4 +137,4 @@ SplitViewController.extend({
 
 NS.SplitViewController = SplitViewController;
 
-}( this.O ) );
+}( O ) );

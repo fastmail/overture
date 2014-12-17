@@ -71,4 +71,4 @@ NS.Object = NS.Class({
     }
 });
 
-}( this.O ) );
+}( O ) );

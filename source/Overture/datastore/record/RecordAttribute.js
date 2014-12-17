@@ -300,4 +300,4 @@ NS.Record.attr = function ( Type, mixin ) {
     return new RecordAttribute( mixin );
 };
 
-}( this.O ) );
+}( O ) );

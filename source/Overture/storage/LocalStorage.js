@@ -80,4 +80,4 @@ var LocalStorage = NS.Class({
 
 NS.LocalStorage = LocalStorage;
 
-}( this.O ) );
+}( O ) );

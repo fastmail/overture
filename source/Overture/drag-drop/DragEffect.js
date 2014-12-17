@@ -7,7 +7,7 @@
 
 "use strict";
 
-this.O.DragEffect = {
+O.DragEffect = {
 /**
     Enum: O.DragEffect
 

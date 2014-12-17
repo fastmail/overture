@@ -264,4 +264,4 @@ var HttpRequest = NS.Class({
 
 NS.HttpRequest = HttpRequest;
 
-}( this.O ) );
+}( O ) );

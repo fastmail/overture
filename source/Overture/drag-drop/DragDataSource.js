@@ -81,4 +81,4 @@ NS.DragDataSource = {
     }
 };
 
-}( this.O ) );
+}( O ) );

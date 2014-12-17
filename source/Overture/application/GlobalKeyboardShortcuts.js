@@ -220,4 +220,4 @@ var GlobalKeyboardShortcuts = NS.Class({
 
 NS.GlobalKeyboardShortcuts = GlobalKeyboardShortcuts;
 
-}( this.O ) );
+}( O ) );

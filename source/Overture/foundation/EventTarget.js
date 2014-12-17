@@ -248,4 +248,4 @@ NS.EventTarget = {
     }
 };
 
-}( this.O ) );
+}( O ) );

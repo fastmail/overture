@@ -1180,4 +1180,4 @@ View.peekId = function () {
 
 NS.View = View;
 
-}( this.O ) );
+}( O ) );

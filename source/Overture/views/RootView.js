@@ -159,4 +159,4 @@ var RootView = NS.Class({
 
 NS.RootView = RootView;
 
-}( this.O ) );
+}( O ) );

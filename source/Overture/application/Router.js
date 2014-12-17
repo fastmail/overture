@@ -247,4 +247,4 @@ var Router = NS.Class({
 
 NS.Router = Router;
 
-}( this.O ) );
+}( O ) );

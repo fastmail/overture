@@ -463,4 +463,4 @@ var LiveQuery = NS.Class({
 
 NS.LiveQuery = LiveQuery;
 
-}( this.O ) );
+}( O ) );

@@ -117,4 +117,4 @@ var AggregateSource = NS.Class({
 
 NS.AggregateSource = AggregateSource;
 
-}( this.O ) );
+}( O ) );

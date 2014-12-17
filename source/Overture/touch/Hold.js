@@ -80,5 +80,5 @@ NS.Hold = new NS.Gesture({
     }
 });
 
-}( this.O ) );
+}( O ) );
 

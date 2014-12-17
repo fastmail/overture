@@ -325,4 +325,4 @@ Element.unless = function ( object, property, transform ) {
     return createView( object, property, pickView );
 };
 
-}( this.O ) );
+}( O ) );

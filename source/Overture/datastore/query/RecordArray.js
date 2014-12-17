@@ -67,4 +67,4 @@ var RecordArray = NS.Class({
 
 NS.RecordArray = RecordArray;
 
-}( this.O ) );
+}( O ) );

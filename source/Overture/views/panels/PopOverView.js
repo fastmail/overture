@@ -351,4 +351,4 @@ var PopOverView = NS.Class({
 
 NS.PopOverView = PopOverView;
 
-}( this.O ) );
+}( O ) );

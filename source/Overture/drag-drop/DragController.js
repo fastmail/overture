@@ -529,4 +529,4 @@ NS.ViewEventsController.addEventTarget( DragController, 20 );
 
 NS.DragController = DragController;
 
-}( this.O ) );
+}( O ) );

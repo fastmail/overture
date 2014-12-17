@@ -149,4 +149,4 @@ NS.BoundProps = {
     }
 };
 
-}( this.O ) );
+}( O ) );

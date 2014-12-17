@@ -24,4 +24,4 @@ NS.Gesture = NS.Class({
     end: function () {}
 });
 
-}( this.O ) );
+}( O ) );

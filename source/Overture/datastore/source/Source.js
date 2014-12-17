@@ -165,4 +165,4 @@ var Source = NS.Class({
 
 NS.Source = Source;
 
-}( this.O ) );
+}( O ) );

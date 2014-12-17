@@ -1372,4 +1372,4 @@ var WindowedRemoteQuery = NS.Class({
 
 NS.WindowedRemoteQuery = WindowedRemoteQuery;
 
-}( this.O ) );
+}( O ) );

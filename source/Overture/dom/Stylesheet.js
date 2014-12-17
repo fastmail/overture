@@ -54,4 +54,4 @@ NS.Stylesheet = {
     }
 };
 
-}( this.O ) );
+}( O ) );

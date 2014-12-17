@@ -166,4 +166,4 @@ NS.Tap = new NS.Gesture({
     }
 });
 
-}( this.O ) );
+}( O ) );

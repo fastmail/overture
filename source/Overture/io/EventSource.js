@@ -388,4 +388,4 @@ EventSource.extend({
 
 NS.EventSource = EventSource;
 
-}( this.O, typeof EventSource !== 'undefined' ? EventSource : null ) );
+}( O, typeof EventSource !== 'undefined' ? EventSource : null ) );

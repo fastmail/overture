@@ -52,4 +52,4 @@ var ListItemView = NS.Class({
 
 NS.ListItemView = ListItemView;
 
-}( this.O ) );
+}( O ) );

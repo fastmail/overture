@@ -174,4 +174,4 @@ var FileButtonView = NS.Class({
 
 NS.FileButtonView = FileButtonView;
 
-}( this.O ) );
+}( O ) );

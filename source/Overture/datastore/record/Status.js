@@ -21,7 +21,7 @@
     OBSOLETE     - Changes may have been made to the record in the source which
                    have not yet been fetched.
 */
-this.O.Status = {
+O.Status = {
     // Core states:
     EMPTY:        1,
     READY:        2,

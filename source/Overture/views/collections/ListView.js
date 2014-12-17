@@ -290,4 +290,4 @@ var ListView = NS.Class({
 
 NS.ListView = ListView;
 
-}( this.O ) );
+}( O ) );

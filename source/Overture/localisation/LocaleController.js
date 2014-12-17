@@ -219,4 +219,4 @@ var LocaleController = {
 NS.LocaleController = NS.i18n = LocaleController;
 NS.loc = LocaleController.localise;
 
-}( this.O ) );
+}( O ) );

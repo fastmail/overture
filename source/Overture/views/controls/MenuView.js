@@ -408,4 +408,4 @@ NS.MenuController = MenuController;
 NS.MenuOptionView = MenuOptionView;
 NS.MenuView = MenuView;
 
-}( this.O ) );
+}( O ) );

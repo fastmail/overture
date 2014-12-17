@@ -261,4 +261,4 @@ NS.UA = {
     canTouch: 'ontouchstart' in document.documentElement
 };
 
-}( this.O ) );
+}( O ) );

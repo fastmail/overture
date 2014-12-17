@@ -193,4 +193,4 @@ var MemoryManager = NS.Class({
 
 NS.MemoryManager = MemoryManager;
 
-}( this.O ) );
+}( O ) );

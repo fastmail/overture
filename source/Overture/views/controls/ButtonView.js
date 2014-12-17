@@ -327,4 +327,4 @@ var ButtonView = NS.Class({
 
 NS.ButtonView = ButtonView;
 
-}( this.O ) );
+}( O ) );

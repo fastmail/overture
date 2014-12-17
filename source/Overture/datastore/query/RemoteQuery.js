@@ -597,4 +597,4 @@ var RemoteQuery = NS.Class({
 
 NS.RemoteQuery = RemoteQuery;
 
-}( this.O ) );
+}( O ) );

@@ -327,4 +327,4 @@ var AbstractControlView = NS.Class({
 
 NS.AbstractControlView = AbstractControlView;
 
-}( this.O ) );
+}( O ) );

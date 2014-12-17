@@ -50,4 +50,4 @@ NS.TrueVisibleRect = {
         'pxLayout', 'parentView.visibleRect', 'isInDocument' )
 };
 
-}( this.O ) );
+}( O ) );

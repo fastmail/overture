@@ -732,4 +732,4 @@ var Locale = NS.Class({
 
 NS.Locale = Locale;
 
-}( this.O ) );
+}( O ) );

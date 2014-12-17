@@ -97,4 +97,4 @@ var DOMEvent = {
 
 NS.DOMEvent = DOMEvent;
 
-}( this.O ) );
+}( O ) );

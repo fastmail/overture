@@ -205,4 +205,4 @@ TimeZone.load = function ( json ) {
 
 NS.TimeZone = TimeZone;
 
-}( this.O ) );
+}( O ) );
