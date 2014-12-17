@@ -37,7 +37,7 @@
                 new O.ButtonView({
                     type: 'destructive size13',
                     icon: 'redpill',
-                    isDisabled: O.bind( 'isNeo', controller ),
+                    isDisabled: O.bind( controller, 'isNeo' ),
                     label: 'The Red Pill',
                     target: controller,
                     method: 'abort'

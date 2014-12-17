@@ -8,7 +8,7 @@
 
 "use strict";
 
-( function ( NS, global, undefined ) {
+( function ( NS, undefined ) {
 
 /**
     Module: Foundation
@@ -170,22 +170,18 @@ Function.implement({
     Function: O.getFromPath
 
     Follows a path string (e.g. 'mailbox.messages.howMany') to retrieve the
-    final object/value. By default starts the resolution of the name in the
-    global object, but if a second argument is supplied, this is treated
-    as the root object. At each stage of the path, if the current object
-    supports a 'get' function, that will be used to retrieve the next stage,
-    otherwise it will just be read directly as a property.
+    final object/value from a root object. At each stage of the path, if the current object supports a 'get' function, that will be used to retrieve the
+    next stage, otherwise it will just be read directly as a property.
 
     Parameters:
-        path - {String} The path to retrieve the value from.
         root - {Object} The root object the path is relative to.
+        path - {String} The path to retrieve the value from.
 
     Returns:
         {*} Returns the value at the end of the path.
 */
 var isNum = /^\d+$/;
-var getFromPath = NS.getFromPath = function ( path, root ) {
-    if ( !root ) { root = global; }
+var getFromPath = NS.getFromPath = function ( root, path ) {
     var currentPosition = 0,
         pathLength = path.length,
         nextDot,
@@ -412,7 +408,7 @@ NS.ComputedProps = {
             {*} The value at that path relative to this object.
     */
     getFromPath: function ( path ) {
-        return getFromPath( path, this );
+        return getFromPath( this, path );
     },
 
     /**
@@ -449,4 +445,4 @@ NS.ComputedProps = {
     }
 };
 
-}( O, this ) );
+}( O ) );

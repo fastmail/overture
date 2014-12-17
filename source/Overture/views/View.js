@@ -54,10 +54,10 @@ var userSelectNone =
             draw: function ( layer, Element, el ) {
                 return [
                     el( 'h1#title', {
-                        text: O.bind( 'title', this )
+                        text: O.bind( this, 'title' )
                     }),
                     el( 'p.u-normal', {
-                        html: O.bind( 'content', this )
+                        html: O.bind( this, 'content' )
                     }),
                     el( 'footer', [
                         'For more information, please go to',
@@ -118,16 +118,16 @@ var userSelectNone =
                 var content = this.get( 'content' );
                 return [
                     el( 'h1#title', {
-                        className: O.bind( 'isDone', content,
-                                function ( isDone ) {
+                        className: O.bind( content, 'isDone',
+                        function ( isDone ) {
                             return isDone ? 'done' : 'todo';
                         }),
-                        text: O.bind( 'title', content )
+                        text: O.bind( content, 'title' )
                     }),
                     el( 'p', [
                         new CheckboxView({
-                            value: O.bind( 'isDone', content ),
-                            label: O.bind( 'description', content )
+                            value: O.bind( content, 'isDone' ),
+                            label: O.bind( content, 'description' )
                         })
                     ])
                 ];

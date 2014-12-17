@@ -22,7 +22,7 @@ var SearchTextView = NS.Class({
         children.push(
             el( 'i.icon.icon-search' ),
             new NS.ButtonView({
-                type: NS.bind( 'value', this, function ( value ) {
+                type: NS.bind( this, 'value', function ( value ) {
                     return value ? 'v-SearchText-reset iconOnly' : 'u-hidden';
                 }),
                 icon: 'icon-clear',

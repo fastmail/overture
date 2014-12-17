@@ -306,7 +306,7 @@ var pickViewUnless = function ( bool ) {
 
 var createView = function ( object, property, transform ) {
     var switchView = new SwitchView({
-        index: NS.bind( property, object, transform )
+        index: NS.bind( object, property, transform )
     });
     switchView._oldView = Element.forView( switchView );
     return switchView;

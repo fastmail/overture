@@ -39,11 +39,10 @@
     A static portion is signified by using a `*` as a divider instead of a `.`.
     The section before the '*' is taken to be static. If no '*' is present, the
     entire path is taken to be dynamic. For example, if the path is
-    `Application.static.path*dynamic.path`, at initialisation time, the `static`
-    property of the `Application` property of the root object (or global object
-    if none) will be found. After initialisation, any changes to the 'dynamic'
-    property on this object, or the 'path' property on that object will trigger
-    the binding.
+    `static.path*dynamic.path`, at initialisation time, the `path`
+    property of the `static` property of the root object will be found. After
+    initialisation, any changes to the 'dynamic' property on this object, or
+    the 'path' property on that object will trigger the binding.
 
     The results are set directly on the binding object passed as the first
     argument, with names direction + 'Object'/'Path'.
@@ -51,10 +50,10 @@
     Parameters:
         binding   - {O.Binding} The binding to resolve paths for.
         direction - {String} Either 'to' or 'from'.
-        path      - {String} The path string.
         root      - {Object} The object to treat as root.
+        path      - {String} The path string.
 */
-var _resolveRootAndPath = function ( binding, direction, path, root ) {
+var _resolveRootAndPath = function ( binding, direction, root, path ) {
     var beginObservablePath = path.lastIndexOf( '*' ) + 1,
         observablePath = path.slice( beginObservablePath ),
         staticPath = beginObservablePath ?
@@ -62,7 +61,7 @@ var _resolveRootAndPath = function ( binding, direction, path, root ) {
         lastDot = observablePath.lastIndexOf( '.' );
 
     binding[ direction + 'Object' ] =
-        staticPath ? NS.getFromPath( staticPath, root ) : root;
+        staticPath ? NS.getFromPath( root, staticPath ) : root;
     binding[ direction + 'Path' ] = observablePath;
     binding[ direction + 'PathBeforeKey' ] =
         ( lastDot === -1 ) ? '' : observablePath.slice( 0, lastDot );
@@ -199,20 +198,21 @@ var Binding = NS.Class({
         effect if it is called after the object is connected.
 
         Parameters:
+            root - {Object} (optional) The object the static path is resolved
+                   against, will be the "to" root if not supplied.
             path - {String} Any path before a *' is resolved at connection time
                    and then remains static. Path components after this are
                    treated as a dynamic path to watch for changes. If there is
                    no '*' present in the string, the entire string is taken as a
                    dynamic path.
-            root - {Object} (optional) The object the static path is resolved
-                   against, will be the global object if not supplied.
 
         Returns:
             {O.Binding} Returns self.
     */
-    from: function ( path, root ) {
-        this._fromPath = path;
-        this._fromRoot = root;
+    from: function ( root, path ) {
+        var rootIsPath = ( typeof root === 'string' );
+        this._fromRoot = rootIsPath ? path : root;
+        this._fromPath = rootIsPath ? root : path;
         return this;
     },
 
@@ -223,20 +223,21 @@ var Binding = NS.Class({
         effect if it is called after the object is connected.
 
         Parameters:
+            root - {Object} (optional) The object the static path is resolved
+                   against, will be the "from" root if not supplied.
             path - {String} Any path before a *' is resolved at connection time
                    and then remains static. Path components after this are
                    treated as a dynamic path to watch for changes. If there is
                    no '*' present in the string, the entire string is taken as a
                    dynamic path.
-            root - {Object} (optional) The object the static path is resolved
-                   against, will be the global object if not supplied.
 
         Returns:
             {O.Binding} Returns self.
     */
-    to: function ( path, root ) {
-        this._toPath = path;
-        this._toRoot = root;
+    to: function ( root, path ) {
+        var rootIsPath = ( typeof root === 'string' );
+        this._toRoot = rootIsPath ? path : root;
+        this._toPath = rootIsPath ? root : path;
         return this;
     },
 
@@ -325,9 +326,9 @@ var Binding = NS.Class({
 
         // Resolve objects:
         _resolveRootAndPath(
-            this, 'from', this._fromPath, this._fromRoot || this._toRoot );
+            this, 'from', this._fromRoot || this._toRoot, this._fromPath );
         _resolveRootAndPath(
-            this, 'to', this._toPath, this._toRoot || this._fromRoot );
+            this, 'to', this._toRoot || this._fromRoot, this._toPath );
 
         var fromObject = this.fromObject,
             toObject = this.toObject;
@@ -538,20 +539,20 @@ NS.Binding = Binding;
     Convenience method. A shortcut for:
         new O.Binding({
             transform: transform
-        }).from( path, root );
+        }).from( root, path );
 
     Parameters:
-        path      - {String} The path to bind from
         root      - {Object} (optional) The root object on the path to bind
-                    from. If not specified, will be the object the property is
-                    bound to.
+                    from. If not specified, will be the same object that the
+                    property is bound to.
+        path      - {String} The path to bind from
         transform - {Function} (optional) A transform to apply.
 
     Returns:
         {O.Binding} The new binding.
 */
-var bind = NS.bind = function ( path, root, transform ) {
-    var binding = new Binding().from( path, root );
+var bind = NS.bind = function ( root, path, transform ) {
+    var binding = new Binding().from( root, path );
     if ( transform ) {
         binding.transform = transform;
     }
@@ -565,20 +566,20 @@ var bind = NS.bind = function ( path, root, transform ) {
         new O.Binding({
             isTwoWay: true,
             transform: transform
-        }).from( path, root );
+        }).from( root, path );
 
     Parameters:
-        path      - {String} The path to bind from
         root      - {Object} (optional) The root object on the path to bind
-                    from. If not specified, will be the object the property is
-                    bound to.
+                    from. If not specified, will be the same object that the
+                    property is bound to.
+        path      - {String} The path to bind from
         transform - {Function} (optional) A transform to apply.
 
     Returns:
         {O.Binding} The new binding.
 */
-NS.bindTwoWay = function ( path, root, transform ) {
-    var binding = bind( path, root, transform );
+NS.bindTwoWay = function ( root, path, transform ) {
+    var binding = bind( root, path, transform );
     binding.isTwoWay = true;
     return binding;
 };
