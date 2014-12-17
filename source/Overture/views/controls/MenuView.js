@@ -177,9 +177,9 @@ var MenuOptionView = NS.Class({
     layerTag: 'li',
 
     className: function () {
-        return 'MenuOptionView' +
-            ( this.get( 'isFocussed' ) ? ' focussed' : '' ) +
-            ( this.get( 'isHidden' ) ? ' hidden' : '' );
+        return 'v-MenuOption' +
+            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isHidden' ) ? ' u-hidden' : '' );
     }.property( 'isFocussed', 'isHidden' ),
 
     init: function ( view, controller ) {
@@ -257,7 +257,7 @@ var MenuView = NS.Class({
 
     Extends: NS.View,
 
-    className: 'MenuView',
+    className: 'v-Menu',
 
     showFilter: false,
     closeOnActivate: true,
@@ -343,7 +343,7 @@ var MenuView = NS.Class({
             });
         controller.set( 'options', optionViews );
         return [
-            this.get( 'showFilter' ) ? el( 'div', [
+            this.get( 'showFilter' ) ? el( 'div.v-Menu-filter', [
                 this._input = new NS.SearchTextView({
                     blurOnEscape: false,
                     value: NS.bindTwoWay( 'filter', this.get( 'controller' ) )
