@@ -16,7 +16,7 @@
     Extends: O.View
 
     A LabelView simply displays a string of text, and optionally has a tooltip.
-    It's DOM structure is:
+    Its DOM structure is:
 
         <span title="${view.tooltip}">${view.value}</span>
 

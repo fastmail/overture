@@ -14,7 +14,7 @@
     Function (private): O.Easing-cubicBezier
 
     Returns a function that, for the given cubic bezier control points, returns
-    the y position given an x position. p0 is presumed to be (0,0) an p3 is
+    the y position given an x position. p0 is presumed to be (0,0) and p3 is
     presumed to be (1,1).
 
     Parameters:

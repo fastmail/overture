@@ -46,22 +46,23 @@ var userSelectNone =
     often the easiest thing to do. For example:
 
         new O.View({
+            isImportant: false,
             className: function () {
-                return 'MessageView' +
-                    ( this.get( 'isImportant' ) ? ' important' : '' );
+                return 'v-Message' +
+                    ( this.get( 'isImportant' ) ? ' is-important' : '' );
             }.property( 'isImportant' ),
             draw: function ( layer, Element, el ) {
                 return [
                     el( 'h1#title', {
                         text: O.bind( 'title', this )
                     }),
-                    el( 'p.normal', {
+                    el( 'p.u-normal', {
                         html: O.bind( 'content', this )
                     }),
                     el( 'footer', [
                         'For more information, please go to',
-                        el( 'a', { href: 'http://www.opera.com/' }, [
-                            'opera.com'
+                        el( 'a', { href: 'http://www.overturejs.com/' }, [
+                            overturejs.com'
                         ])
                     ])
                 ];

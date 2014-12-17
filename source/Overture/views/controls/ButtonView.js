@@ -35,17 +35,17 @@
             ]),
             el( 'div.actions', [
                 new O.ButtonView({
-                    label: 'The Red Pill',
                     type: 'destructive size13',
                     icon: 'redpill',
                     isDisabled: O.bind( 'isNeo', controller ),
+                    label: 'The Red Pill',
                     target: controller,
                     method: 'abort'
                 }),
                 new O.ButtonView({
-                    label: 'The Blue Pill',
                     type: 'constructive size13',
                     icon: 'bluepill',
+                    label: 'The Blue Pill',
                     target: controller,
                     method: 'proceed'
                 })
