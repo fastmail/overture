@@ -34,7 +34,7 @@ var UndoManager = NS.Class({
 
     _pushState: function ( stack, data ) {
         stack.push( data );
-        while ( stack > this.maxUndoCount ) {
+        while ( stack.length > this.maxUndoCount ) {
             stack.shift();
         }
         this._isInUndoState = true;
