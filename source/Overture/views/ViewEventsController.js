@@ -185,13 +185,13 @@ var ViewEventsController = {
                     view will be looked up via the DOM node in the
                     `event.target` property.
     */
-    handleEvent: function ( event, view ) {
+    handleEvent: function ( event, view, _rootView ) {
         var eventTargets = this._eventTargets,
             l = eventTargets.length,
             eventTarget;
 
         if ( !view ) {
-            view = this.getViewFromNode( event.target );
+            view = this.getViewFromNode( event.target ) || _rootView;
         }
         event.targetView = view;
 

@@ -153,7 +153,7 @@ var RootView = NS.Class({
             this._onScroll( event );
             return;
         }
-        NS.ViewEventsController.handleEvent( event );
+        NS.ViewEventsController.handleEvent( event, null, this );
     }.invokeInRunLoop()
 });
 
