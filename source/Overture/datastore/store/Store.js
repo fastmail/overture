@@ -114,7 +114,7 @@ var Store = NS.Class({
         Parameters:
             source - {O.Source} The source for this store.
     */
-    init: function ( source ) {
+    init: function ( mixin ) {
         // Map store key -> record
         this._skToRecord = {};
         // Map store key -> data
@@ -167,9 +167,9 @@ var Store = NS.Class({
 
         this._commitCallbacks = [];
 
-        this._source = source;
+        O.extend( this, mixin );
 
-        source.set( 'store', this );
+        mixin.source.set( 'store', this );
     },
 
     // === Nested Stores =======================================================
@@ -644,7 +644,7 @@ var Store = NS.Class({
             }
         }
 
-        this._source.commitChanges( changes, callback );
+        this.source.commitChanges( changes, callback );
 
         return this.fire( 'didCommit' );
     },
@@ -1153,7 +1153,7 @@ var Store = NS.Class({
             state = this._typeToClientState[ typeId ];
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
-            this._source.fetchAllRecords( Type, state );
+            this.source.fetchAllRecords( Type, state );
             this._typeToStatus[ typeId ] = ( status | LOADING );
         }
         return this;
@@ -1185,10 +1185,10 @@ var Store = NS.Class({
             return this;
         }
         if ( status & EMPTY ) {
-            this._source.fetchRecord( Type, id );
+            this.source.fetchRecord( Type, id );
             this.setStatus( storeKey, (EMPTY|LOADING) );
         } else {
-            this._source.refreshRecord( Type, id );
+            this.source.refreshRecord( Type, id );
             this.setLoading( storeKey );
         }
         return this;
@@ -2168,7 +2168,7 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     addQuery: function ( query ) {
-        var source = this._source;
+        var source = this.source;
         this._idToQuery[ query.get( 'id' ) ] = query;
         if ( query instanceof NS.LiveQuery ) {
             var Type = query.get( 'Type' ),
@@ -2240,7 +2240,7 @@ var Store = NS.Class({
             query = new QueryClass( NS.extend( mixin || {}, {
                 id: id,
                 store: this,
-                source: this._source
+                source: this.source
             }) );
         }
         if ( query ) {
