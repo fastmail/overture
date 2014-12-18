@@ -33,76 +33,64 @@
   }
   label.arg {
     float: left;
-    width: 33%;
+    width: 32%;
     font-size: 16px;
+  }
+  .arg + .arg {
+    margin-left: 2%;
   }
   p {
     border: 1px dotted #888;
     background: #fcf8e3;
     padding: 1em;
   }
-  .TextView {
+  .v-Text {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    display: inline-block;
-    border: 1px solid #aaa;
-    line-height: 1.24;
-    background-color: #fff;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    -webkit-box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
-    -moz-box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,.2)
-  }
-  .TextView > input {
-    border: 0;
-    -webkit-appearance: none;
-    background: 0
-  }
-  .TextView > textarea {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    background: 0;
-    border: 0;
-    outline: 0;
-    padding: 5px;
     width: 100%;
-    height: 100%;
-    word-wrap: break-word
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    padding: 5px 0;
+    line-height: 1.25;
+    background-color: #fff;
+    -webkit-transition: background-color 1s;
+    -moz-transition: background-color 1s;
+    -o-transition: background-color 1s;
+    transition: background-color 1s;
   }
-  .TextView.multiline {
-    display: block
+  .v-Text.is-disabled {
+    background-color: #f6f6f6;
   }
-  .TextView.expanding {
-    display: block;
-    position: relative;
-    overflow: hidden;
-    min-height: 2em;
-  }
-  .TextView.expanding > pre {
-    visibility: hidden;
-    padding: 5px;
-    width: -moz-calc( 100% - 12px );
-    min-height: 1em;
-  }
-  .TextView.expanding > textarea {
-    position: absolute;
-    overflow: hidden;
-    top: 0;
-    left: 0;
-    left: -moz-calc(-1px)
-  }
-  .TextView.text {
-    padding: 5px;
-  }
-  .TextView.text > input {
+
+  .v-Text-input {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    width: 100%
+    border: none;
+    outline: none;
+    padding: 0 5px;
+    width: 100%;
+    -webkit-appearance: none;
+    background: none;
+    word-wrap: break-word;
+  }
+  input.v-Text-input {
+    margin: -5px 0;
+    padding: 5px 6px;
+  }
+  textarea.v-Text-input {
+    display: block;
+    overflow: hidden;
+  }
+  .v-Text-input::-webkit-input-placeholder,
+  .v-Text-input::-moz-placeholder,
+  .v-Text-input:-ms-input-placeholder {
+    color: #777777;
+  }
+  .v-Text-input--placeholder {
+    color: #777777;
   }
 </style>
 </head>
