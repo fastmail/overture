@@ -260,7 +260,7 @@ var RPCSource = NS.Class({
                     method: 'POST',
                     url: this.get( 'url' ),
                     contentType: 'application/json',
-                    data: JSON.stringify( request )
+                    data: JSON.stringify( remoteCalls )
                 }).send()
             );
         }
