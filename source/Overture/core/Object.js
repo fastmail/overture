@@ -84,7 +84,7 @@ Object.extend({
             object - {Object} The object to get the array of keys from.
 
         Returns:
-            {Array.<String>} The list of keys.
+            {String[]} The list of keys.
     */
     keys: function ( object ) {
         var keys = [];
@@ -173,7 +173,7 @@ Object.extend({
         and values taken from the corresponding position in the second array.
 
         Parameters:
-            keys   - {Array.<String>} The array of keys.
+            keys   - {String[]} The array of keys.
             values - {Array} The array of values.
 
         Returns:

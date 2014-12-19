@@ -213,7 +213,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#fileSizeUnits
-        Type: Array.<String>
+        Type: String[]
 
         An array containing the suffix denoting units of bytes, kilobytes,
         megabytes and gigabytes (in that order).
@@ -296,7 +296,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#dayNames
-        Type: Array.<String>
+        Type: String[]
 
         Names of days of the week, starting from Sunday at index 0.
     */
@@ -304,7 +304,7 @@ var Locale = NS.Class({
         'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
     /**
         Property: O.Locale#abbreviatedDayNames
-        Type: Array.<String>
+        Type: String[]
 
         Abbeviated names of days of the week, starting from Sunday at index 0.
     */
@@ -312,7 +312,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#monthNames
-        Type: Array.<String>
+        Type: String[]
 
         Names of months of the year, starting from January.
     */
@@ -321,7 +321,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#abbreviatedMonthNames
-        Type: Array.<String>
+        Type: String[]
 
         Abbeviated names of months of the year, starting from January.
     */
@@ -365,7 +365,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#dateFormats
-        Type: Object.<String,String>
+        Type: String[String]
 
         A set of string patterns for dates, in the format used with
         <Date#format>.
@@ -387,7 +387,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#datePatterns
-        Type: Object.<String,RegExp>
+        Type: String[RegExp]
 
         A set of regular expresions for matching key words used in dates.
     */
@@ -419,7 +419,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#macros
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         The set of named macros that may be used in translations using the
         square brackets notation.
@@ -626,7 +626,7 @@ var Locale = NS.Class({
 
     /**
         Property: O.Locale#translations
-        Type: Object.<String,String>
+        Type: String[String]
 
         A map from the string identifier or English string to the localised
         string.

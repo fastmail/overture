@@ -204,7 +204,7 @@ var RecordAttribute = NS.Class({
 
     /**
         Property: O.RecordAttribute#validityDependencies
-        Type: Array.<String>|null
+        Type: String[]|null
         Default: null
 
         Other attributes the validity depends on. The attribute will be

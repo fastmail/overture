@@ -60,7 +60,7 @@ NS.DragDataSource = {
 
     /**
         Property: O.DragDataSource#dragDataTypes
-        Type: Array.<String>
+        Type: String[]
 
         The list of data types available in this data source.
     */

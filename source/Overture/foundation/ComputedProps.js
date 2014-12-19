@@ -227,12 +227,12 @@ var getFromPath = NS.getFromPath = function ( root, path ) {
                   directly dependent on them.
         key     - {String} The name of the property for which we are finding the
                   dependent keys.
-        results - {Array.<String>} This array will be populated with the
+        results - {String[]} This array will be populated with the
                   dependent keys. Non-recursive calls to this function should
                   supply an empty array here.
 
     Returns:
-        {Array.<String>} The results array.
+        {String[]} The results array.
 */
 var computeDependentKeys = function ( cache, key, results ) {
     var dependents = cache[ key ];

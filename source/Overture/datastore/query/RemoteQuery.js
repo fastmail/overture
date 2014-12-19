@@ -432,8 +432,8 @@ var RemoteQuery = NS.Class({
         if this were included in the selection it may be accidentally deleted.
 
         Parameters:
-            removed - {Array.<Number>} The list of indexes which were removed.
-            added   - {Array.<Number>} The list of indexes where new records
+            removed - {Number[]} The list of indexes which were removed.
+            added   - {Number[]} The list of indexes where new records
                        were addded.
     */
     _adjustIdFetches: function ( event ) {
@@ -513,7 +513,7 @@ var RemoteQuery = NS.Class({
 
         sort   - {String} The sort used for the query.
         filter - {String} The filter used for the query.
-        idList - {Array.<String>} The ids of the records represented by this
+        idList - {String[]} The ids of the records represented by this
                  query.
         state  - {String} (optional) A string representing the state of the
                  query on the server at the time of the fetch.

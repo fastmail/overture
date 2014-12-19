@@ -29,7 +29,7 @@ var AggregateSource = NS.Class({
 
     /**
         Property: O.AggregateSource#sources
-        Type: Array.<O.Source>
+        Type: O.Source[]
 
         List of sources to pass requests to. Will be tried in order.
     */

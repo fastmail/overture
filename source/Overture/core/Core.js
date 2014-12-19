@@ -473,7 +473,7 @@ NS.Class = function ( params ) {
     numbers for comparison. Other strings will be compared case-insensitively.
 
     Parameters:
-        properties - {Array.<String>} The properties to sort the objects by, in
+        properties - {String[]} The properties to sort the objects by, in
                      order of precedence. Can also supply just a String for one
                      property.
 

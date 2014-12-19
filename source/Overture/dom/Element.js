@@ -214,8 +214,8 @@ NS.Element = {
                        e.g. Element.create('input', { type: 'text' }); The
                        special attributes 'text' and 'html' allow you to set the
                        textual or html content of the element respectively.
-            children - {Array.<Element|String>} (optional) An array of child
-                       nodes and/or strings of text to append to the element.
+            children - {(Element|String)[]} (optional) An array of child nodes
+                       and/or strings of text to append to the element.
                        Text nodes will be created for each string supplied. Null
                        or undefined values will simply be skipped.
 
@@ -301,7 +301,7 @@ NS.Element = {
 
         Parameters:
             el       - {Element} The element to append to.
-            children - {Array.<(Element|O.View)>} The children to append.
+            children - {(Element|O.View)[]} The children to append.
 
         Returns:
             {Element} The element.

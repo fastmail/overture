@@ -27,7 +27,7 @@ O.DragEffect = {
 
 /**
     Property: O.DragEffect.effectToString
-    Type: Array.<String>
+    Type: String[]
 
     Maps bit mask effect to string
 */

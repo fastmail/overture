@@ -183,7 +183,7 @@ var View = NS.Class({
 
     /**
         Property: O.View#childViews
-        Type: Array.<O.View>
+        Type: O.View[]
 
         An array of the child views of this view.
     */

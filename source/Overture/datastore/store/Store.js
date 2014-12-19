@@ -1411,7 +1411,7 @@ var Store = NS.Class({
 
         Parameters:
             Type    - {O.Class} The record type.
-            records - {Array.<Object>} Array of data objects.
+            records - {Object[]} Array of data objects.
             state   - {String} (optional) State of server for this type.
 
         Returns:
@@ -1521,7 +1521,7 @@ var Store = NS.Class({
 
         Parameters:
             Type    - {O.Class} The record type.
-            records - {Array.<Object>} Array of data objects.
+            records - {Object[]} Array of data objects.
 
         Returns:
             {O.Store} Returns self.
@@ -1591,7 +1591,7 @@ var Store = NS.Class({
 
         Parameters:
             Type   - {O.Class} The record type.
-            idList - {Array.<String>} Array of record ids for records of the
+            idList - {String[]} Array of record ids for records of the
                      given type which have updates available on the server.
 
         Returns:
@@ -1725,7 +1725,7 @@ var Store = NS.Class({
 
         Parameters:
             Type   - {O.Class} The record type.
-            idList - {Array.<String>} The list of ids of non-existent requested
+            idList - {String[]} The list of ids of non-existent requested
                      records.
 
         Returns:
@@ -1764,7 +1764,7 @@ var Store = NS.Class({
 
         Parameters:
             Type   - {O.Class} The record type.
-            idList - {Array.<String>} The list of ids of records which have been
+            idList - {String[]} The list of ids of records which have been
                      destroyed.
 
         Returns:
@@ -1835,7 +1835,7 @@ var Store = NS.Class({
         <O.Store#sourceDidError>.
 
         Parameters:
-            storeKeys - {Array.<String>} The list of store keys of records for
+            storeKeys - {String[]} The list of store keys of records for
                         which the create commit failed.
 
         Returns:
@@ -1874,7 +1874,7 @@ var Store = NS.Class({
         <O.Source#commitChanges>.
 
         Parameters:
-            storeKeys - {Array.<String>} The list of store keys of records for
+            storeKeys - {String[]} The list of store keys of records for
                         which the submitted updates have been committed.
 
         Returns:
@@ -1915,7 +1915,7 @@ var Store = NS.Class({
         <O.Store#sourceDidError>.
 
         Parameters:
-            storeKeys - {Array.<String>} The list of store keys of records for
+            storeKeys - {String[]} The list of store keys of records for
                         which the update commit failed.
 
         Returns:
@@ -1966,7 +1966,7 @@ var Store = NS.Class({
         call to <O.Source#commitChanges>.
 
         Parameters:
-            storeKeys - {Array.<String>} The list of store keys of records whose
+            storeKeys - {String[]} The list of store keys of records whose
                         destruction has been committed.
 
         Returns:
@@ -2002,7 +2002,7 @@ var Store = NS.Class({
         <O.Store#sourceDidError>.
 
         Parameters:
-            storeKeys - {Array.<String>} The list of store keys of records for
+            storeKeys - {String[]} The list of store keys of records for
                         which the destruction commit failed.
 
         Returns:
@@ -2036,7 +2036,7 @@ var Store = NS.Class({
         last known committed state.
 
         Parameters:
-            storeKeys - {Array.<String>} The list of store keys of records for
+            storeKeys - {String[]} The list of store keys of records for
                         which the commit failed permanently.
 
         Returns:
@@ -2091,7 +2091,7 @@ var Store = NS.Class({
                      they should have the same position.
 
         Returns:
-            {Array.<String>} An array of store keys.
+            {String[]} An array of store keys.
     */
     findAll: function ( Type, acceptor, comparator ) {
         var _skToId = this._typeToSkToId[ guid( Type ) ] || {},
@@ -2255,7 +2255,7 @@ var Store = NS.Class({
         Returns a list of all remote queries registered with the store.
 
         Returns:
-            {Array.<O.RemoteQuery>} A list of all registered instances of
+            {O.RemoteQuery[]} A list of all registered instances of
             <O.RemoteQuery>.
     */
     getAllRemoteQueries: function () {

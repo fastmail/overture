@@ -70,7 +70,7 @@ var LiveQuery = NS.Class({
 
     /**
         Property: O.LiveQuery#Type
-        Type: O.Class.<Record>
+        Type: O.Class
 
         The Record class constructor function for the type of the instances to
         include in this query.
@@ -94,7 +94,7 @@ var LiveQuery = NS.Class({
         filter - {Function} (optional) If supplied, only records which this
                  function returns a truthy value for are included in the
                  results.
-        sort   - {(String|Array.<String>|Function)} (optional) The records in
+        sort   - {(String|String[]|Function)} (optional) The records in
                  the local query are sorted according to this named property. If
                  an array is supplied, in the case of a tie the next property in
                  the array will be consulted. If a function is supplied, this is

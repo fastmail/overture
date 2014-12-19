@@ -421,7 +421,7 @@ var RPCSource = NS.Class({
 
         Parameters:
             Type     - {O.Class} The record type.
-            ids      - {(Array.<String>|Object|null)} Either an array of record
+            ids      - {(String[]|Object|null)} Either an array of record
                        ids to fetch, a custom object describing a query, or
                        null, indicating that all records of this type should be
                        fetched.
@@ -487,7 +487,7 @@ var RPCSource = NS.Class({
 
         Parameters:
             Type     - {O.Class} The record type.
-            ids      - {(Array.<String>|Object|null)} An array of record ids, or
+            ids      - {(String[]|Object|null)} An array of record ids, or
                        alternatively some custom object, which will be passed
                        straight through to the record refresher for that type
                        defined in <O.RPCSource#recordRefreshers>.
@@ -530,7 +530,7 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#commitPrecedence
-        Type: Object.<String,Number>|null
+        Type: String[Number]|null
         Default: null
 
         This is on optional mapping of type names to a number indicating the
@@ -718,7 +718,7 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#recordFetchers
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of type names to functions which will fetch records of that type.
         The functions will be called with the source as 'this' and a list of ids
@@ -729,7 +729,7 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#recordRefreshers
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of type names to functions which will refresh records of that
         type. The functions will be called with the source as 'this' and a list
@@ -740,7 +740,7 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#recordCommitters
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of type names to functions which will commit all creates, updates
         and destroys requested for a particular record type.
@@ -749,14 +749,14 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#recordCreators
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of type names to functions which will commit creates for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
 
-        storeKeys - {Array.<String>} A list of store keys.
-        data      - {Array.<Object>} A list of the corresponding data object for
+        storeKeys - {String[]} A list of store keys.
+        data      - {Object[]} A list of the corresponding data object for
                     each store key.
 
         Once the request has been made, the following callbacks must be made to
@@ -772,19 +772,19 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#recordUpdaters
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of type names to functions which will commit updates for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
 
-        storeKeys - {Array.<String>} A list of store keys.
-        data      - {Array.<Object>} A list of the corresponding data object for
+        storeKeys - {String[]} A list of store keys.
+        data      - {Object[]} A list of the corresponding data object for
                     each store key.
-        changed   - {Array.<Object.<String,Boolean>>} A list of objects mapping
-                    attribute names to a boolean value indicating whether that
-                    value has actually changed. Any properties in the data has
-                    not in the changed map may be presumed unchanged.
+        changed   - {String[Boolean][]} A list of objects mapping attribute
+                    names to a boolean value indicating whether that value has
+                    actually changed. Any properties in the data has not in the
+                    changed map may be presumed unchanged.
 
         Once the request has been made, the following callbacks must be made to
         the <O.Store> instance as appropriate:
@@ -799,14 +799,14 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#recordDestroyers
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of type names to functions which will commit destroys for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
 
-        storeKeys - {Array.<String>} A list of store keys.
-        ids       - {Array.<String>} A list of the corresponding record ids.
+        storeKeys - {String[]} A list of store keys.
+        ids       - {String[]} A list of the corresponding record ids.
 
         Once the request has been made, the following callbacks must be made to
         the <O.Store> instance as appropriate:
@@ -821,7 +821,7 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#queryFetchers
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of query type names to functions which will fetch the requested
         contents of that query. The function will be called with the source as
@@ -874,7 +874,7 @@ var RPCSource = NS.Class({
 
     /**
         Property: O.RPCSource#response
-        Type: Object.<String,Function>
+        Type: String[Function]
 
         A map of method names to functions which the server can call in a
         response to return data to the client.

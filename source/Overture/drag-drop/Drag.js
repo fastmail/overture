@@ -296,7 +296,7 @@ var Drag = NS.Class({
 
     /**
         Property: O.Drag#dataTypes
-        Type: Array.<String>
+        Type: String[]
 
         An array of the data types available to drop targets of this drag. The
         data type will be the MIME type of the data if a native drag, or a
@@ -361,8 +361,8 @@ var Drag = NS.Class({
                          against the file's MIME type.
 
         Returns:
-            {Array.<File>} An array of all files represented by the drag, or if
-            a regular expression is given, an array of all files with a matching
+            {File[]} An array of all files represented by the drag, or if a
+            regular expression is given, an array of all files with a matching
             MIME type.
     */
     getFiles: function ( typeRegExp ) {

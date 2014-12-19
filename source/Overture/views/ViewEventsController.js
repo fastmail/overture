@@ -107,7 +107,7 @@ var ViewEventsController = {
 
     /**
         Property (private): O.ViewEventsController._eventTargets
-        Type: Array.<Array.<Number,O.EventTarget>>
+        Type: [Number,O.EventTarget][]
 
         List of event targets to dispatch events to.
     */

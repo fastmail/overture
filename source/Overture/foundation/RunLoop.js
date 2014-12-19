@@ -43,7 +43,7 @@ var RunLoop = {
 
     /**
         Property (private): NS.RunLoop._queueOrder
-        Type: Array.<String>
+        Type: String[]
 
         The order in which to flush the queues.
     */

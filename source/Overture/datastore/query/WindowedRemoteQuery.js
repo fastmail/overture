@@ -114,7 +114,7 @@ var mapIndexes = function ( list, ids ) {
         b2 - {Array}
 
     Returns:
-        {Array.<Array>} A tuple of two arrays.
+        {[Array,Array]} A tuple of two arrays.
 */
 var mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
     var rA = [],
@@ -842,10 +842,10 @@ var WindowedRemoteQuery = NS.Class({
         happened next time an update arrives. If it turns out to be wrong the
         list will be reset, but in most cases it should appear more efficient.
 
-        removed - {Array.<String>} (optional) The ids of all records to delete.
-        added   - {Array.<Array>} (optional) A list of [ index, id ] pairs, in
-                  ascending order of index, for all records to be inserted.
-        changed - {Array.<String>} (optional) The ids of records the client has
+        removed - {String[]} (optional) The ids of all records to delete.
+        added   - {[Number,String][]} (optional) A list of [ index, id ] pairs,
+                  in ascending order of index, for all records to be inserted.
+        changed - {String[]} (optional) The ids of records the client has
                   updated; these are then removed from the changed list the next
                   time, and any extras are added (as they have been erroneously
                   updated and so now must be updated by the server).
@@ -873,19 +873,20 @@ var WindowedRemoteQuery = NS.Class({
         oldState - {String} The state this delta updates the remote query from.
         sort     - {String} The sort presumed in this delta.
         filter   - {String} The filter presumed in this delta.
-        removed  - {Array.<String>} The ids of all records removed since
+        removed  - {String[]} The ids of all records removed since
                    oldState.
-        added   - {Array.<Array>} A list of [ index, id ] pairs, in ascending
-                   order of index, for all records added since oldState.
-        changed - {Array.<String>} The ids of all records in this query which
-                  are out-of-date (have updated information available on the
-                  server).
-        upto    - {String} (optional) As an optimisation, updates may only be
-                  for the first portion of a list, upto a certain id. This is
-                  the last id which is included in the range covered by the
-                  updates; any information past this id must be discarded, and
-                  if the id can't be found the list must be reset.
-        total   - {Number} (optional) The total number of records in the list.
+        added    - {[Number,String][]} A list of [ index, id ] pairs, in
+                   ascending order of index, for all records added since
+                   oldState.
+        changed  - {String[]} The ids of all records in this query which
+                   are out-of-date (have updated information available on the
+                   server).
+        upto     - {String} (optional) As an optimisation, updates may only be
+                   for the first portion of a list, upto a certain id. This is
+                   the last id which is included in the range covered by the
+                   updates; any information past this id must be discarded, and
+                   if the id can't be found the list must be reset.
+        total    - {Number} (optional) The total number of records in the list.
 
         Parameters:
             update - {Object} The delta update (see description above).
@@ -1120,7 +1121,7 @@ var WindowedRemoteQuery = NS.Class({
         state    - {String} The state of the server when this slice was taken.
         sort     - {String} The sort used.
         filter   - {String} The filter used.
-        idList   - {Array.<String>} The list of ids.
+        idList   - {String[]} The list of ids.
         position - {Number} The index in the query of the first id in idList.
         total    - {Number} The total number of records in the query.
 
