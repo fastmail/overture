@@ -282,6 +282,10 @@ App.state = new O.Router({
 
     // URL routing (state encoding/decoding)
 
+    /* To use HTML5 URL rewriting, the router needs to know where the app is
+       located relative to the root of the domain. */
+    baseUrl: '/examples/Todo/',
+
     /* This is the URL the browser should show. This is dependent on the current
        selected TodoList, but I've decided not to encode any search in the URL.
     */
@@ -307,6 +311,8 @@ App.state = new O.Router({
         {
             url: /.*/,
             handle: function () {
+                /* Don't keep the old state in history */
+                this.set( 'replaceState', true );
                 this.set( 'listId', 'inbox' );
             }
         }
