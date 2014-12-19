@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Overture Todo Example App</title>
+<link rel="stylesheet" type="text/css" href="styles/reset.css">
+<link rel="stylesheet" type="text/css" href="styles/libstyles.css">
+<link rel="stylesheet" type="text/css" href="styles/icons.css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+<style type="text/css">
+html {
+    background: url(images/bg.png);
+    font-family: "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.v-App {
+    margin: 110px auto 10px;
+    min-height: 429px;
+    max-width: 500px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(128, 128, 128, 0.7);
+}
+
+.v-App-title {
+    top: -80px;
+    left: 0;
+    right: 0;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 70px;
+    text-align: center;
+    text-shadow: -1px -1px rgba(0, 0, 0, 0.2);
+}
+
+.v-TodoList {
+    overflow: hidden;
+}
+.v-App:before {
+    content: '';
+    position: absolute;
+    top: 45px;
+    left: 49px;
+    bottom: 0;
+    border: solid #f5d6d6;
+    border-width: 0 1px;
+    width: 2px;
+}
+
+/* TodoView */
+
+.v-Todo {
+    top: -1px;
+    left: 0;
+    right: 0;
+    border: dotted #ddd;
+    border-width: 1px 0;
+    height: 47px;
+    line-height: 47px;
+    cursor: default;
+    background: #fff;
+}
+.v-Todo.is-selected {
+    background: #f7f2f8;
+}
+
+.v-Todo > .v-Checkbox {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    border-right: 1px solid #f5d6d6;
+    width: 49px;
+    text-align: center;
+}
+
+.v-Todo-summary {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    left: 52px;
+    right: 0;
+    bottom: 0;
+    padding: 0 15px;
+    border-left: 1px solid #f5d6d6;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.v-Todo.is-complete:not(.is-editing) > .v-Todo-summary {
+    color: #777;
+    text-decoration: line-through;
+}
+.v-Todo.is-editing > .v-Todo-summary {
+    padding: 0 8px;
+}
+
+.v-Todo-date {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100px;
+    text-overflow: ellipsis;
+}
+
+</style>
+</head>
+<body>
+<!--[if IE 8]>
+<script type="text/javascript" src="../../build/ie8patches-raw.js"></script>
+<![endif]-->
+<script type="text/javascript" src="fixtures.js"></script>
+<script type="text/javascript" src="../../build/Overture-raw.js"></script>
+<script type="text/javascript" src="Todo.js"></script>
+</body>
+</html>
