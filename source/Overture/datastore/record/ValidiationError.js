@@ -2,7 +2,7 @@
 // File: ValidationError.js                                                   \\
 // Module: DataStore                                                          \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
+// License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 "use strict";

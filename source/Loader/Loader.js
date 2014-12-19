@@ -2,7 +2,7 @@
 // File: Loader.js                                                            \\
 // Module: Loader                                                             \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
+// License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage */

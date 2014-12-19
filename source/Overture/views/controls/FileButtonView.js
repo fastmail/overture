@@ -3,7 +3,7 @@
 // Module: ControlViews                                                       \\
 // Requires: Core, Foundation, DOM, View, ButtonView.js                       \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010-2014 FastMail Pty Ltd. All rights reserved.                \\
+// License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global FormData */

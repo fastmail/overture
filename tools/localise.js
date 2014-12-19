@@ -560,7 +560,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         formatHeaderLine( 'File: ' + code + '.js', 80 ) +
         formatHeaderLine( 'Module: Locale', 80 ) +
         formatHeaderLine(
-            'License: © 2010–' + new Date().getFullYear() + ' FastMail Pty Ltd. All rights reserved.', 80
+            'License: © 2010–' + new Date().getFullYear() + ' FastMail Pty Ltd. MIT Licensed.       ', 80
         ) +
         formatHeaderLine( new Array( 80 - 6 + 1 ).join( '-' ), 80 ) +
         '\n' +
