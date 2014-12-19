@@ -81,7 +81,7 @@ var insertTables = function ( text ) {
             if ( results ) {
                 return '</td></tr><tr><th>' + results[1] +
                     '</th><td>' + results[2];
-                    
+
             } else {
                 if ( /^\s*$/.test( line ) ) {
                     inDL = false;
@@ -126,7 +126,7 @@ var renderText = function ( text, parentPath ) {
 var renderClass = function ( block ) {
     var access = block.access !== 'public' ?
         el( 'span.' + block.access, [ block.access.capitalise() ]) + ' ' : '';
-    
+
     return [
         el( 'h4', [ access, block.type ]),
         el( 'h2', [ block.path ]),
@@ -156,7 +156,7 @@ var renderMethod = function ( block, namespace ) {
     if ( name.slice( 0, i ) === namespace ) {
         name = el( 'span.path', [ namespace ]) + name.slice( i );
     }
-    
+
     var params = block.Parameters,
         plist = [],
         pname = /^\s*([A-Za-z]+)\s+\-/mg,
@@ -169,7 +169,7 @@ var renderMethod = function ( block, namespace ) {
     } else {
         name += '()';
     }
-    
+
     return [
         el( 'h4', [ access, block.type ]),
         el( 'h2', [ name ]),
@@ -289,7 +289,7 @@ var renderTOC = function ( input ) {
         }
         sections[ type ].push( block.path );
     });
-    
+
     for ( var type in sections ) {
         if ( type === 'Module' ) {
             delete sections[ type ];
@@ -297,10 +297,10 @@ var renderTOC = function ( input ) {
             sections[ type ].sort();
         }
     }
-    
+
     var types = Object.keys( sections );
     types.sort();
-    
+
     return types.reduce( function ( output, type ) {
         var plural = sections[ type ].length > 1;
         output += '<h5>' + ( plural ? plurals[ type ] : type ) + '</h5>\n';
@@ -356,7 +356,7 @@ var renderFullIndex = function () {
                 });
             }),
             section = '';
-        
+
         moduleIndex.sort( function ( a, b ) {
             if ( pathToType[ a ] < pathToType[ b ] ) {
                 return -1;
@@ -366,7 +366,7 @@ var renderFullIndex = function () {
             }
             return a < b ? -1 : a > b ? 1 : 0;
         });
-        
+
         moduleIndex = moduleIndex.reduce( function ( prev, item ) {
             if ( pathToType[ item ] !== section ) {
                 section = pathToType[ item ];
@@ -375,7 +375,7 @@ var renderFullIndex = function () {
             prev[ prev.length - 1 ].push( item );
             return prev;
         }, [] );
-        
+
         return el( 'section', {
             id: module,
             style: 'z-index: ' + ( arr.length - i ) + ';'
@@ -383,6 +383,11 @@ var renderFullIndex = function () {
             el( 'h2', [ module ]),
             renderText( data.description ),
             moduleIndex.map( function ( group ) {
+                if ( pathToType[ group[0] ] !== 'Class' &&
+                        pathToType[ group[0] ] !== 'Mixin' &&
+                        pathToType[ group[0] ] !== 'Namespace' ) {
+                    return '';
+                }
                 return el( 'h3', [
                     plurals[ pathToType[ group[0] ] ],
                 ]) + el( 'ul', group.map( function ( name ) {
@@ -402,7 +407,7 @@ var renderFullIndex = function () {
 // Usage: node write.js template.html input.json index.json output.html
 ( function () {
     index = JSON.parse( fs.readFileSync( process.argv[4], 'utf8' ) );
-    
+
     var outputFileName = process.argv[5],
         input = JSON.parse( fs.readFileSync( process.argv[3], 'utf8' ) ),
         template = fs.readFileSync( process.argv[2], 'utf8' ),
@@ -425,6 +430,6 @@ var renderFullIndex = function () {
             }
             return '';
         });
-    
+
     fs.writeFile( outputFileName, html );
 }() );

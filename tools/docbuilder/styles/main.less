@@ -1,17 +1,17 @@
 @import "sizesandmixins.less";
 
-@sidebarWidth: 200px;
-@borderColour: #b0b0b0;
+@sidebarWidth: 230px;
+@borderColour: #ddd;
 
 body {
-  background: #f2f2f2;
+  background: #f8f8f8;
 }
 
 a {
   border: 0;
   border-bottom: 1px dotted;
   text-decoration: none;
-  
+
   &:hover {
     border-style: solid;
   }
@@ -65,7 +65,7 @@ header {
       background: #fff url(images/search_13x13.png) 8px center no-repeat;
     }
   }
-  
+
   > nav {
     display: inline;
     padding: 0 25px;
@@ -80,7 +80,7 @@ header {
   }
   #toc {
     background: url(images/thread.png) 0 50% no-repeat;
-    
+
     ul {
       margin: 0;
       padding: 0;
@@ -104,7 +104,7 @@ header {
   top: -10px;
   padding: 40px 10px 30px;
   .transition( all .3s );
-  
+
   &:after {
     content: '';
     position: absolute;
@@ -117,7 +117,7 @@ header {
     .transform( rotate( 45deg ) );
     background: #fff;
   }
-  
+
   > div {
     position: relative;
     overflow: auto;
@@ -150,19 +150,19 @@ header {
   left: 0;
   right: auto;
   padding-top: 5px;
-  
+
   &:after {
     top: -3px;
     left: 100px;
     right: auto;
   }
-  
+
   &.show {
     visibility: visible;
     opacity: 1;
     top: 38px;
   }
-  
+
   > div {
     min-width: @sidebarWidth - 50px;
   }
@@ -191,13 +191,12 @@ article {
   z-index: 2;
   border-left: 1px solid @borderColour;
   margin: 35px 0 0 @sidebarWidth;
-  .box_shadow( 0 0 7px #c0c0c0 );
   background: #fff;
-  
+
   > div {
     position: relative;
     padding: 15px 10px 25px;
-    
+
     &:before {
       content: '';
       position: absolute;
@@ -210,24 +209,27 @@ article {
       opacity: 1;
       .transition( opacity .3s );
     }
-    
+
   }
-  
+
   p {
     clear: both;
     margin: 1em 0;
+    font-size: 15px;
+    line-height: 1.5;
   }
-  
+
   .type, .access, .optional {
     border: 1px solid rgba(0,0,0,0.15);
     margin: 4px 4px 4px 0;
     padding: 2px 7px;
     .border_radius( 3px );
-    font-size: 11px;  
+    font-size: 11px;
   }
-  
+
   .type {
-    background-color: #ffc;
+    background-color: rgba(255, 255, 204, 0.4);
+    font: 11px/1.4 Menlo, 'Courier New', monospace;
   }
   .access {
     background-color: #eee;
@@ -247,7 +249,7 @@ section {
   margin-top: -40px;
   border-bottom: 1px solid rgba(0,0,0,0.05);
   padding-top: 40px;
-  
+
   > div {
     .box_sizing;
     position: relative;
@@ -256,7 +258,6 @@ section {
     margin: 10px 0;
     width: 50%;
     float: left;
-    .transition( all .3s );
   }
   > .docs {
     padding: 0 30px 0 15px;
@@ -309,13 +310,13 @@ section {
     padding: 5px 0 5px 60px;
     .border_radius( 3px );
     font-size: 11px;
-  
+
     > dt {
       float: left;
       margin: -1px 0 0 -60px;
       width: 40px;
       font-weight: bold;
-    
+
       &:after {
         content: ':';
       }
@@ -345,8 +346,8 @@ section {
   }
   h2 {
     margin: 4px 0 0;
-    font-size: 16px;
-    
+    font-size: 18px;
+
     > .path {
       font-weight: 300;
       color: #888;
@@ -376,7 +377,7 @@ table {
   }
   th, td {
     padding: 0 10px;
-    vertical-align: top;    
+    vertical-align: top;
   }
   th {
     border-right: 1px solid #d0d0d0;
@@ -388,7 +389,7 @@ table {
 
 #fullIndex {
   padding: 30px;
-  
+
   ul {
     -moz-column-width: 200px;
     -webkit-column-width: 200px;
@@ -397,29 +398,17 @@ table {
     -webkit-column-gap: 1em;
     column-gap: 1em;
   }
-  
+
   li {
     list-style: none;
     padding-left: 20px;
     text-indent: -20px;
   }
-  
+
   h3 {
     margin: 4px 0 0;
     font-size: 16px;
   }
-}
-
-footer {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 20px 0 10px;
-  @linear-gradient: ~" rgba(256,256,256,0), rgba(256,256,256,1) 15px, rgba(256,256,256,1)";
-  .linear_gradient( @linear-gradient );
-  font-size: 11px;
-  text-align: center;
 }
 
 sidebar {
@@ -454,8 +443,8 @@ code {
   .comment { color: #888; }
   .string { color: #080; } // Green
   .regexp { color: #cb371f; }
-  
+
   .function .keyword {
-    font-style: italic; 
+    font-style: italic;
   }
 }
