@@ -275,7 +275,7 @@ var RichTextView = NS.Class({
             preventOverlap: true
         }).registerViews({
             bold: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-bold',
                 isActive: bind( 'isBold', this ),
                 label: NS.loc( 'Bold' ),
@@ -291,7 +291,7 @@ var RichTextView = NS.Class({
                 }
             }),
             italic: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-italic',
                 isActive: bind( 'isItalic', this ),
                 label: NS.loc( 'Italic' ),
@@ -307,7 +307,7 @@ var RichTextView = NS.Class({
                 }
             }),
             underline: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-underline',
                 isActive: bind( 'isUnderlined', this ),
                 label: NS.loc( 'Underline' ),
@@ -323,7 +323,7 @@ var RichTextView = NS.Class({
                 }
             }),
             strikethrough: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-strikethrough',
                 isActive: bind( 'isStriked', this ),
                 label: NS.loc( 'Strikethrough' ),
@@ -339,7 +339,7 @@ var RichTextView = NS.Class({
                 }
             }),
             size: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-font-size',
                 label: NS.loc( 'Font Size' ),
                 tooltip: NS.loc( 'Font Size' ),
@@ -347,7 +347,7 @@ var RichTextView = NS.Class({
                 method: 'showFontSizeMenu'
             }),
             font: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-font',
                 label: NS.loc( 'Font Face' ),
                 tooltip: NS.loc( 'Font Face' ),
@@ -355,7 +355,7 @@ var RichTextView = NS.Class({
                 method: 'showFontFaceMenu'
             }),
             colour: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-palette',
                 label: NS.loc( 'Text Color' ),
                 tooltip: NS.loc( 'Text Color' ),
@@ -363,7 +363,7 @@ var RichTextView = NS.Class({
                 method: 'showTextColourMenu'
             }),
             bgcolour: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-highlight',
                 label: NS.loc( 'Text Highlight' ),
                 tooltip: NS.loc( 'Text Highlight' ),
@@ -371,7 +371,7 @@ var RichTextView = NS.Class({
                 method: 'showTextHighlightColourMenu'
             }),
             link: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-link',
                 isActive: bind( 'isLink', this ),
                 label: NS.loc( 'Link' ),
@@ -387,7 +387,7 @@ var RichTextView = NS.Class({
                 }
             }),
             image: new NS.FileButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-image',
                 label: NS.loc( 'Insert Image' ),
                 tooltip: NS.loc( 'Insert Image' ),
@@ -397,7 +397,7 @@ var RichTextView = NS.Class({
                 method: 'insertImagesFromFiles'
             }),
             left: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-left',
                 isActive: bind( 'alignment', this, equalTo( 'left' ) ),
                 label: NS.loc( 'Left' ),
@@ -408,7 +408,7 @@ var RichTextView = NS.Class({
                 }
             }),
             centre: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-centre',
                 isActive: bind( 'alignment', this, equalTo( 'center' ) ),
                 label: NS.loc( 'Center' ),
@@ -419,7 +419,7 @@ var RichTextView = NS.Class({
                 }
             }),
             right: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-right',
                 isActive: bind( 'alignment', this, equalTo( 'right' ) ),
                 label: NS.loc( 'Right' ),
@@ -430,7 +430,7 @@ var RichTextView = NS.Class({
                 }
             }),
             justify: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-justify',
                 isActive: bind( 'alignment', this, equalTo( 'justify' ) ),
                 label: NS.loc( 'Justify' ),
@@ -441,7 +441,7 @@ var RichTextView = NS.Class({
                 }
             }),
             ltr: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-lefttoright',
                 isActive: bind( 'direction', this, equalTo( 'ltr' ) ),
                 label: NS.loc( 'Text Direction: Left to Right' ),
@@ -452,7 +452,7 @@ var RichTextView = NS.Class({
                 }
             }),
             rtl: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-righttoleft',
                 isActive: bind( 'direction', this, equalTo( 'rtl' ) ),
                 label: NS.loc( 'Text Direction: Right to Left' ),
@@ -463,7 +463,7 @@ var RichTextView = NS.Class({
                 }
             }),
             quote: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-quotes-left',
                 label: NS.loc( 'Quote' ),
                 tooltip: NS.loc( 'Quote' ) + '\n' +
@@ -472,7 +472,7 @@ var RichTextView = NS.Class({
                 method: 'increaseQuoteLevel'
             }),
             unquote: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-quotes-right',
                 label: NS.loc( 'Unquote' ),
                 tooltip: NS.loc( 'Unquote' ) + '\n' +
@@ -481,7 +481,7 @@ var RichTextView = NS.Class({
                 method: 'decreaseQuoteLevel'
             }),
             ul: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-list',
                 isActive: bind( 'isUnorderedList', this ),
                 label: NS.loc( 'Unordered List' ),
@@ -497,7 +497,7 @@ var RichTextView = NS.Class({
                 }
             }),
             ol: new ButtonView({
-                type: 'iconOnly',
+                type: 'v-Button--iconOnly',
                 icon: 'icon-numbered-list',
                 isActive: bind( 'isOrderedList', this ),
                 label: NS.loc( 'Ordered List' ),
