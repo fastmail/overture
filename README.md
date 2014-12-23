@@ -14,7 +14,7 @@ Building from Source
 
 1) Clone the repository:
 
-  git clone https://github.com/fastmail/overture.git
+    git clone https://github.com/fastmail/overture.git
 
 2) Go to the repository directory
 
