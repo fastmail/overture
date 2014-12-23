@@ -171,7 +171,7 @@ var RPCSource = NS.Class({
     }.on( 'io:success' ),
 
     /**
-        Method: O.RPCSource#ioDidSucceed
+        Method: O.RPCSource#ioDidFail
 
         Callback when the IO fails.
 
@@ -185,7 +185,7 @@ var RPCSource = NS.Class({
     }.on( 'io:failure', 'io:abort' ),
 
     /**
-        Method: O.RPCSource#ioDidSucceed
+        Method: O.RPCSource#ioDidEnd
 
         Callback when the IO ends.
 
