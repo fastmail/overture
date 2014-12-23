@@ -243,10 +243,10 @@ function emround ( css ) {
 exports.fromLess = function ( css, callback ) {
     css = css.replace( /(expression\([^;]+);/g, 'e("$1");' )
              .replace( /filter:\s*(alpha\([^;]+);/g, 'filter: e("$1");' );
-    less.render( css, function ( error, css ) {
+    less.render( css, function ( error, output ) {
         if ( !error ) {
-            css = emround( css );
-            callback( css );
+            css = emround( output.css );
+            callback( output.css );
         } else {
             console.log( 'The LESS error is: ', error );
         }
