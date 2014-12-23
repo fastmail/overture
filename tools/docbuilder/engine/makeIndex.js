@@ -17,7 +17,7 @@ var makeIndex = function ( data, index, file ) {
         name: data.header.File,
         docs: file
     });
-    
+
     data.blocks.forEach( function ( block ) {
         if ( block.type === 'Module' ) {
             module.description = block.Description;
@@ -38,7 +38,7 @@ var makeIndex = function ( data, index, file ) {
             pathToFile: {},
             pathToType: {},
         };
-    
+
     input.forEach( function ( file ) {
         fs.readFile( file, 'utf8', function ( error, data ) {
             if ( error ) {

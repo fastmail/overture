@@ -132,7 +132,7 @@ var parseFile = function ( contents ) {
     if ( block ) {
         block.code = code;
     }
-    
+
     return trim( { header: header, blocks: blocks } );
 };
 
@@ -140,7 +140,7 @@ var parseFile = function ( contents ) {
 ( function () {
     var input = process.argv[2],
         output = process.argv[3];
-        
+
     fs.readFile( input, 'utf8', function ( error, data ) {
         if ( error ) {
             console.log( 'Could not read ' + input );

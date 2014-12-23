@@ -3,7 +3,7 @@
 "use strict";
 
 ( function () {
-    
+
 var escapeRegExp = function ( string ) {
     return string.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
 };
@@ -36,7 +36,7 @@ var lookupKey = function ( event, noModifiers ) {
             event.which !== 0 && event.charCode !== 0,
         str = String.fromCharCode( code ).toLowerCase(),
         key = ( !preferAsci && numberToKey[ code ] ) || str;
-    
+
     // Function keys
     if ( !preferAsci && 111 < code && code < 124 ) {
         key = 'f' + ( code - 111 );
@@ -49,7 +49,7 @@ var lookupKey = function ( event, noModifiers ) {
         if ( event.metaKey ) { modifiers += 'meta-'; }
         if ( event.shiftKey ) { modifiers += 'shift-'; }
     }
-    
+
     return modifiers + key;
 };
 
@@ -93,14 +93,14 @@ var appendChildren = function ( el, children ) {
 };
 
 var el = function ( tag, props, children ) {
-    
+
     if ( props instanceof Array ) {
         children = props;
         props = null;
     }
-    
+
     var i, j, l;
-    
+
     if ( splitter.test( tag ) ) {
         var parts = tag.split( splitter ),
             name;
@@ -116,7 +116,7 @@ var el = function ( tag, props, children ) {
             }
         }
     }
-    
+
     var el = doc.createElement( tag );
 
     if ( props ) {
@@ -172,7 +172,7 @@ var focus = function ( dir ) {
     }
     selected = ( selected + dir ) % displayed.length;
     if ( selected < 0 ) { selected = displayed.length + selected; }
-    
+
     node = displayed[ selected ];
     if ( node ) {
         node.className = 'result selected';
@@ -186,7 +186,7 @@ results.addEventListener( 'mouseover', function () {
 results.addEventListener( 'mouseout', function ( event ) {
     var really = true,
         node = event.relatedTarget;
-    
+
     while ( node ) {
         if ( node === results ) {
             really = false;
@@ -220,9 +220,9 @@ input.addEventListener( 'input', function () {
             return new RegExp( '(?:^|\\W)' + escapeRegExp( token ), 'i' );
         }),
         output;
-    
+
     displayed = [];
-    
+
     if ( value ) {
         output = el( 'ul' );
 
@@ -231,7 +231,7 @@ input.addEventListener( 'input', function () {
                 return pattern.test( obj.name );
             });
         });
-        
+
         if ( !matches.length ) {
             output.appendChild( el( 'li.none' , {
                 text: 'No results'

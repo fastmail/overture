@@ -728,7 +728,7 @@ Markdown.dialects.Gruber = {
       // Markdown is smart enough not to add extra (unwanted) <p> tags around HTML block-level tags.
       if (block[0] == "<" && block[block.length-1] == ">") {
           var blockStr = block.valueOf();
-          // Span-level HTML tags — e.g. <span>, <cite>, or <del> — can be used anywhere in a Markdown paragraph, list item, or header. 
+          // Span-level HTML tags — e.g. <span>, <cite>, or <del> — can be used anywhere in a Markdown paragraph, list item, or header.
           if (/^<(span|cite|del)[\s>]/.test(blockStr)) {
               return [ ["para"].concat( this.processInline( block ) ) ];
           }
