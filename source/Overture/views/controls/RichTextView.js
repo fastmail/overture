@@ -662,13 +662,13 @@ var RichTextView = NS.Class({
                     }),
                     el( 'p.u-alignRight', [
                         new ButtonView({
-                            type: 'destructive button size13',
+                            type: 'v-Button--destructive v-Button--size13',
                             label: NS.loc( 'Cancel' ),
                             target: popOver,
                             method: 'hide'
                         }),
                         new ButtonView({
-                            type: 'constructive button size13',
+                            type: 'v-Button--constructive v-Button--size13',
                             label: NS.loc( 'Add Link' ),
                             target: this,
                             method: 'addLink'
