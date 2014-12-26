@@ -342,9 +342,14 @@ var TextView = NS.Class({
 
     redrawTextHeight: function () {
         var control = this._domControl,
-            style = control.style;
+            style = control.style,
+            scrollHeight;
         style.height = 'auto';
-        style.height = control.scrollHeight + 'px';
+        scrollHeight = control.scrollHeight;
+        // Presto returns 0 immediately after appending to doc.
+        if ( scrollHeight ) {
+            style.height = scrollHeight + 'px';
+        }
     },
 
     // --- Activate ---
