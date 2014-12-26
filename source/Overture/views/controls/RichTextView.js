@@ -128,6 +128,11 @@ var RichTextView = NS.Class({
                 doc.write( '<!DOCTYPE html><title></title>' );
                 doc.close();
             }
+            // doc.close() can cause a re-entrant load event in some browsers,
+            // such as IE9.
+            if ( richTextView.get( 'editor' ) ) {
+                return;
+            }
             // Create Squire instance
             var editor = new Squire( doc );
             editor.didError = NS.RunLoop.didError;
