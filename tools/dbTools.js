@@ -48,7 +48,7 @@ function sort( dbFile ) {
         var data = {},
             attr = /^([A-Z0-9_]+)\.(caption|description|scope)=(".+")/gm,
             match, entry;
-        
+
         while ( match = attr.exec( dbContents ) ) {
             entry = data[ match[1] ] || ( data[ match[1] ] = {} );
             entry[ match[2] ] = match[3];
@@ -159,7 +159,7 @@ function dbToPo ( dbFile, poFile ) {
             caption = /^([A-Z0-9_]+)\.caption="(.*?)"\n/gm,
             description = /^([A-Z0-9_]+)\.description="(.*?)"\n/gm,
             result, stringData;
-        
+
         while ( result = caption.exec( data ) ) {
             stringData = poData[ result[1] ] || ( poData[ result[1] ] = {} );
             stringData.original = result[2];

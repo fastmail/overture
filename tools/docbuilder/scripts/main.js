@@ -9,7 +9,7 @@
                 separator + string + separator ) :
             that.indexOf( string ) ) > -1;
     };
-    
+
     var hasClass = function ( el, klass ) {
         return contains( el.className, klass, ' ' );
     };
@@ -31,14 +31,14 @@
         }
         return el;
     };
-        
+
     var setPreference = function ( name, value ) {
         var ls = window.localStorage;
         if ( ls ) {
             ls.setItem( name, JSON.stringify( value ) );
         }
     };
-    
+
     var getPreference = function ( name, theDefault ) {
         var ls = window.localStorage;
         if ( ls ) {
@@ -51,7 +51,7 @@
         }
         return theDefault;
     };
-    
+
     var setClassForPref = function ( name, theDefault ) {
         if ( getPreference( name, theDefault ) ) {
             addClass( document.documentElement, name );
@@ -59,11 +59,11 @@
             removeClass( document.documentElement, name );
         }
     };
-    
+
     setClassForPref( 'hidePrivate', false );
     setClassForPref( 'hideProtected', false );
     setClassForPref( 'hideCode', false );
-    
+
     var bindPrefToCheckbox = function ( name ) {
         // Invert for 'Show' rather than 'hide'.
         var value = !getPreference( name );
@@ -74,11 +74,11 @@
             setClassForPref( name );
         }, false );
     };
-    
+
     window.addEventListener( 'load', function () {
         bindPrefToCheckbox( 'hidePrivate' );
         bindPrefToCheckbox( 'hideProtected' );
         bindPrefToCheckbox( 'hideCode' );
     }, false );
-    
+
 }() );

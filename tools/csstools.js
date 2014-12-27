@@ -10,7 +10,7 @@ var CleanCSS = {
     fuchsia: '#f0f',
     yellow: '#ff0'
   },
-  
+
   process: function(data) {
     var specialComments = [],
       contentBlocks = [];
@@ -19,13 +19,13 @@ var CleanCSS = {
     var replace = function(pattern, replacement) {
       data = data.replace(pattern, replacement);
     };
-    
+
     // strip comments one by one
     for (var end = 0; end < data.length; ) {
       var start = data.indexOf('/*', end);
       end = data.indexOf('*/', start);
       if (start == -1 || end == -1) break;
-      
+
       if (data[start + 2] == '!') {
         // in case of special comments, replace them with a placeholder
         specialComments.push(data.substring(start, end + 2));
@@ -35,12 +35,12 @@ var CleanCSS = {
       }
       end = start;
     }
-    
+
     // replace content: with a placeholder
     for (var end = 0; end < data.length; ) {
       var start = data.indexOf('content', end);
       if (start == -1) break;
-      
+
       var wrapper = /[^ :]/.exec(data.substring(start + 7))[0];
       if (/['"]/.test(wrapper) == false) {
         end = start + 7;
@@ -49,12 +49,12 @@ var CleanCSS = {
 
       var firstIndex = data.indexOf(wrapper, start);
       var lastIndex = data.indexOf(wrapper, firstIndex + 1);
-      
+
       contentBlocks.push(data.substring(firstIndex, lastIndex + 1));
       data = data.substring(0, firstIndex) + '__CSSCONTENT__' + data.substring(lastIndex + 1);
       end = lastIndex + 1;
     }
-    
+
     replace(/;\s*;+/g, ';') // whitespace between semicolons & multiple semicolons
     replace(/\n/g, '') // line breaks
     replace(/\s+/g, ' ') // multiple whitespace
@@ -107,11 +107,11 @@ var CleanCSS = {
     replace(/\*([\.#:\[])/g, '$1') // remove universal selector when not needed (*#id, *.class etc)
     replace(/ {/g, '{') // whitespace before definition
     replace(/\} /g, '}') // whitespace after definition
-    
+
     // Get the special comments && content back
     replace(/__CSSCOMMENT__/g, function() { return specialComments.shift(); });
     replace(/__CSSCONTENT__/g, function() { return contentBlocks.shift(); });
-    
+
     return data.trim() // trim spaces at beginning and end
   }
 };
@@ -152,7 +152,7 @@ function pathOf ( src, file ) {
 function processFiles ( files, processFn, callback ) {
     var results = [],
         remaining = files.length;
-    
+
     files.forEach( function( src, i ) {
         fs.readFile( src, 'utf8', function ( error, data ) {
             if ( error ) {
@@ -172,7 +172,7 @@ function processFiles ( files, processFn, callback ) {
 function inlineImportsAndImages( src, css, callback ) {
     var importRegExp = /@import\s*['"](.*)["']\s*;\n?/g,
         urlRegExp = /url\(\s*"?(.*?)"?\s*\)/g;
-    
+
     css = css.replace( urlRegExp, function ( _, url ) {
         var importSrc = pathOf( src, url );
         var data = fs.readFileSync( importSrc );
@@ -213,7 +213,7 @@ function findDependencies ( src, css, callback ) {
     var dependencies = [ src ];
     var match, importSrc, lastIndex;
     importRegExp.lastIndex = 0;
-    
+
     while ( match = importRegExp.exec( css ) ) {
         importSrc = pathOf( src, match[1] );
         lastIndex = importRegExp.lastIndex;
@@ -221,7 +221,7 @@ function findDependencies ( src, css, callback ) {
             importSrc, fs.readFileSync( importSrc, 'utf8' ) ) );
         importRegExp.lastIndex = lastIndex;
     }
-    
+
     callback && callback( dependencies );
 
     return dependencies;
@@ -243,10 +243,10 @@ function emround ( css ) {
 exports.fromLess = function ( css, callback ) {
     css = css.replace( /(expression\([^;]+);/g, 'e("$1");' )
              .replace( /filter:\s*(alpha\([^;]+);/g, 'filter: e("$1");' );
-    less.render( css, function ( error, css ) {
+    less.render( css, function ( error, output ) {
         if ( !error ) {
-            css = emround( css );
-            callback( css );
+            css = emround( output.css );
+            callback( output.css );
         } else {
             console.log( 'The LESS error is: ', error );
         }
