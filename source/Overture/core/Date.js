@@ -20,19 +20,6 @@ var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 var dateFormat = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+\-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
 Date.extend({
-    /**
-        Function: Date.now
-
-        ECMAScript 5 Date.now method. Returns the current time as the number of
-        milliseconds since 1 January 1970.
-
-        Returns:
-            {Number} The current time.
-    */
-    now: function () {
-        return +( new Date() );
-    },
-
     fromJSON: function ( value ) {
         /*
             /^

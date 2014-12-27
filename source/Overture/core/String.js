@@ -160,7 +160,7 @@ String.implement({
     },
 
     /**
-        Method: String#capitalise
+        Method: String#camelCase
 
         Returns this string with any sequence of a hyphen followed by a
         lower-case letter replaced by the capitalised letter.
@@ -208,24 +208,6 @@ String.implement({
             ( separator + this + separator ).indexOf(
                 separator + string + separator ) :
             this.indexOf( string ) ) > -1;
-    },
-
-    /**
-        Method: String#trim
-
-        Returns the string with any white space at the beginning and end
-        removed. Implementation by Steven Levithan:
-        <http://blog.stevenlevithan.com/archives/faster-trim-javascript>
-
-        Returns:
-            {String} The trimmed string.
-    */
-    trim: function () {
-        var str = this.replace( /^\s\s*/, '' ),
-            ws = /\s/,
-            i = str.length;
-        while ( ws.test( str.charAt( i -= 1 ) ) ) {/* Empty! */}
-        return str.slice( 0, i + 1 );
     },
 
     /**
