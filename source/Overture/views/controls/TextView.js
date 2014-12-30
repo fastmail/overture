@@ -343,12 +343,20 @@ var TextView = NS.Class({
     redrawTextHeight: function () {
         var control = this._domControl,
             style = control.style,
+            scrollView = this.getParent( NS.ScrollView ),
             scrollHeight;
+        // Set to auto to collapse it back to one line, otherwise it would
+        // never shrink if you delete text.
         style.height = 'auto';
         scrollHeight = control.scrollHeight;
         // Presto returns 0 immediately after appending to doc.
         if ( scrollHeight ) {
             style.height = scrollHeight + 'px';
+        }
+        // Collapsing the height will mess with the scroll, so make sure we
+        // reset the scroll position back to what it was.
+        if ( scrollView ) {
+            scrollView.redrawScroll();
         }
     },
 
