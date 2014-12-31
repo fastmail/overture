@@ -51,6 +51,8 @@ var RichTextView = NS.Class({
     isFocussed: false,
     isExpanding: false,
 
+    showToolbar: !NS.UA.isIOS,
+
     editor: null,
 
     styles: null,
@@ -115,7 +117,11 @@ var RichTextView = NS.Class({
         return RichTextView.parent.willLeaveDocument.call( this );
     },
 
-    className: 'v-RichText' + ( NS.UA.isIOS ? ' v-RichText--iOS' : '' ),
+    className: function () {
+        return 'v-RichText' +
+            ( NS.UA.isIOS ? ' v-RichText--iOS' : '' ) +
+            ( this.get( 'showToolbar' ) ? '' : ' v-RichText--noToolbar' );
+    }.property(),
 
     draw: function ( layer, Element, el ) {
         var richTextView = this;
@@ -165,7 +171,7 @@ var RichTextView = NS.Class({
         iframe.addEventListener( 'load', onload, false );
 
         return [
-            NS.UA.isIOS ? null : this.get( 'toolbarView' ),
+            this.get( 'showToolbar' ) ? this.get( 'toolbarView' ) : null,
             el( 'div.v-RichText-content', [ iframe ] )
         ];
     },
