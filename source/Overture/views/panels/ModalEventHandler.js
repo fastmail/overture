@@ -63,6 +63,13 @@ var ModalEventHandler = NS.Class({
         event.seenByModal = true;
     }.on( 'click', 'mousedown', 'mouseup', 'tap' ),
 
+    // If the user clicks on a scroll bar to scroll (I know, who does that
+    // these days right?), we don't want to count that as a click. So cancel
+    // the seen mousedown on scroll events.
+    handleScroll: function () {
+        this._seenMouseDown = false;
+    }.on( 'scroll' ),
+
     handleKeys: function ( event ) {
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.stopPropagation();
