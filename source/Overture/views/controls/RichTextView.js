@@ -398,7 +398,7 @@ var RichTextView = NS.Class({
                 }
             }),
             image: new NS.FileButtonView({
-                type: 'v-Button--iconOnly',
+                type: 'v-FileButton v-Button--iconOnly',
                 icon: 'icon-image',
                 label: NS.loc( 'Insert Image' ),
                 tooltip: NS.loc( 'Insert Image' ),

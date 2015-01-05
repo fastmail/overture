@@ -139,6 +139,7 @@ var FileButtonView = NS.Class({
         if ( event.target === input ) {
             input.parentNode.replaceChild(
                 this._domControl = NS.Element.create( 'input', {
+                    className: 'v-FileButton-input',
                     type: 'file',
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
