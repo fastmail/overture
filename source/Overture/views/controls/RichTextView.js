@@ -84,7 +84,7 @@ var RichTextView = NS.Class({
     },
 
     didEnterDocument: function () {
-        if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
+        if ( this.get( 'showToolbar' ) && this.get( 'isExpanding' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.addObserverForKey(
@@ -95,7 +95,7 @@ var RichTextView = NS.Class({
     },
 
     willLeaveDocument: function () {
-        if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
+        if ( this.get( 'showToolbar' ) && this.get( 'isExpanding' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.removeObserverForKey(
