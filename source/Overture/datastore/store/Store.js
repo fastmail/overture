@@ -279,7 +279,7 @@ var Store = NS.Class({
     setIdForStoreKey: function ( storeKey, id ) {
         var Type = this._skToType[ storeKey ],
             typeId = guid( Type ),
-            idPropKey = Type.primaryKey,
+            idPropKey = Type.primaryKey || 'id',
             idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             _skToId = this._typeToSkToId[ typeId ],
             _idToSk = this._typeToIdToSk[ typeId ],
@@ -579,7 +579,7 @@ var Store = NS.Class({
                 idPropKey, idAttrKey;
             entry = changes[ typeId ];
             if ( !entry ) {
-                idPropKey = Type.primaryKey;
+                idPropKey = Type.primaryKey || 'id';
                 idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
                 entry = changes[ typeId ] = {
                     primaryKey: idAttrKey,
@@ -1528,7 +1528,7 @@ var Store = NS.Class({
     */
     sourceDidFetchRecords: function ( Type, records, _all ) {
         var l = records.length,
-            idPropKey = Type.primaryKey,
+            idPropKey = Type.primaryKey || 'id',
             idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             now = Date.now(),
             seen = {},
@@ -1639,7 +1639,7 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            idPropKey = Type.primaryKey,
+            idPropKey = Type.primaryKey || 'id',
             idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             id, storeKey, status, update, newId;
 
