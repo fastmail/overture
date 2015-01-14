@@ -1118,7 +1118,7 @@ var Store = NS.Class({
         if there's a server state update to process.
 
         Parameters:
-            Type     - {O.Class} The record type.
+            Type - {O.Class} The record type.
     */
     _checkServerStatus: function ( Type ) {
         var typeId = guid( Type ),
@@ -1759,8 +1759,8 @@ var Store = NS.Class({
         Method: O.Store#sourceDidDestroyRecords
 
         Callback made by the <O.Source> object associated with this store when
-        the source has destroyed records (not in response to a request by the
-        client).
+        the source has destroyed records (not in response to a commit request
+        by the client).
 
         Parameters:
             Type   - {O.Class} The record type.
@@ -1826,17 +1826,18 @@ var Store = NS.Class({
         Method: O.Store#sourceDidNotCreate
 
         Callback made by the <O.Source> object associated with this store when
-        the source fails to commit the creation of some records as requested by
-        a call to <O.Source#commitChanges>.
+        the source does not commit the creation of some records as requested
+        by a call to <O.Source#commitChanges> (usually due to a precondition
+        fail, such as the server being in a different state to the client).
 
         This is presumed a temporary failure and the store will try again next
         time <O.Store#commitChanges> is called. If the failure is permanent, the
         storeKey should instead by included in a callback to
-        <O.Store#sourceDidError>.
+        <O.Store#sourceDidError> instead.
 
         Parameters:
             storeKeys - {String[]} The list of store keys of records for
-                        which the create commit failed.
+                        which the create was not committed.
 
         Returns:
             {O.Store} Returns self.
@@ -1906,17 +1907,18 @@ var Store = NS.Class({
         Method: O.Store#sourceDidNotUpdate
 
         Callback made by the <O.Source> object associated with this store when
-        the source fails to commit the updates of some records as requested by
-        a call to <O.Source#commitChanges>.
+        the source does not commit the updates to some records as requested
+        by a call to <O.Source#commitChanges> (usually due to a precondition
+        fail, such as the server being in a different state to the client).
 
         This is presumed a temporary failure and the store will try again next
         time <O.Store#commitChanges> is called. If the failure is permanent, the
         storeKey should instead by included in a callback to
-        <O.Store#sourceDidError>.
+        <O.Store#sourceDidError> instead.
 
         Parameters:
             storeKeys - {String[]} The list of store keys of records for
-                        which the update commit failed.
+                        which the update was not committed.
 
         Returns:
             {O.Store} Returns self.
@@ -1993,17 +1995,18 @@ var Store = NS.Class({
         Method: O.Store#sourceDidNotDestroy
 
         Callback made by the <O.Source> object associated with this store when
-        the source fails to commit the destruction of some records as requested
-        by a call to <O.Source#commitChanges>.
+        the source does not commit the destruction of some records as requested
+        by a call to <O.Source#commitChanges> (usually due to a precondition
+        fail, such as the server being in a different state to the client).
 
         This is presumed a temporary failure and the store will try again next
         time <O.Store#commitChanges> is called. If the failure is permanent, the
         storeKey should instead by included in a callback to
-        <O.Store#sourceDidError>.
+        <O.Store#sourceDidError> instead.
 
         Parameters:
             storeKeys - {String[]} The list of store keys of records for
-                        which the destruction commit failed.
+                        which the destruction was not committed.
 
         Returns:
             {O.Store} Returns self.
