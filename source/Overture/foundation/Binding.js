@@ -152,7 +152,7 @@ var Binding = NS.Class({
     */
     init: function ( mixin ) {
         this.isConnected = false;
-        this.isSuspended = false;
+        this.isSuspended = true;
         this.isNotInSync = true;
         this.willSyncForward = true;
 
@@ -187,8 +187,8 @@ var Binding = NS.Class({
     */
     destroy: function () {
         this.disconnect();
-        // Ignore any remaining queued sync() or connect() calls.
-        this.isSuspended = this.isConnected = true;
+        // Ignore any remaining queued connect() calls.
+        this.isConnected = true;
     },
 
     /**
@@ -324,6 +324,8 @@ var Binding = NS.Class({
     connect: function () {
         if ( this.isConnected ) { return this; }
 
+        this.isSuspended = false;
+
         // Resolve objects:
         _resolveRootAndPath(
             this, 'from', this._fromRoot || this._toRoot, this._fromPath );
@@ -377,6 +379,7 @@ var Binding = NS.Class({
         }
 
         this.isConnected = false;
+        this.isSuspended = true;
         this.isNotInSync = true;
         this.willSyncForward = true;
 
