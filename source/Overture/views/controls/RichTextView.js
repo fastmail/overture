@@ -158,6 +158,8 @@ var RichTextView = NS.Class({
                 .addEventListener( 'dragleave', richTextView )
                 .addEventListener( 'dragover', richTextView )
                 .addEventListener( 'drop', richTextView )
+                .addEventListener( 'paste', richTextView )
+                .addEventListener( 'willPaste', richTextView )
                 .addEventListener( 'select', richTextView )
                 .addEventListener( 'pathChange', richTextView )
                 .addEventListener( 'undoStateChange', richTextView )
@@ -253,6 +255,19 @@ var RichTextView = NS.Class({
             this.insertView( toolbarView, null, 'top' );
         }
     },
+
+    _saveScroll: function () {
+        var scrollView = this.getParent( NS.ScrollView );
+        if ( scrollView ) {
+            this._scrollY = scrollView.get( 'scrollTop' )
+        }
+    }.on( 'paste' ),
+    _restoreScroll: function () {
+        var scrollView = this.getParent( NS.ScrollView );
+        if ( scrollView ) {
+            scrollView.scrollTo( 0, this._scrollY );
+        }
+    }.on( 'willPaste' ),
 
     toolbarConfig: {
         left: [
