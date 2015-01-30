@@ -85,11 +85,11 @@ var SplitViewController = NS.Class({
 
         The layout properties to use to position the top/left pane.
     */
-    topLeftLayout: function () {
+    topLeftLayout: function ( layout ) {
         var flexDir = this.get( 'direction' ),
             flexPane = this.get( 'flex' ),
             staticLength = this.get( 'staticPaneLength' );
-        return {
+        return layout || {
             top: 0,
             left: 0,
             right: ( flexDir === VERTICAL &&
@@ -109,11 +109,11 @@ var SplitViewController = NS.Class({
 
         The layout properties to use to position the bottom/right pane.
     */
-    bottomRightLayout: function () {
+    bottomRightLayout: function ( layout ) {
         var flexDir = this.get( 'direction' ),
             flexPane = this.get( 'flex' ),
             staticLength = this.get( 'staticPaneLength' );
-        return {
+        return layout || {
             bottom: 0,
             right: 0,
             left: ( flexDir === VERTICAL &&
