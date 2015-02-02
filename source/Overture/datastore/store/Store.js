@@ -60,7 +60,7 @@ var set = function ( status ) {
 };
 
 var filter = function ( filter, storeKey ) {
-    return filter( this._skToData[ storeKey ], this );
+    return filter( this._skToData[ storeKey ], this, storeKey );
 };
 var sort = function ( sort, a, b ) {
     var _skToData = this._skToData,
