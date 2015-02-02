@@ -101,19 +101,7 @@ var Source = NS.Class({
 
         Commits a set of creates/updates/destroys to the source. These are
         specified in a single object, which has record type names as keys and an
-        object with create/update/destroy properties as values. Those properties
-        have the following types:
-
-        create  - `[ [ storeKeys... ], [ dataHashes... ] ]`
-        update  - `[ [ storeKeys... ], [ dataHashes... ], [changedMap... ] ]`
-        destroy - `[ [ storeKeys... ], [ ids... ] ]`
-
-        Each subarray inside the 'create' array should be of the same length,
-        with the store key at position 0 in the first array, for example,
-        corresponding to the data object at position 0 in the second. The same
-        applies to the update and destroy arrays. The type object may also have
-        a state property if the server uses this to keep in sync with the
-        client.
+        object with create/update/destroy properties as values.
 
         A changedMap, is a map of attribute names to a boolean value indicating
         whether that value has actually changed. Any properties in the data
@@ -123,19 +111,20 @@ var Source = NS.Class({
 
             source.commitChanges({
                 MyType: {
-                    create: [
-                        [ "sk1", "sk2" ],
-                        [ {attr: val, attr2: val2 ...}, {...} ]
-                    ],
-                    update: [
-                        [ "sk3", "sk4" ],
-                        [ {id: "id3", attr3: val3, attr4: val4 ...}, {...} ],
-                        [ {attr3: true } ]
-                    ],
-                    destroy: [
-                        [ "sk5", "sk6" ],
-                        [ "id5", "id6" ]
-                    ],
+                    primaryKey: "id",
+                    create: {
+                        storeKeys: [ "sk1", "sk2" ],
+                        records: [{ attr: val, attr2: val2 ...}, {...}]
+                    },
+                    update: {
+                        storeKeys: [ "sk3", "sk4", ... ],
+                        records: [{ id: "id3", attr: val ... }, {...}],
+                        changes: [{ attr: true }, ... ]
+                    },
+                    destroy: {
+                        storeKeys: [ "sk5", "sk6" ],
+                        ids: [ "id5", "id6" ]
+                    },
                     state: "i425m515233"
                 },
                 MyOtherType: {
