@@ -37,8 +37,6 @@ var handleProps = {
     query: 'queryFetchers'
 };
 
-var idCounter = 0;
-
 /**
     Class: O.RPCSource
 
@@ -201,20 +199,6 @@ var RPCSource = NS.Class({
     }.on( 'io:end' ),
 
     /**
-        Method: O.RPCSource#generateCallId
-
-        Generate an ID for a message call, in order to match it with the
-        response.
-
-        Returns:
-            {String} A unique ID for the method call
-    */
-    generateCallId: function () {
-        idCounter += 1;
-        return 'call-' + idCounter;
-    },
-
-    /**
         Method: O.RPCSource#callMethod
 
         Add a method call to be sent on the next request and trigger a request
@@ -227,7 +211,7 @@ var RPCSource = NS.Class({
                        request completes successfully.
     */
     callMethod: function ( name, args, callback ) {
-        var id = this.generateCallId();
+        var id = this._sendQueue.length + '';
         this._sendQueue.push([ name, args || {}, id ]);
         if ( callback ) {
             this._callbackQueue.push([ id, callback ]);
@@ -283,14 +267,16 @@ var RPCSource = NS.Class({
     receive: function ( data, callbacks, remoteCalls ) {
         var handlers = this.response,
             i, l, response, handler,
-            j, remoteCallsLength,
+            remoteCallsLength,
             tuple, id, callback, request;
         for ( i = 0, l = data.length; i < l; i += 1 ) {
             response = data[i];
             handler = handlers[ response[0] ];
             if ( handler ) {
+                id = response[2];
+                request = remoteCalls[+id];
                 try {
-                    handler.call( this, response[1] );
+                    handler.call( this, response[1], request[0], request[1] );
                 } catch ( error ) {
                     NS.RunLoop.didError( error );
                 }
@@ -298,18 +284,13 @@ var RPCSource = NS.Class({
         }
         // Invoke after bindings to ensure all data has propagated through.
         if ( l = callbacks.length ) {
-            j = 0;
             remoteCallsLength = remoteCalls.length;
             for ( i = 0; i < l; i += 1 ) {
                 tuple = callbacks[i];
                 id = tuple[0];
                 callback = tuple[1];
                 if ( id ) {
-                    while ( remoteCalls[j][2] !== id &&
-                            j < remoteCallsLength ) {
-                        j += 1;
-                    }
-                    request = remoteCalls[j];
+                    request = remoteCalls[+id];
                     /* jshint ignore:start */
                     response = data.filter( function ( call ) {
                         return call[2] === id;
