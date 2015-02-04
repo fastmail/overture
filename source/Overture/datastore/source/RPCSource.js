@@ -42,23 +42,25 @@ var handleProps = {
 
     Extends: O.Source
 
-    An RPCSource makes remote procedure calls via a JSON protocol, allowing
-    multiple fetches and commits to be batched into a single HTTP request for
-    efficiency, with requests for the same type of object grouped together.
+    An RPCSource communicates with a server using a JSON protocol conformant
+    with the [JMAP](http://jmap.io) standard, allowing multiple fetches and
+    commits to be batched into a single HTTP request for efficiency, with
+    requests for the same type of object grouped together.
 
     A request consists of a JSON array, with each element in the array being
-    itself an array of two elements, the first a method name and the second an
-    object consisting of named arguments:
+    itself an array of three elements, the first a method name, the second an
+    object consisting of named arguments, and the third a tag used to associate
+    the request with the response:
 
         [
             [ 'method', {
                 arg1: 'foo',
                 arg2: 'bar'
-            }],
+            }, '#1' ],
             [ 'method2', {
                 foo: [ 'an', 'array' ],
                 bar: 42
-            }]
+            }, '#2' ]
         ]
 
     The response is expected to be in the same format, with methods from
@@ -545,19 +547,21 @@ var RPCSource = NS.Class({
 
             source.commitChanges({
                 MyType: {
-                    create: [
-                        [ 'sk1', 'sk2' ],
-                        [ {attr: val, attr2: val2 ...}, {...} ]
-                    ],
-                    update: [
-                        [ 'sk3', 'sk4' ],
-                        [ {id: 'id3', attr3: val3, attr4: val4 ...}, {...} ],
-                        [ {attr3: true } ]
-                    ],
-                    destroy: [
-                        [ 'sk5', 'sk6' ],
-                        [ 'id5', 'id6' ]
-                    ]
+                    primaryKey: "id",
+                    create: {
+                        storeKeys: [ "sk1", "sk2" ],
+                        records: [{ attr: val, attr2: val2 ...}, {...}]
+                    },
+                    update: {
+                        storeKeys: [ "sk3", "sk4", ... ],
+                        records: [{ id: "id3", attr: val ... }, {...}],
+                        changes: [{ attr: true }, ... ]
+                    },
+                    destroy: {
+                        storeKeys: [ "sk5", "sk6" ],
+                        ids: [ "id5", "id6" ]
+                    },
+                    state: "i425m515233"
                 },
                 MyOtherType: {
                     ...
