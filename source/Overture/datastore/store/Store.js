@@ -167,7 +167,7 @@ var Store = NS.Class({
 
         this._commitCallbacks = [];
 
-        O.extend( this, mixin );
+        NS.extend( this, mixin );
 
         mixin.source.set( 'store', this );
     },
@@ -567,7 +567,7 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
-            storeKey, data, changed, id, status, entry,
+            storeKey, data, changed, id, status, create, update, destroy,
             newSkToChanged = {},
             newDestroyed = {},
             changes = {},
@@ -576,8 +576,8 @@ var Store = NS.Class({
 
         var getEntry = function ( Type ) {
             var typeId = guid( Type ),
-                idPropKey, idAttrKey;
-            entry = changes[ typeId ];
+                idPropKey, idAttrKey,
+                entry = changes[ typeId ];
             if ( !entry ) {
                 idPropKey = Type.primaryKey || 'id';
                 idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
@@ -595,9 +595,9 @@ var Store = NS.Class({
 
         for ( storeKey in _created ) {
             data = _skToData[ storeKey ];
-            entry = getEntry( _skToType[ storeKey ] ).create;
-            entry.storeKeys.push( storeKey );
-            entry.records.push( data );
+            create = getEntry( _skToType[ storeKey ] ).create;
+            create.storeKeys.push( storeKey );
+            create.records.push( data );
             this.setCommitting( storeKey );
         }
         for ( storeKey in _skToChanged ) {
@@ -610,10 +610,10 @@ var Store = NS.Class({
             }
             _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
             delete _skToCommitted[ storeKey ];
-            entry = getEntry( _skToType[ storeKey ] ).update;
-            entry.storeKeys.push( storeKey );
-            entry.records.push( data );
-            entry.changes.push( changed );
+            update = getEntry( _skToType[ storeKey ] ).update;
+            update.storeKeys.push( storeKey );
+            update.records.push( data );
+            update.changes.push( changed );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
         for ( storeKey in _destroyed ) {
@@ -624,9 +624,9 @@ var Store = NS.Class({
                 newDestroyed[ storeKey ] = 1;
                 continue;
             }
-            entry = getEntry( _skToType[ storeKey ] ).destroy;
-            entry.storeKeys.push( storeKey );
-            entry.ids.push( id );
+            destroy = getEntry( _skToType[ storeKey ] ).destroy;
+            destroy.storeKeys.push( storeKey );
+            destroy.ids.push( id );
             this.setStatus( storeKey, (DESTROYED|COMMITTING) );
         }
 
