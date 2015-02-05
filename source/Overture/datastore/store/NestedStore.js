@@ -341,18 +341,23 @@ var NestedStore = NS.Class({
 
     // === A nested store is not directly connected to a source ================
 
-    sourceDidFetchAllRecords: null,
     sourceDidFetchRecords: null,
-    sourceHasUpdatesForRecords: null,
-    sourceDidFetchUpdates: null,
+    sourceDidFetchPartialRecords: null,
     sourceCouldNotFindRecords: null,
+
+    sourceDidFetchUpdates: null,
+    sourceDidModifyRecords: null,
     sourceDidDestroyRecords: null,
+
+    sourceCommitDidChangeState: null,
+
     sourceDidCommitCreate: null,
     sourceDidNotCreate: null,
     sourceDidCommitUpdate: null,
     sourceDidNotUpdate: null,
     sourceDidCommitDestroy: null,
-    sourceDidNotDestroy: null
+    sourceDidNotDestroy: null,
+    sourceDidError: null
 });
 
 NS.NestedStore = NestedStore;

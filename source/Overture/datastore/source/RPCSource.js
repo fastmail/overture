@@ -814,6 +814,20 @@ var RPCSource = NS.Class({
     */
     queryFetchers: {},
 
+    didFetch: function ( Type, args, isAll ) {
+        var store = this.get( 'store' );
+        store.sourceDidFetchRecords( Type, args.list, args.state, isAll );
+        if ( args.notFound ) {
+            store.sourceCouldNotFindRecords( Type, args.notFound );
+        }
+    },
+
+    didFetchUpdates: function ( Type, args ) {
+        this.get( 'store' )
+            .sourceDidFetchUpdates( Type, args.changed, args.removed,
+                args.oldState, args.newState );
+    },
+
     didCommit: function ( Type, args ) {
         var store = this.get( 'store' ),
             list;
@@ -843,18 +857,6 @@ var RPCSource = NS.Class({
             store.sourceCommitDidChangeState(
                 Type, args.oldState, args.newState );
         }
-    },
-
-    didFetchAll: function ( Type, args ) {
-        this.get( 'store' ).sourceDidFetchAllRecords( Type,
-            args.list, args.state );
-    },
-
-    didFetchAllUpdates: function ( Type, args ) {
-        this.get( 'store' ).sourceDidFetchAllRecordUpdates( Type,
-            args.added, args.changed, args.removed,
-            args.oldState, args.newState
-        );
     },
 
     /**

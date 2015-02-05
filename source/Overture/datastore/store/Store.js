@@ -1409,77 +1409,6 @@ var Store = NS.Class({
     // === Source callbacks ====================================================
 
     /**
-        Method: O.Store#sourceDidFetchAllRecords
-
-        Callback made by the <O.Source> object associated with this store when
-        it fetches all records of a particular type. Any records previously
-        loaded but not in the new set will be presumed destroyed by the server.
-
-        Parameters:
-            Type    - {O.Class} The record type.
-            records - {Object[]} Array of data objects.
-            state   - {String} (optional) State of server for this type.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    sourceDidFetchAllRecords: function ( Type, records, state ) {
-        var typeId = guid( Type );
-        this.sourceDidFetchRecords( Type, records, true );
-        if ( state ) {
-            this._typeToClientState[ typeId ] = state;
-        }
-        this._typeToStatus[ typeId ] = READY;
-        NS.RunLoop.queueFn( 'middle',
-            this.liveQueriesAreReady.bind( this, Type ) );
-        return this;
-    },
-
-    /**
-        Method: O.Store#sourceDidFetchAllRecordUpdates
-
-        Callback made by the <O.Source> object associated with this store when
-        it fetches all changes that have been made to records of a particular
-        type since the client last did a fetch.
-
-        Parameters:
-            Type     - {O.Class} The record type.
-            added    - {Array} List of data objects for records added to the
-                       source since oldState.
-            changed  - {Object} A map of id to data object or partial data
-                       object (with just the fields that have changed) for
-                       records which have been modified in the source since
-                       oldState.
-            removed  - {Array} List of ids for records which have been destroyed
-                       in the store since oldState.
-            oldState - {String} The state these changes are from.
-            newState - {String} The state these changes are to.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    sourceDidFetchAllRecordUpdates:
-            function ( Type, added, changed, removed, oldState, newState ) {
-        var typeId = guid( Type );
-        this._typeToStatus[ typeId ] &= ~LOADING;
-        if ( this._typeToClientState[ typeId ] === oldState ) {
-            if ( added ) {
-                this.sourceDidFetchRecords( Type, added );
-            }
-            if ( changed ) {
-                this.sourceDidFetchUpdates( Type, changed );
-            }
-            if ( removed ) {
-                this.sourceDidDestroyRecords( Type, removed );
-            }
-            this._typeToClientState[ typeId ] = newState;
-            this._checkServerStatus( Type, newState );
-        } else {
-            this.sourceStateDidChange( Type, newState );
-        }
-        return this;
-    },
-
         Method: O.Store#sourceDidFetchRecords
 
         Callback made by the <O.Source> object associated with this store when
@@ -1488,12 +1417,19 @@ var Store = NS.Class({
         Parameters:
             Type    - {O.Class} The record type.
             records - {Object[]} Array of data objects.
+            state   - {String} (optional) The state of the record type on the
+                      server.
+            isAll   - {Boolean} This is all the records of this type on the
+                      server.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchRecords: function ( Type, records, _all ) {
-        var l = records.length,
+    sourceDidFetchRecords: function ( Type, records, state, isAll ) {
+        var typeId = guid( Type ),
+            _typeToClientState = this._typeToClientState,
+            oldState,
+            l = records.length,
             idPropKey = Type.primaryKey || 'id',
             idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
             now = Date.now(),
@@ -1533,7 +1469,7 @@ var Store = NS.Class({
             }
         }
 
-        if ( _all ) {
+        if ( isAll ) {
             var _idToSk = this._typeToIdToSk[ guid( Type ) ],
                 destroyed = [];
             for ( id in _idToSk ) {
@@ -1546,41 +1482,28 @@ var Store = NS.Class({
             }
         }
 
-        return this.sourceDidFetchUpdates( Type, updates );
-    },
+        this.sourceDidFetchPartialRecords( Type, updates );
 
-    /**
-        Method: O.Store#sourceHasUpdatesForRecords
-
-        Callback made by the <O.Source> object associated with this store when
-        some records may be out of date.
-
-        Parameters:
-            Type   - {O.Class} The record type.
-            idList - {String[]} Array of record ids for records of the
-                     given type which have updates available on the server.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    sourceHasUpdatesForRecords: function ( Type, idList ) {
-        var _skToStatus = this._skToStatus,
-            _idToSk = this._typeToIdToSk[ guid( Type ) ] || {},
-            l = idList.length,
-            storeKey, status;
-
-        while ( l-- ) {
-            storeKey = _idToSk[ idList[l] ];
-            status = _skToStatus[ storeKey ];
-            if ( status & READY ) {
-                this.setObsolete( storeKey );
+        if ( state ) {
+            oldState = _typeToClientState[ typeId ];
+            // If the state has changed, we need to fetch updates, but we can
+            // still load these records
+            if ( !isAll && oldState && oldState !== state ) {
+                this.sourceStateDidChange( Type, state );
+            } else {
+                _typeToClientState[ typeId ] = state;
             }
         }
+        this._typeToStatus[ typeId ] |= READY;
+
+        NS.RunLoop.queueFn( 'middle',
+            this.liveQueriesAreReady.bind( this, Type ) );
+
         return this;
     },
 
     /**
-        Method: O.Store#sourceDidFetchUpdates
+        Method: O.Store#sourceDidFetchPartialRecords
 
         Callback made by the <O.Source> object associated with this store when
         it has fetched some updates to records which may be loaded in the store.
@@ -1596,7 +1519,7 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchUpdates: function ( Type, updates ) {
+    sourceDidFetchPartialRecords: function ( Type, updates ) {
         var typeId = guid( Type ),
             _skToData = this._skToData,
             _skToStatus = this._skToStatus,
@@ -1616,6 +1539,15 @@ var Store = NS.Class({
 
             // Can't update an empty or destroyed record.
             if ( !( status & READY ) ) {
+                continue;
+            }
+
+            // If OBSOLETE, the record may have changed since the fetch was
+            // initiated. Since we don't want to overwrite any preemptive
+            // changes, ignore this data and fetch it again.
+            if ( status & OBSOLETE ) {
+                this.setStatus( storeKey, status & ~LOADING );
+                this.fetchData( storeKey );
                 continue;
             }
 
@@ -1716,6 +1648,73 @@ var Store = NS.Class({
                 }
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
+            }
+        }
+        return this;
+    },
+
+    // ---
+
+    /**
+        Method: O.Store#sourceDidFetchUpdates
+
+        Callback made by the <O.Source> object associated with this store when
+        it fetches the ids of all records of a particular type that have been
+        created/modified/destroyed of a particular since the client's state.
+
+        Parameters:
+            Type     - {O.Class} The record type.
+            changed  - {String[]} List of ids for records which have been
+                       added or changed in the store since oldState.
+            removed  - {String[]} List of ids for records which have been
+                       destroyed in the store since oldState.
+            oldState - {String} The state these changes are from.
+            newState - {String} The state these changes are to.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceDidFetchUpdates: function ( Type, changed, removed, oldState, newState ) {
+        var typeId = guid( Type );
+        if ( this._typeToClientState[ typeId ] === oldState ) {
+            if ( changed ) {
+                this.sourceDidModifyRecords( Type, changed );
+            }
+            if ( removed ) {
+                this.sourceDidDestroyRecords( Type, removed );
+            }
+            this._typeToClientState[ typeId ] = newState;
+        } else {
+            this.sourceStateDidChange( Type, newState );
+        }
+        return this;
+    },
+
+    /**
+        Method: O.Store#sourceDidModifyRecords
+
+        Callback made by the <O.Source> object associated with this store when
+        some records may be out of date.
+
+        Parameters:
+            Type   - {O.Class} The record type.
+            idList - {String[]} Array of record ids for records of the
+                     given type which have updates available on the server.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceDidModifyRecords: function ( Type, idList ) {
+        var _skToStatus = this._skToStatus,
+            _idToSk = this._typeToIdToSk[ guid( Type ) ] || {},
+            l = idList.length,
+            storeKey, status;
+
+        while ( l-- ) {
+            storeKey = _idToSk[ idList[l] ];
+            status = _skToStatus[ storeKey ];
+            if ( status & READY ) {
+                this.setObsolete( storeKey );
             }
         }
         return this;
