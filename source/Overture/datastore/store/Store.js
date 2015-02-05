@@ -41,9 +41,7 @@ var CANNOT_CREATE_EXISTING_RECORD_ERROR =
     SOURCE_COMMIT_CREATE_MISMATCH_ERROR =
         'O.Store Error: Source committed a create on a record not marked new',
     SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
-        'O.Store Error: Source commited a destroy on a record not marked destroyed',
-    SOURCE_COMMIT_ON_UNKNOWN_STATE  =
-        'O.Store Error: Source committed on unknown state';
+        'O.Store Error: Source commited a destroy on a record not marked destroyed';
 
 var guid = NS.guid;
 
@@ -68,6 +66,8 @@ var sort = function ( compare, a, b ) {
     return aIsFirst || ( ~~a.slice( 1 ) - ~~b.slice( 1 ) );
 };
 var isEqual = NS.isEqual;
+
+var invoke = NS.RunLoop.invoke.bind( NS.RunLoop );
 
 /**
     Class: O.Store
@@ -573,12 +573,14 @@ var Store = NS.Class({
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
             _skToRollback = this._skToRollback,
+            _typeToClientState = this._typeToClientState,
+            _typeToStatus = this._typeToStatus,
             storeKey, data, changed, id, status, create, update, destroy,
             newSkToChanged = {},
             newDestroyed = {},
             changes = {},
             commitCallbacks = this._commitCallbacks,
-            callback;
+            types = {};
 
         var getEntry = function ( Type ) {
             var typeId = guid( Type ),
@@ -592,12 +594,15 @@ var Store = NS.Class({
                     create: { storeKeys: [], records: [] },
                     update: { storeKeys: [], records: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
-                    state: this._typeToClientState[ typeId ]
+                    state: _typeToClientState[ typeId ]
                 };
-                this._typeToStatus[ typeId ] |= COMMITTING;
+                // TODO: should we not allow commits for a type if a commit
+                // is already in progress and the type has a state string?
+                _typeToStatus[ typeId ] |= COMMITTING;
+                types[ typeId ] = Type;
             }
             return entry;
-        }.bind( this );
+        };
 
         for ( storeKey in _created ) {
             data = _skToData[ storeKey ];
@@ -639,18 +644,15 @@ var Store = NS.Class({
         this._skToChanged = newSkToChanged;
         this._created = {};
         this._destroyed = newDestroyed;
+        this._commitCallbacks = [];
 
-        if ( commitCallbacks.length ) {
-            if ( commitCallbacks.length > 1 ) {
-                callback = commitCallbacks.forEach.bind(
-                    commitCallbacks, function ( fn ) { fn(); } );
-                this._commitCallbacks = [];
-            } else {
-                callback = commitCallbacks.pop();
+        this.source.commitChanges( changes, function () {
+            commitCallbacks.forEach( invoke );
+            for ( var typeId in types ) {
+                _typeToStatus[ typeId ] &= ~COMMITTING;
+                this._checkServerStatus( types[ typeId ] );
             }
-        }
-
-        this.source.commitChanges( changes, callback );
+        }.bind( this ) );
 
         return this.fire( 'didCommit' );
     },
@@ -1091,23 +1093,19 @@ var Store = NS.Class({
     sourceStateDidChange: function ( Type, newState ) {
         var typeId = guid( Type ),
             clientState = this._typeToClientState[ typeId ],
-            status = this._typeToStatus[ typeId ] || EMPTY,
             _remoteQueries = this._remoteQueries,
             l = _remoteQueries.length,
             remoteQuery;
 
-        if ( newState !== clientState ) {
-            if ( !( status & (LOADING|COMMITTING) ) ) {
+        if ( clientState && newState !== clientState ) {
+            if ( !( this._typeToStatus[ typeId ] & (LOADING|COMMITTING) ) ) {
                 while ( l-- ) {
                     remoteQuery = _remoteQueries[l];
                     if ( remoteQuery.get( 'Type' ) === Type ) {
                         remoteQuery.setObsolete();
                     }
                 }
-                // If all records fetched for this type, refresh.
-                if ( status & READY ) {
-                    this.fetchAll( Type, true );
-                }
+                this.fetchAll( Type, true );
             } else {
                 this._typeToServerState[ typeId ] = newState;
             }
@@ -1127,15 +1125,10 @@ var Store = NS.Class({
     */
     _checkServerStatus: function ( Type ) {
         var typeId = guid( Type ),
-            serverState;
-        if ( !( this._typeToStatus[ typeId ] & (LOADING|COMMITTING) ) ) {
             serverState = this._typeToServerState[ typeId ];
-            if ( serverState ) {
-                if ( serverState !== this._typeToServerState[ typeId ] ) {
-                    this.fetchAll( Type, true );
-                }
-                delete this._typeToServerState[ typeId ];
-            }
+        if ( serverState ) {
+            delete this._typeToServerState[ typeId ];
+            this.sourceStateDidChange( Type, serverState );
         }
     },
 
@@ -1158,11 +1151,16 @@ var Store = NS.Class({
             state = this._typeToClientState[ typeId ];
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
-            this.source.fetchAllRecords( Type, state );
+            this.source.fetchAllRecords( Type, state, function () {
+                this._typeToStatus[ typeId ] &= ~LOADING;
+                this._checkServerStatus( Type );
+            }.bind( this ));
             this._typeToStatus[ typeId ] = ( status | LOADING );
         }
         return this;
     },
+
+    // ---
 
     /**
         Method: O.Store#fetchData
@@ -1185,16 +1183,12 @@ var Store = NS.Class({
         var Type = this._skToType[ storeKey ],
             typeId = guid( Type ),
             id = this._typeToSkToId[ typeId ][ storeKey ];
-        // Ignore if all data for type is loading.
-        if ( this._typeToStatus[ typeId ] & LOADING ) {
-            return this;
-        }
         if ( status & EMPTY ) {
             this.source.fetchRecord( Type, id );
             this.setStatus( storeKey, (EMPTY|LOADING) );
         } else {
             this.source.refreshRecord( Type, id );
-            this.setLoading( storeKey );
+            this.setStatus( storeKey, ( status & ~OBSOLETE ) | LOADING );
         }
         return this;
     },
@@ -1486,46 +1480,6 @@ var Store = NS.Class({
         return this;
     },
 
-    /**
-        Method: O.Store#sourceCommitDidChangeState
-
-        Callback made by the <O.Source> object associated with this store when
-        it finishes committing a record type which uses state tokens to stay in
-        sync with the server.
-
-        Parameters:
-            Type     - {O.Class} The record type.
-            oldState - {String} The state before the commit.
-            newState - {String} The state after the commit.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    sourceCommitDidChangeState: function ( Type, oldState, newState ) {
-        var typeId = guid( Type ),
-            _typeToClientState = this._typeToClientState;
-
-        this._typeToStatus[ typeId ] &= ~COMMITTING;
-
-        if ( _typeToClientState[ typeId ] === oldState ) {
-            _typeToClientState[ typeId ] = newState;
-            this._checkServerStatus( Type, newState );
-        } else {
-            NS.RunLoop.didError({
-                name: SOURCE_COMMIT_ON_UNKNOWN_STATE,
-                message: 'Type: ' + typeId
-            });
-            _typeToClientState[ typeId ] = null;
-            delete this._typeToServerState[ typeId ];
-            this.fetchAll( Type );
-        }
-
-        return this;
-    },
-
-    // ---
-
-    /**
         Method: O.Store#sourceDidFetchRecords
 
         Callback made by the <O.Source> object associated with this store when
@@ -1799,6 +1753,37 @@ var Store = NS.Class({
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
         }
+        return this;
+    },
+
+    // ---
+
+    /**
+        Method: O.Store#sourceCommitDidChangeState
+
+        Callback made by the <O.Source> object associated with this store when
+        it finishes committing a record type which uses state tokens to stay in
+        sync with the server.
+
+        Parameters:
+            Type     - {O.Class} The record type.
+            oldState - {String} The state before the commit.
+            newState - {String} The state after the commit.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceCommitDidChangeState: function ( Type, oldState, newState ) {
+        var typeId = guid( Type ),
+            _typeToClientState = this._typeToClientState;
+
+        if ( _typeToClientState[ typeId ] === oldState ) {
+            _typeToClientState[ typeId ] = newState;
+        } else {
+            delete this._typeToServerState[ typeId ];
+            this.sourceStateDidChange( Type, newState );
+        }
+
         return this;
     },
 
