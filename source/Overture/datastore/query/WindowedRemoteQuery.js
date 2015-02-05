@@ -175,33 +175,6 @@ var adjustIndexes =
         removedBefore, resultIndexes, removedBeforeIds, resultIds );
 };
 
-var union = function ( a1, a2 ) {
-    var result = [],
-        i = 0, j = 0,
-        l1 = a1.length, l2 = a2.length;
-    while ( i < l1 && j < l2 ) {
-        if ( a1[i] < a2[j] ) {
-            result.push( a1[i] );
-            i += 1;
-        } else {
-            if ( a1[i] === a2[j] ) {
-                i += 1;
-            }
-            result.push( a2[j] );
-            j += 1;
-        }
-    }
-    while ( i < l1 ) {
-        result.push( a1[i] );
-        i += 1;
-    }
-    while ( j < l2 ) {
-        result.push( a2[j] );
-        j += 1;
-    }
-    return result;
-};
-
 var composeUpdates = function ( u1, u2 ) {
     var removed = adjustIndexes(
             u2.removedIndexes, u1.addedIndexes,  u1.removedIndexes,
@@ -215,7 +188,6 @@ var composeUpdates = function ( u1, u2 ) {
         removedIds: removed[1],
         addedIndexes: added[0],
         addedIds: added[1],
-        changed: union( u1.changed, u2.changed ),
         truncateAtFirstGap:
             u1.truncateAtFirstGap || u2.truncateAtFirstGap,
         total: u2.total,
@@ -360,16 +332,8 @@ var WindowedRemoteQuery = NS.Class({
         this._preemptiveUpdates = [];
 
         this._isAnExplicitIdFetch = false;
-        this._fetchUpdates = true;
 
         WindowedRemoteQuery.parent.init.call( this, mixin );
-    },
-
-    refresh: function ( force, callback, doNotFetchUpdates ) {
-        if ( doNotFetchUpdates ) {
-            this._fetchUpdates = false;
-        }
-        return WindowedRemoteQuery.parent.refresh.call( this, force, callback );
     },
 
     reset: function ( _, _key ) {
@@ -379,7 +343,6 @@ var WindowedRemoteQuery = NS.Class({
         this._preemptiveUpdates.length = 0;
 
         this._isAnExplicitIdFetch = false;
-        this._fetchUpdates = true;
 
         WindowedRemoteQuery.parent.reset.call( this, _, _key );
     }.observes( 'sort', 'filter' ),
@@ -649,13 +612,7 @@ var WindowedRemoteQuery = NS.Class({
         update.removedIndexes = removedIndexes;
         update.removedIds = removedIds;
 
-        if ( update.changed ) {
-            update.changed.sort();
-        } else {
-            update.changed = [];
-        }
-
-        if ( !update.total ) {
+        if ( !( 'total' in update ) ) {
             update.total = this.get( 'length' ) -
                 removedIndexes.length + addedIndexes.length;
         }
@@ -663,14 +620,13 @@ var WindowedRemoteQuery = NS.Class({
         return update;
     },
 
-    _applyUpdate: function ( args, preemptive ) {
+    _applyUpdate: function ( args ) {
         var removedIndexes = args.removedIndexes,
             removedIds = args.removedIds,
             removedLength = removedIds.length,
             addedIndexes = args.addedIndexes,
             addedIds = args.addedIds,
             addedLength = addedIds.length,
-            changed = args.changed,
             list = this._list,
             recalculateFetchedWindows = !!( addedLength || removedLength ),
             oldLength = this.get( 'length' ),
@@ -736,30 +692,13 @@ var WindowedRemoteQuery = NS.Class({
 
         // --- Recalculate fetched windows ---
 
-        // --- Process updates ---
-
-        // Do we have item changes (ignored for preemptive)?
-        if ( !preemptive && changed.length ) {
-            // Observers should be observing the state of all the records
-            // in the range they're currently interested in; this will let them
-            // know if there's an update and allow them to fetch it immediately.
-            // Otherwise, we'll fetch the updates the next time that window is
-            // accessed.
-
-            // Recheck each window for updates when fetching.
-            this.recalculateFetchedWindows( 0, newLength );
-
-            // Mark records that need an update.
-            this.get( 'store' ).sourceHasUpdatesForRecords(
-                this.get( 'Type' ), changed );
-        }
         // Anything from the firstChange index onwards may have changed, so we
         // have to recalculate which windows that cover indexes from this point
         // onwards we now have ids for. We only bother to recalculate whether we
         // have a complete set of ids; if the window needs an update or does
         // not have all records in memory, this will be recalculated when it is
         // accessed.
-        else if ( recalculateFetchedWindows ) {
+        if ( recalculateFetchedWindows ) {
             this.recalculateFetchedWindows( firstChange, newLength );
         }
 
@@ -845,22 +784,22 @@ var WindowedRemoteQuery = NS.Class({
         removed - {String[]} (optional) The ids of all records to delete.
         added   - {[Number,String][]} (optional) A list of [ index, id ] pairs,
                   in ascending order of index, for all records to be inserted.
-        changed - {String[]} (optional) The ids of records the client has
-                  updated; these are then removed from the changed list the next
-                  time, and any extras are added (as they have been erroneously
-                  updated and so now must be updated by the server).
 
         Parameters:
-            update - {Object} The removed/added/changed updates to make.
+            update - {Object} The removed/added updates to make.
 
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
     clientDidGenerateUpdate: function ( update ) {
         this._normaliseUpdate( update );
-        this._applyUpdate( update, true );
+        // Ignore completely any ids we don't have.
+        update.truncateAtFirstGap = false;
+        this._applyUpdate( update );
         this._preemptiveUpdates.push( update );
-        return this.set( 'status', this.get( 'status' ) | DIRTY );
+        this.set( 'status', this.get( 'status' ) | DIRTY );
+        this.refresh( true );
+        return this;
     },
 
     /**
@@ -871,16 +810,13 @@ var WindowedRemoteQuery = NS.Class({
 
         newState - {String} The state this delta updates the remote query to.
         oldState - {String} The state this delta updates the remote query from.
-        sort     - {String} The sort presumed in this delta.
-        filter   - {String} The filter presumed in this delta.
+        sort     - {*} The sort presumed in this delta.
+        filter   - {*} The filter presumed in this delta.
         removed  - {String[]} The ids of all records removed since
                    oldState.
         added    - {[Number,String][]} A list of [ index, id ] pairs, in
                    ascending order of index, for all records added since
                    oldState.
-        changed  - {String[]} The ids of all records in this query which
-                   are out-of-date (have updated information available on the
-                   server).
         upto     - {String} (optional) As an optimisation, updates may only be
                    for the first portion of a list, upto a certain id. This is
                    the last id which is included in the range covered by the
@@ -912,33 +848,6 @@ var WindowedRemoteQuery = NS.Class({
                 equalArrays( u1.removedIds, u2.removedIds );
         };
 
-        var findUncommon = function ( a1, a2 ) {
-            var result = [],
-                i = 0, j = 0,
-                l1 = a1.length, l2 = a2.length;
-            while ( i < l1 && j < l2 ) {
-                if ( a1[i] < a2[j] ) {
-                    result.push( a1[i] );
-                    i += 1;
-                } else if ( a1[i] > a2[j] ) {
-                    result.push( a2[j] );
-                    j += 1;
-                } else {
-                    i += 1;
-                    j += 1;
-                }
-            }
-            while ( i < l1 ) {
-                result.push( a1[i] );
-                i += 1;
-            }
-            while ( j < l2 ) {
-                result.push( a2[j] );
-                j += 1;
-            }
-            return result;
-        };
-
         return function ( update ) {
             var state = this.get( 'state' ),
                 status = this.get( 'status' ),
@@ -953,7 +862,7 @@ var WindowedRemoteQuery = NS.Class({
             if ( state === update.newState ) {
                 if ( l && !( status & DIRTY ) ) {
                     allPreemptives = preemptives.reduce( composeUpdates );
-                    this._applyUpdate( invertUpdate( allPreemptives ), true );
+                    this._applyUpdate( invertUpdate( allPreemptives ) );
                     preemptives.length = 0;
                 }
                 return this;
@@ -963,8 +872,8 @@ var WindowedRemoteQuery = NS.Class({
                 return this.setObsolete();
             }
             // Check the sort and filter is still the same
-            if ( update.sort !== this.get( 'sort' ) ||
-                    update.filter !== this.get( 'filter' ) ) {
+            if ( !NS.isEqual( update.sort, this.get( 'sort' ) ) ||
+                    !NS.isEqual( update.filter, this.get( 'filter' ) ) ) {
                 return this;
             }
             // Set new state
@@ -986,7 +895,6 @@ var WindowedRemoteQuery = NS.Class({
                 // removed ids were in the previous state.
                 var normalisedUpdate = this._normaliseUpdate({
                     added: update.added,
-                    changed: update.changed,
                     total: update.total,
                     upto: update.upto
                 });
@@ -1002,7 +910,7 @@ var WindowedRemoteQuery = NS.Class({
                     removedIndexes = [],
                     removedIds = [],
                     list = this._list,
-                    id, index, changed;
+                    id, index;
 
                 allPreemptives = composed[ l - 1 ];
                 for ( i = 0, l = removed.length; i < l; i += 1 ) {
@@ -1027,8 +935,7 @@ var WindowedRemoteQuery = NS.Class({
                         removedIndexes: _indexes,
                         removedIds: _ids,
                         addedIndexes: [],
-                        addedIds: [],
-                        changed: []
+                        addedIds: []
                     }), ll;
                     _indexes = _ids.map( function ( id ) {
                         return x.removedIndexes[ x.removedIds.indexOf( id ) ];
@@ -1063,36 +970,12 @@ var WindowedRemoteQuery = NS.Class({
                     }
                 }
                 if ( !normalisedUpdate.truncateAtFirstGap && l > -1 ) {
-                    // OK, we correctly guessed, so actually everything's up to
-                    // date. But there could be several matching updates if only
-                    // the changed field is used. If we can find one where the
-                    // changed field matches too, that would be better.
-                    for ( i = l; i >= 0; i -= 1 ) {
-                        if ( equalArrays( normalisedUpdate.changed,
-                                composed[i].changed ) ) {
-                            break;
-                        }
-                    }
-                    if ( i > -1 && i !== l &&
-                        updateIsEqual( normalisedUpdate, composed[i] ) ) {
-                            l = i;
-                    }
-
                     preemptives.splice( 0, l + 1 );
-                    changed = findUncommon(
-                        composed[l].changed, normalisedUpdate.changed );
-                    if ( changed.length ) {
-                        this.recalculateFetchedWindows();
-                        this.get( 'store' )
-                            .sourceHasUpdatesForRecords(
-                                this.get( 'Type' ), changed );
-                    }
                     // If we aren't in the dirty state, we shouldn't have any
                     // preemptive updates left. If we do, remove them.
                     if ( !( status & DIRTY ) && preemptives.length ) {
                         allPreemptives = preemptives.reduce( composeUpdates );
-                        this._applyUpdate(
-                            invertUpdate( allPreemptives ), true );
+                        this._applyUpdate( invertUpdate( allPreemptives ) );
                         preemptives.length = 0;
                     }
                     this._applyWaitingPackets();
@@ -1119,8 +1002,8 @@ var WindowedRemoteQuery = NS.Class({
         this query. The args object should contain:
 
         state    - {String} The state of the server when this slice was taken.
-        sort     - {String} The sort used.
-        filter   - {String} The filter used.
+        sort     - {*} The sort used.
+        filter   - {*} The filter used.
         idList   - {String[]} The list of ids.
         position - {Number} The index in the query of the first id in idList.
         total    - {Number} The total number of records in the query.
@@ -1136,10 +1019,10 @@ var WindowedRemoteQuery = NS.Class({
         // User may have changed sort or filter in intervening time; presume the
         // value on the object is the right one, so if data doesn't match, just
         // ignore it.
-        if ( this.get( 'sort' ) !== args.sort ||
-                this.get( 'filter' ) !== args.filter ) {
-            return this;
-        }
+        if ( !NS.isEqual( args.sort, this.get( 'sort' ) ) ||
+                    !NS.isEqual( args.filter, this.get( 'filter' ) ) ) {
+                return this;
+            }
 
         var state = this.get( 'state' ),
             status = this.get( 'status' ),
@@ -1207,7 +1090,7 @@ var WindowedRemoteQuery = NS.Class({
             } else {
                 // The preemptive change we made was clearly incorrect as no
                 // change has actually occurred, so we need to unwind it.
-                this._applyUpdate( invertUpdate( allPreemptives ), true );
+                this._applyUpdate( invertUpdate( allPreemptives ) );
                 preemptives.length = 0;
             }
         }
@@ -1271,7 +1154,6 @@ var WindowedRemoteQuery = NS.Class({
             isAnExplicitIdFetch = this._isAnExplicitIdFetch,
             indexOfRequested = this._indexOfRequested,
             refreshRequested = this._refresh,
-            fetchUpdates = this._fetchUpdates,
             recordRequests = [],
             idRequests = [],
             optimiseFetching = this.get( 'optimiseFetching' ),
@@ -1287,7 +1169,6 @@ var WindowedRemoteQuery = NS.Class({
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];
         this._refresh = false;
-        this._fetchUpdates = true;
 
         for ( i = 0, l = windows.length; i < l; i += 1 ) {
             status = windows[i];
@@ -1360,7 +1241,6 @@ var WindowedRemoteQuery = NS.Class({
             records: recordRequests,
             indexOf: indexOfRequested,
             refresh: refreshRequested,
-            fetchUpdates: fetchUpdates,
             callback: function () {
                 this._windows = this._windows.map( function ( status ) {
                     return status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING);
