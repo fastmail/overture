@@ -1388,7 +1388,14 @@ var Store = NS.Class({
                 propKey = attrs[ attrKey ];
                 // Server may return more data than is defined in the record;
                 // ignore the rest.
-                if ( !propKey ) { continue; }
+                if ( !propKey ) {
+                    // Special case: implicit id attribute
+                    if ( attrKey === 'id' ) {
+                        propKey = attrKey;
+                    } else {
+                        continue;
+                    }
+                }
                 attribute = record[ propKey ];
                 record.computedPropertyDidChange( propKey );
                 if ( attribute.validate ) {
