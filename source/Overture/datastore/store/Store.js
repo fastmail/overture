@@ -24,11 +24,11 @@ var READY        =   2;
 var DESTROYED    =   4;
 var NON_EXISTENT =   8;
 // Properties
-var LOADING      =  16; // Request made to source to fetch record or updates.
-var COMMITTING   =  32; // Request been made to source to commit record.
-var NEW          =  64; // Record has not been committed to source.
-var DIRTY        = 128; // Record has local changes not commited to source
-var OBSOLETE     = 256; // Source may have changes not yet loaded.
+var LOADING      =  16; // Request in progress to fetch record or updates
+var COMMITTING   =  32; // Request in progress to commit record
+var NEW          =  64; // Record is not created on source (has no source id)
+var DIRTY        = 128; // Record has local changes not yet committing
+var OBSOLETE     = 256; // Record may have changes not yet requested
 
 // Error messages.
 var Status = NS.Status;
@@ -59,12 +59,12 @@ var set = function ( status ) {
     };
 };
 
-var filter = function ( filter, storeKey ) {
-    return filter( this._skToData[ storeKey ], this, storeKey );
+var filter = function ( accept, storeKey ) {
+    return accept( this._skToData[ storeKey ], this, storeKey );
 };
-var sort = function ( sort, a, b ) {
+var sort = function ( compare, a, b ) {
     var _skToData = this._skToData,
-        aIsFirst = sort( _skToData[ a ], _skToData[ b ], this );
+        aIsFirst = compare( _skToData[ a ], _skToData[ b ], this );
     return aIsFirst || ( ~~a.slice( 1 ) - ~~b.slice( 1 ) );
 };
 var isEqual = NS.isEqual;
@@ -161,8 +161,14 @@ var Store = NS.Class({
         // Type -> [ store key ] of changed records.
         this._typeToChangedSks = {};
 
+        // READY      -> Some records of type loaded
+        // LOADING    -> Loading or refreshing ALL records of type
+        // COMMITTING -> Committing some records of type
         this._typeToStatus = {};
+        // Type -> state string for type in client
         this._typeToClientState = {};
+        // Type -> latest known state string for type on server
+        // If committing or loading type, wait until finish to check
         this._typeToServerState = {};
 
         this._commitCallbacks = [];
@@ -472,7 +478,7 @@ var Store = NS.Class({
     /**
         Method: O.Store#getOne
 
-        Returns the first loaded record that matches an acceptor function.
+        Returns the first loaded record that matches an acceptance function.
 
         Parameters:
             Type   - {O.Class} The constructor for the record type to find.
@@ -997,11 +1003,8 @@ var Store = NS.Class({
             {O.Store} Returns self.
     */
     createRecord: function ( storeKey, data ) {
-        var status = this.getStatus( storeKey ),
-            Type;
-
+        var status = this.getStatus( storeKey );
         if ( status !== EMPTY && status !== DESTROYED ) {
-            Type = this._skToType[ storeKey ];
             NS.RunLoop.didError({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message:
@@ -1067,6 +1070,8 @@ var Store = NS.Class({
         }
         return this;
     },
+
+    // ---
 
     /**
         Method: O.Store#sourceStateDidChange
@@ -2096,7 +2101,7 @@ var Store = NS.Class({
         Returns:
             {String[]} An array of store keys.
     */
-    findAll: function ( Type, acceptor, comparator ) {
+    findAll: function ( Type, accept, compare ) {
         var _skToId = this._typeToSkToId[ guid( Type ) ] || {},
             _skToStatus = this._skToStatus,
             results = [],
@@ -2108,14 +2113,14 @@ var Store = NS.Class({
             }
         }
 
-        if ( acceptor ) {
-            filterFn = filter.bind( this, acceptor );
+        if ( accept ) {
+            filterFn = filter.bind( this, accept );
             results = results.filter( filterFn );
             results.filterFn = filterFn;
         }
 
-        if ( comparator ) {
-            sortFn = sort.bind( this, comparator );
+        if ( compare ) {
+            sortFn = sort.bind( this, compare );
             results.sort( sortFn );
             results.sortFn = sortFn;
         }
@@ -2127,7 +2132,7 @@ var Store = NS.Class({
         Method: O.Store#findOne
 
         Returns the store key of the first loaded record that matches an
-        acceptor function.
+        acceptance function.
 
         Parameters:
             Type   - {O.Class} The constructor for the record type to find.
@@ -2140,10 +2145,10 @@ var Store = NS.Class({
             {(String|null)} The store key for a matching record, or null if none
             found.
     */
-    findOne: function ( Type, acceptor ) {
+    findOne: function ( Type, accept ) {
         var _skToId = this._typeToSkToId[ guid( Type ) ] || {},
             _skToStatus = this._skToStatus,
-            filterFn = acceptor && filter.bind( this, acceptor ),
+            filterFn = accept && filter.bind( this, accept ),
             storeKey;
 
         for ( storeKey in _skToId ) {
