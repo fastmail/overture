@@ -586,15 +586,7 @@ var WindowedRemoteQuery = NS.Class({
             addedIds = [],
             addedIndexes = [],
             added = update.added || [],
-            i, l, item;
-
-        for ( i = 0, l = added.length; i < l; i += 1 ) {
-            item = added[i];
-            addedIndexes.push( item[0] );
-            addedIds.push( item[1] );
-        }
-        update.addedIndexes = addedIndexes;
-        update.addedIds = addedIds;
+            i, j, l, item, index, id;
 
         sortLinkedArrays( removedIndexes, removedIds );
         for ( i = 0; removedIndexes[i] === -1; i += 1 ) {
@@ -611,6 +603,24 @@ var WindowedRemoteQuery = NS.Class({
         update.truncateAtFirstGap = !!i;
         update.removedIndexes = removedIndexes;
         update.removedIds = removedIds;
+
+        for ( i = 0, l = added.length; i < l; i += 1 ) {
+            item = added[i];
+            index = item[0];
+            id = item[1];
+            j = removedIds.indexOf( id );
+
+            if ( j > -1 &&
+                    removedIndexes[j] - j + addedIndexes.length === index ) {
+                removedIndexes.splice( j, 1 );
+                removedIds.splice( j, 1 );
+            } else {
+                addedIndexes.push( index );
+                addedIds.push( id );
+            }
+        }
+        update.addedIndexes = addedIndexes;
+        update.addedIds = addedIds;
 
         if ( !( 'total' in update ) ) {
             update.total = this.get( 'length' ) -
@@ -909,6 +919,7 @@ var WindowedRemoteQuery = NS.Class({
                     _ids = [],
                     removedIndexes = [],
                     removedIds = [],
+                    addedIndexes, addedIds,
                     list = this._list,
                     id, index;
 
@@ -952,6 +963,23 @@ var WindowedRemoteQuery = NS.Class({
 
                 normalisedUpdate.removedIndexes = removedIndexes;
                 normalisedUpdate.removedIds = removedIds;
+
+                // Now remove any idempotent operations
+                addedIndexes = normalisedUpdate.addedIndexes;
+                addedIds = normalisedUpdate.addedIds;
+                l = addedIndexes.length;
+
+                while ( l-- ) {
+                    id = addedIds[l];
+                    i = removedIds.indexOf( id );
+                    if ( i > -1 &&
+                            removedIndexes[i] - i + l === addedIndexes[l] ) {
+                        removedIndexes.splice( i, 1 );
+                        removedIds.splice( i, 1 );
+                        addedIndexes.splice( l, 1 );
+                        addedIds.splice( l, 1 );
+                    }
+                }
 
                 // 3. We now have a normalised update from the server. We
                 // compare this to each composed state of our preemptive
