@@ -277,6 +277,12 @@ var PopOverView = NS.Class({
         }
     },
 
+    didLeaveDocument: function () {
+        PopOverView.parent.didLeaveDocument.call( this );
+        this.hide();
+        return this;
+    },
+
     hide: function () {
         if ( this.get( 'isVisible' ) ) {
             var subPopOverView = this.hasSubView() ?
@@ -289,7 +295,7 @@ var PopOverView = NS.Class({
             }
             this.set( 'isVisible', false );
             view = this.get( 'childViews' )[0];
-            this.get( 'parentView' ).removeView( this );
+            this.detach();
             this.removeView( view );
             if ( options.showCallout ) {
                 layer = this.get( 'layer' );
