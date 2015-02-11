@@ -97,8 +97,7 @@ var SingleSelectionController = NS.Class({
             }
             if ( record && list ) {
                 this.set( 'isFetchingIndex', true );
-                list.indexOfId(
-                    record.get( 'id' ) || ( '#' + record.get( 'storeKey' ) ), 0,
+                list.indexOfId( record.toJSON(), 0,
                 function ( index ) {
                     if ( this.get( 'record' ) === record &&
                             this.get( 'content' ) === list ) {
@@ -141,7 +140,7 @@ var SingleSelectionController = NS.Class({
         // See if the currently set record exists in the new list. If it does,
         // we'll use that.
         if ( record ) {
-            index = list.indexOfId( record.get( 'id' ) );
+            index = list.indexOfId( record.toJSON() );
             if ( !allowNoSelection && index < 0 ) {
                 index = 0;
             }
