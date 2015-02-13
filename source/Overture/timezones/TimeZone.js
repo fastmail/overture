@@ -53,6 +53,7 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
             ruleDate = new Date(Date.UTC(
                 year, month, date, rule[5], rule[6], rule[7]
             ));
+
             // Adjust to nearest +/- day of the week if specified
             if ( day = rule[4] ) {
                 // +/- => (on or after/on or before) current date.
@@ -79,6 +80,24 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
                     Math.abs( ruleDate - datetime ) <= 3 * 60 * 60 * 1000 ) {
                     ruleDate.add(
                         ( ruleIsUTC ? 1 : -1 ) *
+                        getRule(
+                            rules,
+                            offset,
+                            new Date( datetime - 86400000 ),
+                            isUTC,
+                            true
+                        )[9], 'second'
+                    );
+                }
+            }
+
+            // If we're converting from UTC, the time could be valid twice
+            // or invalid. We should pick the rule to follow RFC5545 guidance:
+            // Presume the earlier rule is still in effect in both cases
+            if ( !isUTC ) {
+                ruleDate.add( rule[9], 'second' );
+                if ( Math.abs( ruleDate - datetime ) <= 3 * 60 * 60 * 1000 ) {
+                    ruleDate.add(
                         getRule(
                             rules,
                             offset,
