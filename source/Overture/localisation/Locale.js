@@ -441,7 +441,7 @@ var Locale = NS.Class({
                 !n && zero !== undefined ? zero : plural
             ).replace( '%n', formatInt( n, this ) );
         },
-        // French and Brazilian Portugese.
+        // French and Brazilian Portuguese.
         // Case 1: is 0 or 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; singular used if not supplied).
@@ -498,7 +498,7 @@ var Locale = NS.Class({
                 mod10 === 0 || ( 10 <= mod100 && mod100 <= 20 ) ? form2 : form3
             ).replace( '%n', formatInt( n, this ) );
         },
-        // Russian, Ukranian, Serbian, Croation.
+        // Russian, Ukrainian, Serbian, Croatian.
         // Case 1: ends in 1, does not end in 11.
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
@@ -575,7 +575,7 @@ var Locale = NS.Class({
         // Case 3: is 3-6.
         // Case 4: is 7-10.
         // Case 5: everything else.
-        // Case 5: is 0 (optional; case 5 used if not supplied)
+        // Case 6: is 0 (optional; case 5 used if not supplied)
         '*5': function ( n, singular, doubular, form1, form2, form3, zero ) {
             return (
                 !n && zero !== undefined ? zero :
