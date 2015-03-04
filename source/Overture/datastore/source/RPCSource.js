@@ -516,7 +516,7 @@ var RPCSource = NS.Class({
         Type: String[Number]|null
         Default: null
 
-        This is on optional mapping of type names to a number indicating the
+        This is on optional mapping of type guids to a number indicating the
         order in which they are to be committed. Types with lower numbers will
         be committed first.
     */
@@ -526,7 +526,7 @@ var RPCSource = NS.Class({
         Method: O.RPCSource#commitChanges
 
         Commits a set of creates/updates/destroys to the source. These are
-        specified in a single object, which has record type names as keys and an
+        specified in a single object, which has record type guids as keys and an
         object with create/update/destroy properties as values. Those properties
         have the following types:
 
@@ -682,6 +682,32 @@ var RPCSource = NS.Class({
         return true;
     },
 
+    /**
+        Method: O.RPCSource#handle
+
+        Helper method to register handlers for a particular type. The handler
+        object may include methods with the following keys:
+
+        - precedence: Add function to `commitPrecedence` handlers.
+        - fetch: Add function to `recordFetchers` handlers.
+        - refresh: Add function to `recordRefreshers` handlers.
+        - commit: Add function to `recordCommitters` handlers.
+        - create: Add function to `recordCreators` handlers.
+        - update: Add function to `recordUpdaters` handlers.
+        - destroy: Add function to `recordDestroyers` handlers.
+        - query: Add function to `queryFetcher` handlers.
+
+        Any other keys are presumed to be a response method name, and added
+        to the `response object.
+
+        Parameters:
+            Type     - {O.Class} The type these handlers are for.
+            handlers - {string[function]} The handlers. These are registered
+                       as described above.
+
+        Returns:
+            {O.RPCSource} Returns self.
+    */
     handle: function ( Type, handlers ) {
         var typeId = NS.guid( Type ),
             action, propName, isResponse, actionHandlers;
@@ -705,7 +731,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#recordFetchers
         Type: String[Function]
 
-        A map of type names to functions which will fetch records of that type.
+        A map of type guids to functions which will fetch records of that type.
         The functions will be called with the source as 'this' and a list of ids
         or an object (passed straight through from your program) as the sole
         argument.
@@ -716,7 +742,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#recordRefreshers
         Type: String[Function]
 
-        A map of type names to functions which will refresh records of that
+        A map of type guids to functions which will refresh records of that
         type. The functions will be called with the source as 'this' and a list
         of ids or an object (passed straight through from your program) as the
         sole argument.
@@ -727,7 +753,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#recordCommitters
         Type: String[Function]
 
-        A map of type names to functions which will commit all creates, updates
+        A map of type guids to functions which will commit all creates, updates
         and destroys requested for a particular record type.
     */
     recordCommitters: {},
@@ -736,7 +762,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#recordCreators
         Type: String[Function]
 
-        A map of type names to functions which will commit creates for a
+        A map of type guids to functions which will commit creates for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
 
@@ -759,7 +785,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#recordUpdaters
         Type: String[Function]
 
-        A map of type names to functions which will commit updates for a
+        A map of type guids to functions which will commit updates for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
 
@@ -786,7 +812,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#recordDestroyers
         Type: String[Function]
 
-        A map of type names to functions which will commit destroys for a
+        A map of type guids to functions which will commit destroys for a
         particular record type. The function will be called with the source as
         'this' and will get the following arguments:
 
@@ -808,7 +834,7 @@ var RPCSource = NS.Class({
         Property: O.RPCSource#queryFetchers
         Type: String[Function]
 
-        A map of query type names to functions which will fetch the requested
+        A map of query type guids to functions which will fetch the requested
         contents of that query. The function will be called with the source as
         'this' and the query as the sole argument.
     */
