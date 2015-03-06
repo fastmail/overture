@@ -921,6 +921,7 @@ var WindowedRemoteQuery = NS.Class({
                     removedIds = [],
                     addedIndexes, addedIds,
                     list = this._list,
+                    wasSuccessfulPreemptive = false,
                     id, index;
 
                 allPreemptives = composed[ l - 1 ];
@@ -990,23 +991,34 @@ var WindowedRemoteQuery = NS.Class({
                 // the server instead, to ensure we end up in a consistent
                 // state.
                 if ( !normalisedUpdate.truncateAtFirstGap ) {
-                    l = composed.length;
-                    while ( l-- ) {
-                        if ( updateIsEqual( normalisedUpdate, composed[l] ) ) {
-                            break;
+                    // If nothing actually changed in this update, we're done,
+                    // but we can apply any waiting packets.
+                    if ( !removedIds.length && !addedIds.length ) {
+                        wasSuccessfulPreemptive = true;
+                    } else {
+                        l = composed.length;
+                        while ( l-- ) {
+                            if ( updateIsEqual(
+                                    normalisedUpdate, composed[l] ) ) {
+                                // Remove the preemptives that have now been
+                                // confirmed by the server
+                                preemptives.splice( 0, l + 1 );
+                                wasSuccessfulPreemptive = true;
+                                break;
+                            }
                         }
                     }
                 }
-                if ( !normalisedUpdate.truncateAtFirstGap && l > -1 ) {
-                    preemptives.splice( 0, l + 1 );
+                if ( wasSuccessfulPreemptive ) {
                     // If we aren't in the dirty state, we shouldn't have any
                     // preemptive updates left. If we do, remove them.
                     if ( !( status & DIRTY ) && preemptives.length ) {
                         allPreemptives = preemptives.reduce( composeUpdates );
                         this._applyUpdate( invertUpdate( allPreemptives ) );
                         preemptives.length = 0;
+                    } else {
+                        this._applyWaitingPackets();
                     }
-                    this._applyWaitingPackets();
                 } else {
                     // Undo all preemptive updates and apply server change
                     // instead.
