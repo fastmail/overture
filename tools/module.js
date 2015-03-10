@@ -6,6 +6,10 @@ var fs = require( 'fs' );
 var less = require( 'less' );
 var csstools = require( './csstools.js' );
 
+var escapeRegExp = function ( string ) {
+    return string.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
+};
+
 var replaceFileNames = function ( names, input, output ) {
     var map = {};
     names.forEach( function ( name ) {
@@ -20,7 +24,9 @@ var replaceFileNames = function ( names, input, output ) {
         if ( !error ) {
             for ( var name in map ) {
                 data = data.replace(
-                    new RegExp( '\\${' + name + '}', 'g' ), map[ name ] );
+                    new RegExp( '\\${' + escapeRegExp( name ) + '}', 'g' ),
+                    map[ name ]
+                );
             }
             fs.writeFile( output, data );
         }
