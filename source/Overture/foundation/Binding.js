@@ -411,7 +411,7 @@ var Binding = NS.Class({
             {O.Binding} Returns self.
     */
     resume: function () {
-        if ( this.isSuspended ) {
+        if ( this.isSuspended && this.isConnected ) {
             this.isSuspended = false;
             this.sync();
         }
