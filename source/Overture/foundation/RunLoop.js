@@ -41,6 +41,8 @@ var requestAnimFrame =
 
 var RunLoop = {
 
+    mayRedraw: false,
+
     /**
         Property (private): NS.RunLoop._queueOrder
         Type: String[]
@@ -131,6 +133,11 @@ var RunLoop = {
         var order = this._queueOrder,
             i = 0, l = order.length;
         while ( i < l ) {
+            // Render waits for next frame
+            if ( i === 3 && !this.mayRedraw ) {
+                this.invokeInNextFrame( this.flushAllQueues, this );
+                return;
+            }
             i = this.flushQueue( order[i] ) ? 0 : i + 1;
         }
     },
@@ -418,7 +425,9 @@ var nextLoop = RunLoop.invoke.bind( RunLoop,
 
 var nextFrame = function ( time ) {
     RunLoop.frameStartTime = time;
+    RunLoop.mayRedraw = true;
     RunLoop.flushQueue( 'nextFrame' );
+    RunLoop.mayRedraw = false;
 }.invokeInRunLoop();
 
 }( O, window, typeof setImmediate !== 'undefined' ?
