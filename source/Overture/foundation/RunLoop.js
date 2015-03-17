@@ -1,13 +1,12 @@
 // -------------------------------------------------------------------------- \\
 // File: RunLoop.js                                                           \\
 // Module: Foundation                                                         \\
-// Requires: Core                                                             \\
+// Requires: Core, Heap.js                                                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global setTimeout, clearTimeout, setInterval, clearInterval,
-    setImmediate, console */
+/*global setTimeout, clearTimeout, setImmediate, console */
 
 "use strict";
 
@@ -30,6 +29,13 @@ var requestAnimFrame =
             }, timeToNextCall );
         };
     }() );
+
+var Timeout = function ( time, period, fn, bind ) {
+    this.time = time;
+    this.period = period;
+    this.fn = fn;
+    this.bind = bind;
+};
 
 /**
     Class: O.RunLoop
@@ -67,6 +73,33 @@ var RunLoop = {
         nextLoop: [],
         nextFrame: []
     },
+
+    /**
+        Property (private): NS.RunLoop._timeouts
+        Type: O.Heap
+
+        A priority queue of timeouts.
+    */
+    _timeouts: new NS.Heap( function ( a, b ) {
+        return a.time - b.time;
+    }),
+
+    /**
+        Property (private): NS.RunLoop._nextTimeout
+        Type: Number
+
+        Epoch time that the next browser timeout is scheduled for.
+    */
+    _nextTimeout: 0,
+
+    /**
+        Property (private): NS.RunLoop._timer
+        Type: Number
+
+        The browser timer id (response from setTimeout), which you need if
+        you want to cancel the timeout.
+    */
+    _timer: null,
 
     /**
         Property (private): NS.RunLoop._depth
@@ -218,6 +251,7 @@ var RunLoop = {
         }
         if ( this._depth === 1 ) {
             this.flushAllQueues();
+            this.processTimeouts();
         }
         this._depth -= 1;
         return this;
@@ -287,9 +321,10 @@ var RunLoop = {
             to cancel the scheduled invocation.
     */
     invokeAfterDelay: function ( fn, delay, bind ) {
-        return setTimeout( function () {
-            RunLoop.invoke( fn, bind );
-        }, delay );
+        var timeout = new Timeout( Date.now() + delay, 0, fn, bind );
+        this._timeouts.push( timeout );
+        this._scheduleTimeout();
+        return timeout;
     },
 
     /**
@@ -310,9 +345,56 @@ var RunLoop = {
             by this call.
     */
     invokePeriodically: function ( fn, period, bind ) {
-        return setInterval( function () {
-            RunLoop.invoke( fn, bind );
-        }, period );
+        var timeout = new Timeout( Date.now() + period, period, fn, bind );
+        this._timeouts.push( timeout );
+        this._scheduleTimeout();
+        return timeout;
+    },
+
+    /**
+        Method (private): NS.RunLoop._scheduleTimeout
+
+        Sets the browser timer if necessary to trigger at the time of the next
+        timeout in the priority queue.
+    */
+    _scheduleTimeout: function () {
+        var timeout = this._timeouts.peek(),
+            time = timeout ? timeout.time : 0,
+            delay;
+        if ( time && time !== this._nextTimeout ) {
+            clearTimeout( this._timer );
+            delay = time - Date.now();
+            if ( delay > 0 ) {
+                this._timer = setTimeout( processTimeouts, time - Date.now() );
+                this._nextTimeout = time;
+            } else {
+                this._nextTimeout = 0;
+            }
+        }
+    },
+
+    /**
+        Method: NS.RunLoop.processTimeouts
+
+        Invokes all functions in the timeout queue that were scheduled to
+        trigger on or before "now".
+
+        Returns:
+            {O.RunLoop} Returns self.
+    */
+    processTimeouts: function () {
+        var timeouts = this._timeouts,
+            timeout, period;
+        while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
+            timeout = timeouts.pop();
+            if ( period = timeout.period ) {
+                timeout.time = Date.now() + period;
+                timeouts.push( timeout );
+            }
+            this.invoke( timeout.fn, timeout.bind );
+        }
+        this._scheduleTimeout();
+        return this;
     },
 
     /**
@@ -331,8 +413,7 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     cancel: function ( token ) {
-        clearTimeout( token );
-        clearInterval( token );
+        this._timeouts.remove( token );
         return this;
     },
 
@@ -422,6 +503,7 @@ Function.implement({
 var nextLoop = RunLoop.invoke.bind( RunLoop,
     RunLoop.flushQueue, RunLoop, [ 'nextLoop' ]
 );
+var processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
 
 var nextFrame = function ( time ) {
     RunLoop.frameStartTime = time;
