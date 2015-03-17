@@ -180,6 +180,8 @@ var RPCSource = NS.Class({
     */
     ioDidFail: function (/* event */) {
         if ( !this.get( 'willRetry' ) ) {
+            this.receive(
+                [], this._inFlightCallbacks, this._inFlightRemoteCalls );
             this._inFlightRemoteCalls = this._inFlightCallbacks = null;
         }
     }.on( 'io:failure', 'io:abort' ),
@@ -255,7 +257,7 @@ var RPCSource = NS.Class({
     /**
         Method: O.RPCSource#receive
 
-        After completing a request, this method is be called to process the
+        After completing a request, this method is called to process the
         response returned by the server.
 
         Parameters:
