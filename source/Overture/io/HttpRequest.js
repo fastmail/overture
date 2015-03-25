@@ -115,17 +115,16 @@ var HttpRequest = NS.Class({
         }
     }.on( 'io:begin' ),
 
+    resetTimeout: function () {
+        this._lastActivity = Date.now();
+    }.on( 'io:uploadProgress', 'io:loading', 'io:progress' ),
+
     clearTimeout: function () {
         var timer = this._timer;
         if ( timer ) {
             NS.RunLoop.cancel( timer );
-            this.setTimeout();
         }
     }.on( 'io:end' ),
-
-    resetTimeout: function () {
-        this._lastActivity = Date.now();
-    }.on( 'io:uploadProgress', 'io:loading', 'io:progress' ),
 
     didTimeout: function () {
         this._timer = null;
