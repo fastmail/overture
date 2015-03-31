@@ -177,6 +177,7 @@ var AbstractControlView = NS.Class({
             shortcut = this.get( 'shortcut' ),
             tabIndex = this.get( 'tabIndex' );
 
+        control.id = this.get( 'id' ) + '-input';
         control.disabled = this.get( 'isDisabled' );
 
         if ( name !== undefined ) {
