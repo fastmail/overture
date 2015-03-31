@@ -202,6 +202,7 @@ var View = NS.Class({
     init: function ( mixin ) {
         this._needsRedraw = null;
 
+        this.id = 'v' + UID++;
         this.parentView = null;
         this.isRendered = false;
         this.isInDocument = false;
@@ -258,9 +259,6 @@ var View = NS.Class({
         The id of the view. Automatically assigned if not overridden. Will be
         set as the id of the underlying DOM node.
     */
-    id: function () {
-        return 'v' + UID++;
-    }.property(),
 
     /**
         Property: O.View#className
