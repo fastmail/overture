@@ -508,9 +508,9 @@ var processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
 var nextFrame = function ( time ) {
     RunLoop.frameStartTime = time;
     RunLoop.mayRedraw = true;
-    RunLoop.flushQueue( 'nextFrame' );
+    RunLoop.invoke( RunLoop.flushQueue, RunLoop, [ 'nextFrame' ] );
     RunLoop.mayRedraw = false;
-}.invokeInRunLoop();
+};
 
 }( O, window, typeof setImmediate !== 'undefined' ?
     setImmediate :
