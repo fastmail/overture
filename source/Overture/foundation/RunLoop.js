@@ -166,8 +166,11 @@ var RunLoop = {
         var order = this._queueOrder,
             i = 0, l = order.length;
         while ( i < l ) {
-            // Render waits for next frame
-            if ( i === 3 && !this.mayRedraw ) {
+            // Render waits for next frame, except if in bg, since
+            // animation frames don't fire while in the background
+            // and we want to flush queues in a reasonable time, as they may
+            // redraw the tab name, favicon etc.
+            if ( i === 3 && !this.mayRedraw && !document.hidden ) {
                 this.invokeInNextFrame( this.flushAllQueues, this );
                 return;
             }
