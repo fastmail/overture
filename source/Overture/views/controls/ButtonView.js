@@ -257,10 +257,10 @@ var ButtonView = NS.Class({
     // --- Keep state in sync with render ---
 
     /**
-        Property (private): O.ButtonView#_ignore
-        Type: Boolean
+        Property (private): O.ButtonView#_ignoreUntil
+        Type: Number
 
-        If true, don't activate on click/mouseup.
+        Time before which we should not reactive.
 
         We want to trigger on mouseup so that the button can be used in a menu
         in a single click action. However, we also want to trigger on click for
@@ -271,20 +271,18 @@ var ButtonView = NS.Class({
         temporarily ignore clicks and put a callback function onto the end of
         the event queue to stop ignoring them. This will only run after the
         click event has fired (if there is one). The exception is Opera, where
-        it gets queued before the click event. By adding a small 200ms delay we
-        can more or less guarantee it is queued after, and it also prevents
+        it gets queued before the click event. By adding a minimum 200ms delay
+        we can more or less guarantee it is queued after, and it also prevents
         double click from activating the button twice, which could have
         unintended effects.
     */
-    _ignore: false,
+    _ignoreUntil: 0,
 
     /**
-        Method (private): O.ButtonView#_monitorClicks
-
-        Start activating on click/mouseup again.
+        Method (private): O.ButtonView#_setIgnoreUntil
     */
-    _monitorClicks: function () {
-        this._ignore = false;
+    _setIgnoreUntil: function () {
+        this._ignoreUntil = Date.now() + 200;
     },
 
     /**
@@ -296,12 +294,13 @@ var ButtonView = NS.Class({
             event - {Event} The click or mouseup event.
     */
     _activateOnClick: function ( event ) {
-        if ( this._ignore || event.button || event.metaKey || event.ctrlKey ) {
+        if ( this._ignoreUntil > Date.now() ||
+                event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
         if ( event.type !== 'mouseup' || this.getParent( NS.MenuView ) ) {
-            this._ignore = true;
-            NS.RunLoop.invokeAfterDelay( this._monitorClicks, 200, this );
+            this._ignoreUntil = 4102444800000; // 1st Jan 2100...
+            NS.RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
             this.activate();
             event.preventDefault();
         }
