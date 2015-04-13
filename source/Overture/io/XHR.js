@@ -75,6 +75,18 @@ var XHR = NS.Class({
     */
 
     /**
+        Property: O.XHR#makeAsyncRequests
+        Type: Boolean
+        Default: true
+
+        If changed to false, the connections will be synchronous rather than
+        async. This should *only* ever be set during the onunload event,
+        where you need to make a request synchronous to ensure it completes
+        before the tab process is killed.
+    */
+    makeAsyncRequests: true,
+
+    /**
         Constructor: O.XHR
 
         Parameters:
@@ -209,7 +221,7 @@ var XHR = NS.Class({
             that = this,
             name;
 
-        xhr.open( method, url, true );
+        xhr.open( method, url, this.makeAsyncRequests );
         for ( name in headers || {} ) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
