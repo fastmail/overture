@@ -337,8 +337,10 @@ var View = NS.Class({
 
         // Must iterate forward and not cache childViews or length.
         // Switch views may append extra child views when they are rendered.
-        for ( var i = 0; i < this.childViews.length; i += 1 ) {
-            this.childViews[i].willEnterDocument();
+        var childViews = this.get( 'childViews' ),
+            i;
+        for ( i = 0; i < childViews.length; i += 1 ) {
+            childViews[i].willEnterDocument();
         }
 
         return this;
@@ -364,10 +366,10 @@ var View = NS.Class({
 
         this.computedPropertyDidChange( 'pxLayout' );
 
-        var children = this.get( 'childViews' ),
-            l = children.length;
-        while ( l-- ) {
-            children[l].didEnterDocument();
+        var childViews = this.get( 'childViews' ),
+            i;
+        for ( i = 0; i < childViews.length; i += 1 ) {
+            childViews[i].didEnterDocument();
         }
 
         return this;

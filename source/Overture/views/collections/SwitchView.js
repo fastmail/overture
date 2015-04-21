@@ -44,6 +44,13 @@ var SwitchView = NS.Class({
     Extends: View,
 
     init: function ( mixin ) {
+        this._oldView = null;
+        // -1 => Not added views to parent
+        // Otherwise => Index of view(s) currently in parent
+        this._index = -1;
+
+        // Index of view that should be in parent.
+        this.index = 0;
         this.views = [];
         this.subViews = [];
 
@@ -105,13 +112,6 @@ var SwitchView = NS.Class({
 
     // ---
 
-    // -1 => Not yet added to parent
-    // Otherwise, index of view(s) currently in parent
-    _index: -1,
-
-    // Index of view that should be in parent.
-    index: 0,
-
     redraw: function () {
         var oldIndex = this._index,
             newIndex = this.get( 'index' ),
@@ -157,14 +157,13 @@ var SwitchView = NS.Class({
 
     _add: function () {
         var index = this.get( 'index' ),
-            view = this.get( 'views' )[ index ],
-            subView = this.get( 'subViews' )[ index ],
+            views = this.get( 'views' )[ index ],
+            subViews = this.get( 'subViews' )[ index ],
             parent = this.get( 'parentView' ),
             isInDocument = parent.get( 'isInDocument' ),
             position = this.get( 'layer' ),
             layer = position.parentNode,
-            l = view ? view.length : 0,
-            node, before;
+            l, node, before;
 
         // May be a NOP, but just in case.
         parent.removeObserverForKey( 'childViews', this, '_add' );
@@ -173,19 +172,21 @@ var SwitchView = NS.Class({
         }
         this._index = index;
 
-        if ( subView ) {
-            forEachView( subView, 'set', [ 'parentView', parent ] );
+        if ( subViews ) {
+            forEachView( subViews, 'set', [ 'parentView', parent ] );
             if ( isInDocument ) {
-                forEachView( subView, 'willEnterDocument' );
+                forEachView( subViews, 'willEnterDocument' );
             }
         }
+
+        l = views ? views.length : 0;
         while ( l-- ) {
-            node = view[l];
+            node = views[l];
             if ( node instanceof View ) {
                 parent.insertView( node, this, 'after' );
             } else {
                 if ( typeof node !== 'object' ) {
-                    node = view[l] = document.createTextNode( node );
+                    node = views[l] = document.createTextNode( node );
                 }
                 before = position.nextSibling;
                 if ( before ) {
@@ -195,48 +196,61 @@ var SwitchView = NS.Class({
                 }
             }
         }
-        if ( subView ) {
+
+        if ( subViews ) {
             if ( isInDocument ) {
-                forEachView( subView, 'didEnterDocument' );
+                forEachView( subViews, 'didEnterDocument' );
             }
-            parent.set( 'childViews',
-                parent.get( 'childViews' ).concat( subView ) );
+            Array.prototype.push.apply( parent.get( 'childViews' ), subViews );
+            parent.propertyDidChange( 'childViews' );
         }
-        return view;
     },
 
     _remove: function ( parent ) {
         var oldIndex = this._index,
-            view = this.get( 'views' )[ oldIndex ],
-            subView = this.get( 'subViews' )[ oldIndex ],
+            views = this.get( 'views' )[ oldIndex ],
+            subViews = this.get( 'subViews' )[ oldIndex ],
             isInDocument = parent.get( 'isInDocument' ),
-            l = view ? view.length : 0,
-            node;
+            l, node, childViews, view, index, numToRemove;
 
-        if ( isInDocument && subView ) {
-            forEachView( subView, 'willLeaveDocument' );
+        if ( isInDocument && subViews ) {
+            forEachView( subViews, 'willLeaveDocument' );
         }
+
+        l = views ? views.length : 0;
         while ( l-- ) {
-            node = view[l];
+            node = views[l];
             if ( node instanceof View ) {
                 parent.removeView( node );
             } else {
                 node.parentNode.removeChild( node );
             }
         }
-        if ( subView ) {
+
+        if ( subViews ) {
             if ( isInDocument ) {
-                forEachView( subView, 'didLeaveDocument' );
+                forEachView( subViews, 'didLeaveDocument' );
             }
-            forEachView( subView, 'set', [ 'parentView', null ] );
-            parent.set( 'childViews',
-                parent.get( 'childViews' ).filter( function ( view ) {
-                    return subView.indexOf( view ) === -1;
-                })
-            );
+            forEachView( subViews, 'set', [ 'parentView', null ] );
+            childViews = parent.get( 'childViews' );
+            l = subViews.length;
+            while ( l-- ) {
+                view = subViews[l];
+                index = childViews.lastIndexOf( view );
+                numToRemove = 1;
+                if ( index > -1 ) {
+                    while ( l > 0 && index > 0 &&
+                            subViews[ l - 1 ] === childViews[ index - 1 ] ) {
+                        l -= 1;
+                        index -= 1;
+                        numToRemove += 1;
+                    }
+                    childViews.splice( index, numToRemove );
+                }
+            }
+            parent.propertyDidChange( 'childViews' );
         }
         this._index = -1;
-        return view;
     },
 
     // ---
@@ -263,9 +277,9 @@ var SwitchView = NS.Class({
                 [ view ] :
             null;
         this.views[ index ] = view && view.reduce( flattenAndPrune, [] );
-        var subView = this.childViews;
-        if ( subView.length ) {
-            this.subViews[ index ] = subView;
+        var subViews = this.childViews;
+        if ( subViews.length ) {
+            this.subViews[ index ] = subViews;
             this.childViews = [];
         }
         return this;
