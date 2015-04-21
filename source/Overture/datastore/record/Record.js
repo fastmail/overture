@@ -201,7 +201,8 @@ var Record = NS.Class({
     status: function () {
         var storeKey = this.get( 'storeKey' );
         return storeKey ?
-            this.get( 'store' ).getStatus( storeKey ) : NS.Status.READY;
+            this.get( 'store' ).getStatus( storeKey ) :
+            (NS.Status.READY|NS.Status.NEW);
     }.property().nocache(),
 
     /**
