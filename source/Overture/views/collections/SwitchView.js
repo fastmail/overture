@@ -84,7 +84,7 @@ var SwitchView = NS.Class({
 
     willEnterDocument: function () {
         this.resumeBindings();
-        this.redraw( true );
+        this.redraw();
         return this;
     },
 
@@ -112,26 +112,17 @@ var SwitchView = NS.Class({
     // Index of view that should be in parent.
     index: 0,
 
-    redraw: function ( willEnterDocument ) {
+    redraw: function () {
         var oldIndex = this._index,
             newIndex = this.get( 'index' ),
-            parentView, view, subViews;
+            parentView;
         // If not yet added to parent, nothing to redraw; _add will be called
         // automatically soon.
         if ( !this.isDestroyed && oldIndex > -1 && oldIndex !== newIndex ) {
             parentView = this.get( 'parentView' );
             if ( parentView ) {
-                view = this._remove( parentView );
-                subViews = this.get( 'subViews' );
-                if ( willEnterDocument ) {
-                    forEachView( view, 'didLeaveDocument' );
-                    forEachView( subViews[ oldIndex ], 'didLeaveDocument' );
-                }
-                view = this._add();
-                if ( willEnterDocument ) {
-                    forEachView( view, 'willEnterDocument' );
-                    forEachView( subViews[ newIndex ], 'willEnterDocument' );
-                }
+                this._remove( parentView );
+                this._add();
             }
         }
     },
@@ -169,7 +160,7 @@ var SwitchView = NS.Class({
             view = this.get( 'views' )[ index ],
             subView = this.get( 'subViews' )[ index ],
             parent = this.get( 'parentView' ),
-            isInDocument = this.get( 'isInDocument' ),
+            isInDocument = parent.get( 'isInDocument' ),
             position = this.get( 'layer' ),
             layer = position.parentNode,
             l = view ? view.length : 0,
@@ -218,7 +209,7 @@ var SwitchView = NS.Class({
         var oldIndex = this._index,
             view = this.get( 'views' )[ oldIndex ],
             subView = this.get( 'subViews' )[ oldIndex ],
-            isInDocument = this.get( 'isInDocument' ),
+            isInDocument = parent.get( 'isInDocument' ),
             l = view ? view.length : 0,
             node;
 
