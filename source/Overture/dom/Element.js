@@ -99,13 +99,19 @@ Element.prototype.get = function ( key ) {
         {Element} Returns self.
 */
 Element.prototype.set = function ( key, value ) {
-    var prop = directProperties[ key ];
+    var prop = directProperties[ key ],
+        child;
     if ( prop ) {
         this[ prop ] = ( value == null ? '' : '' + value );
     } else if ( booleanProperties[ key ] ) {
         this[ key ] = !!value;
     } else if ( key === 'styles' ) {
         setStyles( this, value );
+    } else if ( key === 'children' ) {
+        while ( child = this.lastChild ) {
+            this.removeChild( child );
+        }
+        appendChildren( this, value );
     } else if ( value == null ) {
         this.removeAttribute( key );
     } else {
