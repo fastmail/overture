@@ -169,7 +169,7 @@ var LiveQuery = NS.Class({
         return this._storeKeys.map( function ( storeKey ) {
             return store.materialiseRecord( storeKey, Type );
         });
-    }.property(),
+    }.property().nocache(),
 
     /**
         Property: O.LiveQuery#length
