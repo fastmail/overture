@@ -173,6 +173,8 @@ Function.implement({
     final object/value from a root object. At each stage of the path, if the current object supports a 'get' function, that will be used to retrieve the
     next stage, otherwise it will just be read directly as a property.
 
+    If the full path cannot be followed, `undefined` will be returned.
+
     Parameters:
         root - {Object} The root object the path is relative to.
         path - {String} The path to retrieve the value from.
@@ -186,7 +188,10 @@ var getFromPath = NS.getFromPath = function ( root, path ) {
         pathLength = path.length,
         nextDot,
         key;
-    while ( root && currentPosition < pathLength ) {
+    while ( currentPosition < pathLength ) {
+        if ( !root ) {
+            return undefined;
+        }
         nextDot = path.indexOf( '.', currentPosition );
         if ( nextDot === -1 ) { nextDot = pathLength; }
         key = path.slice( currentPosition, nextDot );
