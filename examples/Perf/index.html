@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html ng-app="test">
+    <head>
+        <title>Performance Comparison for React, Angular and Overture</title>
+        <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css" rel="stylesheet" />
+        <style type="text/css">
+            * { box-sizing:border-box; }
+            body { padding:30px 0; }
+            h2 { margin:0; margin-bottom:0px; }
+            h3 { margin:0; padding:0; margin-bottom:12px; }
+            h4 { margin:0; padding:0; margin-bottom:12px; }
+            .test-data { margin-bottom:3px; }
+            .test-data span { padding:3px 10px; background:#EEE; width:100%; float:left; cursor:pointer; }
+            .test-data span:hover { background:#DDD; }
+            .test-data span.selected { background:#3F7AD9; color:white; }
+
+            .time { font-size:12px; font-weight:bold; height:26px; line-height:26px; vertical-align:middle; display:inline-block; cursor:pointer; text-decoration:underline; }
+            div.selected .test-data span { background:#3F7AD9; color:white; }
+            .overture-listView .row { width: 100% }
+            .subscript { padding-bottom: 25px;}
+        </style>
+
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.3/angular.min.js"></script>
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/react/0.12.1/react.js"></script>
+        <script type="text/javascript" src="JSLibPerf.js"></script>
+    </head>
+    <body ng-controller="controller">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Performance Comparison for React, Angular and Overture</h2>
+                    <div class="subscript">
+                        (based on <a href="https://www.codementor.io/reactjs/tutorial/reactjs-vs-angular-js-performance-comparison-knockout">https://www.codementor.io/reactjs/tutorial/reactjs-vs-angular-js-performance-comparison-knockout</a>)
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" id="overture-naive">
+            </div>
+
+            <div class="col-md-3" id="overture-progressive">
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3>React</h3>
+                    </div>
+                    <div class="col-md-4 text-right time" id="run-react">Run</div>
+                </div>
+                <div id="react"></div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3>Angular</h3>
+                    </div>
+                    <div class="col-md-4 text-right time" id="run-angular" ng-click="run()">Run</div>
+                </div>
+                <div>
+                    <div class="row" ng-repeat="item in data">
+                        <div class="col-md-12 test-data">
+                            <span ng-class="{ selected: item.id === $parent.selected }" ng-click="select(item)">{{item.label}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript" src="../../build/Overture-raw.js"></script>
+        <script type="text/javascript" src="OvertureJSPerf.js"></script>
+    </body>
+</html>
+
