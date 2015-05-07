@@ -14,12 +14,13 @@ var ListKBFocusView = NS.Class({
 
     Extends: NS.View,
 
-    listView: null,
+    selection: null,
+    singleSelection: null,
 
-    selection: NS.bind( 'listView.selection' ),
-    itemHeight: NS.bind( 'listView.itemHeight' ),
+    index: NS.bind( 'singleSelection*index' ),
+    record: NS.bind( 'singleSelection*record' ),
 
-    index: 0,
+    itemHeight: 32,
 
     keys: {
         j: 'goNext',
@@ -27,7 +28,8 @@ var ListKBFocusView = NS.Class({
         x: 'select',
         'shift-x': 'select',
         o: 'trigger',
-        enter: 'trigger'
+        enter: 'trigger',
+        s: 'star'
     },
 
     className: 'v-ListKBFocus',
@@ -36,12 +38,18 @@ var ListKBFocusView = NS.Class({
 
     layout: function () {
         var itemHeight = this.get( 'itemHeight' ),
-            index = this.get( 'index' );
+            index = this.get( 'index' ),
+            singleSelection = this.get( 'singleSelection' ),
+            list = singleSelection.get( 'content' );
+        if ( index > -1 && list &&
+                list.getObjectAt( index ) !== this.get( 'record' ) ) {
+            index = -1;
+        }
         return {
             top: itemHeight * index,
             height: index < 0 ? 0 : itemHeight
         };
-    }.property( 'itemHeight', 'index' ),
+    }.property( 'itemHeight', 'index', 'record' ),
 
     didEnterDocument: function () {
         var keys = this.get( 'keys' ),
@@ -118,9 +126,20 @@ var ListKBFocusView = NS.Class({
     },
 
     go: function ( delta ) {
-        var length = this.getFromPath( 'listView.content.length' ) || 0,
-            index = this.get( 'index' );
-        this.set( 'index', ( index + delta ).limit( 0, length - 1 ) );
+        var index = this.get( 'index' ),
+            singleSelection = this.get( 'singleSelection' ),
+            list = singleSelection.get( 'content' ),
+            length = list && list.get( 'length' ) || 0;
+        if ( delta === 1 && index > -1 && list &&
+                list.getObjectAt( index ) !== this.get( 'record' ) ) {
+            delta = 0;
+        }
+        if ( delta ) {
+            singleSelection.set( 'index',
+                ( index + delta ).limit( 0, length - 1 ) );
+        } else {
+            singleSelection.propertyDidChange( 'index' );
+        }
         if ( this.get( 'isInDocument' ) ) {
             this.checkScroll();
         }
@@ -134,16 +153,16 @@ var ListKBFocusView = NS.Class({
     select: function ( event ) {
         var index = this.get( 'index' ),
             selection = this.get( 'selection' ),
-            list = this.getFromPath( 'listView.content' ),
-            record = list && list.getObjectAt( index );
+            record = this.get( 'record' );
         // Check it's next to a loaded record.
-        if ( record ) {
+        if ( selection && record ) {
             selection.selectIndex( index,
                 !selection.isIdSelected( record.get( 'id' ) ),
                 event.shiftKey );
         }
     },
-    trigger: function () {}
+    trigger: function () {},
+    star: function () {}
 });
 
 NS.ListKBFocusView = ListKBFocusView;
