@@ -888,7 +888,7 @@ var RichTextView = NS.Class({
 
     direction: function () {
         var path = this.get( 'path' ),
-            results = /\.dir\-(\w+)/.exec( path ),
+            results = /\[dir=(\w+)\]/.exec( path ),
             dir;
         if ( path === '(selection)' ) {
             dir = '';
