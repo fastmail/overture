@@ -25,7 +25,7 @@ var DEFAULT = NS.DragEffect.DEFAULT;
 function TouchDragEvent ( touch ) {
     var clientX = touch.clientX,
         clientY = touch.clientY,
-        target = document.elementFromPoint( clientX, clientY );
+        target = document.elementFromPoint( clientX, clientY ) || touch.target;
     this.touch = touch;
     this.clientX = clientX;
     this.clientY = clientY;
