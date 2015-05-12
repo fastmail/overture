@@ -175,8 +175,8 @@ var ListView = NS.Class({
 
             // Set of already rendered views.
             rendered = this._rendered,
+            newRendered = {},
             viewsToInsert = [],
-            isStillRequired = {},
 
             // Are they new or always been there?
             added = this._added,
@@ -185,7 +185,8 @@ var ListView = NS.Class({
             isInDocument = this.get( 'isInDocument' ),
             frag = layer.ownerDocument.createDocumentFragment(),
 
-            i, l, item, id, view, isAdded, isRemoved, viewToInsert;
+            i, l, item, id, view, isAdded, isRemoved, viewToInsert,
+            renderedViewIds;
 
         // If we have to keep the DOM order the same as the list order, we'll
         // have to remove existing views from the DOM. To optimise this, we
@@ -203,33 +204,35 @@ var ListView = NS.Class({
             id = item ? NS.guid( item ) : 'null:' + i;
             view = rendered[ id ];
             if ( view && this.isCorrectItemView( view, item, i ) ) {
-                isStillRequired[ id ] = true;
+                newRendered[ id ] = view;
             }
         }
 
         // Remove ones which are no longer needed
         this.beginPropertyChanges();
-        for ( id in rendered ) {
+        renderedViewIds = Object.keys( rendered );
+        for ( i = 0, l = renderedViewIds.length; i < l; i += 1 ) {
+            id = renderedViewIds[i];
             view = rendered[ id ];
-            if ( !isStillRequired[ id ] ) {
+            if ( !newRendered[ id ] ) {
                 isRemoved = removed && ( item = view.get( 'content' ) ) ?
                     removed[ item.get( 'id' ) ] : false;
                 view.detach( isRemoved );
                 this.destroyItemView( view );
-                delete rendered[ id ];
             }
         }
+        this._rendered = newRendered;
 
         // Create/update views in render range
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
             id = item ? NS.guid( item ) : 'null:' + i;
-            view = rendered[ id ];
+            view = newRendered[ id ];
             if ( !view ) {
                 isAdded = added && item ? added[ item.get( 'id' ) ] : false;
                 view = this.createItemView( item, i, list, isAdded );
                 if ( view ) {
-                    rendered[ id ] = view;
+                    newRendered[ id ] = view;
                     childViews.include( view );
                 }
                 // If reusing views, may not need to reinsert.
