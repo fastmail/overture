@@ -35,6 +35,9 @@ function overturePerf ( options ) {
 
         className: 'row',
 
+        positioning: 'static',
+        layout: {},
+
         /*  Dynamic property to determine if data item is selected.
         */
         isSelected: function () {
@@ -44,9 +47,7 @@ function overturePerf ( options ) {
         /*  Display the item.
         */
         draw: function ( layer, Element, el ) {
-            var item = this.get( 'content' ),
-                isSelected = this.get( 'isSelected' );
-
+            var item = this.get( 'content' );
             return [
                 el( 'div.col-md-12.test-data', [
                     el( 'span', [ item.label ] )
@@ -80,7 +81,9 @@ function overturePerf ( options ) {
     */
     var BoundDataItemView = O.Class({
 
-        Extends: DataItemView,
+        Extends: O.ListItemView,
+
+        itemHeight: options.itemHeight,
 
         /*  Bound property for determining selection status.
         */
@@ -94,6 +97,8 @@ function overturePerf ( options ) {
         className: function() {
             return 'row' + ( this.get( 'isSelected' ) ? ' selected' : '' );
         }.property( 'isSelected' ),
+
+        draw: DataItemView.prototype.draw,
 
         /*  Select just sets the selected item on the controller.
         */
@@ -248,7 +253,7 @@ var ScrollingRootView = O.Class({
 /*  Somewhat arbitrary batch size for on-demand loading,
     not critical for local only data sources.
 */
-var batchSize = 10;
+var batchSize = 50;
 
 /*  Create an OvertureJS implementation using a progressive view for a more
     realistic use-case and *much* better performance.
