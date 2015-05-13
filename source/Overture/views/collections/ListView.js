@@ -89,7 +89,7 @@ var ListView = NS.Class({
     layout: function () {
         var itemHeight = this.get( 'itemHeight' );
         return itemHeight ? {
-             height: itemHeight * ( this.get( 'contentLength' ) || 0 )
+            height: itemHeight * ( this.get( 'contentLength' ) || 0 )
         } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
