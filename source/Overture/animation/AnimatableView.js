@@ -133,6 +133,13 @@ NS.AnimatableView = {
                 }
             }
         }
+        // Just remove styles that are not specified in the new styles, but were
+        // in the old styles
+        for ( property in oldStyles ) {
+            if ( !( property in newStyles ) ) {
+                setStyle( layer, property, null );
+            }
+        }
     }
 };
 
