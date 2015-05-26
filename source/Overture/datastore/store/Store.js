@@ -1936,21 +1936,21 @@ var Store = NS.Class({
             }
             committed = _skToCommitted[ storeKey ] = _skToRollback[ storeKey ];
             delete _skToRollback[ storeKey ];
-            if ( status & DIRTY ) {
-                changed = {};
-                current = _skToData[ storeKey ];
-                delete _skToChanged[ storeKey ];
-                for ( key in current ) {
-                    if ( !isEqual( current[ key ], committed[ key ] ) ) {
-                        changed[ key ] = true;
-                        _skToChanged[ storeKey ] = changed;
-                    }
+            changed = {};
+            current = _skToData[ storeKey ];
+            delete _skToChanged[ storeKey ];
+            for ( key in current ) {
+                if ( !isEqual( current[ key ], committed[ key ] ) ) {
+                    changed[ key ] = true;
+                    _skToChanged[ storeKey ] = changed;
                 }
             }
             if ( !( status & COMMITTING ) ) {
                 this.setObsolete( storeKey );
-            } else {
+            } else if ( _skToChanged[ storeKey ] ) {
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
+            } else {
+                this.setStatus( storeKey, ( status & ~COMMITTING ) );
             }
         }
         return this;
