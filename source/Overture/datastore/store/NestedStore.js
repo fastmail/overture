@@ -62,6 +62,8 @@ var NestedStore = NS.Class({
         this._skToChanged = {};
         // Own previous attributes.
         this._skToCommitted = {};
+        // Not used, but needs to be present to stop error on unload
+        this._skToRollback = {};
 
         // Share last access timestamp for
         this._skToLastAccess = store._skToLastAccess;
@@ -131,10 +133,23 @@ var NestedStore = NS.Class({
             _skToData = this._skToData,
             _skToChanged = this._skToChanged,
             parent = this._parentStore,
-            storeKey;
+            storeKey, status, data;
 
         for ( storeKey in _created ) {
-            parent.createRecord( storeKey, _skToData[ storeKey ] );
+            status = parent.getStatus( storeKey );
+            data = _skToData[ storeKey ];
+            if ( status === EMPTY || status === DESTROYED ) {
+                parent.createRecord( storeKey, data );
+            } else if ( ( status & ~(OBSOLETE|LOADING) ) ===
+                    (DESTROYED|COMMITTING) ) {
+                parent._skToData[ storeKey ] = data;
+                parent.setStatus( storeKey, READY|NEW|COMMITTING );
+            } else if ( status & DESTROYED ) {
+                delete parent._destroyed[ storeKey ];
+                parent._skToData[ storeKey ] = data;
+                parent.setStatus( storeKey,
+                    ( status & ~(DESTROYED|DIRTY) ) | READY );
+            }
         }
         for ( storeKey in _skToChanged ) {
             parent.updateData( storeKey, Object.filter(
@@ -182,13 +197,6 @@ var NestedStore = NS.Class({
         var status = this._skToStatus[ storeKey ] || EMPTY;
         return this._skToData.hasOwnProperty( storeKey ) ?
             status : status & ~(NEW|COMMITTING|DIRTY);
-    },
-
-    setObsolete: function ( storeKey ) {
-        this._parentStore.setObsolete( storeKey );
-    },
-    setLoading: function ( storeKey ) {
-        this._parentStore.setLoading( storeKey );
     },
 
     fetchAll: function ( storeKey ) {

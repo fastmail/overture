@@ -248,6 +248,30 @@ var LiveQuery = NS.Class({
     },
 
     /**
+        Method: O.LiveQuery#reset
+
+        Recalculate the set of matching results.
+
+        Returns:
+            {O.LiveQuery} Returns self.
+    */
+    reset: function () {
+        var oldStoreKeys = this._storeKeys,
+            storeKeys = this.get( 'store' ).findAll(
+                this.get( 'Type' ), this.filter, this.sort ),
+            maxLength = Math.max( storeKeys.length, oldStoreKeys.length );
+
+        this._storeKeys = storeKeys;
+
+        return this
+            .beginPropertyChanges()
+                .set( 'length', storeKeys.length )
+                .rangeDidChange( 0, maxLength )
+            .endPropertyChanges()
+            .fire( 'query:reset' );
+    },
+
+    /**
         Method: O.LiveQuery#storeDidChangeRecords
 
         Callback made by the store when there are changes that affect the query.

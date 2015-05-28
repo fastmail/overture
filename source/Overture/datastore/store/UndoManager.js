@@ -119,41 +119,10 @@ var StoreUndoManager = NS.Class({
         return store.hasChanges() ? store.getInverseChanges() : null;
     },
 
-    _updateStoreKeys: function ( stack, created ) {
-        var l = stack.length,
-            item, create, update, destroy, i, ll, storeKey;
-        while ( l-- ) {
-            item = stack[l];
-            create = item.create;
-            update = item.update;
-            destroy = item.destroy;
-            for ( i = 0, ll = create.length; i < ll; i += 1 ) {
-                storeKey = created[ create[i][0] ];
-                if ( storeKey ) {
-                    create[i][0] = storeKey;
-                }
-            }
-            for ( i = 0, ll = update.length; i < ll; i += 1 ) {
-                storeKey = created[ update[i][0] ];
-                if ( storeKey ) {
-                    update[i][0] = storeKey;
-                }
-            }
-            for ( i = 0, ll = destroy.length; i < ll; i += 1 ) {
-                storeKey = created[ destroy[i] ];
-                if ( storeKey ) {
-                    destroy[i] = storeKey;
-                }
-            }
-        }
-    },
-
     applyChange: function ( data ) {
         var store = this.store,
-            created = store.applyChanges( data ),
             inverse;
-        this._updateStoreKeys( this._undoStack, created );
-        this._updateStoreKeys( this._redoStack, created );
+        store.applyChanges( data );
         inverse = store.getInverseChanges();
         store.commitChanges();
         return inverse;
