@@ -267,6 +267,10 @@ var Record = NS.Class({
     }.property(),
 
     toJSON: function () {
+        return this.get( 'storeKey' );
+    },
+
+    toIdOrStoreKey: function () {
         return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
     },
 

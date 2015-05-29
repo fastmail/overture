@@ -84,9 +84,6 @@ var NestedStore = NS.Class({
         // List of nested stores
         this._nestedStores = [];
 
-        // Waiting for an id
-        this._awaitingId = {};
-
         // Type -> [ store key ] of changed records.
         this._typeToChangedSks = {};
 

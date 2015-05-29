@@ -97,16 +97,19 @@ var SingleSelectionController = NS.Class({
             }
             if ( record && list ) {
                 this.set( 'isFetchingIndex', true );
-                list.indexOfId( record.toJSON(), 0,
-                function ( index ) {
-                    if ( this.get( 'record' ) === record &&
-                            this.get( 'content' ) === list ) {
-                        this._ignore = true;
-                        this.set( 'index', index );
-                        this._ignore = false;
-                        this.set( 'isFetchingIndex', false );
-                    }
-                }.bind( this ) );
+                list.indexOfId(
+                    record.toIdOrStoreKey(),
+                    0,
+                    function ( index ) {
+                        if ( this.get( 'record' ) === record &&
+                                this.get( 'content' ) === list ) {
+                            this._ignore = true;
+                            this.set( 'index', index );
+                            this._ignore = false;
+                            this.set( 'isFetchingIndex', false );
+                        }
+                    }.bind( this )
+                );
             } else if ( record || this.get( 'allowNoSelection' ) ) {
                 this._ignore = true;
                 this.set( 'index', -1 );
@@ -140,7 +143,7 @@ var SingleSelectionController = NS.Class({
         // See if the currently set record exists in the new list. If it does,
         // we'll use that.
         if ( record ) {
-            index = list.indexOfId( record.toJSON() );
+            index = list.indexOfId( record.toIdOrStoreKey() );
             if ( !allowNoSelection && index < 0 ) {
                 index = 0;
             }

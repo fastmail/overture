@@ -15,7 +15,7 @@
     data records.
 */
 
-( function ( NS, undefined ) {
+( function ( NS ) {
 
 // Same as O.Status, inlined here for efficiency
 
@@ -98,50 +98,49 @@ var getForeignRefAttrs = function ( Type ) {
     return foreignRefAttrs;
 };
 
-var convertForeignRefsToSK = function ( store, Type, data ) {
-    var foreignRefAttrs = getForeignRefAttrs( Type );
-    var toStoreKey = function ( id ) {
-        return ( id.charAt( 0 ) === '#' ) ?
-            id : '#' + store.getStoreKey( Type, id );
-    };
-    var i, l, value, foreignRef, attrKey;
-    for ( i = 0, l = foreignRefAttrs.length; i < l; i += 1 ) {
-        foreignRef = foreignRefAttrs[i];
-        Type = foreignRef[2];
-        attrKey = foreignRef[0];
-        value = data[ attrKey ];
-        if ( foreignRef[1] === 1 ) {
-            if ( value && value.charAt( 0 ) !== '#' ) {
-                data[ attrKey ] = '#' + store.getStoreKey( Type, value );
-            }
-        } else {
-            data[ attrKey ] = value && value.map( toStoreKey );
-        }
-    }
-    return data;
+var toStoreKey = function ( store, Type, id ) {
+    return store.getStoreKey( Type, id );
 };
 
-var convertForeignRefsToIds = function ( store, Type, data ) {
-    var foreignRefAttrs = getForeignRefAttrs( Type );
-    var toId = function ( storeKey ) {
-        return ( storeKey.charAt( 0 ) === '#' ) &&
-            store.getIdFromStoreKey( storeKey.slice( 1 ) ) || storeKey;
-    };
-    var i, l, value, foreignRef, attrKey;
+var convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
+    var i, l, foreignRef, attrKey, AttrType, value;
     for ( i = 0, l = foreignRefAttrs.length; i < l; i += 1 ) {
         foreignRef = foreignRefAttrs[i];
         attrKey = foreignRef[0];
-        value = data[ attrKey ];
-        if ( foreignRef[1] === 1 ) {
-            if ( value && value.charAt( 0 ) === '#' ) {
-                data[ attrKey ] =
-                    store.getIdFromStoreKey( value.slice( 1 ) ) || value;
-            }
-        } else {
-            data[ attrKey ] = value && value.map( toId );
+        AttrType = foreignRef[2];
+        if ( attrKey in data ) {
+            value = data[ attrKey ];
+            data[ attrKey ] = value && ( foreignRef[1] === 1 ?
+                toStoreKey( store, AttrType, value ) :
+                value.map( toStoreKey.bind( null, store, AttrType ) )
+            );
         }
     }
-    return data;
+};
+
+var toId = function ( store, storeKey ) {
+    return store.getIdFromStoreKey( storeKey ) || '#' + storeKey;
+};
+
+var convertForeignKeysToId = function ( store, Type, data ) {
+    var foreignRefAttrs = getForeignRefAttrs( Type ),
+        result = data,
+        i, l, foreignRef, attrKey, value;
+    for ( i = 0, l = foreignRefAttrs.length; i < l; i += 1 ) {
+        foreignRef = foreignRefAttrs[i];
+        attrKey = foreignRef[0];
+        if ( attrKey in data ) {
+            if ( result === data ) {
+                result = NS.clone( data );
+            }
+            value = data[ attrKey ];
+            result[ attrKey ] = value && ( foreignRef[1] === 1 ?
+                toId( store, value ) :
+                value.map( toId.bind( null, store ) )
+            );
+        }
+    }
+    return result;
 };
 
 // ---
@@ -254,9 +253,6 @@ var Store = NS.Class({
 
         // List of nested stores
         this._nestedStores = [];
-
-        // Waiting for an id
-        this._awaitingId = {};
 
         // Type -> [ store key ] of changed records.
         this._typeToChangedSks = {};
@@ -404,7 +400,6 @@ var Store = NS.Class({
             if ( this.getStatus( storeKey ) & READY ) {
                 update[ idAttrKey ] = id;
                 this.updateData( storeKey, update, false );
-                this.updateDataLinkedToId( storeKey, id );
             } else {
                 // Update in case of discard changes.
                 this._skToData[ storeKey ][ idAttrKey ] = id;
@@ -412,115 +407,6 @@ var Store = NS.Class({
         }
 
         return this;
-    },
-
-    /**
-        Method: O.Store#attrMapsToStoreKey
-
-        Called by a record when it sets a relationship to a record which does
-        not yet have an id. When the id is set by the source, the store will
-        then automatically update the data object with the id.
-
-        Parameters:
-            toStoreKey   - {String} The store key of the record without an id.
-            fromStoreKey - {String} The store key of the record with the
-                           relationship to the record in the first parameter.
-            attrKey      - {String} The key for the attribute in which the
-                           relationship is stored.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    attrMapsToStoreKey: function ( toStoreKey, fromStoreKey, attrKey ) {
-        ( this._awaitingId[ toStoreKey ] ||
-            ( this._awaitingId[ toStoreKey ] = [] )
-        ).push([ fromStoreKey, attrKey ]);
-        return this;
-    },
-
-    /**
-        Method: O.Store#attrNoLongerMapsToStoreKey
-
-        Called by a record when it removes a relationship to a record which does
-        not yet have an id.
-
-        Parameters:
-            toStoreKey   - {String} The store key of the record without an id.
-            fromStoreKey - {String} The store key of the record which had the
-                           relationship to the record in the first parameter.
-            attrKey      - {String} The key for the attribute in which the
-                           relationship was stored.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    attrNoLongerMapsToStoreKey: function ( toStoreKey, fromStoreKey, attrKey ) {
-        var waiting = this._awaitingId[ toStoreKey ],
-            l = waiting ? waiting.length: 0,
-            pair;
-
-        while ( l-- ) {
-            pair = waiting[l];
-            if ( pair[0] === fromStoreKey && pair[1] === attrKey ) {
-                waiting.splice( l, 1 );
-                break;
-            }
-        }
-    },
-
-    /**
-        Method: O.Store#updateDataLinkedToId
-
-        Updates the data objects which have a relationship to a record which now
-        has an id, replacing the store key with the actual id.
-
-        Parameters:
-            storeKey - {String} The store key of the record.
-            id       - {String} The new id for the record.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    updateDataLinkedToId: function ( storeKey, id ) {
-        var waiting = this._awaitingId[ storeKey ],
-            _skToData = this._skToData,
-            _skToCommitted = this._skToCommitted,
-            l, storeKeyId, pair, data, value, fromStoreKey, attrKey, index;
-        if ( waiting ) {
-            delete this._awaitingId[ storeKey ];
-            l = waiting.length;
-            storeKeyId = '#' + storeKey;
-            while ( l-- ) {
-                pair = waiting[l];
-                fromStoreKey = pair[0];
-                attrKey = pair[1];
-                data = _skToData[ fromStoreKey ];
-                if ( data && ( value = data[ attrKey ] ) ) {
-                    if ( value instanceof Array ) {
-                        index = value.indexOf( storeKeyId );
-                        if ( index > -1 ) {
-                            value[ index ] = id;
-                        }
-                    } else if ( value === storeKeyId ) {
-                        data[ attrKey ] = id;
-                    }
-                }
-                data = _skToCommitted[ fromStoreKey ];
-                if ( data && ( value = data[ attrKey ] ) ) {
-                    if ( value instanceof Array ) {
-                        index = value.indexOf( storeKeyId );
-                        if ( index > -1 ) {
-                            value[ index ] = id;
-                        }
-                    } else if ( value === storeKeyId ) {
-                        data[ attrKey ] = id;
-                    }
-                }
-            }
-        }
-        this._nestedStores.forEach( function ( store ) {
-            store.updateDataLinkedToId( storeKey, id );
-        });
     },
 
     // === Client API ==========================================================
@@ -676,7 +562,7 @@ var Store = NS.Class({
             _skToRollback = this._skToRollback,
             _typeToClientState = this._typeToClientState,
             _typeToStatus = this._typeToStatus,
-            storeKey, data, changed, id, status, create, update, destroy,
+            storeKey, data, Type, changed, id, status, create, update, destroy,
             newSkToChanged = {},
             newDestroyed = {},
             changes = {},
@@ -707,15 +593,21 @@ var Store = NS.Class({
 
         for ( storeKey in _created ) {
             status = _skToStatus[ storeKey ];
+            Type = _skToType[ storeKey ];
             data = _skToData[ storeKey ];
-            create = getEntry( _skToType[ storeKey ] ).create;
+
+            data = convertForeignKeysToId( this, Type, data );
+
+            create = getEntry( Type ).create;
             create.storeKeys.push( storeKey );
             create.records.push( data );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
         for ( storeKey in _skToChanged ) {
             status = _skToStatus[ storeKey ];
+            Type = _skToType[ storeKey ];
             data = _skToData[ storeKey ];
+
             changed = _skToChanged[ storeKey ];
             if ( status & COMMITTING ) {
                 newSkToChanged[ storeKey ] = changed;
@@ -723,7 +615,9 @@ var Store = NS.Class({
             }
             _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
             delete _skToCommitted[ storeKey ];
-            update = getEntry( _skToType[ storeKey ] ).update;
+            data = convertForeignKeysToId( this, Type, data );
+
+            update = getEntry( Type ).update;
             update.storeKeys.push( storeKey );
             update.records.push( data );
             update.changes.push( changed );
@@ -731,14 +625,17 @@ var Store = NS.Class({
         }
         for ( storeKey in _destroyed ) {
             status = _skToStatus[ storeKey ];
-            id = _typeToSkToId[ guid( _skToType[ storeKey ] ) ][ storeKey ];
+            Type = _skToType[ storeKey ];
+            id = _typeToSkToId[ guid( Type ) ][ storeKey ];
+
             // This means it's new and committing, so wait for commit to finish
             // first.
             if ( status & NEW ) {
                 newDestroyed[ storeKey ] = 1;
                 continue;
             }
-            destroy = getEntry( _skToType[ storeKey ] ).destroy;
+
+            destroy = getEntry( Type ).destroy;
             destroy.storeKeys.push( storeKey );
             destroy.ids.push( id );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
@@ -813,13 +710,8 @@ var Store = NS.Class({
             Type = _skToType[ storeKey ];
             inverse.update.push([
                 storeKey,
-                Type,
-                convertForeignRefsToSK(
-                    this,
-                    Type,
-                    Object.filter(
-                        _skToCommitted[ storeKey ], _skToChanged[ storeKey ]
-                    )
+                Object.filter(
+                    _skToCommitted[ storeKey ], _skToChanged[ storeKey ]
                 )
             ]);
         }
@@ -828,11 +720,7 @@ var Store = NS.Class({
             inverse.create.push([
                 storeKey,
                 Type,
-                convertForeignRefsToSK(
-                    this,
-                    Type,
-                    NS.clone( _skToData[ storeKey ] )
-                )
+                NS.clone( _skToData[ storeKey ] )
             ]);
         }
 
@@ -851,19 +739,13 @@ var Store = NS.Class({
             storeKey = createObj[0];
             Type = createObj[1];
             data = createObj[2];
-            this.undestroyRecord( storeKey, Type,
-                convertForeignRefsToIds( this, Type, data ) );
+            this.undestroyRecord( storeKey, Type, data );
         }
         for ( i = 0, l = update.length; i < l; i += 1 ) {
             updateObj = update[i];
             storeKey = updateObj[0];
-            Type = updateObj[1];
-            data = updateObj[2];
-            this.updateData(
-                storeKey,
-                convertForeignRefsToIds( this, Type, data ),
-                true
-            );
+            data = updateObj[1];
+            this.updateData( storeKey, data, true );
         }
         for ( i = 0, l = destroy.length; i < l; i += 1 ) {
             storeKey = destroy[i];
@@ -1526,6 +1408,7 @@ var Store = NS.Class({
             now = Date.now(),
             seen = {},
             updates = {},
+            foreignRefAttrs = getForeignRefAttrs( Type ),
             data, id, storeKey, status;
 
         while ( l-- ) {
@@ -1534,6 +1417,10 @@ var Store = NS.Class({
             seen[ id ] = true;
             storeKey = this.getStoreKey( Type, id );
             status = this.getStatus( storeKey );
+
+            if ( foreignRefAttrs.length ) {
+                convertForeignKeysToSK( this, foreignRefAttrs, data );
+            }
 
             // If we already have the record loaded, process it as an update.
             if ( status & READY ) {
@@ -1580,7 +1467,7 @@ var Store = NS.Class({
             }
         }
 
-        this.sourceDidFetchPartialRecords( Type, updates );
+        this.sourceDidFetchPartialRecords( Type, updates, true );
 
         if ( state ) {
             oldState = _typeToClientState[ typeId ];
@@ -1617,7 +1504,7 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchPartialRecords: function ( Type, updates ) {
+    sourceDidFetchPartialRecords: function ( Type, updates, _idsAreSKs ) {
         var typeId = guid( Type ),
             _skToData = this._skToData,
             _skToStatus = this._skToStatus,
@@ -1627,6 +1514,7 @@ var Store = NS.Class({
             _skToCommitted = this._skToCommitted,
             idPropKey = Type.primaryKey || 'id',
             idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
+            foreignRefAttrs = _idsAreSKs ? [] : getForeignRefAttrs( Type ),
             id, storeKey, status, update, newId;
 
         for ( id in updates ) {
@@ -1649,6 +1537,10 @@ var Store = NS.Class({
                 this.setStatus( storeKey, status & ~LOADING );
                 this.fetchData( storeKey );
                 continue;
+            }
+
+            if ( foreignRefAttrs.length ) {
+                convertForeignKeysToSK( this, foreignRefAttrs, update );
             }
 
             if ( status & DIRTY ) {
