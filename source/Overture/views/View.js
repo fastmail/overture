@@ -869,6 +869,11 @@ var View = NS.Class({
             number of pixels this view is offset from the given view.
     */
     getPositionRelativeTo: function ( view ) {
+        // If it's a scroll view, it may not have synced the current scroll
+        // positions yet. Force this.
+        if ( view.syncBackScroll ) {
+            view.syncBackScroll();
+        }
         var getPosition = NS.Element.getPosition,
             selfPosition = getPosition( this.get( 'layer' ) ),
             viewPosition = getPosition( view.get( 'layer' ) );
