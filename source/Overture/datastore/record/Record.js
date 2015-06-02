@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: Record.js                                                            \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
+// Requires: Core, Foundation, Status.js                                      \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
@@ -140,6 +140,8 @@ var AttributeErrors = NS.Class({
     }.observes( '*' )
 });
 
+var READY_NEW_DIRTY = (NS.Status.READY|NS.Status.NEW|NS.Status.DIRTY);
+
 /**
     Class: O.Record
 
@@ -202,7 +204,7 @@ var Record = NS.Class({
         var storeKey = this.get( 'storeKey' );
         return storeKey ?
             this.get( 'store' ).getStatus( storeKey ) :
-            (NS.Status.READY|NS.Status.NEW);
+            READY_NEW_DIRTY;
     }.property().nocache(),
 
     /**
@@ -337,8 +339,7 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     discardChanges: function () {
-        var Status = NS.Status;
-        if ( this.get( 'status' ) === (Status.READY|Status.NEW) ) {
+        if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
             this.destroy();
         } else {
             var storeKey = this.get( 'storeKey' );
