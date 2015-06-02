@@ -85,11 +85,6 @@ var TodoList = O.Class({
 
     Extends: O.Record,
 
-    _id: O.Record.attr( String, {
-        isPrimaryKey: true,
-        key: 'id'
-    }),
-
     name: O.Record.attr( String, {
         defaultValue: '',
         validate: function ( propValue/*, propKey, record*/ ) {
@@ -114,7 +109,7 @@ App.source.handle( TodoList, {
     commit: 'setTodoLists',
     // Response handlers
     todoLists: function ( args ) {
-        this.didFetchAll( TodoList, args );
+        this.didFetch( TodoList, args, true );
     },
     todoListsSet: function ( args ) {
         this.didCommit( TodoList, args );
@@ -126,11 +121,6 @@ App.source.handle( TodoList, {
 var Todo = O.Class({
 
     Extends: O.Record,
-
-    _id: O.Record.attr( String, {
-        isPrimaryKey: true,
-        key: 'id'
-    }),
 
     list: O.Record.toOne({
         Type: TodoList,
@@ -170,7 +160,7 @@ App.source.handle( Todo, {
     commit: 'setTodos',
     // Response handlers
     todos: function ( args ) {
-        this.didFetchAll( Todo, args );
+        this.didFetch( Todo, args, true );
     },
     todosSet: function ( args ) {
         this.didCommit( Todo, args );
@@ -392,12 +382,19 @@ App.state = new O.Router({
     todos: function () {
         var listId = this.get( 'listId' ),
             searchTree = App.parseSearch( this.get( 'search' ) ),
-            /*jshint evil:true */
-            filter = new Function( 'data', 'return' +
-                '(data.listId==="' + listId.replace( /"/g, '\\"') + '")' +
-                ( searchTree ? '&&' + searchTree.toFunctionString() : '' )
-            );
-            /*jshint evil:false */
+            filter;
+
+        if ( listId ) {
+            listId = App.store.getStoreKey( TodoList, listId );
+        }
+
+        /*jshint evil:true */
+        filter = new Function( 'data', 'return' +
+            '(data.listId==="' + listId.replace( /"/g, '\\"') + '")' +
+            ( searchTree ? '&&' + searchTree.toFunctionString() : '' )
+        );
+        /*jshint evil:false */
+
         return new O.LiveQuery({
             store: App.store,
             Type: Todo,
