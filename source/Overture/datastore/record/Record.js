@@ -140,7 +140,8 @@ var AttributeErrors = NS.Class({
     }.observes( '*' )
 });
 
-var READY_NEW_DIRTY = (NS.Status.READY|NS.Status.NEW|NS.Status.DIRTY);
+var Status = NS.Status;
+var READY_NEW_DIRTY = (Status.READY|Status.NEW|Status.DIRTY);
 
 /**
     Class: O.Record
@@ -234,8 +235,11 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     setObsolete: function () {
-        var storeKey = this.get( 'storeKey' );
-        if ( storeKey ) { this.get( 'store' ).setObsolete( storeKey ); }
+        var storeKey = this.get( 'storeKey' ),
+            status = this.get( 'status' );
+        if ( storeKey ) {
+            this.get( 'store' ).setStatus( storeKey, status | Status.OBSOLETE );
+        }
         return this;
     },
 
@@ -248,8 +252,11 @@ var Record = NS.Class({
             {O.Record} Returns self.
     */
     setLoading: function () {
-        var storeKey = this.get( 'storeKey' );
-        if ( storeKey ) { this.get( 'store' ).setLoading( storeKey ); }
+        var storeKey = this.get( 'storeKey' ),
+            status = this.get( 'status' );
+        if ( storeKey ) {
+            this.get( 'store' ).setStatus( storeKey, status | Status.LOADING );
+        }
         return this;
     },
 
