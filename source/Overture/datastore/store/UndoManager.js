@@ -44,7 +44,8 @@ var UndoManager = NS.Class({
         this._isInUndoState = false;
         this._redoStack.length = 0;
         this.set( 'canRedo', false )
-            .set( 'canUndo', true );
+            .set( 'canUndo', true )
+            .fire( 'input' );
         return this;
     },
 
@@ -65,13 +66,14 @@ var UndoManager = NS.Class({
         if ( this.get( 'canUndo' ) ) {
             if ( !this._isInUndoState ) {
                 this.saveUndoCheckpoint();
-                return this.undo();
+                this.undo();
             } else {
                 this._pushState( this._redoStack,
                     this.applyChange( this._undoStack.pop(), false )
                 );
                 this.set( 'canUndo', !!this._undoStack.length )
-                    .set( 'canRedo', true );
+                    .set( 'canRedo', true )
+                    .fire( 'undo' );
             }
         }
         return this;
@@ -83,7 +85,8 @@ var UndoManager = NS.Class({
                 this.applyChange( this._redoStack.pop(), true )
             );
             this.set( 'canUndo', true )
-                .set( 'canRedo', !!this._redoStack.length );
+                .set( 'canRedo', !!this._redoStack.length )
+                .fire( 'redo' );
         }
         return this;
     },
