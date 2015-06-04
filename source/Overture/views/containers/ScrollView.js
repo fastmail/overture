@@ -312,8 +312,8 @@ var ScrollView = NS.Class({
             this.beginPropertyChanges()
                 .set( 'scrollLeft', x )
                 .set( 'scrollTop', y )
-            .endPropertyChanges()
-            .propertyNeedsRedraw( this, 'scroll' );
+                .propertyNeedsRedraw( this, 'scroll' )
+            .endPropertyChanges();
         }
         return this;
     },

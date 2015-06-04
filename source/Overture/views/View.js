@@ -596,7 +596,7 @@ var View = NS.Class({
                 i, l;
             for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
                 if ( needsRedraw[i][0] === layerProperty ) {
-                    return;
+                    return this;
                 }
             }
             needsRedraw[l] = [
@@ -607,6 +607,7 @@ var View = NS.Class({
                 NS.RunLoop.queueFn( 'render', this.redraw, this );
             }
         }
+        return this;
     }.observes( 'className', 'layerStyles' ),
 
     /**
