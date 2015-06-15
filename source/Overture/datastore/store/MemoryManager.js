@@ -78,6 +78,7 @@ var MemoryManager = NS.Class({
         this._store = store;
         this._restrictions = restrictions;
 
+        this.isPaused = false;
         this.frequency = frequency || 30000;
 
         NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
@@ -99,6 +100,11 @@ var MemoryManager = NS.Class({
             max = restrictions.max,
             afterFn = restrictions.afterCleanup,
             deleted;
+
+        if ( this.isPaused ) {
+            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+            return;
+        }
 
         do {
             if ( ParentType === NS.Record ) {
