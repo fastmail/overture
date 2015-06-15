@@ -29,6 +29,7 @@ var SearchTextView = NS.Class({
                 icon: 'icon-clear',
                 positioning: 'absolute',
                 label: NS.loc( 'Clear Search' ),
+                shortcut: 'ctrl-/',
                 target: this,
                 method: 'reset'
             })
