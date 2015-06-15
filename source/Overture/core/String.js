@@ -121,6 +121,33 @@ String.implement({
     },
 
     /**
+        Method: String#repeat
+
+        ES6 method. Repeats the string n times.
+
+        Parameters
+            n - {Number} The number of times to repeat the string.
+                Must be an integer >= 0.
+
+        Returns:
+            {String} The repeated string.
+    */
+    repeat: function ( n ) {
+        var string = this,
+            output = '';
+        while ( n ) {
+            if ( n % 2 === 1 ) {
+                output += string;
+            }
+            if ( n > 1 ) {
+                string += string;
+            }
+            n = n >> 1;
+        }
+        return output;
+    },
+
+    /**
         Method: String#escapeHTML
 
         Returns the string with the characters <,>,& replaced by HTML entities.
