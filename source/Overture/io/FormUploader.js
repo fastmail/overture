@@ -195,8 +195,8 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
                     headers: {},
                     type: responseType,
                     data: response
-                  });
-                io.fire( 'io:end' );
+                  })
+                  .fire( 'io:end' );
             }
         }.invokeInRunLoop();
 
@@ -235,8 +235,8 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
                  headers: {},
                  type: '',
                  data: ''
-               });
-            io.fire( 'io:end' );
+               })
+               .fire( 'io:end' );
         }
         this._complete();
     }.invokeInRunLoop(),
@@ -255,8 +255,9 @@ NS.FormUploader = window.FormData ? NS.XHR : NS.Class({
         if ( this._isRunning ) {
             this._isRunning = false;
             this._complete();
-            this.io.fire( 'io:abort' );
-            this.io.fire( 'io:end' );
+            this.io
+                .fire( 'io:abort' )
+                .fire( 'io:end' );
         }
         return this;
     },

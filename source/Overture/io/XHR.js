@@ -296,8 +296,8 @@ var XHR = NS.Class({
                 headers: responseHeaders,
                 type: responseType,
                 data: response
-              });
-            io.fire( 'io:end' );
+              })
+              .fire( 'io:end' );
         }
     }.invokeInRunLoop(),
 
@@ -333,8 +333,8 @@ var XHR = NS.Class({
             xhr.abort();
             xhr.onreadystatechange = function () {};
             if ( io ) {
-                io.fire( 'io:abort' );
-                io.fire( 'io:end' );
+                io.fire( 'io:abort' )
+                  .fire( 'io:end' );
             }
         }
         return this;

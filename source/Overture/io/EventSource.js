@@ -105,8 +105,9 @@ var EventSource = NativeEventSource ? NS.Class({
     _check: function () {
         var now = Date.now();
         if ( now - this._then > 67500 ) {
-            this.fire( 'restart' );
-            this.close().open();
+            this.fire( 'restart' )
+                .close()
+                .open();
         } else {
             this._then = now;
             this._tick =
@@ -267,14 +268,14 @@ var EventSource = NativeEventSource ? NS.Class({
 
     _openConnection: function () {
         if ( this.get( 'readyState' ) === CONNECTING ) {
-            this.set( 'readyState', OPEN );
-            this.fire( 'open' );
+            this.set( 'readyState', OPEN )
+                .fire( 'open' );
         }
     },
 
     _failConnection: function () {
-        this.close();
-        this.fire( 'error' );
+        this.close()
+            .fire( 'error' );
     },
 
     _reconnect: function () {

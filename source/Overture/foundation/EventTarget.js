@@ -40,6 +40,59 @@ Function.implement({
 });
 
 /**
+    Class: O.Event
+
+    Represents a synthetic event.
+*/
+var Event = NS.Class({
+
+    /**
+        Constructor: O.Event
+
+        Parameters:
+            type   - {String} The event type.
+            target - {Object} The target on which the event is to fire.
+            mixin  - {Object} (optional) Any further properties to add to the
+                     event.
+    */
+    init: function ( type, target, mixin ) {
+        this.type = type;
+        this.target = target;
+        this.defaultPrevented = false;
+        this.propagationStopped = false;
+        NS.extend( this, mixin );
+    },
+
+    /**
+        Method: O.Event#preventDefault
+
+        Prevent the default action for this event (if any).
+
+        Returns:
+            {O.Event} Returns self.
+    */
+    preventDefault: function () {
+        this.defaultPrevented = true;
+        return this;
+    },
+
+    /**
+        Method: O.Event#stopPropagation
+
+        Stop bubbling the event up to the next target.
+
+        Returns:
+            {O.Event} Returns self.
+    */
+    stopPropagation: function () {
+        this.propagationStopped = true;
+        return this;
+    }
+});
+
+NS.Event = Event;
+
+/**
     Mixin: O.EventTarget
 
     The EventTarget mixin allows you to add custom event support to any other
@@ -134,39 +187,29 @@ NS.EventTarget = {
         event bubbling any further.
 
         Parameters:
-            type      - {String} The name of the event being fired.
-            event     - {Object} (optional) An event object or object of values
-                        to be added to the event object.
-            defaultFn - {Function} (optional) This function is called after all
-                        event handlers have completed, providing none of them
-                        called the preventDefault method on the event object.
+            type  - {String} The name of the event being fired.
+            event - {Event|O.Event|Object} (optional) An event object or object
+                    of values to be added to the event object.
 
         Returns:
-            {Boolean} Was propagation stopped?
+            {O.EventTarget} Returns self.
     */
-    fire: function ( type, event, defaultFn ) {
-        var canBubble = true,
-            preventDefault = false,
-            target = this,
+    fire: function ( type, event ) {
+        var target = this,
             typeKey = eventPrefix + type,
             handler, handlers, length;
 
-        if ( !( event && ( /Event\]$/.test( toString.call( event ) ) ||
-                event.isEvent ) ) ) {
-            event = NS.extend({
-                type: type,
-                target: this,
-                preventDefault: function () {
-                    preventDefault = true;
+        if ( !event || !( event instanceof Event ) ) {
+            if ( event && /Event\]$/.test( toString.call( event ) ) ) {
+                event.stopPropagation = function () {
+                    this.propagationStopped = true;
                     return this;
-                }
-            }, event );
+                };
+            } else {
+                event = new Event( type, target, event );
+            }
         }
-
-        event.stopPropagation = function () {
-            canBubble = false;
-            return this;
-        };
+        event.propagationStopped = false;
 
         while ( target ) {
             handlers = meta( target ).observers[ typeKey ];
@@ -183,18 +226,16 @@ NS.EventTarget = {
                     NS.RunLoop.didError( error );
                 }
             }
-            // Did someone cancel the bubble
-            if ( !canBubble ) { break; }
-            // If not, move up the hierarchy
-            target = target.get ?
-                target.get( 'nextEventTarget' ) :
-                target.nextEventTarget;
+            // Move up the hierarchy, unless stopPropagation was called
+            target =
+                event.propagationStopped ?
+                    null :
+                target.get ?
+                    target.get( 'nextEventTarget' ) :
+                    target.nextEventTarget;
         }
-        // When we get to the top, execute default.
-        if ( defaultFn && !preventDefault ) {
-            defaultFn( event );
-        }
-        return !canBubble;
+
+        return this;
     },
 
     /**

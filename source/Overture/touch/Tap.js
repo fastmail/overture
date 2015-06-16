@@ -37,16 +37,10 @@ var MouseEventRemover = NS.Class({
 });
 
 var TapEvent = NS.Class({
-    init: function ( type, target ) {
-        this.isEvent = true;
-        this.type = type;
-        this.originalType = 'tap';
-        this.target = target;
-        this.defaultPrevented = false;
-    },
-    preventDefault: function () {
-        this.defaultPrevented = true;
-    }
+
+    Extends: NS.Event,
+
+    originalType: 'tap'
 });
 
 var TrackedTouch = function ( x, y, time, target ) {

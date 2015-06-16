@@ -10,12 +10,15 @@
 
 ( function ( NS ) {
 
-var HoldEvent = function ( touch ) {
-    this.isEvent = true;
-    this.type = 'hold';
-    this.touch = touch;
-    this.target = touch.target;
-};
+var HoldEvent = NS.Class({
+
+    Extends: NS.Event,
+
+    init: function ( touch ) {
+        HoldEvent.parent.init.call( this, 'hold', touch.target );
+        this.touch = touch;
+    }
+});
 
 var fireHoldEvent = function () {
     if ( !this._ignore ) {

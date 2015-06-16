@@ -200,8 +200,11 @@ var ViewEventsController = {
             if ( eventTarget === this ) {
                 eventTarget = view;
             }
-            if ( eventTarget && eventTarget.fire( event.type, event ) ) {
-                break;
+            if ( eventTarget ) {
+                eventTarget.fire( event.type, event );
+                if ( event.propagationStopped ) {
+                    break;
+                }
             }
         }
     }.invokeInRunLoop()

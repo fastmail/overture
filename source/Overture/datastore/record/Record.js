@@ -330,7 +330,7 @@ var Record = NS.Class({
         // Save to store
         store.createRecord( storeKey, data )
              .setRecordForStoreKey( storeKey, this )
-             .fire( 'record:user:create', { record: this });
+             .fire( 'record:user:create', { record: this } );
 
         // And save store reference on record instance.
         return this.set( 'storeKey', storeKey );
@@ -379,12 +379,11 @@ var Record = NS.Class({
         the source.
     */
     destroy: function () {
-        var storeKey = this.get( 'storeKey' ),
-            store;
+        var storeKey = this.get( 'storeKey' );
         if ( storeKey && this.get( 'isEditable' ) ) {
-            store = this.get( 'store' );
-            store.fire( 'record:user:destroy', { record: this });
-            store.destroyRecord( storeKey );
+            this.get( 'store' )
+                .fire( 'record:user:destroy', { record: this } )
+                .destroyRecord( storeKey );
         }
     },
 

@@ -654,7 +654,7 @@ var Store = NS.Class({
             }
         }.bind( this ) );
 
-        return this.fire( 'didCommit' );
+        this.fire( 'didCommit' );
     },
 
     /**

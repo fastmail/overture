@@ -253,6 +253,7 @@ var RemoteQuery = NS.Class({
         if ( _key ) {
             this.get( 'source' ).fetchQuery( this );
         }
+
         return this.fire( 'query:reset' );
     }.observes( 'sort', 'filter' ),
 
@@ -520,6 +521,9 @@ var RemoteQuery = NS.Class({
 
         Parameters:
             args - {Object} See description above.
+
+        Returns:
+            {RemoteQuery} Returns self.
     */
     sourceDidFetchQuery: function ( args ) {
         // User may have changed sort or filter in intervening time; presume the
@@ -591,7 +595,7 @@ var RemoteQuery = NS.Class({
                 addedIndexes: addedIndexes
             });
         }
-        this.fire( 'query:idsLoaded' );
+        return this.fire( 'query:idsLoaded' );
     }
 });
 

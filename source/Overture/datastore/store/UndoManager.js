@@ -43,10 +43,10 @@ var UndoManager = NS.Class({
     dataDidChange: function () {
         this._isInUndoState = false;
         this._redoStack.length = 0;
-        this.set( 'canRedo', false )
+        return this
+            .set( 'canRedo', false )
             .set( 'canUndo', true )
             .fire( 'input' );
-        return this;
     },
 
     saveUndoCheckpoint: function () {

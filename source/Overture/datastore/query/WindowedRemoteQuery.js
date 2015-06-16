@@ -1174,16 +1174,17 @@ var WindowedRemoteQuery = NS.Class({
         }
 
         // All that's left is to inform observers of the changes.
-        return this.beginPropertyChanges()
-                   .set( 'length', total )
-                   .set( 'status', (status & EMPTY) ? READY : status )
-                   .endPropertyChanges()
-                   .rangeDidChange(
-                        informAllRangeObservers ? 0 : position,
-                        informAllRangeObservers ?
-                            Math.max( oldLength, end ) : end
-                   )
-                   .fire( 'query:idsLoaded' );
+        return this
+            .beginPropertyChanges()
+                .set( 'length', total )
+                .set( 'status', (status & EMPTY) ? READY : status )
+            .endPropertyChanges()
+            .rangeDidChange(
+                 informAllRangeObservers ? 0 : position,
+                 informAllRangeObservers ?
+                     Math.max( oldLength, end ) : end
+            )
+            .fire( 'query:idsLoaded' );
     },
 
     sourceWillFetchQuery: function () {

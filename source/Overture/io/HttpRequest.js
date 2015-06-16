@@ -133,8 +133,8 @@ var HttpRequest = NS.Class({
             timeToTimeout = timeout - timeSinceLastReset;
         // Allow for 10ms jitter
         if ( timeToTimeout < 10 ) {
-            this.fire( 'io:timeout' );
-            this.abort();
+            this.fire( 'io:timeout' )
+                .abort();
         } else {
             this._timer = NS.RunLoop.invokeAfterDelay(
                 this.didTimeout, timeToTimeout, this );
