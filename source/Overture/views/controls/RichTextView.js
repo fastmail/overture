@@ -264,7 +264,8 @@ var RichTextView = NS.Class({
             'ul', 'ol', '-',
             'quote', 'unquote', '-',
             'left', 'centre', 'right', 'justify', '-',
-            'ltr', 'rtl'
+            'ltr', 'rtl', '-',
+            'unformat'
         ],
         right: []
     },
@@ -520,6 +521,16 @@ var RichTextView = NS.Class({
                     } else {
                         richTextView.makeOrderedList();
                     }
+                    this.fire( 'button:activate' );
+                }
+            }),
+            unformat: new ButtonView({
+                type: 'v-Button--iconOnly',
+                icon: 'icon-clear-formatting',
+                label: NS.loc( 'Clear Formatting' ),
+                tooltip: NS.loc( 'Clear Formatting' ),
+                activate: function () {
+                    richTextView.removeAllFormatting();
                     this.fire( 'button:activate' );
                 }
             })
@@ -801,6 +812,8 @@ var RichTextView = NS.Class({
 
     increaseListLevel: execCommand( 'increaseListLevel' ),
     decreaseListLevel: execCommand( 'decreaseListLevel' ),
+
+    removeAllFormatting: execCommand( 'removeAllFormatting' ),
 
     insertImage: execCommand( 'insertImage' ),
     insertImagesFromFiles: function ( files ) {
