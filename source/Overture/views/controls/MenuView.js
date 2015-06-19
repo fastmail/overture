@@ -99,7 +99,7 @@ var MenuController = NS.Class({
 
     filterDidChange: function () {
         var value = this.get( 'filter' ).escapeRegExp(),
-            pattern = value ? new RegExp( '(?:^|\\W)' + value, 'i' ) : null,
+            pattern = value ? NS.i18n.makeSearchRegExp( value ) : null,
             options = this.get( 'options' ),
             l = options.get( 'length' ),
             focussedOption = this.get( 'focussedOption' );
