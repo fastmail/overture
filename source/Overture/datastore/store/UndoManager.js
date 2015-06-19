@@ -68,11 +68,12 @@ var UndoManager = NS.Class({
                 this.saveUndoCheckpoint();
                 this.undo();
             } else {
-                this._pushState( this._redoStack,
-                    this.applyChange( this._undoStack.pop(), false )
-                );
+                var redoData = this.applyChange( this._undoStack.pop(), false );
+                if ( redoData ) {
+                    this._pushState( this._redoStack, redoData );
+                }
                 this.set( 'canUndo', !!this._undoStack.length )
-                    .set( 'canRedo', true )
+                    .set( 'canRedo', !!redoData )
                     .fire( 'undo' );
             }
         }
