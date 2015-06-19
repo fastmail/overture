@@ -506,9 +506,8 @@ NS.sortByProperties = function ( properties ) {
                     if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
                         aVal = +aVal;
                         bVal = +bVal;
-                    } else {
-                        aVal = aVal.toLowerCase();
-                        bVal = bVal.toLowerCase();
+                    } else if ( NS.i18n ) {
+                        return NS.i18n.compare( aVal, bVal );
                     }
                 }
                 if ( aVal < bVal ) {

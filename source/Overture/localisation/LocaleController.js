@@ -6,6 +6,8 @@
 // License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
+/*global Intl */
+
 "use strict";
 
 ( function ( NS, undefined ) {
@@ -87,6 +89,11 @@ var LocaleController = {
         if ( locales[ localeCode ] ) {
             active = locales[ localeCode ];
             this.activeLocaleCode = localeCode;
+            if ( typeof Intl !== 'undefined' ) {
+                this.compare = new Intl.Collator( localeCode, {
+                    sensitivity: 'base'
+                }).compare;
+            }
         }
         return this;
     },
@@ -213,6 +220,26 @@ var LocaleController = {
     */
     fileSize: function ( bytes, decimalPlaces ) {
         return active.getFormattedFileSize( bytes, decimalPlaces );
+    },
+
+    /**
+        Function: O.LocaleController.compare
+
+        Compares two strings in a case-insensitive manner in the custom of the
+        current localisation.
+
+        Parameters:
+            a - {String} The first string.
+            b - {String} The second string.
+
+        Returns:
+            {Number}
+            `-1` => a is before b,
+            `1`  => a is after b,
+            `0`  => they are the same as far as this fn is concerned.
+    */
+    compare: function ( a, b ) {
+        return a.toLowerCase().localeCompare( b.toLowerCase() );
     }
 };
 
