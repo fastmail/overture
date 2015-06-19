@@ -340,8 +340,8 @@ var Store = NS.Class({
         if ( !storeKey ) {
             storeKey = generateStoreKey();
             this._skToType[ storeKey ] = Type;
+            skToId[ storeKey ] = id;
             if ( id ) {
-                skToId[ storeKey ] = id;
                 idToSk[ id ] = storeKey;
             }
         }
