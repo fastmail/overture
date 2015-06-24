@@ -562,6 +562,10 @@ var RichTextView = NS.Class({
     }.property(),
 
     showFontSizeMenu: function ( buttonView ) {
+        // If we're in the overflow menu, align with the "More" button.
+        if ( buttonView.getParent( NS.MenuView ) ) {
+            buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
+        }
         popOver.show({
             view: this.get( 'fontSizeMenuView' ),
             alignWithView: buttonView,
@@ -600,6 +604,10 @@ var RichTextView = NS.Class({
     }.property(),
 
     showFontFaceMenu: function ( buttonView ) {
+        // If we're in the overflow menu, align with the "More" button.
+        if ( buttonView.getParent( NS.MenuView ) ) {
+            buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
+        }
         popOver.show({
             view: this.get( 'fontFaceMenuView' ),
             alignWithView: buttonView,
@@ -648,6 +656,10 @@ var RichTextView = NS.Class({
 
     showTextColourMenu: function ( buttonView ) {
         this._colourText = true;
+        // If we're in the overflow menu, align with the "More" button.
+        if ( buttonView.getParent( NS.MenuView ) ) {
+            buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
+        }
         popOver.show({
             view: this.get( 'textColourMenuView' ),
             alignWithView: buttonView,
@@ -659,6 +671,10 @@ var RichTextView = NS.Class({
 
     showTextHighlightColourMenu: function ( buttonView ) {
         this._colourText = false;
+        // If we're in the overflow menu, align with the "More" button.
+        if ( buttonView.getParent( NS.MenuView ) ) {
+            buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
+        }
         popOver.show({
             view: this.get( 'textColourMenuView' ),
             alignWithView: buttonView,
@@ -747,6 +763,10 @@ var RichTextView = NS.Class({
             value = '';
         }
         view.set( 'value', value );
+        // If we're in the overflow menu, align with the "More" button.
+        if ( buttonView.getParent( NS.MenuView ) ) {
+            buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
+        }
         popOver.show({
             view: view,
             alignWithView: buttonView,
