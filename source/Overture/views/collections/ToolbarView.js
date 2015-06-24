@@ -92,6 +92,8 @@ var ToolbarView = NS.Class({
                 right: []
             }
         };
+        this._measureView = null;
+        this._widths = {};
     },
 
     registerView: function ( name, view, _dontMeasure ) {
@@ -222,7 +224,7 @@ var ToolbarView = NS.Class({
     },
 
     postMeasure: function () {
-        var widths = this._widths = {},
+        var widths = this._widths,
             views = this._views,
             measureView = this._measureView,
             unused = measureView.get( 'childViews' ),
@@ -232,7 +234,7 @@ var ToolbarView = NS.Class({
             name, l;
 
         for ( name in views ) {
-            widths[ name ] = views[ name ].get( 'pxWidth' );
+            widths[ name ] = views[ name ].get( 'pxWidth' ) || widths[ name ];
         }
 
         // Want to include any left/right margin, so get difference between
@@ -248,7 +250,7 @@ var ToolbarView = NS.Class({
             measureView.removeView( unused[l] );
         }
         measureView.destroy();
-        delete this._measureView;
+        this._measureView = null;
 
         return this;
     },
