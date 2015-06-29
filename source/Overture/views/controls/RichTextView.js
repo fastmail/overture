@@ -856,12 +856,25 @@ var RichTextView = NS.Class({
     },
 
     kbShortcuts: function ( event ) {
+        var isMac = NS.UA.isMac;
         switch ( NS.DOMEvent.lookupKey( event ) ) {
-        case NS.UA.isMac ? 'meta-k' : 'ctrl-k':
+        case isMac ? 'meta-k' : 'ctrl-k':
             event.preventDefault();
             this.showLinkOverlay(
                 this.get( 'toolbarView' ).getView( 'link' )
             );
+            break;
+        case 'pagedown':
+            if ( !isMac && this.get( 'isExpanding' ) ) {
+                var scrollView = this.getParent( NS.ScrollView );
+                if ( scrollView ) {
+                    scrollView.scrollToView( this, {
+                        y: 32 +
+                            this.get( 'pxHeight' ) -
+                            scrollView.get( 'pxHeight' )
+                    }, true );
+                }
+            }
             break;
         }
     }.on( 'keydown' ),
