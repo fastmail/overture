@@ -3,7 +3,7 @@
 // Module: IO                                                                 \\
 // Requires: Core, Foundation, XHR.js                                         \\
 // Author: Neil Jenkins                                                       \\
-// License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
+// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global location */

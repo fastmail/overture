@@ -2,7 +2,7 @@
 // File: RegExp.js                                                            \\
 // Module: IEPatches                                                          \\
 // Author: Steven Levithan, Neil Jenkins                                      \\
-// License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
+// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*jshint strict: false */
