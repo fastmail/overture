@@ -2,7 +2,7 @@
 // File: Date.js                                                              \\
 // Module: Core                                                               \\
 // Requires: Core.js                                                          \\
-// Author: Neil Jenkin                                                        \\
+// Author: Neil Jenkins                                                       \\
 // License: © 2010-2014 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
