@@ -367,48 +367,6 @@ var Store = NS.Class({
             ( this._typeToSkToId[ guid( Type ) ] || {} )[ storeKey ];
     },
 
-    /**
-        Method: O.Store#setIdForStoreKey
-
-        Changes the id for a record with the given store key.
-
-        Parameters:
-            storeKey - {String} The store key of the record.
-            id       - {String} The new id for the record.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    setIdForStoreKey: function ( storeKey, id ) {
-        var Type = this._skToType[ storeKey ],
-            typeId = guid( Type ),
-            idPropKey = Type.primaryKey || 'id',
-            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
-            _skToId = this._typeToSkToId[ typeId ],
-            _idToSk = this._typeToIdToSk[ typeId ],
-            oldId = _skToId[ storeKey ],
-            update = {};
-
-        if ( id !== oldId ) {
-            _skToId[ storeKey ] = id;
-            if ( oldId ) {
-                delete _idToSk[ oldId ];
-            }
-            _idToSk[ id ] = storeKey;
-
-            // May have already been destroyed since it was created.
-            if ( this.getStatus( storeKey ) & READY ) {
-                update[ idAttrKey ] = id;
-                this.updateData( storeKey, update, false );
-            } else {
-                // Update in case of discard changes.
-                this._skToData[ storeKey ][ idAttrKey ] = id;
-            }
-        }
-
-        return this;
-    },
-
     // === Client API ==========================================================
 
     /**
@@ -1773,12 +1731,28 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitCreate: function ( skToId ) {
-        var storeKey, status;
-        for ( storeKey in skToId ) {
+    sourceDidCommitCreate: function ( skToPartialData ) {
+        var _skToType = this._skToType,
+            _typeToSkToId = this._typeToSkToId,
+            _typeToIdToSk = this._typeToIdToSk,
+            storeKey, status, data, Type, typeId, idPropKey, idAttrKey, id;
+        for ( storeKey in skToPartialData ) {
             status = this.getStatus( storeKey );
             if ( status & NEW ) {
-                this.setIdForStoreKey( storeKey, skToId[ storeKey ] );
+                data = skToPartialData[ storeKey ];
+
+                Type = _skToType[ storeKey ];
+                typeId = guid( Type );
+                idPropKey = Type.primaryKey || 'id';
+                idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+                id = data[ idAttrKey ];
+
+                // Set id internally
+                _typeToSkToId[ typeId ][ storeKey ] = id;
+                _typeToIdToSk[ typeId ][ id ] = storeKey;
+
+                // Notify record, and update with any other data
+                this.updateData( storeKey, data, false );
                 this.setStatus( storeKey, status & ~(COMMITTING|NEW) );
             } else {
                 NS.RunLoop.didError({
@@ -1797,27 +1771,43 @@ var Store = NS.Class({
 
         Callback made by the <O.Source> object associated with this store when
         the source does not commit the creation of some records as requested
-        by a call to <O.Source#commitChanges> (usually due to a precondition
-        fail, such as the server being in a different state to the client).
+        by a call to <O.Source#commitChanges>.
 
-        This is presumed a temporary failure and the store will try again next
-        time <O.Store#commitChanges> is called. If the failure is permanent, the
-        storeKey should instead by included in a callback to
-        <O.Store#sourceDidError> instead.
+        If the condition is temporary (for example a precondition fail, such as
+        the server being in a different state to the client) then the store
+        will attempt to recommit the changes the next time commitChanges is
+        called (or at the end of the current run loop if `autoCommit` is
+        `true`); it is presumed that the precondition will be fixed before then.
+
+        If the condition is permanent (as indicated by the `isPermanent`
+        argument), the store will revert to the last known committed state,
+        i.e. it will destroy the new record. If an `errors` array is passed,
+        the store will first fire a `record:commit:error` event on the
+        record (including in nested stores), if already instantiated. If
+        <NS.Event#preventDefault> is called on the event object, the record
+        will **not** be reverted; it is up to the handler to then fix the record
+        before it is recommitted.
 
         Parameters:
-            storeKeys - {String[]} The list of store keys of records for
-                        which the create was not committed.
+            storeKeys   - {String[]} The list of store keys of records for
+                          which the creation was not committed.
+            isPermanent - {Boolean} (optional) Should the store try to commit
+                          the changes again, or just revert to last known
+                          committed state?
+            errors      - {Object[]} (optional) An array of objects
+                          representing the error in committing the store key in
+                          the equivalent location in the *storeKeys* argument.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotCreate: function ( storeKeys ) {
+    sourceDidNotCreate: function ( storeKeys, isPermanent, errors ) {
         var l = storeKeys.length,
             _skToCommitted = this._skToCommitted,
             _skToChanged = this._skToChanged,
             _created = this._created,
             storeKey, status;
+
         while ( l-- ) {
             storeKey = storeKeys[l];
             status = this.getStatus( storeKey );
@@ -1832,6 +1822,10 @@ var Store = NS.Class({
                 }
                 this.setStatus( storeKey, (READY|NEW|DIRTY) );
                 _created[ storeKey ] = 1;
+                if ( isPermanent && errors &&
+                        !this._notifyRecordOfError( storeKey, errors[l] ) ) {
+                    this.destroyRecord( storeKey );
+                }
             }
         }
         if ( this.autoCommit ) {
@@ -1878,22 +1872,36 @@ var Store = NS.Class({
 
         Callback made by the <O.Source> object associated with this store when
         the source does not commit the updates to some records as requested
-        by a call to <O.Source#commitChanges> (usually due to a precondition
-        fail, such as the server being in a different state to the client).
+        by a call to <O.Source#commitChanges>.
 
-        This is presumed a temporary failure and the store will try again next
-        time <O.Store#commitChanges> is called. If the failure is permanent, the
-        storeKey should instead by included in a callback to
-        <O.Store#sourceDidError> instead.
+        If the condition is temporary (for example a precondition fail, such as
+        the server being in a different state to the client) then the store
+        will attempt to recommit the changes the next time commitChanges is
+        called (or at the end of the current run loop if `autoCommit` is
+        `true`); it is presumed that the precondition will be fixed before then.
+
+        If the condition is permanent (as indicated by the `isPermanent`
+        argument), the store will revert to the last known committed state.
+        If an `errors` array is passed, the store will first fire a
+        `record:commit:error` event on the record (including in nested stores),
+        if already instantiated. If <NS.Event#preventDefault> is called on the
+        event object, the record will **not** be reverted; it is up to the
+        handler to then fix the record before it is recommitted.
 
         Parameters:
-            storeKeys - {String[]} The list of store keys of records for
-                        which the update was not committed.
+            storeKeys   - {String[]} The list of store keys of records for
+                          which the update was not committed.
+            isPermanent - {Boolean} (optional) Should the store try to commit
+                          the changes again, or just revert to last known
+                          committed state?
+            errors      - {Object[]} (optional) An array of objects
+                          representing the error in committing the store key in
+                          the equivalent location in the *storeKeys* argument.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotUpdate: function ( storeKeys ) {
+    sourceDidNotUpdate: function ( storeKeys, isPermanent, errors ) {
         var l = storeKeys.length,
             _skToData = this._skToData,
             _skToChanged = this._skToChanged,
@@ -1933,6 +1941,10 @@ var Store = NS.Class({
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
             } else {
                 this.setStatus( storeKey, ( status & ~COMMITTING ) );
+            }
+            if ( isPermanent && errors &&
+                    !this._notifyRecordOfError( storeKey, errors[l] ) ) {
+                this.revertData( storeKey );
             }
         }
         if ( this.autoCommit ) {
@@ -1994,22 +2006,38 @@ var Store = NS.Class({
         by a call to <O.Source#commitChanges> (usually due to a precondition
         fail, such as the server being in a different state to the client).
 
-        This is presumed a temporary failure and the store will try again next
-        time <O.Store#commitChanges> is called. If the failure is permanent, the
-        storeKey should instead by included in a callback to
-        <O.Store#sourceDidError> instead.
+        If the condition is temporary (for example a precondition fail, such as
+        the server being in a different state to the client) then the store
+        will attempt to recommit the changes the next time commitChanges is
+        called (or at the end of the current run loop if `autoCommit` is
+        `true`); it is presumed that the precondition will be fixed before then.
+
+        If the condition is permanent (as indicated by the `isPermanent`
+        argument), the store will revert to the last known committed state
+        (i.e. the record will be revived). If an `errors` array is passed, the
+        store will first fire a `record:commit:error` event on the record
+        (including in nested stores), if already instantiated. If
+        <NS.Event#preventDefault> is called on the event object, the record will **not** be revived; it is up to the handler to then fix the record
+        before it is recommitted.
 
         Parameters:
-            storeKeys - {String[]} The list of store keys of records for
-                        which the destruction was not committed.
+            storeKeys   - {String[]} The list of store keys of records for
+                          which the destruction was not committed.
+            isPermanent - {Boolean} (optional) Should the store try to commit
+                          the changes again, or just revert to last known
+                          committed state?
+            errors      - {Object[]} (optional) An array of objects
+                          representing the error in committing the store key in
+                          the equivalent location in the *storeKeys* argument.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotDestroy: function ( storeKeys ) {
+    sourceDidNotDestroy: function ( storeKeys, isPermanent, errors ) {
         var l = storeKeys.length,
             _destroyed = this._destroyed,
             storeKey, status;
+
         while ( l-- ) {
             storeKey = storeKeys[l];
             status = this.getStatus( storeKey );
@@ -2018,6 +2046,10 @@ var Store = NS.Class({
             } else if ( status & DESTROYED ) {
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
                 _destroyed[ storeKey ] = 1;
+                if ( isPermanent && errors &&
+                        !this._notifyRecordOfError( storeKey, errors[l] ) ) {
+                    this.undestroyRecord( storeKey );
+                }
             } else {
                 NS.RunLoop.didError({
                     name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
@@ -2030,46 +2062,21 @@ var Store = NS.Class({
         return this;
     },
 
-    /**
-        Method: O.Store#sourceDidError
-
-        Callback made by the <O.Source> object associated with this store when
-        the attempt to commit a creation/update/deletion for a particular record
-        fails permanently (perhaps because the data being committed was invalid,
-        for example). The store will rollback the state of the record to the
-        last known committed state.
-
-        Parameters:
-            storeKeys - {String[]} The list of store keys of records for
-                        which the commit failed permanently.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    sourceDidError: function ( storeKeys ) {
-        var l = storeKeys.length,
-            _skToChanged = this._skToChanged,
-            _skToCommitted = this._skToCommitted,
-            _skToRollback = this._skToRollback,
-            storeKey, status;
-        while ( l-- ) {
-            storeKey = storeKeys[l];
-            status = this.getStatus( storeKey );
-            if ( status & NEW ) {
-                this.setStatus( storeKey, DESTROYED );
-                this.unloadRecord( storeKey );
-            // Newly destroyed or updated -> revert to ready + obsolete
-            } else {
-                if ( _skToRollback[ storeKey ] ) {
-                    this.setData( storeKey, _skToRollback[ storeKey ] );
-                }
-                delete _skToChanged[ storeKey ];
-                delete _skToCommitted[ storeKey ];
-                delete _skToRollback[ storeKey ];
-                this.setStatus( storeKey, (READY|OBSOLETE) );
-            }
+    _notifyRecordOfError: function ( storeKey, error ) {
+        var record = this._skToRecord[ storeKey ],
+            isDefaultPrevented = false,
+            event;
+        if ( record ) {
+            event = new NS.Event( error.type || 'error', record, error );
+            record.fire( 'record:commit:error', event );
+            isDefaultPrevented = event.defaultPrevented;
         }
-        return this;
+        this._nestedStores.forEach( function ( store ) {
+            isDefaultPrevented =
+                store._notifyRecordOfError( storeKey, error ) ||
+                isDefaultPrevented;
+        });
+        return isDefaultPrevented;
     },
 
     // === Queries =============================================================
