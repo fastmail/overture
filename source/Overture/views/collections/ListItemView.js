@@ -22,6 +22,8 @@ var ListItemView = NS.Class({
     selection: null,
     isSelected: false,
 
+    animateIn: false,
+
     init: function ( mixin ) {
         var selection = mixin.selection,
             content = mixin.content;
@@ -37,9 +39,12 @@ var ListItemView = NS.Class({
 
     layout: ( NS.UA.cssProps.transform3d ? function () {
         var index = this.get( 'index' ),
-            itemHeight = this.get( 'itemHeight' );
+            itemHeight = this.get( 'itemHeight' ),
+            isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' ),
+            y = ( index - ( isNew ? 1 : 0 ) ) * itemHeight;
         return {
-            transform: 'translate3d(0,' + ( index * itemHeight ) + 'px,0)'
+            transform: 'translate3d(0,' + y + 'px,0)',
+            opacity: isNew ? 0 : 1
         };
     } : function () {
         var index = this.get( 'index' ),
@@ -47,7 +52,13 @@ var ListItemView = NS.Class({
         return {
             top: index * itemHeight
         };
-    }).property( 'index', 'itemHeight' )
+    }).property( 'index', 'itemHeight' ),
+
+    resetLayout: function () {
+        if ( this.get( 'animateIn' ) ) {
+            this.computedPropertyDidChange( 'layout' );
+        }
+    }.nextFrame().observes( 'isInDocument' )
 });
 
 NS.ListItemView = ListItemView;
