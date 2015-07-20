@@ -254,9 +254,11 @@ var RunLoop = {
         }
         if ( this._depth === 1 ) {
             this.flushAllQueues();
-            this.processTimeouts();
         }
         this._depth -= 1;
+        if ( !this._depth ) {
+            this.processTimeouts();
+        }
         return this;
     },
 
