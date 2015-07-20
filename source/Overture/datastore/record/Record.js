@@ -314,15 +314,12 @@ var Record = NS.Class({
             propKey = attrs[ attrKey ];
             if ( propKey ) {
                 attribute = this[ propKey ];
-                if ( !( attrKey in data ) ) {
+                if ( !( attrKey in data ) && !attribute.noSync ) {
                     defaultValue = attribute.defaultValue;
                     if ( defaultValue !== undefined ) {
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
                             defaultValue.toJSON() : NS.clone( defaultValue );
                     }
-                }
-                if ( attribute.willCreateInStore ) {
-                    attribute.willCreateInStore( this, propKey, storeKey );
                 }
             }
         }
