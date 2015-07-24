@@ -150,18 +150,19 @@ var HttpRequest = NS.Class({
             headers = this.get( 'headers' ),
             transport =
                 ( data instanceof FormData && NS.FormUploader !== NS.XHR ) ?
-                    new NS.FormUploader() : getXhr();
+                    new NS.FormUploader() : getXhr(),
+            contentType;
 
         if ( data && method === 'GET' ) {
             url += ( url.contains( '?' ) ? '&' : '?' ) + data;
             data = null;
         }
-        if ( method === 'POST' && !headers[ 'Content-type' ] ) {
-            // All XMLHttpRequest data is sent as UTF-8 by the browser.
+        contentType = headers[ 'Content-type' ];
+        if ( contentType && method === 'POST' && typeof data === 'string' &&
+                contentType.indexOf( ';' ) === -1 ) {
+            // All string data is sent as UTF-8 by the browser.
             // This cannot be altered.
-            headers = NS.clone( headers );
-            headers[ 'Content-type' ] =
-                this.get( 'contentType' ) + ';charset=utf-8';
+            headers[ 'Content-type' ] += ';charset=utf-8';
         }
 
         // Send the request
