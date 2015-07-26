@@ -729,6 +729,21 @@ var Store = NS.Class({
     },
 
     /**
+        Method: O.Store#getTypeState
+
+        Get the current client state token for a type.
+
+        Parameters:
+            Type - {O.Class} The record type.
+
+        Returns:
+            {String|null} The client's current state token for the type.
+    */
+    getTypeState: function ( Type ) {
+        return this._typeToClientState[ guid( Type ) ] || null;
+    },
+
+    /**
         Method: O.Store#getStatus
 
         Get the status of a record with a given store key.
