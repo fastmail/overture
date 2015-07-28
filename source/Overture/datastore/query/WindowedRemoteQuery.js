@@ -949,9 +949,15 @@ var WindowedRemoteQuery = NS.Class({
                         addedIndexes: [],
                         addedIds: []
                     }), ll;
-                    _indexes = _ids.map( function ( id ) {
-                        return x.removedIndexes[ x.removedIds.indexOf( id ) ];
-                    });
+                    _indexes = _ids.reduce( function ( indexes, id ) {
+                        // If the id was added in a preemptive add it won't be
+                        // in the list of removed ids.
+                        var i = x.removedIds.indexOf( id );
+                        if ( i > -1 ) {
+                            indexes.push( x.removedIndexes[i] );
+                        }
+                        return indexes;
+                    }, [] );
                     ll = removedIndexes.length;
                     for ( i = 0, l = _indexes.length; i < l; i += 1 ) {
                         removedIndexes[ ll ] = _indexes[i];
@@ -990,26 +996,36 @@ var WindowedRemoteQuery = NS.Class({
                 // remove all our preemptive updates and apply the update from
                 // the server instead, to ensure we end up in a consistent
                 // state.
-                if ( !normalisedUpdate.truncateAtFirstGap ) {
-                    // If nothing actually changed in this update, we're done,
-                    // but we can apply any waiting packets.
-                    if ( !removedIds.length && !addedIds.length ) {
-                        wasSuccessfulPreemptive = true;
-                    } else {
-                        l = composed.length;
-                        while ( l-- ) {
-                            if ( updateIsEqual(
-                                    normalisedUpdate, composed[l] ) ) {
-                                // Remove the preemptives that have now been
-                                // confirmed by the server
-                                preemptives.splice( 0, l + 1 );
-                                wasSuccessfulPreemptive = true;
-                                break;
-                            }
+
+                // If nothing actually changed in this update, we're done,
+                // but we can apply any waiting packets.
+                if ( !removedIds.length && !addedIds.length ) {
+                    wasSuccessfulPreemptive = true;
+                } else {
+                    l = composed.length;
+                    while ( l-- ) {
+                        if ( updateIsEqual(
+                                normalisedUpdate, composed[l] ) ) {
+                            // Remove the preemptives that have now been
+                            // confirmed by the server
+                            preemptives.splice( 0, l + 1 );
+                            wasSuccessfulPreemptive = true;
+                            break;
                         }
                     }
                 }
                 if ( wasSuccessfulPreemptive ) {
+                    // Truncate if needed
+                    if ( normalisedUpdate.truncateAtFirstGap ) {
+                        i = 0;
+                        while ( list[i] ) {
+                            i += 1;
+                        }
+                        if ( list.length !== i ) {
+                            list.length = i;
+                            this.recalculateFetchedWindows( i );
+                        }
+                    }
                     // If we aren't in the dirty state, we shouldn't have any
                     // preemptive updates left. If we do, remove them.
                     if ( !( status & DIRTY ) && preemptives.length ) {
