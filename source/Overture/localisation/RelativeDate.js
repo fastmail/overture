@@ -27,7 +27,11 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
         time, weeks, days, hours, minutes;
 
     if ( durationInSeconds < 60 ) {
-        time = NS.loc( 'less than a minute' );
+        if ( approx ) {
+            time = NS.loc( 'less than a minute' );
+        } else {
+            time = NS.loc( '[*2,_1,%n second,%n seconds]', durationInSeconds );
+        }
     } else if ( durationInSeconds < 60 * 60 ) {
         time = NS.loc( '[*2,_1,%n minute,%n minutes]',
             ~~( durationInSeconds / 60 ) );
