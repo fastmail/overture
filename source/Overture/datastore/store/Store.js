@@ -236,6 +236,8 @@ var Store = NS.Class({
         // Map store key -> last access timestamp for memory manager
         this._skToLastAccess = {};
 
+        // Flag if committing
+        this.isCommitting = false;
         // Set of store keys for created records
         this._created = {};
         // Set of store keys for destroyed records
@@ -508,6 +510,17 @@ var Store = NS.Class({
         NS.RunLoop.queueFn( 'middle', this._commitChanges, this );
     },
     _commitChanges: function () {
+        // Don't commit if another commit is already in progress. We can't
+        // reference a foreign ID if it is currently being created in an
+        // inflight request. We also need the new state string for commits
+        // to a particular type to make sure we don't miss any changes.
+        // We'll automatically commit again if there are any changes when the
+        // current commit finishes.
+        if ( this.isCommitting ) {
+            return;
+        }
+        this.isCommitting = true;
+
         this.fire( 'willCommit' );
         var _created = this._created,
             _destroyed = this._destroyed,
@@ -525,7 +538,8 @@ var Store = NS.Class({
             newDestroyed = {},
             changes = {},
             commitCallbacks = this._commitCallbacks,
-            types = {};
+            types = {},
+            hasChanges = false;
 
         var getEntry = function ( Type ) {
             var typeId = guid( Type ),
@@ -541,10 +555,9 @@ var Store = NS.Class({
                     destroy: { storeKeys: [], ids: [] },
                     state: _typeToClientState[ typeId ]
                 };
-                // TODO: should we not allow commits for a type if a commit
-                // is already in progress and the type has a state string?
                 _typeToStatus[ typeId ] |= COMMITTING;
                 types[ typeId ] = Type;
+                hasChanges = true;
             }
             return entry;
         };
@@ -604,13 +617,21 @@ var Store = NS.Class({
         this._destroyed = newDestroyed;
         this._commitCallbacks = [];
 
-        this.source.commitChanges( changes, function () {
-            commitCallbacks.forEach( invoke );
-            for ( var typeId in types ) {
-                _typeToStatus[ typeId ] &= ~COMMITTING;
-                this._checkServerStatus( types[ typeId ] );
-            }
-        }.bind( this ) );
+        if ( hasChanges ) {
+            this.source.commitChanges( changes, function () {
+                commitCallbacks.forEach( invoke );
+                for ( var typeId in types ) {
+                    _typeToStatus[ typeId ] &= ~COMMITTING;
+                    this._checkServerStatus( types[ typeId ] );
+                }
+                this.isCommitting = false;
+                if ( this.hasChanges() && this.autoCommit ) {
+                    this.commitChanges();
+                }
+            }.bind( this ) );
+        } else {
+            this.isCommitting = false;
+        }
 
         this.fire( 'didCommit' );
     },
