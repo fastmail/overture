@@ -27,12 +27,12 @@ var MouseEventRemover = NS.Class({
             isMouse = isClick || /^mouse/.test( type );
         if ( type === 'touchstart' || Date.now() - this.time > 1000 ) {
             NS.ViewEventsController.removeEventTarget( this );
-            return false;
+            isMouse = false;
         }
         if ( isMouse && ( this.stop || event.target !== this.target ) ) {
             event.preventDefault();
         }
-        return isMouse;
+        event.propagationStopped = isMouse;
     }
 });
 

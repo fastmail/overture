@@ -43,7 +43,7 @@ var GestureManager = new NS.Object({
                 this.set( 'isMouseDown', false );
             }
         }
-        return false;
+        event.propagationStopped = false;
     }
 });
 
