@@ -10,10 +10,37 @@
 
 ( function ( NS ) {
 
-var transformSplitter = /(\-?\d*\.\d+|\-?\d+)/;
-var numbersToNumber = function ( item, index ) {
-    return index & 1 ? parseFloat( item ) : item;
+var splitTransform = function ( transform ) {
+    var result = [];
+    var i = 0;
+    var l = transform.length;
+    var next = 0;
+
+    while ( true ) {
+        // Gather text part
+        while ( next < l && /^[^,(]$/.test( transform.charAt( next ) ) ) {
+            next += 1;
+        }
+        if ( next < l ) {
+            next += 1;
+            result.push( transform.slice( i, next ) );
+            i = next;
+        } else {
+            result.push( transform.slice( i ) );
+            return result;
+        }
+
+        // Gather number
+        while ( /^[\s\d\-\.]$/.test( transform.charAt( next ) ) ) {
+            next += 1;
+        }
+        result.push( parseFloat( transform.slice( i, next ) ) );
+        i = next;
+    }
 };
+
+var numbersRe = /[\.\-\d]/g;
+
 var styleAnimators = {
     display: {
         calcDelta: function ( startValue, endValue ) {
@@ -25,12 +52,8 @@ var styleAnimators = {
     },
     transform: {
         calcDelta: function ( startValue, endValue ) {
-            var start = startValue
-                    .split( transformSplitter )
-                    .map( numbersToNumber ),
-                end = endValue
-                    .split( transformSplitter )
-                    .map( numbersToNumber );
+            var start = splitTransform( startValue ),
+                end = splitTransform( endValue );
             if ( start.length !== end.length ) {
                 start = [ startValue ];
                 end = [ endValue ];
@@ -136,9 +159,9 @@ var StyleAnimation = NS.Class({
                     } else {
                         units[ property ] =
                             ( typeof start === 'string' &&
-                                start.replace( /[\.\-\d]/g, '' ) ) ||
+                                start.replace( numbersRe, '' ) ) ||
                             ( typeof end === 'string' &&
-                                end.replace( /[\.\-\d]/g, '' ) ) ||
+                                end.replace( numbersRe, '' ) ) ||
                             // If no unit specified, using 0 will ensure
                             // the value passed to setStyle is a number, so
                             // it will add 'px' if appropriate.
