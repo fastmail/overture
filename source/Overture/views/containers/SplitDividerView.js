@@ -171,8 +171,10 @@ var SplitDividerView = NS.Class({
     dragMoved: function ( drag ) {
         var dir = this._dir,
             delta = drag.get( 'cursorPosition' )[ dir ] -
-                drag.get( 'startPosition' )[ dir ];
-        this.set( 'offset', ( this._offset + delta ).limit(
+                drag.get( 'startPosition' )[ dir ],
+            sign = this.get('flex') === O.SplitViewController.BOTTOM_RIGHT ? 1 : -1;
+        
+        this.set( 'offset', ( this._offset + sign*delta ).limit(
             this.get( 'min' ), this.get( 'max' ) ) );
     }
 });
