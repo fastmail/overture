@@ -11,6 +11,7 @@
 ( function ( NS ) {
 
 var VERTICAL = NS.SplitViewController.VERTICAL;
+var TOP_LEFT = NS.SplitViewController.TOP_LEFT;
 
 /**
     Class: O.SplitDividerView
@@ -106,7 +107,7 @@ var SplitDividerView = NS.Class({
         (top/left/bottom/right).
     */
     anchor: function () {
-        var flexTL = this.get( 'flex' ) === NS.SplitViewController.TOP_LEFT,
+        var flexTL = this.get( 'flex' ) === TOP_LEFT,
             isVertical = this.get( 'direction' ) === VERTICAL;
         return isVertical ?
             ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
@@ -171,9 +172,13 @@ var SplitDividerView = NS.Class({
     dragMoved: function ( drag ) {
         var dir = this._dir,
             delta = drag.get( 'cursorPosition' )[ dir ] -
-                drag.get( 'startPosition' )[ dir ];
-        this.set( 'offset', ( this._offset + delta ).limit(
-            this.get( 'min' ), this.get( 'max' ) ) );
+                drag.get( 'startPosition' )[ dir ],
+            sign = this.get( 'flex' ) === TOP_LEFT ? -1 : 1;
+
+        this.set( 'offset',
+            ( this._offset + ( sign * delta ) )
+                .limit( this.get( 'min' ), this.get( 'max' ) )
+        );
     }
 });
 
