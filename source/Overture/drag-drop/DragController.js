@@ -384,7 +384,7 @@ var DragController = new NS.Object({
         var drag = this._drag,
             dataTransfer = event.dataTransfer,
             notify = true,
-            dropEffect;
+            dropEffect, effectAllowed;
         // Probably hasn't come via root view controller, so doesn't have target
         // view property
         if ( !event.targetView ) {
@@ -392,12 +392,17 @@ var DragController = new NS.Object({
                 NS.ViewEventsController.getViewFromNode( event.target );
         }
         if ( !drag ) {
-            // Drag from external source:
+            // IE10 will throw an error when you try to access this property!
+            try {
+                effectAllowed = dataTransfer.effectAllowed;
+            } catch ( error ) {
+                effectAllowed = NS.DragEffect.ALL;
+            }
+            // Drag from external source
             drag = new NS.Drag({
                 event: event,
                 isNative: true,
-                allowedEffects:
-                    effectToString.indexOf( dataTransfer.effectAllowed )
+                allowedEffects: effectToString.indexOf( effectAllowed )
             });
         } else {
             var x = event.clientX,
