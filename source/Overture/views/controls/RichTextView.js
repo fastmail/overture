@@ -56,6 +56,7 @@ var RichTextView = NS.Class({
     editor: null,
 
     styles: null,
+    blockDefaults: null,
 
     _value: '',
     value: function ( html ) {
@@ -140,7 +141,7 @@ var RichTextView = NS.Class({
                 return;
             }
             // Create Squire instance
-            var editor = new Squire( doc );
+            var editor = new Squire( doc, richTextView.get( 'blockDefaults' ) );
             editor.didError = NS.RunLoop.didError;
             richTextView.set( 'editor', editor
                 .addStyles( richTextView.get( 'styles' ) )
