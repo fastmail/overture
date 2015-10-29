@@ -303,6 +303,9 @@ var ButtonView = NS.Class({
             NS.RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
             this.activate();
             event.preventDefault();
+            // Firefox keeps focus on the button after clicking. If the user
+            // then hits "space", it will activate the button again!
+            this.blur();
         }
     }.on( 'mouseup', 'click' ),
 
