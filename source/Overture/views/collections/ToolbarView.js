@@ -284,7 +284,9 @@ var ToolbarView = NS.Class({
     },
 
     toolbarNeedsRedraw: function ( self, property, oldValue ) {
-       return this.propertyNeedsRedraw( self, property, oldValue );
+        if ( oldValue ) {
+            this.propertyNeedsRedraw( self, property, oldValue );
+        }
     }.observes( 'left', 'right' ),
 
     redrawLeft: function ( layer, oldViews ) {
