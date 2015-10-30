@@ -12,8 +12,7 @@
 
 var meta = NS.meta,
     slice = Array.prototype.slice,
-    eventPrefix = '__event__',
-    toString = Object.prototype.toString;
+    eventPrefix = '__event__';
 
 Function.implement({
     /**
@@ -200,7 +199,7 @@ NS.EventTarget = {
             handler, handlers, length;
 
         if ( !event || !( event instanceof Event ) ) {
-            if ( event && /Event\]$/.test( toString.call( event ) ) ) {
+            if ( event && /Event\]$/.test( event.toString() ) ) {
                 event.stopPropagation = function () {
                     this.propagationStopped = true;
                     return this;

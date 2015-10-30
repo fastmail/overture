@@ -63,7 +63,9 @@ function DOMEvent ( event ) {
     this._event = event;
 }
 
-DOMEvent.prototype.isEvent = true;
+DOMEvent.prototype.toString = function () {
+    return '[object Event]';
+};
 DOMEvent.prototype.preventDefault = function () {
     this.defaultPrevented = true;
     this._event.returnValue = false;
