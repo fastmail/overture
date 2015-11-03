@@ -474,13 +474,6 @@ var View = NS.Class({
    */
     allowTextSelection: false,
 
-    _cancelTextSelection: function ( event ) {
-        if ( !this.get( 'allowTextSelection' ) ) {
-            event.preventDefault();
-        }
-        event.stopPropagation();
-    }.on( 'selectstart' ),
-
     // --- Layout ---
 
     /**

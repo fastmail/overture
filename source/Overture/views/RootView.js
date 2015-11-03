@@ -49,7 +49,7 @@ var RootView = NS.Class({
         events = [
             'click', 'mousedown', 'mouseup', 'dblclick',
             'keypress', 'keydown', 'keyup',
-            'dragstart', 'selectstart',
+            'dragstart',
             'touchstart', 'touchmove', 'touchend', 'touchcancel',
             'cut'
         ];
