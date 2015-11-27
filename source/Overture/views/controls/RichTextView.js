@@ -1007,8 +1007,8 @@ RichTextView.isSupported = (
     ( !NS.UA.operaMobile ) &&
     ( !NS.UA.msie || NS.UA.msie > 8 ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous
-    // bugs. Can detect it from UIWebView by looking for indexedDB support.
-    ( !NS.UA.isIOS || !!window.indexedDB )
+    // bugs.
+    ( !NS.UA.isIOS || NS.UA.isWKWebView )
 );
 
 NS.RichTextView = RichTextView;

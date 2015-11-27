@@ -415,13 +415,13 @@ if ( NS.UA.isIOS ) {
             }
 
             // Trick 2: Never leave the scroll view at the ends.
-            // As Trick 1 doesn't work in Safari on iOS8, we have to use a more
-            // crude method: ensure the scrollHeight is at least pxHeight + 2,
-            // then make sure scrollTop is never at the absolute end, so there
-            // is always room to scroll in both directions. We add a 1px tall
-            // empty div at the top of the content so at scrollTop=1px, it
-            // looks like it should.
-            if ( safariVersion >= 8 ) {
+            // As Trick 1 doesn't work in Safari on iOS8, or any other WKWebView
+            // based browser. We have to use a more crude method: ensure the
+            // scrollHeight is at least pxHeight + 2, then make sure scrollTop
+            // is never at the absolute end, so there is always room to scroll
+            // in both directions. We add a 1px tall empty div at the top of
+            // the content so at scrollTop=1px, it looks like it should.
+            if ( NS.UA.isWKWebView ) {
                 scrollFixerHeight = 2;
                 layer.appendChild(
                     el( 'div', { style: 'height:1px' } )

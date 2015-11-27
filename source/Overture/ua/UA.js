@@ -150,7 +150,13 @@ NS.UA = {
         True if running on iOS.
     */
     isIOS: platform === 'ios',
+    /**
+        Property: O.UA.isWKWebView
+        Type: Boolean
 
+        True if running on WKWebView in iOS.
+    */
+    isWKWebView: platform === 'ios' && !!window.indexedDB,
     /**
         Property: O.UA.isAndroid
         Type: Boolean
