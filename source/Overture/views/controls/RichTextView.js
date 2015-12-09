@@ -162,6 +162,7 @@ var RichTextView = NS.Class({
                 .addEventListener( 'select', richTextView )
                 .addEventListener( 'pathChange', richTextView )
                 .addEventListener( 'undoStateChange', richTextView )
+                .addEventListener( 'scrollPointIntoView', richTextView )
             ).set( 'path', editor.getPath() )
              .expand();
             if ( richTextView.get( 'isFocussed' ) ) {
@@ -176,6 +177,27 @@ var RichTextView = NS.Class({
             el( 'div.v-RichText-content', [ iframe ] )
         ];
     },
+
+    _scrollPointIntoView: function ( event ) {
+        if ( this.get( 'isExpanding' ) ) {
+            var scrollView = this.getParent( NS.ScrollView );
+            var scrollViewHeight = scrollView.get( 'pxHeight' );
+            var position = this.getPositionRelativeTo( scrollView );
+            var offsetTop = position.top + event.y;
+            var toolbarHeight = this.get( 'showToolbar' ) ?
+                this.get( 'toolbarView' ).get( 'pxHeight' ) : 0;
+            // Offset we want is from top visible point in scroll view.
+            offsetTop -= scrollView.get( 'scrollTop' );
+            offsetTop += toolbarHeight;
+            if ( offsetTop < toolbarHeight ) {
+                scrollView.scrollBy( 0, offsetTop - toolbarHeight, true );
+            }
+            if ( offsetTop + 32 > scrollViewHeight ) {
+                scrollView.scrollBy(
+                    0, offsetTop - scrollViewHeight + 64, true );
+            }
+        }
+    }.on( 'scrollPointIntoView' ),
 
     expand: function () {
         if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
