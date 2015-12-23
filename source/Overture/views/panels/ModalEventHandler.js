@@ -40,15 +40,16 @@ var ModalEventHandler = NS.Class({
     // user has clicked and released outside the pop over; a decent indication
     // we should close it. However, if the pop over was triggered on mousedown
     // we may still see a mouseup and a click event from this initial user
-    // interaction, but these musn't hide the view. Therefore, we make sure
+    // interaction, but these must not hide the view. Therefore, we make sure
     // we've seen at least one mousedown event after the popOver view shows
-    // before hiding on click.
+    // before hiding on click. On Android/iOS, we will not see a mousedown
+    // event, so we also count a touchstart event.
     handleMouse: function ( event ) {
         var type = event.type,
             view;
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.stopPropagation();
-            if ( type === 'mousedown' || type === 'tap' ) {
+            if ( type === 'mousedown' ) {
                 this._seenMouseDown = true;
             } else if ( type === 'click' ) {
                 event.preventDefault();
@@ -86,6 +87,8 @@ var ModalEventHandler = NS.Class({
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.preventDefault();
             event.stopPropagation();
+            // Clicks outside should now close the modal.
+            this._seenMouseDown = true;
         }
         event.seenByModal = true;
     }.on( 'touchstart' )
