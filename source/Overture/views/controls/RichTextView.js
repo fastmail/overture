@@ -41,6 +41,7 @@ var popOver = new NS.PopOverView();
 
 var ButtonView = NS.ButtonView;
 var equalTo = NS.Transform.isEqualToValue;
+var UA = NS.UA;
 
 var RichTextView = NS.Class({
 
@@ -51,7 +52,7 @@ var RichTextView = NS.Class({
     isFocussed: false,
     isExpanding: false,
 
-    showToolbar: !NS.UA.isIOS,
+    showToolbar: !UA.isIOS,
 
     editor: null,
 
@@ -120,7 +121,7 @@ var RichTextView = NS.Class({
 
     className: function () {
         return 'v-RichText' +
-            ( NS.UA.isIOS ? ' v-RichText--iOS' : '' ) +
+            ( UA.isIOS ? ' v-RichText--iOS' : '' ) +
             ( this.get( 'showToolbar' ) ? '' : ' v-RichText--noToolbar' );
     }.property(),
 
@@ -200,7 +201,7 @@ var RichTextView = NS.Class({
     }.on( 'scrollPointIntoView' ),
 
     expand: function () {
-        if ( !NS.UA.isIOS && this.get( 'isExpanding' ) ) {
+        if ( !UA.isIOS && this.get( 'isExpanding' ) ) {
             var editor = this.get( 'editor' ),
                 doc = editor && editor.getDocument(),
                 body = doc && doc.body,
@@ -879,7 +880,7 @@ var RichTextView = NS.Class({
     },
 
     kbShortcuts: function ( event ) {
-        var isMac = NS.UA.isMac;
+        var isMac = UA.isMac;
         switch ( NS.DOMEvent.lookupKey( event ) ) {
         case isMac ? 'meta-k' : 'ctrl-k':
             event.preventDefault();
@@ -1026,11 +1027,15 @@ var RichTextView = NS.Class({
 
 RichTextView.isSupported = (
     ( 'contentEditable' in document.body ) &&
-    ( !NS.UA.operaMobile ) &&
-    ( !NS.UA.msie || NS.UA.msie > 8 ) &&
+    // Opera Mobile. Yeh, no.
+    ( !UA.operaMobile ) &&
+    // Windows Phone as of v8.1 (IE11) is still pretty buggy
+    ( !UA.isWinPhone ) &&
+    // Desktop IE is fine from v9 onwards
+    ( !UA.msie || UA.msie > 8 ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous
     // bugs.
-    ( !NS.UA.isIOS || NS.UA.isWKWebView )
+    ( !UA.isIOS || UA.isWKWebView )
 );
 
 NS.RichTextView = RichTextView;

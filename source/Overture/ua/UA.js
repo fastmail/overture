@@ -20,14 +20,15 @@
 
 var ua = navigator.userAgent.toLowerCase(),
     other = [ 'other', '0' ],
-    platform = /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
+    platform = /windows phone/.test( ua ) ? 'winphone' :
+        /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
         /android|webos/.exec( ua ) ||
         /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
         other
     )[0],
-    browser = ( /chrome|opera|safari|firefox|msie/.exec( ua ) || other )[0],
+    browser = ( /iemobile|chrome|opera|safari|firefox|msie/.exec( ua ) || other )[0],
     version = parseFloat(
-        ( /(?:version\/|chrome\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua )|| other )[1].replace( '_', '.' )
+        ( /(?:; rv:|version\/|chrome\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua )|| other )[1].replace( '_', '.' )
     ),
     cssPrefixes = {
         chrome: '-webkit-',
@@ -164,13 +165,20 @@ NS.UA = {
         True if running on Android.
     */
     isAndroid: platform === 'android',
+    /**
+        Property: O.UA.isWinPhone
+        Type: Boolean
+
+        True if running on Windows Phone.
+    */
+    isWinPhone: platform === 'winphone',
 
     /**
         Property: O.UA.browser
         Type: String
 
-        The browser being run. "chrome", "firefox", "msie" or "opera" or
-        "safari".
+        The browser being run. "chrome", "firefox", "msie", "opera",
+        "safari" or "iemobile".
     */
     browser: browser,
     /**
@@ -206,6 +214,16 @@ NS.UA = {
         Otherwise 0.
     */
     msie: browser === 'msie' ? version : 0,
+
+    /**
+        Property: O.UA.iemobile
+        Type: Number
+
+        If running Mobile Internet Explorer, this will be the version number
+        running. Otherwise 0.
+    */
+    iemobile: browser === 'iemobile' ? version : 0,
+
     /**
         Property: O.UA.opera
         Type: Number
