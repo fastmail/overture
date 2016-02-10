@@ -17,7 +17,7 @@
 */
 var DOMEvent = {
     /**
-        Property: O.DomEvent.keys
+        Property: O.DOMEvent.keys
         Type: Object
 
         Maps the names of special keys to their key code.
@@ -45,7 +45,7 @@ var DOMEvent = {
     },
 
     /**
-        Function: O.DomEvent.lookupKey
+        Function: O.DOMEvent.lookupKey
 
         Determines which key was pressed to generate the event supplied as an
         argument.
@@ -95,7 +95,7 @@ var DOMEvent = {
     },
 
     /**
-        Function: O.DomEvent.isClickModified
+        Function: O.DOMEvent.isClickModified
 
         Determines if a secondary mouse button was pressed, or a modifier key was held down while the mouse was clicked.
 
