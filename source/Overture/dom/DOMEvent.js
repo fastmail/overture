@@ -92,6 +92,22 @@ var DOMEvent = {
         }
 
         return modifiers + key;
+    },
+
+    /**
+        Function: O.DomEvent.isClickModified
+
+        Determines if a secondary mouse button was pressed, or a modifier key was held down while the mouse was clicked.
+
+        Parameters:
+            event - {MouseEvent} The W3C DOM click event object.
+
+        Returns:
+            {Boolean} Was a secondary button clicked or modifier held down?
+    */
+    isClickModified: function ( event ) {
+        return !!event.button ||
+            event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     }
 };
 
