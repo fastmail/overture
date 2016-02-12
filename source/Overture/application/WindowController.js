@@ -6,7 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global window, document, localStorage */
+/*global JSON, window, document, localStorage */
 
 "use strict";
 
@@ -250,6 +250,25 @@ var WindowController = NS.Class({
                 }, data ))
             );
         } catch ( error ) {}
+    }
+}).extend({
+    openExternal: function ( href ) {
+        var newWindow = window.open( '', '_blank' );
+        if ( newWindow ) {
+            // From goog.window.open; IE has trouble if there's a
+            // semi-colon in the URL apparently.
+            if ( NS.UA.msie ) {
+                if ( href.indexOf( ';' ) > -1 ) {
+                    href = "'" + href.replace( /'/g, '%27' ) + "'";
+                }
+            }
+            newWindow.opener = null;
+            href = href.escapeHTML().replace( /"/g, '&quot;' );
+            newWindow.document.write(
+                '<META HTTP-EQUIV="refresh" content="0; url=' + href + '">' );
+            newWindow.document.close();
+        }
+        return newWindow;
     }
 });
 
