@@ -98,7 +98,7 @@ var MenuController = NS.Class({
     filter: '',
 
     filterDidChange: function () {
-        var value = this.get( 'filter' ).escapeRegExp(),
+        var value = this.get( 'filter' ),
             pattern = value ? NS.i18n.makeSearchRegExp( value ) : null,
             options = this.get( 'options' ),
             l = options.get( 'length' ),
