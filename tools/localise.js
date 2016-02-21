@@ -350,17 +350,23 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         decimalPoint: getString( 'S_FORMAT_DECIMAL_POINT' ),
         thousandsSeparator: getString( 'S_FORMAT_THOUSANDS_SEPARATOR' ),
 
-        getFormattedOrdinal: /^en/.test( code ) ?
-  function ( number ) {
-      var mod10 = number % 10,
-          mod100 = number % 100;
-      return number + (
-          mod10 === 1 && mod100 !== 11 ? 'st' :
-          mod10 === 2 && mod100 !== 12 ? 'nd' :
-          mod10 === 3 && mod100 !== 13 ? 'rd' :
-                                         'th'
-      );
-  } : undefined,
+        getFormattedOrdinal:
+        /^en/.test( code ) ?
+            function ( number ) {
+                var mod10 = number % 10,
+                    mod100 = number % 100;
+                return number + (
+                    mod10 === 1 && mod100 !== 11 ? 'st' :
+                    mod10 === 2 && mod100 !== 12 ? 'nd' :
+                    mod10 === 3 && mod100 !== 13 ? 'rd' :
+                                                   'th'
+                );
+            } :
+        code === 'nl' ?
+            function ( number ) {
+                return number + 'e';
+            } :
+            undefined,
 
         dayNames: [
             getString( 'S_CALENDAR_SUNDAY' ),
