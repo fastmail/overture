@@ -398,6 +398,7 @@ var TextView = NS.Class({
         var selection = this.get( 'savedSelection' );
         if ( selection ) {
             this.set( 'selection', selection ).focus();
+            this.set( 'savedSelection', null );
         }
         return this;
     },
