@@ -134,7 +134,7 @@ var ViewEventsController = {
     */
     addEventTarget: function ( eventTarget, priority ) {
         if ( !priority ) { priority = 0; }
-        var eventTargets = this._eventTargets,
+        var eventTargets = this._eventTargets.slice(),
             index = eventTargets.binarySearch( priority, etSearch ),
             length = eventTargets.length;
 
@@ -143,6 +143,8 @@ var ViewEventsController = {
         }
 
         eventTargets.splice( index, 0, [ priority, eventTarget ] );
+        this._eventTargets = eventTargets;
+
         return this;
     },
 
@@ -160,13 +162,9 @@ var ViewEventsController = {
             {O.ViewEventsController} Returns self.
     */
     removeEventTarget: function ( eventTarget ) {
-        var eventTargets = this._eventTargets,
-            l = eventTargets.length;
-        while ( l-- ) {
-            if ( eventTargets[l][1] === eventTarget ) {
-                eventTargets.splice( l, 1 );
-            }
-        }
+        this._eventTargets = this._eventTargets.filter( function ( target ) {
+            return target[1] !== eventTarget;
+        });
         return this;
     },
 
