@@ -215,7 +215,7 @@ var DragController = new NS.Object({
     */
     _onMousemove: function ( event ) {
         var drag = this._drag;
-        if ( drag && !this._touchId ) {
+        if ( drag && this._touchId === null ) {
             // Mousemove should only be fired if not native DnD, but sometimes
             // is fired even when there's a native drag
             if ( !drag.get( 'isNative' ) ) {
@@ -259,7 +259,7 @@ var DragController = new NS.Object({
         this._targetView = null;
         // Mouseup will not fire if native DnD
         var drag = this._drag;
-        if ( drag && !this._touchId ) {
+        if ( drag && this._touchId === null ) {
             drag.drop( event ).endDrag();
         }
     }.on( 'mouseup' ),
@@ -294,7 +294,7 @@ var DragController = new NS.Object({
     _onTouchmove: function ( event ) {
         var touchId = this._touchId,
             touch;
-        if ( touchId ) {
+        if ( touchId !== null ) {
             touch = getTouch( event, touchId );
             if ( touch ) {
                 this._drag.move( new TouchDragEvent( touch ) );
@@ -314,7 +314,7 @@ var DragController = new NS.Object({
     _onTouchend: function ( event ) {
         var touchId = this._touchId,
             touch;
-        if ( touchId ) {
+        if ( touchId !== null ) {
             touch = getTouch( event, touchId );
             if ( touch ) {
                 this._drag.drop( new TouchDragEvent( touch ) ).endDrag();
@@ -331,7 +331,7 @@ var DragController = new NS.Object({
     _onTouchcancel: function ( event ) {
         var touchId = this._touchId,
             touch;
-        if ( touchId ) {
+        if ( touchId !== null ) {
             touch = getTouch( event, touchId );
             if ( touch ) {
                 this._drag.endDrag();
