@@ -254,19 +254,25 @@ var WindowController = NS.Class({
 }).extend({
     openExternal: function ( href ) {
         var newWindow = window.open( '', '_blank' );
+        var htmlHref = href;
         if ( newWindow ) {
             // From goog.window.open; IE has trouble if there's a
             // semi-colon in the URL apparently.
-            if ( NS.UA.msie ) {
-                if ( href.indexOf( ';' ) > -1 ) {
-                    href = "'" + href.replace( /'/g, '%27' ) + "'";
-                }
+            if ( NS.UA.msie && href.indexOf( ';' ) > -1 ) {
+                htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
             }
-            newWindow.opener = null;
-            href = href.escapeHTML().replace( /"/g, '&quot;' );
-            newWindow.document.write(
-                '<META HTTP-EQUIV="refresh" content="0; url=' + href + '">' );
-            newWindow.document.close();
+            htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
+            try {
+                newWindow.opener = null;
+                newWindow.document.write(
+                    '<META HTTP-EQUIV="refresh" content="0; url=' +
+                        htmlHref +
+                    '">'
+                );
+                newWindow.document.close();
+            } catch ( error ) {
+                newWindow.location.href = href;
+            }
         }
         return newWindow;
     }
