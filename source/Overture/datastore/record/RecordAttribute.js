@@ -165,7 +165,11 @@ var RecordAttribute = NS.Class({
             }
         }
         else if ( this.Type && !instanceOf( propValue, this.Type ) ) {
-            throw new Error( "Incorrect value type for record attribute" );
+            throw new Error(
+                'Incorrect value type for record attribute: \n' +
+                'key: ' + propKey + '\n' +
+                'value: ' + propValue
+            );
         }
         return true;
     },
