@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------- \\
-// File: ListKBFocusView.js                                              \\
+// File: ListKBFocusView.js                                                   \\
 // Module: CollectionViews                                                    \\
 // Requires: Core, Foundation, View                                           \\
 // Author: Neil Jenkins                                                       \\
@@ -89,14 +89,14 @@ var ListKBFocusView = NS.Class({
         var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
             var scrollTop = scrollView.get( 'scrollTop' ),
-                layout = this.get( 'layout' ),
-                top = layout.top,
+                position = this.getPositionRelativeTo( scrollView ),
+                top = position.top,
                 above = top - scrollTop;
 
             if ( above < 0 ) { return above; }
 
             var scrollHeight = scrollView.get( 'pxHeight' ),
-                below = top + layout.height - scrollTop - scrollHeight;
+                below = top + this.get( 'pxHeight' ) - scrollTop - scrollHeight;
 
             if ( below > 0 ) { return below; }
         }
@@ -107,9 +107,8 @@ var ListKBFocusView = NS.Class({
         var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
             var scrollHeight = scrollView.get( 'pxHeight' ),
-                layout = this.get( 'layout' ),
-                itemHeight = layout.height,
-                top = layout.top;
+                itemHeight = this.get( 'pxHeight' ),
+                top = this.getPositionRelativeTo( scrollView ).top;
 
             if ( offset && -1 <= offset && offset <= 1 ) {
                 offset = ( offset * ( scrollHeight - itemHeight ) ) >> 1;
