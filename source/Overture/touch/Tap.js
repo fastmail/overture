@@ -64,6 +64,19 @@ TrackedTouch.prototype.done  = function () {
     }
 };
 
+var isInput = function ( node ) {
+    var nodeName = node.nodeName;
+    if ( nodeName === 'INPUT' ||
+        nodeName === 'TEXTAREA' ||
+        nodeName === 'SELECT' ) {
+        return true;
+    }
+    while ( node && node.contentEditable === 'inherit' ) {
+        node = node.parentNode;
+    }
+    return !!node && node.contentEditable === 'true';
+}
+
 /*  A tap is defined as a touch which:
 
     * Lasts less than 200ms.
@@ -146,9 +159,7 @@ NS.Tap = new NS.Gesture({
                     // stops it actually being focussed. Calling preventDefault
                     // on the touchend event stops this happening, however we
                     // must not do this if the user actually taps an input!
-                    nodeName = target.nodeName;
-                    if ( nodeName !== 'INPUT' && nodeName !== 'TEXTAREA' &&
-                            nodeName !== 'SELECT' ) {
+                    if ( !isInput( target ) ) {
                         event.preventDefault();
                     }
                     new MouseEventRemover( target, clickEvent.defaultPrevented );

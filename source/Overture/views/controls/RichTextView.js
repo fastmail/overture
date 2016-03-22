@@ -6,11 +6,11 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global document, window, FileReader, Squire */
+/*global window, document, FileReader, Squire */
 
 "use strict";
 
-( function ( NS, undefined ) {
+( function ( NS, window, document, undefined ) {
 
 var execCommand = function ( command ) {
     return function ( arg ) {
@@ -50,12 +50,13 @@ var RichTextView = NS.Class({
     Mixin: NS.DropTarget,
 
     isFocussed: false,
-    isExpanding: false,
+
+    allowTextSelection: true,
 
     showToolbar: !UA.isIOS,
 
     editor: null,
-
+    editorClassName: '',
     styles: null,
     blockDefaults: null,
 
@@ -78,15 +79,24 @@ var RichTextView = NS.Class({
         return html;
     }.property().nocache(),
 
+    destroy: function () {
+        var editor = this.get( 'editor' );
+        if ( editor ) {
+            editor.destroy();
+        }
+        RichTextView.parent.destroy.call( this );
+    },
+
     // --- Render ---
 
     willEnterDocument: function () {
         this.set( 'path', '' );
+        this.get( 'layer' ).appendChild( this._editingLayer );
         return RichTextView.parent.willEnterDocument.call( this );
     },
 
     didEnterDocument: function () {
-        if ( this.get( 'showToolbar' ) && this.get( 'isExpanding' ) ) {
+        if ( this.get( 'showToolbar' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.addObserverForKey(
@@ -97,7 +107,7 @@ var RichTextView = NS.Class({
     },
 
     willLeaveDocument: function () {
-        if ( this.get( 'showToolbar' ) && this.get( 'isExpanding' ) ) {
+        if ( this.get( 'showToolbar' ) ) {
             var scrollView = this.getParent( NS.ScrollView );
             if ( scrollView ) {
                 scrollView.removeObserverForKey(
@@ -106,124 +116,88 @@ var RichTextView = NS.Class({
             this._setToolbarPosition(
                 scrollView, this.get( 'toolbarView' ), false );
         }
-        // As soon as the view is removed from the document, any editor
-        // reference is no longer valid, as the iframe will have been unloaded.
-        // The reference will be recreated when the iframe is appended
-        // again. Must cache the value before it is removed though.
-        var editor = this.get( 'editor' );
-        if ( editor ) {
-            this._value = editor.getHTML( this.get( 'isFocussed' ) );
-            editor.destroy();
-            this.set( 'editor', null );
-        }
         return RichTextView.parent.willLeaveDocument.call( this );
     },
 
+    didLeaveDocument: function () {
+        // The nodes must be in a document or document fragment for DOM Range
+        // API to work; otherwise will throw INVALID_NODE_TYPE_ERR errors.
+        // This is important if the value is changed before appending.
+        document.createDocumentFragment().appendChild( this._editingLayer );
+        return RichTextView.parent.didLeaveDocument.call( this );
+    },
+
+    // ---
+
     className: function () {
         return 'v-RichText' +
-            ( UA.isIOS ? ' v-RichText--iOS' : '' ) +
             ( this.get( 'showToolbar' ) ? '' : ' v-RichText--noToolbar' );
     }.property(),
 
     draw: function ( layer, Element, el ) {
-        var richTextView = this;
-        var iframe = el( 'iframe.v-RichText-input' );
-        var onload = function () {
-            // Make sure we're in standards mode.
-            var doc = iframe.contentDocument;
-            if ( doc.compatMode !== 'CSS1Compat' ) {
-                doc.open();
-                doc.write( '<!DOCTYPE html><title></title>' );
-                doc.close();
-            }
-            // doc.close() can cause a re-entrant load event in some browsers,
-            // such as IE9.
-            if ( richTextView.get( 'editor' ) ) {
-                return;
-            }
-            // Create Squire instance
-            var editor = new Squire( doc, richTextView.get( 'blockDefaults' ) );
-            editor.didError = NS.RunLoop.didError;
-            richTextView.set( 'editor', editor
-                .addStyles( richTextView.get( 'styles' ) )
-                .setHTML( richTextView._value )
-                .addEventListener( 'load', richTextView )
-                .addEventListener( 'keydown', richTextView )
-                .addEventListener( 'keypress', richTextView )
-                .addEventListener( 'keyup', richTextView )
-                .addEventListener( 'mousedown', richTextView )
-                .addEventListener( 'click', richTextView )
-                .addEventListener( 'focus', richTextView )
-                .addEventListener( 'blur', richTextView )
-                .addEventListener( 'input', richTextView )
-                .addEventListener( 'dragenter', richTextView )
-                .addEventListener( 'dragleave', richTextView )
-                .addEventListener( 'dragover', richTextView )
-                .addEventListener( 'drop', richTextView )
-                .addEventListener( 'select', richTextView )
-                .addEventListener( 'pathChange', richTextView )
-                .addEventListener( 'undoStateChange', richTextView )
-                .addEventListener( 'scrollPointIntoView', richTextView )
-            ).set( 'path', editor.getPath() )
-             .expand();
-            if ( richTextView.get( 'isFocussed' ) ) {
-                editor.focus();
-            }
-        }.invokeInRunLoop();
-
-        iframe.addEventListener( 'load', onload, false );
-
+        var editorClassName = this.get( 'editorClassName' );
+        var editingLayer = this._editingLayer = el( 'div', {
+            className: 'v-RichText-input' +
+                ( editorClassName ? ' ' + editorClassName : '' )
+        });
+        // The nodes must be in a document or document fragment for DOM Range
+        // API to work; otherwise will throw INVALID_NODE_TYPE_ERR errors.
+        document.createDocumentFragment().appendChild( editingLayer );
+        var editor = new Squire( editingLayer, this.get( 'blockDefaults' ) );
+        editor
+            .setHTML( this._value )
+            .addEventListener( 'input', this )
+            .addEventListener( 'select', this )
+            .addEventListener( 'pathChange', this )
+            .addEventListener( 'undoStateChange', this )
+            .addEventListener( 'scrollPointIntoView', this )
+            .didError = NS.RunLoop.didError;
+        this.set( 'editor', editor )
+            .set( 'path', editor.getPath() );
         return [
-            this.get( 'showToolbar' ) ? this.get( 'toolbarView' ) : null,
-            el( 'div.v-RichText-content', [ iframe ] )
+            el( 'style', { type: 'text/css' }, [
+                this.get( 'styles' )
+            ]),
+            this.get( 'showToolbar' ) ? this.get( 'toolbarView' ) : null
         ];
     },
 
+    // ---
+
+    redrawIOSCursor: function () {
+        var editor = this.get( 'editor' );
+        editor.setSelection( editor.getSelection() );
+    }.nextFrame(),
+
     _scrollPointIntoView: function ( event ) {
-        if ( this.get( 'isExpanding' ) ) {
-            var scrollView = this.getParent( NS.ScrollView );
-            var scrollViewHeight = scrollView.get( 'pxHeight' );
-            var position = this.getPositionRelativeTo( scrollView );
-            var offsetTop = position.top + event.y;
-            var toolbarHeight = this.get( 'showToolbar' ) ?
-                this.get( 'toolbarView' ).get( 'pxHeight' ) : 0;
-            // Offset we want is from top visible point in scroll view.
-            offsetTop -= scrollView.get( 'scrollTop' );
-            offsetTop += toolbarHeight;
-            if ( offsetTop < toolbarHeight ) {
-                scrollView.scrollBy( 0, offsetTop - toolbarHeight, true );
-            }
-            if ( offsetTop + 32 > scrollViewHeight ) {
-                scrollView.scrollBy(
-                    0, offsetTop - scrollViewHeight + 64, true );
+        var scrollView = this.getParent( NS.ScrollView );
+        var scrollViewHeight = scrollView.get( 'pxHeight' );
+        var offsetTop = event.y -
+                scrollView.get( 'layer' ).getBoundingClientRect().top;
+        var isIOS = NS.UA.isIOS;
+        var scrollBy = 0;
+        if ( isIOS ) {
+            scrollViewHeight -=
+                // Keyboard height (in WKWebView, but not Safari)
+                ( document.body.offsetHeight - window.innerHeight );
+        }
+        if ( offsetTop - 32 < 0 ) {
+            scrollBy = offsetTop - 64;
+        }
+        if ( offsetTop + 32 > scrollViewHeight ) {
+            scrollBy = offsetTop + 64 - scrollViewHeight;
+        }
+        if ( scrollBy ) {
+            // iOS leaves the cursor in the position it would be with the
+            // previous scroll. Force a redraw after updating scroll.
+            if ( isIOS ) {
+                scrollView.scrollBy( 0, scrollBy );
+                this.redrawIOSCursor();
+            } else {
+                scrollView.scrollBy( 0, scrollBy, true );
             }
         }
     }.on( 'scrollPointIntoView' ),
-
-    expand: function () {
-        if ( !UA.isIOS && this.get( 'isExpanding' ) ) {
-            var editor = this.get( 'editor' ),
-                doc = editor && editor.getDocument(),
-                body = doc && doc.body,
-                lastChild = body && body.lastChild;
-
-            if ( !lastChild ) {
-                return;
-            }
-
-            var chromeHeight = this._chromeHeight || ( this._chromeHeight =
-                    this.get( 'pxHeight' ) - body.offsetHeight ),
-                height = lastChild.offsetTop + lastChild.offsetHeight +
-                    chromeHeight + 30,
-                layout = this.get( 'layout' );
-
-            if ( layout.height !== height ) {
-                layout = NS.clone( layout );
-                layout.height = height;
-                this.set( 'layout', layout );
-            }
-        }
-    }.queue( 'after' ).on( 'input', 'load' ),
 
     _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
         var toolbarView = this.get( 'toolbarView' ),
@@ -259,7 +233,6 @@ var RichTextView = NS.Class({
                 // Need to account separately for any border in the new parent.
                 borders = scrollView.getPositionRelativeTo( newParent );
             toolbarView
-                .set( 'className', 'v-Toolbar v-RichText-toolbar is-sticky' )
                 .set( 'layout', {
                     top: scrollView.get( 'pxTop' ),
                     left: position.left - borders.left,
@@ -268,7 +241,6 @@ var RichTextView = NS.Class({
             newParent.insertView( toolbarView );
         } else {
             toolbarView
-                .set( 'className', 'v-Toolbar v-RichText-toolbar' )
                 .set( 'layout', {
                     top: 0,
                     left: 0,
@@ -806,8 +778,6 @@ var RichTextView = NS.Class({
         var editor = this.get( 'editor' );
         if ( editor ) {
             editor.focus();
-        } else {
-            this.set( 'isFocussed', true );
         }
         return this;
     },
@@ -816,8 +786,6 @@ var RichTextView = NS.Class({
         var editor = this.get( 'editor' );
         if ( editor ) {
             editor.blur();
-        } else {
-            this.set( 'isFocussed', false );
         }
         return this;
     },
@@ -889,7 +857,7 @@ var RichTextView = NS.Class({
             );
             break;
         case 'pagedown':
-            if ( !isMac && this.get( 'isExpanding' ) ) {
+            if ( !isMac ) {
                 var scrollView = this.getParent( NS.ScrollView );
                 if ( scrollView ) {
                     scrollView.scrollToView( this, {
@@ -1040,4 +1008,4 @@ RichTextView.isSupported = (
 
 NS.RichTextView = RichTextView;
 
-}( O ) );
+}( O, window, document ) );
