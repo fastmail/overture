@@ -239,7 +239,7 @@ var PopOverView = NS.Class({
 
         // Check bottom edge
         if ( !parent.get( 'showScrollbarY' ) ) {
-            gap = parent.get( 'pxHeight' )  - position.top - deltaTop -
+            gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
                 layer.offsetHeight;
             if ( gap < 0 ) {
                 deltaTop += gap;
