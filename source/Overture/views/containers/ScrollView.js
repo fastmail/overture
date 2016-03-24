@@ -496,7 +496,7 @@ if ( NS.UA.isIOS ) {
                         relativeTo = relativeTo.firstChild;
                         where = 'after';
                     }
-                } else if ( where === 'bottom' ) {
+                } else if ( !where || where === 'bottom' ) {
                     if ( this.get( 'isFixedDimensions' ) ) {
                         relativeTo = relativeTo.lastChild;
                         where = 'before';
