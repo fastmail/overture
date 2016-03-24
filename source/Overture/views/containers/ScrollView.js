@@ -51,7 +51,6 @@ var ScrollView = NS.Class({
 
     Extends: NS.View,
 
-
     /**
         Property: O.ScrollView#showScrollbarX
         Type: Boolean
@@ -191,6 +190,22 @@ var ScrollView = NS.Class({
             object: this
         });
     }.property(),
+
+    /**
+        Property: O.ScrollView#isAnimating
+        Type: Boolean
+
+        Is the scroll currently animating?
+    */
+    isAnimating: false,
+
+    willAnimate: function () {
+        this.set( 'isAnimating', true );
+    },
+
+    didAnimate: function () {
+        this.set( 'isAnimating', false );
+    },
 
     /**
         Method: O.ScrollView#scrollPage

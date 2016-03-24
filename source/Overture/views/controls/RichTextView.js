@@ -96,25 +96,33 @@ var RichTextView = NS.Class({
     },
 
     didEnterDocument: function () {
-        if ( this.get( 'showToolbar' ) ) {
-            var scrollView = this.getParent( NS.ScrollView );
-            if ( scrollView ) {
+        var scrollView = this.getParent( NS.ScrollView );
+        if ( scrollView ) {
+            if ( this.get( 'showToolbar' ) ) {
                 scrollView.addObserverForKey(
                     'scrollTop', this, '_calcToolbarPosition' );
+            }
+            if ( NS.UA.isIOS ) {
+                scrollView.addObserverForKey(
+                    'scrollTop', this, 'redrawIOSCursor' );
             }
         }
         return RichTextView.parent.didEnterDocument.call( this );
     },
 
     willLeaveDocument: function () {
-        if ( this.get( 'showToolbar' ) ) {
-            var scrollView = this.getParent( NS.ScrollView );
-            if ( scrollView ) {
+        var scrollView = this.getParent( NS.ScrollView );
+        if ( scrollView ) {
+            if ( this.get( 'showToolbar' ) ) {
                 scrollView.removeObserverForKey(
                     'scrollTop', this, '_calcToolbarPosition' );
+                this._setToolbarPosition(
+                    scrollView, this.get( 'toolbarView' ), false );
             }
-            this._setToolbarPosition(
-                scrollView, this.get( 'toolbarView' ), false );
+            if ( NS.UA.isIOS ) {
+                scrollView.removeObserverForKey(
+                    'scrollTop', this, 'redrawIOSCursor' );
+            }
         }
         return RichTextView.parent.willLeaveDocument.call( this );
     },
@@ -165,39 +173,38 @@ var RichTextView = NS.Class({
     // ---
 
     redrawIOSCursor: function () {
-        var editor = this.get( 'editor' );
-        editor.setSelection( editor.getSelection() );
+        if ( this.get( 'isFocussed' ) ) {
+            var editor = this.get( 'editor' );
+            editor.setSelection( editor.getSelection() );
+        }
     }.nextFrame(),
 
-    _scrollPointIntoView: function ( event ) {
+    scrollIntoView: function () {
         var scrollView = this.getParent( NS.ScrollView );
+        if ( !scrollView ) {
+            return;
+        }
+        var cursorPosition = this.get( 'editor' ).getCursorPosition();
+        var scrollViewOffsetTop =
+            scrollView.get( 'layer' ).getBoundingClientRect().top;
+        var offsetTop = cursorPosition.top - scrollViewOffsetTop;
+        var offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
         var scrollViewHeight = scrollView.get( 'pxHeight' );
-        var offsetTop = event.y -
-                scrollView.get( 'layer' ).getBoundingClientRect().top;
-        var isIOS = NS.UA.isIOS;
         var scrollBy = 0;
-        if ( isIOS ) {
+        if ( NS.UA.isIOS ) {
             scrollViewHeight -=
                 // Keyboard height (in WKWebView, but not Safari)
                 ( document.body.offsetHeight - window.innerHeight );
         }
-        if ( offsetTop - 32 < 0 ) {
-            scrollBy = offsetTop - 64;
-        }
-        if ( offsetTop + 32 > scrollViewHeight ) {
-            scrollBy = offsetTop + 64 - scrollViewHeight;
+        if ( offsetTop - 15 < 0 ) {
+            scrollBy = offsetTop - 15;
+        } else if ( offsetBottom + 15 > scrollViewHeight ) {
+            scrollBy = offsetBottom + 15 - scrollViewHeight;
         }
         if ( scrollBy ) {
-            // iOS leaves the cursor in the position it would be with the
-            // previous scroll. Force a redraw after updating scroll.
-            if ( isIOS ) {
-                scrollView.scrollBy( 0, scrollBy );
-                this.redrawIOSCursor();
-            } else {
-                scrollView.scrollBy( 0, scrollBy, true );
-            }
+            scrollView.scrollBy( 0, Math.round( scrollBy ), true );
         }
-    }.on( 'scrollPointIntoView' ),
+    }.queue( 'after' ).on( 'input' ),
 
     _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
         var toolbarView = this.get( 'toolbarView' ),
