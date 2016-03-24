@@ -181,10 +181,11 @@ var RichTextView = NS.Class({
 
     scrollIntoView: function () {
         var scrollView = this.getParent( NS.ScrollView );
-        if ( !scrollView ) {
+        var editor = this.get( 'editor' );
+        var cursorPosition = editor && editor.getCursorPosition();
+        if ( !scrollView || !cursorPosition ) {
             return;
         }
-        var cursorPosition = this.get( 'editor' ).getCursorPosition();
         var scrollViewOffsetTop =
             scrollView.get( 'layer' ).getBoundingClientRect().top;
         var offsetTop = cursorPosition.top - scrollViewOffsetTop;
