@@ -158,7 +158,6 @@ var RichTextView = NS.Class({
             .addEventListener( 'select', this )
             .addEventListener( 'pathChange', this )
             .addEventListener( 'undoStateChange', this )
-            .addEventListener( 'scrollPointIntoView', this )
             .didError = NS.RunLoop.didError;
         this.set( 'editor', editor )
             .set( 'path', editor.getPath() );
