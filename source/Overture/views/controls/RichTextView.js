@@ -91,8 +91,9 @@ var RichTextView = NS.Class({
 
     willEnterDocument: function () {
         this.set( 'path', '' );
+        RichTextView.parent.willEnterDocument.call( this );
         this.get( 'layer' ).appendChild( this._editingLayer );
-        return RichTextView.parent.willEnterDocument.call( this );
+        return this;
     },
 
     didEnterDocument: function () {
