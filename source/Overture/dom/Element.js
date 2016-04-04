@@ -525,14 +525,21 @@ NS.Element = {
 
         Returns:
             {Object} The offset in pixels of the element relative to the
-            given ancestor or the whole page. Has two properties:
-            `{ top: Number, left: Number }`.
+            given ancestor or the whole page, plus the height and width.
+            Has four properties:
+
+            - top: `Number`
+            - left: `Number`
+            - width: `Number`
+            - height: `Number`
     */
     getPosition: getPosition = function ( el, ancestor ) {
         var rect = el.getBoundingClientRect(),
             position = {
                 top: rect.top,
-                left: rect.left
+                left: rect.left,
+                width: rect.right - rect.left, // IE8 doesn't return width
+                height: rect.bottom - rect.top // IE8 doesn't return height
             };
         if ( ancestor ) {
             rect = getPosition( ancestor );

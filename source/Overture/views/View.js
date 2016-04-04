@@ -860,7 +860,8 @@ var View = NS.Class({
 
         Returns:
             {Object} An object with 'top' and 'left' properties, each being the
-            number of pixels this view is offset from the given view.
+            number of pixels this view is offset from the given view, and
+            'width' and 'height' properties for the dimensions of this view.
     */
     getPositionRelativeTo: function ( view ) {
         // If it's a scroll view, it may not have synced the current scroll

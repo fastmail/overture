@@ -54,7 +54,7 @@ var PopOverView = NS.Class({
             parent = options.inParent,
             deltaLeft = 0,
             deltaTop = 0,
-            layout, layer,
+            layout, position, layer,
             Element = NS.Element,
             el = Element.create,
             RootView = NS.RootView,
@@ -74,8 +74,12 @@ var PopOverView = NS.Class({
         }
 
         // Now find out our offsets;
-        layout = Element.getPosition( atNode, parent instanceof ScrollView ?
+        position = Element.getPosition( atNode, parent instanceof ScrollView ?
             parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
+        layout = {
+            top: position.top,
+            left: position.left
+        };
 
         switch ( positionToThe ) {
         case 'right':
