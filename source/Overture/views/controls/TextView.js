@@ -513,10 +513,10 @@ var TextView = NS.Class({
             event - {Event} The keypress event.
     */
     _onKeypress: function ( event ) {
-        var key = ( event.keyCode || event.which );
+        var key = NS.DOMEvent.lookupKey( event, true );
         // If key == enter, IE will automatically focus the nearest button
         // (presumably as though it were submitting the form). Stop this.
-        if ( key === 13 && !this.get( 'isMultiline' ) ) {
+        if ( key === 'enter' && !this.get( 'isMultiline' ) ) {
             event.preventDefault();
         }
     }.on( 'keypress' ),
@@ -531,10 +531,10 @@ var TextView = NS.Class({
             event - {Event} The keydown event.
     */
     _blurOnEsc: function ( event ) {
-        var key = ( event.keyCode || event.which );
+        var key = NS.DOMEvent.lookupKey( event, true );
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
-        if ( key === 27 && this.get( 'blurOnEscape' ) ) {
+        if ( key === 'esc' && this.get( 'blurOnEscape' ) ) {
             this.blur();
         }
     }.on( 'keydown' )
