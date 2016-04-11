@@ -551,8 +551,8 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             // day: '/^d(?:ays?)?\\b/i',
             // year: '/^y(?:(?:ea)?rs?)?\\b/i',
 
-            am: '/^(?:a\\.?m?\\.?)\\b/i',
-            pm: '/^(?:p\\.?m?\\.?)\\b/i',
+            am: '/^(?:a\\.?m?\\.?)(?=\s|$)/i',
+            pm: '/^(?:p\\.?m?\\.?)(?=\s|$)/i',
 
             ordinalSuffix: '/^\\s*(?:st|nd|rd|th)\\b/i',
             timeContext: '/^\\s*(?:\\:|am|pm)/i'
