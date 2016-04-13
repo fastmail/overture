@@ -87,6 +87,16 @@ var ButtonView = NS.Class({
     isActive: false,
 
     /**
+        Property: O.ButtonView#isWaiting
+        Type: Boolean
+        Default: false
+
+        Is the button waiting for something to complete? Setting this to true
+        will disable the button and add an 'is-waiting' class name.
+    */
+    isWaiting: false,
+
+    /**
         Property: O.ButtonView#type
         Type: String
         Default: ''
@@ -147,8 +157,9 @@ var ButtonView = NS.Class({
             ( this.get( 'icon' ) ? ' v-Button--hasIcon' : '' ) +
             ( this.get( 'shortcut' ) ? ' v-Button--hasShortcut' : '' ) +
             ( this.get( 'isActive' ) ? ' is-active' : '' ) +
+            ( this.get( 'isWaiting' ) ? ' is-waiting' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' );
-    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isDisabled' ),
+    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isWaiting', 'isDisabled' ),
 
     /**
         Method: O.ButtonView#draw
@@ -176,8 +187,9 @@ var ButtonView = NS.Class({
         redraw.
     */
     buttonNeedsRedraw: function ( self, property, oldValue ) {
+        if ( property === 'isWaiting' ) { property = 'isDisabled'; }
        return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'icon' ),
+    }.observes( 'icon', 'isWaiting' ),
 
     /**
         Method: O.ButtonView#redrawIcon
@@ -187,6 +199,11 @@ var ButtonView = NS.Class({
     redrawIcon: function ( layer ) {
         var icon = this.get( 'icon' );
         layer.firstChild.className = icon ? 'icon ' + icon : 'u-hidden';
+    },
+
+    redrawIsDisabled: function () {
+        this._domControl.disabled =
+            this.get( 'isDisabled' ) || this.get( 'isWaiting' );
     },
 
     // --- Activate ---
@@ -242,7 +259,7 @@ var ButtonView = NS.Class({
         It also fires an event called `button:activate` on itself.
     */
     activate: function () {
-        if ( !this.get( 'isDisabled' ) ) {
+        if ( !this.get( 'isDisabled' ) && !this.get( 'isWaiting' ) ) {
             var target = this.get( 'target' ) || this,
                 action;
             if ( action = this.get( 'action' ) ) {
