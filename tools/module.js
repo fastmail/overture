@@ -168,7 +168,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         return ( /\.(?:ttf|woff|svg|eot)$/i.test( input ) );
     });
     var images = inputs.filter( function ( input ) {
-        return ( /\.(?:png|jpe?g|gif)$/i.test( input ) );
+        return ( /\.(?:png|jpe?g|gif|svg)$/i.test( input ) );
     });
     var css = inputs.filter( function ( input ) {
         return ( /\.css$/i.test( input ) );
@@ -199,16 +199,21 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         var type = filename.slice( filename.lastIndexOf( '.' ) + 1 );
         if ( type === 'jpg' ) { type = 'jpeg'; }
 
+        if ( type === 'svg' ) {
+            data = JSON.stringify( data.toString() );
+        } else {
+            data = '"data:image/' + type + ';base64,' +
+                data.toString( 'base64' ) + '"';
+        }
+
         module += themeManager;
         module += '.imageDidLoad("';
         module += theme;
         module += '", "';
         module += filename;
-        module += '", "data:image/';
-        module += type;
-        module += ';base64,';
-        module += data.toString( 'base64' );
-        module += '");\n';
+        module += '", ';
+        module += data;
+        module += ');\n';
     });
     css.forEach( function ( input ) {
         var data = fs.readFileSync( input, 'utf8' );
