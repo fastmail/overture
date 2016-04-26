@@ -88,7 +88,9 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     registerBinding: function ( binding ) {
-        meta( this ).bindings[ bindingKey + NS.guid( binding ) ] = binding;
+        var metadata = meta( this );
+        metadata.bindings[ bindingKey + NS.guid( binding ) ] = binding;
+        metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
         return this;
     },
 
@@ -102,9 +104,13 @@ NS.BoundProps = {
             {O.BoundProps} Returns self.
     */
     deregisterBinding: function ( binding ) {
-        var bindings = meta( this ).bindings,
-            key = Object.keyOf( bindings, binding );
-        delete bindings[ key ];
+        var metadata = meta( this );
+        var bindings = metadata.bindings;
+        var key = Object.keyOf( bindings, binding );
+        if ( key ) {
+            bindings[ key ] = null;
+            metadata.inits.Bindings -= 1;
+        }
         return this;
     },
 
