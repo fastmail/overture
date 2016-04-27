@@ -282,7 +282,17 @@ NS.UA = {
 
         Does the browser support touch events?
     */
-    canTouch: 'ontouchstart' in document.documentElement
+    canTouch: 'ontouchstart' in document.documentElement,
+
+    /**
+        Property: O.UA.canU2F
+        Type: Boolean
+
+        Does the browser support U2F?
+    */
+    // TODO: Find a way of detecting this rather than hardcoding
+    // For now, referencing http://caniuse.com/#feat=u2f
+    canU2F: browser === 'chrome' && version >= 41
 };
 
 }( O ) );
