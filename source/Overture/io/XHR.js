@@ -28,8 +28,10 @@ var parseHeaders = function ( allHeaders ) {
         if ( end < 0 ) {
             break;
         }
-        // Slice out the header name
-        name = allHeaders.slice( start, end );
+        // Slice out the header name.
+        // Convert to lower-case: HTTP2 will always be lower case, but HTTP1
+        // may be mixed case, which causes bugs!
+        name = allHeaders.slice( start, end ).toLowerCase();
         // Trim off any spaces after the colon.
         start = end + 1;
         while ( allHeaders.charAt( start ) === ' ' ) {
