@@ -527,10 +527,13 @@ var parseDateTime = function ( string, locale, mode ) {
     if ( !locale ) {
         locale = NS.i18n.getLocale();
     }
+    string = string.trim().replace(/[０-９]/g, function ( wideNum ) {
+        return String.fromCharCode( wideNum.charCodeAt( 0 ) - 65248 );
+    });
     var code = locale.code + mode;
     var dateParser = dateParsers[ code ] ||
         ( dateParsers[ code ] = generateLocalisedDateParser( locale, mode ) );
-    var parse = new NS.Parse( string.trim() );
+    var parse = new NS.Parse( string );
     while ( parse.string.length ) {
         if ( !dateParser( parse ) ) {
             // We've hit something unexpected. Skip it.
