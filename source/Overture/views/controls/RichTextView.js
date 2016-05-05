@@ -961,6 +961,14 @@ var RichTextView = NS.Class({
     // --- Keep state in sync with render ---
 
     handleEvent: function ( event ) {
+        // Ignore real dragover/drop events from Squire. They wil be handled
+        // by the standard event delegation system. We only observe these
+        // to get the image paste fake dragover/drop events.
+        var type = event.type;
+        if ( ( type === 'dragover' || type === 'drop' ) &&
+                event.stopPropagation ) {
+            return;
+        }
         NS.ViewEventsController.handleEvent( event, this );
     },
 
