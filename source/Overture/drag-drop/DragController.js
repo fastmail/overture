@@ -33,10 +33,12 @@ function TouchDragEvent ( touch ) {
     this.targetView = NS.ViewEventsController.getViewFromNode( target );
 }
 
-var getTouch = function ( event, touchId ) {
-    var touches = event.changedTouches,
-        l = touches.length,
+var getTouch = function ( touches, touchId ) {
+    var l = touches.length,
         touch;
+    if ( !touchId ) {
+        return null;
+    }
     while ( l-- ) {
         touch = touches[l];
         if ( touch.identifier === touchId ) {
@@ -286,22 +288,35 @@ var DragController = new NS.Object({
     }.on( 'hold' ),
 
     /**
-        Method (private): O.DragController._onTouchemove
+        Method (private): O.DragController._onTouchstart
+
+        Parameters:
+            event - {Event} The touchstart event.
+    */
+    // Just doing a sanity check to make sure our drag touch isn't orphaned
+    _onTouchstart: function ( event ) {
+        if ( !this._touchId ) {
+            return;
+        }
+        var touch = getTouch( event.touches, this._touchId );
+        if ( !touch ) {
+            this._drag.endDrag();
+        }
+    }.on( 'touchstart' ),
+
+    /**
+        Method (private): O.DragController._onTouchmove
 
         Parameters:
             event - {Event} The touchmove event.
     */
     _onTouchmove: function ( event ) {
-        var touchId = this._touchId,
-            touch;
-        if ( touchId !== null ) {
-            touch = getTouch( event, touchId );
-            if ( touch ) {
-                this._drag.move( new TouchDragEvent( touch ) );
-                // Don't propagate to views and don't trigger scroll.
-                event.preventDefault();
-                event.stopPropagation();
-            }
+        var touch = getTouch( event.changedTouches, this._touchId );
+        if ( touch ) {
+            this._drag.move( new TouchDragEvent( touch ) );
+            // Don't propagate to views and don't trigger scroll.
+            event.preventDefault();
+            event.stopPropagation();
         }
     }.on( 'touchmove' ),
 
@@ -312,13 +327,9 @@ var DragController = new NS.Object({
             event - {Event} The touchend event.
     */
     _onTouchend: function ( event ) {
-        var touchId = this._touchId,
-            touch;
-        if ( touchId !== null ) {
-            touch = getTouch( event, touchId );
-            if ( touch ) {
-                this._drag.drop( new TouchDragEvent( touch ) ).endDrag();
-            }
+        var touch = getTouch( event.changedTouches, this._touchId );
+        if ( touch ) {
+            this._drag.drop( new TouchDragEvent( touch ) ).endDrag();
         }
     }.on( 'touchend' ),
 
@@ -329,13 +340,9 @@ var DragController = new NS.Object({
             event - {Event} The touchcancel event.
     */
     _onTouchcancel: function ( event ) {
-        var touchId = this._touchId,
-            touch;
-        if ( touchId !== null ) {
-            touch = getTouch( event, touchId );
-            if ( touch ) {
-                this._drag.endDrag();
-            }
+        var touch = getTouch( event.changedTouches, this._touchId );
+        if ( touch ) {
+            this._drag.endDrag();
         }
     }.on( 'touchcancel' ),
 
