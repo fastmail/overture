@@ -621,6 +621,21 @@ var insertLocale = function ( englishDbPath, strings, input, output ) {
     fs.writeFile( output, input );
 };
 
+var insertEnglish = function ( englishDbPath, input, output ) {
+    var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
+        stringToEntry = indexDB( db, 'string' ),
+        idToEntry = indexDB( db, 'id' );
+    input = fs.readFileSync( input, 'utf8' );
+    input = input.replace( extractor, function ( _, id ) {
+        if ( !isId.test( id ) ) {
+            id = stringToEntry[ id ].id;
+        }
+        return '.loc( ' + JSON.stringify( idToEntry[ id ].string );
+    });
+
+    fs.writeFile( output, input );
+};
+
 var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) {
     var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
         inputPo = parsePo( fs.readFileSync( inputPoPath, 'utf8' ) ),
@@ -752,6 +767,12 @@ var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
             // 3. Input
             // 4. Output
             insertLocale( args[1], args[2], args[3], args[4] );
+            break;
+        case 'insertEnglish':
+            // 1. EnglishDb
+            // 3. Input
+            // 4. Output
+            insertEnglish( args[1], args[2], args[3] );
             break;
         case 'dbToPo':
             dbToPo( args[1], args[2], false );

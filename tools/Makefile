@@ -40,6 +40,12 @@ MAKE_LANG_MODULE := $(TOOLS)/localise.js makeLangModule
 INSERT_LOCALE := $(TOOLS)/localise.js insertLocale
 
 # Args:
+# EnglishDB
+# inputFileName
+# outputFileName
+INSERT_ENGLISH := $(TOOLS)/localise.js insertEnglish
+
+# Args:
 # Input files
 # Output file
 CONCATENATE := $(TOOLS)/jstools.js concatenate
