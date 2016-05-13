@@ -125,9 +125,25 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
     return ruleInEffect;
 };
 
+var switchSign = function ( string ) {
+    return string.replace( /[+-]/, function ( sign ) {
+        return sign === '+' ? '-' : '+';
+    });
+};
+
 var TimeZone = NS.Class({
-    init: function ( mixin ) {
-        NS.extend( this, mixin );
+    init: function ( id, periods ) {
+        var name = id.replace( /_/g, ' ' );
+        // The IANA ids have the +/- the wrong way round for historical reasons.
+        // Display correctly for the user in name and suffix.
+        if ( /GMT[+-]/.test( name ) ) {
+            name = switchSign( name );
+            periods[0][3] = switchSign( periods[0][3] );
+        }
+
+        this.id = id;
+        this.name = name;
+        this.periods = periods;
     },
 
     convert: function ( date, toTimeZone ) {
@@ -178,6 +194,19 @@ TimeZone.isEqual = function ( a, b ) {
     return a.id === b.id;
 };
 
+var addTimeZone = function ( timeZone ) {
+    var area = TimeZone.areas;
+    var parts = timeZone.name.split( '/' );
+    var l = parts.length - 1;
+    var i;
+    for ( i = 0; i < l; i += 1 ) {
+        area = area[ parts[i] ] || ( area[ parts[i] ] = {} );
+    }
+    area[ parts[l] ] = timeZone;
+
+    TimeZone[ timeZone.id ] = timeZone;
+};
+
 TimeZone.rules = {
     '-': []
 };
@@ -186,38 +215,13 @@ TimeZone.areas = {};
 TimeZone.load = function ( json ) {
     var zones = json.zones,
         link = json.link,
-        areas = TimeZone.areas,
-        timeZone, id, parts, area, i, l;
+        id;
 
     for ( id in zones ) {
-        timeZone = new TimeZone({
-            id: id,
-            periods: zones[ id ]
-        });
-        TimeZone[ id ] = timeZone;
-
-        area = areas;
-        parts = id.replace( /_/g, ' ' ).split( '/' );
-        l = parts.length - 1;
-        for ( i = 0; i < l; i += 1 ) {
-            area = area[ parts[i] ] || ( area[ parts[i] ] = {} );
-        }
-        area[ parts[l] ] = timeZone;
+        addTimeZone( new TimeZone( id, zones[ id ] ) );
     }
     for ( id in link ) {
-        timeZone = new TimeZone({
-            id: id,
-            periods: zones[ link[ id ] ]
-        });
-        TimeZone[ id ] = timeZone;
-
-        area = areas;
-        parts = id.replace( /_/g, ' ' ).split( '/' );
-        l = parts.length - 1;
-        for ( i = 0; i < l; i += 1 ) {
-            area = area[ parts[i] ] || ( area[ parts[i] ] = {} );
-        }
-        area[ parts[l] ] = timeZone;
+        addTimeZone( new TimeZone( id, zones[ link[ id ] ] ) );
     }
     NS.extend( TimeZone.rules, json.rules );
 };
