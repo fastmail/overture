@@ -369,6 +369,22 @@ var Store = NS.Class({
             ( this._typeToSkToId[ guid( Type ) ] || {} )[ storeKey ];
     },
 
+    /**
+        Method: O.Store#getTypeFromStoreKey
+
+        Get the record type for a given store key.
+
+        Parameters:
+            storeKey - {String} The store key to get the record type for.
+
+        Returns:
+            {(Type|null)} Returns the type for the record, or `null` if the
+            store key is not found.
+    */
+    getTypeFromStoreKey: function ( storeKey ) {
+        return this._skToType[ storeKey ] || null;
+    },
+
     // === Client API ==========================================================
 
     /**
@@ -407,10 +423,19 @@ var Store = NS.Class({
             no id given.
     */
     getRecord: function ( Type, id, doNotFetch ) {
-        if ( !Type || !id ) { return null; }
-        var storeKey = ( id.charAt( 0 ) === '#' ) ?
-                id.slice( 1 ) : this.getStoreKey( Type, id ),
-            record = this.materialiseRecord( storeKey, Type );
+        var storeKey, record;
+        if ( !Type || !id ) {
+            return null;
+        }
+        if ( id.charAt( 0 ) === '#' ) {
+            storeKey = id.slice( 1 );
+            if ( this.getTypeFromStoreKey( storeKey ) !== Type ) {
+                return null;
+            }
+        } else {
+            storeKey = this.getStoreKey( Type, id );
+        }
+        record = this.materialiseRecord( storeKey, Type );
 
         // If the caller is already handling the fetching, they can
         // set doNotFetch to true.
@@ -1142,14 +1167,17 @@ var Store = NS.Class({
     */
     fetchData: function ( storeKey ) {
         var status = this.getStatus( storeKey );
-
+        var Type, typeId, id;
         // Nothing to do if already loading or new, destroyed or non-existant.
         if ( status & (LOADING|NEW|DESTROYED|NON_EXISTENT) ) {
             return this;
         }
-        var Type = this._skToType[ storeKey ],
-            typeId = guid( Type ),
-            id = this._typeToSkToId[ typeId ][ storeKey ];
+        Type = this._skToType[ storeKey ];
+        if ( !Type ) {
+            return this;
+        }
+        typeId = guid( Type );
+        id = this._typeToSkToId[ typeId ][ storeKey ];
         if ( status & EMPTY ) {
             this.source.fetchRecord( Type, id );
             this.setStatus( storeKey, (EMPTY|LOADING) );
