@@ -10,6 +10,8 @@
 
 ( function ( NS ) {
 
+var isEqual = NS.isEqual;
+
 /**
     Class: O.SelectView
 
@@ -92,7 +94,7 @@ var SelectView = NS.Class({
                     return el( 'option', {
                         text: option.text,
                         value: i,
-                        selected: option.value === selected,
+                        selected: isEqual( option.value, selected ),
                         disabled: !!option.isDisabled
                     });
                 })
@@ -121,7 +123,7 @@ var SelectView = NS.Class({
     redrawOptions: function ( layer, oldOptions ) {
         var options = this.get( 'options' ),
             select;
-        if ( !NS.isEqual( options, oldOptions ) ) {
+        if ( !isEqual( options, oldOptions ) ) {
             select = this._drawSelect( options );
             layer.replaceChild( select, this._domControl );
             this._domControl = select;
@@ -140,7 +142,7 @@ var SelectView = NS.Class({
             l = options.length;
 
         while ( l-- ) {
-            if ( options[l].value === value ) {
+            if ( isEqual( options[l].value, value ) ) {
                 this._domControl.value = l + '';
                 return;
             }
