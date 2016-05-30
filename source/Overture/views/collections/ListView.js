@@ -48,11 +48,17 @@ var ListView = NS.Class({
 
         var selection = this.get( 'selection' );
         if ( selection ) {
-            selection.set( 'view', this );
+            selection
+                .addObserverForKey( 'selectedIds', this, 'redrawSelection' );
         }
     },
 
     destroy: function () {
+        var selection = this.get( 'selection' );
+        if ( selection ) {
+            selection
+                .removeObserverForKey( 'selectedIds', this, 'redrawSelection' );
+        }
         if ( this.get( 'isRendered' ) ) {
             var content = this.get( 'content' );
             if ( content ) {
@@ -283,6 +289,20 @@ var ListView = NS.Class({
         this._removed = null;
         this.propertyDidChange( 'childViews' );
         this.endPropertyChanges();
+    },
+
+    redrawSelection: function () {
+        var selection = this.get( 'selection' ),
+            itemViews = this.get( 'childViews' ),
+            l = itemViews.length,
+            view, id;
+        while ( l-- ) {
+            view = itemViews[l];
+            id = view.getFromPath( 'content.id' );
+            if ( id ) {
+                view.set( 'isSelected', selection.isIdSelected( id ) );
+            }
+        }
     },
 
     // --- Can't add views by hand; just bound to content ---

@@ -14,7 +14,7 @@ var SelectionController = NS.Class({
 
     Extends: NS.Object,
 
-    content: NS.bind( 'view.content' ),
+    content: null,
 
     init: function ( mixin ) {
         this._selectionId = 0;
@@ -22,7 +22,6 @@ var SelectionController = NS.Class({
         this._selectedIds = {};
 
         this.isLoadingSelection = false;
-        this.view = null;
         this.length = 0;
 
         SelectionController.parent.init.call( this, mixin );
@@ -40,9 +39,7 @@ var SelectionController = NS.Class({
         if ( newContent ) {
             newContent.on( 'query:updated', this, 'contentWasUpdated' );
         }
-        this._selectedIds = {};
-        this.set( 'length', 0 )
-            .propertyDidChange( 'selectedIds' );
+        this.selectAll( false );
     }.observes( 'content' ),
 
     contentWasUpdated: function ( event ) {
@@ -79,20 +76,6 @@ var SelectionController = NS.Class({
     isIdSelected: function ( id ) {
         return !!this._selectedIds[ id ];
     },
-
-    updateViews: function () {
-        var itemViews = this.getFromPath( 'view.childViews' ),
-            l = itemViews ? itemViews.length : 0,
-            _selectedIds = this._selectedIds,
-            view, id;
-        while ( l-- ) {
-            view = itemViews[l];
-            id = view.getFromPath( 'content.id' );
-            if ( id ) {
-                view.set( 'isSelected', !!_selectedIds[ id ] );
-            }
-        }
-    }.observes( 'selectedIds' ),
 
     // ---
 
