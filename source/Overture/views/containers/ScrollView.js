@@ -208,6 +208,27 @@ var ScrollView = NS.Class({
     },
 
     /**
+        Method: O.ScrollView#scrollToTop
+
+        Scrolls the view to the top
+    */
+    scrollToTop: function () {
+        return this.scrollTo( 0, 0, true );
+    },
+
+    /**
+        Method: O.ScrollView#scrollToBottom
+
+        Scrolls the view to the bottom
+    */
+    scrollToBottom: function () {
+        return this.scrollTo( 0,
+            this.get( 'scrollLayer' ).scrollHeight - this.get( 'pxHeight' ),
+            true
+        );
+    },
+
+    /**
         Method: O.ScrollView#scrollPage
 
         Scrolls the view down by the view height - 50px.
@@ -318,7 +339,7 @@ var ScrollView = NS.Class({
         var scrollAnimation = this.get( 'scrollAnimation' );
         scrollAnimation.stop();
 
-        if ( withAnimation ) {
+        if ( withAnimation && this.get( 'isInDocument' ) ) {
             scrollAnimation.animate({
                 x: x,
                 y: y
