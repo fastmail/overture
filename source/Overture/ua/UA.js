@@ -26,19 +26,26 @@ var ua = navigator.userAgent.toLowerCase(),
         /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
         other
     )[0],
-    browser = ( /iemobile|chrome|opera|safari|firefox|msie/.exec( ua ) || other )[0],
-    version = parseFloat(
-        ( /(?:; rv:|version\/|chrome\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua )|| other )[1].replace( '_', '.' )
-    ),
-    cssPrefixes = {
-        chrome: '-webkit-',
+    browser = (
+        /firefox|edge|msie|iemobile|opr\//.exec( ua ) ||
+        /chrome|safari|opera/.exec( ua ) ||
+        other
+    )[0],
+    version = parseFloat((
+        /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua ) ||
+        /chrome\/(\d+\.\d+)/.exec( ua ) ||
+        other
+    )[1].replace( '_', '.' ) ),
+    prefix = {
         firefox: '-moz-',
         msie: '-ms-',
-        opera: '-o-',
-        safari: '-webkit-',
-        other: '-webkit-'
-    },
+        opera: '-o-'
+    }[ browser ] || '-webkit-',
     cssProps = {};
+
+if ( browser === 'opr/' ) {
+    browser = 'opera';
+}
 
 ( function () {
     var el = document.createElement( 'div' ),
@@ -69,7 +76,6 @@ var ua = navigator.userAgent.toLowerCase(),
                 value: 'none'
             }
         },
-        prefix = cssPrefixes[ browser ],
         prop, test, css;
 
     for ( prop in props ) {
@@ -177,7 +183,7 @@ NS.UA = {
         Property: O.UA.browser
         Type: String
 
-        The browser being run. "chrome", "firefox", "msie", "opera",
+        The browser being run. "chrome", "firefox", "msie", "edge", "opera",
         "safari" or "iemobile".
     */
     browser: browser,
@@ -199,6 +205,13 @@ NS.UA = {
     */
     chrome: browser === 'chrome' ? version : 0,
     /**
+        Property: O.UA.safari
+        Type: Number
+
+        If running Safari, this will be the version number running. Otherwise 0.
+    */
+    safari: browser === 'safari' ? version : 0,
+    /**
         Property: O.UA.firefox
         Type: Number
 
@@ -207,6 +220,14 @@ NS.UA = {
     */
     firefox: browser === 'firefox' ? version : 0,
     /**
+        Property: O.UA.edge
+        Type: Number
+
+        If running Edge, this will be the version number running. Otherwise
+        0.
+    */
+    edge: browser === 'edge' ? version : 0,
+    /**
         Property: O.UA.msie
         Type: Number
 
@@ -214,7 +235,6 @@ NS.UA = {
         Otherwise 0.
     */
     msie: browser === 'msie' ? version : 0,
-
     /**
         Property: O.UA.iemobile
         Type: Number
@@ -223,7 +243,6 @@ NS.UA = {
         running. Otherwise 0.
     */
     iemobile: browser === 'iemobile' ? version : 0,
-
     /**
         Property: O.UA.opera
         Type: Number
@@ -231,13 +250,6 @@ NS.UA = {
         If running Opera, this will be the version number running. Otherwise 0.
     */
     opera: browser === 'opera' ? version : 0,
-    /**
-        Property: O.UA.safari
-        Type: Number
-
-        If running Safari, this will be the version number running. Otherwise 0.
-    */
-    safari: browser === 'safari' ? version : 0,
     /**
         Property: O.UA.operaMobile
         Type: Number
@@ -274,7 +286,7 @@ NS.UA = {
 
         The CSS prefix to use for this browser.
     */
-    cssPrefix: cssPrefixes[ browser ],
+    cssPrefix: prefix,
 
     /**
         Property: O.UA.canTouch
