@@ -560,7 +560,18 @@ var RichTextView = NS.Class({
                     label: item[0],
                     method: 'setFontSize',
                     setFontSize: function () {
-                        richTextView.setFontSize( item[1] );
+                        var fontSize = item[1];
+                        if ( fontSize === '13px' ) {
+                            richTextView
+                                .get( 'editor' )
+                                .changeFormat( null, {
+                                    tag: 'SPAN',
+                                    attributes: { 'class': 'size' }
+                                })
+                                .focus();
+                        } else {
+                            richTextView.setFontSize( fontSize );
+                        }
                     }
                 });
             })
