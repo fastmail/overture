@@ -54,6 +54,25 @@ var RichTextView = NS.Class({
     allowTextSelection: true,
 
     showToolbar: !UA.isIOS,
+    fontFaceOptions: [
+        [ 'Default', null ],
+        [ 'Arial', 'arial, sans-serif' ],
+        [ 'Georgia', 'georgia, serif' ],
+        [ 'Helvetica', 'helvetica, arial, sans-serif' ],
+        [ 'Monospace', 'menlo, consolas, monospace' ],
+        [ 'Tahoma', 'tahoma, sans-serif' ],
+        [ 'Times New Roman', '"Times New Roman", times, serif' ],
+        [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
+        [ 'Verdana', 'verdana, sans-serif' ]
+    ],
+    fontSizeOptions: function () {
+        return [
+            [ NS.loc( 'Small' ), '10px' ],
+            [ NS.loc( 'Medium' ), null  ],
+            [ NS.loc( 'Large' ), '16px' ],
+            [ NS.loc( 'Huge' ),  '22px' ]
+        ];
+    }.property(),
 
     editor: null,
     editorClassName: '',
@@ -547,31 +566,16 @@ var RichTextView = NS.Class({
         var richTextView = this;
         return new NS.MenuView({
             showFilter: false,
-            options: [
-                [ NS.loc( 'Small' ), '10px'  ],
-                [ NS.loc( 'Medium' ), '13px' ],
-                [ NS.loc( 'Large' ), '16px'  ],
-                [ NS.loc( 'Huge' ), '22px'   ]
-            ].map( function ( item ) {
+            options: this.get( 'fontSizeOptions' ).map( function ( item ) {
+                var fontSize = item[1];
                 return new ButtonView({
-                    layout: {
-                        fontSize: item[1]
-                    },
+                    layout: fontSize ? {
+                        fontSize: fontSize
+                    } : null,
                     label: item[0],
                     method: 'setFontSize',
                     setFontSize: function () {
-                        var fontSize = item[1];
-                        if ( fontSize === '13px' ) {
-                            richTextView
-                                .get( 'editor' )
-                                .changeFormat( null, {
-                                    tag: 'SPAN',
-                                    attributes: { 'class': 'size' }
-                                })
-                                .focus();
-                        } else {
-                            richTextView.setFontSize( fontSize );
-                        }
+                        richTextView.setFontSize( fontSize );
                     }
                 });
             })
@@ -596,24 +600,16 @@ var RichTextView = NS.Class({
         var richTextView = this;
         return new NS.MenuView({
             showFilter: false,
-            options: [
-                [ 'Arial', 'arial, sans-serif' ],
-                [ 'Georgia', 'georgia, serif' ],
-                [ 'Helvetica', 'helvetica, arial, sans-serif' ],
-                [ 'Monospace', 'menlo, consolas, monospace' ],
-                [ 'Tahoma', 'tahoma, sans-serif' ],
-                [ 'Times New Roman', '"Times New Roman", times, serif' ],
-                [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
-                [ 'Verdana', 'verdana, sans-serif' ]
-            ].map( function ( item ) {
+            options: this.get( 'fontFaceOptions' ).map( function ( item ) {
+                var fontFace = item[1];
                 return new ButtonView({
-                    layout: {
-                        fontFamily: item[1]
-                    },
+                    layout: fontFace ? {
+                        fontFamily: fontFace
+                    } : null,
                     label: item[0],
                     method: 'setFontFace',
                     setFontFace: function () {
-                        richTextView.setFontFace( item[1] );
+                        richTextView.setFontFace( fontFace );
                     }
                 });
             })
