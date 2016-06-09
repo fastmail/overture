@@ -156,6 +156,7 @@ var SelectionController = NS.Class({
             }
         }
         else {
+            this._lastSelectedIndex = 0;
             this._selectedIds = {};
             this.set( 'length', 0 )
                 .propertyDidChange( 'selectedIds' )
