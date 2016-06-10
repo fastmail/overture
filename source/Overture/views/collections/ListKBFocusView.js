@@ -156,7 +156,7 @@ var ListKBFocusView = NS.Class({
         // Check it's next to a loaded record.
         if ( selection && record ) {
             selection.selectIndex( index,
-                !selection.isIdSelected( record.get( 'id' ) ),
+                !selection.isStoreKeySelected( record.get( 'storeKey' ) ),
                 event.shiftKey );
         }
     },

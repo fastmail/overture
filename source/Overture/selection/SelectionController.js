@@ -19,7 +19,7 @@ var SelectionController = NS.Class({
     init: function ( mixin ) {
         this._selectionId = 0;
         this._lastSelectedIndex = 0;
-        this._selectedIds = {};
+        this._selectedStoreKeys = {};
 
         this.isLoadingSelection = false;
         this.length = 0;
@@ -45,61 +45,61 @@ var SelectionController = NS.Class({
     contentWasUpdated: function ( event ) {
         // If an id has been removed, it may no
         // longer belong to the selection
-        var _selectedIds = this._selectedIds,
-            length = this.get( 'length' ),
-            removed = event.removed || [],
-            added = event.added.reduce( function ( set, id ) {
-                set[ id ] = true;
-                return set;
-            }, {} ),
-            l = removed.length,
-            id;
+        var _selectedStoreKeys = this._selectedStoreKeys;
+        var length = this.get( 'length' );
+        var removed = event.removed;
+        var added = event.added.reduce( function ( set, storeKey ) {
+            set[ storeKey ] = true;
+            return set;
+        }, {} );
+        var l = removed.length;
+        var storeKey;
 
         while ( l-- ) {
-            id = removed[l];
-            if ( _selectedIds[ id ] && !added[ id ] ) {
+            storeKey = removed[l];
+            if ( _selectedStoreKeys[ storeKey ] && !added[ storeKey ] ) {
                 length -= 1;
-                delete _selectedIds[ id ];
+                delete _selectedStoreKeys[ storeKey ];
             }
         }
 
         this.set( 'length', length )
-            .propertyDidChange( 'selectedIds' );
+            .propertyDidChange( 'selectedStoreKeys' );
     },
 
     // ---
 
-    selectedIds: function () {
-        return Object.keys( this._selectedIds );
+    selectedStoreKeys: function () {
+        return Object.keys( this._selectedStoreKeys );
     }.property().nocache(),
 
-    isIdSelected: function ( id ) {
-        return !!this._selectedIds[ id ];
+    isStoreKeySelected: function ( storeKey ) {
+        return !!this._selectedStoreKeys[ storeKey ];
     },
 
     // ---
 
-    selectIds: function ( ids, isSelected, _selectionId ) {
+    selectStoreKeys: function ( storeKeys, isSelected, _selectionId ) {
         if ( _selectionId && _selectionId !== this._selectionId ) {
             return;
         }
         // Make sure we've got a boolean
         isSelected = !!isSelected;
 
-        var _selectedIds = this._selectedIds,
-            howManyChanged = 0,
-            l = ids.length,
-            id, wasSelected;
+        var _selectedStoreKeys = this._selectedStoreKeys;
+        var howManyChanged = 0;
+        var l = storeKeys.length;
+        var storeKey, wasSelected;
 
         while ( l-- ) {
-            id = ids[l];
-            wasSelected = !!_selectedIds[ id ];
+            storeKey = storeKeys[l];
+            wasSelected = !!_selectedStoreKeys[ storeKey ];
             if ( isSelected !== wasSelected ) {
                 if ( isSelected ) {
-                    _selectedIds[ id ] = true;
+                    _selectedStoreKeys[ storeKey ] = true;
                 }
                 else {
-                    delete _selectedIds[ id ];
+                    delete _selectedStoreKeys[ storeKey ];
                 }
                 howManyChanged += 1;
             }
@@ -108,7 +108,7 @@ var SelectionController = NS.Class({
         if ( howManyChanged ) {
             this.increment( 'length',
                     isSelected ? howManyChanged : -howManyChanged )
-                .propertyDidChange( 'selectedIds' );
+                .propertyDidChange( 'selectedStoreKeys' );
         }
 
         this.set( 'isLoadingSelection', false );
@@ -127,10 +127,11 @@ var SelectionController = NS.Class({
     selectRange: function ( start, end, isSelected ) {
         var content = this.get( 'content' ),
             selectionId = ( this._selectionId += 1 ),
-            loading = content.getIdsForObjectsInRange(
+            loading = content.getStoreKeysForObjectsInRange(
                 start, end = Math.min( end, content.get( 'length' ) || 0 ),
-                function ( ids, start, end ) {
-                    this.selectIds( ids, isSelected, selectionId, start, end );
+                function ( storeKeys, start, end ) {
+                    this.selectStoreKeys( storeKeys,
+                        isSelected, selectionId, start, end );
                 }.bind( this )
             );
 
@@ -146,9 +147,10 @@ var SelectionController = NS.Class({
             selectionId = ( this._selectionId += 1 );
 
         if ( isSelected ) {
-            var loading = content.getIdsForAllObjects(
-                function ( ids, start, end ) {
-                    this.selectIds( ids, true, selectionId, start, end );
+            var loading = content.getStoreKeysForAllObjects(
+                function ( storeKeys, start, end ) {
+                    this.selectStoreKeys( storeKeys,
+                        true, selectionId, start, end );
                 }.bind( this )
             );
             if ( loading ) {
@@ -157,9 +159,9 @@ var SelectionController = NS.Class({
         }
         else {
             this._lastSelectedIndex = 0;
-            this._selectedIds = {};
+            this._selectedStoreKeys = {};
             this.set( 'length', 0 )
-                .propertyDidChange( 'selectedIds' )
+                .propertyDidChange( 'selectedStoreKeys' )
                 .set( 'isLoadingSelection', false );
         }
 

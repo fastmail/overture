@@ -179,30 +179,23 @@ var LiveQuery = NS.Class({
     */
 
     /**
-        Method: O.LiveQuery#indexOfId
+        Method: O.LiveQuery#indexOfStoreKey
 
         Finds the index of an id in the query. If the id is not found, the index
         returned will be -1.
 
         Parameters:
-            id       - {String} The record id to find.
+            storeKey - {String} The record store key to find.
             from     - {Number} The first index to start the search from.
                        Specify 0 to search the whole list.
-            callback - {Function} (optional) A callback to make with the id. For
-                       compatibility with <O.RemoteQuery>.
+            callback - {Function} (optional) A callback to make with the store
+                       key. For compatibility with <O.RemoteQuery>.
 
         Returns:
-            {Number} The index of the id, or -1 if not found.
+            {Number} The index of the store key, or -1 if not found.
     */
-    indexOfId: function ( id, from, callback ) {
-        var record = this.get( 'store' ).getRecord( this.get( 'Type' ), id ),
-            index = -1,
-            storeKey;
-
-        if ( record.is( READY ) ) {
-            storeKey = record.get( 'storeKey' );
-            index = this._storeKeys.indexOf( storeKey, from );
-        }
+    indexOfStoreKey: function ( storeKey, from, callback ) {
+        var index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             callback( index );
         }
@@ -293,10 +286,6 @@ var LiveQuery = NS.Class({
             removed = [], removedIndexes = [],
             oldLength = this.get( 'length' ),
             store = this.get( 'store' ),
-            storeKeyToId = function ( storeKey ) {
-                return store.getIdFromStoreKey( storeKey ) ||
-                    ( '#' + storeKey );
-            },
             i, l, storeKey, index, shouldBeInQuery,
             newStoreKeys, oi, ri, ai, a, b,
             addedLength, removedLength, newLength, maxLength;
@@ -423,9 +412,9 @@ var LiveQuery = NS.Class({
                 )
                 .endPropertyChanges()
                 .fire( 'query:updated', {
-                    removed: removed.map( storeKeyToId ),
+                    removed: removed,
                     removedIndexes: removedIndexes,
-                    added: added.map( storeKeyToId ),
+                    added: added,
                     addedIndexes: addedIndexes
                 });
             return true;
@@ -434,54 +423,51 @@ var LiveQuery = NS.Class({
     },
 
     /**
-        Method: O.LiveQuery#getIdsForObjectsInRange
+        Method: O.LiveQuery#getStoreKeysForObjectsInRange
 
-        Get a callback with an array of the id properties for all objects in the
-        range given.
+        Get a callback with an array of the store keys for all objects in the
+        given range.
 
         Parameters:
-            start    - {Number} The index of the first object to get an id for.
-            end      - {Number} One past the index of the last object to get an
-                       id for.
-            callback - {Function} This will be called with the array of ids as
-                       the first argument, the index of the first returned
-                       result as the second argument, and one past the index
-                       of the last result as the third argument.
+            start    - {Number} The index of the first object to get the store
+                       key for.
+            end      - {Number} One past the index of the last object to get the
+                       store key for.
+            callback - {Function} This will be called with the array of store
+                       keys as the first argument, the index of the first
+                       returned result as the second argument, and one past the
+                       index of the last result as the third argument.
 
         Returns:
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
     */
-    getIdsForObjectsInRange: function ( start, end, callback ) {
+    getStoreKeysForObjectsInRange: function ( start, end, callback ) {
         start = Math.max( 0, start );
         end = Math.min( this.get( 'length' ), end );
-        var store = this.get( 'store' );
-        callback( this._storeKeys.slice( start, end )
-                                 .map( function ( storeKey ) {
-            return store.getIdFromStoreKey( storeKey ) || ( '#' + storeKey );
-        }), start, end );
+        callback( this._storeKeys.slice( start, end ), start, end );
         return false;
     },
 
     /**
-        Method: O.LiveQuery#getIdsForAllObjects
+        Method: O.LiveQuery#getStoreKeysForAllObjects
 
-        Get a callback with an array of the id properties for all objects in the
+        Get a callback with an array of the store keys for all objects in the
         array.
 
         Parameters:
-            callback - {Function} This will be called with the array of ids as
-                       the first argument, the index of the first returned
-                       result as the second argument, and one past the index
-                       of the last result as the third argument.
+            callback - {Function} This will be called with the array of store
+                       keys as the first argument, the index of the first
+                       returned result as the second argument, and one past the
+                       index of the last result as the third argument.
 
         Returns:
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
     */
-    getIdsForAllObjects: function ( callback ) {
+    getStoreKeysForAllObjects: function ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
-        return this.getIdsForObjectsInRange( 0, 0x7fffffff, callback );
+        return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
     }
 });
 

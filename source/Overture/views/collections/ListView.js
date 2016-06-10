@@ -48,16 +48,16 @@ var ListView = NS.Class({
 
         var selection = this.get( 'selection' );
         if ( selection ) {
-            selection
-                .addObserverForKey( 'selectedIds', this, 'redrawSelection' );
+            selection.addObserverForKey(
+                'selectedStoreKeys', this, 'redrawSelection' );
         }
     },
 
     destroy: function () {
         var selection = this.get( 'selection' );
         if ( selection ) {
-            selection
-                .removeObserverForKey( 'selectedIds', this, 'redrawSelection' );
+            selection.removeObserverForKey(
+                'selectedStoreKeys', this, 'redrawSelection' );
         }
         if ( this.get( 'isRendered' ) ) {
             var content = this.get( 'content' );
@@ -222,7 +222,7 @@ var ListView = NS.Class({
             view = rendered[ id ];
             if ( !newRendered[ id ] ) {
                 isRemoved = removed && ( item = view.get( 'content' ) ) ?
-                    removed[ item.get( 'id' ) ] : false;
+                    removed[ item.get( 'storeKey' ) ] : false;
                 view.detach( isRemoved );
                 this.destroyItemView( view );
             }
@@ -235,7 +235,8 @@ var ListView = NS.Class({
             id = item ? NS.guid( item ) : 'null:' + i;
             view = newRendered[ id ];
             if ( !view ) {
-                isAdded = added && item ? added[ item.get( 'id' ) ] : false;
+                isAdded = added && item ?
+                    added[ item.get( 'storeKey' ) ] : false;
                 view = this.createItemView( item, i, list, isAdded );
                 if ( view ) {
                     newRendered[ id ] = view;
@@ -295,12 +296,13 @@ var ListView = NS.Class({
         var selection = this.get( 'selection' ),
             itemViews = this.get( 'childViews' ),
             l = itemViews.length,
-            view, id;
+            view, storeKey;
         while ( l-- ) {
             view = itemViews[l];
-            id = view.getFromPath( 'content.id' );
-            if ( id ) {
-                view.set( 'isSelected', selection.isIdSelected( id ) );
+            storeKey = view.getFromPath( 'content.storeKey' );
+            if ( storeKey ) {
+                view.set( 'isSelected',
+                    selection.isStoreKeySelected( storeKey ) );
             }
         }
     },

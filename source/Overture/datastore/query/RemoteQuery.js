@@ -278,6 +278,8 @@ var RemoteQuery = NS.Class({
     */
     getObjectAt: function ( index, doNotFetch ) {
         var length = this.get( 'length' );
+        var storeKey;
+
         if ( length === null || index < 0 || index >= length ) {
             return undefined;
         }
@@ -286,10 +288,10 @@ var RemoteQuery = NS.Class({
             doNotFetch = this.fetchDataForObjectAt( index );
         }
 
-        var id = this._list[ index ];
-        return id ?
+        storeKey = this._list[ index ];
+        return storeKey ?
             this.get( 'store' )
-                .getRecord( this.get( 'Type' ), id, doNotFetch ) :
+                .getRecord( this.get( 'Type' ), '#' + storeKey, doNotFetch ) :
             null;
     },
 
@@ -322,29 +324,29 @@ var RemoteQuery = NS.Class({
     */
 
     /**
-        Method: O.RemoteQuery#indexOfId
+        Method: O.RemoteQuery#indexOfStoreKey
 
-        Finds the index of an id in the query. Since the entire list may not be
-        loaded, this data may have to be loaded from the server so you should
-        rely on the callback if you need an accurate result. If the id is not
-        found, the index returned will be -1.
+        Finds the index of a store key in the query. Since the entire list may
+        not be loaded, this data may have to be loaded from the server so you
+        should rely on the callback if you need an accurate result. If the id
+        is not found, the index returned will be -1.
 
         Parameters:
-            id       - {String} The record id to find.
+            storeKey - {String} The record store key to find.
             from     - {Number} The first index to start the search from.
                        Specify 0 to search the whole list.
-            callback - {Function} (optional) A callback to make with the id
-                       when found.
+            callback - {Function} (optional) A callback to make with the store
+                       key when found.
 
         Returns:
-            {Number} The index of the id, or -1 if not found.
+            {Number} The index of the store key, or -1 if not found.
     */
-    indexOfId: function ( id, from, callback ) {
-        var index = this._list.indexOf( id, from );
+    indexOfStoreKey: function ( storeKey, from, callback ) {
+        var index = this._list.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
                 this.get( 'source' ).fetchQuery( this, function () {
-                    callback( this._list.indexOf( id, from ) );
+                    callback( this._list.indexOf( storeKey, from ) );
                 }.bind( this ) );
             } else {
                 callback( index );
@@ -354,7 +356,7 @@ var RemoteQuery = NS.Class({
     },
 
     /**
-        Method: O.RemoteQuery#getIdsForObjectsInRange
+        Method: O.RemoteQuery#getStoreKeysForObjectsInRange
 
         Makes a callback with a subset of the ids for records in this query.
 
@@ -381,7 +383,7 @@ var RemoteQuery = NS.Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getIdsForObjectsInRange: function ( start, end, callback ) {
+    getStoreKeysForObjectsInRange: function ( start, end, callback ) {
         var length = this.get( 'length' );
 
         if ( length === null ) {
@@ -398,39 +400,40 @@ var RemoteQuery = NS.Class({
     },
 
     /**
-        Method: O.RemoteQuery#getIdsForAllObjects
+        Method: O.RemoteQuery#getStoreKeysForAllObjects
 
-        Get a callback with an array of the id properties for all records in the
+        Get a callback with an array of the store keys for all records in the
         query.
 
         Parameters:
-            callback - {Function} This will be called with the array of ids as
-                       the first argument, the index of the first returned
-                       result as the second argument, and one past the index
-                       of the last result as the third argument.
+            callback - {Function} This will be called with the array of store
+                       keys as the first argument, the index of the first
+                       returned result as the second argument, and one past the
+                       index of the last result as the third argument.
 
         Returns:
             {Boolean} Is the data still loading? (i.e. this is true if the
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getIdsForAllObjects: function ( callback ) {
+    getStoreKeysForAllObjects: function ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
-        return this.getIdsForObjectsInRange( 0, 0x7fffffff, callback );
+        return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
     },
 
     /**
         Method (private): O.RemoteQuery#_adjustIdFetches
 
         Modifies the id range to be returned in the callback to
-        <O.RemoteQuery#getIdsForObjectsInRange> in response to an update from
-        the server.
+        <O.RemoteQuery#getStoreKeysForObjectsInRange> in response to an update
+        from the server.
 
         We adjust the range being fetched mainly so that new records that are
         inserted at the top of the list during a selection are not selected.
-        Otherwise you may hit select all then as soon as it's selected hit
-        delete, but in the meantime a new record arrives at the top of the list;
-        if this were included in the selection it may be accidentally deleted.
+        Otherwise you may hit select all then hit delete as soon as it's
+        selected, but in the meantime a new record arrives at the top of the
+        list; if this were included in the selection it may be accidentally
+        deleted.
 
         Parameters:
             removed - {Number[]} The list of indexes which were removed.
@@ -438,10 +441,10 @@ var RemoteQuery = NS.Class({
                        were addded.
     */
     _adjustIdFetches: function ( event ) {
-        var added = event.addedIndexes,
-            removed = event.removedIndexes,
-            awaitingIdFetch = this._awaitingIdFetch,
-            i, l, call, start, end, j, ll, index;
+        var added = event.addedIndexes;
+        var removed = event.removedIndexes;
+        var awaitingIdFetch = this._awaitingIdFetch;
+        var i, l, call, start, end, j, ll, index;
         for ( i = 0, l = awaitingIdFetch.length; i < l; i += 1 ) {
             call = awaitingIdFetch[i];
             start = call[0];
@@ -477,7 +480,7 @@ var RemoteQuery = NS.Class({
         var awaitingIdFetch = this._awaitingIdFetch;
         if ( awaitingIdFetch.length ) {
             awaitingIdFetch.forEach( function ( call ) {
-                this.getIdsForObjectsInRange( call[0], call[1], call[2] );
+                this.getStoreKeysForObjectsInRange( call[0], call[1], call[2] );
             }, this );
             awaitingIdFetch.length = 0;
         }
@@ -538,19 +541,21 @@ var RemoteQuery = NS.Class({
 
         // Could use a proper diffing algorithm to calculate added/removed
         // arrays, but probably not worth it.
-        var oldList = this._list,
-            list = this._list = args.idList,
-            oldTotal = this.get( 'length' ),
-            total = list.length,
-            removedIndexes = [],
-            removedIds = [],
-            addedIndexes = [],
-            addedIds = [],
-            firstChange = 0,
-            lastChangeNew = total - 1,
-            lastChangeOld = ( oldTotal || 0 ) - 1,
-            l = Math.min( total, oldTotal || 0 ),
-            i;
+        var store = this.get( 'store' );
+        var toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
+        var oldList = this._list;
+        var list = this._list = args.idList.map( toStoreKey );
+        var oldTotal = this.get( 'length' );
+        var total = list.length;
+        var removedIndexes = [];
+        var removedStoreKeys = [];
+        var addedIndexes = [];
+        var addedStoreKeys = [];
+        var firstChange = 0;
+        var lastChangeNew = total - 1;
+        var lastChangeOld = ( oldTotal || 0 ) - 1;
+        var l = Math.min( total, oldTotal || 0 );
+        var i;
 
         // Initial fetch, oldTotal === null
         if ( oldTotal !== null ) {
@@ -567,12 +572,12 @@ var RemoteQuery = NS.Class({
 
             for ( i = firstChange; i <= lastChangeOld; i += 1 ) {
                 removedIndexes.push( i );
-                removedIds.push( oldList[i] );
+                removedStoreKeys.push( oldList[i] );
             }
 
             for ( i = firstChange; i <= lastChangeNew; i += 1 ) {
                 addedIndexes.push( i );
-                addedIds.push( list[i] );
+                addedStoreKeys.push( list[i] );
             }
         }
 
@@ -589,9 +594,9 @@ var RemoteQuery = NS.Class({
 
         if ( oldTotal !== null && firstChange < lastChangeNew ) {
             this.fire( 'query:updated', {
-                removed: removedIds,
+                removed: removedStoreKeys,
                 removedIndexes: removedIndexes,
-                added: addedIds,
+                added: addedStoreKeys,
                 addedIndexes: addedIndexes
             });
         }

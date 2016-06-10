@@ -28,8 +28,8 @@ var ListItemView = NS.Class({
         var selection = mixin.selection,
             content = mixin.content;
         if ( selection && content ) {
-            this.isSelected = selection.isIdSelected(
-                content.get( 'id' )
+            this.isSelected = selection.isStoreKeySelected(
+                content.get( 'storeKey' )
             );
         }
         ListItemView.parent.init.call( this, mixin );

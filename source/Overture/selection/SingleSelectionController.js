@@ -97,8 +97,8 @@ var SingleSelectionController = NS.Class({
             }
             if ( record && list ) {
                 this.set( 'isFetchingIndex', true );
-                list.indexOfId(
-                    record.toIdOrStoreKey(),
+                list.indexOfStoreKey(
+                    record.get( 'storeKey' ),
                     0,
                     function ( index ) {
                         if ( this.get( 'record' ) === record &&
@@ -143,7 +143,7 @@ var SingleSelectionController = NS.Class({
         // See if the currently set record exists in the new list. If it does,
         // we'll use that.
         if ( record ) {
-            index = list.indexOfId( record.toIdOrStoreKey() );
+            index = list.indexOfStoreKey( record.get( 'storeKey' ) );
             if ( !allowNoSelection && index < 0 ) {
                 index = 0;
             }
@@ -195,7 +195,8 @@ var SingleSelectionController = NS.Class({
 
     contentWasUpdated: function ( updates ) {
         var record = this.get( 'record' ),
-            index = record ? updates.added.indexOf( record.get( 'id' ) ) : -1,
+            index = record ?
+                updates.added.indexOf( record.get( 'storeKey' ) ) : -1,
             removedIndexes = updates.removedIndexes,
             addedIndexes = updates.addedIndexes,
             content = this.get( 'content' ),

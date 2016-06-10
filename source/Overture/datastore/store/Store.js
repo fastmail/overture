@@ -939,19 +939,23 @@ var Store = NS.Class({
         }
         this.willUnloadRecord( storeKey );
 
-        var typeId = guid( this._skToType[ storeKey ] ),
-            id = this._typeToSkToId[ typeId ][ storeKey ];
-
+        delete this._skToLastAccess[ storeKey ];
         delete this._skToRecord[ storeKey ];
+        delete this._skToRollback[ storeKey ];
         delete this._skToData[ storeKey ];
         delete this._skToStatus[ storeKey ];
-        delete this._skToType[ storeKey ];
-        delete this._skToRollback[ storeKey ];
-        delete this._typeToSkToId[ typeId ][ storeKey ];
-        if ( id ) {
-            delete this._typeToIdToSk[ typeId ][ id ];
-        }
-        delete this._skToLastAccess[ storeKey ];
+
+        // Can't delete id/sk mapping without checking if we have any other
+        // references to this key elsewhere (as either a foreign key or in a
+        // remote query). For now just always keep.
+        // var typeId = guid( this._skToType[ storeKey ] );
+        // var id = this._typeToSkToId[ typeId ][ storeKey ];
+        // delete this._skToType[ storeKey ];
+        // delete this._typeToSkToId[ typeId ][ storeKey ];
+        // if ( id ) {
+        //     delete this._typeToIdToSk[ typeId ][ id ];
+        // }
+
         return true;
     },
 
