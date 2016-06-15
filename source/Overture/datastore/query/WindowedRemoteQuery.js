@@ -346,6 +346,19 @@ var WindowedRemoteQuery = NS.Class({
         WindowedRemoteQuery.parent.reset.call( this, _, _key );
     }.observes( 'sort', 'filter' ),
 
+    // We keep a local cache so that we can handle records changing ids.
+    // There may be old ids in the "removed" array, which need to alias to the
+    // current store key.
+    _toStoreKey: function () {
+        var store = this.get( 'store' );
+        var Type = this.get( 'Type' );
+        var cache = {};
+        return function ( id ) {
+            return cache[ id ] ||
+                ( cache[ id ] = store.getStoreKey( Type, id ) );
+        };
+    }.property(),
+
     indexOfStoreKey: function ( storeKey, from, callback ) {
         var index = this._list.indexOf( storeKey, from );
         var windows, l, id;
@@ -893,7 +906,7 @@ var WindowedRemoteQuery = NS.Class({
 
             // Map ids to store keys
             store = this.get( 'store' );
-            toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
+            toStoreKey = this.get( '_toStoreKey' );
             update.removed = update.removed.map( toStoreKey );
             update.added.forEach( function ( tuple ) {
                 tuple[1] = toStoreKey( tuple[1] );
@@ -1092,7 +1105,6 @@ var WindowedRemoteQuery = NS.Class({
             return this;
         }
 
-        var store = this.get( 'store' );
         var state = this.get( 'state' );
         var status = this.get( 'status' );
         var oldLength = this.get( 'length' ) || 0;
@@ -1123,7 +1135,7 @@ var WindowedRemoteQuery = NS.Class({
         this.set( 'state', args.state );
 
         // Map ids to store keys
-        toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
+        toStoreKey = this.get( '_toStoreKey' );
         storeKeys = ids.map( toStoreKey );
 
         // Need to adjust for preemptive updates
