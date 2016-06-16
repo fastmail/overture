@@ -35,7 +35,8 @@ var getPeriod = function ( periods, date, isUTC ) {
 var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
     var l = rules.length,
         year = datetime.getUTCFullYear(),
-        rule, ruleDate, ruleIsUTC, ruleInEffect = null, dateInEffect,
+        ruleInEffect = null,
+        rule, ruleDate, ruleIsUTC, prevRule, dateInEffect,
         month, date, day, difference;
     while ( l-- ) {
         rule = rules[l];
@@ -50,9 +51,7 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
             month = rule[2];
             // 0 => last day of the month
             date = rule[3] || Date.getDaysInMonth( month, year );
-            ruleDate = new Date(Date.UTC(
-                year, month, date, rule[5], rule[6], rule[7]
-            ));
+            ruleDate = new Date(Date.UTC( year, month, date ));
 
             // Adjust to nearest +/- day of the week if specified
             if ( day = rule[4] ) {
@@ -67,6 +66,11 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
                 }
             }
 
+            // Set time (could be 24:00, which moves it to next day)
+            ruleDate.setUTCHours( rule[5] );
+            ruleDate.setUTCMinutes( rule[6] );
+            ruleDate.setUTCSeconds( rule[7] );
+
             // Now match up timezones
             ruleIsUTC = !rule[8];
             if ( ruleIsUTC !== isUTC ) {
@@ -78,16 +82,18 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
                 // 3 hours, find the rule for the previous day.
                 if ( rule[8] === 2 &&
                     Math.abs( ruleDate - datetime ) <= 3 * 60 * 60 * 1000 ) {
-                    ruleDate.add(
-                        ( ruleIsUTC ? 1 : -1 ) *
-                        getRule(
-                            rules,
-                            offset,
-                            new Date( datetime - 86400000 ),
-                            isUTC,
-                            true
-                        )[9], 'second'
+                    prevRule = getRule(
+                        rules,
+                        offset,
+                        new Date( datetime - 86400000 ),
+                        isUTC,
+                        true
                     );
+                    if ( prevRule ) {
+                        ruleDate.add(
+                            ( ruleIsUTC ? 1 : -1 ) * prevRule[9], 'second'
+                        );
+                    }
                 }
             }
 
@@ -97,15 +103,16 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
             if ( !isUTC ) {
                 ruleDate.add( rule[9], 'second' );
                 if ( Math.abs( ruleDate - datetime ) <= 3 * 60 * 60 * 1000 ) {
-                    ruleDate.add(
-                        getRule(
-                            rules,
-                            offset,
-                            new Date( datetime - 86400000 ),
-                            isUTC,
-                            true
-                        )[9], 'second'
+                    prevRule = prevRule || getRule(
+                        rules,
+                        offset,
+                        new Date( datetime - 86400000 ),
+                        isUTC,
+                        true
                     );
+                    if ( prevRule ) {
+                        ruleDate.add( prevRule[9], 'second' );
+                    }
                 }
             }
 
