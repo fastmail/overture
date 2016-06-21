@@ -64,18 +64,31 @@ TrackedTouch.prototype.done  = function () {
     }
 };
 
-var isInput = function ( node ) {
+var isInputOrLink = function ( node ) {
     var nodeName = node.nodeName;
+    var seenLink = false;
     if ( nodeName === 'INPUT' ||
         nodeName === 'TEXTAREA' ||
         nodeName === 'SELECT' ) {
         return true;
     }
     while ( node && node.contentEditable === 'inherit' ) {
+        if ( node.nodeName === 'A' ) {
+            seenLink = true;
+        }
         node = node.parentNode;
     }
-    return !!node && node.contentEditable === 'true';
-}
+    if ( node && node.contentEditable === 'true' ) {
+        return true;
+    }
+    while ( !seenLink && node ) {
+        if ( node.nodeName === 'A' ) {
+            seenLink = true;
+        }
+        node = node.parentNode;
+    }
+    return seenLink;
+};
 
 /*  A tap is defined as a touch which:
 
@@ -138,7 +151,6 @@ NS.Tap = new NS.Gesture({
             tracking = this._tracking,
             now = Date.now(),
             i, l, touch, id, trackedTouch, target, tapEvent, clickEvent,
-            nodeName,
             ViewEventsController = NS.ViewEventsController;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
@@ -158,8 +170,9 @@ NS.Tap = new NS.Gesture({
                     // appear, even though the preventDefault on the click event
                     // stops it actually being focussed. Calling preventDefault
                     // on the touchend event stops this happening, however we
-                    // must not do this if the user actually taps an input!
-                    if ( !isInput( target ) ) {
+                    // must not do this if the user actually taps an input or
+                    // a link!
+                    if ( !isInputOrLink( target ) ) {
                         event.preventDefault();
                     }
                     new MouseEventRemover( target, clickEvent.defaultPrevented );
