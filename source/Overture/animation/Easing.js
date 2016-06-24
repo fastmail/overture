@@ -10,65 +10,7 @@
 
 ( function ( NS ) {
 
-/**
-    Function (private): O.Easing-cubicBezier
-
-    Returns a function that, for the given cubic bezier control points, returns
-    the y position given an x position. p0 is presumed to be (0,0) and p3 is
-    presumed to be (1,1).
-
-    Parameters:
-        p1x - {Number} The x-coordinate for point 1.
-        p1y - {Number} The y-coordinate for point 1.
-        p2x - {Number} The x-coordinate for point 2.
-        p2y - {Number} The y-coordinate for point 2.
-
-    Returns:
-        {Function} A function representing the cubic bezier with the points
-        given.
-*/
-var cubicBezier = function ( p1x, p1y, p2x, p2y ) {
-    // Calculate constants in parametric bezier formular
-    // http://www.moshplant.com/direct-or/bezier/math.html
-    var cX = 3 * p1x,
-        bX = 3 * ( p2x - p1x ) - cX,
-        aX = 1 - cX - bX,
-
-        cY = 3 * p1y,
-        bY = 3 * ( p2y - p1y ) - cY,
-        aY = 1 - cY - bY;
-
-    // Functions for calculating x, x', y for t
-    var bezierX = function ( t ) {
-        return t * ( cX + t * ( bX + t * aX ) );
-    };
-    var bezierXDerivative = function ( t ) {
-        return cX + t * ( 2 * bX + 3 * aX * t );
-    };
-
-    // Use Newton-Raphson method to find t for a given x.
-    // Since x = a*t^3 + b*t^2 + c*t, we find the root for
-    // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
-    var newtonRaphson = function ( x ) {
-        var prev,
-            // Initial estimation is linear
-            t = x;
-        do {
-            prev = t;
-            t = t - ( ( bezierX( t ) - x ) / bezierXDerivative( t ) );
-        } while ( Math.abs( t - prev ) > 1e-4 );
-
-        return t;
-    };
-
-    return function ( x ) {
-        var t = newtonRaphson( x );
-        // This is y given t on the bezier curve.
-        return t * ( cY + t * ( bY + t * aY ) );
-    }.extend({
-        cssName: 'cubic-bezier(' + p1x + ',' + p1y + ',' + p2x + ',' + p2y + ')'
-    });
-};
+var cubicBezier;
 
 /**
     Object: O.Easing
@@ -76,6 +18,68 @@ var cubicBezier = function ( p1x, p1y, p2x, p2y ) {
     Holds functions emulating the standard CSS easing functions.
 */
 NS.Easing = {
+    /**
+        Function: O.Easing.cubicBezier
+
+        Returns an easing function that, for the given cubic bezier control
+        points, returns the y position given an x position. p0 is presumed to
+        be (0,0) and p3 is presumed to be (1,1).
+
+        Parameters:
+            p1x - {Number} The x-coordinate for point 1.
+            p1y - {Number} The y-coordinate for point 1.
+            p2x - {Number} The x-coordinate for point 2.
+            p2y - {Number} The y-coordinate for point 2.
+
+        Returns:
+            {Function} A function representing the cubic bezier with the points
+            given.
+    */
+
+    cubicBezier: cubicBezier = function ( p1x, p1y, p2x, p2y ) {
+        // Calculate constants in parametric bezier formular
+        // http://www.moshplant.com/direct-or/bezier/math.html
+        var cX = 3 * p1x,
+            bX = 3 * ( p2x - p1x ) - cX,
+            aX = 1 - cX - bX,
+
+            cY = 3 * p1y,
+            bY = 3 * ( p2y - p1y ) - cY,
+            aY = 1 - cY - bY;
+
+        // Functions for calculating x, x', y for t
+        var bezierX = function ( t ) {
+            return t * ( cX + t * ( bX + t * aX ) );
+        };
+        var bezierXDerivative = function ( t ) {
+            return cX + t * ( 2 * bX + 3 * aX * t );
+        };
+
+        // Use Newton-Raphson method to find t for a given x.
+        // Since x = a*t^3 + b*t^2 + c*t, we find the root for
+        // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
+        var newtonRaphson = function ( x ) {
+            var prev,
+                // Initial estimation is linear
+                t = x;
+            do {
+                prev = t;
+                t = t - ( ( bezierX( t ) - x ) / bezierXDerivative( t ) );
+            } while ( Math.abs( t - prev ) > 1e-4 );
+
+            return t;
+        };
+
+        return function ( x ) {
+            var t = newtonRaphson( x );
+            // This is y given t on the bezier curve.
+            return t * ( cY + t * ( bY + t * aY ) );
+        }.extend({
+            cssName: 'cubic-bezier(' + p1x + ',' + p1y + ',' +
+                p2x + ',' + p2y + ')'
+        });
+    },
+
     /**
         Function: O.Easing#linear
 
