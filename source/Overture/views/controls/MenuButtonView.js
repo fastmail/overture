@@ -19,7 +19,6 @@
 
         new O.MenuButtonView({
             label: 'Select File',
-            icon: 'more',
             popOverView: new O.PopOverView(),
             menuView: new O.MenuView({
                 showFilter: false,

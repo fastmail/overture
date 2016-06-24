@@ -10,29 +10,37 @@
 
 ( function ( NS ) {
 
+var ClearSearchButtonView = new NS.Class({
+
+    Extends: NS.ButtonView,
+
+    type: 'v-ClearSearchButton',
+    positioning: 'absolute',
+    label: NS.loc( 'Clear Search' ),
+    shortcut: 'ctrl-/'
+});
+
+NS.ClearSearchButtonView = ClearSearchButtonView;
+
 var SearchTextView = NS.Class({
 
     Extends: NS.TextView,
 
     type: 'v-SearchText',
 
+    icon: null,
+
     draw: function ( layer, Element, el ) {
         var children =
                 SearchTextView.parent.draw.call( this, layer, Element, el );
         children.push(
-            el( 'i.icon.icon-search' ),
-            new NS.ButtonView({
-                type: NS.bind( this, 'value', function ( value ) {
-                    return value ?
-                        'v-SearchText-reset v-Button--iconOnly' : 'u-hidden';
-                }),
-                icon: 'icon-clear',
-                positioning: 'absolute',
-                label: NS.loc( 'Clear Search' ),
-                shortcut: 'ctrl-/',
-                target: this,
-                method: 'reset'
-            })
+            this.get( 'icon' ),
+            Element.when( this, 'value' ).show([
+                new NS.ClearSearchButtonView({
+                    target: this,
+                    method: 'reset'
+                })
+            ]).end()
         );
         return children;
     },

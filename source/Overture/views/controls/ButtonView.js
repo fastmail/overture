@@ -36,7 +36,7 @@
             el( 'div.actions', [
                 new O.ButtonView({
                     type: 'v-Button--destructive v-Button--size13',
-                    icon: 'redpill',
+                    icon: el( 'i.icon.icon-redpill' ),
                     isDisabled: O.bind( controller, 'isNeo' ),
                     label: 'The Red Pill',
                     target: controller,
@@ -44,7 +44,7 @@
                 }),
                 new O.ButtonView({
                     type: 'v-Button--constructive v-Button--size13',
-                    icon: 'bluepill',
+                    icon: el( 'i.icon.icon-bluepill' ),
                     label: 'The Blue Pill',
                     target: controller,
                     method: 'proceed'
@@ -59,12 +59,12 @@
     The underlying DOM structure is:
 
         <button class="ButtonView ${view.type}">
-            <i class="${view.icon}"></i>
-            <span>${view.label}</span>
+            ${view.icon},
+            <span class="label">${view.label}</span>
         </button>
 
-    If there is no icon property set, the <i> will have a class of 'hidden'
-    instead. The icon can be drawn as a background to the empty <i> element.
+    If there is no icon property set, a comment node will be inserted in its
+    position.
 */
 var ButtonView = NS.Class({
 
@@ -108,13 +108,12 @@ var ButtonView = NS.Class({
 
     /**
         Property: O.ButtonView#type
-        Type: String
-        Default: ''
+        Type: Element|null
+        Default: null
 
-        Set to the name of the icon to use, if any, for the button. See the
-        general notes on using <O.ButtonView> for more information.
+        An element to insert before the label.
     */
-    icon: '',
+    icon: null,
 
     /**
         Property: O.ButtonView#tabIndex
@@ -168,12 +167,9 @@ var ButtonView = NS.Class({
         general <O.ButtonView> notes.
     */
     draw: function ( layer, Element, el ) {
-        var icon = this.get( 'icon' );
         this._domControl = layer;
         return [
-            el( 'i', {
-                className: icon ? 'icon ' + icon : 'u-hidden'
-            }),
+            this.get( 'icon' ) || document.createComment( 'icon' ),
             ButtonView.parent.draw.call( this, layer, Element, el )
         ];
     },
@@ -191,14 +187,9 @@ var ButtonView = NS.Class({
        return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'icon', 'isWaiting' ),
 
-    /**
-        Method: O.ButtonView#redrawIcon
-
-        Updates the className of the <i> representing the button's icon.
-    */
     redrawIcon: function ( layer ) {
-        var icon = this.get( 'icon' );
-        layer.firstChild.className = icon ? 'icon ' + icon : 'u-hidden';
+        var icon = this.get( 'icon' ) || document.createComment( 'icon' );
+        layer.replaceChild( icon, layer.firstChild );
     },
 
     redrawIsDisabled: function () {

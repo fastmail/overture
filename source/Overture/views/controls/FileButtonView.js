@@ -31,13 +31,11 @@ var canUseMultiple = FormData.isFake ? null : 'multiple';
     The underlying DOM structure is:
 
         <label>
-            <i class="${view.icon}"></i>
             <input type="file">
-            <span>${view.label}</span>
+            ${view.icon}
+            <span class="label">${view.label}</span>
         </label>
 
-    If there is no icon property set, the <i> will have a class of 'hidden'
-    instead. The icon can be drawn as a background to the empty <i> element.
 */
 var FileButtonView = NS.Class({
 
@@ -91,17 +89,14 @@ var FileButtonView = NS.Class({
         general <O.FileButtonView> notes.
     */
     draw: function ( layer, Element, el ) {
-        var icon = this.get( 'icon' );
         return [
-            el( 'i', {
-                className: icon ? 'icon ' + icon : 'u-hidden'
-            }),
             this._domControl = el( 'input', {
                 className: 'v-FileButton-input',
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             }),
+            this.get( 'icon' ) || document.createComment( 'icon' ),
             NS.AbstractControlView.prototype.draw
                 .call( this, layer, Element, el )
         ];
