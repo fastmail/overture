@@ -479,10 +479,10 @@ var RemoteQuery = NS.Class({
     _idsWereFetched: function () {
         var awaitingIdFetch = this._awaitingIdFetch;
         if ( awaitingIdFetch.length ) {
+            this._awaitingIdFetch = [];
             awaitingIdFetch.forEach( function ( call ) {
                 this.getStoreKeysForObjectsInRange( call[0], call[1], call[2] );
             }, this );
-            awaitingIdFetch.length = 0;
         }
     }.queue( 'before' ).on( 'query:idsLoaded' ),
 
