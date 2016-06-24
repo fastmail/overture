@@ -39,7 +39,7 @@ var SelectionController = NS.Class({
         if ( newContent ) {
             newContent.on( 'query:updated', this, 'contentWasUpdated' );
         }
-        this.selectAll( false );
+        this.selectNone();
     }.observes( 'content' ),
 
     contentWasUpdated: function ( event ) {
@@ -142,28 +142,29 @@ var SelectionController = NS.Class({
         return this;
     },
 
-    selectAll: function ( isSelected ) {
-        var content = this.get( 'content' ),
-            selectionId = ( this._selectionId += 1 );
+    selectAll: function () {
+        var content = this.get( 'content' );
+        var selectionId = ( this._selectionId += 1 );
+        var loading = content.getStoreKeysForAllObjects(
+            function ( storeKeys, start, end ) {
+                this.selectStoreKeys( storeKeys,
+                    true, selectionId, start, end );
+            }.bind( this )
+        );
 
-        if ( isSelected ) {
-            var loading = content.getStoreKeysForAllObjects(
-                function ( storeKeys, start, end ) {
-                    this.selectStoreKeys( storeKeys,
-                        true, selectionId, start, end );
-                }.bind( this )
-            );
-            if ( loading ) {
-                this.set( 'isLoadingSelection', true );
-            }
+        if ( loading ) {
+            this.set( 'isLoadingSelection', true );
         }
-        else {
-            this._lastSelectedIndex = 0;
-            this._selectedStoreKeys = {};
-            this.set( 'length', 0 )
-                .propertyDidChange( 'selectedStoreKeys' )
-                .set( 'isLoadingSelection', false );
-        }
+
+        return this;
+    },
+
+    selectNone: function () {
+        this._lastSelectedIndex = 0;
+        this._selectedStoreKeys = {};
+        this.set( 'length', 0 )
+            .propertyDidChange( 'selectedStoreKeys' )
+            .set( 'isLoadingSelection', false );
 
         return this;
     }
