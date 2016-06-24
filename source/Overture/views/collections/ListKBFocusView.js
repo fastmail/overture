@@ -73,7 +73,7 @@ var ListKBFocusView = NS.Class({
 
     // Scroll to centre widget on screen with no animation
     checkInitialScroll: function () {
-        if ( this.get( 'distanceFromVisRect' ) ) {
+        if ( this.get( 'index' ) > -1 && this.get( 'distanceFromVisRect' ) ) {
             this.scrollIntoView( 0, false );
         }
     }.queue( 'after' ),
