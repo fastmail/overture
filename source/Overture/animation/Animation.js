@@ -48,10 +48,11 @@ var nextFrame = function () {
                         // Normalised position along timeline [0..1].
                         animation.ease( animTime / duration ),
                         // Normalised time animation has been running.
-                        animTime
+                        animTime,
+                        false
                     );
                 } else {
-                    animation.drawFrame( 1, duration );
+                    animation.drawFrame( 1, duration, true );
                     animation.stop();
                 }
             }
@@ -240,11 +241,11 @@ NS.Animation = NS.Class({
                        function (the easing function may cause the number to go
                        beyond 0 and 1).
     */
-    drawFrame: function ( position/*, time*/ ) {
+    drawFrame: function ( position, time, isLastFrame ) {
         // And interpolate to find new value.
-        var value = position < 1 ?
-            this.startValue + ( position * this.deltaValue ) :
-            this.endValue;
+        var value = isLastFrame ?
+            this.endValue :
+            this.startValue + ( position * this.deltaValue );
 
         this.object.set( this.property, value );
     },
