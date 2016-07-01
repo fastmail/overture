@@ -1484,7 +1484,8 @@ var Store = NS.Class({
             var _idToSk = this._typeToIdToSk[ guid( Type ) ],
                 destroyed = [];
             for ( id in _idToSk ) {
-                if ( !seen[ id ] ) {
+                if ( !seen[ id ] &&
+                        ( this.getStatus( _idToSk[ id ] ) & READY ) ) {
                     destroyed.push( id );
                 }
             }
