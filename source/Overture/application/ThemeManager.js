@@ -126,11 +126,16 @@ var ThemeManager = NS.Class({
 
         if ( data ) {
             // Substitute in images.
-            data = data.replace( /url\(([^)]+)\)/g, function ( url, img ) {
-                return 'url(' +
-                    ( images[ img ] || themeIndependentImages[ img ] ||
-                        NS.loc( img ) || img ) +
-                ')';
+            data = data.replace( /url\(([^)]+)\)/g, function ( url, src ) {
+                var imageData =
+                        images[ src ] ||
+                        themeIndependentImages[ src ] ||
+                        NS.loc( src );
+                if ( /\.svg$/.test( src ) ) {
+                    imageData = 'data:image/svg+xml;charset=UTF-8,' +
+                        encodeURI( imageData );
+                }
+                return 'url(' + ( imageData || src ) + ')';
             });
             NS.Stylesheet.create( theme + '-' + id, data );
             active[ id ] = ( active[ id ] || 0 ) + 1;
