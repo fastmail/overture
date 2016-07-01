@@ -36,7 +36,8 @@ function TouchDragEvent ( touch ) {
 var getTouch = function ( touches, touchId ) {
     var l = touches.length,
         touch;
-    if ( !touchId ) {
+    // Touch id may be 0 on Android chrome; can't use a falsy check
+    if ( touchId === null ) {
         return null;
     }
     while ( l-- ) {
@@ -295,12 +296,12 @@ var DragController = new NS.Object({
     */
     // Just doing a sanity check to make sure our drag touch isn't orphaned
     _onTouchstart: function ( event ) {
-        if ( !this._touchId ) {
-            return;
-        }
-        var touch = getTouch( event.touches, this._touchId );
-        if ( !touch ) {
-            this._drag.endDrag();
+        // Touch id may be 0 on Android chrome; can't use a falsy check
+        if ( this._touchId !== null ) {
+            var touch = getTouch( event.touches, this._touchId );
+            if ( !touch ) {
+                this._drag.endDrag();
+            }
         }
     }.on( 'touchstart' ),
 
