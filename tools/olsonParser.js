@@ -159,7 +159,7 @@ var convertFile = function ( text ) {
         result = {
             link: {},
             zones: zones,
-            rules: rules,
+            rules: rules
         },
         i, l, line, parts, zone, rule, parsedZone, id, periods;
     for ( i = 0, l = lines.length; i < l; i += 1 ) {
@@ -189,6 +189,7 @@ var convertFile = function ( text ) {
                 zone = parts[1];
                 // Skip obsolete legacy timezones.
                 if ( zone.indexOf( '/' ) === -1 ) {
+                    console.log( zone );
                     continue;
                 }
                 parts = parts.slice( 2 );
@@ -238,6 +239,10 @@ var formatHeaderLine = function ( text, length ) {
     var args = process.argv.slice( 2 );
     var olson = fs.readFileSync( args[0], 'utf8' );
     var json = convertFile( olson );
+    if ( /backward/.test( args[0] ) ) {
+        json.alias = json.link;
+        delete json.link;
+    }
     var outputName = args[1];
     fs.writeFile( outputName,
         formatHeaderLine( new Array( 80 - 6 + 1 ).join( '-' ), 80 ) +

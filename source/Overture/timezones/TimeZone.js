@@ -194,7 +194,7 @@ var TimeZone = NS.Class({
 });
 
 TimeZone.fromJSON = function ( id ) {
-    return TimeZone[ id ] || TimeZone.UTC;
+    return TimeZone[ id ] || null;
 };
 
 TimeZone.isEqual = function ( a, b ) {
@@ -222,6 +222,7 @@ TimeZone.areas = {};
 TimeZone.load = function ( json ) {
     var zones = json.zones,
         link = json.link,
+        alias = json.alias,
         id;
 
     for ( id in zones ) {
@@ -229,6 +230,11 @@ TimeZone.load = function ( json ) {
     }
     for ( id in link ) {
         addTimeZone( new TimeZone( id, zones[ link[ id ] ] ) );
+    }
+    for ( id in alias ) {
+        if ( !TimeZone[ id ] ) {
+            TimeZone[ id ] = TimeZone[ alias[ id ] ];
+        }
     }
     NS.extend( TimeZone.rules, json.rules );
 };
