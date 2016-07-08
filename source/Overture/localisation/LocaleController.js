@@ -289,10 +289,18 @@ var LocaleController = {
             '(?:^|\\W)' +
             string.escapeRegExp().replace( /[A-Z]/gi, function ( letter ) {
                 return alternatives[ letter.toUpperCase() ];
-            }),
-            'i'
+            })
         );
-    }
+    },
+
+    /**
+        Property: O.LocaleController.letterAlternatives
+        Type: String[String]
+
+        Maps upper-case A-Z to a character class string containing all unicode
+        alternatives that resemble that letter.
+    */
+    letterAlternatives: alternatives
 };
 
 NS.LocaleController = NS.i18n = LocaleController;
