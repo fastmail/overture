@@ -289,7 +289,8 @@ var LocaleController = {
             '(?:^|\\W)' +
             string.escapeRegExp().replace( /[A-Z]/gi, function ( letter ) {
                 return alternatives[ letter.toUpperCase() ];
-            })
+            }),
+            'i'
         );
     },
 
