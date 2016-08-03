@@ -513,10 +513,12 @@ var TextView = NS.Class({
             event - {Event} The keypress event.
     */
     _onKeypress: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event, true );
         // If key == enter, IE will automatically focus the nearest button
-        // (presumably as though it were submitting the form). Stop this.
-        if ( key === 'enter' && !this.get( 'isMultiline' ) ) {
+        // (presumably as though it were submitting the form). Stop this
+        // unless we're actually in a form.
+        if ( !this.get( 'isMultiline' ) &&
+                NS.DOMEvent.lookupKey( event, true ) === 'enter' &&
+                !NS.Element.nearest( this.get( 'layer' ), 'FORM' ) ) {
             event.preventDefault();
         }
     }.on( 'keypress' ),
