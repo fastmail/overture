@@ -68,6 +68,7 @@ var isInputOrLink = function ( node ) {
     var nodeName = node.nodeName;
     var seenLink = false;
     if ( nodeName === 'INPUT' ||
+        nodeName === 'BUTTON' ||
         nodeName === 'TEXTAREA' ||
         nodeName === 'SELECT' ) {
         return true;
