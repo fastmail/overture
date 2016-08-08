@@ -85,7 +85,7 @@ var getForeignRefAttrs = function ( Type ) {
         foreignRefAttrs = [];
         for ( attrKey in attrs ) {
             propKey = attrs[ attrKey ];
-            attribute = proto[ propKey ];
+            attribute = propKey && proto[ propKey ];
             if ( attribute instanceof NS.ToOneAttribute ) {
                 foreignRefAttrs.push([ attrKey, 1, attribute.Type ]);
             }
