@@ -724,7 +724,10 @@ var Store = NS.Class({
             inverse.create.push([
                 storeKey,
                 Type,
-                NS.clone( _skToData[ storeKey ] )
+                Object.filter(
+                    NS.clone( _skToData[ storeKey ] ),
+                    NS.Record.getClientSettableAttributes( Type )
+                )
             ]);
         }
 

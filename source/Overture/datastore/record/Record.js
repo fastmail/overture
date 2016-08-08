@@ -499,6 +499,27 @@ var Record = NS.Class({
     errorForAttribute: function () {
         return new AttributeErrors( this );
     }.property()
+}).extend({
+    getClientSettableAttributes: function ( Type ) {
+        var clientSettableAttributes = Type.clientSettableAttributes;
+        var prototype, attrs, attrKey, propKey, attribute;
+        if ( !clientSettableAttributes ) {
+            prototype = Type.prototype;
+            attrs = NS.meta( prototype ).attrs;
+            clientSettableAttributes = {};
+            for ( attrKey in attrs ) {
+                propKey = attrs[ attrKey ];
+                if ( propKey ) {
+                    attribute = prototype[ propKey ];
+                    if ( !attribute.noSync ) {
+                        clientSettableAttributes[ attrKey ] = true;
+                    }
+                }
+            }
+            Type.clientSettableAttributes = clientSettableAttributes;
+        }
+        return clientSettableAttributes;
+    }
 });
 
 /**

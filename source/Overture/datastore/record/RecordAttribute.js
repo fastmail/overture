@@ -47,10 +47,12 @@ var RecordAttribute = NS.Class({
                 ( dependents[ propKey ] = [] ) ).push( 'id' );
         }
         attrs[ this.key || propKey ] = propKey;
+        object.constructor.clientSettableAttributes = null;
     },
 
     __teardownProperty__: function ( metadata, propKey ) {
         metadata.attrs[ this.key || propKey ] = null;
+        object.constructor.clientSettableAttributes = null;
     },
 
     /**
