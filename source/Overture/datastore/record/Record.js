@@ -175,6 +175,41 @@ var Record = NS.Class({
     },
 
     /**
+        Method: O.Record#clone
+
+        Creates a new instance of the record with the same attributes. Does
+        not call <O.Record#saveToStore>.
+
+        Parameters:
+            store - {O.Store} The store to create the record in.
+
+        Returns:
+            {O.Record} The new record.
+    */
+    clone: function ( store ) {
+        var Type = this.constructor;
+        var prototype = Type.prototype;
+        var clone = new Type( store );
+        var attrs = NS.meta( this ).attrs;
+        var attrKey, propKey, value;
+        for ( attrKey in attrs ) {
+            propKey = attrs[ attrKey ];
+            if ( prototype[ propKey ].noSync ) {
+                continue;
+            }
+            value = this.get( propKey );
+            if ( value instanceof Record ) {
+                value = value.getDoppelganger( store );
+            }
+            if ( value !== undefined ) {
+                clone.set( propKey, value );
+            }
+        }
+
+        return clone;
+    },
+
+    /**
         Property: O.Record#store
         Type: O.Store
 
