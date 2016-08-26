@@ -8,7 +8,7 @@
 
 "use strict";
 
-( function ( NS ) {
+( function ( NS, undefined ) {
 
 /**
     Class: O.Record-AttributeErrors
@@ -316,7 +316,7 @@ var Record = NS.Class({
                 attribute = this[ propKey ];
                 if ( !( attrKey in data ) && !attribute.noSync ) {
                     defaultValue = attribute.defaultValue;
-                    if ( defaultValue !== undefined ) {
+                    if ( defaultValue !== undefined && !attribute.noSync ) {
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
                             defaultValue.toJSON() : NS.clone( defaultValue );
                     }
