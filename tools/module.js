@@ -64,7 +64,7 @@ var groupIntoModules = function ( files ) {
     files.forEach( function ( file ) {
         var moduleName = file.module;
         if ( !moduleName ) {
-            throw new Error( 'File ' + file.src + ' belongs to no module!' );
+            throw new Error( 'File ' + file.name + ' belongs to no module!' );
         }
         var module = modules[ moduleName ] = ( modules[ moduleName ] || {
             name: moduleName,
