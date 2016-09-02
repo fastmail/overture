@@ -283,7 +283,7 @@ var RichTextView = NS.Class({
         left: [
             'bold', 'italic', 'underline', 'strikethrough', '-',
             'font', 'size', '-',
-            'colour', 'bgcolour', '-',
+            'color', 'bgcolor', '-',
             'image', '-',
             'link', '-',
             'ul', 'ol', '-',
@@ -391,21 +391,21 @@ var RichTextView = NS.Class({
                 target: this,
                 method: 'showFontFaceMenu'
             }),
-            colour: new ButtonView({
+            color: new ButtonView({
                 type: 'v-Button--iconOnly',
                 icon: 'icon-palette',
                 label: NS.loc( 'Text Color' ),
                 tooltip: NS.loc( 'Text Color' ),
                 target: this,
-                method: 'showTextColourMenu'
+                method: 'showTextColorMenu'
             }),
-            bgcolour: new ButtonView({
+            bgcolor: new ButtonView({
                 type: 'v-Button--iconOnly',
                 icon: 'icon-highlight',
                 label: NS.loc( 'Text Highlight' ),
                 tooltip: NS.loc( 'Text Highlight' ),
                 target: this,
-                method: 'showTextHighlightColourMenu'
+                method: 'showTextHighlightColorMenu'
             }),
             link: new ButtonView({
                 type: 'v-Button--iconOnly',
@@ -630,12 +630,12 @@ var RichTextView = NS.Class({
         });
     },
 
-    _colourText: true,
+    _colorText: true,
 
-    textColourMenuView: function () {
+    textColorMenuView: function () {
         var richTextView = this;
         return new NS.MenuView({
-            className: 'v-ColourMenu',
+            className: 'v-ColorMenu',
             showFilter: false,
             options: (
                 '000000 b22222 ff0000 ffa07a fff0f5 ' +
@@ -647,19 +647,19 @@ var RichTextView = NS.Class({
                 '4b0082 800080 ee82ee dda0dd e6e6fa ' +
                 '696969 808080 a9a9a9 d3d3d3 ffffff' )
                 .split( ' ' )
-                .map( function ( colour ) {
-                    colour = '#' + colour;
+                .map( function ( color ) {
+                    color = '#' + color;
                     return new ButtonView({
                         layout: {
-                            backgroundColor: colour
+                            backgroundColor: color
                         },
-                        label: colour,
-                        method: 'setColour',
-                        setColour: function () {
-                            if ( richTextView._colourText ) {
-                                richTextView.setTextColour( colour );
+                        label: color,
+                        method: 'setColor',
+                        setColor: function () {
+                            if ( richTextView._colorText ) {
+                                richTextView.setTextColor( color );
                             } else {
-                                richTextView.setHighlightColour( colour );
+                                richTextView.setHighlightColor( color );
                             }
                         }
                     });
@@ -667,14 +667,14 @@ var RichTextView = NS.Class({
         });
     }.property(),
 
-    showTextColourMenu: function ( buttonView ) {
-        this._colourText = true;
+    showTextColorMenu: function ( buttonView ) {
+        this._colorText = true;
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( NS.MenuView ) ) {
             buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
         }
         popOver.show({
-            view: this.get( 'textColourMenuView' ),
+            view: this.get( 'textColorMenuView' ),
             alignWithView: buttonView,
             alignEdge: 'centre',
             showCallout: true,
@@ -682,14 +682,14 @@ var RichTextView = NS.Class({
         });
     },
 
-    showTextHighlightColourMenu: function ( buttonView ) {
-        this._colourText = false;
+    showTextHighlightColorMenu: function ( buttonView ) {
+        this._colorText = false;
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( NS.MenuView ) ) {
             buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
         }
         popOver.show({
-            view: this.get( 'textColourMenuView' ),
+            view: this.get( 'textColorMenuView' ),
             alignWithView: buttonView,
             alignEdge: 'centre',
             showCallout: true,
@@ -826,8 +826,8 @@ var RichTextView = NS.Class({
     setFontFace: execCommand( 'setFontFace' ),
     setFontSize: execCommand( 'setFontSize' ),
 
-    setTextColour: execCommand( 'setTextColour' ),
-    setHighlightColour: execCommand( 'setHighlightColour' ),
+    setTextColor: execCommand( 'setTextColour' ),
+    setHighlightColor: execCommand( 'setHighlightColour' ),
 
     setTextAlignment: execCommand( 'setTextAlignment' ),
     setTextDirection: execCommand( 'setTextDirection' ),
