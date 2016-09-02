@@ -25,7 +25,7 @@ docs: $(DOCS_STYLES) $(DOCS_SCRIPTS) $(DOCS) $(PATH_TO_DOC_OUTPUT)/index.html
 
 $(PATH_TO_DOC_OUTPUT)/%.js: $(PATH_TO_DOC)/scripts/%.js
 	mkdir -p $(@D)
-	node_modules/.bin/uglifyjs $< -c warnings=false -m -o $@
+	uglifyjs $< -c warnings=false -m -o $@
 
 $(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json
 	node $(PATH_TO_DOC)/engine/writeSearchIndex.js $^ $@
