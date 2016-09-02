@@ -16,7 +16,6 @@ var ClearSearchButtonView = new NS.Class({
 
     type: 'v-ClearSearchButton',
     positioning: 'absolute',
-    label: NS.loc( 'Clear Search' ),
     shortcut: 'ctrl-/'
 });
 
@@ -37,6 +36,7 @@ var SearchTextView = NS.Class({
             this.get( 'icon' ),
             Element.when( this, 'value' ).show([
                 new NS.ClearSearchButtonView({
+                    label: NS.loc( 'Clear Search' ),
                     target: this,
                     method: 'reset'
                 })
