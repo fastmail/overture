@@ -89,6 +89,14 @@ var FileButtonView = NS.Class({
         general <O.FileButtonView> notes.
     */
     draw: function ( layer, Element, el ) {
+        var icon = this.get( 'icon' );
+        if ( typeof icon === 'string' ) {
+            icon = el( 'i', {
+                className: 'icon ' + icon
+            });
+        } else if ( !icon ) {
+            icon = document.createComment( 'icon' );
+        }
         return [
             this._domControl = el( 'input', {
                 className: 'v-FileButton-input',
@@ -96,7 +104,7 @@ var FileButtonView = NS.Class({
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             }),
-            this.get( 'icon' ) || document.createComment( 'icon' ),
+            icon,
             NS.AbstractControlView.prototype.draw
                 .call( this, layer, Element, el )
         ];

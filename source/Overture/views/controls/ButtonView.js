@@ -167,9 +167,17 @@ var ButtonView = NS.Class({
         general <O.ButtonView> notes.
     */
     draw: function ( layer, Element, el ) {
+        var icon = this.get( 'icon' );
+        if ( typeof icon === 'string' ) {
+            icon = el( 'i', {
+                className: 'icon ' + icon
+            });
+        } else if ( !icon ) {
+            icon = document.createComment( 'icon' );
+        }
         this._domControl = layer;
         return [
-            this.get( 'icon' ) || document.createComment( 'icon' ),
+            icon,
             ButtonView.parent.draw.call( this, layer, Element, el )
         ];
     },
@@ -188,7 +196,14 @@ var ButtonView = NS.Class({
     }.observes( 'icon', 'isWaiting' ),
 
     redrawIcon: function ( layer ) {
-        var icon = this.get( 'icon' ) || document.createComment( 'icon' );
+        var icon = this.get( 'icon' );
+        if ( typeof icon === 'string' ) {
+            icon = NS.Element.create( 'i', {
+                className: 'icon ' + icon
+            });
+        } else if ( !icon ) {
+            icon = document.createComment( 'icon' );
+        }
         layer.replaceChild( icon, layer.firstChild );
     },
 
