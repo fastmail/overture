@@ -4,7 +4,6 @@
 
 var fs = require( 'fs' );
 var less = require( 'less' );
-var csstools = require( './csstools.js' );
 
 var escapeRegExp = function ( string ) {
     return string.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
@@ -64,7 +63,7 @@ var groupIntoModules = function ( files ) {
     files.forEach( function ( file ) {
         var moduleName = file.module;
         if ( !moduleName ) {
-            throw new Error( 'File ' + file.name + ' belongs to no module!' );
+            throw new Error( 'File ' + file.src + ' belongs to no module!' );
         }
         var module = modules[ moduleName ] = ( modules[ moduleName ] || {
             name: moduleName,
@@ -215,26 +214,27 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         module += data;
         module += ');\n';
     });
-    css.forEach( function ( input ) {
-        var data = fs.readFileSync( input, 'utf8' );
-        var filename = input.replace( /.*\//, '' );
-
-        data = data.replace( /url\(\s*["']?([^\/].*?)["']?\s*\)/g,
-                    function ( original, img ) {
-               return /data:|\.eot/.test( img ) ?
-                    original :
-                    'url(' + img.replace( /.*\//g, '' ) + ')';
-        });
-        data = csstools.minify( data );
+    if ( css.length ) {
         module += themeManager;
         module += '.stylesheetDidLoad("';
         module += theme;
         module += '", "';
-        module += filename.replace( /\.[^.]+$/, '' );
+        module += output.replace( /.*\//, '' )
+                        .replace( /-raw\.[^.]+$/, '' )
+                        .replace( /.*\-/, '' );
         module += '", "';
-        module += data.replace( /\\/g, '\\\\' ).replace( /"/g, '\\"' );
+        css.forEach( function ( input ) {
+            var data = fs.readFileSync( input, 'utf8' );
+            data = data.replace( /url\(\s*["']?([^\/].*?)["']?\s*\)/g,
+                        function ( original, img ) {
+                   return /data:|\.eot/.test( img ) ?
+                        original :
+                        'url(' + img.replace( /.*\//g, '' ) + ')';
+            });
+            module += data.replace( /\\/g, '\\\\' ).replace( /"/g, '\\"' );
+        });
         module += '");\n';
-    });
+    }
 
     var jsData = js.map( function ( input ) {
         return stripStrict( fs.readFileSync( input, 'utf8' ) );
