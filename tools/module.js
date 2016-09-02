@@ -231,7 +231,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
                         original :
                         'url(' + img.replace( /.*\//g, '' ) + ')';
             });
-            module += data.replace( /\\/g, '\\\\' ).replace( /"/g, '\\"' );
+            module += JSON.stringify( data ).slice( 1, -1 );
         });
         module += '");\n';
     }
