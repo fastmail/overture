@@ -142,10 +142,9 @@ var TimeZone = NS.Class({
     init: function ( id, periods ) {
         var name = id.replace( /_/g, ' ' );
         // The IANA ids have the +/- the wrong way round for historical reasons.
-        // Display correctly for the user in name and suffix.
+        // Display correctly for the user.
         if ( /GMT[+-]/.test( name ) ) {
             name = switchSign( name );
-            periods[0][3] = switchSign( periods[0][3] );
         }
 
         this.id = id;
