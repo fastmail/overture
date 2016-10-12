@@ -252,6 +252,24 @@ var extract = function ( dbFilePath, filesToScanPaths, outputPath, allData ) {
 
 // Lang module
 
+var makePrefixes = function ( string ) {
+    var output = [];
+    var i, l;
+    for ( i = 2, l = string.length; i <= l; i += 1 ) {
+        output.push( string.slice( 0, i ) );
+    }
+    return output;
+};
+
+var flatten = function ( output, item ) {
+    if ( item instanceof Array ) {
+        item.reduce( flatten, output );
+    } else {
+        output.push( item );
+    }
+    return output;
+};
+
 var divide = function ( strings, index ) {
     var output = [];
     var i, l, ll, buckets, string, character;
@@ -323,7 +341,7 @@ var join = function ( strings ) {
 };
 
 var makeRegExp = function ( strings ) {
-    var regexp = join( divide( strings, 0 ) );
+    var regexp = join( divide( strings.reduce( flatten, [] ), 0 ) );
     return '/^' + regexp + '\\b/i';
 };
 
@@ -445,81 +463,81 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         },
         datePatterns: {
             jan: makeRegExp([
-                getString( 'D_JANUARY' ),
+                makePrefixes( getString( 'D_JANUARY' ) ),
                 getString( 'S_CALENDAR_JAN' )
             ]),
             feb: makeRegExp([
-                getString( 'D_FEBRUARY' ),
+                makePrefixes( getString( 'D_FEBRUARY' ) ),
                 getString( 'S_CALENDAR_FEB' )
             ]),
             mar: makeRegExp([
-                getString( 'D_MARCH' ),
+                makePrefixes( getString( 'D_MARCH' ) ),
                 getString( 'S_CALENDAR_MAR' )
             ]),
             apr: makeRegExp([
-                getString( 'D_APRIL' ),
+                makePrefixes( getString( 'D_APRIL' ) ),
                 getString( 'S_CALENDAR_APR' )
             ]),
             may: makeRegExp([
-                getString( 'D_MAY' ),
+                makePrefixes( getString( 'D_MAY' ) ),
                 getString( 'S_CALENDAR_MAY' )
             ]),
             jun: makeRegExp([
-                getString( 'D_JUNE' ),
+                makePrefixes( getString( 'D_JUNE' ) ),
                 getString( 'S_CALENDAR_JUN' )
             ]),
             jul: makeRegExp([
-                getString( 'D_JULY' ),
+                makePrefixes( getString( 'D_JULY' ) ),
                 getString( 'S_CALENDAR_JUL' )
             ]),
             aug: makeRegExp([
-                getString( 'D_AUGUST' ),
+                makePrefixes( getString( 'D_AUGUST' ) ),
                 getString( 'S_CALENDAR_AUG' )
             ]),
             sep: makeRegExp([
-                getString( 'D_SEPTEMBER' ),
+                makePrefixes( getString( 'D_SEPTEMBER' ) ),
                 getString( 'S_CALENDAR_SEP' )
             ]),
             oct: makeRegExp([
-                getString( 'D_OCTOBER' ),
+                makePrefixes( getString( 'D_OCTOBER' ) ),
                 getString( 'S_CALENDAR_OCT' )
             ]),
             nov: makeRegExp([
-                getString( 'D_NOVEMBER' ),
+                makePrefixes( getString( 'D_NOVEMBER' ) ),
                 getString( 'S_CALENDAR_NOV' )
             ]),
             dec: makeRegExp([
-                getString( 'D_DECEMBER' ),
+                makePrefixes( getString( 'D_DECEMBER' ) ),
                 getString( 'S_CALENDAR_DEC' )
             ]),
 
             mon: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_MONDAY' ),
-                getString( 'S_CALENDAR_MONDAY' )
+                makePrefixes( getString( 'S_CALENDAR_MONDAY' ) )
             ]),
             tue: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_TUESDAY' ),
-                getString( 'S_CALENDAR_TUESDAY' )
+                makePrefixes( getString( 'S_CALENDAR_TUESDAY' ) )
             ]),
             wed: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_WEDNESDAY' ),
-                getString( 'S_CALENDAR_WEDNESDAY' )
+                makePrefixes( getString( 'S_CALENDAR_WEDNESDAY' ) )
             ]),
             thu: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_THURSDAY' ),
-                getString( 'S_CALENDAR_THURSDAY' )
+                makePrefixes( getString( 'S_CALENDAR_THURSDAY' ) )
             ]),
             fri: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_FRIDAY' ),
-                getString( 'S_CALENDAR_FRIDAY' )
+                makePrefixes( getString( 'S_CALENDAR_FRIDAY' ) )
             ]),
             sat: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_SATURDAY' ),
-                getString( 'S_CALENDAR_SATURDAY' )
+                makePrefixes( getString( 'S_CALENDAR_SATURDAY' ) )
             ]),
             sun: makeRegExp([
                 getString( 'S_CALENDAR_SHORT_HEADER_SUNDAY' ),
-                getString( 'S_CALENDAR_SUNDAY' )
+                makePrefixes( getString( 'S_CALENDAR_SUNDAY' ) )
             ]),
 
             past: makeRegExp(
