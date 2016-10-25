@@ -100,6 +100,7 @@ var XHR = NS.Class({
         this._status = 0;
         this.io = io || null;
         this.xhr = xhr;
+        xhr.withCredentials = true;
         if ( xhr.upload ) {
             xhr.upload.addEventListener( 'progress', this, false );
             xhr.addEventListener( 'progress', this, false );
