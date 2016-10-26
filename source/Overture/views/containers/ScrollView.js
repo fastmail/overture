@@ -333,8 +333,9 @@ var ScrollView = NS.Class({
     */
     scrollTo: function ( x, y, withAnimation ) {
         // Can't have negative scroll values.
-        if ( x < 0 ) { x = 0; }
-        if ( y < 0 ) { y = 0; }
+        // Can't scroll to fractional positions
+        x = x < 0 ? 0 : Math.round( x );
+        y = y < 0 ? 0 : Math.round( y );
 
         var scrollAnimation = this.get( 'scrollAnimation' );
         scrollAnimation.stop();
