@@ -1799,8 +1799,9 @@ var Store = NS.Class({
         <O.Source#commitChanges>.
 
         Parameters:
-            skToId - {Object} A map of the store key to the record id for all
-            newly created records.
+            skToPartialData - {Object} A map of the store key to an object
+            with properties for the newly created record, which MUST include
+            the id.
 
         Returns:
             {O.Store} Returns self.
@@ -1809,7 +1810,8 @@ var Store = NS.Class({
         var _skToType = this._skToType,
             _typeToSkToId = this._typeToSkToId,
             _typeToIdToSk = this._typeToIdToSk,
-            storeKey, status, data, Type, typeId, idPropKey, idAttrKey, id;
+            storeKey, status, data, Type, typeId, idPropKey, idAttrKey, id,
+            foreignRefAttrs;
         for ( storeKey in skToPartialData ) {
             status = this.getStatus( storeKey );
             if ( status & NEW ) {
@@ -1824,6 +1826,11 @@ var Store = NS.Class({
                 // Set id internally
                 _typeToSkToId[ typeId ][ storeKey ] = id;
                 _typeToIdToSk[ typeId ][ id ] = storeKey;
+
+                foreignRefAttrs = getForeignRefAttrs( Type );
+                if ( foreignRefAttrs.length ) {
+                    convertForeignKeysToSK( this, foreignRefAttrs, data );
+                }
 
                 // Notify record, and update with any other data
                 this.updateData( storeKey, data, false );
