@@ -22,12 +22,13 @@ var execCommand = function ( command ) {
     };
 };
 
-var queryCommandState = function ( tag, regexp ) {
+var queryCommandState = function ( tag ) {
+    var regexp = new RegExp( '(?:^|>)' + tag + '\\b' );
     return function () {
         var path = this.get( 'path' );
         return path === '(selection)' ?
-            this.get( 'editor' )
-                .hasFormat( tag ) : ( regexp ).test( path );
+            this.get( 'editor' ).hasFormat( tag ) :
+            regexp.test( path );
     }.property( 'path' );
 };
 
@@ -914,11 +915,11 @@ var RichTextView = NS.Class({
         this.propertyDidChange( 'path' );
     }.on( 'select' ),
 
-    isBold: queryCommandState( 'B', ( />B\b/ ) ),
-    isItalic: queryCommandState( 'I', ( />I\b/ ) ),
-    isUnderlined: queryCommandState( 'U', ( />U\b/ ) ),
-    isStriked: queryCommandState( 'S', ( />S\b/ ) ),
-    isLink: queryCommandState( 'A', ( />A\b/ ) ),
+    isBold: queryCommandState( 'B' ),
+    isItalic: queryCommandState( 'I' ),
+    isUnderlined: queryCommandState( 'U' ),
+    isStriked: queryCommandState( 'S' ),
+    isLink: queryCommandState( 'A' ),
 
     alignment: function () {
         var path = this.get( 'path' ),
@@ -962,8 +963,8 @@ var RichTextView = NS.Class({
         return dir;
     }.property( 'path' ),
 
-    isUnorderedList: queryCommandState( 'UL', ( />UL\b/ ) ),
-    isOrderedList: queryCommandState( 'OL', ( />OL\b/ ) ),
+    isUnorderedList: queryCommandState( 'UL' ),
+    isOrderedList: queryCommandState( 'OL' ),
 
     // --- Keep state in sync with render ---
 
