@@ -281,13 +281,15 @@ var XHR = NS.Class({
 
         if ( io ) {
             allHeaders = xhr.getAllResponseHeaders();
-            // IE returns 200 status code when there's no network! But for a
-            // real connection there must have been at least one header, so
-            // check that's not empty
-            isSuccess = !!allHeaders && ( status >= 200 && status < 300 );
             responseHeaders = parseHeaders( allHeaders );
             responseType = this.getResponseType();
             response = this.getResponse();
+            // IE returns 200 status code when there's no network! But for a
+            // real connection there must have been at least one header, so
+            // check that's not empty. Except for cross-domain requests no
+            // headers may be returned, so also check for a body
+            isSuccess = ( status >= 200 && status < 300 ) &&
+                ( !!allHeaders || !!response );
             io.set( 'uploadProgress', 100 )
               .set( 'progress', 100 )
               .set( 'status', status )
