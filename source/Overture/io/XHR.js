@@ -100,7 +100,6 @@ var XHR = NS.Class({
         this._status = 0;
         this.io = io || null;
         this.xhr = xhr;
-        xhr.withCredentials = true;
         if ( xhr.upload ) {
             xhr.upload.addEventListener( 'progress', this, false );
             xhr.addEventListener( 'progress', this, false );
@@ -213,7 +212,7 @@ var XHR = NS.Class({
         Returns:
             {O.XHR} Returns self.
     */
-    send: function ( method, url, data, headers ) {
+    send: function ( method, url, data, headers, withCredentials ) {
         if ( this._isRunning ) {
             this.abort();
         }
@@ -225,6 +224,7 @@ var XHR = NS.Class({
             name;
 
         xhr.open( method, url, this.makeAsyncRequests );
+        xhr.withCredentials = !!withCredentials;
         for ( name in headers || {} ) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.

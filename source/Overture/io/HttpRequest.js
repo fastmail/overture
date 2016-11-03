@@ -86,6 +86,15 @@ var HttpRequest = NS.Class({
         'Accept': 'application/json, */*'
     },
 
+    /**
+        Property: O.HttpRequest#withCredentials
+        Type: Boolean
+        Default: false
+
+        Send cookies with cross-domain requests?
+    */
+    withCredentials: false,
+
     // ---
 
     init: function ( mixin ) {
@@ -144,14 +153,15 @@ var HttpRequest = NS.Class({
     // ---
 
     send: function () {
-        var method = this.get( 'method' ).toUpperCase(),
-            url = this.get( 'url' ),
-            data = this.get( 'data' ) || null,
-            headers = this.get( 'headers' ),
-            transport =
-                ( data instanceof FormData && NS.FormUploader !== NS.XHR ) ?
-                    new NS.FormUploader() : getXhr(),
-            contentType;
+        var method = this.get( 'method' ).toUpperCase();
+        var url = this.get( 'url' );
+        var data = this.get( 'data' ) || null;
+        var headers = this.get( 'headers' );
+        var withCredentials = this.get( 'withCredentials' );
+        var transport =
+            ( data instanceof FormData && NS.FormUploader !== NS.XHR ) ?
+                new NS.FormUploader() : getXhr();
+        var contentType;
 
         if ( data && method === 'GET' ) {
             url += ( url.contains( '?' ) ? '&' : '?' ) + data;
@@ -168,7 +178,7 @@ var HttpRequest = NS.Class({
         // Send the request
         this._transport = transport;
         transport.io = this;
-        transport.send( method, url, data, headers );
+        transport.send( method, url, data, headers, withCredentials );
 
         return this;
     },
