@@ -51,7 +51,11 @@ var RecordAttribute = NS.Class({
     },
 
     __teardownProperty__: function ( metadata, propKey, object ) {
-        metadata.attrs[ this.key || propKey ] = null;
+        var attrs = metadata.attrs;
+        if ( !metadata.hasOwnProperty( 'attrs' ) ) {
+            attrs = metadata.attrs = Object.create( attrs );
+        }
+        attrs[ this.key || propKey ] = null;
         object.constructor.clientSettableAttributes = null;
     },
 
