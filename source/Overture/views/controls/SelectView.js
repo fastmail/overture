@@ -121,12 +121,21 @@ var SelectView = NS.Class({
         changes.
     */
     redrawOptions: function ( layer, oldOptions ) {
-        var options = this.get( 'options' ),
-            select;
+        var options = this.get( 'options' );
+        var select, isFocussed;
         if ( !isEqual( options, oldOptions ) ) {
+            // Must blur before removing from DOM in iOS, otherwise
+            // the slot-machine selector will not hide
+            isFocussed = this.get( 'isFocussed' );
             select = this._drawSelect( options );
+            if ( isFocussed ) {
+                this.blur();
+            }
             layer.replaceChild( select, this._domControl );
             this._domControl = select;
+            if ( isFocussed ) {
+                this.focus();
+            }
         }
     },
 
