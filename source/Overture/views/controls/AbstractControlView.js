@@ -137,6 +137,11 @@ var AbstractControlView = NS.Class({
                     .deregister( key, this, 'activate' );
             }, this );
         }
+        // iOS is very buggy if you remove a focussed control from the doc;
+        // the picker/keyboard stays up and cannot be dismissed
+        if ( NS.UA.isIOS && this.get( 'isFocussed' ) ) {
+            this.blur();
+        }
         return AbstractControlView.parent.willLeaveDocument.call(
             this );
     },
