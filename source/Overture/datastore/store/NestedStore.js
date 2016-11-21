@@ -70,6 +70,7 @@ var NestedStore = NS.Class({
 
         this._created = {};
         this._destroyed = {};
+        this.hasChanges = false;
 
         // Own queries
         // Map id -> query
@@ -165,7 +166,7 @@ var NestedStore = NS.Class({
 
         if ( callback ) { callback(); }
 
-        return this.fire( 'didCommit' );
+        return this.set( 'hasChanges', false ).fire( 'didCommit' );
     },
 
     /**
@@ -342,6 +343,7 @@ var NestedStore = NS.Class({
             store.parentDidUpdateData( storeKey, changedKeys );
         });
         this._recordDidChange( storeKey );
+        NS.RunLoop.queueFn( 'before', this.checkForChanges, this );
     },
 
     // === A nested store is not directly connected to a source ================

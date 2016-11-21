@@ -57,6 +57,13 @@ var generateStoreKey = function () {
 
 // ---
 
+var mayHaveChanges = function ( store ) {
+    NS.RunLoop.queueFn( 'before', store.checkForChanges, store );
+    return store;
+};
+
+// ---
+
 var filter = function ( accept, storeKey ) {
     return accept( this._skToData[ storeKey ], this, storeKey );
 };
@@ -178,7 +185,7 @@ var convertForeignKeysToId = function ( store, Type, data ) {
 */
 var Store = NS.Class({
 
-    Mixin: NS.EventTarget,
+    Extends: NS.Object,
 
     /**
         Property: O.Store#autoCommit
@@ -208,6 +215,13 @@ var Store = NS.Class({
         Is this a nested store?
     */
     isNested: false,
+
+    /**
+        Property: O.Store#hasChanges
+        Type: Boolean
+
+        Are there any changes in the store?
+    */
 
     /**
         Constructor: O.Store
@@ -244,6 +258,8 @@ var Store = NS.Class({
         this._created = {};
         // Set of store keys for destroyed records
         this._destroyed = {};
+        // Any changes waiting to be committed?
+        this.hasChanges = false;
 
         // Queries
         // Map id -> query
@@ -273,7 +289,7 @@ var Store = NS.Class({
 
         this._commitCallbacks = [];
 
-        NS.extend( this, mixin );
+        Store.parent.init.call( this, mixin );
 
         mixin.source.set( 'store', this );
     },
@@ -496,24 +512,18 @@ var Store = NS.Class({
         return new NS.RecordArray( this, Type, storeKeys );
     },
 
-    /**
-        Method: O.Store#hasChanges
-
-        Returns:
-            {Boolean} Are there any changes in the store?
-    */
-    hasChanges: function () {
+    checkForChanges: function () {
         var storeKey;
         for ( storeKey in this._created ) {
-            return true;
+            return this.set( 'hasChanges', true );
         }
         for ( storeKey in this._skToChanged ) {
-            return true;
+            return this.set( 'hasChanges', true );
         }
         for ( storeKey in this._destroyed ) {
-            return true;
+            return this.set( 'hasChanges', true );
         }
-        return false;
+        return this.set( 'hasChanges', false );
     },
 
     /**
@@ -536,6 +546,7 @@ var Store = NS.Class({
         }
         NS.RunLoop.queueFn( 'middle', this._commitChanges, this );
     },
+
     _commitChanges: function () {
         // Don't commit if another commit is already in progress. We can't
         // reference a foreign ID if it is currently being created in an
@@ -652,7 +663,8 @@ var Store = NS.Class({
                     this._checkServerStatus( types[ typeId ] );
                 }
                 this.isCommitting = false;
-                if ( this.hasChanges() && this.autoCommit ) {
+                if ( this.autoCommit &&
+                        this.checkForChanges().get( 'hasChanges' ) ) {
                     this.commitChanges();
                 }
             }.bind( this ) );
@@ -660,6 +672,7 @@ var Store = NS.Class({
             this.isCommitting = false;
         }
 
+        mayHaveChanges( this );
         this.fire( 'didCommit' );
     },
 
@@ -692,7 +705,7 @@ var Store = NS.Class({
         this._created = {};
         this._destroyed = {};
 
-        return this;
+        return this.set( 'hasChanges', false );
     },
 
     getInverseChanges: function () {
@@ -1004,7 +1017,7 @@ var Store = NS.Class({
             this.commitChanges();
         }
 
-        return this;
+        return this.set( 'hasChanges', true );
     },
 
     /**
@@ -1053,7 +1066,7 @@ var Store = NS.Class({
                 this.commitChanges();
             }
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     undestroyRecord: function ( storeKey, Type, data ) {
@@ -1072,6 +1085,7 @@ var Store = NS.Class({
             delete this._destroyed[ storeKey ];
             this.setStatus( storeKey, ( status & ~(DESTROYED|DIRTY) ) | READY );
         }
+        return mayHaveChanges( this );
     },
 
     // ---
@@ -1323,6 +1337,7 @@ var Store = NS.Class({
                     delete _skToData[ storeKey ];
                 }
             }
+            mayHaveChanges( this );
         } else {
             for ( key in data ) {
                 value = data[ key ];
@@ -1622,7 +1637,7 @@ var Store = NS.Class({
             this.updateData( storeKey, update, false );
             this.setStatus( storeKey, READY );
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     /**
@@ -1661,7 +1676,7 @@ var Store = NS.Class({
                 this.unloadRecord( storeKey );
             }
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     // ---
@@ -1912,7 +1927,7 @@ var Store = NS.Class({
         if ( this.autoCommit ) {
             this.commitChanges();
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     /**
@@ -2031,7 +2046,7 @@ var Store = NS.Class({
         if ( this.autoCommit ) {
             this.commitChanges();
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     /**
@@ -2076,7 +2091,7 @@ var Store = NS.Class({
         if ( this.autoCommit ) {
             this.commitChanges();
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     /**
@@ -2140,7 +2155,7 @@ var Store = NS.Class({
         if ( this.autoCommit ) {
             this.commitChanges();
         }
-        return this;
+        return mayHaveChanges( this );
     },
 
     _notifyRecordOfError: function ( storeKey, error ) {

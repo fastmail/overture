@@ -121,7 +121,8 @@ var StoreUndoManager = NS.Class({
 
     getUndoData: function () {
         var store = this.get( 'store' );
-        return store.hasChanges() ? store.getInverseChanges() : null;
+        return store.checkForChanges().get( 'hasChanges' ) ?
+            store.getInverseChanges() : null;
     },
 
     applyChange: function ( data ) {
@@ -134,7 +135,7 @@ var StoreUndoManager = NS.Class({
     },
 
     undo: function () {
-        if ( this._isInUndoState || !this.get( 'store' ).hasChanges() ) {
+        if ( this._isInUndoState || !this.get( 'store' ).get( 'hasChanges' ) ) {
             StoreUndoManager.parent.undo.call( this );
         }
         return this;
