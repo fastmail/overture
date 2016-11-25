@@ -120,7 +120,7 @@ var LiveQuery = NS.Class({
         this._sort = results.sortFn;
         this._filter = results.filterFn;
 
-        this.status = store.getTypeStatus( Type ) & READY;
+        this.status = READY;
 
         this.length = results.length;
 
