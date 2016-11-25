@@ -412,6 +412,7 @@ var LiveQuery = NS.Class({
                 )
                 .endPropertyChanges()
                 .fire( 'query:updated', {
+                    query: this,
                     removed: removed,
                     removedIndexes: removedIndexes,
                     added: added,

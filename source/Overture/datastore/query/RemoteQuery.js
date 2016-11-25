@@ -594,6 +594,7 @@ var RemoteQuery = NS.Class({
 
         if ( oldTotal !== null && firstChange < lastChangeNew ) {
             this.fire( 'query:updated', {
+                query: this,
                 removed: removedStoreKeys,
                 removedIndexes: removedIndexes,
                 added: addedStoreKeys,

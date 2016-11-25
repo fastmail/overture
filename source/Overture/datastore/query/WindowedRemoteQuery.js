@@ -736,6 +736,7 @@ var WindowedRemoteQuery = NS.Class({
         // which were removed. Also, keyboard indicator will need to know the
         // indexes of those removed or added.
         this.fire( 'query:updated', {
+            query: this,
             removed: removedStoreKeys,
             removedIndexes: removedIndexes,
             added: addedStoreKeys,
