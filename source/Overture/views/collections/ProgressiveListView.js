@@ -16,7 +16,6 @@ var ProgressiveListView = NS.Class({
 
     Mixin: NS.TrueVisibleRect,
 
-    renderInOrder: false,
     batchSize: 10,
     triggerInPx: 200,
 
@@ -105,7 +104,7 @@ var ProgressiveListView = NS.Class({
             if ( start !== _renderRange.start || end !== _renderRange.end ) {
                 _renderRange.start = start;
                 _renderRange.end = end;
-                this._redraw();
+                this.viewNeedsRedraw();
             }
         }
     }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' )

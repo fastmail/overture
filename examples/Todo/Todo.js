@@ -882,7 +882,6 @@ var appView = new O.View({
                 return [
                     new O.ListView({
                         content: O.bind( App.state, 'todos' ),
-                        renderInOrder: false,
                         ItemView: TodoView,
                         itemHeight: 48
                     })

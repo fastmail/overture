@@ -13,6 +13,7 @@
 var byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );
 };
+
 var addToTable = function ( array, table ) {
     var i, l;
     for ( i = 0, l = array.length; i < l; i += 1 ) {
@@ -21,14 +22,26 @@ var addToTable = function ( array, table ) {
     return table;
 };
 
+var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
+    var length = childViews.length;
+    var view, item;
+    while ( fromIndex < length ) {
+        view = childViews[ fromIndex ];
+        item = view.get( 'content' );
+        if ( item && newRendered[ NS.guid( item ) ] ) {
+            break;
+        }
+        fromIndex += 1;
+    }
+    return fromIndex;
+};
+
 var ListView = NS.Class({
 
     Extends: NS.View,
 
     content: null,
     contentLength: NS.bind( 'content.length' ),
-
-    renderInOrder: true,
 
     ItemView: null,
     itemHeight: 0,
@@ -63,7 +76,7 @@ var ListView = NS.Class({
             var content = this.get( 'content' );
             if ( content ) {
                 content.removeObserverForRange(
-                    this._renderRange, this, '_redraw' );
+                    this._renderRange, this, 'viewNeedsRedraw' );
                 content.off( 'query:updated', this, 'contentWasUpdated' );
             }
         }
@@ -74,14 +87,14 @@ var ListView = NS.Class({
         if ( this.get( 'isRendered' ) ) {
             var range = this._renderRange;
             if ( oldVal ) {
-                oldVal.removeObserverForRange( range, this, '_redraw' );
+                oldVal.removeObserverForRange( range, this, 'viewNeedsRedraw' );
                 oldVal.off( 'query:updated', this, 'contentWasUpdated' );
             }
             if ( newVal ) {
-                newVal.addObserverForRange( range, this, '_redraw' );
+                newVal.addObserverForRange( range, this, 'viewNeedsRedraw' );
                 newVal.on( 'query:updated', this, 'contentWasUpdated' );
             }
-            this._redraw();
+            this.viewNeedsRedraw();
         }
     }.observes( 'content' ),
 
@@ -107,13 +120,14 @@ var ListView = NS.Class({
             Element.appendChildren( layer, children );
         }
         if ( content ) {
-            content.addObserverForRange( this._renderRange, this, '_redraw' );
+            content.addObserverForRange(
+                this._renderRange, this, 'viewNeedsRedraw' );
             content.on( 'query:updated', this, 'contentWasUpdated' );
             this.redrawLayer( layer );
         }
     },
 
-    _redraw: function () {
+    viewNeedsRedraw: function () {
         this.propertyNeedsRedraw( this, 'layer' );
     },
 
@@ -139,72 +153,27 @@ var ListView = NS.Class({
         view.destroy();
     },
 
-    calculateDirtyRange: function ( list, start, end ) {
-        var lastExistingView = null,
-            childViews = this.get( 'childViews' ),
-            l = childViews.length,
-            view, item;
-        while ( end && l ) {
-            view = childViews[ l - 1 ];
-            item = list.getObjectAt( end - 1 );
-            if ( !this.isCorrectItemView( view, item, end - 1 ) ) {
-                break;
-            }
-            lastExistingView = view;
-            l -= 1;
-            end -= 1;
-        }
-        while ( start < end && start < l ) {
-            view = childViews[ start ];
-            item = list.getObjectAt( start );
-            if ( !this.isCorrectItemView( view, item, start ) ) {
-                break;
-            }
-            start += 1;
-        }
-        return [ start, end, lastExistingView ];
-    },
-
     redrawLayer: function ( layer ) {
-        var list = this.get( 'content' ) || [],
-            childViews = this.get( 'childViews' ),
+        var list = this.get( 'content' ) || [];
+        var childViews = this.get( 'childViews' );
+        var isInDocument = this.get( 'isInDocument' );
+        // Limit to this range in the content array.
+        var renderRange = this._renderRange;
+        var start = Math.max( 0, renderRange.start );
+        var end = Math.min( list.get( 'length' ), renderRange.end );
+        // Set of already rendered views.
+        var rendered = this._rendered;
+        var newRendered = this._rendered = {};
+        // Are they new or always been there?
+        var added = this._added;
+        var removed = this._removed;
+        // Bookkeeping
+        var viewsDidEnterDoc = [];
+        var frag = null;
+        var currentViewIndex;
+        var viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
 
-            // Limit to this range in the content array.
-            renderRange = this._renderRange,
-            renderInOrder = this.get( 'renderInOrder' ),
-
-            start = Math.max( 0, renderRange.start ),
-            end = Math.min( list.get( 'length' ), renderRange.end ),
-
-            dirty, dirtyStart, dirtyEnd,
-            lastExistingView = null,
-
-            // Set of already rendered views.
-            rendered = this._rendered,
-            newRendered = {},
-            viewsToInsert = [],
-
-            // Are they new or always been there?
-            added = this._added,
-            removed = this._removed,
-
-            isInDocument = this.get( 'isInDocument' ),
-            frag = layer.ownerDocument.createDocumentFragment(),
-
-            i, l, item, id, view, isAdded, isRemoved, viewToInsert,
-            renderedViewIds;
-
-        // If we have to keep the DOM order the same as the list order, we'll
-        // have to remove existing views from the DOM. To optimise this, we
-        // check from both ends whether the views are already correct.
-        if ( renderInOrder ) {
-            dirty = this.calculateDirtyRange( list, start, end );
-            dirtyStart = dirty[0];
-            dirtyEnd = dirty[1];
-            lastExistingView = dirty[2];
-        }
-
-        // Mark views we still need.
+        // Mark views we still need
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
             id = item ? NS.guid( item ) : 'null:' + i;
@@ -214,40 +183,32 @@ var ListView = NS.Class({
             }
         }
 
-        // Remove ones which are no longer needed
         this.beginPropertyChanges();
-        renderedViewIds = Object.keys( rendered );
-        for ( i = 0, l = renderedViewIds.length; i < l; i += 1 ) {
-            id = renderedViewIds[i];
-            view = rendered[ id ];
+
+        // Remove ones which are no longer needed
+        for ( id in rendered ) {
             if ( !newRendered[ id ] ) {
+                view = rendered[ id ];
                 isRemoved = removed && ( item = view.get( 'content' ) ) ?
                     removed[ item.get( 'storeKey' ) ] : false;
                 view.detach( isRemoved );
                 this.destroyItemView( view );
             }
         }
-        this._rendered = newRendered;
+        currentViewIndex = getNextViewIndex( childViews, newRendered, 0 );
 
         // Create/update views in render range
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
             id = item ? NS.guid( item ) : 'null:' + i;
             view = newRendered[ id ];
-            if ( !view ) {
-                isAdded = added && item ?
-                    added[ item.get( 'storeKey' ) ] : false;
-                view = this.createItemView( item, i, list, isAdded );
-                if ( view ) {
-                    newRendered[ id ] = view;
-                    childViews.include( view );
-                }
-                // If reusing views, may not need to reinsert.
-                viewToInsert = !!view && !view.get( 'isInDocument' );
-            } else {
-                viewToInsert = ( renderInOrder &&
-                    i >= dirtyStart && i < dirtyEnd );
-                if ( viewToInsert ) {
+            // Was the view already in the list?
+            if ( view ) {
+                // Is it in the correct position?
+                viewIsInCorrectPosition =
+                    childViews[ currentViewIndex ] === view;
+                // If not, remove
+                if ( !viewIsInCorrectPosition ) {
                     if ( isInDocument ) {
                         view.willLeaveDocument();
                     }
@@ -256,35 +217,49 @@ var ListView = NS.Class({
                         view.didLeaveDocument();
                     }
                 }
+                // Always update list/index
                 view.set( 'index', i )
                     .set( 'list', list );
-            }
-            if ( viewToInsert ) {
-                frag.appendChild( view.render().get( 'layer' ) );
-                if ( isInDocument ) {
-                    view.willEnterDocument();
+                // If in correct position, all done
+                if ( viewIsInCorrectPosition ) {
+                    if ( frag ) {
+                        layer.insertBefore( frag, view.get( 'layer' ) );
+                        frag = null;
+                    }
+                    currentViewIndex =
+                        getNextViewIndex(
+                            childViews, newRendered, currentViewIndex + 1 );
+                    continue;
                 }
-                viewsToInsert.push( view );
-            }
-        }
-
-        // Append new views to layer
-        if ( viewsToInsert.length ) {
-            if ( lastExistingView ) {
-                layer.insertBefore( frag, lastExistingView.get( 'layer' ) );
             } else {
-                layer.appendChild( frag );
-            }
-            if ( isInDocument ) {
-                for ( i = 0, l = viewsToInsert.length; i < l; i += 1 ) {
-                    viewsToInsert[i].didEnterDocument();
+                isAdded = added && item ?
+                    added[ item.get( 'storeKey' ) ] : false;
+                view = this.createItemView( item, i, list, isAdded );
+                if ( !view ) {
+                    continue;
                 }
+                newRendered[ id ] = view;
+                childViews.push( view );
+            }
+            if ( !frag ) {
+                frag = layer.ownerDocument.createDocumentFragment();
+            }
+            frag.appendChild( view.render().get( 'layer' ) );
+            if ( isInDocument ) {
+                view.willEnterDocument();
+                viewsDidEnterDoc.push( view );
+            }
+        }
+        if ( frag ) {
+            layer.appendChild( frag );
+        }
+        if ( isInDocument && viewsDidEnterDoc.length ) {
+            for ( i = 0, l = viewsDidEnterDoc.length; i < l; i += 1 ) {
+                viewsDidEnterDoc[i].didEnterDocument();
             }
         }
 
-        if ( renderInOrder ) {
-            childViews.sort( byIndex );
-        }
+        childViews.sort( byIndex );
 
         this._added = null;
         this._removed = null;
