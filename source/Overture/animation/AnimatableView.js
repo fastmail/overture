@@ -111,7 +111,14 @@ NS.AnimatableView = {
             property, value;
 
         // Animate
-        if ( this.get( 'animateLayer' ) && this.get( 'isInDocument' ) ) {
+        if ( this.get( 'animateLayer' ) ) {
+            // Must wait until in document to animate
+            if ( !this.get( 'isInDocument' ) ) {
+                O.RunLoop.invokeInNextFrame(
+                    this.propertyNeedsRedraw.bind(
+                        this, this, 'layerStyles', oldStyles ) );
+                return;
+            }
             if ( !layerAnimation.current ) {
                 layerAnimation.current = oldStyles || newStyles;
             }
