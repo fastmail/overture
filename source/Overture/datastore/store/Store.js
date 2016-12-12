@@ -1569,8 +1569,9 @@ var Store = NS.Class({
             status = _skToStatus[ storeKey ];
             update = updates[ id ];
 
-            // Can't update an empty or destroyed record.
-            if ( !( status & READY ) ) {
+            // Skip if no update to process
+            // Also can't update an empty or destroyed record.
+            if ( !update || !( status & READY ) ) {
                 continue;
             }
 
