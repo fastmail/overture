@@ -60,7 +60,7 @@ var MemoryManager = NS.Class({
 
         Parameters:
             store        - {Store} The store to be memory managed.
-            restrictions - {Object} An array of objects, each containing the
+            restrictions - {Array} An array of objects, each containing the
                            properties:
                            * Type: The constructor for the Record or RemoteQuery
                              subclass.
@@ -82,6 +82,23 @@ var MemoryManager = NS.Class({
         this.frequency = frequency || 30000;
 
         NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+    },
+
+    /**
+        Method: O.MemoryManager#addRestriction
+
+        Parameters:
+            restriction - {Object} An object describing the restriction for a
+                          type (see constructor for format).
+
+        Adds a restriction for a new type after initialisation.
+
+        Returns:
+            {O.MemoryManager} Returns self.
+    */
+    addRestriction: function ( restriction ) {
+        this._restrictions.push( restriction );
+        return this;
     },
 
     /**
