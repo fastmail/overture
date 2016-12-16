@@ -324,6 +324,27 @@ var WindowedRemoteQuery = NS.Class({
         non-observed range in the query.
     */
 
+    /**
+        Property: O.WindowedRemoteQuery#allIdsAreLoaded
+        Type: Boolean
+
+        Do we have the complete list of ids for this query in memory?
+        This is *not* currently observable.
+    */
+    allIdsAreLoaded: function () {
+        var l = this.get( 'windowCount' );
+        var windows = this._windows;
+        if ( l === null ) {
+            return false;
+        }
+        while ( l-- ) {
+            if ( !( windows[l] & WINDOW_READY ) ) {
+                break;
+            }
+        }
+        return ( l < 0 );
+    }.property().nocache(),
+
     init: function ( mixin ) {
         this._windows = [];
         this._indexOfRequested = [];
@@ -361,26 +382,17 @@ var WindowedRemoteQuery = NS.Class({
 
     indexOfStoreKey: function ( storeKey, from, callback ) {
         var index = this._list.indexOf( storeKey, from );
-        var windows, l, id;
+        var id;
         if ( callback ) {
             // If we have a callback and haven't found it yet, we need to keep
             // searching.
             if ( index < 0 ) {
                 // First check if the list is loaded
-                l = this.get( 'windowCount' );
-                if ( l !== null ) {
-                    windows = this._windows;
-                    while ( l-- ) {
-                        if ( !( windows[l] & WINDOW_READY ) ) {
-                            break;
-                        }
-                    }
+                if ( this.get( 'allIdsAreLoaded' ) ) {
                     // Everything loaded; the id simply isn't in it.
                     // index is -1.
-                    if ( l < 0 ) {
-                        callback( index );
-                        return index;
-                    }
+                    callback( index );
+                    return index;
                 }
                 // We're missing part of the list, so it may be in the missing
                 // bit.
