@@ -170,7 +170,7 @@ var parsePo = function ( text ) {
 
 // Enumeration and extraction
 
-var extractor = /\.loc\(\s*'(.*?)'/g;
+var extractor = /\bloc\(\s*'(.*?)'/g;
 
 var indexFor = function ( array, number ) {
     var max = array.length,
@@ -633,7 +633,7 @@ var insertLocale = function ( englishDbPath, strings, input, output ) {
         if ( !isId.test( id ) ) {
             id = stringToEntry[ id ].id;
         }
-        return '.loc( ' + index[ id ];
+        return 'loc( ' + index[ id ];
     });
 
     fs.writeFile( output, input );
@@ -648,7 +648,7 @@ var insertEnglish = function ( englishDbPath, input, output ) {
         if ( !isId.test( id ) ) {
             id = stringToEntry[ id ].id;
         }
-        return '.loc( ' + JSON.stringify( idToEntry[ id ].string );
+        return 'loc( ' + JSON.stringify( idToEntry[ id ].string );
     });
 
     fs.writeFile( output, input );
