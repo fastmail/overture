@@ -290,8 +290,8 @@ NS.ObservableProps = {
                 object = keyObservers[l].object;
                 if ( object && object !== this &&
                         // Ignore bindings that belong to the object.
-                        ( !object instanceof NS.Binding ||
-                            object.toObject !== this ) ) {
+                        !( ( object instanceof NS.Binding ) &&
+                             object.toObject === this ) ) {
                     return true;
                 }
             }
