@@ -835,6 +835,10 @@ var TodoView = O.Class({
     }
 });
 
+O.ClearSearchButtonView.implement({
+    icon: 'icon-clear'
+}, true );
+
 var appView = new O.View({
     className: 'v-App',
     childViews: [
@@ -869,6 +873,9 @@ var appView = new O.View({
             ],
             right: [
                 new O.SearchTextView({
+                    icon: O.Element.create( 'i', {
+                        className: 'icon icon-search'
+                    }),
                     layout: { width: 200 },
                     placeholder: 'Search',
                     shortcut: '/',

@@ -59,7 +59,8 @@
   color: #888;
   text-shadow: none;
 }
-.v-SearchText > .v-SearchText-reset {
+.v-ClearSearchButton {
+  overflow: hidden;
   top: 0;
   right: 0;
   bottom: 0;
@@ -68,7 +69,7 @@
   background: transparent;
   color: #888;
 }
-.v-SearchText > .v-SearchText-reset:hover {
+.v-ClearSearchButton:hover {
   color: #555;
 }
 
