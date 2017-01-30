@@ -15,9 +15,9 @@
 var isLocal = location.protocol === 'file:';
 
 var parseHeaders = function ( allHeaders ) {
-    var headers = {},
-        start = 0,
-        end, name;
+    var headers = {};
+    var start = 0;
+    var end, name;
     while ( true ) {
         // Ignore any leading white space
         while ( /\s/.test( allHeaders.charAt( start ) ) ) {
@@ -95,24 +95,14 @@ var XHR = NS.Class({
             io - {O.Object} (optional).
     */
     init: function ( io ) {
-        var xhr = new XMLHttpRequest();
         this._isRunning = false;
         this._status = 0;
         this.io = io || null;
-        this.xhr = xhr;
-        if ( xhr.upload ) {
-            xhr.upload.addEventListener( 'progress', this, false );
-            xhr.addEventListener( 'progress', this, false );
-        }
+        this.xhr = null;
     },
 
     destroy: function () {
         this.abort();
-        var xhr = this.xhr;
-        if ( xhr.upload ) {
-            xhr.upload.removeEventListener( 'progress', this, false );
-            xhr.removeEventListener( 'progress', this, false );
-        }
     },
 
     /**
@@ -218,10 +208,10 @@ var XHR = NS.Class({
         }
         this._isRunning = true;
 
-        var xhr = this.xhr,
-            io = this.io,
-            that = this,
-            name;
+        var xhr = this.xhr = new XMLHttpRequest();
+        var io = this.io;
+        var that = this;
+        var name;
 
         xhr.open( method, url, this.makeAsyncRequests );
         xhr.withCredentials = !!withCredentials;
@@ -235,6 +225,10 @@ var XHR = NS.Class({
         xhr.onreadystatechange = function () {
             that._xhrStateDidChange( this );
         };
+        if ( xhr.upload ) {
+            xhr.upload.addEventListener( 'progress', this, false );
+            xhr.addEventListener( 'progress', this, false );
+        }
         xhr.send( data );
 
         if ( io ) {
@@ -254,11 +248,14 @@ var XHR = NS.Class({
             xhr - {XMLHttpRequest} The object whose state has changed.
     */
     _xhrStateDidChange: function ( xhr ) {
-        var state = xhr.readyState,
-            io = this.io,
-            status, allHeaders, isSuccess,
-            responseHeaders, responseType, response;
-        if ( state < 3 || !this._isRunning ) { return; }
+        var state = xhr.readyState;
+        var io = this.io;
+        var status, allHeaders, isSuccess;
+        var responseHeaders, responseType, response;
+
+        if ( state < 3 || !this._isRunning ) {
+            return;
+        }
 
         if ( state === 3 ) {
             if ( io ) {
@@ -270,6 +267,10 @@ var XHR = NS.Class({
 
         this._isRunning = false;
         xhr.onreadystatechange = function () {};
+        if ( xhr.upload ) {
+            xhr.upload.removeEventListener( 'progress', this, false );
+            xhr.removeEventListener( 'progress', this, false );
+        }
 
         status = xhr.status;
         this._status = status =
@@ -307,8 +308,8 @@ var XHR = NS.Class({
     }.invokeInRunLoop(),
 
     handleEvent: function ( event ) {
-        var io = this.io,
-            type;
+        var io = this.io;
+        var type;
         if ( io && event.type === 'progress' ) {
             type = event.target === this.xhr ? 'progress' : 'uploadProgress';
             // CORE-47058. Limit to 99% on progress events, as Opera can report
@@ -333,10 +334,14 @@ var XHR = NS.Class({
     abort: function () {
         if ( this._isRunning ) {
             this._isRunning = false;
-            var xhr = this.xhr,
-                io = this.io;
+            var xhr = this.xhr;
+            var io = this.io;
             xhr.abort();
             xhr.onreadystatechange = function () {};
+            if ( xhr.upload ) {
+                xhr.upload.removeEventListener( 'progress', this, false );
+                xhr.removeEventListener( 'progress', this, false );
+            }
             if ( io ) {
                 io.fire( 'io:abort' )
                   .fire( 'io:end' );
