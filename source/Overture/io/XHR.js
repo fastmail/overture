@@ -226,7 +226,15 @@ var XHR = NS.Class({
             that._xhrStateDidChange( this );
         };
         if ( xhr.upload ) {
-            xhr.upload.addEventListener( 'progress', this, false );
+            // FF will force a preflight on simple cross-origin requests if
+            // there is an upload handler set. This follows the spec, but the
+            // spec is clearly wrong here and Blink/Webkit do not follow it.
+            // See https://bugzilla.mozilla.org/show_bug.cgi?id=727412
+            // Workaround by not bothering registering an upload progress
+            // handler for GET requests, as it's not needed in this case anyway.
+            if ( method !== 'GET' ) {
+                xhr.upload.addEventListener( 'progress', this, false );
+            }
             xhr.addEventListener( 'progress', this, false );
         }
         xhr.send( data );
