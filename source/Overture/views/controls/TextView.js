@@ -542,22 +542,6 @@ var TextView = NS.Class({
     }.on( 'keydown' )
 });
 
-if ( 8 <= NS.UA.msie && NS.UA.msie <= 9 ) {
-    TextView.implement({
-        _ieSyncBackValue: function ( event ) {
-            var key = event.type === 'cut' ?
-                'delete' : NS.DOMEvent.lookupKey( event );
-            // IE9 fails to fire the input event on deletion of content.
-            // IE8 fails to fire the propertychange event on deletion
-            // and also if only a single character input (at least after a
-            // deletion)
-            if ( NS.UA.msie === 8 || key === 'backspace' || key === 'delete' ) {
-                this.fire( 'input' );
-            }
-        }.on( 'keyup', 'cut' )
-    });
-}
-
 NS.TextView = TextView;
 
 }( O ) );

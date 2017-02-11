@@ -675,9 +675,8 @@ var Drag = NS.Class({
                         t: bounds.top - outsideTriggerRegionWidth,
                         b: bounds.bottom + outsideTriggerRegionWidth
                     };
-                    // IE8 doesn't support bounds.(width|height)
-                    deltaX = Math.min( 75, (bounds.right - bounds.left) >> 2 );
-                    deltaY = Math.min( 75, (bounds.bottom - bounds.top) >> 2 );
+                    deltaX = Math.min( 75, bounds.width >> 2 );
+                    deltaY = Math.min( 75, bounds.height >> 2 );
                     scroll.hl = scroll.l + deltaX;
                     scroll.hr = scroll.r - deltaX;
                     scroll.ht = scroll.t + deltaY;

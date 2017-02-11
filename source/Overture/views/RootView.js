@@ -81,15 +81,8 @@ var RootView = NS.Class({
             isBody = ( layer.nodeName === 'BODY' ),
             doc = layer.ownerDocument,
             win = doc.defaultView,
-            html = doc.documentElement,
-            left = isBody ?
-                // pageXOffset for everything but IE8.
-                win.pageXOffset || html.scrollLeft || 0 :
-                layer.scrollLeft,
-            top = isBody ?
-                // pageYOffset for everything but IE8.
-                win.pageYOffset || html.scrollTop || 0 :
-                layer.scrollTop;
+            left = isBody ? win.pageXOffset : layer.scrollLeft,
+            top = isBody ? win.pageYOffset : layer.scrollTop;
         this.beginPropertyChanges()
                 .set( 'scrollLeft', left )
                 .set( 'scrollTop', top )

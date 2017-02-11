@@ -538,8 +538,8 @@ NS.Element = {
             position = {
                 top: rect.top,
                 left: rect.left,
-                width: rect.right - rect.left, // IE8 doesn't return width
-                height: rect.bottom - rect.top // IE8 doesn't return height
+                width: rect.width,
+                height: rect.height
             };
         if ( ancestor ) {
             rect = getPosition( ancestor );

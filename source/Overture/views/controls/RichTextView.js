@@ -732,7 +732,7 @@ var RichTextView = NS.Class({
                 if ( this.get( 'isInDocument' ) ) {
                     this._input.set( 'selection', this.get( 'value' ).length )
                                .focus();
-                    // IE8 and Safari 6 don't fire this event for some reason.
+                    // Safari 6 doesn't fire this event for some reason.
                     this._input.fire( 'focus' );
                 }
             }.nextFrame().observes( 'isInDocument' ),
@@ -1025,8 +1025,6 @@ RichTextView.isSupported = (
     ( !UA.operaMobile ) &&
     // Windows Phone as of v8.1 (IE11) is still pretty buggy
     ( !UA.isWinPhone ) &&
-    // Desktop IE is fine from v9 onwards
-    ( !UA.msie || UA.msie > 8 ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous
     // bugs.
     ( !UA.isIOS || UA.isWKWebView )

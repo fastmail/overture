@@ -79,8 +79,7 @@ var WindowController = NS.Class({
     init: function ( mixin ) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
-        this.isFocussed = ( NS.UA.msie !== 8 && document.hasFocus ) ?
-            document.hasFocus() : true;
+        this.isFocussed = document.hasFocus ? document.hasFocus() : true;
         this._seenWCs = {};
 
         WindowController.parent.init.call( this, mixin );

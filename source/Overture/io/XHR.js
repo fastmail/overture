@@ -282,8 +282,6 @@ var XHR = NS.Class({
 
         status = xhr.status;
         this._status = status =
-            // IE8 translates response code 204 to 1223
-            ( status === 1223 ) ? 204 :
             // Local requests will have a 0 response
             ( !status && isLocal ) ? 200 :
             status;

@@ -209,9 +209,6 @@ var EventSource = NativeEventSource ? NS.Class({
         if ( this._lastEventId ) {
             headers[ 'Last-Event-ID' ] = this._lastEventId;
         }
-        if ( this._poll ) {
-            headers[ 'X-Nginx-PushStream-Mode' ] = 'long-polling';
-        }
 
         this.set( 'readyState', CONNECTING );
         this._data = '';
@@ -234,10 +231,6 @@ var EventSource = NativeEventSource ? NS.Class({
     _lastEventId: '',
 
     // ---
-
-    // IE8 & IE9 can only read response text when readyState == 4.
-    // http://msdn.microsoft.com/en-us/library/ie/hh673569(v=vs.85).aspx
-    _poll: !!NS.UA.msie && NS.UA.msie < 10,
 
     _dataDidArrive: function () {
         var xhr = this._xhr;
@@ -279,12 +272,8 @@ var EventSource = NativeEventSource ? NS.Class({
     },
 
     _reconnect: function () {
-        if ( this._poll ) {
-            this.open();
-        } else {
-            NS.RunLoop.invokeAfterDelay(
-                this.open, this._reconnectAfter, this );
-        }
+        NS.RunLoop.invokeAfterDelay(
+            this.open, this._reconnectAfter, this );
     },
 
     _processData: function ( text ) {

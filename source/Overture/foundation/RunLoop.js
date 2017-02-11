@@ -238,10 +238,7 @@ var RunLoop = {
     invoke: function ( fn, bind, args ) {
         this._depth += 1;
         try {
-            // IE8 will throw an error if args is undefined
-            // when calling fn.apply for some reason.
-            // Avoiding apply/call when not needed is also probably more
-            // efficient.
+            // Avoiding apply/call when not needed is faster
             if ( args ) {
                 fn.apply( bind, args );
             } else if ( bind ) {

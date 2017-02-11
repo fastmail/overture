@@ -40,16 +40,8 @@ NS.Stylesheet = {
                 id: id
             });
 
-        if ( style.styleSheet ) {
-            // IE8: must append to document BEFORE adding styles
-            // or you get the IE7 CSS parser!
-            head.appendChild( style );
-            style.styleSheet.cssText = css;
-        } else {
-            // Everyone else
-            style.appendChild( doc.createTextNode( css ) );
-            head.appendChild( style );
-        }
+        style.appendChild( doc.createTextNode( css ) );
+        head.appendChild( style );
         return style;
     }
 };
