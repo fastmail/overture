@@ -158,9 +158,7 @@ var HttpRequest = NS.Class({
         var data = this.get( 'data' ) || null;
         var headers = this.get( 'headers' );
         var withCredentials = this.get( 'withCredentials' );
-        var transport =
-            ( data instanceof FormData && NS.FormUploader !== NS.XHR ) ?
-                new NS.FormUploader() : getXhr();
+        var transport = getXhr();
         var contentType;
 
         if ( data && method === 'GET' ) {
