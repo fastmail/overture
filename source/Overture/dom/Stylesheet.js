@@ -10,7 +10,7 @@
 
 "use strict";
 
-( function ( NS ) {
+( function ( NS, document ) {
 
 /**
     Namespace: O.Stylesheet
@@ -33,17 +33,14 @@ NS.Stylesheet = {
             {Element} The <style> node that was created.
     */
     create: function ( id, css ) {
-        var doc = document,
-            head = doc.documentElement.firstChild,
-            style = NS.Element.create( 'style', {
-                type: 'text/css',
-                id: id
-            });
-
-        style.appendChild( doc.createTextNode( css ) );
-        head.appendChild( style );
+        var style = NS.Element.create( 'style', {
+            type: 'text/css',
+            id: id,
+            text: css
+        });
+        document.head.appendChild( style );
         return style;
     }
 };
 
-}( O ) );
+}( O, document ) );
