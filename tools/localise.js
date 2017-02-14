@@ -569,11 +569,11 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
             // day: '/^d(?:ays?)?\\b/i',
             // year: '/^y(?:(?:ea)?rs?)?\\b/i',
 
-            am: '/^(?:a\\.?m?\\.?)(?=\s|$)/i',
-            pm: '/^(?:p\\.?m?\\.?)(?=\s|$)/i',
+            am: getString( 'REGEX_DETECT_AM' ),
+            pm: getString( 'REGEX_DETECT_PM' ),
 
-            ordinalSuffix: '/^\\s*(?:st|nd|rd|th)\\b/i',
-            timeContext: '/^\\s*(?:\\:|am|pm)/i'
+            ordinalSuffix: getString( 'REGEX_ORDINAL_SUFFIX' ),
+            timeContext: getString( 'REGEX_TIME_CONTEXT' )
         },
 
         translations: idList.map( getString )
@@ -590,7 +590,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         '\n' +
         '( function () { var x = new O.Locale(' +
             JSON.stringify( localisation, null, 2 )
-                .replace( /"(\/\^.*?\/i)"/g, function ( _, regexp ) {
+                .replace( /"(\/.*?\/i?)"/g, function ( _, regexp ) {
                     return regexp.replace( /\\\\/g, '\\' );
                 })
                 .replace( /"(function[\s\S]*?})"/g, function ( _, fn ) {
