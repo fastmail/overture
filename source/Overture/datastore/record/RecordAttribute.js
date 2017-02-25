@@ -181,6 +181,22 @@ var RecordAttribute = NS.Class({
     },
 
     /**
+        Property: O.RecordAttribute#toJSON
+        Type: *
+        Default: null|(*,String,O.Record)->*
+
+        If set, this function will be used to convert the property to a
+        JSON-compatible representation. The function will be called as a method
+        on the RecordAttribute object, and passed the following arguments:
+
+        propValue - {*} The value to convert.
+        propKey   - {String} The name of the attribute.
+        record    - {O.Record} The record the attribute is being set on or
+                    got from.
+    */
+    toJSON: null,
+
+    /**
         Property: O.RecordAttribute#defaultValue
         Type: *
         Default: undefined
@@ -243,17 +259,22 @@ var RecordAttribute = NS.Class({
             {*} The attribute.
     */
     call: function ( record, propValue, propKey ) {
-        var store = record.get( 'store' ),
-            storeKey = record.get( 'storeKey' ),
-            data = storeKey ? store.getData( storeKey ) : record._data,
-            attrKey, attrValue, currentAttrValue, update, Type;
+        var store = record.get( 'store' );
+        var storeKey = record.get( 'storeKey' );
+        var data = storeKey ? store.getData( storeKey ) : record._data;
+        var attrKey, attrValue, currentAttrValue, update, Type;
         if ( data ) {
             attrKey = this.key || propKey;
             currentAttrValue = data[ attrKey ];
             if ( propValue !== undefined &&
                     this.willSet( propValue, propKey, record ) ) {
-                attrValue = propValue && propValue.toJSON ?
-                    propValue.toJSON() : propValue;
+                if ( this.toJSON ) {
+                    attrValue = this.toJSON( propValue, propKey, record );
+                } else if ( propValue && propValue.toJSON ) {
+                    attrValue = propValue.toJSON();
+                } else {
+                    attrValue = propValue;
+                }
                 if ( !NS.isEqual( attrValue, currentAttrValue ) ) {
                     if ( storeKey ) {
                         update = {};
