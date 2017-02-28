@@ -133,7 +133,7 @@ var ThemeManager = NS.Class({
                         NS.loc( src );
                 if ( /\.svg$/.test( src ) ) {
                     imageData = 'data:image/svg+xml;charset=UTF-8,' +
-                        encodeURI( imageData );
+                        encodeURIComponent( imageData );
                 }
                 return 'url(' + ( imageData || src ) + ')';
             });
