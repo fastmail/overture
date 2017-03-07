@@ -306,15 +306,19 @@ NS.ComputedProps = {
 
         Parameters:
             key - {String} The name of the computed property which has changed.
+            newValue - {*} (optional) The new value for the property
 
         Returns:
             {O.ComputedProps} Returns self.
     */
-    computedPropertyDidChange: function ( key ) {
+    computedPropertyDidChange: function ( key, newValue ) {
         var cache = meta( this ).cache,
             oldValue = cache[ key ];
         delete cache[ key ];
-        return this.propertyDidChange( key, oldValue );
+        if ( newValue !== undefined ) {
+            cache[ key ] = newValue;
+        }
+        return this.propertyDidChange( key, oldValue, newValue );
     },
 
     /**
