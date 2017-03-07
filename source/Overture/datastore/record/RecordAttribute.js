@@ -22,6 +22,22 @@ var instanceOf = function ( value, Type ) {
     return value instanceof Type;
 };
 
+var attributeErrorsObserver = {
+    object: null,
+    method: 'notifyAttributeErrors'
+};
+var addValidityObserver = function ( observers, propKey ) {
+    var keyObservers = observers[ propKey ];
+    if ( keyObservers && keyObservers.contains( attributeErrorsObserver ) ) {
+        return;
+    }
+    if ( !observers.hasOwnProperty( propKey ) ) {
+        keyObservers = observers[ propKey ] = keyObservers ?
+            keyObservers.slice() : [];
+    }
+    keyObservers.push( attributeErrorsObserver );
+};
+
 /**
     Class: O.RecordAttribute
 
@@ -31,7 +47,8 @@ var RecordAttribute = NS.Class({
 
     __setupProperty__: function ( metadata, propKey, object ) {
         var attrs = metadata.attrs,
-            dependents;
+            dependents, observers, dependencies, l, key,
+            RecordType, AttributeErrorsType;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
         }
@@ -48,6 +65,40 @@ var RecordAttribute = NS.Class({
         }
         attrs[ this.key || propKey ] = propKey;
         object.constructor.clientSettableAttributes = null;
+
+        if ( this.validate ) {
+            observers = metadata.observers;
+            addValidityObserver( observers, propKey );
+
+            dependencies = this.validityDependencies;
+            if ( dependencies ) {
+                RecordType = object.constructor;
+                AttributeErrorsType = object.AttributeErrorsType;
+                if ( AttributeErrorsType.forRecordType !== RecordType ) {
+                    AttributeErrorsType = object.AttributeErrorsType =
+                        NS.Class({
+                            Extends: AttributeErrorsType
+                        }).extend({
+                            forRecordType: RecordType
+                        });
+                    metadata = NS.meta( AttributeErrorsType );
+                    dependents = metadata.dependents =
+                        NS.clone( metadata.dependents );
+                } else {
+                    metadata = NS.meta( AttributeErrorsType );
+                    dependents = metadata.dependents;
+                }
+                l = dependencies.length;
+                while ( l-- ) {
+                    key = dependencies[l];
+                    if ( !dependents[ key ] ) {
+                        dependents[ key ] = [];
+                        addValidityObserver( observers, key );
+                    }
+                    dependents[ key ].push( propKey );
+                }
+            }
+        }
     },
 
     __teardownProperty__: function ( metadata, propKey, object ) {
@@ -233,12 +284,12 @@ var RecordAttribute = NS.Class({
         Type: String[]|null
         Default: null
 
-        Other attributes the validity depends on. The attribute will be
-        revalidated if any of these attributes change. Note, chained
+        Other properties the validity depends on. The attribute will be
+        revalidated if any of these properties change. Note, chained
         dependencies are not automatically calculated; you must explicitly state
         all dependencies.
 
-        NB. This is a list of the names of the attributes as used on the
+        NB. This is a list of the names of the properties as used on the
         objects, not necessarily that of the underlying keys used in the JSON
         data object.
     */
@@ -284,11 +335,7 @@ var RecordAttribute = NS.Class({
                         store.fire( 'record:user:update', { record: this } );
                     } else {
                         data[ attrKey ] = attrValue;
-                        record.computedPropertyDidChange( propKey );
-                        if ( this.validate ) {
-                            record.get( 'errorForAttribute' ).set( propKey,
-                                this.validate( propValue, propKey, record ) );
-                        }
+                        record.computedPropertyDidChange( propKey, propValue );
                     }
                 }
                 return propValue;

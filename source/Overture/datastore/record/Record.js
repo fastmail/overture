@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: Record.js                                                            \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js                                      \\
+// Requires: Core, Foundation, Status.js, AttributeErrors.js                  \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
@@ -10,138 +10,10 @@
 
 ( function ( NS, undefined ) {
 
-/**
-    Class: O.Record-AttributeErrors
-
-    Extends: O.Object
-
-    Maintains the state of the validity of each attribute on a record.
-*/
-var AttributeErrors = NS.Class({
-
-    Extends: NS.Object,
-
-    /**
-        Property: O.Record-AttributeErrors#errorCount
-        Type: Number
-
-        The number of attributes on the record in an error state.
-    */
-
-    /**
-        Constructor: O.Record-AttributeErrors
-
-        Parameters:
-            record - {O.Record} The record to manage attribute errors for.
-    */
-    init: function ( record ) {
-        AttributeErrors.parent.init.call( this );
-
-        var attrs = NS.meta( record ).attrs,
-            metadata = NS.meta( this ),
-            dependents = metadata.dependents = NS.clone( metadata.dependents ),
-            errorCount = 0,
-            attrKey, propKey, attribute, error, dependencies, l, key;
-
-        for ( attrKey in attrs ) {
-            // Check if attribute has been removed (e.g. in a subclass).
-            if ( propKey = attrs[ attrKey ] ) {
-                // Validate current value and set error on this object.
-                attribute = record[ propKey ];
-                error = this[ propKey ] = attribute.validate ?
-                  attribute.validate( record.get( propKey ), propKey, record ) :
-                  null;
-
-                // Keep an error count
-                if ( error ) { errorCount += 1; }
-
-                // Add observers for validity dependencies.
-                dependencies = attribute.validityDependencies;
-                if ( dependencies ) {
-                    l = dependencies.length;
-                    while ( l-- ) {
-                        key = dependencies[l];
-                        if ( !dependents[ key ] ) {
-                            dependents[ key ] = [];
-                            record.addObserverForKey(
-                                key, this, 'attrDidChange' );
-                        }
-                        dependents[ key ].push( propKey );
-                    }
-                }
-            }
-        }
-
-        this.errorCount = errorCount;
-        this._record = record;
-    },
-
-    /**
-        Method: O.Record-AttributeErrors#attrDidChange
-
-        Called when an attribute changes on the record for which another
-        attribute has a validity dependency.
-
-        Parameters:
-            _    - {*} Unused.
-            attr - {String} The name of the attribute which has changed.
-    */
-    attrDidChange: function ( _, attr ) {
-        var metadata = NS.meta( this ),
-            changed = metadata.changed = {},
-            dependents = metadata.dependents[ attr ],
-            l = dependents.length,
-            record = this._record,
-            propKey, attribute;
-
-        this.beginPropertyChanges();
-        while ( l-- ) {
-            propKey = dependents[l];
-            attribute = record[ propKey ];
-            changed[ propKey ] = {
-                oldValue: this[ propKey ],
-                newValue: this[ propKey ] = ( attribute.validate ?
-                  attribute.validate( record.get( propKey ), propKey, record ) :
-                  null )
-            };
-        }
-        this.endPropertyChanges();
-    },
-
-    /**
-        Method: O.Record-AttributeErrors#setRecordValidity
-
-        Updates the internal count of how many attributes are invalid and sets
-        the <O.Record#isValid> property. Called automatically whenever a
-        validity error string changes.
-
-        Parameters:
-            _       - {*} Unused.
-            changed - {Object} A map of validity string changes.
-    */
-    setRecordValidity: function ( _, changed ) {
-        var errorCount = this.get( 'errorCount' ),
-            key, vals, wasValid, isValid;
-        for ( key in changed ) {
-            if ( key !== 'errorCount' ) {
-                vals = changed[ key ];
-                wasValid = !vals.oldValue;
-                isValid = !vals.newValue;
-                if ( wasValid && !isValid ) {
-                    errorCount += 1;
-                }
-                else if ( isValid && !wasValid ) {
-                    errorCount -= 1;
-                }
-            }
-        }
-        this.set( 'errorCount', errorCount )
-            ._record.set( 'isValid', !errorCount );
-    }.observes( '*' )
-});
-
+var meta = NS.meta;
 var Status = NS.Status;
 var READY_NEW_DIRTY = (Status.READY|Status.NEW|Status.DIRTY);
+var AttributeErrors = NS.AttributeErrors;
 
 /**
     Class: O.Record
@@ -224,6 +96,8 @@ var Record = NS.Class({
         across those of different types.
     */
 
+    // ---
+
     /**
         Property: O.Record#status
         Type: O.Status
@@ -294,6 +168,8 @@ var Record = NS.Class({
         }
         return this;
     },
+
+    // ---
 
     /**
         Property: O.Record#id
@@ -491,6 +367,10 @@ var Record = NS.Class({
     */
     isEditable: true,
 
+    // ---
+
+    AttributeErrorsType: AttributeErrors,
+
     /**
         Property: O.Record#isValid
         Type: Boolean
@@ -532,8 +412,19 @@ var Record = NS.Class({
         properties on this object.
     */
     errorForAttribute: function () {
-        return new AttributeErrors( this );
-    }.property()
+        var AttributeErrorsType = this.get( 'AttributeErrorsType' );
+        return new AttributeErrorsType( this );
+    }.property(),
+
+    /**
+        Method: O.Record#notifyAttributeErrors
+    */
+    notifyAttributeErrors: function ( _, propKey ) {
+        var attributeErrors = meta( this ).cache.errorForAttribute;
+        if ( attributeErrors ) {
+            attributeErrors.recordPropertyDidChange( this, propKey );
+        }
+    }
 }).extend({
     getClientSettableAttributes: function ( Type ) {
         var clientSettableAttributes = Type.clientSettableAttributes;
