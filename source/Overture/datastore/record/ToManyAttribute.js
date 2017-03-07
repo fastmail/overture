@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------- \\
 // File: ToManyAttribute.js                                                   \\
 // Module: DataStore                                                          \\
-// Requires: RecordAttribute.js                                               \\
+// Requires: Record.js, RecordAttribute.js                                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
@@ -11,6 +11,33 @@
 ( function ( NS ) {
 
 var slice = Array.prototype.slice;
+var meta = NS.meta;
+var Record = NS.Record;
+
+// ---
+
+Record.implement({
+    /**
+        Method: O.Record#notifyRecordArray
+
+        Parameters:
+            _       - Unused
+            propKey - The propKey that changed on the
+
+        If true, any changes to the record will not be committed to the source.
+    */
+    notifyRecordArray: function ( _, propKey ) {
+        var recordArray = this[ '_' + propKey + 'RecordArray' ];
+        var isInCache = propKey in meta( this ).cache;
+        // If it's already been updated due to a fetch to the property,
+        // the array will be in the cache. Don't waste time calling again.
+        if ( recordArray && !isInCache ) {
+            recordArray.updateListFromRecord();
+        }
+    }
+});
+
+// ---
 
 var RecordArray = NS.Class({
 
@@ -25,14 +52,6 @@ var RecordArray = NS.Class({
         this._updatingStore = false;
 
         RecordArray.parent.init.call( this, value && value.slice() );
-
-        record.addObserverForKey( propKey, this, 'updateListFromRecord' );
-    },
-
-    destroy: function () {
-        this.get( 'record' ).removeObserverForKey(
-            this.get( 'propKey' ), this, 'updateListFromRecord' );
-        RecordArray.parent.destroy.call( this );
     },
 
     toJSON: function () {
@@ -102,19 +121,62 @@ var RecordArray = NS.Class({
     }
 });
 
+// ---
+
+
+var notifyRecordArrayObserver = {
+    object: null,
+    method: 'notifyRecordArray'
+};
+
 var ToManyAttribute = NS.Class({
 
     Extends: NS.RecordAttribute,
+
+    __setupProperty__: function ( metadata, propKey, object ) {
+        ToManyAttribute.parent
+            .__setupProperty__.call( this, metadata, propKey, object );
+        var observers = metadata.observers;
+        var keyObservers = observers[ propKey ];
+        if ( !observers.hasOwnProperty( propKey ) ) {
+            keyObservers = observers[ propKey ] = keyObservers ?
+                keyObservers.slice() : [];
+        }
+        keyObservers.push( notifyRecordArrayObserver );
+    },
+
+    __teardownProperty__: function ( metadata, propKey, object ) {
+        ToManyAttribute.parent
+            .__teardownProperty__.call( this, metadata, propKey, object );
+        var observers = metadata.observers;
+        var keyObservers = observers[ propKey ];
+        if ( !observers.hasOwnProperty( propKey ) ) {
+            keyObservers = observers[ propKey ] = keyObservers.slice();
+        }
+        keyObservers.erase( notifyRecordArrayObserver );
+    },
 
     Type: Array,
     recordType: null,
 
     call: function ( record, _, propKey ) {
         var arrayKey = '_' + propKey + 'RecordArray';
-        return record[ arrayKey ] || ( record[ arrayKey ] =
-            new RecordArray( record, propKey, ToManyAttribute.parent.call.call(
-                this, record, undefined, propKey ), this.recordType )
-        );
+        var recordArray = record[ arrayKey ];
+        // Race condition: another observer may fetch this before
+        // our notifyRecordArray method has been called.
+        if ( recordArray ) {
+            recordArray.updateListFromRecord();
+        } else {
+            recordArray = record[ arrayKey ] =
+            new RecordArray(
+                record,
+                propKey,
+                ToManyAttribute.parent.call.call(
+                    this, record, undefined, propKey ),
+                this.recordType
+            );
+        }
+        return recordArray;
     },
 
     getRaw: function ( record, propKey ) {
