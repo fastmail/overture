@@ -78,7 +78,6 @@ var sort = function ( compare, a, b ) {
 
 var isEqual = NS.isEqual;
 var guid = NS.guid;
-var invoke = NS.RunLoop.invoke.bind( NS.RunLoop );
 
 // ---
 
@@ -286,8 +285,6 @@ var Store = NS.Class({
         // Type -> latest known state string for type on server
         // If committing or loading type, wait until finish to check
         this._typeToServerState = {};
-
-        this._commitCallbacks = [];
 
         Store.parent.init.call( this, mixin );
 
@@ -533,21 +530,10 @@ var Store = NS.Class({
         source. Will only invoke once per run loop, even if called multiple
         times.
 
-        Parameters:
-            callback - {Function} (optional) A callback to be made after the
-                       source has finished committing the changes.
-
         Returns:
             {O.Store} Returns self.
     */
-    commitChanges: function ( callback ) {
-        if ( callback ) {
-            this._commitCallbacks.push( callback );
-        }
-        NS.RunLoop.queueFn( 'middle', this._commitChanges, this );
-    },
-
-    _commitChanges: function () {
+    commitChanges: function () {
         // Don't commit if another commit is already in progress. We can't
         // reference a foreign ID if it is currently being created in an
         // inflight request. We also need the new state string for commits
@@ -575,7 +561,6 @@ var Store = NS.Class({
             newSkToChanged = {},
             newDestroyed = {},
             changes = {},
-            commitCallbacks = this._commitCallbacks,
             types = {},
             hasChanges = false;
 
@@ -653,11 +638,9 @@ var Store = NS.Class({
         this._skToChanged = newSkToChanged;
         this._created = {};
         this._destroyed = newDestroyed;
-        this._commitCallbacks = [];
 
         if ( hasChanges ) {
             this.source.commitChanges( changes, function () {
-                commitCallbacks.forEach( invoke );
                 for ( var typeId in types ) {
                     _typeToStatus[ typeId ] &= ~COMMITTING;
                     this._checkServerStatus( types[ typeId ] );
@@ -674,7 +657,7 @@ var Store = NS.Class({
 
         mayHaveChanges( this );
         this.fire( 'didCommit' );
-    },
+    }.queue( 'middle' ),
 
     /**
         Method: O.Store#discardChanges

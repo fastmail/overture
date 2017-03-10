@@ -114,17 +114,10 @@ var NestedStore = NS.Class({
         Commits any outstanding changes (created/updated/deleted records) to the
         parent store.
 
-        Parameters:
-            callback - {Function} (optional) A callback to be made after the
-                       changes have finished committing. As a nested store
-                       commits to a parent store rather than a remote source,
-                       the callback will be fired synchronously before this
-                       method returns.
-
         Returns:
             {O.NestedStore} Returns self.
     */
-    commitChanges: function ( callback ) {
+    commitChanges: function () {
         this.fire( 'willCommit' );
         var _created = this._created,
             _destroyed = this._destroyed,
@@ -163,8 +156,6 @@ var NestedStore = NS.Class({
         this._skToCommitted = {};
         this._created = {};
         this._destroyed = {};
-
-        if ( callback ) { callback(); }
 
         return this.set( 'hasChanges', false ).fire( 'didCommit' );
     },
