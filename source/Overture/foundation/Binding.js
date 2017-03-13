@@ -37,7 +37,7 @@
     only changes starting from the final static object will be observed.
 
     A static portion is signified by using a `*` as a divider instead of a `.`.
-    The section before the '*' is taken to be static. If no '*' is present, the
+    The section before the `*` is taken to be static. If no `*` is present, the
     entire path is taken to be dynamic. For example, if the path is
     `static.path*dynamic.path`, at initialisation time, the `path`
     property of the `static` property of the root object will be found. After
