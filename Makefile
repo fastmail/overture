@@ -4,7 +4,7 @@
 
 all: build docs
 
-build: build/Loader-raw.js build/Overture-raw.js build/ie8patches-raw.js
+build: build/Loader-raw.js build/Overture-raw.js
 
 clean:
 	rm -rf build docs
