@@ -1,14 +1,14 @@
 // -------------------------------------------------------------------------- \\
 // File: StyleAnimation.js                                                    \\
 // Module: Animation                                                          \\
-// Requires: Animation.js                                                     \\
+// Requires: Core, DOM, Animation.js                                          \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import Animation from './Animation.js';
+import { Class, clone } from '../core/Core.js';
+import Element from '../dom/Element.js';
 
 var splitTransform = function ( transform ) {
     var result = [];
@@ -117,9 +117,9 @@ var supported = {
     * transform (values must be in matrix form)
     * opacity
 */
-var StyleAnimation = NS.Class({
+export default Class({
 
-    Extends: NS.Animation,
+    Extends: Animation,
 
     /**
         Method (protected): O.StyleAnimation#prepare
@@ -138,7 +138,7 @@ var StyleAnimation = NS.Class({
     prepare: function ( styles ) {
         var animated = this.animated = [],
             from = this.startValue = this.current,
-            current = this.current = NS.clone( from ),
+            current = this.current = clone( from ),
             delta = this.deltaValue = {},
             units = this.units = {},
 
@@ -171,7 +171,7 @@ var StyleAnimation = NS.Class({
                     }
                 } else {
                     current[ property ] = end;
-                    NS.Element.setStyle( this.element, property, end );
+                    Element.setStyle( this.element, property, end );
                 }
             }
         }
@@ -198,7 +198,7 @@ var StyleAnimation = NS.Class({
             current = this.current,
 
             el = this.element,
-            setStyle = NS.Element.setStyle,
+            setStyle = Element.setStyle,
             property, value, start, end, delta, unit, animator;
 
         while ( l-- ) {
@@ -223,7 +223,3 @@ var StyleAnimation = NS.Class({
         }
     }
 });
-
-NS.StyleAnimation = StyleAnimation;
-
-}( O ) );

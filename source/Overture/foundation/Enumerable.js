@@ -6,9 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import '../core/Core.js';  // For Function#implement
 
 var defaultComparator = function ( a, b ) {
     return a < b ? -1 : a > b ? 1 : 0;
@@ -366,6 +364,7 @@ var Enumerable = {
 
 Array.implement( Enumerable );
 
-NS.Enumerable = Enumerable;
+export default Enumerable;
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports:
+// Array implements Enumerable

@@ -6,13 +6,14 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import '../foundation/ObservableProps.js';  // For Function#observes
+import '../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-( function ( NS ) {
+var SelectionController = Class({
 
-var SelectionController = NS.Class({
-
-    Extends: NS.Object,
+    Extends: Object,
 
     content: null,
 
@@ -170,6 +171,4 @@ var SelectionController = NS.Class({
     }
 });
 
-NS.SelectionController = SelectionController;
-
-}( O ) );
+export default SelectionController;

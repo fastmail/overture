@@ -6,11 +6,8 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS, undefined  ) {
-
-var meta = NS.meta;
+import { meta } from '../core/Core.js';  // Also Function#implement
+import Binding from './Binding.js';
 
 var setupObserver = function ( metadata, method ) {
     var observes = this.observedProperties,
@@ -203,7 +200,7 @@ var _notifyObserversOfKey =
                     newValue.addObserverForPath( path, object, method );
                 }
                 // Sync binding immediately
-                if ( object instanceof NS.Binding ) {
+                if ( object instanceof Binding ) {
                     object[ method ]();
                     object.sync();
                 }
@@ -245,7 +242,7 @@ var _notifyGenericObservers = function ( that, metadata, changed ) {
     get/set methods inherited from <O.ComputedProps>.
 */
 
-NS.ObservableProps = {
+export default {
 
     /**
         Method: O.Observable#initObservers
@@ -290,7 +287,7 @@ NS.ObservableProps = {
                 object = keyObservers[l].object;
                 if ( object && object !== this &&
                         // Ignore bindings that belong to the object.
-                        !( ( object instanceof NS.Binding ) &&
+                        !( ( object instanceof Binding ) &&
                              object.toObject === this ) ) {
                     return true;
                 }
@@ -523,7 +520,7 @@ NS.ObservableProps = {
                 object: object,
                 method: method
             });
-            if ( value && !( value instanceof NS.Binding ) ) {
+            if ( value && !( value instanceof Binding ) ) {
                 value.addObserverForPath( restOfPath, object, method );
             }
         }
@@ -576,4 +573,4 @@ NS.ObservableProps = {
     }
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Function#observes

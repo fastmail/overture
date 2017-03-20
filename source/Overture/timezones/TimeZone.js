@@ -1,13 +1,14 @@
 // -------------------------------------------------------------------------- \\
 // File: TimeZone.js                                                          \\
 // Module: TimeZones                                                          \\
+// Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class, extend } from '../core/Core.js';
+import '../core/Date.js';  // For Date#add
+import '../core/String.js';  // For String#format
 
 // Periods format:
 // until posix time, offset (secs), rules name, suffix
@@ -138,7 +139,7 @@ var switchSign = function ( string ) {
     });
 };
 
-var TimeZone = NS.Class({
+var TimeZone = Class({
     init: function ( id, periods ) {
         var name = id.replace( /_/g, ' ' );
         // The IANA ids have the +/- the wrong way round for historical reasons.
@@ -235,9 +236,7 @@ TimeZone.load = function ( json ) {
             TimeZone[ id ] = TimeZone[ alias[ id ] ];
         }
     }
-    NS.extend( TimeZone.rules, json.rules );
+    extend( TimeZone.rules, json.rules );
 };
 
-NS.TimeZone = TimeZone;
-
-}( O ) );
+export default TimeZone;

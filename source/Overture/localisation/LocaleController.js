@@ -8,9 +8,8 @@
 
 /*global Intl */
 
-"use strict";
-
-( function ( NS, undefined ) {
+import '../core/String.js';  // For String#escapeRegExp
+import Locale from './Locale.js';
 
 /**
     Module: Localisation
@@ -34,7 +33,7 @@
     Stores the loaded <O.Locale> instances.
 */
 var locales = {
-    xx: new NS.Locale({ code: 'xx' })
+    xx: new Locale({ code: 'xx' })
 };
 
 var alternatives = {
@@ -304,7 +303,12 @@ var LocaleController = {
     letterAlternatives: alternatives
 };
 
-NS.LocaleController = NS.i18n = LocaleController;
-NS.loc = LocaleController.localise;
+var loc = LocaleController.localise;
 
-}( O ) );
+export default LocaleController;
+// TODO(cmorgan/modulify): change these in some way
+export {
+    LocaleController,
+    LocaleController as i18n,
+    loc
+};

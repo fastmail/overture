@@ -8,7 +8,8 @@
 
 /*global navigator, document, window */
 
-"use strict";
+import '../foundation/Enumerable.js';  // For Array#forEach on ES3 browsers?
+// TODO(cmorgan/modulify) remove this alleged dependency, we use a ES5 baseline.
 
 /**
     Module: UA
@@ -16,7 +17,6 @@
     The UA module contains information about the platform on which the
     application is running.
 */
-( function ( NS ) {
 
 var ua = navigator.userAgent.toLowerCase(),
     other = [ 'other', '0' ],
@@ -119,7 +119,7 @@ if ( browser === 'opr/' ) {
     The O.UA namespace contains information about which browser and platform the
     application is currently running on, and which CSS properties are supported.
 */
-NS.UA = {
+export default {
     /**
         Property: O.UA.platform
         Type: String
@@ -306,5 +306,3 @@ NS.UA = {
     // For now, referencing http://caniuse.com/#feat=u2f
     canU2F: browser === 'chrome' && version >= 41
 };
-
-}( O ) );

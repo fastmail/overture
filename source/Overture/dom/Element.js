@@ -1,14 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: Element.js                                                           \\
 // Module: DOM                                                                \\
-// Requires: Core, UA                                                         \\
+// Requires: Core, UA, Foundation, View                                       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global Element, document */
 
-"use strict";
+import '../core/String.js';  // For String#camelCase, #contains, #hyphenate
+import UA from '../ua/UA.js';
+import Binding from '../foundation/Binding.js';
+import RunLoop from '../foundation/RunLoop.js';
+import ViewEventsController from '../views/ViewEventsController.js';
+import View from '../views/View.js';  // Circular but it's OK
 
 /**
     Module: DOM
@@ -16,8 +21,6 @@
     The DOM module provides helper functions and classes for dealing with the
     DOM.
 */
-
-( function ( NS, undefined ) {
 
 /**
     Namespace: O.Element
@@ -138,7 +141,7 @@ var cssNoPx = {
     Map of normal CSS names to the name used on the style object.
 */
 var styleNames = ( function () {
-    var styles = NS.UA.cssProps,
+    var styles = UA.cssProps,
         styleNames = {
             'float': document.body.style.cssFloat !== undefined ?
                 'cssFloat' : 'styleFloat'
@@ -178,7 +181,7 @@ var DOCUMENT_POSITION_CONTAINED_BY = 16; // Node.DOCUMENT_POSITION_CONTAINED_BY;
 
 var view = null;
 
-NS.Element = {
+export default {
     /**
         Function: O.Element.forView
 
@@ -258,7 +261,7 @@ NS.Element = {
         if ( ieEventModel && ( tag === 'input' ||
                 tag === 'select' || tag === 'textarea' ) ) {
             el.addEventListener( tag === 'select' ?
-                'change' : 'propertychange', NS.ViewEventsController, false );
+                'change' : 'propertychange', ViewEventsController, false );
         }
         if ( props ) {
             setAttributes( el, props );
@@ -289,7 +292,7 @@ NS.Element = {
         for ( prop in props ) {
             value = props[ prop ];
             if ( value !== undefined ) {
-                if ( value instanceof NS.Binding ) {
+                if ( value instanceof Binding ) {
                     value.to( prop, el ).connect();
                     if ( view ) { view.registerBinding( value ); }
                 } else {
@@ -321,7 +324,7 @@ NS.Element = {
                 if ( node instanceof Array ) {
                     appendChildren( el, node );
                 }
-                else if ( node instanceof NS.View ) {
+                else if ( node instanceof View ) {
                     view.insertView( node, el );
                 } else {
                     if ( typeof node !== 'object' ) {
@@ -417,7 +420,7 @@ NS.Element = {
             try {
                 el.style[ style ] = value;
             } catch ( error ) {
-                NS.RunLoop.didError({
+                RunLoop.didError({
                     name: 'Element#setStyle',
                     message: 'Invalid value set',
                     details:
@@ -578,7 +581,7 @@ Object.toCSSString = function ( object ) {
                 value += 'px';
             }
             key = key.hyphenate();
-            key = NS.UA.cssProps[ key ] || key;
+            key = UA.cssProps[ key ] || key;
             result += key;
             result += ':';
             result += value;
@@ -588,4 +591,5 @@ Object.toCSSString = function ( object ) {
     return result;
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Object.toCSSString
+// Element#get, Element#set

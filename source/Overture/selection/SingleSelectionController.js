@@ -6,15 +6,15 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, meta } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
+import '../foundation/ObservableProps.js';  // For Function#observes
+import { READY } from '../datastore/record/Status.js';
 
-( function ( NS ) {
+var SingleSelectionController = Class({
 
-var READY = NS.Status.READY;
-
-var SingleSelectionController = NS.Class({
-
-    Extends: NS.Object,
+    Extends: Object,
 
     allowNoSelection: true,
 
@@ -95,7 +95,7 @@ var SingleSelectionController = NS.Class({
             // first in order to look for the new record in the new list.
             // If changed, return as the new record will be handled by the
             // setRecordInNewContent fn.
-            var binding = NS.meta( this ).bindings.content;
+            var binding = meta( this ).bindings.content;
             if ( binding ) {
                 this._ignore = true;
                 binding.sync();
@@ -131,7 +131,7 @@ var SingleSelectionController = NS.Class({
             return;
         }
         // If we're about to sync a new record, nothing to do
-        var binding = NS.meta( this ).bindings.record;
+        var binding = meta( this ).bindings.record;
         if ( binding && binding.isNotInSync && binding.willSyncForward ) {
             return;
         }
@@ -194,7 +194,7 @@ var SingleSelectionController = NS.Class({
             list.removeObserverForKey( key, this, 'contentBecameReady' );
             // Queue so that all data from the server will have been loaded
             // into the list.
-            NS.RunLoop.queueFn( 'before',
+            RunLoop.queueFn( 'before',
                 this.setRecordInNewContent.bind( this, list ) );
         }
     },
@@ -249,6 +249,4 @@ var SingleSelectionController = NS.Class({
     }
 });
 
-NS.SingleSelectionController = SingleSelectionController;
-
-}( O ) );
+export default SingleSelectionController;

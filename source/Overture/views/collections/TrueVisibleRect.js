@@ -1,14 +1,12 @@
 // -------------------------------------------------------------------------- \\
 // File: TrueVisibleRect.js                                                   \\
 // Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
+// Requires: Foundation                                                       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import '../../foundation/ComputedProps.js';  // For Function#property
 
 /**
     Mixin: O.TrueVisibleRect
@@ -19,7 +17,7 @@
     absolutely necessary, for example in <O.ProgressiveListView>, where it is
     used to only render the visible portion of a potentially very long list.
 */
-NS.TrueVisibleRect = {
+export default {
 
     visibleRect: function () {
         // Ignore any changes whilst not in the DOM
@@ -49,5 +47,3 @@ NS.TrueVisibleRect = {
     }.property( 'scrollTop', 'scrollLeft',
         'pxLayout', 'parentView.visibleRect', 'isInDocument' )
 };
-
-}( O ) );

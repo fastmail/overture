@@ -1,14 +1,40 @@
 // -------------------------------------------------------------------------- \\
 // File: Store.js                                                             \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js                                      \\
+// Requires: Core, Foundation, Record.js, Status.js, ToOneAttribute.js, ToManyAttribute.js, LiveQuery.js, RemoteQuery.js, RecordArray.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global JSON */
 
-"use strict";
+import { Class, meta, isEqual, guid, clone, extend } from '../../core/Core.js';
+import '../../core/Array.js';  // For Array#erase
+import RunLoop from '../../foundation/RunLoop.js';
+import OObject from '../../foundation/Object.js';
+import Event from '../../foundation/Event.js';
+import EventTarget from '../../foundation/EventTarget.js';
+
+import LiveQuery from '../query/LiveQuery.js';
+import RemoteQuery from '../query/RemoteQuery.js';
+import Record from '../record/Record.js';
+import RecordArray from '../query/RecordArray.js';
+import {
+    // Core states:
+    EMPTY,
+    READY,
+    DESTROYED,
+    NON_EXISTENT,
+    // Properties:
+    LOADING,     // Request in progress to fetch record or updates
+    COMMITTING,  // Request in progress to commit record
+    NEW,         // Record is not created on source (has no source id)
+    DIRTY,       // Record has local changes not yet committing
+    OBSOLETE     // Record may have changes not yet requested
+} from '../record/Status.js';
+import * as Status from '../record/Status.js';
+import ToOneAttribute from '../record/ToOneAttribute.js';
+import ToManyAttribute from '../record/ToManyAttribute.js';
 
 /**
     Module: DataStore
@@ -17,26 +43,9 @@
     data records.
 */
 
-( function ( NS ) {
-
-// Same as O.Status, inlined here for efficiency
-
-// Core states:
-var EMPTY        =   1;
-var READY        =   2;
-var DESTROYED    =   4;
-var NON_EXISTENT =   8;
-// Properties:
-var LOADING      =  16; // Request in progress to fetch record or updates
-var COMMITTING   =  32; // Request in progress to commit record
-var NEW          =  64; // Record is not created on source (has no source id)
-var DIRTY        = 128; // Record has local changes not yet committing
-var OBSOLETE     = 256; // Record may have changes not yet requested
-
 // ---
 
 // Error messages.
-var Status = NS.Status;
 var CANNOT_CREATE_EXISTING_RECORD_ERROR =
     'O.Store Error: Cannot create existing record';
 var CANNOT_WRITE_TO_UNREADY_RECORD_ERROR =
@@ -56,7 +65,7 @@ var generateStoreKey = function () {
 // ---
 
 var mayHaveChanges = function ( store ) {
-    NS.RunLoop.queueFn( 'before', store.checkForChanges, store );
+    RunLoop.queueFn( 'before', store.checkForChanges, store );
     return store;
 };
 
@@ -74,11 +83,6 @@ var sort = function ( compare, a, b ) {
 
 // ---
 
-var isEqual = NS.isEqual;
-var guid = NS.guid;
-
-// ---
-
 var typeToForeignRefAttrs = {};
 
 var getForeignRefAttrs = function ( Type ) {
@@ -87,15 +91,15 @@ var getForeignRefAttrs = function ( Type ) {
     var proto, attrs, attrKey, propKey, attribute;
     if ( !foreignRefAttrs ) {
         proto = Type.prototype;
-        attrs = NS.meta( proto ).attrs;
+        attrs = meta( proto ).attrs;
         foreignRefAttrs = [];
         for ( attrKey in attrs ) {
             propKey = attrs[ attrKey ];
             attribute = propKey && proto[ propKey ];
-            if ( attribute instanceof NS.ToOneAttribute ) {
+            if ( attribute instanceof ToOneAttribute ) {
                 foreignRefAttrs.push([ attrKey, 1, attribute.Type ]);
             }
-            if ( attribute instanceof NS.ToManyAttribute ) {
+            if ( attribute instanceof ToManyAttribute ) {
                 foreignRefAttrs.push([ attrKey, 0, attribute.recordType ]);
             }
         }
@@ -137,7 +141,7 @@ var convertForeignKeysToId = function ( store, Type, data ) {
         attrKey = foreignRef[0];
         if ( attrKey in data ) {
             if ( result === data ) {
-                result = NS.clone( data );
+                result = clone( data );
             }
             value = data[ attrKey ];
             result[ attrKey ] = value && ( foreignRef[1] === 1 ?
@@ -180,9 +184,9 @@ var convertForeignKeysToId = function ( store, Type, data ) {
       - `DIRTY`: The record has local changes not yet committing.
       - `OBSOLETE`: The record may have changes on the server not yet requested.
 */
-var Store = NS.Class({
+var Store = Class({
 
-    Extends: NS.Object,
+    Extends: OObject,
 
     /**
         Property: O.Store#autoCommit
@@ -504,7 +508,7 @@ var Store = NS.Class({
     */
     getAll: function ( Type, filter, sort ) {
         var storeKeys = this.findAll( Type, filter, sort );
-        return new NS.RecordArray( this, Type, storeKeys );
+        return new RecordArray( this, Type, storeKeys );
     },
 
     checkForChanges: function () {
@@ -724,8 +728,8 @@ var Store = NS.Class({
                 storeKey,
                 Type,
                 Object.filter(
-                    NS.clone( _skToData[ storeKey ] ),
-                    NS.Record.getClientSettableAttributes( Type )
+                    clone( _skToData[ storeKey ] ),
+                    Record.getClientSettableAttributes( Type )
                 )
             ]);
         }
@@ -982,7 +986,7 @@ var Store = NS.Class({
     createRecord: function ( storeKey, data ) {
         var status = this.getStatus( storeKey );
         if ( status !== EMPTY && status !== DESTROYED ) {
-            NS.RunLoop.didError({
+            RunLoop.didError({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
@@ -1265,7 +1269,7 @@ var Store = NS.Class({
 
         if ( !current || ( changeIsDirty && !( status & READY ) ) ) {
             Type = this._skToType[ storeKey ];
-            NS.RunLoop.didError({
+            RunLoop.didError({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
@@ -1277,12 +1281,12 @@ var Store = NS.Class({
 
         // Copy-on-write for nested stores.
         if ( this.isNested && !_skToData.hasOwnProperty( storeKey ) ) {
-            _skToData[ storeKey ] = current = NS.clone( current );
+            _skToData[ storeKey ] = current = clone( current );
         }
 
         if ( changeIsDirty && status !== (READY|NEW|DIRTY) ) {
             committed = _skToCommitted[ storeKey ] ||
-                ( _skToCommitted[ storeKey ] = NS.clone( current ) );
+                ( _skToCommitted[ storeKey ] = clone( current ) );
             changed = _skToChanged[ storeKey ] ||
                 ( _skToChanged[ storeKey ] = {} );
 
@@ -1378,7 +1382,7 @@ var Store = NS.Class({
             l = changedKeys.length,
             attrs, attrKey, propKey, attribute, errorForAttribute;
         if ( record ) {
-            attrs = NS.meta( record ).attrs;
+            attrs = meta( record ).attrs;
             record.beginPropertyChanges();
             while ( l-- ) {
                 attrKey = changedKeys[l];
@@ -1505,7 +1509,7 @@ var Store = NS.Class({
         }
         this._typeToStatus[ typeId ] |= READY;
 
-        NS.RunLoop.queueFn( 'middle',
+        RunLoop.queueFn( 'middle',
             this.liveQueriesAreReady.bind( this, Type ) );
 
         return this;
@@ -1571,7 +1575,7 @@ var Store = NS.Class({
             if ( status & DIRTY ) {
                 // If we have a conflict we can either rebase on top, or discard
                 // our local changes.
-                update = NS.extend( _skToCommitted[ storeKey ], update );
+                update = extend( _skToCommitted[ storeKey ], update );
                 if ( this.rebaseConflicts ) {
                     var oldData = _skToData[ storeKey ],
                         oldChanged = _skToChanged[ storeKey ],
@@ -1829,7 +1833,7 @@ var Store = NS.Class({
                 this.updateData( storeKey, data, false );
                 this.setStatus( storeKey, status & ~(COMMITTING|NEW) );
             } else {
-                NS.RunLoop.didError({
+                RunLoop.didError({
                     name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR
                 });
             }
@@ -1858,7 +1862,7 @@ var Store = NS.Class({
         i.e. it will destroy the new record. If an `errors` array is passed,
         the store will first fire a `record:commit:error` event on the
         record (including in nested stores), if already instantiated. If
-        <NS.Event#preventDefault> is called on the event object, the record
+        <O.Event#preventDefault> is called on the event object, the record
         will **not** be reverted; it is up to the handler to then fix the record
         before it is recommitted.
 
@@ -1958,7 +1962,7 @@ var Store = NS.Class({
         argument), the store will revert to the last known committed state.
         If an `errors` array is passed, the store will first fire a
         `record:commit:error` event on the record (including in nested stores),
-        if already instantiated. If <NS.Event#preventDefault> is called on the
+        if already instantiated. If <O.Event#preventDefault> is called on the
         event object, the record will **not** be reverted; it is up to the
         handler to then fix the record before it is recommitted.
 
@@ -2061,7 +2065,7 @@ var Store = NS.Class({
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
             } else {
-                NS.RunLoop.didError({
+                RunLoop.didError({
                     name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
                 });
             }
@@ -2091,7 +2095,8 @@ var Store = NS.Class({
         (i.e. the record will be revived). If an `errors` array is passed, the
         store will first fire a `record:commit:error` event on the record
         (including in nested stores), if already instantiated. If
-        <NS.Event#preventDefault> is called on the event object, the record will **not** be revived; it is up to the handler to then fix the record
+        <O.Event#preventDefault> is called on the event object, the record will
+        **not** be revived; it is up to the handler to then fix the record
         before it is recommitted.
 
         Parameters:
@@ -2125,7 +2130,7 @@ var Store = NS.Class({
                     this.undestroyRecord( storeKey );
                 }
             } else {
-                NS.RunLoop.didError({
+                RunLoop.didError({
                     name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
                 });
             }
@@ -2141,7 +2146,7 @@ var Store = NS.Class({
             isDefaultPrevented = false,
             event;
         if ( record ) {
-            event = new NS.Event( error.type || 'error', record, error );
+            event = new Event( error.type || 'error', record, error );
             record.fire( 'record:commit:error', event );
             isDefaultPrevented = event.defaultPrevented;
         }
@@ -2254,13 +2259,13 @@ var Store = NS.Class({
     addQuery: function ( query ) {
         var source = this.source;
         this._idToQuery[ query.get( 'id' ) ] = query;
-        if ( query instanceof NS.LiveQuery ) {
+        if ( query instanceof LiveQuery ) {
             var Type = query.get( 'Type' ),
                 typeId = guid( Type );
             this.fetchAll( Type );
             ( this._liveQueries[ typeId ] ||
                 ( this._liveQueries[ typeId ] = [] ) ).push( query );
-        } else if ( query instanceof NS.RemoteQuery ) {
+        } else if ( query instanceof RemoteQuery ) {
             source.fetchQuery( query );
             this._remoteQueries.push( query );
         }
@@ -2283,7 +2288,7 @@ var Store = NS.Class({
     */
     removeQuery: function ( query ) {
         delete this._idToQuery[ query.get( 'id' ) ];
-        if ( query instanceof NS.LiveQuery ) {
+        if ( query instanceof LiveQuery ) {
             var _liveQueries = this._liveQueries,
                 typeId = guid( query.get( 'Type' ) ),
                 typeQueries = _liveQueries[ typeId ];
@@ -2292,7 +2297,7 @@ var Store = NS.Class({
             } else {
                 delete _liveQueries[ typeId ];
             }
-        } else if ( query instanceof NS.RemoteQuery ) {
+        } else if ( query instanceof RemoteQuery ) {
             this._remoteQueries.erase( query );
         }
         return this;
@@ -2321,7 +2326,7 @@ var Store = NS.Class({
     getQuery: function ( id, QueryClass, mixin ) {
         var query = ( id && this._idToQuery[ id ] ) || null;
         if ( !query && QueryClass ) {
-            query = new QueryClass( NS.extend( mixin || {}, {
+            query = new QueryClass( extend( mixin || {}, {
                 id: id,
                 store: this,
                 source: this.source
@@ -2361,7 +2366,7 @@ var Store = NS.Class({
             changedSks = _typeToChangedSks[ typeId ] ||
                 ( _typeToChangedSks[ typeId ] = {} );
         changedSks[ storeKey ] = true;
-        NS.RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
+        RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
     },
 
     /**
@@ -2412,10 +2417,8 @@ var Store = NS.Class({
         if ( typeof type !== 'string' ) {
             type = guid( type );
         }
-        return NS.EventTarget[ property ].call( this, type, obj, method );
+        return EventTarget[ property ].call( this, type, obj, method );
     };
 });
 
-NS.Store = Store;
-
-}( O ) );
+export default Store;

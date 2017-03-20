@@ -6,11 +6,16 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global setTimeout, clearTimeout, setImmediate, console */
+/*global setTimeout, clearTimeout, window.setImmediate, console */
 
-"use strict";
+import '../core/Core.js';  // For Function#implement
+import Heap from './Heap.js';
 
-( function ( NS, win, setImmediate ) {
+var win = window;
+
+var setImmediate = window.setImmediate || function ( fn ) {
+        return setTimeout( fn, 0 );
+    };
 
 var requestAnimFrame =
     win.requestAnimationFrame       ||
@@ -50,7 +55,7 @@ var RunLoop = {
     mayRedraw: false,
 
     /**
-        Property (private): NS.RunLoop._queueOrder
+        Property (private): O.RunLoop._queueOrder
         Type: String[]
 
         The order in which to flush the queues.
@@ -58,7 +63,7 @@ var RunLoop = {
     _queueOrder: [ 'before', 'bindings', 'middle', 'render', 'after' ],
 
     /**
-        Property (private): NS.RunLoop._queues
+        Property (private): O.RunLoop._queues
         Type: Object
 
         Collection of queues. Each queue contains [fn, bind] tuples to call at
@@ -75,17 +80,17 @@ var RunLoop = {
     },
 
     /**
-        Property (private): NS.RunLoop._timeouts
+        Property (private): O.RunLoop._timeouts
         Type: O.Heap
 
         A priority queue of timeouts.
     */
-    _timeouts: new NS.Heap( function ( a, b ) {
+    _timeouts: new Heap( function ( a, b ) {
         return a.time - b.time;
     }),
 
     /**
-        Property (private): NS.RunLoop._nextTimeout
+        Property (private): O.RunLoop._nextTimeout
         Type: Number
 
         Epoch time that the next browser timeout is scheduled for.
@@ -93,7 +98,7 @@ var RunLoop = {
     _nextTimeout: 0,
 
     /**
-        Property (private): NS.RunLoop._timer
+        Property (private): O.RunLoop._timer
         Type: Number
 
         The browser timer id (response from setTimeout), which you need if
@@ -102,7 +107,7 @@ var RunLoop = {
     _timer: null,
 
     /**
-        Property (private): NS.RunLoop._depth
+        Property (private): O.RunLoop._depth
         Type: Number
 
         Number of calls to <O.RunLoop.invoke> currently in stack.
@@ -354,7 +359,7 @@ var RunLoop = {
     },
 
     /**
-        Method (private): NS.RunLoop._scheduleTimeout
+        Method (private): O.RunLoop._scheduleTimeout
 
         Sets the browser timer if necessary to trigger at the time of the next
         timeout in the priority queue.
@@ -376,7 +381,7 @@ var RunLoop = {
     },
 
     /**
-        Method: NS.RunLoop.processTimeouts
+        Method: O.RunLoop.processTimeouts
 
         Invokes all functions in the timeout queue that were scheduled to
         trigger on or before "now".
@@ -434,7 +439,7 @@ var RunLoop = {
     }
 };
 
-NS.RunLoop = RunLoop;
+export default RunLoop;
 
 Function.implement({
     /**
@@ -514,9 +519,5 @@ var nextFrame = function ( time ) {
     RunLoop.mayRedraw = false;
 };
 
-}( O, window, typeof setImmediate !== 'undefined' ?
-    setImmediate :
-    function ( fn ) {
-        return setTimeout( fn, 0 );
-    }
-) );
+// TODO(cmorgan/modulify): do something about these exports: Function#queue,
+// Function#nextLoop, Function#nextFrame, Function#invokeInRunLoop

@@ -6,15 +6,16 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../core/Core.js';
+import '../core/Array.js';  // For Array#erase
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
 
 /**
     Module: IO
 
     The IO module provides classes for two-way communication with a server.
 */
-
-( function ( NS ) {
 
 /**
     Class: O.IOQueue
@@ -28,9 +29,9 @@ var QUEUE = 1,
     IGNORE = 2,
     ABORT = 3;
 
-var IOQueue = NS.Class({
+var IOQueue = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property (private): O.IOQueue#_queue
@@ -190,6 +191,4 @@ IOQueue.QUEUE = 1;
 IOQueue.IGNORE = 2;
 IOQueue.ABORT = 3;
 
-NS.IOQueue = IOQueue;
-
-}( O ) );
+export default IOQueue;

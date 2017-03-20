@@ -1,18 +1,18 @@
 // -------------------------------------------------------------------------- \\
 // File: ModalEventHandler.js                                                 \\
 // Module: PanelViews                                                         \\
-// Requires: Core, Foundation, DOM, View                                      \\
+// Requires: Core, Foundation                                                 \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import '../../foundation/EventTarget.js';  // For Function#on
 
-( function ( NS ) {
+var ModalEventHandler = Class({
 
-var ModalEventHandler = NS.Class({
-
-    Extends: NS.Object,
+    Extends: Object,
 
     init: function ( mixin ) {
         ModalEventHandler.parent.init.call( this, mixin );
@@ -94,6 +94,4 @@ var ModalEventHandler = NS.Class({
     }.on( 'touchstart' )
 });
 
-NS.ModalEventHandler = ModalEventHandler;
-
-}( O ) );
+export default ModalEventHandler;

@@ -6,7 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import './Core.js';  // For Function#implement
 
 Array.implement({
     /**
@@ -118,3 +118,6 @@ Array.implement({
         return this;
     }
 });
+
+// TODO(cmorgan/modulify): do something about these exports: Array#get,
+// Array#set, Array#getObjectAt, Array#setObjectAt, Array#include, Array#erase

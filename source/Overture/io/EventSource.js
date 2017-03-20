@@ -1,16 +1,22 @@
 // -------------------------------------------------------------------------- \\
 // File: EventSource.js                                                       \\
 // Module: IO                                                                 \\
-// Requires: Core, Foundation, UA, XHR.js                                     \\
+// Requires: Core, Foundation, XHR.js                                         \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global EventSource */
 
-"use strict";
+import { Class, meta } from '../core/Core.js';  // Also Function#extend
+import '../core/Array.js';  // For Array#include
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
+import '../foundation/EventTarget.js';  // For Function#on
+import '../foundation/ObservableProps.js';  // For Function#observes
+import XHR from './XHR.js';
 
-( function ( NS, NativeEventSource ) {
+var NativeEventSource = typeof EventSource !== 'undefined' ? EventSource : null;
 
 var CONNECTING = 0;
 var OPEN = 1;
@@ -27,9 +33,9 @@ var CLOSED = 2;
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
-var EventSource = NativeEventSource ? NS.Class({
+var EventSource = NativeEventSource ? Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.EventSource#readyState
@@ -69,7 +75,7 @@ var EventSource = NativeEventSource ? NS.Class({
         EventSource.parent.init.call( this, mixin );
 
         var eventTypes = [ 'open', 'message', 'error' ],
-            observers = NS.meta( this ).observers,
+            observers = meta( this ).observers,
             type;
         for ( type in observers ) {
             if ( /^__event__/.test( type ) ) {
@@ -111,7 +117,7 @@ var EventSource = NativeEventSource ? NS.Class({
         } else {
             this._then = now;
             this._tick =
-                NS.RunLoop.invokeAfterDelay( this._check, 60000, this );
+                RunLoop.invokeAfterDelay( this._check, 60000, this );
             // Chrome occasionally closes the event source without firing an
             // event. Resync readyState here to work around.
             this.set( 'readyState', this._eventSource.readyState );
@@ -131,7 +137,7 @@ var EventSource = NativeEventSource ? NS.Class({
             }
         } else {
             if ( tick ) {
-                NS.RunLoop.cancel( tick );
+                RunLoop.cancel( tick );
                 this._tick = null;
             }
         }
@@ -190,15 +196,15 @@ var EventSource = NativeEventSource ? NS.Class({
             this._eventSource = null;
         }
     }.observes( 'readyState' )
-}) : NS.Class({
+}) : Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     readyState: CONNECTING,
 
     init: function ( mixin ) {
         EventSource.parent.init.call( this, mixin );
-        this._xhr = new NS.XHR( this );
+        this._xhr = new XHR( this );
     },
 
     open: function () {
@@ -272,7 +278,7 @@ var EventSource = NativeEventSource ? NS.Class({
     },
 
     _reconnect: function () {
-        NS.RunLoop.invokeAfterDelay(
+        RunLoop.invokeAfterDelay(
             this.open, this._reconnectAfter, this );
     },
 
@@ -376,6 +382,4 @@ EventSource.extend({
     CLOSED: CLOSED
 });
 
-NS.EventSource = EventSource;
-
-}( O, typeof EventSource !== 'undefined' ? EventSource : null ) );
+export default EventSource;

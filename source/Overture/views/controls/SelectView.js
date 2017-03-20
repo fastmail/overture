@@ -1,16 +1,17 @@
 // -------------------------------------------------------------------------- \\
 // File: SelectView.js                                                        \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
+// Requires: Core, Foundation, DOM, AbstractControlView.js                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
-
-var isEqual = NS.isEqual;
+import { Class, isEqual } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import Element from '../../dom/Element.js';
+import AbstractControlView from './AbstractControlView.js';
 
 /**
     Class: O.SelectView
@@ -20,9 +21,9 @@ var isEqual = NS.isEqual;
     A view representing an HTML `<select>` menu. The `value` property is two-way
     bindable, representing the selected option.
 */
-var SelectView = NS.Class({
+var SelectView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     /**
         Property: O.SelectView#options
@@ -85,7 +86,7 @@ var SelectView = NS.Class({
     */
     _drawSelect: function ( options ) {
         var selected = this.get( 'value' ),
-            el = NS.Element.create,
+            el = Element.create,
             select = el( 'select', {
                 className: 'v-Select-input',
                 disabled: this.get( 'isDisabled' )
@@ -177,6 +178,4 @@ var SelectView = NS.Class({
     }.on( 'change' )
 });
 
-NS.SelectView = SelectView;
-
-}( O ) );
+export default SelectView;

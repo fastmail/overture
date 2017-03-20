@@ -8,9 +8,10 @@
 
 /*global Element */
 
-"use strict";
+import getFromPath from './getFromPath.js';
+import { Class } from '../core/Core.js';
 
-( function ( NS, Element, undefined ) {
+import RunLoop from './RunLoop.js';
 
 /**
     Class: O.Binding
@@ -61,7 +62,7 @@ var _resolveRootAndPath = function ( binding, direction, root, path ) {
         lastDot = observablePath.lastIndexOf( '.' );
 
     binding[ direction + 'Object' ] =
-        staticPath ? NS.getFromPath( root, staticPath ) : root;
+        staticPath ? getFromPath( root, staticPath ) : root;
     binding[ direction + 'Path' ] = observablePath;
     binding[ direction + 'PathBeforeKey' ] =
         ( lastDot === -1 ) ? '' : observablePath.slice( 0, lastDot );
@@ -83,7 +84,7 @@ var isNum = /^\d+$/;
 */
 var identity = function ( v ) { return v; };
 
-var Binding = NS.Class({
+var Binding = Class({
 
     __setupProperty__: function ( metadata, key ) {
         metadata.bindings[ key ] = this;
@@ -343,7 +344,7 @@ var Binding = NS.Class({
         // connects are, in which case delay connecting it a bit.
         if ( !this._doNotDelayConnection && ( !fromObject || !toObject ) ) {
             this._doNotDelayConnection = true;
-            NS.RunLoop.queueFn( 'before', this.connect, this );
+            RunLoop.queueFn( 'before', this.connect, this );
             return this;
         }
 
@@ -476,7 +477,7 @@ var Binding = NS.Class({
         this.isNotInSync = true;
         if ( !inQueue && !this.isSuspended ) {
             if ( queue ) {
-                NS.RunLoop.queueFn( queue, this.sync, this, true );
+                RunLoop.queueFn( queue, this.sync, this, true );
             } else {
                 this.sync();
             }
@@ -534,8 +535,6 @@ var Binding = NS.Class({
     }
 });
 
-NS.Binding = Binding;
-
 /**
     Function: O.bind
 
@@ -554,7 +553,7 @@ NS.Binding = Binding;
     Returns:
         {O.Binding} The new binding.
 */
-var bind = NS.bind = function ( root, path, transform ) {
+var bind = function ( root, path, transform ) {
     var binding = new Binding().from( root, path );
     if ( transform ) {
         binding.transform = transform;
@@ -581,10 +580,11 @@ var bind = NS.bind = function ( root, path, transform ) {
     Returns:
         {O.Binding} The new binding.
 */
-NS.bindTwoWay = function ( root, path, transform ) {
+var bindTwoWay = function ( root, path, transform ) {
     var binding = bind( root, path, transform );
     binding.isTwoWay = true;
     return binding;
 };
 
-}( O, typeof Element !== undefined ? Element : function () {} ) );
+export default Binding;
+export { Binding, bind, bindTwoWay };

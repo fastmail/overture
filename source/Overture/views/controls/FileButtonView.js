@@ -1,16 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: FileButtonView.js                                                    \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, ButtonView.js                       \\
+// Requires: Core, Foundation, DOM, ButtonView.js, AbstractControlView.js     \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global FormData */
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/EventTarget.js';  // For Function#on
+import Element from '../../dom/Element.js';
 
-( function ( NS, undefined ) {
+import ButtonView from './ButtonView.js';
+import AbstractControlView from './AbstractControlView.js';
 
 var canUseMultiple = FormData.isFake ? null : 'multiple';
 
@@ -37,9 +40,9 @@ var canUseMultiple = FormData.isFake ? null : 'multiple';
         </label>
 
 */
-var FileButtonView = NS.Class({
+var FileButtonView = Class({
 
-    Extends: NS.ButtonView,
+    Extends: ButtonView,
 
     /**
         Property: O.FileButtonView#acceptMultiple
@@ -91,7 +94,7 @@ var FileButtonView = NS.Class({
     draw: function ( layer, Element, el ) {
         var icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
-            icon = NS.ButtonView.drawIcon( icon );
+            icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
             icon = document.createComment( 'icon' );
         }
@@ -103,7 +106,7 @@ var FileButtonView = NS.Class({
                 multiple: this.get( 'acceptMultiple' ) && canUseMultiple
             }),
             icon,
-            NS.AbstractControlView.prototype.draw
+            AbstractControlView.prototype.draw
                 .call( this, layer, Element, el )
         ];
     },
@@ -139,7 +142,7 @@ var FileButtonView = NS.Class({
             target, action;
         if ( event.target === input ) {
             input.parentNode.replaceChild(
-                this._domControl = NS.Element.create( 'input', {
+                this._domControl = Element.create( 'input', {
                     className: 'v-FileButton-input',
                     type: 'file',
                     disabled: this.get( 'isDisabled' ),
@@ -174,6 +177,4 @@ var FileButtonView = NS.Class({
     }.on( 'change' )
 });
 
-NS.FileButtonView = FileButtonView;
-
-}( O ) );
+export default FileButtonView;

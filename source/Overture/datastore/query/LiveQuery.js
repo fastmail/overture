@@ -6,13 +6,14 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, guid } from '../../core/Core.js';
+import sortByProperties from '../../core/sortByProperties.js';
+import Object from '../../foundation/Object.js';
+import ObservableRange from '../../foundation/ObservableRange.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-( function ( NS ) {
-
-var Status = NS.Status,
-    READY = Status.READY,
-    DESTROYED = Status.DESTROYED;
+import { READY, DESTROYED } from '../record/Status.js';
 
 var numerically = function ( a, b ) {
     return a - b;
@@ -31,11 +32,11 @@ var numerically = function ( a, b ) {
     Normally you will not create a LiveQuery instance yourself but get it by
     retrieving the query from the store.
  */
-var LiveQuery = NS.Class({
+var LiveQuery = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: [ NS.ObservableRange, NS.Enumerable ],
+    Mixin: [ ObservableRange, Enumerable ],
 
     /**
         Property: O.LiveQuery#id
@@ -44,7 +45,7 @@ var LiveQuery = NS.Class({
         A unique identifier for this query.
     */
     id: function () {
-        return NS.guid( this );
+        return guid( this );
     }.property().nocache(),
 
     /**
@@ -112,7 +113,7 @@ var LiveQuery = NS.Class({
             results;
 
         if ( sort && !( sort instanceof Function ) ) {
-            sort = mixin.sort = NS.sortByProperties( sort );
+            sort = mixin.sort = sortByProperties( sort );
         }
         results = store.findAll( Type, mixin.filter, sort );
 
@@ -472,6 +473,4 @@ var LiveQuery = NS.Class({
     }
 });
 
-NS.LiveQuery = LiveQuery;
-
-}( O ) );
+export default LiveQuery;

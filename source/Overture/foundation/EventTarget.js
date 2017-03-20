@@ -1,18 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: EventTarget.js                                                       \\
 // Module: Foundation                                                         \\
-// Requires: Core                                                             \\
+// Requires: Core, Event.js                                                   \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { meta } from '../core/Core.js';  // Also Function#implement
+import '../core/Array.js';  // For Array#erase
 
-( function ( NS ) {
+import Event from './Event.js';
+import RunLoop from './RunLoop.js';
 
-var meta = NS.meta,
-    slice = Array.prototype.slice,
-    eventPrefix = '__event__';
+var slice = Array.prototype.slice;
+var eventPrefix = '__event__';
 
 Function.implement({
     /**
@@ -39,59 +40,6 @@ Function.implement({
 });
 
 /**
-    Class: O.Event
-
-    Represents a synthetic event.
-*/
-var Event = NS.Class({
-
-    /**
-        Constructor: O.Event
-
-        Parameters:
-            type   - {String} The event type.
-            target - {Object} The target on which the event is to fire.
-            mixin  - {Object} (optional) Any further properties to add to the
-                     event.
-    */
-    init: function ( type, target, mixin ) {
-        this.type = type;
-        this.target = target;
-        this.defaultPrevented = false;
-        this.propagationStopped = false;
-        NS.extend( this, mixin );
-    },
-
-    /**
-        Method: O.Event#preventDefault
-
-        Prevent the default action for this event (if any).
-
-        Returns:
-            {O.Event} Returns self.
-    */
-    preventDefault: function () {
-        this.defaultPrevented = true;
-        return this;
-    },
-
-    /**
-        Method: O.Event#stopPropagation
-
-        Stop bubbling the event up to the next target.
-
-        Returns:
-            {O.Event} Returns self.
-    */
-    stopPropagation: function () {
-        this.propagationStopped = true;
-        return this;
-    }
-});
-
-NS.Event = Event;
-
-/**
     Mixin: O.EventTarget
 
     The EventTarget mixin allows you to add custom event support to any other
@@ -102,7 +50,8 @@ NS.Event = Event;
     distinguish them from those of other classes, e.g. the IO class fires
     `io:eventName` events.
 */
-NS.EventTarget = {
+
+export default {
 
     /**
         Property: O.EventTarget#nextEventTarget
@@ -222,7 +171,7 @@ NS.EventTarget = {
                         ( handler.object || target )[ handler.method ]( event );
                     }
                 } catch ( error ) {
-                    NS.RunLoop.didError( error );
+                    RunLoop.didError( error );
                 }
             }
             // Move up the hierarchy, unless stopPropagation was called
@@ -288,4 +237,4 @@ NS.EventTarget = {
     }
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Function#on

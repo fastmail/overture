@@ -1,15 +1,14 @@
 // -------------------------------------------------------------------------- \\
 // File: Parse.js                                                             \\
 // Module: Parser                                                             \\
+// Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../core/Core.js';
 
-( function ( NS ) {
-
-var Parse = NS.Class({
+var Parse = Class({
     init: function ( string, tokens ) {
         this.string = string;
         this.tokens = tokens || [];
@@ -129,8 +128,4 @@ Parse.longestMatch = function ( patterns ) {
     };
 };
 
-NS.Parse = Parse;
-
-NS.parse = {};
-
-}( O ) );
+export default Parse;

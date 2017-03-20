@@ -21,10 +21,19 @@ Building from Source
     cd overture
 
 3) Install Node libraries
+   (you could use `npm install` instead, but `yarn` is way better than `npm`)
 
-    npm install
+    yarn
 
-4) Run Make
+4) Add the node modules’ binaries to the PATH
+
+    # Windows
+    set PATH=%CD%\node_modules\.bin;%PATH%
+
+    # Anything else
+    export PATH="$PWD/node_modules/.bin:$PATH"
+
+5) Run Make
 
     make
 

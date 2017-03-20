@@ -8,9 +8,8 @@
 
 /*global location, sessionStorage, localStorage */
 
-"use strict";
-
-( function ( NS, undefined ) {
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
 
 /**
     Module: Storage
@@ -36,9 +35,9 @@ var dummyStorage = {
     Since data is serialised to a string for storage, only native JS types
     should be stored; class instances will not be restored correctly.
 */
-var LocalStorage = NS.Class({
+var LocalStorage = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Constructor: O.LocalStorage
@@ -78,6 +77,4 @@ var LocalStorage = NS.Class({
     }
 });
 
-NS.LocalStorage = LocalStorage;
-
-}( O ) );
+export default LocalStorage;

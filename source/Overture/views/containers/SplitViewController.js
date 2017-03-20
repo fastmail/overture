@@ -6,9 +6,9 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';  // Also Function#extend
+import Object from '../../foundation/Object.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
 
 var VERTICAL = 1;
 var HORIZONTAL = 2;
@@ -22,9 +22,9 @@ var auto = 'auto';
 
     Extends: O.Object
 */
-var SplitViewController = NS.Class({
+var SplitViewController = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.SplitViewController#direction
@@ -135,6 +135,4 @@ SplitViewController.extend({
     BOTTOM_RIGHT: BOTTOM_RIGHT
 });
 
-NS.SplitViewController = SplitViewController;
-
-}( O ) );
+export default SplitViewController;

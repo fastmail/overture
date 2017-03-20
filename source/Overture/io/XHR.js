@@ -8,9 +8,8 @@
 
 /*global XMLHttpRequest, FormData, location */
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../core/Core.js';
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 
 var isLocal = location.protocol === 'file:';
 
@@ -61,7 +60,7 @@ var parseHeaders = function ( allHeaders ) {
     into the more fully featured <O.HttpRequest> class; you should use that
     class for most things.
 */
-var XHR = NS.Class({
+var XHR = Class({
     /**
         Property: O.XHR#io
         Type: (O.Object|null)
@@ -359,6 +358,4 @@ var XHR = NS.Class({
     }
 });
 
-NS.XHR = XHR;
-
-}( O ) );
+export default XHR;

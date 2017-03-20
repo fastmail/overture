@@ -6,20 +6,27 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, guid } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import ObservableRange from '../../foundation/ObservableRange.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import '../../foundation/RunLoop.js';  // For Function#queue
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-( function ( NS, undefined ) {
-
-var Status = NS.Status,
-    EMPTY = Status.EMPTY,
-    READY = Status.READY,
-    DESTROYED = Status.DESTROYED,
-    NON_EXISTENT = Status.NON_EXISTENT,
+import Record from '../record/Record.js';
+import {
+    EMPTY,
+    READY,
+    DESTROYED,
+    NON_EXISTENT,
     // LOADING => The list is being fetched from the server.
-    LOADING = Status.LOADING,
+    LOADING,
     // OBSOLETE => The list may have changed on the server since the last fetch
     // was initiated.
-    OBSOLETE = Status.OBSOLETE;
+    OBSOLETE
+} from '../record/Status.js';
 
 /**
     Class: O.RemoteQuery
@@ -61,14 +68,14 @@ var Status = NS.Status,
     sending back unneccessary data.
 
 */
-var RemoteQuery = NS.Class({
+var RemoteQuery = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: [ NS.Enumerable, NS.ObservableRange ],
+    Mixin: [ Enumerable, ObservableRange ],
 
     id: function () {
-        return NS.guid( this );
+        return guid( this );
     }.property().nocache(),
 
     /**
@@ -101,7 +108,7 @@ var RemoteQuery = NS.Class({
 
         The type of records this query contains.
     */
-    Type: NS.Record,
+    Type: Record,
 
     /**
         Property: O.RemoteQuery#store
@@ -605,6 +612,4 @@ var RemoteQuery = NS.Class({
     }
 });
 
-NS.RemoteQuery = RemoteQuery;
-
-}( O ) );
+export default RemoteQuery;

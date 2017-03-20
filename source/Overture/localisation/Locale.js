@@ -1,13 +1,13 @@
 // -------------------------------------------------------------------------- \\
 // File: Locale.js                                                            \\
 // Module: Localisation                                                       \\
+// Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class, merge } from '../core/Core.js';
+import '../core/Date.js';  // For Date#format
 
 var compileTranslation = function ( translation ) {
     var compiled = '',
@@ -153,7 +153,7 @@ var formatInt = function ( number, locale ) {
     Locale packs for use in localisation are created as instances of the
     O.Locale class.
 */
-var Locale = NS.Class({
+var Locale = Class({
 
     /**
         Constructor: O.Locale
@@ -181,7 +181,7 @@ var Locale = NS.Class({
             this[ obj ] = Object.create( this[ obj ] );
         }, this );
         this.compiled = {};
-        NS.merge( this, mixin );
+        merge( this, mixin );
     },
 
     /**
@@ -730,6 +730,4 @@ var Locale = NS.Class({
     }
 });
 
-NS.Locale = Locale;
-
-}( O ) );
+export default Locale;

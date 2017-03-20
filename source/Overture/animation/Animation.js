@@ -6,9 +6,10 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class, meta, extend } from '../core/Core.js';
+import '../core/Array.js';  // For Array#erase
+import RunLoop from '../foundation/RunLoop.js';
+import Easing from './Easing.js';
 
 // List of currently active animations
 var animations = [];
@@ -18,13 +19,13 @@ var nextFrame = function () {
     // Cache to local variable for speed
     var anims = animations,
         l = anims.length,
-        time = NS.RunLoop.frameStartTime,
+        time = RunLoop.frameStartTime,
         objAnimations, i,
         hasMultiple, animation, object, animTime, duration;
 
     if ( l ) {
         // Request first to get in shortest time.
-        NS.RunLoop.invokeInNextFrame( nextFrame );
+        RunLoop.invokeInNextFrame( nextFrame );
 
         while ( l-- ) {
             objAnimations = anims[l];
@@ -63,8 +64,6 @@ var nextFrame = function () {
     }
 };
 
-var meta = NS.meta;
-
 /**
     Class: O.Animation
 
@@ -81,7 +80,7 @@ var meta = NS.meta;
     For animating something other than a numeric property, override
     <O.Animation#prepare> and <O.Animation#drawFrame> methods.
 */
-NS.Animation = NS.Class({
+export default Class({
 
     init: function ( mixin ) {
         this.duration = this.duration;
@@ -93,7 +92,7 @@ NS.Animation = NS.Class({
         this.endValue = null;
         this.deltaValue = null;
 
-        NS.extend( this, mixin );
+        extend( this, mixin );
     },
 
     /**
@@ -112,7 +111,7 @@ NS.Animation = NS.Class({
 
         The easing function to use for the animation.
     */
-    ease: NS.Easing.ease,
+    ease: Easing.ease,
 
     /**
         Property: O.Animation#isRunning
@@ -181,7 +180,7 @@ NS.Animation = NS.Class({
 
         // Start loop if no current animations
         if ( !animations.length ) {
-            NS.RunLoop.invokeInNextFrame( nextFrame );
+            RunLoop.invokeInNextFrame( nextFrame );
         }
 
         // And add objectAnimations to animation queue
@@ -279,5 +278,3 @@ NS.Animation = NS.Class({
         return this;
     }
 });
-
-}( O ) );

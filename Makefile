@@ -25,8 +25,10 @@ include $(PATH_TO_DOC)/Makefile
 
 .SECONDEXPANSION:
 
+MODULE = $(patsubst build/%-raw.js,%,$@)
+
 build/%-raw.js: $$(shell find source/% -name "*.js")
 	mkdir -p $(@D)
 	$(REMOVE_OLD)
-	$(MAKE_MODULE) _ _ $^ $@
+	rollup --format iife --name O source/$(MODULE)/$(MODULE).js -o $@
 	$(GZIP_AND_COMPRESS)

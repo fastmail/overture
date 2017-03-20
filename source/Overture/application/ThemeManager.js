@@ -1,16 +1,17 @@
 // -------------------------------------------------------------------------- \\
 // File: ThemeManager.js                                                      \\
 // Module: Application                                                        \\
-// Requires: Core, Foundation, DOM                                            \\
+// Requires: Core, Foundation, DOM, Localisation                              \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import Stylesheet from '../dom/Stylesheet.js';
+import { loc } from '../localisation/LocaleController.js';
 
 /**
     Class: O.ThemeManager
@@ -21,9 +22,9 @@
     consists of stylesheets and images. These can be loaded in stages and
     hotswapped if themes are changed.
 */
-var ThemeManager = NS.Class({
+var ThemeManager = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     init: function ( mixin ) {
         this._images = { all: {} };
@@ -130,14 +131,14 @@ var ThemeManager = NS.Class({
                 var imageData =
                         images[ src ] ||
                         themeIndependentImages[ src ] ||
-                        NS.loc( src );
+                        loc( src );
                 if ( /\.svg$/.test( src ) ) {
                     imageData = 'data:image/svg+xml;charset=UTF-8,' +
                         encodeURIComponent( imageData );
                 }
                 return 'url(' + ( imageData || src ) + ')';
             });
-            NS.Stylesheet.create( theme + '-' + id, data );
+            Stylesheet.create( theme + '-' + id, data );
             active[ id ] = ( active[ id ] || 0 ) + 1;
         }
 
@@ -187,6 +188,4 @@ var ThemeManager = NS.Class({
     }
 });
 
-NS.ThemeManager = ThemeManager;
-
-}( O ) );
+export default ThemeManager;

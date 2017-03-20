@@ -5,9 +5,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-O.DragEffect = {
+export default {
 /**
     Enum: O.DragEffect
 

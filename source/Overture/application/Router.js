@@ -8,15 +8,16 @@
 
 /*global document, window, history, location */
 
-"use strict";
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import '../foundation/ObservableProps.js';  // For Function#observes
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop, #queue
 
 /**
     Module: Application
 
     The Application module contains classes for managing an HTML5 application.
 */
-
-( function ( NS ) {
 
 var getHash = function ( location ) {
     var href = location.href,
@@ -34,9 +35,9 @@ var getUrl = function ( location, base ) {
     This class adds the ability to manage the URL in the browser window,
     updating it when your application state changes and vice versa.
 */
-var Router = NS.Class({
+var Router = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.Router#title
@@ -245,6 +246,4 @@ var Router = NS.Class({
     }
 });
 
-NS.Router = Router;
-
-}( O ) );
+export default Router;

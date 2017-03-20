@@ -1,261 +1,30 @@
 // -------------------------------------------------------------------------- \\
 // File: MenuView.js                                                          \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View                                      \\
+// Requires: Core, Foundation, DOM, View, ContainerViews, PanelViews, SearchTextView.js, MenuController.js, MenuOptionView.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
+import { bindTwoWay } from '../../foundation/Binding.js';
+import DOMEvent from '../../dom/DOMEvent.js';
+import View from '../View.js';
+import RootView from '../RootView.js';
+import ViewEventsController from '../ViewEventsController.js';
+import ScrollView from '../containers/ScrollView.js';
+import PopOverView from '../panels/PopOverView.js';
+import SearchTextView from './SearchTextView.js';
+import MenuController from './MenuController.js';
+import MenuOptionView from './MenuOptionView.js';
 
-( function ( NS ) {
+var MenuView = Class({
 
-// A menu option must have:
-// filter( pattern ): RegExp -> Boolean
-// isFocussed: Boolean
-// isHidden: Boolean
-// isDisabled: Boolean
-
-var MenuController = NS.Class({
-
-    Extends: NS.Object,
-
-    options: [],
-
-    // --- Focus ---
-
-    canSelect: function ( option ) {
-        return !option.get( 'isHidden' ) && !option.get( 'isDisabled' );
-    },
-
-    focussedOption: null,
-
-    getAdjacentOption: function ( step ) {
-        var options = this.get( 'options' ),
-            l = options.get( 'length' ),
-            i = options.indexOf( this.get( 'focussedOption' ) ),
-            current;
-
-        if ( i < 0 && step < 0 ) {
-            i = l;
-        }
-        current = i.mod( l );
-
-        do {
-            i = ( i + step ).mod( l );
-        } while ( l &&
-            !this.canSelect( options.getObjectAt( i ) ) && i !== current );
-
-        return options.getObjectAt( i );
-    },
-
-    focusPrevious: function ( event ) {
-        if ( event ) { event.preventDefault(); }
-        return this.focusOption( this.getAdjacentOption( -1 ) );
-    },
-
-    focusNext: function ( event ) {
-        if ( event ) { event.preventDefault(); }
-        return this.focusOption( this.getAdjacentOption( 1 ) );
-    },
-
-    focusOption: function ( option ) {
-        var current = this.get( 'focussedOption' );
-        if ( current !== option ) {
-            if ( current ) {
-                current.set( 'isFocussed', false );
-            }
-            if ( option ) {
-                if ( !this.canSelect( option ) ) {
-                    option = null;
-                } else {
-                    option.set( 'isFocussed', true );
-                }
-            }
-            this.set( 'focussedOption', option );
-        }
-        return this;
-    },
-
-    blurOption: function ( option ) {
-        if ( this.get( 'focussedOption' ) === option ) {
-            this.focusOption( null );
-        }
-        return this;
-    },
-
-    selectFocussed: function ( event ) {
-        if ( event ) { event.preventDefault(); }
-        var focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption && this.canSelect( focussedOption ) ) {
-            focussedOption.activate( this );
-        }
-        return this;
-    },
-
-    // --- Filter ---
-
-    filter: '',
-
-    filterDidChange: function () {
-        var value = this.get( 'filter' ),
-            pattern = value ? NS.i18n.makeSearchRegExp( value ) : null,
-            options = this.get( 'options' ),
-            l = options.get( 'length' ),
-            focussedOption = this.get( 'focussedOption' );
-
-        while ( l-- ) {
-            options.getObjectAt( l ).filter( pattern );
-        }
-        if ( !focussedOption || !this.canSelect( focussedOption ) ) {
-            this.focusOption( null ).focusNext();
-        }
-    }.observes( 'filter' ),
-
-    // --- Keyboard support ---
-
-    keyBindings: {
-        esc: 'onEscape',
-        enter: 'selectFocussed',
-        up: 'focusPrevious',
-        down: 'focusNext',
-        left: 'closeIfSub',
-        right: 'activateIfMenu'
-    },
-
-    triggerKeyBinding: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event ),
-            bindings = this.get( 'keyBindings' );
-        if ( bindings[ key ] ) {
-            event.stopPropagation();
-            this[ bindings[ key ] ]( event, key );
-        }
-    }.on( 'keydown' ),
-
-    onEscape: function ( event ) {
-        event.preventDefault();
-        var filter = this.get( 'filter' );
-        if ( filter ) {
-            this.set( 'filter', '' );
-        } else {
-            this.get( 'view' ).hide();
-        }
-    },
-
-    closeIfSub: function () {
-        var view = this.get( 'view' ),
-            popOverView;
-        if ( !view.get( 'showFilter' ) &&
-                ( popOverView = view.getParent( NS.PopOverView ) ) &&
-                  popOverView.get( 'parentPopOverView' ) ) {
-            view.hide();
-        }
-    },
-
-    activateIfMenu: function () {
-        var focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption &&
-                focussedOption.get( 'button' ) instanceof NS.MenuButtonView ) {
-            this.selectFocussed();
-        }
-    }
-});
-
-var MenuOptionView = NS.Class({
-
-    Extends: NS.View,
-
-    isHidden: false,
-    isDisabled: function () {
-        return this.getFromPath( 'button.isDisabled' );
-    }.property( 'button.isDisabled' ),
-    isFocussed: false,
-    isFocussable: function () {
-        return !this.get( 'isHidden' ) && !this.get( 'isDisabled' );
-    }.property( 'isHidden', 'isDisabled' ),
-
-    layerTag: 'li',
-
-    className: function () {
-        return 'v-MenuOption' +
-            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
-            ( this.get( 'isHidden' ) ? ' u-hidden' : '' );
-    }.property( 'isFocussed', 'isHidden' ),
-
-    init: function ( view, controller ) {
-        this.childViews = [ view ];
-        this.button = view;
-        this.controller = controller;
-        MenuOptionView.parent.init.call( this );
-    },
-
-    scrollIntoView: function () {
-        if ( this.get( 'isFocussed' ) ) {
-            var scrollView = this.getParent( NS.ScrollView );
-            if ( scrollView ) {
-                var scrollHeight = scrollView.get( 'pxHeight' ),
-                    scrollTop = scrollView.get( 'scrollTop' ),
-                    top = this.getPositionRelativeTo( scrollView ).top,
-                    height = this.get( 'pxHeight' );
-
-                if ( top < scrollTop ) {
-                    scrollView.scrollTo( 0, top - ( height >> 1 ), true );
-                } else if ( top + height > scrollTop + scrollHeight ) {
-                    scrollView.scrollTo( 0,
-                        top + height - scrollHeight + ( height >> 1 ), true );
-                }
-            }
-            if ( !this.getParent( MenuView ).get( 'showFilter' ) ) {
-                this.button.focus();
-            }
-        }
-    }.observes( 'isFocussed' ),
-
-    _focusTimeout: null,
-
-    takeFocus: function () {
-        if ( this.get( 'isInDocument' ) ) {
-            this.get( 'controller' ).focusOption( this )
-                .activateIfMenu();
-        }
-    },
-
-    mouseMove: function () {
-        if ( !this.get( 'isFocussed' ) && !this._focusTimeout ) {
-            var popOverView = this.getParent( NS.PopOverView );
-            if ( popOverView && popOverView.hasSubView() ) {
-                this._focusTimeout = NS.RunLoop.invokeAfterDelay(
-                    this.takeFocus, 75, this );
-            } else {
-                this.takeFocus();
-            }
-        }
-    }.on( 'mousemove' ),
-
-    mouseOut: function () {
-        if ( this._focusTimeout ) {
-            NS.RunLoop.cancel( this._focusTimeout );
-            this._focusTimeout = null;
-        }
-        if ( !this.get( 'button' ).get( 'isActive' ) ) {
-            this.get( 'controller' ).blurOption( this );
-        }
-    }.on( 'mouseout' ),
-
-    filter: function ( pattern ) {
-        var label = this.get( 'button' ).get( 'label' );
-        this.set( 'isHidden', !!pattern && !pattern.test( label ) );
-    },
-
-    activate: function () {
-        var button = this.get( 'button' );
-        if ( button.activate ) { button.activate(); }
-    }
-});
-
-var MenuView = NS.Class({
-
-    Extends: NS.View,
+    Extends: View,
 
     className: 'v-Menu',
 
@@ -279,8 +48,8 @@ var MenuView = NS.Class({
         var scrollView = this._scrollView,
             windowHeight, delta, controller, input;
         if ( scrollView ) {
-            windowHeight = ( this.getParent( NS.ScrollView ) ||
-                this.getParent( NS.RootView ) ).get( 'pxHeight' );
+            windowHeight = ( this.getParent( ScrollView ) ||
+                this.getParent( RootView ) ).get( 'pxHeight' );
             delta = this.get( 'layer' ).getBoundingClientRect().bottom -
                 windowHeight;
             // Must redraw immediately so size is correct when PopOverView
@@ -299,7 +68,7 @@ var MenuView = NS.Class({
             if ( !controller.get( 'focussedOption' ) ) {
                 controller.focusNext();
             }
-            NS.RunLoop.invokeInNextFrame( function () {
+            RunLoop.invokeInNextFrame( function () {
                 input.focus().set( 'selection', {
                     start: 0,
                     end: input.get( 'value' ).length
@@ -344,12 +113,12 @@ var MenuView = NS.Class({
         controller.set( 'options', optionViews );
         return [
             this.get( 'showFilter' ) ? el( 'div.v-Menu-filter', [
-                this._input = new NS.SearchTextView({
+                this._input = new SearchTextView({
                     blurOnEscape: false,
-                    value: NS.bindTwoWay( 'filter', this.get( 'controller' ) )
+                    value: bindTwoWay( 'filter', this.get( 'controller' ) )
                 })
             ]) : null,
-            this._scrollView = new NS.ScrollView({
+            this._scrollView = new ScrollView({
                 positioning: 'relative',
                 layout: {},
                 layerTag: 'ul',
@@ -361,36 +130,36 @@ var MenuView = NS.Class({
     hide: function () {
         var parent = this.get( 'parentView' );
         if ( parent ) {
-            NS.RunLoop.invokeInNextFrame( parent.hide, parent );
+            RunLoop.invokeInNextFrame( parent.hide, parent );
         }
     },
 
     hideAll: function () {
         if ( this.get( 'closeOnActivate' ) ) {
-            var popOverView = this.getParent( NS.PopOverView ) ||
+            var popOverView = this.getParent( PopOverView ) ||
                     this.get( 'parentView' ),
                 parent;
             if ( popOverView ) {
                 while ( parent = popOverView.get( 'parentPopOverView' ) ) {
                     popOverView = parent;
                 }
-                NS.RunLoop.invokeInNextFrame( popOverView.hide, popOverView );
+                RunLoop.invokeInNextFrame( popOverView.hide, popOverView );
             }
         }
     }.on( 'button:activate' ),
 
     fireShortcut: function ( event ) {
         if ( !this.get( 'showFilter' ) ) {
-            var key = NS.DOMEvent.lookupKey( event ),
-                handler = NS.ViewEventsController
-                            .kbShortcuts.getHandlerForKey( key ),
+            var key = DOMEvent.lookupKey( event ),
+                handler = ViewEventsController
+                    .kbShortcuts.getHandlerForKey( key ),
                 parent, object, method;
             if ( handler ) {
                 parent = object = handler[0];
                 method = handler[1];
                 // Check object is child view of the menu; we want to ignore any
                 // other keyboard shortcuts.
-                if ( object instanceof NS.View ) {
+                if ( object instanceof View ) {
                     while ( parent && parent !== this ) {
                         parent = parent.get( 'parentView' );
                     }
@@ -404,8 +173,4 @@ var MenuView = NS.Class({
     }.on( 'keypress' )
 });
 
-NS.MenuController = MenuController;
-NS.MenuOptionView = MenuOptionView;
-NS.MenuView = MenuView;
-
-}( O ) );
+export default MenuView;

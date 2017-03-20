@@ -6,11 +6,9 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../core/Core.js';
 
-( function ( NS ) {
-
-var Heap = NS.Class({
+export default Class({
 
     init: function ( comparator ) {
         this.data = [];
@@ -137,7 +135,3 @@ var Heap = NS.Class({
         return this;
     }
 });
-
-NS.Heap = Heap;
-
-}( O ) );

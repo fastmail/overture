@@ -1,24 +1,29 @@
 // -------------------------------------------------------------------------- \\
 // File: ListKBFocusView.js                                                   \\
 // Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
+// Requires: Core, Foundation, View, ContainerViews                           \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../core/Number.js';  // For Number#limit
+import { bind } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
+import '../../foundation/RunLoop.js';  // For Function#queue
+import ScrollView from '../containers/ScrollView.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
 
-( function ( NS, undefined ) {
+var ListKBFocusView = Class({
 
-var ListKBFocusView = NS.Class({
-
-    Extends: NS.View,
+    Extends: View,
 
     selection: null,
     singleSelection: null,
 
-    index: NS.bind( 'singleSelection*index' ),
-    record: NS.bind( 'singleSelection*record' ),
+    index: bind( 'singleSelection*index' ),
+    record: bind( 'singleSelection*record' ),
 
     itemHeight: 32,
 
@@ -53,7 +58,7 @@ var ListKBFocusView = NS.Class({
 
     didEnterDocument: function () {
         var keys = this.get( 'keys' ),
-            shortcuts = NS.ViewEventsController.kbShortcuts,
+            shortcuts = ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
@@ -63,7 +68,7 @@ var ListKBFocusView = NS.Class({
     },
     willLeaveDocument: function () {
         var keys = this.get( 'keys' ),
-            shortcuts = NS.ViewEventsController.kbShortcuts,
+            shortcuts = ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );
@@ -86,7 +91,7 @@ var ListKBFocusView = NS.Class({
     }.queue( 'after' ),
 
     distanceFromVisRect: function () {
-        var scrollView = this.getParent( NS.ScrollView );
+        var scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             var scrollTop = scrollView.get( 'scrollTop' ),
                 position = this.getPositionRelativeTo( scrollView ),
@@ -104,7 +109,7 @@ var ListKBFocusView = NS.Class({
     }.property().nocache(),
 
     scrollIntoView: function ( offset, withAnimation ) {
-        var scrollView = this.getParent( NS.ScrollView );
+        var scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             var scrollHeight = scrollView.get( 'pxHeight' ),
                 itemHeight = this.get( 'pxHeight' ),
@@ -164,6 +169,4 @@ var ListKBFocusView = NS.Class({
     star: function () {}
 });
 
-NS.ListKBFocusView = ListKBFocusView;
-
-}( O ) );
+export default ListKBFocusView;

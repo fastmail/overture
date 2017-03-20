@@ -1,14 +1,16 @@
 // -------------------------------------------------------------------------- \\
 // File: AttributeErrors.js                                                   \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
+// Requires: Core, Foundation, RecordAttribute.js                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, meta } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import '../../foundation/ObservableProps.js';  // For Function#observes
 
-( function ( NS ) {
+import RecordAttribute from './RecordAttribute.js';
 
 /**
     Class: O.AttributeErrors
@@ -17,9 +19,9 @@
 
     Maintains the state of the validity of each attribute on a record.
 */
-var AttributeErrors = NS.Class({
+var AttributeErrors = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.AttributeErrors#errorCount
@@ -37,7 +39,7 @@ var AttributeErrors = NS.Class({
     init: function ( record ) {
         AttributeErrors.parent.init.call( this );
 
-        var attrs = NS.meta( record ).attrs;
+        var attrs = meta( record ).attrs;
         var errorCount = 0;
         var attrKey, propKey, attribute, error;
 
@@ -73,7 +75,7 @@ var AttributeErrors = NS.Class({
             property - {String} The name of the property which has changed.
     */
     recordPropertyDidChange: function ( _, property ) {
-        var metadata = NS.meta( this );
+        var metadata = meta( this );
         var changed = metadata.changed = {};
         var dependents = metadata.dependents[ property ];
         var l = dependents ? dependents.length : 0;
@@ -89,7 +91,7 @@ var AttributeErrors = NS.Class({
             }
             attribute = record[ propKey ];
             if ( changed[ propKey ] ||
-                    !( attribute instanceof NS.RecordAttribute ) ) {
+                    !( attribute instanceof RecordAttribute ) ) {
                 continue;
             }
             changed[ propKey ] = {
@@ -134,6 +136,4 @@ var AttributeErrors = NS.Class({
     }.observes( '*' )
 });
 
-NS.AttributeErrors = AttributeErrors;
-
-}( O ) );
+export default AttributeErrors;

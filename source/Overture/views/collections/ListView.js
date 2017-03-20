@@ -6,9 +6,12 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class, guid } from '../../core/Core.js';
+import { bind } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import UA from '../../ua/UA.js';
+import View from '../View.js';
 
 var byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );
@@ -28,7 +31,7 @@ var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
     while ( fromIndex < length ) {
         view = childViews[ fromIndex ];
         item = view.get( 'content' );
-        if ( item && newRendered[ NS.guid( item ) ] ) {
+        if ( item && newRendered[ guid( item ) ] ) {
             break;
         }
         fromIndex += 1;
@@ -36,12 +39,12 @@ var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
     return fromIndex;
 };
 
-var ListView = NS.Class({
+var ListView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     content: null,
-    contentLength: NS.bind( 'content.length' ),
+    contentLength: bind( 'content.length' ),
 
     ItemView: null,
     itemHeight: 0,
@@ -111,7 +114,7 @@ var ListView = NS.Class({
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
-        if ( NS.UA.firefox && height > 16777216 ) {
+        if ( UA.firefox && height > 16777216 ) {
             height = 16777216;
         }
         return itemHeight ? {
@@ -183,7 +186,7 @@ var ListView = NS.Class({
         // Mark views we still need
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
-            id = item ? NS.guid( item ) : 'null:' + i;
+            id = item ? guid( item ) : 'null:' + i;
             view = rendered[ id ];
             if ( view && this.isCorrectItemView( view, item, i ) ) {
                 newRendered[ id ] = view;
@@ -207,7 +210,7 @@ var ListView = NS.Class({
         // Create/update views in render range
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
-            id = item ? NS.guid( item ) : 'null:' + i;
+            id = item ? guid( item ) : 'null:' + i;
             view = newRendered[ id ];
             // Was the view already in the list?
             if ( view ) {
@@ -295,6 +298,4 @@ var ListView = NS.Class({
     replaceView: null
 });
 
-NS.ListView = ListView;
-
-}( O ) );
+export default ListView;

@@ -1,14 +1,21 @@
 // -------------------------------------------------------------------------- \\
 // File: AbstractControlView.js                                               \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View                                      \\
+// Requires: Core, Foundation, DOM, UA, View, Application, Localisation       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS, undefined ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import { loc } from '../../localisation/LocaleController.js';
+import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
+import UA from '../../ua/UA.js';
+import Element from '../../dom/Element.js';
 
 /**
     Class: O.AbstractControlView
@@ -19,9 +26,9 @@
     and should not be instantiated directly; it is only intended to be
     subclassed.
 */
-var AbstractControlView = NS.Class({
+var AbstractControlView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     /**
         Property: O.AbstractControlView#isDisabled
@@ -98,11 +105,11 @@ var AbstractControlView = NS.Class({
     tooltip: function () {
         var shortcut = this.get( 'shortcut' );
         return shortcut ?
-            NS.loc( 'Shortcut: [_1]',
+            loc( 'Shortcut: [_1]',
                 shortcut
                     .split( ' ' )
-                    .map( NS.formatKeyForPlatform )
-                    .join( ' ' + NS.loc( 'or' ) + ' ' )
+                    .map( formatKeyForPlatform )
+                    .join( ' ' + loc( 'or' ) + ' ' )
             ) : '';
     }.property( 'shortcut' ),
 
@@ -116,7 +123,7 @@ var AbstractControlView = NS.Class({
         var shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
-                NS.ViewEventsController.kbShortcuts
+                ViewEventsController.kbShortcuts
                     .register( key, this, 'activate' );
             }, this );
         }
@@ -133,13 +140,13 @@ var AbstractControlView = NS.Class({
         var shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
-                NS.ViewEventsController.kbShortcuts
+                ViewEventsController.kbShortcuts
                     .deregister( key, this, 'activate' );
             }, this );
         }
         // iOS is very buggy if you remove a focussed control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
-        if ( NS.UA.isIOS && this.get( 'isFocussed' ) ) {
+        if ( UA.isIOS && this.get( 'isFocussed' ) ) {
             this.blur();
         }
         return AbstractControlView.parent.willLeaveDocument.call(
@@ -230,7 +237,7 @@ var AbstractControlView = NS.Class({
         while ( child = label.firstChild ) {
             label.removeChild( child );
         }
-        NS.Element.appendChildren( label, [
+        Element.appendChildren( label, [
             this.get( 'label' )
         ]);
     },
@@ -333,6 +340,4 @@ var AbstractControlView = NS.Class({
 
 });
 
-NS.AbstractControlView = AbstractControlView;
-
-}( O ) );
+export default AbstractControlView;

@@ -6,21 +6,23 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, isEqual, clone } from '../../core/Core.js';
+import RunLoop from '../../foundation/RunLoop.js';
 
-( function ( NS ) {
+import {
+    // Core states:
+    EMPTY,
+    READY,
+    DESTROYED,
+    // Properties
+    LOADING,     // Request made to source to fetch record or updates.
+    COMMITTING,  // Request been made to source to commit record.
+    NEW,         // Record has not been committed to source.
+    DIRTY,       // Record has local changes not commited to source
+    OBSOLETE     // Source may have changes not yet loaded.
+} from '../record/Status.js';
 
-// Same as O.Status, inlined here for efficiency:
-// Core states:
-var EMPTY      =   1;
-var READY      =   2;
-var DESTROYED  =   4;
-// Properties
-var LOADING    =  16; // Request made to source to fetch record or updates.
-var COMMITTING =  32; // Request been made to source to commit record.
-var NEW        =  64; // Record has not been committed to source.
-var DIRTY      = 128; // Record has local changes not commited to source
-var OBSOLETE   = 256; // Source may have changes not yet loaded.
+import Store from './Store.js';
 
 /**
     Class: O.NestedStore
@@ -29,9 +31,9 @@ var OBSOLETE   = 256; // Source may have changes not yet loaded.
     parent store. The changes may be discarded instead of committing without
     ever affecting the parent store.
 */
-var NestedStore = NS.Class({
+var NestedStore = Class({
 
-    Extends: NS.Store,
+    Extends: Store,
 
     autoCommit: false,
     isNested: true,
@@ -302,7 +304,7 @@ var NestedStore = NS.Class({
             changedKeys = [];
 
             for ( key in oldData ) {
-                isChanged = !NS.isEqual( oldData[ key ], newBase[ key ] );
+                isChanged = !isEqual( oldData[ key ], newBase[ key ] );
                 if ( rebase && ( key in oldChanged ) ) {
                     if ( isChanged ) {
                         newChanged[ key ] = true;
@@ -318,7 +320,7 @@ var NestedStore = NS.Class({
             }
             if ( !clean ) {
                 _skToChanged[ storeKey ] = newChanged;
-                _skToCommitted[ storeKey ] = NS.clone( newBase );
+                _skToCommitted[ storeKey ] = clone( newBase );
                 this.setData( storeKey, newData );
                 return;
             }
@@ -334,7 +336,7 @@ var NestedStore = NS.Class({
             store.parentDidUpdateData( storeKey, changedKeys );
         });
         this._recordDidChange( storeKey );
-        NS.RunLoop.queueFn( 'before', this.checkForChanges, this );
+        RunLoop.queueFn( 'before', this.checkForChanges, this );
     },
 
     // === A nested store is not directly connected to a source ================
@@ -359,6 +361,4 @@ var NestedStore = NS.Class({
     sourceDidNotDestroy: null
 });
 
-NS.NestedStore = NestedStore;
-
-}( O ) );
+export default NestedStore;

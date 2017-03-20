@@ -6,9 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import DragEffect from './DragEffect.js';
 
 /**
     Mixin: O.DropTarget
@@ -16,7 +14,7 @@
     The DropTarget mixin should be applied to views you wish to make drop
     targets.
 */
-NS.DropTarget = {
+export default {
     /**
         Property: O.DropTarget#isDropTarget
         Type: Boolean
@@ -41,7 +39,7 @@ NS.DropTarget = {
 
         The effect that will be applied to the data if dropped.
     */
-    dropEffect: NS.DragEffect.MOVE,
+    dropEffect: DragEffect.MOVE,
 
     /**
         Property: O.DropTarget#dropAcceptedDataTypes
@@ -123,7 +121,7 @@ NS.DropTarget = {
             drag - {O.Drag} The drag instance.
     */
     dropExited: function ( drag ) {
-        drag.set( 'dropEffect', NS.DragEffect.DEFAULT );
+        drag.set( 'dropEffect', DragEffect.DEFAULT );
         this.set( 'hasDragOver', false );
     },
 
@@ -137,5 +135,3 @@ NS.DropTarget = {
     */
     drop: function (/* drag */) {}
 };
-
-}( O ) );

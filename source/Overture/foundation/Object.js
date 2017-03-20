@@ -6,12 +6,12 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import ComputedProps from './ComputedProps.js';
+import BoundProps from './BoundProps.js';
+import ObservableProps from './ObservableProps.js';
+import EventTarget from './EventTarget.js';
 
-( function ( NS ) {
-
-var meta = NS.meta;
-var mixin = NS.mixin;
+import { Class, meta, mixin } from '../core/Core.js';
 
 /**
     Class: O.Object
@@ -22,10 +22,10 @@ var mixin = NS.mixin;
     It adds support for computed properties, bound properties, observable
     properties and subscribing/firing events.
 */
-NS.Object = NS.Class({
+export default Class({
 
     Mixin: [
-        NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.EventTarget
+        ComputedProps, BoundProps, ObservableProps, EventTarget
     ],
 
     /**
@@ -75,5 +75,3 @@ NS.Object = NS.Class({
         this.isDestroyed = true;
     }
 });
-
-}( O ) );

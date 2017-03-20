@@ -1,41 +1,20 @@
 // -------------------------------------------------------------------------- \\
 // File: GlobalKeyboardShortcuts.js                                           \\
 // Module: Application                                                        \\
-// Requires: Core, Foundation, UA                                             \\
+// Requires: Core, Foundation, DOM, UA, View, ControlViews                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import UA from '../ua/UA.js';
+import DOMEvent from '../dom/DOMEvent.js';
+import RichTextView from '../views/controls/RichTextView.js';
+import ViewEventsController from '../views/ViewEventsController.js';
 
-( function ( NS ) {
-
-var isMac = NS.UA.isMac;
-var platformKeys = {
-    alt: isMac ? '⌥' : 'Alt-',
-    cmd: isMac ? '⌘' : 'Ctrl-',
-    meta: isMac ? '⌘' : 'Meta-',
-    shift: isMac ? '⇧' : 'Shift-',
-    enter: isMac ? '↵' : 'Enter',
-    backspace: isMac ? '⌫' : 'Backspace'
-};
-
-/**
-    Function: O.formatKeyForPlatform
-
-    Parameters:
-        shortcut - {String} The keyboard shorcut, in the same format as
-                   taken by <O.GlobalKeyboardShortcuts#register>.
-
-    Returns:
-        {String} The shortcut formatted for display on the user's platform.
-*/
-NS.formatKeyForPlatform = function ( shortcut ) {
-    return shortcut.split( '-' ).map( function ( key ) {
-        return platformKeys[ key ] || key.capitalise();
-    }).join( '' );
-};
-
+var isMac = UA.isMac;
 var allowedInputs = {
     checkbox: 1,
     radio: 1,
@@ -56,9 +35,9 @@ var handleOnDown = {};
 
     This class facilitates adding keyboard shortcuts to your application.
 */
-var GlobalKeyboardShortcuts = NS.Class({
+var GlobalKeyboardShortcuts = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.GlobalKeyboardShortcuts#isEnabled
@@ -85,7 +64,6 @@ var GlobalKeyboardShortcuts = NS.Class({
 
         GlobalKeyboardShortcuts.parent.init.call( this, mixin );
 
-        var ViewEventsController = NS.ViewEventsController;
         ViewEventsController.kbShortcuts = this;
         ViewEventsController.addEventTarget( this, -10 );
     },
@@ -96,9 +74,8 @@ var GlobalKeyboardShortcuts = NS.Class({
         Destructor.
     */
     destroy: function () {
-        var ViewEventsController = NS.ViewEventsController;
         if ( ViewEventsController.kbShortcuts === this ) {
-            delete NS.ViewEventsController.kbShortcuts;
+            delete ViewEventsController.kbShortcuts;
         }
         ViewEventsController.removeEventTarget( this );
         GlobalKeyboardShortcuts.parent.destroy.call( this );
@@ -212,10 +189,10 @@ var GlobalKeyboardShortcuts = NS.Class({
             nodeName === 'TEXTAREA' ||
             nodeName === 'SELECT' ||
             ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
-            ( event.targetView instanceof NS.RichTextView )
+            ( event.targetView instanceof RichTextView )
         );
         var handler, key, ifInput;
-        key = NS.DOMEvent.lookupKey( event );
+        key = DOMEvent.lookupKey( event );
         if ( event.type === 'keydown' ) {
             handleOnDown[ key ] = true;
         } else if ( handleOnDown[ key ] ) {
@@ -240,6 +217,4 @@ GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;
 GlobalKeyboardShortcuts.ACTIVE_IN_INPUT = ACTIVE_IN_INPUT;
 GlobalKeyboardShortcuts.DISABLE_IN_INPUT = DISABLE_IN_INPUT;
 
-NS.GlobalKeyboardShortcuts = GlobalKeyboardShortcuts;
-
-}( O ) );
+export default GlobalKeyboardShortcuts;

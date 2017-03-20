@@ -5,10 +5,6 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
-
 /**
     Class: O.ValidationError
 
@@ -30,6 +26,4 @@ ValidationError.TOO_LONG = 4;
 ValidationError.INVALID_CHAR = 8;
 ValidationError.FIRST_CUSTOM_ERROR = 16;
 
-NS.ValidationError = ValidationError;
-
-}( O ) );
+export default ValidationError;

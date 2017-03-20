@@ -1,16 +1,21 @@
 // -------------------------------------------------------------------------- \\
 // File: TextView.js                                                          \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
+// Requires: Core, Foundation, DOM, View, ContainerViews, AbstractControlView.js\\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
-
-( function ( NS, undefined ) {
+import { Class, extend } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import Element from '../../dom/Element.js';
+import DOMEvent from '../../dom/DOMEvent.js';
+import ScrollView from '../containers/ScrollView.js';
+import AbstractControlView from './AbstractControlView.js';
 
 var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
 
@@ -22,9 +27,9 @@ var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
     A text input control. The `value` property is two-way bindable, representing
     the input text.
 */
-var TextView = NS.Class({
+var TextView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     init: function ( mixin ) {
         TextView.parent.init.call( this, mixin );
@@ -230,7 +235,7 @@ var TextView = NS.Class({
         'isFocussed', 'isValid', 'isDisabled' ),
 
     layerStyles: function () {
-        return NS.extend({
+        return extend({
             position: this.get( 'positioning' ),
             display: this.get( 'isMultiline' ) ? 'block' : 'inline-block',
             cursor: 'text',
@@ -266,7 +271,7 @@ var TextView = NS.Class({
                 control.placeholder = placeholder;
             } else if ( !value ) {
                 this._placeholderShowing = true;
-                NS.Element.addClass( control, 'v-Text-input--placeholder' );
+                Element.addClass( control, 'v-Text-input--placeholder' );
                 control.value = placeholder;
             }
         }
@@ -344,7 +349,7 @@ var TextView = NS.Class({
     redrawTextHeight: function () {
         var control = this._domControl,
             style = control.style,
-            scrollView = this.getParent( NS.ScrollView ),
+            scrollView = this.getParent( ScrollView ),
             scrollHeight;
         // Set to auto to collapse it back to one line, otherwise it would
         // never shrink if you delete text.
@@ -478,14 +483,14 @@ var TextView = NS.Class({
         if ( isFocussed ) {
             if ( this._placeholderShowing ) {
                 this._placeholderShowing = false;
-                NS.Element.removeClass( control, 'v-Text-input--placeholder' );
+                Element.removeClass( control, 'v-Text-input--placeholder' );
                 control.value = '';
             }
         } else {
             placeholder = this.get( 'placeholder' );
             if ( placeholder && !this.get( 'value' ) ) {
                 this._placeholderShowing = true;
-                NS.Element.addClass( control, 'v-Text-input--placeholder' );
+                Element.addClass( control, 'v-Text-input--placeholder' );
                 control.value = placeholder;
             }
         }
@@ -520,8 +525,8 @@ var TextView = NS.Class({
         // (presumably as though it were submitting the form). Stop this
         // unless we're actually in a form.
         if ( !this.get( 'isMultiline' ) &&
-                NS.DOMEvent.lookupKey( event, true ) === 'enter' &&
-                !NS.Element.nearest( this.get( 'layer' ), 'FORM' ) ) {
+                DOMEvent.lookupKey( event, true ) === 'enter' &&
+                !Element.nearest( this.get( 'layer' ), 'FORM' ) ) {
             event.preventDefault();
         }
     }.on( 'keypress' ),
@@ -536,7 +541,7 @@ var TextView = NS.Class({
             event - {Event} The keydown event.
     */
     _blurOnEsc: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event, true );
+        var key = DOMEvent.lookupKey( event, true );
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
         if ( key === 'esc' && this.get( 'blurOnEscape' ) ) {
@@ -545,6 +550,4 @@ var TextView = NS.Class({
     }.on( 'keydown' )
 });
 
-NS.TextView = TextView;
-
-}( O ) );
+export default TextView;

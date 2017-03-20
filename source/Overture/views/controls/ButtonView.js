@@ -1,14 +1,21 @@
 // -------------------------------------------------------------------------- \\
 // File: ButtonView.js                                                        \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
+// Requires: Core, Foundation, DOM, AbstractControlView.js, MenuView.js       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import '../../foundation/EventTarget.js';  // For Function#on
+import RunLoop from '../../foundation/RunLoop.js';
+import DOMEvent from '../../dom/DOMEvent.js';
+import Element from '../../dom/Element.js';
 
-( function ( NS ) {
+import AbstractControlView from './AbstractControlView.js';
+import MenuView from './MenuView.js';
 
 /**
     Class: O.ButtonView
@@ -66,9 +73,9 @@
     If there is no icon property set, a comment node will be inserted in its
     position.
 */
-var ButtonView = NS.Class({
+var ButtonView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     /**
         Property: O.ButtonView#isActive
@@ -308,9 +315,9 @@ var ButtonView = NS.Class({
                 event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
-        if ( event.type !== 'mouseup' || this.getParent( NS.MenuView ) ) {
+        if ( event.type !== 'mouseup' || this.getParent( MenuView ) ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
-            NS.RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
+            RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
             this.activate();
             event.preventDefault();
             // Firefox keeps focus on the button after clicking. If the user
@@ -329,7 +336,7 @@ var ButtonView = NS.Class({
             event - {Event} The keypress event.
     */
     _activateOnEnter: function ( event ) {
-        if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
+        if ( DOMEvent.lookupKey( event ) === 'enter' ) {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
@@ -337,12 +344,10 @@ var ButtonView = NS.Class({
     }.on( 'keypress' )
 }).extend({
     drawIcon: function ( icon ) {
-        return NS.Element.create( 'i', {
+        return Element.create( 'i', {
             className: 'icon ' + icon
         });
     }
 });
 
-NS.ButtonView = ButtonView;
-
-}( O ) );
+export default ButtonView;

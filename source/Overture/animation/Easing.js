@@ -6,9 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import '../core/Core.js';  // For Function#extend
 
 var cubicBezier;
 
@@ -17,7 +15,7 @@ var cubicBezier;
 
     Holds functions emulating the standard CSS easing functions.
 */
-NS.Easing = {
+export default {
     /**
         Function: O.Easing.cubicBezier
 
@@ -156,5 +154,3 @@ NS.Easing = {
     */
     easeInOut: cubicBezier( 0.42, 0, 0.58, 1 )
 };
-
-}( O ) );

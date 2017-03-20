@@ -6,9 +6,12 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS, undefined ) {
+import { Class } from '../core/Core.js';
+import Object from './Object.js';
+import ObservableRange from './ObservableRange.js';
+import Enumerable from './Enumerable.js';
+import MutableEnumerable from './MutableEnumerable.js';
+import './ComputedProps.js';  // For Function#property
 
 var splice = Array.prototype.splice;
 var slice = Array.prototype.slice;
@@ -25,11 +28,11 @@ var slice = Array.prototype.slice;
     observed. Note, all access must be via getObjectAt/setObjectAt, not direct
     array[i].
 */
-var ObservableArray = NS.Class({
+var ObservableArray = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: [ NS.ObservableRange, NS.Enumerable, NS.MutableEnumerable ],
+    Mixin: [ ObservableRange, Enumerable, MutableEnumerable ],
 
     /**
         Constructor: O.ObservableArray
@@ -279,6 +282,4 @@ var ObservableArray = NS.Class({
     }
 });
 
-NS.ObservableArray = ObservableArray;
-
-}( O ) );
+export default ObservableArray;

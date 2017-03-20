@@ -1,14 +1,21 @@
 // -------------------------------------------------------------------------- \\
 // File: View.js                                                              \\
 // Module: View                                                               \\
-// Requires: Core, Foundation, DOM, UA                                        \\
+// Requires: Core, Foundation, DOM, UA, ViewEventsController.js               \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, extend } from '../core/Core.js';
+import '../core/String.js';  // For String#capitalise
+import OObject from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';
+import '../foundation/ObservableProps.js';  // For Function#observes
+import '../foundation/ComputedProps.js';  // For Function#property
+import Element from '../dom/Element.js';  // Circular but it's OK
+import UA from '../ua/UA.js';
 
-( function ( NS, undefined ) {
+import ViewEventsController from './ViewEventsController.js';
 
 var UID = 0;
 
@@ -20,7 +27,7 @@ var POSITION_SAME = 0x00,
     POSITION_CONTAINED_BY = 0x10;
 
 var userSelectNone =
-        ( NS.UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
+        ( UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
             '-moz-none' : 'none';
 
 /**
@@ -170,9 +177,9 @@ var renderView = function ( view ) {
     return view.render().get( 'layer' );
 };
 
-var View = NS.Class({
+var View = Class({
 
-    Extends: NS.Object,
+    Extends: OObject,
 
     /**
         Property: O.View#parentView
@@ -310,7 +317,7 @@ var View = NS.Class({
         The underlying DOM node for this layer.
     */
     layer: function () {
-        var layer = NS.Element.create( this.get( 'layerTag' ), {
+        var layer = Element.create( this.get( 'layerTag' ), {
             id: this.get( 'id' ),
             className: this.get( 'className' ),
             style: Object.toCSSString( this.get( 'layerStyles' ) ),
@@ -383,11 +390,11 @@ var View = NS.Class({
         // If change was made since willEnterDocument, will not be
         // flushed, so add redraw to render queue.
         if ( this._needsRedraw ) {
-            NS.RunLoop.queueFn( 'render', this.redraw, this );
+            RunLoop.queueFn( 'render', this.redraw, this );
         }
         this.set( 'isInDocument', true );
 
-        NS.ViewEventsController.registerActiveView( this );
+        ViewEventsController.registerActiveView( this );
 
         this.computedPropertyDidChange( 'pxLayout' );
 
@@ -411,7 +418,7 @@ var View = NS.Class({
     willLeaveDocument: function () {
         this.set( 'isInDocument', false );
 
-        NS.ViewEventsController.deregisterActiveView( this );
+        ViewEventsController.deregisterActiveView( this );
 
         var children = this.get( 'childViews' ),
             l = children.length;
@@ -473,7 +480,7 @@ var View = NS.Class({
             event - {Event} The DOM event object.
     */
     handleEvent: function ( event ) {
-        NS.ViewEventsController.handleEvent( event );
+        ViewEventsController.handleEvent( event );
     },
 
     // --- Behaviour ---
@@ -533,7 +540,7 @@ var View = NS.Class({
     */
     layerStyles: function () {
         var allowTextSelection = this.get( 'allowTextSelection' );
-        return NS.extend({
+        return extend({
             position: this.get( 'positioning' ),
             userSelect: allowTextSelection ? 'text' : userSelectNone
         }, this.get( 'layout' ) );
@@ -556,8 +563,7 @@ var View = NS.Class({
                 this.resumeBindings();
             }
             this.set( 'isRendered', true );
-            var Element = NS.Element,
-                prevView = Element.forView( this ),
+            var prevView = Element.forView( this ),
                 layer = this.get( 'layer' ),
                 children = this.draw( layer, Element, Element.create );
             if ( children ) {
@@ -621,7 +627,7 @@ var View = NS.Class({
                 oldProp
             ];
             if ( this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'render', this.redraw, this );
+                RunLoop.queueFn( 'render', this.redraw, this );
             }
         }
         return this;
@@ -664,8 +670,7 @@ var View = NS.Class({
             layer - {Element} The view's layer.
     */
     redrawLayer: function ( layer ) {
-        var Element = NS.Element,
-            prevView = Element.forView( this ),
+        var prevView = Element.forView( this ),
             childViews = this.get( 'childViews' ),
             l = childViews.length,
             node, view;
@@ -926,7 +931,7 @@ var View = NS.Class({
         if ( view.syncBackScroll ) {
             view.syncBackScroll();
         }
-        var getPosition = NS.Element.getPosition,
+        var getPosition = Element.getPosition,
             selfPosition = getPosition( this.get( 'layer' ) ),
             viewPosition = getPosition( view.get( 'layer' ) );
         selfPosition.top -= viewPosition.top - view.get( 'scrollTop' );
@@ -1235,6 +1240,4 @@ View.peekId = function () {
     return 'v' + UID;
 };
 
-NS.View = View;
-
-}( O ) );
+export default View;

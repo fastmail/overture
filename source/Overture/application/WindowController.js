@@ -8,9 +8,13 @@
 
 /*global JSON, window, document, localStorage */
 
-"use strict";
-
-( function ( NS, window, document, localStorage ) {
+import { Class, extend } from '../core/Core.js';  // Also Function#extend
+import '../core/Date.js';  // For Date#format
+import '../core/String.js';  // For String#escapeHTML
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
+import UA from '../ua/UA.js';
 
 /**
     Class: O.WindowController
@@ -35,9 +39,9 @@
     this controller as well. It also monitors whether the window currently has
     focus or not.
 */
-var WindowController = NS.Class({
+var WindowController = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.WindowController#broadcastKey
@@ -91,7 +95,7 @@ var WindowController = NS.Class({
 
         this.broadcast( 'wc:hello' );
 
-        var RunLoop = NS.RunLoop;
+        var RunLoop = RunLoop;
 
         var that = this;
         var check = function check () {
@@ -107,8 +111,8 @@ var WindowController = NS.Class({
     },
 
     destroy: function () {
-        NS.RunLoop.cancel( this._pingTimeout )
-                  .cancel( this._checkTimeout );
+        RunLoop.cancel( this._pingTimeout )
+               .cancel( this._checkTimeout );
 
         window.removeEventListener( 'storage', this, false );
         window.removeEventListener( 'unload', this, false );
@@ -243,7 +247,7 @@ var WindowController = NS.Class({
         try {
             localStorage.setItem(
                 this.get( 'broadcastKey' ),
-                JSON.stringify( NS.extend({
+                JSON.stringify( extend({
                     wcId: this.id,
                     type: type
                 }, data ))
@@ -257,7 +261,7 @@ var WindowController = NS.Class({
         if ( newWindow ) {
             // From goog.window.open; IE has trouble if there's a
             // semi-colon in the URL apparently.
-            if ( NS.UA.msie && href.indexOf( ';' ) > -1 ) {
+            if ( UA.msie && href.indexOf( ';' ) > -1 ) {
                 htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
             }
             htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
@@ -277,6 +281,4 @@ var WindowController = NS.Class({
     }
 });
 
-NS.WindowController = WindowController;
-
-}( O, window, document, localStorage ) );
+export default WindowController;

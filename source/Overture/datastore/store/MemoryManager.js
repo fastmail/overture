@@ -1,14 +1,16 @@
 // -------------------------------------------------------------------------- \\
 // File: MemoryManager.js                                                     \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation, Store.js                                       \\
+// Requires: Core, Foundation, Record.js, RemoteQuery.js                      \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, guid } from '../../core/Core.js';
+import RunLoop from '../../foundation/RunLoop.js';
 
-( function ( NS ) {
+import Record from '../record/Record.js';
+import RemoteQuery from '../query/RemoteQuery.js';
 
 /**
     Class: O.MemoryManager
@@ -19,7 +21,7 @@
     breached.
 */
 
-var MemoryManager = NS.Class({
+var MemoryManager = Class({
 
     /**
         Property (private): O.MemoryManager#_index
@@ -81,7 +83,7 @@ var MemoryManager = NS.Class({
         this.isPaused = false;
         this.frequency = frequency || 30000;
 
-        NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+        RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
     },
 
     /**
@@ -119,15 +121,15 @@ var MemoryManager = NS.Class({
             deleted;
 
         if ( this.isPaused ) {
-            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+            RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
             return;
         }
 
         do {
-            if ( ParentType === NS.Record ) {
+            if ( ParentType === Record ) {
                 deleted = this.cleanupRecordType( Type, max );
                 break;
-            } else if ( ParentType === NS.RemoteQuery ) {
+            } else if ( ParentType === RemoteQuery ) {
                 deleted = this.cleanupQueryType( Type, max );
                 break;
             }
@@ -139,9 +141,9 @@ var MemoryManager = NS.Class({
 
         // Yield between examining types so we don't hog the event queue.
         if ( index ) {
-            NS.RunLoop.invokeInNextEventLoop( this.cleanup, this );
+            RunLoop.invokeInNextEventLoop( this.cleanup, this );
         } else {
-            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+            RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
         }
     },
 
@@ -159,7 +161,7 @@ var MemoryManager = NS.Class({
             _skToLastAccess = store._skToLastAccess,
             _skToData = store._skToData,
             storeKeys =
-                Object.keys( store._typeToSkToId[ NS.guid( Type ) ] || {} ),
+                Object.keys( store._typeToSkToId[ guid( Type ) ] || {} ),
             l = storeKeys.length,
             numberToDelete = l - max,
             deleted = [],
@@ -214,6 +216,4 @@ var MemoryManager = NS.Class({
     }
 });
 
-NS.MemoryManager = MemoryManager;
-
-}( O ) );
+export default MemoryManager;

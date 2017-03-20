@@ -8,13 +8,16 @@
 
 /*global location */
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../core/Core.js';
+import '../core/String.js';  // For String#contains
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import XHR from './XHR.js';
 
 var xhrPool = [];
 var getXhr = function () {
-    return xhrPool.pop() || new NS.XHR();
+    return xhrPool.pop() || new XHR();
 };
 var releaseXhr = function ( xhr ) {
     xhrPool.push( xhr );
@@ -30,9 +33,9 @@ var releaseXhr = function ( xhr ) {
     depending on browser support.
 */
 
-var HttpRequest = NS.Class({
+var HttpRequest = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.HttpRequest#timeout
@@ -128,7 +131,7 @@ var HttpRequest = NS.Class({
         var timeout = this.get( 'timeout' );
         if ( timeout ) {
             this._lastActivity = Date.now();
-            this._timer = NS.RunLoop.invokeAfterDelay(
+            this._timer = RunLoop.invokeAfterDelay(
                 this.didTimeout, timeout, this );
         }
     }.on( 'io:begin' ),
@@ -140,7 +143,7 @@ var HttpRequest = NS.Class({
     clearTimeout: function () {
         var timer = this._timer;
         if ( timer ) {
-            NS.RunLoop.cancel( timer );
+            RunLoop.cancel( timer );
         }
     }.on( 'io:end' ),
 
@@ -154,7 +157,7 @@ var HttpRequest = NS.Class({
             this.fire( 'io:timeout' )
                 .abort();
         } else {
-            this._timer = NS.RunLoop.invokeAfterDelay(
+            this._timer = RunLoop.invokeAfterDelay(
                 this.didTimeout, timeToTimeout, this );
         }
     },
@@ -201,7 +204,7 @@ var HttpRequest = NS.Class({
 
     _releaseXhr: function () {
         var transport = this._transport;
-        if ( transport instanceof NS.XHR ) {
+        if ( transport instanceof XHR ) {
             releaseXhr( transport );
             transport.io = null;
             this._transport = null;
@@ -279,6 +282,4 @@ var HttpRequest = NS.Class({
     */
 });
 
-NS.HttpRequest = HttpRequest;
-
-}( O ) );
+export default HttpRequest;

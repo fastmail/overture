@@ -1,18 +1,20 @@
 // -------------------------------------------------------------------------- \\
 // File: ListItemView.js                                                      \\
 // Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
+// Requires: Core, Foundation, UA, View                                       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/RunLoop.js';  // For Function#nextFrame
+import UA from '../../ua/UA.js';
+import View from '../View.js';
 
-( function ( NS ) {
+var ListItemView = Class({
 
-var ListItemView = NS.Class({
-
-    Extends: NS.View,
+    Extends: View,
 
     content: null,
 
@@ -37,7 +39,7 @@ var ListItemView = NS.Class({
 
     positioning: 'absolute',
 
-    layout: ( NS.UA.cssProps.transform3d ? function () {
+    layout: ( UA.cssProps.transform3d ? function () {
         var index = this.get( 'index' ),
             itemHeight = this.get( 'itemHeight' ),
             isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' ),
@@ -61,6 +63,4 @@ var ListItemView = NS.Class({
     }.nextFrame().observes( 'isInDocument' )
 });
 
-NS.ListItemView = ListItemView;
-
-}( O ) );
+export default ListItemView;

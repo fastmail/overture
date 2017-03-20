@@ -1,20 +1,23 @@
 // -------------------------------------------------------------------------- \\
 // File: ProgressiveListView.js                                               \\
 // Module: CollectionViews                                                    \\
-// Requires: View, ListView.js, TrueVisibleRect.js                            \\
+// Requires: Core, Foundation, ContainerViews, ListView.js, TrueVisibleRect.js\\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
+import ScrollView from '../containers/ScrollView.js';
+import ListView from './ListView.js';
+import TrueVisibleRect from './TrueVisibleRect.js';
 
-( function ( NS ) {
+var ProgressiveListView = Class({
 
-var ProgressiveListView = NS.Class({
+    Extends: ListView,
 
-    Extends: NS.ListView,
-
-    Mixin: NS.TrueVisibleRect,
+    Mixin: TrueVisibleRect,
 
     batchSize: 10,
     triggerInPx: 200,
@@ -25,7 +28,7 @@ var ProgressiveListView = NS.Class({
     },
 
     contentWasUpdated: function ( event ) {
-        var scrollView = this.getParent( NS.ScrollView );
+        var scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             // Update scroll view correctly.
             var itemHeight = this.get( 'itemHeight' ),
@@ -79,7 +82,7 @@ var ProgressiveListView = NS.Class({
         // to the new maximum scrollTop, no scroll event is fired. Therefore we
         // have to simulate this firing in the next event loop.
         if ( length < oldLength ) {
-            NS.RunLoop.invokeInNextEventLoop(
+            RunLoop.invokeInNextEventLoop(
                 this.fire.bind( this, 'scroll', null, null )
             );
         }
@@ -110,6 +113,4 @@ var ProgressiveListView = NS.Class({
     }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' )
 });
 
-NS.ProgressiveListView = ProgressiveListView;
-
-}( O ) );
+export default ProgressiveListView;

@@ -1,18 +1,25 @@
 // -------------------------------------------------------------------------- \\
 // File: ScrollView.js                                                        \\
 // Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View                                           \\
+// Requires: Core, Foundation, View, Animation, Touch, UA                     \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';  // Also Function#implement
+import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import Animation from '../../animation/Animation.js';
+import Tap from '../../touch/Tap.js';
+import UA from '../../ua/UA.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
 
-( function ( NS ) {
+var ScrollAnimation = Class({
 
-var ScrollAnimation = NS.Class({
-
-    Extends: NS.Animation,
+    Extends: Animation,
 
     duration: 250,
 
@@ -47,9 +54,9 @@ var ScrollAnimation = NS.Class({
     only be shown for vertical overflow. Set the <O.ScrollView#showScrollbarX>
     property to `true` to show a scrollbar on horizontal overflow as well.
 */
-var ScrollView = NS.Class({
+var ScrollView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     /**
         Property: O.ScrollView#showScrollbarX
@@ -93,7 +100,7 @@ var ScrollView = NS.Class({
 
         Overrides default in <O.View#layout>.
     */
-    layout: NS.View.LAYOUT_FILL_PARENT,
+    layout: View.LAYOUT_FILL_PARENT,
 
     /**
         Property: O.ScrollView#layerStyles
@@ -102,7 +109,7 @@ var ScrollView = NS.Class({
         Sets the overflow styles to show the scrollbars.
     */
     layerStyles: function () {
-        var styles = NS.View.prototype.layerStyles.call( this );
+        var styles = View.prototype.layerStyles.call( this );
         styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
         styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
         styles.WebkitOverflowScrolling = 'touch';
@@ -142,7 +149,7 @@ var ScrollView = NS.Class({
 
         // Add keyboard shortcuts:
         var keys = this.get( 'keys' ),
-            shortcuts = NS.ViewEventsController.kbShortcuts,
+            shortcuts = ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
@@ -154,7 +161,7 @@ var ScrollView = NS.Class({
     willLeaveDocument: function () {
         // Remove keyboard shortcuts:
         var keys = this.get( 'keys' ),
-            shortcuts = NS.ViewEventsController.kbShortcuts,
+            shortcuts = ViewEventsController.kbShortcuts,
             key;
         for ( key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );
@@ -379,7 +386,7 @@ var ScrollView = NS.Class({
         layer.scrollTop = y;
         // In case we've gone past the end.
         if ( x || y ) {
-            NS.RunLoop.queueFn( 'after', this.syncBackScroll, this );
+            RunLoop.queueFn( 'after', this.syncBackScroll, this );
         }
     },
 
@@ -405,14 +412,14 @@ var ScrollView = NS.Class({
         if ( event ) {
             event.stopPropagation();
             // Don't interpret tap to stop scroll as a real tap.
-            if ( NS.Tap ) {
-                NS.Tap.cancel();
+            if ( Tap ) {
+                Tap.cancel();
             }
         }
     }.on( 'scroll' )
 });
 
-if ( NS.UA.isIOS ) {
+if ( UA.isIOS ) {
     ScrollView.implement({
         isFixedDimensions: function () {
             var positioning = this.get( 'positioning' );
@@ -423,7 +430,7 @@ if ( NS.UA.isIOS ) {
             var isFixedDimensions = this.get( 'isFixedDimensions' ),
                 scrollFixerHeight = 1,
                 wrapper = null,
-                safariVersion = NS.UA.safari,
+                safariVersion = UA.safari,
                 children;
 
             // Render the children.
@@ -458,7 +465,7 @@ if ( NS.UA.isIOS ) {
             // is never at the absolute end, so there is always room to scroll
             // in both directions. We add a 1px tall empty div at the top of
             // the content so at scrollTop=1px, it looks like it should.
-            if ( NS.UA.isWKWebView ) {
+            if ( UA.isWKWebView ) {
                 scrollFixerHeight = 2;
                 layer.appendChild(
                     el( 'div', { style: 'height:1px' } )
@@ -514,7 +521,7 @@ if ( NS.UA.isIOS ) {
             if ( !relativeTo && this.get( 'isRendered' ) ) {
                 relativeTo = this.scrollLayer;
                 if ( where === 'top' ) {
-                    if ( NS.UA.safari >= 8 ) {
+                    if ( UA.safari >= 8 ) {
                         relativeTo = relativeTo.firstChild;
                         where = 'after';
                     }
@@ -531,6 +538,4 @@ if ( NS.UA.isIOS ) {
     });
 }
 
-NS.ScrollView = ScrollView;
-
-}( O ) );
+export default ScrollView;

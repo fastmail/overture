@@ -1,16 +1,26 @@
 // -------------------------------------------------------------------------- \\
 // File: Drag.js                                                              \\
 // Module: DragDrop                                                           \\
-// Requires: DragEffect.js                                                    \\
+// Requires: Core, Foundation, DOM, View, DragController.js, DragEffect.js    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
+import { Class } from '../core/Core.js';
+import '../core/Array.js';  // For Array#include
+import '../core/String.js';  // For String#contains
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
+import '../foundation/ComputedProps.js';  // For Function#property
+import Element from '../dom/Element.js';
+import Stylesheet from '../dom/Stylesheet.js';
+import ScrollView from '../views/containers/ScrollView.js';
+import ViewEventsController from '../views/ViewEventsController.js';
 
-( function ( NS ) {
+import DragController from './DragController.js';  // Circular but it's OK
+import DragEffect from './DragEffect.js';
 
 /* Issues with native drag and drop.
 
@@ -47,7 +57,7 @@ var NONE = 0,
     LINK = 4,
     ALL = COPY|MOVE|LINK,
     DEFAULT = 8,
-    effectToString = NS.DragEffect.effectToString;
+    effectToString = DragEffect.effectToString;
 
 /**
     Class: O.Drag
@@ -56,9 +66,9 @@ var NONE = 0,
 
     Represents a drag operation being performed by a user.
 */
-var Drag = NS.Class({
+var Drag = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Constructor: O.Drag
@@ -220,7 +230,7 @@ var Drag = NS.Class({
                     dragCursor.removeChild( oldImage );
                 }
             } else {
-                dragCursor = this._dragCursor = NS.Element.create( 'div', {
+                dragCursor = this._dragCursor = Element.create( 'div', {
                     style: 'position: fixed; z-index: 9999;'
                 });
                 this._updateDragImagePosition();
@@ -279,7 +289,7 @@ var Drag = NS.Class({
                     break;
             }
 
-            stylesheet = NS.Stylesheet.create( 'o-drag-cursor',
+            stylesheet = Stylesheet.create( 'o-drag-cursor',
                 '*{cursor:default !important;cursor:' + cursor + ' !important;}'
             );
         }
@@ -464,7 +474,7 @@ var Drag = NS.Class({
             {O.Drag} Returns self.
     */
     startDrag: function () {
-        NS.DragController.register( this );
+        DragController.register( this );
         this.fire( 'dragStarted' );
         var dragSource = this.get( 'dragSource' ),
             allowedEffects, dataTransfer, dataSource, dataIsSet, data;
@@ -541,13 +551,13 @@ var Drag = NS.Class({
             this._dragCursor = null;
         }
         if ( this._scrollInterval ) {
-            NS.RunLoop.cancel( this._scrollInterval );
+            RunLoop.cancel( this._scrollInterval );
             this._scrollInterval = null;
         }
         this._setCursor( false );
 
         this.fire( 'dragEnded' );
-        NS.DragController.deregister( this );
+        DragController.deregister( this );
 
         return this;
     },
@@ -656,8 +666,8 @@ var Drag = NS.Class({
             if ( view && this._lastTargetView !== view ) {
                 this._lastTargetView = scrollView = view;
 
-                if ( !( scrollView instanceof NS.ScrollView ) ) {
-                    scrollView = scrollView.getParent( NS.ScrollView );
+                if ( !( scrollView instanceof ScrollView ) ) {
+                    scrollView = scrollView.getParent( ScrollView );
                 }
                 if ( scrollView ) {
                     bounds = scrollView.get( 'layer' ).getBoundingClientRect();
@@ -680,7 +690,7 @@ var Drag = NS.Class({
         }
         // Clear the timer if we used to be in a hotspot.
         if ( this._scrollInterval ) {
-            NS.RunLoop.cancel( this._scrollInterval );
+            RunLoop.cancel( this._scrollInterval );
             this._scrollInterval = null;
         }
         // And set a new timer if we are currently in a hotspot.
@@ -690,7 +700,7 @@ var Drag = NS.Class({
             if ( deltaX || deltaY ) {
                 this._scrollBy = { x: deltaX, y: deltaY };
                 this._scrollInterval =
-                    NS.RunLoop.invokePeriodically( this._scroll, 100, this );
+                    RunLoop.invokePeriodically( this._scroll, 100, this );
             }
         }
     },
@@ -709,7 +719,7 @@ var Drag = NS.Class({
             var cursor = this.get( 'cursorPosition' ),
                 target = document.elementFromPoint( cursor.x, cursor.y );
             if ( target ) {
-                this._update( NS.ViewEventsController.getViewFromNode( target ) );
+                this._update( ViewEventsController.getViewFromNode( target ) );
             }
         }
     },
@@ -782,6 +792,4 @@ var Drag = NS.Class({
     }
 });
 
-NS.Drag = Drag;
-
-}( O ) );
+export default Drag;

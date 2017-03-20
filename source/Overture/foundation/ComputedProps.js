@@ -1,14 +1,15 @@
 // -------------------------------------------------------------------------- \\
 // File: ComputedProps.js                                                     \\
 // Module: Foundation                                                         \\
-// Requires: Core                                                             \\
+// Requires: Core, getFromPath.js                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { meta, clone } from '../core/Core.js';  // Also Function#implement
+import '../core/Array.js';  // For Array#erase
 
-( function ( NS, undefined ) {
+import getFromPath from './getFromPath.js';
 
 /**
     Module: Foundation
@@ -17,8 +18,7 @@
     coding and observation as well as bindings and a run loop.
 */
 
-var slice = Array.prototype.slice,
-    meta = NS.meta;
+var slice = Array.prototype.slice;
 
 var makeComputedDidChange = function ( key ) {
     return function () {
@@ -32,7 +32,7 @@ var setupComputed = function ( metadata, key, obj ) {
         l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
 
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-        dependents = metadata.dependents = NS.clone( dependents );
+        dependents = metadata.dependents = clone( dependents );
         metadata.allDependents = {};
     }
     l = dependencies.length;
@@ -75,7 +75,7 @@ var teardownComputed = function ( metadata, key ) {
         l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
 
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-        dependents = metadata.dependents = NS.clone( dependents );
+        dependents = metadata.dependents = clone( dependents );
         metadata.allDependents = {};
     }
     l = dependencies.length;
@@ -167,45 +167,6 @@ Function.implement({
 });
 
 /**
-    Function: O.getFromPath
-
-    Follows a path string (e.g. 'mailbox.messages.howMany') to retrieve the
-    final object/value from a root object. At each stage of the path, if the current object supports a 'get' function, that will be used to retrieve the
-    next stage, otherwise it will just be read directly as a property.
-
-    If the full path cannot be followed, `undefined` will be returned.
-
-    Parameters:
-        root - {Object} The root object the path is relative to.
-        path - {String} The path to retrieve the value from.
-
-    Returns:
-        {*} Returns the value at the end of the path.
-*/
-var isNum = /^\d+$/;
-var getFromPath = NS.getFromPath = function ( root, path ) {
-    var currentPosition = 0,
-        pathLength = path.length,
-        nextDot,
-        key;
-    while ( currentPosition < pathLength ) {
-        if ( !root ) {
-            return undefined;
-        }
-        nextDot = path.indexOf( '.', currentPosition );
-        if ( nextDot === -1 ) { nextDot = pathLength; }
-        key = path.slice( currentPosition, nextDot );
-        root = root.getObjectAt && isNum.test( key ) ?
-            root.getObjectAt( +key ) :
-            root.get ?
-                root.get( key ) :
-                root[ key ];
-        currentPosition = nextDot + 1;
-    }
-    return root;
-};
-
-/**
     Mixin: O.ComputedProps
 
     The ComputedProps mixin provides a generic get/set method for accessing
@@ -255,7 +216,7 @@ var computeDependentKeys = function ( cache, key, results ) {
     return results;
 };
 
-NS.ComputedProps = {
+export default {
     /**
         Method: O.ComputedProps#propertiesDependentOnKey
 
@@ -454,4 +415,5 @@ NS.ComputedProps = {
     }
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Function#property,
+// Function#nocache, Function#doNotNotify

@@ -6,9 +6,11 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import AbstractControlView from './AbstractControlView.js';
+import CheckboxView from './CheckboxView.js';
 
 /**
     Class: O.RadioView
@@ -18,9 +20,9 @@
     A radio-button control view. The `value` property is two-way bindable,
     representing the state of the button (`true` => selected).
 */
-var RadioView = NS.Class({
+var RadioView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     // --- Render ---
 
@@ -65,7 +67,7 @@ var RadioView = NS.Class({
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    radioNeedsRedraw: NS.CheckboxView.prototype.checkboxNeedsRedraw,
+    radioNeedsRedraw: CheckboxView.prototype.checkboxNeedsRedraw,
 
     /**
         Method: O.RadioView#redrawValue
@@ -73,7 +75,7 @@ var RadioView = NS.Class({
         Updates the checked status of the DOM `<input type="radio">` to match
         the value property of the view.
     */
-    redrawValue: NS.CheckboxView.prototype.redrawValue,
+    redrawValue: CheckboxView.prototype.redrawValue,
 
     // --- Keep state in sync with render ---
 
@@ -90,6 +92,4 @@ var RadioView = NS.Class({
     }.on( 'click' )
 });
 
-NS.RadioView = RadioView;
-
-}( O ) );
+export default RadioView;

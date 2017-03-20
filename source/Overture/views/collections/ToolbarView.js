@@ -1,24 +1,32 @@
 // -------------------------------------------------------------------------- \\
 // File: ToolbarView.js                                                       \\
 // Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View, ControlViews                             \\
+// Requires: Core, Foundation, DOM, Localisation, View, ControlViews, PanelViews\\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import DOMEvent from '../../dom/DOMEvent.js';
+import Element from '../../dom/Element.js';
+import { loc } from '../../localisation/LocaleController.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import PopOverView from '../panels/PopOverView.js';
+import MenuButtonView from '../controls/MenuButtonView.js';
+import MenuView from '../controls/MenuView.js';
 
 var toView = function ( name ) {
     return ( name === '-' ) ?
-        NS.Element.create( 'span.v-Toolbar-divider' ) :
+        Element.create( 'span.v-Toolbar-divider' ) :
         this._views[ name ];
 };
 
-var OverflowMenuView = NS.Class({
+var OverflowMenuView = Class({
 
-    Extends: NS.MenuButtonView,
+    Extends: MenuButtonView,
 
     didEnterDocument: function () {
         OverflowMenuView.parent.didEnterDocument.call( this );
@@ -46,7 +54,7 @@ var OverflowMenuView = NS.Class({
 
     setShortcuts: function ( _, __, oldShortcuts, shortcuts ) {
         if ( this.get( 'isInDocument' ) ) {
-            var kbShortcuts = NS.ViewEventsController.kbShortcuts,
+            var kbShortcuts = ViewEventsController.kbShortcuts,
                 key;
             if ( !shortcuts ) { shortcuts = this.get( 'shortcuts' ); }
             for ( key in oldShortcuts ) {
@@ -59,18 +67,18 @@ var OverflowMenuView = NS.Class({
     }.observes( 'shortcuts' ),
 
     activateButton: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event ),
+        var key = DOMEvent.lookupKey( event ),
             button = this.get( 'shortcuts' )[ key ];
-        if ( button instanceof NS.MenuButtonView ) {
+        if ( button instanceof MenuButtonView ) {
             this.activate();
         }
         button.activate();
     }
 });
 
-var ToolbarView = NS.Class({
+var ToolbarView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     className: 'v-Toolbar',
 
@@ -82,8 +90,8 @@ var ToolbarView = NS.Class({
         ToolbarView.parent.init.call( this, mixin );
         this._views = {
             overflow: new OverflowMenuView({
-                label: NS.loc( 'More' ),
-                popOverView: mixin.popOverView || new NS.PopOverView()
+                label: loc( 'More' ),
+                popOverView: mixin.popOverView || new PopOverView()
             })
         };
         this._configs = {
@@ -176,12 +184,12 @@ var ToolbarView = NS.Class({
                 }
                 if ( l < 0 ) { l = 0; }
 
-                this._views.overflow.set( 'menuView', new NS.MenuView({
+                this._views.overflow.set( 'menuView', new MenuView({
                     showFilter: false,
                     options: leftConfig.slice( l )
                         .map( toView, this )
                         .filter( function ( view ) {
-                            return view instanceof NS.View;
+                            return view instanceof View;
                         })
                 }) );
 
@@ -207,7 +215,7 @@ var ToolbarView = NS.Class({
 
     preMeasure: function () {
         this.insertView( this._measureView =
-            new NS.View({
+            new View({
                 className: 'v-Toolbar-section v-Toolbar-section--measure',
                 layerStyles: {},
                 childViews: Object.values( this._views )
@@ -217,7 +225,7 @@ var ToolbarView = NS.Class({
                 draw: function ( layer, Element, el ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),
-                        NS.View.prototype.draw.call( this, layer, Element, el )
+                        View.prototype.draw.call( this, layer, Element, el )
                     ];
                 }
             }),
@@ -301,8 +309,7 @@ var ToolbarView = NS.Class({
     },
 
     redrawSide: function ( container, oldViews, newViews ) {
-        var View = NS.View,
-            start = 0,
+        var start = 0,
             isEqual = true,
             i, l, view, parent;
 
@@ -341,6 +348,4 @@ var ToolbarView = NS.Class({
     }
 });
 
-NS.ToolbarView = ToolbarView;
-
-}( O ) );
+export default ToolbarView;

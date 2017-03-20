@@ -6,9 +6,10 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
 
 /**
     Class: O.RecordArray
@@ -19,11 +20,11 @@
 
     An immutable enumerable object representing a list of records.
  */
-var RecordArray = NS.Class({
+var RecordArray = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: NS.Enumerable,
+    Mixin: Enumerable,
 
     init: function ( store, Type, storeKeys ) {
         this.store = store;
@@ -65,6 +66,4 @@ var RecordArray = NS.Class({
     }
 });
 
-NS.RecordArray = RecordArray;
-
-}( O ) );
+export default RecordArray;

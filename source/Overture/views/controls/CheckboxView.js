@@ -1,14 +1,17 @@
 // -------------------------------------------------------------------------- \\
 // File: CheckboxView.js                                                      \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
+// Requires: Core, Foundation, AbstractControlView.js                         \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
 
-( function ( NS ) {
+import AbstractControlView from './AbstractControlView.js';
 
 /**
     Class: O.CheckboxView
@@ -18,9 +21,9 @@
     A checkbox control view. The `value` property is two-way bindable,
     representing the state of the checkbox (`true` => checked).
 */
-var CheckboxView = NS.Class({
+var CheckboxView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     // --- Render ---
 
@@ -118,6 +121,4 @@ var CheckboxView = NS.Class({
     }.on( 'click', 'tap' )
 });
 
-NS.CheckboxView = CheckboxView;
-
-}( O ) );
+export default CheckboxView;

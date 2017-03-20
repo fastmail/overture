@@ -5,10 +5,6 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global window, O */
-
-"use strict";
-
 /**
     Module: Core
 
@@ -16,18 +12,6 @@
     and augments it with a few helper methods. It also contains extensions to
     the default types and class creation functionality.
 */
-/**
-    Namespace: O
-
-    The only new global variable introduced by the library. All Classes and
-    Functions are stored under this namespace.
-*/
-if ( typeof O === 'undefined' ) {
-    window.O = {};
-}
-
-( function ( NS ) {
-
 
 /**
     Method: O.meta
@@ -142,7 +126,7 @@ var Metadata = function ( object ) {
     object.__meta__ = this;
 };
 
-var meta = NS.meta = function ( object ) {
+var meta = function ( object ) {
     var data = object.__meta__;
     if ( !data ) {
         data = new Metadata( object );
@@ -190,8 +174,8 @@ var meta = NS.meta = function ( object ) {
     Returns:
         {String} The id for the item.
 */
-var guid = 0;
-NS.guid = function ( item ) {
+var guidValue = 0;
+var guid = function ( item ) {
     if ( item === null ) {
         return 'null';
     }
@@ -209,7 +193,7 @@ NS.guid = function ( item ) {
         return 'date:' + (+item);
     }
     return item.__guid__ || ( item.__guid__ =
-        'id:' + ( guid += 1 ).toString( 36 )
+        'id:' + ( guidValue += 1 ).toString( 36 )
     );
 };
 
@@ -230,7 +214,7 @@ NS.guid = function ( item ) {
     Returns:
         {Object} Returns the object parameter.
 */
-var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
+var mixin = function ( object, extras, doNotOverwrite ) {
     if ( extras ) {
         var force = !doNotOverwrite,
             key, old, value, metadata;
@@ -274,7 +258,7 @@ var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-var extend = NS.extend = function ( base, extras, doNotOverwrite ) {
+var extend = function ( base, extras, doNotOverwrite ) {
     for ( var key in extras ) {
         if ( extras.hasOwnProperty( key ) &&
                 ( !doNotOverwrite || !base.hasOwnProperty( key ) ) ) {
@@ -300,7 +284,7 @@ var extend = NS.extend = function ( base, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-var merge = NS.merge = function ( base, extras ) {
+var merge = function ( base, extras ) {
     for ( var key in extras ) {
         if ( extras.hasOwnProperty( key ) ) {
             if ( base.hasOwnProperty( key ) &&
@@ -328,7 +312,7 @@ var merge = NS.merge = function ( base, extras ) {
     Returns:
         {*} The clone of the value.
 */
-var clone = NS.clone = function ( value ) {
+var clone = function ( value ) {
     var cloned = value,
         l, key;
     if ( value && typeof value === 'object' ) {
@@ -364,7 +348,7 @@ var clone = NS.clone = function ( value ) {
         {Boolean} Are the values equal, i.e. are they identical primitives, or
         are the both arrays or objects with equal members?
 */
-var isEqual = NS.isEqual = function ( a, b ) {
+var isEqual = function ( a, b ) {
     var i, l, key, constructor;
     if ( a === b ) {
         return true;
@@ -431,7 +415,7 @@ var isEqual = NS.isEqual = function ( a, b ) {
     Returns:
         {Constructor} The constructor function for the new class.
 */
-NS.Class = function ( params ) {
+var Class = function ( params ) {
     var parent = params.Extends,
         mixins = params.Mixin,
         init = params.init || ( parent ?
@@ -463,66 +447,6 @@ NS.Class = function ( params ) {
 };
 
 /**
-    Function: O.sortByProperties
-
-    Creates a comparison function which takes two objects and returns -1/0/1 to
-    indicate whether the first object is before or after the other. Comparison
-    is made by considering each of the properties in the array in turn on the
-    two objects until the objects have non-equal values for a property. If the
-    property values are integer like strings, they will first be converted to
-    numbers for comparison. Other strings will be compared case-insensitively.
-
-    Parameters:
-        properties - {String[]} The properties to sort the objects by, in
-                     order of precedence. Can also supply just a String for one
-                     property.
-
-    Returns:
-        {Function} This function may be passed to the Array#sort method to
-        sort the array of objects by the properties specified.
-*/
-var isNumber = /^\d+$/;
-NS.sortByProperties = function ( properties ) {
-    if ( !( properties instanceof Array ) ) {
-        properties = [ properties ];
-    }
-    var l = properties.length;
-
-    return function ( a, b ) {
-        var hasGet = !!a.get,
-            i, prop, aVal, bVal, type;
-        for ( i = 0; i < l; i += 1 ) {
-            prop = properties[i];
-            aVal = hasGet ? a.get( prop ) : a[ prop ];
-            bVal = hasGet ? b.get( prop ) : b[ prop ];
-            type = typeof aVal;
-
-            // Must be the same type
-            if ( type === typeof bVal ) {
-                if ( type === 'boolean' && aVal !== bVal ) {
-                    return aVal ? -1 : 1;
-                }
-                if ( type === 'string' ) {
-                    if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
-                        aVal = +aVal;
-                        bVal = +bVal;
-                    } else if ( NS.i18n ) {
-                        return NS.i18n.compare( aVal, bVal );
-                    }
-                }
-                if ( aVal < bVal ) {
-                    return -1;
-                }
-                if ( aVal > bVal ) {
-                    return 1;
-                }
-            }
-        }
-        return 0;
-    };
-};
-
-/**
     Method: Function#implement
 
     Adds a set of methods or other properties to the prototype of a function, so
@@ -537,7 +461,7 @@ NS.sortByProperties = function ( properties ) {
         {Function} Returns self.
 */
 Function.prototype.implement = function ( methods, force ) {
-    mix( this.prototype, methods, !force );
+    mixin( this.prototype, methods, !force );
     return this;
 };
 
@@ -559,4 +483,7 @@ Function.prototype.extend = function ( methods, force ) {
     return this;
 };
 
-}( O ) );
+export { meta, guid, mixin, extend, merge, clone, isEqual, Class };
+
+// TODO(cmorgan/modulify): do something about these exports: Function#implement,
+// Function#extend

@@ -6,17 +6,16 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
 
 /**
     Class: O.UndoManager
 */
 
-var UndoManager = NS.Class({
+var UndoManager = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     init: function ( mixin ) {
         this._undoStack = [];
@@ -97,52 +96,4 @@ var UndoManager = NS.Class({
     applyChange: function (/* data, isRedo */) {}
 });
 
-var StoreUndoManager = NS.Class({
-
-    Extends: UndoManager,
-
-    init: function ( mixin ) {
-        StoreUndoManager.parent.init.call( this, mixin );
-        this.get( 'store' )
-            .on( 'willCommit', this, 'saveUndoCheckpoint' )
-            .on( 'record:user:create', this, 'dataDidChange' )
-            .on( 'record:user:update', this, 'dataDidChange' )
-            .on( 'record:user:destroy', this, 'dataDidChange' );
-    },
-
-    destroy: function () {
-        this.get( 'store' )
-            .off( 'willCommit', this, 'saveUndoCheckpoint' )
-            .off( 'record:user:create', this, 'dataDidChange' )
-            .off( 'record:user:update', this, 'dataDidChange' )
-            .off( 'record:user:destroy', this, 'dataDidChange' );
-        StoreUndoManager.parent.destroy.call( this );
-    },
-
-    getUndoData: function () {
-        var store = this.get( 'store' );
-        return store.checkForChanges().get( 'hasChanges' ) ?
-            store.getInverseChanges() : null;
-    },
-
-    applyChange: function ( data ) {
-        var store = this.get( 'store' ),
-            inverse;
-        store.applyChanges( data );
-        inverse = store.getInverseChanges();
-        store.commitChanges();
-        return inverse;
-    },
-
-    undo: function () {
-        if ( this._isInUndoState || !this.get( 'store' ).get( 'hasChanges' ) ) {
-            StoreUndoManager.parent.undo.call( this );
-        }
-        return this;
-    }
-});
-
-NS.UndoManager = UndoManager;
-NS.StoreUndoManager = StoreUndoManager;
-
-}( O ) );
+export default UndoManager;

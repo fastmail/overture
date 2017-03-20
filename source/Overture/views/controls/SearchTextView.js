@@ -1,29 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: SearchTextView.js                                                    \\
 // Module: ControlViews                                                       \\
-// Requires: TextView.js                                                      \\
+// Requires: Core, Localisation, TextView.js, ClearSearchButtonView.js        \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import { loc } from '../../localisation/LocaleController.js';
+import TextView from './TextView.js';
+import ClearSearchButtonView from './ClearSearchButtonView.js';
 
-( function ( NS ) {
+var SearchTextView = Class({
 
-var ClearSearchButtonView = new NS.Class({
-
-    Extends: NS.ButtonView,
-
-    type: 'v-ClearSearchButton',
-    positioning: 'absolute',
-    shortcut: 'ctrl-/'
-});
-
-NS.ClearSearchButtonView = ClearSearchButtonView;
-
-var SearchTextView = NS.Class({
-
-    Extends: NS.TextView,
+    Extends: TextView,
 
     type: 'v-SearchText',
 
@@ -35,8 +25,8 @@ var SearchTextView = NS.Class({
         children.push(
             this.get( 'icon' ),
             Element.when( this, 'value' ).show([
-                new NS.ClearSearchButtonView({
-                    label: NS.loc( 'Clear Search' ),
+                new ClearSearchButtonView({
+                    label: loc( 'Clear Search' ),
                     target: this,
                     method: 'reset'
                 })
@@ -51,6 +41,4 @@ var SearchTextView = NS.Class({
     }
 });
 
-NS.SearchTextView = SearchTextView;
-
-}( O ) );
+export default SearchTextView;

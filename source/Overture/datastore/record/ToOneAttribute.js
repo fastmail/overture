@@ -1,18 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: ToOneAttribute.js                                                    \\
 // Module: DataStore                                                          \\
-// Requires: RecordAttribute.js                                               \\
+// Requires: Core, RecordAttribute.js, Record.js                              \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
 
-( function ( NS, undefined ) {
+import RecordAttribute from './RecordAttribute.js';
+import Record from './Record.js';
 
-var ToOneAttribute = NS.Class({
+var ToOneAttribute = Class({
 
-    Extends: NS.RecordAttribute,
+    Extends: RecordAttribute,
 
     willSet: function ( propValue, propKey, record ) {
         if ( ToOneAttribute.parent.willSet.call(
@@ -36,10 +37,8 @@ var ToOneAttribute = NS.Class({
     }
 });
 
-NS.ToOneAttribute = ToOneAttribute;
+export default ToOneAttribute;
 
-NS.Record.toOne = function ( mixin ) {
+Record.toOne = function ( mixin ) {
     return new ToOneAttribute( mixin );
 };
-
-}( O ) );

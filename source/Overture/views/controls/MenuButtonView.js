@@ -1,14 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: MenuButtonView.js                                                    \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, ButtonView.js                       \\
+// Requires: Core, Foundation, DOM, View, PanelViews, ButtonView.js, MenuView.js\\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class, extend } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import PopOverView from '../panels/PopOverView.js';
+import RootView from '../RootView.js';
+import ButtonView from './ButtonView.js';
+import MenuOptionView from './MenuOptionView.js';
 
 /**
     Class: O.MenuButtonView
@@ -39,9 +44,9 @@
             })
         });
 */
-var MenuButtonView = NS.Class({
+var MenuButtonView = Class({
 
-    Extends: NS.ButtonView,
+    Extends: ButtonView,
 
     /**
         Property: O.MenuButtonView#type
@@ -93,7 +98,7 @@ var MenuButtonView = NS.Class({
         Is this a child view of an <O.MenuOptionView>?
     */
     isInMenu: function () {
-        return this.get( 'parentView' ) instanceof NS.MenuOptionView;
+        return this.get( 'parentView' ) instanceof MenuOptionView;
     }.property( 'parentView' ),
 
     // --- Accessibility ---
@@ -127,7 +132,7 @@ var MenuButtonView = NS.Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             var buttonView = this,
-                popOverOptions = NS.extend({
+                popOverOptions = extend({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
                     alignEdge: this.get( 'alignMenu' ),
@@ -141,9 +146,9 @@ var MenuButtonView = NS.Class({
                 }, this.get( 'popOverOptions' ) ),
                 popOverView, menuOptionView, rootView;
             if ( this.get( 'isInMenu' ) ) {
-                popOverView = this.getParent( NS.PopOverView );
+                popOverView = this.getParent( PopOverView );
                 menuOptionView = this.get( 'parentView' );
-                rootView = buttonView.getParent( NS.RootView );
+                rootView = buttonView.getParent( RootView );
 
                 popOverOptions.alignWithView = popOverView;
                 popOverOptions.atNode = this.get( 'layer' );
@@ -185,6 +190,4 @@ var MenuButtonView = NS.Class({
     }.on( 'mousedown' )
 });
 
-NS.MenuButtonView = MenuButtonView;
-
-}( O ) );
+export default MenuButtonView;

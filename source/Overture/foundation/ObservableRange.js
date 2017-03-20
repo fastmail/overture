@@ -6,7 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { meta } from '../core/Core.js';
 
 /**
     Mixin: O.ObservableRange
@@ -16,11 +16,7 @@
     to have the ObservableProps mixin applied and have a length property.
 */
 
-( function ( NS, undefined ) {
-
-var meta = NS.meta;
-
-NS.ObservableRange = {
+export default {
     /**
         Method: O.ObservableRange#rangeDidChange
 
@@ -135,5 +131,3 @@ NS.ObservableRange = {
         return this;
     }
 };
-
-}( O ) );

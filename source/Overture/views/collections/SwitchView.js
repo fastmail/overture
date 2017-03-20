@@ -1,19 +1,20 @@
 // -------------------------------------------------------------------------- \\
 // File: SwitchView.js                                                        \\
 // Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
+// Requires: Core, Foundation, View, DOM                                      \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
-
-( function ( NS ) {
-
-var View = NS.View;
-var Element = NS.Element;
+import { Class } from '../../core/Core.js';
+import { bind } from '../../foundation/Binding.js';
+import RunLoop from '../../foundation/RunLoop.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import View from '../View.js';
+import Element from '../../dom/Element.js';
 
 var forEachView = function ( views, method, args ) {
     var l = views ? views.length : 0,
@@ -39,7 +40,7 @@ var flattenAndPrune = function ( array, node ) {
     return array;
 };
 
-var SwitchView = NS.Class({
+var SwitchView = Class({
 
     Extends: View,
 
@@ -129,7 +130,7 @@ var SwitchView = NS.Class({
 
     switchNeedsRedraw: function () {
         if ( this.get( 'isInDocument' ) ) {
-            NS.RunLoop.queueFn( 'render', this.redraw, this );
+            RunLoop.queueFn( 'render', this.redraw, this );
         }
     }.observes( 'index' ),
 
@@ -300,7 +301,7 @@ var SwitchView = NS.Class({
     }
 });
 
-NS.SwitchView = SwitchView;
+export default SwitchView;
 
 var pickViewWhen = function ( bool ) {
     return bool ? 0 : 1;
@@ -311,7 +312,7 @@ var pickViewUnless = function ( bool ) {
 
 var createView = function ( object, property, transform ) {
     var switchView = new SwitchView({
-        index: NS.bind( object, property, transform )
+        index: bind( object, property, transform )
     });
     switchView._oldView = Element.forView( switchView );
     return switchView;
@@ -329,5 +330,3 @@ Element.unless = function ( object, property, transform ) {
     } : pickViewUnless;
     return createView( object, property, pickView );
 };
-
-}( O ) );

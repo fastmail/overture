@@ -1,14 +1,15 @@
 // -------------------------------------------------------------------------- \\
 // File: DateParser.js                                                        \\
 // Module: Parser                                                             \\
-// Requires: Localisation, Parse.js                                           \\
+// Requires: Core, Localisation, Parse.js                                     \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import '../core/Number.js';  // For Number#mod
+import '../core/String.js';  // For String#escapeRegExp
+import i18n from '../localisation/LocaleController.js';
+import Parse from './Parse.js';
 
 // --- Date Grammar ---
 
@@ -17,8 +18,7 @@ var JUST_TIME = 1,
     DATE_AND_TIME = 3;
 
 var generateLocalisedDateParser = function ( locale, mode ) {
-    var Parse = NS.Parse,
-        define = Parse.define,
+    var define = Parse.define,
         optional = Parse.optional,
         not = Parse.not,
         sequence = Parse.sequence,
@@ -520,12 +520,12 @@ var interpreter = {
 
 // ---
 
-var unknown = NS.Parse.define( 'unknown', /^[^\s]+/ );
+var unknown = Parse.define( 'unknown', /^[^\s]+/ );
 
 var dateParsers = {};
 var parseDateTime = function ( string, locale, mode ) {
     if ( !locale ) {
-        locale = NS.i18n.getLocale();
+        locale = i18n.getLocale();
     }
     string = string.trim().replace(/[０-９]/g, function ( wideNum ) {
         return String.fromCharCode( wideNum.charCodeAt( 0 ) - 65248 );
@@ -533,7 +533,7 @@ var parseDateTime = function ( string, locale, mode ) {
     var code = locale.code + mode;
     var dateParser = dateParsers[ code ] ||
         ( dateParsers[ code ] = generateLocalisedDateParser( locale, mode ) );
-    var parse = new NS.Parse( string );
+    var parse = new Parse( string );
     while ( parse.string.length ) {
         if ( !dateParser( parse ) ) {
             // We've hit something unexpected. Skip it.
@@ -543,24 +543,37 @@ var parseDateTime = function ( string, locale, mode ) {
     return parse.tokens;
 };
 
-NS.parse.tokeniseDateTime = parseDateTime;
-NS.parse.interpretDateTime = function ( tokens, implicitSearchMethod ) {
+var interpretDateTime = function ( tokens, implicitSearchMethod ) {
     return interpreter.interpret( tokens, implicitSearchMethod || NOW );
 };
 
-NS.parse.time = function ( string, locale ) {
+var time = function ( string, locale ) {
     var tokens = parseDateTime( string, locale, JUST_TIME );
     return interpreter.interpret( tokens );
 };
 
-NS.parse.date = function ( string, locale, implicitPast ) {
+var date = function ( string, locale, implicitPast ) {
     var tokens = parseDateTime( string, locale, JUST_DATE );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
-NS.parse.dateTime = function ( string, locale, implicitPast ) {
+var dateTime = function ( string, locale, implicitPast ) {
     var tokens = parseDateTime( string, locale, DATE_AND_TIME );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
-}( O ) );
+export default {
+    tokeniseDateTime: parseDateTime,
+    interpretDateTime: interpretDateTime,
+    time: time,
+    date: date,
+    dateTime: dateTime
+};
+
+export {
+    parseDateTime as tokeniseDateTime,
+    interpretDateTime,
+    time,
+    date,
+    dateTime
+};

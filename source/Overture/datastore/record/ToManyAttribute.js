@@ -1,18 +1,19 @@
 // -------------------------------------------------------------------------- \\
 // File: ToManyAttribute.js                                                   \\
 // Module: DataStore                                                          \\
-// Requires: Record.js, RecordAttribute.js                                    \\
+// Requires: Core, Foundation, Record.js, RecordAttribute.js                  \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, meta } from '../../core/Core.js';  // Also Function#implement
+import '../../core/Array.js';  // For Array#erase
+import ObservableArray from '../../foundation/ObservableArray.js';
 
-( function ( NS ) {
+import RecordAttribute from './RecordAttribute.js';
+import Record from './Record.js';
 
 var slice = Array.prototype.slice;
-var meta = NS.meta;
-var Record = NS.Record;
 
 // ---
 
@@ -39,9 +40,9 @@ Record.implement({
 
 // ---
 
-var RecordArray = NS.Class({
+var RecordArray = Class({
 
-    Extends: NS.ObservableArray,
+    Extends: ObservableArray,
 
     init: function ( record, propKey, value, Type ) {
         this.record = record;
@@ -129,9 +130,9 @@ var notifyRecordArrayObserver = {
     method: 'notifyRecordArray'
 };
 
-var ToManyAttribute = NS.Class({
+var ToManyAttribute = Class({
 
-    Extends: NS.RecordAttribute,
+    Extends: RecordAttribute,
 
     __setupProperty__: function ( metadata, propKey, object ) {
         ToManyAttribute.parent
@@ -190,10 +191,8 @@ var ToManyAttribute = NS.Class({
     }
 });
 
-NS.ToManyAttribute = ToManyAttribute;
+export default ToManyAttribute;
 
-NS.Record.toMany = function ( mixin ) {
+Record.toMany = function ( mixin ) {
     return new ToManyAttribute( mixin );
 };
-
-}( O ) );

@@ -1,16 +1,21 @@
 // -------------------------------------------------------------------------- \\
 // File: DragController.js                                                    \\
 // Module: DragDrop                                                           \\
-// Requires: View, DragEffect.js                                              \\
+// Requires: Foundation, DOM, View, Drag.js, DragEffect.js                    \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import DOMEvent from '../dom/DOMEvent.js';
+import ViewEventsController from '../views/ViewEventsController.js';
 
-( function ( NS ) {
+import Drag from './Drag.js';  // Circular but it's OK
+import DragEffect from './DragEffect.js';
 
 var isControl = {
     BUTTON: 1,
@@ -19,8 +24,8 @@ var isControl = {
     SELECT: 1,
     TEXTAREA: 1
 };
-var effectToString = NS.DragEffect.effectToString;
-var DEFAULT = NS.DragEffect.DEFAULT;
+var effectToString = DragEffect.effectToString;
+var DEFAULT = DragEffect.DEFAULT;
 
 function TouchDragEvent ( touch ) {
     var clientX = touch.clientX,
@@ -30,7 +35,7 @@ function TouchDragEvent ( touch ) {
     this.clientX = clientX;
     this.clientY = clientY;
     this.target = target;
-    this.targetView = NS.ViewEventsController.getViewFromNode( target );
+    this.targetView = ViewEventsController.getViewFromNode( target );
 }
 
 var getTouch = function ( touches, touchId ) {
@@ -61,7 +66,7 @@ var getTouch = function ( touches, touchId ) {
     add the required properties to views, and an instance of <O.Drag> gives all
     the information about the drag.
 */
-var DragController = new NS.Object({
+var DragController = new Object({
     /**
         Property (private): O.DragController._x
         Type: Number
@@ -235,7 +240,7 @@ var DragController = new NS.Object({
             if ( ( x*x + y*y ) > 25 ) {
                 view = this.getNearestDragView( this._targetView );
                 if ( view ) {
-                    new NS.Drag({
+                    new Drag({
                         dragSource: view,
                         event: event,
                         startPosition: {
@@ -280,7 +285,7 @@ var DragController = new NS.Object({
             touchEvent = new TouchDragEvent( touch ),
             view = this.getNearestDragView( touchEvent.targetView );
         if ( view && !isControl[ touchEvent.target.nodeName ] ) {
-            this._drag = new NS.Drag({
+            this._drag = new Drag({
                 dragSource: view,
                 event: touchEvent
             });
@@ -365,7 +370,7 @@ var DragController = new NS.Object({
         if ( dragView ) {
             event.preventDefault();
         } else {
-            new NS.Drag({
+            new Drag({
                 event: event,
                 isNative: true
             });
@@ -389,17 +394,17 @@ var DragController = new NS.Object({
         // view property
         if ( !event.targetView ) {
             event.targetView =
-                NS.ViewEventsController.getViewFromNode( event.target );
+                ViewEventsController.getViewFromNode( event.target );
         }
         if ( !drag ) {
             // IE10 will throw an error when you try to access this property!
             try {
                 effectAllowed = dataTransfer.effectAllowed;
             } catch ( error ) {
-                effectAllowed = NS.DragEffect.ALL;
+                effectAllowed = DragEffect.ALL;
             }
             // Drag from external source
-            drag = new NS.Drag({
+            drag = new Drag({
                 event: event,
                 isNative: true,
                 allowedEffects: effectToString.indexOf( effectAllowed )
@@ -519,7 +524,7 @@ var DragController = new NS.Object({
     */
     _escCancel: function ( event ) {
         var drag = this._drag;
-        if ( drag && NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+        if ( drag && DOMEvent.lookupKey( event ) === 'esc' ) {
             drag.endDrag();
         }
     }.on( 'keydown' )
@@ -530,8 +535,6 @@ var DragController = new NS.Object({
         document.addEventListener( type, DragController, false );
     });
 
-NS.ViewEventsController.addEventTarget( DragController, 20 );
+ViewEventsController.addEventTarget( DragController, 20 );
 
-NS.DragController = DragController;
-
-}( O ) );
+export default DragController;

@@ -6,7 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import './Core.js';  // For Function#implement
 
 Number.implement({
     /**
@@ -45,3 +45,6 @@ Number.implement({
         return m < 0 ? m + n : m;
     }
 });
+
+// TODO(cmorgan/modulify): do something about these exports: Number#limit,
+// Number#mod

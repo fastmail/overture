@@ -6,9 +6,8 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import '../foundation/Enumerable.js';  // For Array#binarySearch
 
 var etSearch = function ( candidate, b ) {
     var a = candidate[0];
@@ -209,6 +208,4 @@ var ViewEventsController = {
 };
 ViewEventsController.addEventTarget( ViewEventsController, 0 );
 
-NS.ViewEventsController = ViewEventsController;
-
-}( O ) );
+export default ViewEventsController;

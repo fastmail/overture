@@ -1,14 +1,16 @@
 // -------------------------------------------------------------------------- \\
 // File: AggregateSource.js                                                   \\
 // Module: DataStore                                                          \\
-// Requires: Source.js                                                        \\
+// Requires: Core, Foundation, Source.js                                      \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../core/Array.js';  // For Array#erase
+import '../../foundation/ObservableProps.js';  // For Function#observes
 
-( function ( NS ) {
+import Source from './Source.js';
 
 /**
     Class: O.AggregateSource
@@ -18,9 +20,9 @@
     on an aggregate source is passed around the sources it is managing until it
     finds one that can handle it.
 */
-var AggregateSource = NS.Class({
+var AggregateSource = Class({
 
-    Extends: NS.Source,
+    Extends: Source,
 
     init: function ( mixin ) {
         this.sources = [];
@@ -115,6 +117,4 @@ var AggregateSource = NS.Class({
     }
 });
 
-NS.AggregateSource = AggregateSource;
-
-}( O ) );
+export default AggregateSource;

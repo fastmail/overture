@@ -1,14 +1,18 @@
 // -------------------------------------------------------------------------- \\
 // File: AnimatableView.js                                                    \\
 // Module: Animation                                                          \\
-// Requires: Core, UA, Animation.js                                           \\
+// Requires: Core, Foundation, UA, Animation.js, Easing.js, CSSStyleAnimation.js, StyleAnimation.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import UA from '../ua/UA.js';
+import RunLoop from '../foundation/RunLoop.js';
+import '../foundation/ComputedProps.js';  // For Function#property
+import Element from '../dom/Element.js';
+import Easing from './Easing.js';
+import CSSStyleAnimation from './CSSStyleAnimation.js';
+import StyleAnimation from './StyleAnimation.js';
 
 /**
     Mixin: O.AnimatableView
@@ -16,7 +20,7 @@
     Mix this into an <O.View> class to automatically animate all changes to the
     view's <O.View#layerStyles> property.
 */
-NS.AnimatableView = {
+export default {
 
     /**
         Property: O.AnimatableView#animateLayer
@@ -45,7 +49,7 @@ NS.AnimatableView = {
 
         The easing function to use for the animation of the view's layer styles.
     */
-    animateLayerEasing: NS.Easing.ease,
+    animateLayerEasing: Easing.ease,
 
     /**
         Property: O.AnimatableView#animating
@@ -86,8 +90,8 @@ NS.AnimatableView = {
         animate the layer styles. Automatically generated when first accessed.
     */
     layerAnimation: function () {
-        var Animation = NS.UA.cssProps.transition ?
-            NS.CSSStyleAnimation : NS.StyleAnimation;
+        var Animation = UA.cssProps.transition ?
+            CSSStyleAnimation : StyleAnimation;
         return new Animation({
             object: this,
             element: this.get( 'layer' )
@@ -107,14 +111,14 @@ NS.AnimatableView = {
     redrawLayerStyles: function ( layer, oldStyles ) {
         var newStyles = this.get( 'layerStyles' ),
             layerAnimation = this.get( 'layerAnimation' ),
-            setStyle = NS.Element.setStyle,
+            setStyle = Element.setStyle,
             property, value;
 
         // Animate
         if ( this.get( 'animateLayer' ) ) {
             // Must wait until in document to animate
             if ( !this.get( 'isInDocument' ) ) {
-                O.RunLoop.invokeInNextFrame(
+                RunLoop.invokeInNextFrame(
                     this.propertyNeedsRedraw.bind(
                         this, this, 'layerStyles', oldStyles ) );
                 return;
@@ -149,5 +153,3 @@ NS.AnimatableView = {
         }
     }
 };
-
-}( O ) );

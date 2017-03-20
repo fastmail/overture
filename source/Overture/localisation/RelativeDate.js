@@ -1,13 +1,13 @@
 // -------------------------------------------------------------------------- \\
 // File: RelativeDate.js                                                      \\
 // Module: Localisation                                                       \\
+// Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import '../core/Core.js';  // For Function#implement
+import { loc } from './LocaleController.js';
 
 /**
     Function: Date.formatDuration
@@ -28,12 +28,12 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
 
     if ( durationInSeconds < 60 ) {
         if ( approx ) {
-            time = NS.loc( 'less than a minute' );
+            time = loc( 'less than a minute' );
         } else {
-            time = NS.loc( '[*2,_1,%n second,%n seconds]', durationInSeconds );
+            time = loc( '[*2,_1,%n second,%n seconds]', durationInSeconds );
         }
     } else if ( durationInSeconds < 60 * 60 ) {
-        time = NS.loc( '[*2,_1,%n minute,%n minutes]',
+        time = loc( '[*2,_1,%n minute,%n minutes]',
             ~~( durationInSeconds / 60 ) );
     } else if ( durationInSeconds < 60 * 60 * 24 ) {
         if ( approx ) {
@@ -43,7 +43,7 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             hours = ~~( durationInSeconds / ( 60 * 60 ) );
             minutes = ~~( ( durationInSeconds / 60 ) % 60 );
         }
-        time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]', hours, minutes );
+        time = loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]', hours, minutes );
     } else if ( approx ? durationInSeconds < 60 * 60 * 24 * 21 :
             durationInSeconds < 60 * 60 * 24 * 7 ) {
         if ( approx ) {
@@ -53,7 +53,7 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             days = ~~( durationInSeconds / ( 60 * 60 * 24 ) );
             hours = ~~( ( durationInSeconds / ( 60 * 60 ) ) % 24 );
         }
-        time = NS.loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
+        time = loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
             days, hours );
     } else {
         if ( approx ) {
@@ -63,7 +63,7 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             weeks = ~~( durationInSeconds / ( 60 * 60 * 24 * 7 ) );
             days = ~~( durationInSeconds / ( 60 * 60 * 24 ) ) % 7;
         }
-        time = NS.loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
+        time = loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
             weeks, days );
     }
     return time.trim();
@@ -128,13 +128,14 @@ Date.implement({
                 months += 12;
             }
             time =
-                NS.loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
+                loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
                     years, months ).trim();
         }
 
         return isFuture ?
-            NS.loc( '[_1] from now', time ) : NS.loc( '[_1] ago', time );
+            loc( '[_1] from now', time ) : loc( '[_1] ago', time );
     }
 });
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Date#relativeTo,
+// Date.formatDuration

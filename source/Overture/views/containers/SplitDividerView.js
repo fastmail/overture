@@ -6,12 +6,17 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../core/Number.js';  // For Number#limit
+import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import View from '../View.js';
+import Draggable from '../../drag-drop/Draggable.js';
 
-( function ( NS ) {
+import SplitViewController from './SplitViewController.js';
 
-var VERTICAL = NS.SplitViewController.VERTICAL;
-var TOP_LEFT = NS.SplitViewController.TOP_LEFT;
+var VERTICAL = SplitViewController.VERTICAL;
+var TOP_LEFT = SplitViewController.TOP_LEFT;
 
 /**
     Class: O.SplitDividerView
@@ -24,11 +29,11 @@ var TOP_LEFT = NS.SplitViewController.TOP_LEFT;
     controllered by an <O.SplitViewController> instance. It can be dragged to
     resize the static pane in the split view.
 */
-var SplitDividerView = NS.Class({
+var SplitDividerView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
-    Mixin: NS.Draggable,
+    Mixin: Draggable,
 
     /**
         Property: O.SplitDividerView#className
@@ -65,7 +70,7 @@ var SplitDividerView = NS.Class({
         the distance from the edge of the split view that the split divider
         view should be positioned.
     */
-    offset: NS.bindTwoWay( 'controller.staticPaneLength' ),
+    offset: bindTwoWay( 'controller.staticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#min
@@ -73,7 +78,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#minStaticPaneLength>.
     */
-    min: NS.bind( 'controller.minStaticPaneLength' ),
+    min: bind( 'controller.minStaticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#max
@@ -81,7 +86,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#maxStaticPaneLength>.
     */
-    max: NS.bind( 'controller.maxStaticPaneLength' ),
+    max: bind( 'controller.maxStaticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#direction
@@ -89,7 +94,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#direction>.
     */
-    direction: NS.bind( 'controller.direction' ),
+    direction: bind( 'controller.direction' ),
 
     /**
         Property: O.SplitDividerView#flex
@@ -97,7 +102,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#flex>.
     */
-    flex: NS.bind( 'controller.flex' ),
+    flex: bind( 'controller.flex' ),
 
     /**
         Property: O.SplitDividerView#anchor
@@ -182,6 +187,4 @@ var SplitDividerView = NS.Class({
     }
 });
 
-NS.SplitDividerView = SplitDividerView;
-
-}( O ) );
+export default SplitDividerView;

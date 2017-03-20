@@ -1,14 +1,16 @@
 // -------------------------------------------------------------------------- \\
 // File: Date.js                                                              \\
 // Module: Core                                                               \\
-// Requires: Core.js                                                          \\
+// Requires: Core.js, Number.js                                               \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import './Core.js';  // For Function#extend, Function#implement
+import './Number.js';  // For Number#mod
 
-( function ( NS ) {
+// See the note in Core.js for a phony explanation of why this is OK.
+import { i18n } from '../localisation/LocaleController.js';
 
 var isLeapYear = function ( year ) {
     return (
@@ -160,7 +162,7 @@ Date.implement({
             {String} Localised day name.
     */
     getDayName: function ( abbreviate, utc ) {
-        var names = NS.i18n && NS.i18n.get(
+        var names = i18n && i18n.get(
                 ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' ),
             day = utc ? this.getUTCDay() : this.getDay();
         return names ? names[ day ] : day;
@@ -183,7 +185,7 @@ Date.implement({
             {String} Localised month name.
     */
     getMonthName: function ( abbreviate, utc ) {
-        var names = NS.i18n && NS.i18n.get(
+        var names = i18n && i18n.get(
                 ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' ),
             day = utc ? this.getUTCMonth() : this.getMonth();
         return names ? names[ day ] : day;
@@ -411,8 +413,8 @@ Date.implement({
                 return date.getMonthName( false, utc );
             case 'c':
                 // The locale's appropriate date and time representation.
-                return NS.i18n ?
-                    NS.i18n.date( date, 'fullDateAndTime' ) :
+                return i18n ?
+                    i18n.date( date, 'fullDateAndTime' ) :
                     date.toLocaleString();
             case 'C':
                 // Century number (00-99).
@@ -459,8 +461,8 @@ Date.implement({
                 // Localised equivalent of AM or PM.
                 str = ( utc ? date.getUTCHours() : date.getHours() ) < 12 ?
                     'am' : 'pm';
-                return NS.i18n ?
-                    NS.i18n.get( str + 'Designator' ) : str.toUpperCase();
+                return i18n ?
+                    i18n.get( str + 'Designator' ) : str.toUpperCase();
             case 'r':
                 // The time in AM/PM notation: '%I:%M:%S %p'.
                 return date.format( '%I:%M:%S %p', utc );
@@ -502,13 +504,13 @@ Date.implement({
                 return pad( this.getWeekNumber( 1, utc ), nopad );
             case 'x':
                 // The locale's appropriate date representation.
-                return NS.i18n ?
-                    NS.i18n.date( date, 'date' ) :
+                return i18n ?
+                    i18n.date( date, 'date' ) :
                     date.format( '%d/%m/%y', utc );
             case 'X':
                 // The locale's appropriate time representation.
-                return NS.i18n ?
-                    NS.i18n.date( date, 'time' ) : date.format( '%H:%M', utc );
+                return i18n ?
+                    i18n.date( date, 'time' ) : date.format( '%H:%M', utc );
             case 'y':
                 // Year without century (00-99).
                 return ( utc ?
@@ -530,4 +532,8 @@ Date.implement({
     }
 });
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Date#fromJSON,
+// Date#getDaysInMonth, Date#getDaysInYear, Date#isLeapYear, Date#isToday,
+// Date#isOnSameDayAs, Date#getDayName, Date#getMonthName, Date#getDayOfYear,
+// Date#getWeekNumber, Date#getISOWeekNumber, Date#add, Date#subtract,
+// Date#format

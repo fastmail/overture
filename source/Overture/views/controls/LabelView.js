@@ -1,14 +1,14 @@
 // -------------------------------------------------------------------------- \\
 // File: LabelView.js                                                         \\
 // Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View                                      \\
+// Requires: Core, Foundation, View                                           \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import View from '../View.js';
 
 /**
     Class: O.LabelView
@@ -22,9 +22,9 @@
 
     Although you may often want to change the layer tag (e.g. to an `h1` etc.)
 */
-var LabelView = NS.Class({
+var LabelView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     /**
         Property: O.LabelView#layerTag
@@ -100,6 +100,4 @@ var LabelView = NS.Class({
     }
 });
 
-NS.LabelView = LabelView;
-
-}( O ) );
+export default LabelView;

@@ -6,9 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function () {
+import './Core.js';  // For Function#extend
 
 Object.extend({
     /**
@@ -125,4 +123,5 @@ Object.extend({
     }
 });
 
-}() );
+// TODO(cmorgan/modulify): do something about these exports: Object.values,
+// Object.keyOf, Object.filter, Object.zip, Object.fromQueryString

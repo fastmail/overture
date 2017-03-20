@@ -1,18 +1,21 @@
 // -------------------------------------------------------------------------- \\
 // File: Hold.js                                                              \\
 // Module: Touch                                                              \\
-// Requires: Gesture.js, Tap.js                                               \\
+// Requires: Core, Foundation, View, Tap.js, Gesture.js                       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class } from '../core/Core.js';
+import Event from '../foundation/Event.js';
+import RunLoop from '../foundation/RunLoop.js';
+import ViewEventsController from '../views/ViewEventsController.js';
+import Tap from './Tap.js';
+import Gesture from './Gesture.js';
 
-( function ( NS ) {
+var HoldEvent = Class({
 
-var HoldEvent = NS.Class({
-
-    Extends: NS.Event,
+    Extends: Event,
 
     init: function ( touch ) {
         HoldEvent.parent.init.call( this, 'hold', touch.target );
@@ -22,7 +25,7 @@ var HoldEvent = NS.Class({
 
 var fireHoldEvent = function () {
     if ( !this._ignore ) {
-        NS.ViewEventsController.handleEvent(
+        ViewEventsController.handleEvent(
             new HoldEvent( this.touch )
         );
     }
@@ -34,7 +37,7 @@ var TrackedTouch = function ( touch ) {
     this.y = touch.screenY;
     this.target = touch.target;
     this._ignore = false;
-    NS.RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
+    RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
 };
 
 TrackedTouch.prototype.done = function () {
@@ -46,11 +49,11 @@ TrackedTouch.prototype.done = function () {
     * Lasts at least 750ms.
     * Moves less than 5px from the initial touch point.
 */
-NS.Hold = new NS.Gesture({
+export default new Gesture({
 
     _tracking: {},
 
-    cancel: NS.Tap.cancel,
+    cancel: Tap.cancel,
 
     start: function ( event ) {
         var touches = event.changedTouches,
@@ -65,7 +68,7 @@ NS.Hold = new NS.Gesture({
         }
     },
 
-    move: NS.Tap.move,
+    move: Tap.move,
 
     end: function ( event ) {
         var touches = event.changedTouches,
@@ -82,6 +85,3 @@ NS.Hold = new NS.Gesture({
         }
     }
 });
-
-}( O ) );
-

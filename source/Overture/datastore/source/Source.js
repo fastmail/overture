@@ -6,9 +6,8 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
 
 /**
     Class: O.Source
@@ -18,9 +17,9 @@
     A source provides persistent storage for a set of records. Data is fetched
     and commited back to here by an instance of <O.Store>.
 */
-var Source = NS.Class({
+var Source = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     // ---
 
@@ -152,6 +151,4 @@ var Source = NS.Class({
     }
 });
 
-NS.Source = Source;
-
-}( O ) );
+export default Source;

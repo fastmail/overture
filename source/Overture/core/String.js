@@ -6,9 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( undefined ) {
+import './Core.js';  // For Function#implement
 
 var splitter =
     /%(\+)?(?:'(.))?(-)?(\d+)?(?:\.(\d+))?(?:\$(\d+))?([%sn@])/g;
@@ -445,4 +443,6 @@ String.implement({
     }() )
 });
 
-}() );
+// TODO(cmorgan/modulify): do something about these exports: String#format,
+// String#repeat, String#escapeHTML, String#escapeRegExp, String#capitalise,
+// String#camelCase, String#hyphenate, String#contains, String#hash, String#md5

@@ -6,8 +6,6 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
 /**
     Property: RegExp.email
     Type: RegExp
@@ -45,3 +43,6 @@ RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,})\b/i;
 // )
 
 RegExp.url = /\b(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])/i;
+
+// TODO(cmorgan/modulify): do something about these exports: RegExp.email,
+// RegExp.url

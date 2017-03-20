@@ -6,11 +6,8 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { meta, guid } from '../core/Core.js';
 
-( function ( NS, undefined ) {
-
-var meta = NS.meta;
 var bindingKey = '__binding__';
 
 /**
@@ -20,7 +17,7 @@ var bindingKey = '__binding__';
     inherited from the prototype, and for suspending/resuming bindings on the
     object.
 */
-NS.BoundProps = {
+export default {
     /**
         Method: O.BoundProps#initBindings
 
@@ -89,7 +86,7 @@ NS.BoundProps = {
     */
     registerBinding: function ( binding ) {
         var metadata = meta( this );
-        metadata.bindings[ bindingKey + NS.guid( binding ) ] = binding;
+        metadata.bindings[ bindingKey + guid( binding ) ] = binding;
         metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
         return this;
     },
@@ -154,5 +151,3 @@ NS.BoundProps = {
         return this;
     }
 };
-
-}( O ) );

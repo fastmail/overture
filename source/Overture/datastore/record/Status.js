@@ -1,7 +1,6 @@
 // -------------------------------------------------------------------------- \\
 // File: Status.js                                                            \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
@@ -22,17 +21,16 @@
                    have not yet been fetched. If the record is loading, this
                    means the result of the load may not be the latest.
 */
-O.Status = {
-    // Core states:
-    EMPTY:        1,
-    READY:        2,
-    DESTROYED:    4,
-    NON_EXISTENT: 8,
 
-    // Properties:
-    LOADING:     16,
-    COMMITTING:  32,
-    NEW:         64,
-    DIRTY:      128,
-    OBSOLETE:   256
-};
+// Core states:
+export const EMPTY        =   1;
+export const READY        =   2;
+export const DESTROYED    =   4;
+export const NON_EXISTENT =   8;
+
+// Properties:
+export const LOADING      =  16;
+export const COMMITTING   =  32;
+export const NEW          =  64;
+export const DIRTY        = 128;
+export const OBSOLETE     = 256;

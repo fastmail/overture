@@ -1,14 +1,9 @@
 // -------------------------------------------------------------------------- \\
 // File: DOMEvent.js                                                          \\
 // Module: DOM                                                                \\
-// Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
 
 /**
     Namespace: O.DOMEvent
@@ -111,6 +106,4 @@ var DOMEvent = {
     }
 };
 
-NS.DOMEvent = DOMEvent;
-
-}( O ) );
+export default DOMEvent;

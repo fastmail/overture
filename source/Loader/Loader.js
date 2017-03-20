@@ -5,11 +5,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage */
-
-"use strict";
-
-( function ( NS, XMLHttpRequest ) {
+/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage, O */
 
 /*
     Object: O.Loader
@@ -23,7 +19,6 @@ var UNREQUESTED = 0,
     WILL_EXECUTE = 4,
     EXECUTED = 8;
 
-var ls = localStorage;
 var LS_PREFIX = 'OResource-';
 var LS_V_PREFIX = 'OResource-v-';
 
@@ -61,13 +56,12 @@ var inOrderScripts = ( CORSRequest === XMLHttpRequest );
 var afterModuleExecute = function ( name ) {
     var info = moduleInfo[ name ],
         callbacks = info.callbacks,
-        loader = NS.loader,
         i, l, callback, fn, bind;
 
     if ( loader.fire ) {
-        NS.loader.fire( 'loader:didLoadModule', { module: name } );
-    } else if ( NS.meta ) {
-        NS.extend( loader, NS.EventTarget );
+        loader.fire( 'loader:didLoadModule', { module: name } );
+    } else if ( O.meta ) {
+        O.extend( loader, O.EventTarget );
         afterModuleExecute = afterModuleExecute.invokeInRunLoop();
     }
     info.status = EXECUTED;
@@ -97,7 +91,8 @@ var executeModule = function ( name ) {
     var info = moduleInfo[ name ],
         data = info.data;
     setTimeout( function () {
-        NS.execute( data );
+        // `eval` would execute in the local scope. `( 1, eval )` is global.
+        ( 1, eval )( data );
         afterModuleExecute( name, info );
     }, 0 );
     info.data = null;
@@ -134,7 +129,6 @@ var load = function ( name, executeOnLoad, force ) {
     var info = moduleInfo[ name ],
         src = info.src,
         status = info.status,
-        loader = NS.loader,
         useScriptTag = !CORSRequest || loader.debug,
         dependencies, data, doc, script;
 
@@ -161,14 +155,14 @@ var load = function ( name, executeOnLoad, force ) {
         // Check local storage for module data
         if ( loader.cacheModules ) {
             try {
-                data = ls.getItem( LS_PREFIX + name );
+                data = localStorage.getItem( LS_PREFIX + name );
                 if ( data ) {
-                    if ( ls.getItem( LS_V_PREFIX + name ) === src ) {
+                    if ( localStorage.getItem( LS_V_PREFIX + name ) === src ) {
                         moduleDidLoad( name, data );
                         return;
                     } else {
-                        ls.removeItem( LS_PREFIX + name );
-                        ls.removeItem( LS_V_PREFIX + name );
+                        localStorage.removeItem( LS_PREFIX + name );
+                        localStorage.removeItem( LS_V_PREFIX + name );
                     }
                 }
             } catch ( error ) {}
@@ -198,8 +192,8 @@ var load = function ( name, executeOnLoad, force ) {
                 var data = response + '\n//# sourceURL=' + src;
                 if ( loader.cacheModules ) {
                     try {
-                        ls.setItem( LS_V_PREFIX + name, src );
-                        ls.setItem( LS_PREFIX + name, data );
+                        localStorage.setItem( LS_V_PREFIX + name, src );
+                        localStorage.setItem( LS_PREFIX + name, data );
                     } catch ( error ) {}
                 }
                 moduleDidLoad( name, data );
@@ -284,7 +278,7 @@ require = function ( modules, fn, bind ) {
     This event is fired immediately after a new module finishes
     loading, before any waiting require() functions are called.
 */
-NS.loader = {
+var loader = {
     debug: false,
     cacheModules: false,
     modules: moduleInfo,
@@ -316,61 +310,5 @@ NS.loader = {
     // Presuming all dependency chains resolved.
     require: require
 };
-NS.require = require;
 
-}( this.O || ( this.O = {} ), XMLHttpRequest ) );
-
-/**
-    Function: O.execute
-
-    Execute a string as JavaScript code in the global context (an always-global
-    `eval`).
-
-    Parameters:
-        code - {String} The code to evaluate.
-
-*/
-/* eslint-disable */
-O.execute = ( function ( global ) {
-    var isGlobal = function ( original, Object ) {
-        try {
-            // Indirect eval is our preferred method for execution in the global
-            // scope. But we need to check it works correctly in the current
-            // engine:
-            // 1. Does `Object` resolve to a local variable, or to the global,
-            //    built-in `Object` reference?
-            // 2. Is the this parameter bound correctly to the global object
-            //    when the eval code is strict (Opera bug)?
-            return ( ( 1, eval )( 'Object' ) === original ) &&
-                ( ( 1, eval )( '"use strict";this' ) === global );
-        }
-        catch ( error ) {
-            // If indirect eval errors out (as allowed per ES3), then just bail
-            // out with `false`
-            return false;
-        }
-    }( Object, 1 );
-
-    // Due to a bug in FF3, we can't just make this the O.execute method, as
-    // it will incorrectly bind `this` to the `O` object. But if we call it as a
-    // function instead of a method, `this` is set to the global object.
-    var evaluate = function ( code ) {
-        ( 1, eval )( code );
-    };
-
-    return isGlobal ? function ( code ) {
-        evaluate( code );
-    } : window.execScript ? function ( code ) {
-        window.execScript( code );
-    } : function ( code ) {
-        var doc = document,
-            head = doc.documentElement.firstChild,
-            script = doc.createElement( 'script' );
-        script.type = 'text/javascript';
-        script.charset = 'utf-8';
-        script.text = code;
-        head.appendChild( script );
-        head.removeChild( script );
-    };
-}( this ) );
-/* eslint-enable */
+export { loader, require };

@@ -5,17 +5,13 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS, undefined ) {
-
 /**
     Namespace: O.Transform
 
     Holds a number of useful functions for transforming values, for use with
     <O.Binding>.
 */
-NS.Transform = {
+export default {
     /**
         Function: O.Transform.toBoolean
 
@@ -143,5 +139,3 @@ NS.Transform = {
         };
     }
 };
-
-}( O ) );

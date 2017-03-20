@@ -1,16 +1,22 @@
 // -------------------------------------------------------------------------- \\
 // File: RootView.js                                                          \\
 // Module: View                                                               \\
-// Requires: View.js                                                          \\
+// Requires: Core, Foundation, UA, View.js, ViewEventsController.js, ScrollView.js, AbstractControlView.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
-
 /*global window */
+
+import { Class } from '../core/Core.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import UA from '../ua/UA.js';
+
+import View from './View.js';
+import ViewEventsController from './ViewEventsController.js';
+import ScrollView from './containers/ScrollView.js';
+import AbstractControlView from './controls/AbstractControlView.js';
 
 /**
     Class: O.RootView
@@ -29,9 +35,9 @@
     the full page, it can be initiated with any other node already in the
     document.
 */
-var RootView = NS.Class({
+var RootView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     syncOnlyInDocument: false,
 
@@ -90,9 +96,8 @@ var RootView = NS.Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
-    preventRootScroll: NS.UA.isIOS ? function ( event ) {
+    preventRootScroll: UA.isIOS ? function ( event ) {
         var view = event.targetView,
-            ScrollView = NS.ScrollView,
             doc, win;
         if ( !( view instanceof ScrollView ) &&
                 !view.getParent( ScrollView ) ) {
@@ -113,8 +118,8 @@ var RootView = NS.Class({
     focus: function () {
         var layer = this.get( 'layer' ),
             activeElement = layer.ownerDocument.activeElement,
-            view = NS.ViewEventsController.getViewFromNode( activeElement );
-        if ( view instanceof NS.AbstractControlView ) {
+            view = ViewEventsController.getViewFromNode( activeElement );
+        if ( view instanceof AbstractControlView ) {
             view.blur();
         } else if ( activeElement.blur ) {
             activeElement.blur();
@@ -147,10 +152,8 @@ var RootView = NS.Class({
             this._onScroll( event );
             return;
         }
-        NS.ViewEventsController.handleEvent( event, null, this );
+        ViewEventsController.handleEvent( event, null, this );
     }.invokeInRunLoop()
 });
 
-NS.RootView = RootView;
-
-}( O ) );
+export default RootView;

@@ -1,27 +1,24 @@
 // -------------------------------------------------------------------------- \\
 // File: Gesture.js                                                           \\
 // Module: Touch                                                              \\
-// Requires: GestureManager.js                                                \\
+// Requires: Core, GestureManager.js                                          \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, extend } from '../core/Core.js';
+import GestureManager from './GestureManager.js';
 
-( function ( NS ) {
-
-NS.Gesture = NS.Class({
+export default Class({
     init: function ( mixin ) {
-        NS.extend( this, mixin );
-        NS.GestureManager.register( this );
+        extend( this, mixin );
+        GestureManager.register( this );
     },
     destroy: function () {
-        NS.GestureManager.deregister( this );
+        GestureManager.deregister( this );
     },
     cancel: function () {},
     start: function () {},
     move: function () {},
     end: function () {}
 });
-
-}( O ) );

@@ -1,14 +1,9 @@
 // -------------------------------------------------------------------------- \\
 // File: MutableEnumerable.js                                                 \\
 // Module: Foundation                                                         \\
-// Requires: Core                                                             \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS, undefined ) {
 
 var slice = Array.prototype.slice;
 
@@ -19,7 +14,7 @@ var slice = Array.prototype.slice;
     with a 'replaceObjectsAt' method and a 'get' method that supports 'length'.
     The API mirrors that of the native Array type.
 */
-NS.MutableEnumerable = {
+export default {
 
     // :: Mutation methods =====================================================
 
@@ -104,5 +99,3 @@ NS.MutableEnumerable = {
         return this.replaceObjectsAt( index, numberRemoved, newItems );
     }
 };
-
-}( O ) );

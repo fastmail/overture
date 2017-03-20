@@ -1,18 +1,25 @@
 // -------------------------------------------------------------------------- \\
 // File: PopOverView.js                                                       \\
 // Module: PanelViews                                                         \\
-// Requires: Core, Foundation, DOM, View                                      \\
+// Requires: Core, Foundation, DOM, View, ContainerViews, ModalEventHandler.js\\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, meta } from '../../core/Core.js';
+import '../../foundation/EventTarget.js';  // For Function#on
+import DOMEvent from '../../dom/DOMEvent.js';
+import Element from '../../dom/Element.js';
+import RootView from '../RootView.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js'
+import ScrollView from '../containers/ScrollView.js';
 
-( function ( NS ) {
+import ModalEventHandler from './ModalEventHandler.js';
 
-var PopOverView = NS.Class({
+var PopOverView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     className: 'v-PopOver',
 
@@ -59,10 +66,9 @@ var PopOverView = NS.Class({
             deltaLeft = 0,
             deltaTop = 0,
             layout, position, layer,
-            Element = NS.Element,
             el = Element.create,
-            RootView = NS.RootView,
-            ScrollView = NS.ScrollView,
+            RootView = RootView,
+            ScrollView = ScrollView,
             prop;
 
         // Want nearest parent scroll view (or root view if none).
@@ -190,7 +196,7 @@ var PopOverView = NS.Class({
         this.adjustPosition( deltaLeft, deltaTop );
 
         if ( eventHandler ) {
-            NS.ViewEventsController.addEventTarget( eventHandler, 10 );
+            ViewEventsController.addEventTarget( eventHandler, 10 );
         }
         this.set( 'isVisible', true );
 
@@ -198,8 +204,7 @@ var PopOverView = NS.Class({
     },
 
     adjustPosition: function ( deltaLeft, deltaTop ) {
-        var Element = NS.Element,
-            parent = this.get( 'parentView' ),
+        var parent = this.get( 'parentView' ),
             layer = this.get( 'layer' ),
             layout = this.get( 'layout' ),
             positionToThe = this._options.positionToThe || 'bottom',
@@ -214,8 +219,8 @@ var PopOverView = NS.Class({
 
         // Check not run off screen.
         if ( parent instanceof PopOverView ) {
-            parent = parent.getParent( NS.ScrollView ) ||
-                parent.getParent( NS.RootView );
+            parent = parent.getParent( ScrollView ) ||
+                parent.getParent( RootView );
         }
         position = Element.getPosition( layer, parent.get( 'layer' ) );
 
@@ -311,7 +316,7 @@ var PopOverView = NS.Class({
                 this._callout = null;
             }
             if ( eventHandler ) {
-                NS.ViewEventsController.removeEventTarget( eventHandler );
+                ViewEventsController.removeEventTarget( eventHandler );
                 eventHandler._seenMouseDown = false;
             }
             this._options = null;
@@ -323,17 +328,17 @@ var PopOverView = NS.Class({
     },
 
     hasSubView: function () {
-        return !!NS.meta( this ).cache.subPopOverView &&
+        return !!meta( this ).cache.subPopOverView &&
             this.get( 'subPopOverView' ).get( 'isVisible' );
     },
 
     subPopOverView: function () {
-        return new NS.PopOverView({ parentPopOverView: this });
+        return new PopOverView({ parentPopOverView: this });
     }.property(),
 
     eventHandler: function () {
         return this.get( 'parentPopOverView' ) ?
-            null : new NS.ModalEventHandler({ view: this });
+            null : new ModalEventHandler({ view: this });
     }.property(),
 
     clickedOutside: function () {
@@ -352,7 +357,7 @@ var PopOverView = NS.Class({
     },
 
     closeOnEsc: function ( event ) {
-        if ( NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+        if ( DOMEvent.lookupKey( event ) === 'esc' ) {
             this.hide();
         }
     }.on( 'keydown' ),
@@ -363,6 +368,4 @@ var PopOverView = NS.Class({
         'keypress', 'keydown', 'keyup', 'tap' )
 });
 
-NS.PopOverView = PopOverView;
-
-}( O ) );
+export default PopOverView;

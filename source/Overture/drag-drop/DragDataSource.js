@@ -6,9 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import DragEffect from './DragEffect.js';
 
 /**
     Class: O.DragDataSource
@@ -23,7 +21,7 @@
 
     or used as a mixin in another class.
 */
-NS.DragDataSource = {
+export default {
     /**
         Constructor: O.DragDataSource
 
@@ -56,7 +54,7 @@ NS.DragDataSource = {
 
         The effects allowed on the data.
     */
-    allowedDragEffects: NS.DragEffect.ALL,
+    allowedDragEffects: DragEffect.ALL,
 
     /**
         Property: O.DragDataSource#dragDataTypes
@@ -80,5 +78,3 @@ NS.DragDataSource = {
         return this._dragData[ type ];
     }
 };
-
-}( O ) );

@@ -6,22 +6,24 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS, undefined ) {
-
-var Status = NS.Status;
-var EMPTY = Status.EMPTY;
-var READY = Status.READY;
-// DIRTY => A preemptive update has been applied since the last fetch of
-// updates from the server was *initiated*. Therefore, any update we receive
-// may not cover all of the preemptives.
-var DIRTY = Status.DIRTY;
-// LOADING => An *update* is being fetched from the server
-var LOADING = Status.LOADING;
-// OBSOLETE => The data on the server may have changed since the last update
-// was requested.
-var OBSOLETE = Status.OBSOLETE;
+import { Class, meta, isEqual } from '../../core/Core.js';
+import '../../foundation/Enumerable.js';  // For Array#binarySearch
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
+import {
+    EMPTY,
+    READY,
+    // DIRTY => A preemptive update has been applied since the last fetch of
+    // updates from the server was *initiated*. Therefore, any update we receive
+    // may not cover all of the preemptives.
+    DIRTY,
+    // LOADING => An *update* is being fetched from the server
+    LOADING,
+    // OBSOLETE => The data on the server may have changed since the last update
+    // was requested.
+    OBSOLETE
+} from '../record/Status.js';
+import RemoteQuery from './RemoteQuery.js';
 
 /**
     Enum: O.WindowedRemoteQuery-WindowState
@@ -257,9 +259,9 @@ var windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
     calculating, transfering and applying delta updates as the results of the
     query changes.
 */
-var WindowedRemoteQuery = NS.Class({
+var WindowedRemoteQuery = Class({
 
-    Extends: NS.RemoteQuery,
+    Extends: RemoteQuery,
 
     /**
         Property: O.WindowedRemoteQuery#windowSize
@@ -787,7 +789,7 @@ var WindowedRemoteQuery = NS.Class({
     },
 
     _fetchObservedWindows: function () {
-        var ranges = NS.meta( this ).rangeObservers;
+        var ranges = meta( this ).rangeObservers;
         var length = this.get( 'length' );
         var windowSize = this.get( 'windowSize' );
         var observerStart, observerEnd, firstWindow, lastWindow, range, l;
@@ -910,8 +912,8 @@ var WindowedRemoteQuery = NS.Class({
                 return this.setObsolete();
             }
             // Check the sort and filter is still the same
-            if ( !NS.isEqual( update.sort, this.get( 'sort' ) ) ||
-                    !NS.isEqual( update.filter, this.get( 'filter' ) ) ) {
+            if ( !isEqual( update.sort, this.get( 'sort' ) ) ||
+                    !isEqual( update.filter, this.get( 'filter' ) ) ) {
                 return this;
             }
             // Set new state
@@ -1113,8 +1115,8 @@ var WindowedRemoteQuery = NS.Class({
         // User may have changed sort or filter in intervening time; presume the
         // value on the object is the right one, so if data doesn't match, just
         // ignore it.
-        if ( !NS.isEqual( args.sort, this.get( 'sort' ) ) ||
-                !NS.isEqual( args.filter, this.get( 'filter' ) ) ) {
+        if ( !isEqual( args.sort, this.get( 'sort' ) ) ||
+                !isEqual( args.filter, this.get( 'filter' ) ) ) {
             return this;
         }
 
@@ -1256,7 +1258,7 @@ var WindowedRemoteQuery = NS.Class({
         var recordRequests = [];
         var idRequests = [];
         var optimiseFetching = this.get( 'optimiseFetching' );
-        var ranges =  ( NS.meta( this ).rangeObservers || [] ).map(
+        var ranges =  ( meta( this ).rangeObservers || [] ).map(
             function ( observer ) {
                 return observer.range;
             });
@@ -1350,6 +1352,4 @@ var WindowedRemoteQuery = NS.Class({
     }
 });
 
-NS.WindowedRemoteQuery = WindowedRemoteQuery;
-
-}( O ) );
+export default WindowedRemoteQuery;

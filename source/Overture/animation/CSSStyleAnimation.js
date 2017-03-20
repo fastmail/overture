@@ -1,16 +1,18 @@
 // -------------------------------------------------------------------------- \\
 // File: CSSStyleAnimation.js                                                 \\
 // Module: Animation                                                          \\
-// Requires: Core, Foundation, Easing.js                                      \\
+// Requires: Core, Foundation, DOM, Easing.js, CSSStyleAnimationController.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
-
-( function ( NS ) {
+import { Class, extend } from '../core/Core.js';
+import RunLoop from '../foundation/RunLoop.js';
+import Element from '../dom/Element.js';
+import Easing from './Easing.js';
+import CSSStyleAnimationController from './CSSStyleAnimationController.js';
 
 /*
     Usage
@@ -27,75 +29,6 @@
 */
 
 /**
-    Object: O.CSSStyleAnimationController
-
-    Monitors for transitionend events and notifies the relevant
-    CSSStyleAnimation class that its animation has finished.
-    There is normally no reason to interact with this object directly.
-*/
-var CSSStyleAnimationController = {
-    /**
-        Property: O.CSSStyleAnimationController.animations
-        Type: Object
-
-        Maps elements (by guid) to transitions currently occurring on them.
-    */
-    animations: {},
-
-    /**
-        Method: O.CSSStyleAnimationController.register
-
-        Associates an element with the <O.CSSStyleAnimation> object that is
-        managing its animation.
-
-        Parameters:
-            el        - {Element} The element being animated.
-            animation - {O.CSSStyleAnimation} The animation controller.
-    */
-    register: function ( el, animation ) {
-        this.animations[ NS.guid( el ) ] = animation;
-    },
-
-    /**
-        Method: O.CSSStyleAnimationController.deregister
-
-        Removes an element and its animation controller from the <#animations>
-        map.
-
-        Parameters:
-            el - {Element} The element that was being animated.
-    */
-    deregister: function ( el ) {
-        delete this.animations[ NS.guid( el ) ];
-    },
-
-    /**
-        Method: O.CSSStyleAnimationController.handleEvent
-
-        Handles the transitionend event. Notifies the relevant animation
-        controller that the transition has finished.
-
-        Parameters:
-            event - {Event} The transitionend event object.
-    */
-    handleEvent: function ( event ) {
-        var animation = this.animations[ NS.guid( event.target ) ],
-            property = event.propertyName;
-        if ( animation ) {
-            event.stopPropagation();
-            animation.transitionEnd(
-                Object.keyOf( NS.UA.cssProps, property ) || property,
-                event.elapsedTime
-            );
-        }
-    }.invokeInRunLoop()
-};
-[ 'transitionend', 'webkitTransitionEnd', 'oTransitionEnd' ].forEach(
-function ( type ) {
-    document.addEventListener( type, CSSStyleAnimationController, true );
-});
-
-/**
     Class: O.CSSStyleAnimation
 
     Animates the CSS properties of an element using CSS transitions. When
@@ -103,18 +36,18 @@ function ( type ) {
     to animate and the <#current> property to an object of the current styles
     on the object.
 */
-var CSSStyleAnimation = NS.Class({
+var CSSStyleAnimation = Class({
 
     init: function ( mixin ) {
         this._deadMan = null;
 
         this.duration = 300;
-        this.ease = NS.Easing.ease;
+        this.ease = Easing.ease;
         this.isRunning = false;
         this.animating = [];
         this.current = null;
 
-        NS.extend( this, mixin );
+        extend( this, mixin );
     },
 
     /**
@@ -183,7 +116,7 @@ var CSSStyleAnimation = NS.Class({
             current = this.current,
             animating = this.animating,
             object = this.object,
-            setStyle = NS.Element.setStyle,
+            setStyle = Element.setStyle,
             property, value;
 
         this.current = styles;
@@ -206,7 +139,7 @@ var CSSStyleAnimation = NS.Class({
             // the style attribute reads as y. In this case, it may not fire a
             // transitionend event. Set a timeout for 100ms after the duration
             // as a deadman switch to rescue it in this case.
-            this._deadMan = NS.RunLoop.invokeAfterDelay(
+            this._deadMan = RunLoop.invokeAfterDelay(
                 this.stop, this.duration + 100, this );
 
             if ( object && object.willAnimate ) {
@@ -252,11 +185,11 @@ var CSSStyleAnimation = NS.Class({
         if ( this.isRunning ) {
             this.isRunning = false;
             this.animating.length = 0;
-            NS.RunLoop.cancel( this._deadMan );
+            RunLoop.cancel( this._deadMan );
 
             CSSStyleAnimationController.deregister( this.element );
 
-            NS.Element.setStyle( this.element, 'transition', 'none' );
+            Element.setStyle( this.element, 'transition', 'none' );
 
             var object = this.object;
             if ( object && object.didAnimate ) {
@@ -267,7 +200,4 @@ var CSSStyleAnimation = NS.Class({
     }
 });
 
-NS.CSSStyleAnimationController = CSSStyleAnimationController;
-NS.CSSStyleAnimation = CSSStyleAnimation;
-
-}( O ) );
+export default CSSStyleAnimation;

@@ -1,16 +1,14 @@
 // -------------------------------------------------------------------------- \\
 // File: Stylesheet.js                                                        \\
 // Module: DOM                                                                \\
-// Requires: Core, Element.js                                                 \\
+// Requires: Element.js                                                       \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
 /*global document */
 
-"use strict";
-
-( function ( NS, document ) {
+import Element from './Element.js';
 
 /**
     Namespace: O.Stylesheet
@@ -18,7 +16,7 @@
     The O.Stylesheet namespace contains helper functions for dealing with CSS
     stylesheets.
 */
-NS.Stylesheet = {
+export default {
     /**
         Function: O.Stylesheet.create
 
@@ -33,7 +31,7 @@ NS.Stylesheet = {
             {Element} The <style> node that was created.
     */
     create: function ( id, css ) {
-        var style = NS.Element.create( 'style', {
+        var style = Element.create( 'style', {
             type: 'text/css',
             id: id,
             text: css
@@ -42,5 +40,3 @@ NS.Stylesheet = {
         return style;
     }
 };
-
-}( O, document ) );

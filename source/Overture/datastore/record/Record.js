@@ -1,19 +1,20 @@
 // -------------------------------------------------------------------------- \\
 // File: Record.js                                                            \\
 // Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js, AttributeErrors.js                  \\
+// Requires: Core, Foundation, Status.js, AttributeErrors.js, RecordAttribute.js \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
+import { Class, meta, clone } from '../../core/Core.js';  // Also Function#extend
+import Object from '../../foundation/Object.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-( function ( NS, undefined ) {
+import RecordAttribute from './RecordAttribute.js';
+import AttributeErrors from './AttributeErrors.js';
+import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status.js';
 
-var meta = NS.meta;
-var Status = NS.Status;
-var READY_NEW_DIRTY = (Status.READY|Status.NEW|Status.DIRTY);
-var AttributeErrors = NS.AttributeErrors;
+var READY_NEW_DIRTY = (READY|NEW|DIRTY);
 
 /**
     Class: O.Record
@@ -23,9 +24,9 @@ var AttributeErrors = NS.AttributeErrors;
     All data object classes managed by the store must inherit from Record. This
     provides the basic status management for the attributes.
 */
-var Record = NS.Class({
+var Record = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Constructor: O.Record
@@ -62,7 +63,7 @@ var Record = NS.Class({
         var Type = this.constructor;
         var prototype = Type.prototype;
         var clone = new Type( store );
-        var attrs = NS.meta( this ).attrs;
+        var attrs = meta( this ).attrs;
         var attrKey, propKey, value;
         for ( attrKey in attrs ) {
             propKey = attrs[ attrKey ];
@@ -147,7 +148,7 @@ var Record = NS.Class({
         var storeKey = this.get( 'storeKey' ),
             status = this.get( 'status' );
         if ( storeKey ) {
-            this.get( 'store' ).setStatus( storeKey, status | Status.OBSOLETE );
+            this.get( 'store' ).setStatus( storeKey, status | OBSOLETE );
         }
         return this;
     },
@@ -164,7 +165,7 @@ var Record = NS.Class({
         var storeKey = this.get( 'storeKey' ),
             status = this.get( 'status' );
         if ( storeKey ) {
-            this.get( 'store' ).setStatus( storeKey, status | Status.LOADING );
+            this.get( 'store' ).setStatus( storeKey, status | LOADING );
         }
         return this;
     },
@@ -215,7 +216,7 @@ var Record = NS.Class({
             idPropKey = Type.primaryKey || 'id',
             idAttrKey = this[ idPropKey ].key || idPropKey,
             storeKey = store.getStoreKey( Type, data[ idAttrKey ] ),
-            attrs = NS.meta( this ).attrs,
+            attrs = meta( this ).attrs,
             attrKey, propKey, attribute, defaultValue;
 
         this._data = null;
@@ -229,7 +230,7 @@ var Record = NS.Class({
                     defaultValue = attribute.defaultValue;
                     if ( defaultValue !== undefined && !attribute.noSync ) {
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
-                            defaultValue.toJSON() : NS.clone( defaultValue );
+                            defaultValue.toJSON() : clone( defaultValue );
                     }
                 }
             }
@@ -431,7 +432,7 @@ var Record = NS.Class({
         var prototype, attrs, attrKey, propKey, attribute;
         if ( !clientSettableAttributes ) {
             prototype = Type.prototype;
-            attrs = NS.meta( prototype ).attrs;
+            attrs = meta( prototype ).attrs;
             clientSettableAttributes = {};
             for ( attrKey in attrs ) {
                 propKey = attrs[ attrKey ];
@@ -457,6 +458,31 @@ var Record = NS.Class({
     that is the primary key.
 */
 
-NS.Record = Record;
+/**
+    Function: O.Record.attr
 
-}( O ) );
+    A factory function for creating a new <O.RecordAttribute> instance. This
+    will set an assert function to verify the correct type is being set whenever
+    the value is set, and that the correct type is used to serialise to/from
+    primitive types.
+
+    When subclassing O.Record, use this function to create a value for any
+    properties on the record which correspond to properties on the underlying
+    data object. This will automatically set things up so they are fetched from
+    the store and synced to the source.
+
+    Parameters:
+        Type    - {Constructor} The type of the property.
+        mixin - {Object} Properties to pass to the <O.RecordAttribute>
+                constructor.
+
+    Returns:
+        {O.RecordAttribute} Getter/setter for that record attribute.
+*/
+Record.attr = function ( Type, mixin ) {
+    if ( !mixin ) { mixin = {}; }
+    if ( Type && !mixin.Type ) { mixin.Type = Type; }
+    return new RecordAttribute( mixin );
+};
+
+export default Record;

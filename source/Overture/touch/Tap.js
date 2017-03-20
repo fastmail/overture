@@ -1,32 +1,34 @@
 // -------------------------------------------------------------------------- \\
 // File: Tap.js                                                               \\
 // Module: Touch                                                              \\
-// Requires: Gesture.js                                                       \\
+// Requires: Core, Foundation, DOM, View, Gesture.js                          \\
 // Author: Neil Jenkins                                                       \\
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../core/Core.js';
+import Event from '../foundation/Event.js';
+import Element from '../dom/Element.js';
+import ViewEventsController from '../views/ViewEventsController.js';
+import Gesture from './Gesture.js';
 
 /*  We can't just call preventDefault on touch(start|move), as this would
     prevent scrolling and also prevent links we want to act as normal from
     working. So we use this hack instead to capture the subsequent click and
     remove it from the app's existence.
 */
-var MouseEventRemover = NS.Class({
+var MouseEventRemover = Class({
     init: function ( target, defaultPrevented ) {
         this.target = target;
         this.stop = defaultPrevented;
         this.time = Date.now();
-        NS.ViewEventsController.addEventTarget( this, 40 );
+        ViewEventsController.addEventTarget( this, 40 );
     },
     fire: function ( type, event ) {
         var isClick = ( type === 'click' ) && !event.originalType,
             isMouse = isClick || /^mouse/.test( type );
         if ( type === 'touchstart' || Date.now() - this.time > 1000 ) {
-            NS.ViewEventsController.removeEventTarget( this );
+            ViewEventsController.removeEventTarget( this );
             isMouse = false;
         }
         if ( isMouse && ( this.stop || event.target !== this.target ) ) {
@@ -36,9 +38,9 @@ var MouseEventRemover = NS.Class({
     }
 });
 
-var TapEvent = NS.Class({
+var TapEvent = Class({
 
-    Extends: NS.Event,
+    Extends: Event,
 
     originalType: 'tap'
 });
@@ -51,7 +53,7 @@ var TrackedTouch = function ( x, y, time, target ) {
     do {
         if ( /^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
             activeEls.push( target );
-            NS.Element.addClass( target, 'tap-active' );
+            Element.addClass( target, 'tap-active' );
         }
     } while ( target = target.parentNode );
 };
@@ -60,7 +62,7 @@ TrackedTouch.prototype.done  = function () {
     var activeEls = this.activeEls,
         i, l;
     for ( i = 0, l = activeEls.length; i < l; i += 1 ) {
-        NS.Element.removeClass( activeEls[i], 'tap-active' );
+        Element.removeClass( activeEls[i], 'tap-active' );
     }
 };
 
@@ -100,7 +102,7 @@ var isInputOrLink = function ( node ) {
     holding one button and tap another; the tap gesture will still be
     recognised).
 */
-NS.Tap = new NS.Gesture({
+export default new Gesture({
 
     _tracking: {},
 
@@ -152,7 +154,7 @@ NS.Tap = new NS.Gesture({
             tracking = this._tracking,
             now = Date.now(),
             i, l, touch, id, trackedTouch, target, tapEvent, clickEvent,
-            ViewEventsController = NS.ViewEventsController;
+            ViewEventsController = ViewEventsController;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
             id = touch.identifier;
@@ -184,5 +186,3 @@ NS.Tap = new NS.Gesture({
         }
     }
 });
-
-}( O ) );
