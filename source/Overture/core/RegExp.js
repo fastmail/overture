@@ -12,7 +12,7 @@
 
     A regular expression for detecting an email address.
 */
-RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,})\b/i;
+RegExp.email = /\b([\w.%+-]+@(?:[\w-]+\.)+[A-Z]{2,})\b/i;
 
 /**
     Property: RegExp.url
@@ -26,7 +26,7 @@ RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,})\b/i;
 // (?:
 //     https?:\/\/|                # URL protocol and colon
 //     www\d{0,3}[.]|              # or www.
-//     [a-z0-9.\-]+[.][a-z]{2,}\/  # or url like thing followed by a slash
+//     [a-z0-9.-]+[.][a-z]{2,}\/   # or url like thing followed by a slash
 // )
 // (?:
 //     [^\s()<>]+|                 # Run of non-space, non-()<>{}[]
@@ -42,7 +42,7 @@ RegExp.email = /\b([\w\-.%+]+@(?:[\w\-]+\.)+[A-Z]{2,})\b/i;
 //     [^\s`!()\[\]{};:'".,<>?«»“”‘’] # or not a space or one of these punct
 // )
 
-RegExp.url = /\b(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])/i;
+RegExp.url = /\b(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.-]+[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’])/i;
 
 // TODO(cmorgan/modulify): do something about these exports: RegExp.email,
 // RegExp.url

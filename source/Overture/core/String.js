@@ -169,7 +169,7 @@ String.implement({
             {String} The escaped string.
     */
     escapeRegExp: function () {
-        return this.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
+        return this.replace( /([-.*+?^${}()|[\]/\\])/g, '\\$1' );
     },
 
     /**
@@ -194,7 +194,7 @@ String.implement({
             {String} The camel-cased string.
     */
     camelCase: function () {
-        return this.replace( /\-([a-z])/g, function ( _, letter ) {
+        return this.replace( /-([a-z])/g, function ( _, letter ) {
             return letter.toUpperCase();
         });
     },

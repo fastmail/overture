@@ -109,13 +109,13 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         searchMethod = anyInLocale( 'searchMethod', 'past future' ),
 
         dateDelimiter = define( 'dateDelimiter',
-            ( /^(?:[\s\-\.\,\'\/]|of)+/ ) ),
+            ( /^(?:[\s\-.,'/]|of)+/ ) ),
 
         relativeDate = anyInLocale( 'relativeDate',
             'yesterday tomorrow today now' ),
 
         standardDate = sequence(
-            locale.dateFormats.date.split( /%\-?([dmbY])/ ).map(
+            locale.dateFormats.date.split( /%-?([dmbY])/ ).map(
             function ( part, i ) {
                 if ( i & 1 ) {
                     switch ( part ) {

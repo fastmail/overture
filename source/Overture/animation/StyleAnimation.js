@@ -31,7 +31,7 @@ var splitTransform = function ( transform ) {
         }
 
         // Gather number
-        while ( /^[\s\d\-\.]$/.test( transform.charAt( next ) ) ) {
+        while ( /^[\s\d\-.]$/.test( transform.charAt( next ) ) ) {
             next += 1;
         }
         result.push( parseFloat( transform.slice( i, next ) ) );
@@ -39,7 +39,7 @@ var splitTransform = function ( transform ) {
     }
 };
 
-var numbersRe = /[\.\-\d]/g;
+var numbersRe = /[.\-\d]/g;
 
 var styleAnimators = {
     display: {

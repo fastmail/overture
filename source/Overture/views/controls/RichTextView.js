@@ -882,7 +882,7 @@ var RichTextView = Class({
                 }
                 // If it appears to start with a url protocol,
                 // pass it through verbatim.
-                if ( !( /[a-z][\w\-]+:/i.test( url ) ) ) {
+                if ( !( /[a-z][\w-]+:/i.test( url ) ) ) {
                     // Otherwise, look for an email address,
                     // and add a mailto: handler, if found.
                     email = emailRegExp.exec( url );
@@ -1054,7 +1054,7 @@ var RichTextView = Class({
 
     alignment: function () {
         var path = this.get( 'path' ),
-            results = /\.align\-(\w+)/.exec( path ),
+            results = /\.align-(\w+)/.exec( path ),
             alignment;
         if ( path === '(selection)' ) {
             alignment = '';

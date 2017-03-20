@@ -19,13 +19,13 @@ var isLeapYear = function ( year ) {
 };
 var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 
-var dateFormat = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+\-])(\d{2})(?::(\d{2}))?)?)?)?$/;
+var dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
 Date.extend({
     fromJSON: function ( value ) {
         /*
             /^
-            (\d{4}|[+\-]\d{6})      // 1. Year
+            (\d{4}|[+-]\d{6})       // 1. Year
             (?:
                 -(\d{2})            // 2. Month
                 (?:
@@ -43,7 +43,7 @@ Date.extend({
                 (?:
                     Z|              // (UTC time)
                     (?:
-                        ([+\-])     // 8. +/-
+                        ([+-])      // 8. +/-
                         (\d{2})     // 9. Hours offset
                         (?:
                             :(\d{2}) // 10. Minutes offset
@@ -395,7 +395,7 @@ Date.implement({
     format: function ( format, utc ) {
         var date = this;
         return format ?
-            format.replace(/%(\-)?([%A-Za-z])/g,
+            format.replace(/%(-)?([%A-Za-z])/g,
                 function ( string, nopad, character ) {
             var num, str;
             switch ( character ) {
