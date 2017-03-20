@@ -32,6 +32,7 @@ import {
     DIRTY,       // Record has local changes not yet committing
     OBSOLETE     // Record may have changes not yet requested
 } from '../record/Status.js';
+// eslint-disable-next-line no-duplicate-imports
 import * as Status from '../record/Status.js';
 import ToOneAttribute from '../record/ToOneAttribute.js';
 import ToManyAttribute from '../record/ToManyAttribute.js';
@@ -1265,10 +1266,9 @@ var Store = Class({
             current = _skToData[ storeKey ],
             changedKeys = [],
             seenChange = false,
-            Type, key, value, oldValue, committed, changed;
+            key, value, oldValue, committed, changed;
 
         if ( !current || ( changeIsDirty && !( status & READY ) ) ) {
-            Type = this._skToType[ storeKey ];
             RunLoop.didError({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message:

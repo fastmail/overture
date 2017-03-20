@@ -30,7 +30,7 @@ import View from '../views/View.js';  // Circular but it's OK
 */
 
 // Vars used to store references to fns so they can call each other.
-var create, setStyle, setStyles, setAttributes, appendChildren, getPosition;
+var setStyle, setStyles, setAttributes, appendChildren, getPosition;
 
 /**
     Property (private): Element-directProperties
@@ -231,7 +231,7 @@ export default {
         Returns:
             {Element} The new element.
     */
-    create: create = function ( tag, props, children ) {
+    create: function ( tag, props, children ) {
         var i, l, parts, name, el;
 
         if ( props instanceof Array ) {

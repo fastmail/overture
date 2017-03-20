@@ -92,6 +92,7 @@ var executeModule = function ( name ) {
         data = info.data;
     setTimeout( function () {
         // `eval` would execute in the local scope. `( 1, eval )` is global.
+        // eslint-disable-next-line no-eval
         ( 1, eval )( data );
         afterModuleExecute( name, info );
     }, 0 );

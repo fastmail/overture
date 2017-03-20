@@ -892,7 +892,7 @@ var WindowedRemoteQuery = Class({
             var status = this.get( 'status' );
             var preemptives = this._preemptiveUpdates;
             var l = preemptives.length;
-            var store, toStoreKey;
+            var toStoreKey;
             var allPreemptives, composed, i;
 
             // We've got an update, so we're no longer in the LOADING state.
@@ -920,7 +920,6 @@ var WindowedRemoteQuery = Class({
             this.set( 'state', update.newState );
 
             // Map ids to store keys
-            store = this.get( 'store' );
             toStoreKey = this.get( '_toStoreKey' );
             update.removed = update.removed.map( toStoreKey );
             update.added.forEach( function ( tuple ) {

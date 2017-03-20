@@ -6,7 +6,7 @@
 // License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
 // -------------------------------------------------------------------------- \\
 
-/*global setTimeout, clearTimeout, window.setImmediate, console */
+/*global setTimeout, clearTimeout, console */
 
 import '../core/Core.js';  // For Function#implement
 import Heap from './Heap.js';
@@ -435,7 +435,9 @@ var RunLoop = {
             error - {Error} The error object.
     */
     didError: function ( error ) {
-        console.log( error.name, error.message, error.stack );
+        if ( window.console ) {
+            console.log( error.name, error.message, error.stack );
+        }
     }
 };
 
