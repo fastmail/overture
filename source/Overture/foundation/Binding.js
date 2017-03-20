@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Binding.js                                                           \\
-// Module: Foundation                                                         \\
-// Requires: Core, ComputedProps.js                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global Element */
 
 import getFromPath from './getFromPath.js';

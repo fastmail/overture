@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ListKBFocusView.js                                                   \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View, ContainerViews                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../core/Number.js';  // For Number#limit
 import { bind } from '../../foundation/Binding.js';

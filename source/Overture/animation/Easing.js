@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Easing.js                                                            \\
-// Module: Animation                                                          \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../core/Core.js';  // For Function#extend
 
 var cubicBezier;

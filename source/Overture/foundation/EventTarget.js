@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: EventTarget.js                                                       \\
-// Module: Foundation                                                         \\
-// Requires: Core, Event.js                                                   \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { meta } from '../core/Core.js';  // Also Function#implement
 import '../core/Array.js';  // For Array#erase
 

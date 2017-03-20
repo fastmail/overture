@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: SplitViewController.js                                               \\
-// Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';  // Also Function#extend
 import Object from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property

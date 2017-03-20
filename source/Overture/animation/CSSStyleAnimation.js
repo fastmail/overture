@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: CSSStyleAnimation.js                                                 \\
-// Module: Animation                                                          \\
-// Requires: Core, Foundation, DOM, Easing.js, CSSStyleAnimationController.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
 import { Class, extend } from '../core/Core.js';

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: SplitViewDivider.js                                                  \\
-// Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View, DragDrop, SplitViewController.js         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../core/Number.js';  // For Number#limit
 import { bind, bindTwoWay } from '../../foundation/Binding.js';

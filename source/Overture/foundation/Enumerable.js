@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Enumerable.js                                                        \\
-// Module: Foundation                                                         \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../core/Core.js';  // For Function#implement
 
 var defaultComparator = function ( a, b ) {

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ObservableProps.js                                                   \\
-// Module: Foundation                                                         \\
-// Requires: Core, RunLoop.js                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { meta } from '../core/Core.js';  // Also Function#implement
 import Binding from './Binding.js';
 

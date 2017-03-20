@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: UA.js                                                                \\
-// Module: UA                                                                 \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global navigator, document, window */
 
 import '../foundation/Enumerable.js';  // For Array#forEach on ES3 browsers?

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: RootView.js                                                          \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, UA, View.js, ViewEventsController.js, ScrollView.js, AbstractControlView.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global window */
 
 import { Class } from '../core/Core.js';

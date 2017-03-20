@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 export * from './core/Core.js';
 export { default as sortByProperties } from './core/sortByProperties.js';
 import './core/Array.js';

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: View.js                                                              \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, UA, ViewEventsController.js               \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, extend } from '../core/Core.js';
 import '../core/String.js';  // For String#capitalise
 import OObject from '../foundation/Object.js';

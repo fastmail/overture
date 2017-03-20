@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: TimeZone.js                                                          \\
-// Module: TimeZones                                                          \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, extend } from '../core/Core.js';
 import '../core/Date.js';  // For Date#add
 import '../core/String.js';  // For String#format

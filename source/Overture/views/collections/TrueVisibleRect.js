@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: TrueVisibleRect.js                                                   \\
-// Module: CollectionViews                                                    \\
-// Requires: Foundation                                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../../foundation/ComputedProps.js';  // For Function#property
 
 /**

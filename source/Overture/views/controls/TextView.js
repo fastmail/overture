@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: TextView.js                                                          \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, ContainerViews, AbstractControlView.js\\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
 import { Class, extend } from '../../core/Core.js';

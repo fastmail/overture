@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Hold.js                                                              \\
-// Module: Touch                                                              \\
-// Requires: Core, Foundation, View, Tap.js, Gesture.js                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../core/Core.js';
 import Event from '../foundation/Event.js';
 import RunLoop from '../foundation/RunLoop.js';

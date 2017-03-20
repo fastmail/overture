@@ -1,10 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: DragEffect.js                                                        \\
-// Module: DragDrop                                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 export default {
 /**
     Enum: O.DragEffect

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ProgressiveListView.js                                               \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, ContainerViews, ListView.js, TrueVisibleRect.js\\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue

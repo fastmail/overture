@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ListView.js                                                          \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, guid } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
 import '../../foundation/ComputedProps.js';  // For Function#property

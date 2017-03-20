@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: RelativeDate.js                                                      \\
-// Module: Localisation                                                       \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../core/Core.js';  // For Function#implement
 import { loc } from './LocaleController.js';
 

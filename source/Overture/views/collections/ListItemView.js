@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ListItemView.js                                                      \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, UA, View                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/RunLoop.js';  // For Function#nextFrame

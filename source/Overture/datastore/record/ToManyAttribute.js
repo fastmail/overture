@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ToManyAttribute.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js, RecordAttribute.js                  \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, meta } from '../../core/Core.js';  // Also Function#implement
 import '../../core/Array.js';  // For Array#erase
 import ObservableArray from '../../foundation/ObservableArray.js';

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Event.js                                                             \\
-// Module: Foundation                                                         \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, extend } from '../core/Core.js';
 
 /**

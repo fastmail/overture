@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: SingleSelectionController.js                                         \\
-// Module: Selection                                                          \\
-// Requires: Core, Foundation, DataStore                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, meta } from '../core/Core.js';
 import Object from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue

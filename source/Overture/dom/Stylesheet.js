@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Stylesheet.js                                                        \\
-// Module: DOM                                                                \\
-// Requires: Element.js                                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
 import Element from './Element.js';

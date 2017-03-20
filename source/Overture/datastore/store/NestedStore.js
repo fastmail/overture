@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: NestedStore.js                                                       \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Store.js                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, isEqual, clone } from '../../core/Core.js';
 import RunLoop from '../../foundation/RunLoop.js';
 

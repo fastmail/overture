@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ToolbarView.js                                                       \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, DOM, Localisation, View, ControlViews, PanelViews\\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/ObservableProps.js';  // For Function#observes

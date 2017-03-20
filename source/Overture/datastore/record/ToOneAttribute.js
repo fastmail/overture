@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ToOneAttribute.js                                                    \\
-// Module: DataStore                                                          \\
-// Requires: Core, RecordAttribute.js, Record.js                              \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 
 import RecordAttribute from './RecordAttribute.js';

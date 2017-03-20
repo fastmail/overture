@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: DragController.js                                                    \\
-// Module: DragDrop                                                           \\
-// Requires: Foundation, DOM, View, Drag.js, DragEffect.js                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
 import Object from '../foundation/Object.js';

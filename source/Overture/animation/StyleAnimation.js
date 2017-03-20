@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: StyleAnimation.js                                                    \\
-// Module: Animation                                                          \\
-// Requires: Core, DOM, Animation.js                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import Animation from './Animation.js';
 import { Class, clone } from '../core/Core.js';
 import Element from '../dom/Element.js';

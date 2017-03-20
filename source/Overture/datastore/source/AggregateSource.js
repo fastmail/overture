@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: AggregateSource.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Source.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../core/Array.js';  // For Array#erase
 import '../../foundation/ObservableProps.js';  // For Function#observes

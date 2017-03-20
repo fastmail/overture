@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Record.js                                                            \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js, AttributeErrors.js, RecordAttribute.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, meta, clone } from '../../core/Core.js';  // Also Function#extend
 import Object from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache

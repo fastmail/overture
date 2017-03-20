@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: CSSStyleAnimationController.js                                       \\
-// Module: Animation                                                          \\
-// Requires: Core, Foundation, UA                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { guid } from '../core/Core.js';
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 import UA from '../ua/UA.js';

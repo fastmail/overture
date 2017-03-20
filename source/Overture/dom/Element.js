@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Element.js                                                           \\
-// Module: DOM                                                                \\
-// Requires: Core, UA, Foundation, View                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global Element, document */
 
 import '../core/String.js';  // For String#camelCase, #contains, #hyphenate

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: RichTextView.js                                                      \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, Application, DOM, DragDrop, Localisation, UA, View, ContainerViews, CollectionViews, PanelViews, ButtonView.js, FileButtonView.js, MenuView.js, TextView.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global window, document, FileReader, Squire */
 
 import { Class } from '../../core/Core.js';

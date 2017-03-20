@@ -1,10 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: MutableEnumerable.js                                                 \\
-// Module: Foundation                                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 var slice = Array.prototype.slice;
 
 /**

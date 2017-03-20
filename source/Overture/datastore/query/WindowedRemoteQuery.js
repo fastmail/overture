@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: WindowedRemoteQuery.js                                               \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js, RemoteQuery.js                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, meta, isEqual } from '../../core/Core.js';
 import '../../foundation/Enumerable.js';  // For Array#binarySearch
 import '../../foundation/ObservableProps.js';  // For Function#observes

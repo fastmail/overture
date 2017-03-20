@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: SwitchView.js                                                        \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View, DOM                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
 import { Class } from '../../core/Core.js';

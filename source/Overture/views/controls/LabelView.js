@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: LabelView.js                                                         \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import View from '../View.js';

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: SearchTextView.js                                                    \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Localisation, TextView.js, ClearSearchButtonView.js        \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import { loc } from '../../localisation/LocaleController.js';
 import TextView from './TextView.js';

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: AnimatableView.js                                                    \\
-// Module: Animation                                                          \\
-// Requires: Core, Foundation, UA, Animation.js, Easing.js, CSSStyleAnimation.js, StyleAnimation.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import UA from '../ua/UA.js';
 import RunLoop from '../foundation/RunLoop.js';
 import '../foundation/ComputedProps.js';  // For Function#property

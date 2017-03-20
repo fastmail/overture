@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: MenuButtonView.js                                                    \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, PanelViews, ButtonView.js, MenuView.js\\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, extend } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/EventTarget.js';  // For Function#on

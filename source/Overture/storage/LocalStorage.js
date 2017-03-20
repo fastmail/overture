@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: LocalStorage.js                                                      \\
-// Module: Storage                                                            \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global location, sessionStorage, localStorage */
 
 import { Class } from '../core/Core.js';

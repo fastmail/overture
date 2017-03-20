@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: RadioView.js                                                         \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, CheckboxView.js                     \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/EventTarget.js';  // For Function#on

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: GlobalKeyboardShortcuts.js                                           \\
-// Module: Application                                                        \\
-// Requires: Core, Foundation, DOM, UA, View, ControlViews                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../core/Core.js';
 import Object from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on

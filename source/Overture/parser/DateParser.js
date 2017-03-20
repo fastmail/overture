@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: DateParser.js                                                        \\
-// Module: Parser                                                             \\
-// Requires: Core, Localisation, Parse.js                                     \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../core/Number.js';  // For Number#mod
 import '../core/String.js';  // For String#escapeRegExp
 import i18n from '../localisation/LocaleController.js';

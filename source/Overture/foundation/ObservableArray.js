@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ObservableArray.js                                                   \\
-// Module: Foundation                                                         \\
-// Requires: Object.js,ObservableRange.js,Enumerable.js,MutableEnumerable.js  \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../core/Core.js';
 import Object from './Object.js';
 import ObservableRange from './ObservableRange.js';

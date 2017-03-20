@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Object.js                                                            \\
-// Module: Core                                                               \\
-// Requires: Core.js                                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import './Core.js';  // For Function#extend
 
 Object.extend({

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: StoreUndoManager.js                                                  \\
-// Module: DataStore                                                          \\
-// Requires: Core, UndoManager.js                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 
 import UndoManager from './UndoManager.js';

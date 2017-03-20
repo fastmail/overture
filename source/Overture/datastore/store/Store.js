@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Store.js                                                             \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js, Status.js, ToOneAttribute.js, ToManyAttribute.js, LiveQuery.js, RemoteQuery.js, RecordArray.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global JSON */
 
 import { Class, meta, isEqual, guid, clone, extend } from '../../core/Core.js';

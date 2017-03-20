@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: MemoryManager.js                                                     \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js, RemoteQuery.js                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, guid } from '../../core/Core.js';
 import RunLoop from '../../foundation/RunLoop.js';
 

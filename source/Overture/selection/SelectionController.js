@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: SelectionController.js                                               \\
-// Module: Selection                                                          \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../core/Core.js';
 import Object from '../foundation/Object.js';
 import '../foundation/ObservableProps.js';  // For Function#observes

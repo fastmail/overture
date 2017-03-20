@@ -1,10 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Transform.js                                                         \\
-// Module: Foundation                                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /**
     Namespace: O.Transform
 

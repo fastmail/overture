@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Tap.js                                                               \\
-// Module: Touch                                                              \\
-// Requires: Core, Foundation, DOM, View, Gesture.js                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../core/Core.js';
 import Event from '../foundation/Event.js';
 import Element from '../dom/Element.js';

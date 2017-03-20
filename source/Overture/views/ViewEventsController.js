@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ViewEventsController.js                                              \\
-// Module: View                                                               \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 import '../foundation/Enumerable.js';  // For Array#binarySearch
 

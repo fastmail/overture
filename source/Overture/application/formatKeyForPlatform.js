@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: formatKeyForPlatform.js                                              \\
-// Module: Application                                                        \\
-// Requires: Core, UA                                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import '../core/String.js';  // For String#capitalise
 import UA from '../ua/UA.js';
 

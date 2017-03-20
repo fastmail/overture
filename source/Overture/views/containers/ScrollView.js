@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ScrollView.js                                                        \\
-// Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View, Animation, Touch, UA                     \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';  // Also Function#implement
 import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
 import '../../foundation/ComputedProps.js';  // For Function#property

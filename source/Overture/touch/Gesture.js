@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Gesture.js                                                           \\
-// Module: Touch                                                              \\
-// Requires: Core, GestureManager.js                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, extend } from '../core/Core.js';
 import GestureManager from './GestureManager.js';
 

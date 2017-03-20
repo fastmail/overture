@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: RunLoop.js                                                           \\
-// Module: Foundation                                                         \\
-// Requires: Core, Heap.js                                                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global setTimeout, clearTimeout, console */
 
 import '../core/Core.js';  // For Function#implement

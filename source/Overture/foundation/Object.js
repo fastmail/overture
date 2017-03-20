@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Object.js                                                            \\
-// Module: Foundation                                                         \\
-// Requires: ComputedProps.js, BoundProps.js, ObservableProps.js, EventTarget.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import ComputedProps from './ComputedProps.js';
 import BoundProps from './BoundProps.js';
 import ObservableProps from './ObservableProps.js';

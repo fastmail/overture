@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: WindowController.js                                                  \\
-// Module: Application                                                        \\
-// Requires: Core, Foundation, UA                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global JSON, window, document, localStorage */
 
 import { Class, extend } from '../core/Core.js';  // Also Function#extend

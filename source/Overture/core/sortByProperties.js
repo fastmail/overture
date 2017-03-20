@@ -1,10 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: sortByProperties.js                                                  \\
-// Module: Core                                                               \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 // I know this looks bad, but the defined ES6 module semantics actually make
 // this OK. (The short version is that circular references are just fine and
 // tend to work roughly as you’d expect if you didn’t think about them at all.

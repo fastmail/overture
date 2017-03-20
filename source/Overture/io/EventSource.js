@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: EventSource.js                                                       \\
-// Module: IO                                                                 \\
-// Requires: Core, Foundation, XHR.js                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global EventSource */
 
 import { Class, meta } from '../core/Core.js';  // Also Function#extend

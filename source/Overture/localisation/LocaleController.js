@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: LocaleController.js                                                  \\
-// Module: Localisation                                                       \\
-// Requires: Core, Locale.js                                                  \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global Intl */
 
 import '../core/String.js';  // For String#escapeRegExp

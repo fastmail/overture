@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: MenuController.js                                                    \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, Localisation, PanelViews, MenuButtonView.js\\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class } from '../../core/Core.js';
 import '../../core/Number.js';  // For Number#mod
 import Object from '../../foundation/Object.js';

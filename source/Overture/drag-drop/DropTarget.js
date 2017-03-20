@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: DropTarget.js                                                        \\
-// Module: DragDrop                                                           \\
-// Requires: DragEffect.js                                                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import DragEffect from './DragEffect.js';
 
 /**

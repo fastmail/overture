@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Animation.js                                                         \\
-// Module: Animation                                                          \\
-// Requires: Core, Foundation, Easing.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, meta, extend } from '../core/Core.js';
 import '../core/Array.js';  // For Array#erase
 import RunLoop from '../foundation/RunLoop.js';

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: AttributeErrors.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, RecordAttribute.js                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, meta } from '../../core/Core.js';
 import Object from '../../foundation/Object.js';
 import '../../foundation/ObservableProps.js';  // For Function#observes

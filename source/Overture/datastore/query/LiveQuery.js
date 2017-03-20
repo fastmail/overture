@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: LiveQuery.js                                                         \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, guid } from '../../core/Core.js';
 import sortByProperties from '../../core/sortByProperties.js';
 import Object from '../../foundation/Object.js';

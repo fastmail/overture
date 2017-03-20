@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Locale.js                                                            \\
-// Module: Localisation                                                       \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { Class, merge } from '../core/Core.js';
 import '../core/Date.js';  // For Date#format
 

@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: FileButtonView.js                                                    \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, ButtonView.js, AbstractControlView.js     \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global FormData */
 
 import { Class } from '../../core/Core.js';

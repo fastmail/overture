@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: ComputedProps.js                                                     \\
-// Module: Foundation                                                         \\
-// Requires: Core, getFromPath.js                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 import { meta, clone } from '../core/Core.js';  // Also Function#implement
 import '../core/Array.js';  // For Array#erase
 

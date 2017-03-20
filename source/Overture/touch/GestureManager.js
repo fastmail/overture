@@ -1,11 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: GestureManager.js                                                    \\
-// Module: Touch                                                              \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
 import '../core/Array.js';  // For Array#erase
