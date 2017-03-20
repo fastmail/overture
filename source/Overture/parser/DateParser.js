@@ -234,19 +234,30 @@ var generateLocalisedDateParser = function ( locale, mode ) {
 
 // --- Interpreter ---
 
-var monthNameToIndex = 'jan feb mar apr may jun jul aug sep oct nov dec'
-    .split( ' ' )
-    .reduce( function ( monthNameToIndex, name, i ) {
-        monthNameToIndex[ name ] = i;
-        return monthNameToIndex;
-    }, {} );
+var monthNameToIndex = {
+    jan: 0,
+    feb: 1,
+    mar: 2,
+    apr: 3,
+    may: 4,
+    jun: 5,
+    jul: 6,
+    aug: 7,
+    sep: 8,
+    oct: 9,
+    nov: 10,
+    dec: 11,
+};
 
-var dayNameToIndex = 'sun mon tue wed thu fri sat'
-    .split( ' ' )
-    .reduce( function ( dayNameToIndex, name, i ) {
-        dayNameToIndex[ name ] = i;
-        return dayNameToIndex;
-    }, {} );
+var dayNameToIndex = {
+    sun: 0,
+    mon: 1,
+    tue: 2,
+    wed: 3,
+    thu: 4,
+    fri: 5,
+    sat: 6,
+};
 
 var isLeapYear = Date.isLeapYear;
 var getDaysInMonth = Date.getDaysInMonth;
