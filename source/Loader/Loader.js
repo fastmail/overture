@@ -234,7 +234,7 @@ require = function ( modules, fn, bind ) {
                     waitObj = {
                         fn: fn,
                         bind: bind,
-                        refCount: 0
+                        refCount: 0,
                     };
                 }
                 waitObj.refCount += 1;
@@ -309,7 +309,7 @@ var loader = {
     // Requires all modules listed.
     // Returns whether loaded.
     // Presuming all dependency chains resolved.
-    require: require
+    require: require,
 };
 
 export { loader, require };

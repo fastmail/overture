@@ -114,7 +114,7 @@ var AggregateSource = Class({
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchQuery( query, callback );
         });
-    }
+    },
 });
 
 export default AggregateSource;

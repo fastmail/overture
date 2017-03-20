@@ -174,7 +174,7 @@ var ButtonView = Class({
         this._domControl = layer;
         return [
             icon,
-            ButtonView.parent.draw.call( this, layer, Element, el )
+            ButtonView.parent.draw.call( this, layer, Element, el ),
         ];
     },
 
@@ -341,13 +341,13 @@ var ButtonView = Class({
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-    }.on( 'keypress' )
+    }.on( 'keypress' ),
 }).extend({
     drawIcon: function ( icon ) {
         return Element.create( 'i', {
-            className: 'icon ' + icon
+            className: 'icon ' + icon,
         });
-    }
+    },
 });
 
 export default ButtonView;

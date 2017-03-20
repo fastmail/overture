@@ -19,7 +19,7 @@ import {
     COMMITTING,  // Request been made to source to commit record.
     NEW,         // Record has not been committed to source.
     DIRTY,       // Record has local changes not commited to source
-    OBSOLETE     // Source may have changes not yet loaded.
+    OBSOLETE,    // Source may have changes not yet loaded.
 } from '../record/Status.js';
 
 import Store from './Store.js';
@@ -358,7 +358,7 @@ var NestedStore = Class({
     sourceDidCommitUpdate: null,
     sourceDidNotUpdate: null,
     sourceDidCommitDestroy: null,
-    sourceDidNotDestroy: null
+    sourceDidNotDestroy: null,
 });
 
 export default NestedStore;

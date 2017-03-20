@@ -238,7 +238,7 @@ var AbstractControlView = Class({
             label.removeChild( child );
         }
         Element.appendChildren( label, [
-            this.get( 'label' )
+            this.get( 'label' ),
         ]);
     },
 
@@ -336,7 +336,7 @@ var AbstractControlView = Class({
         performed when the control is activated, either by being clicked on or
         via a keyboard shortcut.
     */
-    activate: function () {}
+    activate: function () {},
 
 });
 

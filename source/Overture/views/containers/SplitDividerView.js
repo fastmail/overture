@@ -141,13 +141,13 @@ var SplitDividerView = Class({
             styles = {
                 top: 0,
                 bottom: 0,
-                width: thickness
+                width: thickness,
             };
         } else {
             styles = {
                 left: 0,
                 right: 0,
-                height: thickness
+                height: thickness,
             };
         }
         styles[ this.get( 'anchor' ) ] =
@@ -184,7 +184,7 @@ var SplitDividerView = Class({
             ( this._offset + ( sign * delta ) )
                 .limit( this.get( 'min' ), this.get( 'max' ) )
         );
-    }
+    },
 });
 
 export default SplitDividerView;

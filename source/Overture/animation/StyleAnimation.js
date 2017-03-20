@@ -48,7 +48,7 @@ var styleAnimators = {
         },
         calcValue: function ( position, deltaValue, startValue ) {
             return position ? deltaValue : startValue;
-        }
+        },
     },
     transform: {
         calcDelta: function ( startValue, endValue ) {
@@ -62,7 +62,7 @@ var styleAnimators = {
                 start: start,
                 delta: end.map( function ( value, index ) {
                     return index & 1 ? value - start[ index ] : 0;
-                })
+                }),
             };
         },
         calcValue: function ( position, deltaValue ) {
@@ -75,8 +75,8 @@ var styleAnimators = {
                 transform += start[ i + 1 ];
             }
             return transform;
-        }
-    }
+        },
+    },
 };
 
 var supported = {
@@ -92,7 +92,7 @@ var supported = {
 
     transform: 1,
 
-    opacity: 1
+    opacity: 1,
 };
 
 /**
@@ -221,5 +221,5 @@ export default Class({
             // And set.
             setStyle( el, property, value );
         }
-    }
+    },
 });

@@ -425,7 +425,7 @@ var Record = Class({
         if ( attributeErrors ) {
             attributeErrors.recordPropertyDidChange( this, propKey );
         }
-    }
+    },
 }).extend({
     getClientSettableAttributes: function ( Type ) {
         var clientSettableAttributes = Type.clientSettableAttributes;
@@ -446,7 +446,7 @@ var Record = Class({
             Type.clientSettableAttributes = clientSettableAttributes;
         }
         return clientSettableAttributes;
-    }
+    },
 });
 
 /**

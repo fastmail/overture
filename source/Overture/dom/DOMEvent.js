@@ -36,7 +36,7 @@ var DOMEvent = {
         39: 'right',
         40: 'down',
         46: 'delete',
-        144: 'numlock'
+        144: 'numlock',
     },
 
     /**
@@ -103,7 +103,7 @@ var DOMEvent = {
     isClickModified: function ( event ) {
         return !!event.button ||
             event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
-    }
+    },
 };
 
 export default DOMEvent;

@@ -34,7 +34,7 @@ var ToOneAttribute = Class({
             result = record.get( 'store' ).getRecord( this.Type, '#' + result );
         }
         return result || null;
-    }
+    },
 });
 
 export default ToOneAttribute;

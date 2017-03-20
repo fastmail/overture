@@ -298,7 +298,7 @@ var SwitchView = Class({
         Element.forView( this._oldView );
         this._oldView = null;
         return this;
-    }
+    },
 });
 
 export default SwitchView;
@@ -312,7 +312,7 @@ var pickViewUnless = function ( bool ) {
 
 var createView = function ( object, property, transform ) {
     var switchView = new SwitchView({
-        index: bind( object, property, transform )
+        index: bind( object, property, transform ),
     });
     switchView._oldView = Element.forView( switchView );
     return switchView;

@@ -58,7 +58,7 @@ var MenuView = Class({
                 maxHeight: Math.max(
                     scrollView.get( 'pxHeight' ) - delta - 10,
                     windowHeight / 2
-                )
+                ),
             }).redraw();
         }
 
@@ -71,7 +71,7 @@ var MenuView = Class({
             RunLoop.invokeInNextFrame( function () {
                 input.focus().set( 'selection', {
                     start: 0,
-                    end: input.get( 'value' ).length
+                    end: input.get( 'value' ).length,
                 });
             });
         }
@@ -98,7 +98,7 @@ var MenuView = Class({
 
     controller: function () {
         return new MenuController({
-            view: this
+            view: this,
         });
     }.property(),
 
@@ -115,15 +115,15 @@ var MenuView = Class({
             this.get( 'showFilter' ) ? el( 'div.v-Menu-filter', [
                 this._input = new SearchTextView({
                     blurOnEscape: false,
-                    value: bindTwoWay( 'filter', this.get( 'controller' ) )
-                })
+                    value: bindTwoWay( 'filter', this.get( 'controller' ) ),
+                }),
             ]) : null,
             this._scrollView = new ScrollView({
                 positioning: 'relative',
                 layout: {},
                 layerTag: 'ul',
-                childViews: optionViews
-            })
+                childViews: optionViews,
+            }),
         ];
     },
 
@@ -170,7 +170,7 @@ var MenuView = Class({
                 }
             }
         }
-    }.on( 'keypress' )
+    }.on( 'keypress' ),
 });
 
 export default MenuView;

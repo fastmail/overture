@@ -16,7 +16,7 @@ var platformKeys = {
     meta: isMac ? '⌘' : 'Meta-',
     shift: isMac ? '⇧' : 'Shift-',
     enter: isMac ? '↵' : 'Enter',
-    backspace: isMac ? '⌫' : 'Backspace'
+    backspace: isMac ? '⌫' : 'Backspace',
 };
 
 /**

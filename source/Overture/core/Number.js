@@ -43,7 +43,7 @@ Number.implement({
     mod: function ( n ) {
         var m = this % n;
         return m < 0 ? m + n : m;
-    }
+    },
 });
 
 // TODO(cmorgan/modulify): do something about these exports: Number#limit,

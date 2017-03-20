@@ -97,7 +97,7 @@ var Drag = Class({
         this.dropEffect = DEFAULT;
         this.cursorPosition = this.startPosition = {
             x: event.clientX,
-            y: event.clientY
+            y: event.clientY,
         };
         this.defaultCursor = 'default';
         this.dragImage = null;
@@ -231,7 +231,7 @@ var Drag = Class({
                 }
             } else {
                 dragCursor = this._dragCursor = Element.create( 'div', {
-                    style: 'position: fixed; z-index: 9999;'
+                    style: 'position: fixed; z-index: 9999;',
                 });
                 this._updateDragImagePosition();
                 document.body.appendChild( dragCursor );
@@ -591,7 +591,7 @@ var Drag = Class({
         // Update cursor location
         this.set( 'cursorPosition', {
             x: x = event.clientX,
-            y: y = event.clientY
+            y: y = event.clientY,
         });
 
         // Check if we're over any hotspots that should trigger a scroll.
@@ -675,7 +675,7 @@ var Drag = Class({
                         l: bounds.left - outsideTriggerRegionWidth,
                         r: bounds.right + outsideTriggerRegionWidth,
                         t: bounds.top - outsideTriggerRegionWidth,
-                        b: bounds.bottom + outsideTriggerRegionWidth
+                        b: bounds.bottom + outsideTriggerRegionWidth,
                     };
                     deltaX = Math.min( 75, bounds.width >> 2 );
                     deltaY = Math.min( 75, bounds.height >> 2 );
@@ -789,7 +789,7 @@ var Drag = Class({
             this.dropTarget.drop( this );
         }
         return this;
-    }
+    },
 });
 
 export default Drag;

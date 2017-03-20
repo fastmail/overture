@@ -29,7 +29,7 @@ var PopOverView = Class({
     parentPopOverView: null,
 
     ariaAttributes: {
-        modal: 'true'
+        modal: 'true',
     },
 
     /*
@@ -88,7 +88,7 @@ var PopOverView = Class({
             parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
         layout = {
             top: position.top,
-            left: position.left
+            left: position.left,
         };
 
         switch ( positionToThe ) {
@@ -146,12 +146,12 @@ var PopOverView = Class({
                 el( 'b', {
                     className: 'v-PopOver-callout' +
                         ' v-PopOver-callout--' + positionToThe.charAt( 0 ) +
-                        ' v-PopOver-callout--' + alignEdge
+                        ' v-PopOver-callout--' + alignEdge,
                 }, [
                     this._callout = el( 'b', {
                         className: 'v-PopOver-triangle' +
-                            ' v-PopOver-triangle--' + positionToThe.charAt( 0 )
-                    })
+                            ' v-PopOver-triangle--' + positionToThe.charAt( 0 ),
+                    }),
                 ])
             );
         }
@@ -279,7 +279,7 @@ var PopOverView = Class({
             // Redraw immediately to prevent "flashing"
             this.set( 'layout', {
                 top: layout.top + deltaTop,
-                left: layout.left + deltaLeft
+                left: layout.left + deltaLeft,
             }).redraw();
         }
         if ( calloutDelta ) {
@@ -365,7 +365,7 @@ var PopOverView = Class({
     stopEvents: function ( event ) {
         event.stopPropagation();
     }.on( 'click', 'mousedown', 'mouseup',
-        'keypress', 'keydown', 'keyup', 'tap' )
+        'keypress', 'keydown', 'keyup', 'tap' ),
 });
 
 export default PopOverView;

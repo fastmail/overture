@@ -142,7 +142,7 @@ var MenuButtonView = Class({
                             menuOptionView.removeObserverForKey(
                                 'isFocussed', popOverView, 'hide' );
                         }
-                    }
+                    },
                 }, this.get( 'popOverOptions' ) ),
                 popOverView, menuOptionView, rootView;
             if ( this.get( 'isInMenu' ) ) {
@@ -187,7 +187,7 @@ var MenuButtonView = Class({
             return;
         }
         this.activate();
-    }.on( 'mousedown' )
+    }.on( 'mousedown' ),
 });
 
 export default MenuButtonView;

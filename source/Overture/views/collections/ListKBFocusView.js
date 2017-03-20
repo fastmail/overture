@@ -34,7 +34,7 @@ var ListKBFocusView = Class({
         'shift-x': 'select',
         o: 'trigger',
         enter: 'trigger',
-        s: 'star'
+        s: 'star',
     },
 
     className: 'v-ListKBFocus',
@@ -52,7 +52,7 @@ var ListKBFocusView = Class({
         }
         return {
             top: itemHeight * index,
-            height: index < 0 ? 0 : itemHeight
+            height: index < 0 ? 0 : itemHeight,
         };
     }.property( 'itemHeight', 'index', 'record' ),
 
@@ -166,7 +166,7 @@ var ListKBFocusView = Class({
         }
     },
     trigger: function () {},
-    star: function () {}
+    star: function () {},
 });
 
 export default ListKBFocusView;

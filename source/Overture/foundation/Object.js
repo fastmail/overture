@@ -25,7 +25,7 @@ import { Class, meta, mixin } from '../core/Core.js';
 export default Class({
 
     Mixin: [
-        ComputedProps, BoundProps, ObservableProps, EventTarget
+        ComputedProps, BoundProps, ObservableProps, EventTarget,
     ],
 
     /**
@@ -73,5 +73,5 @@ export default Class({
         }
 
         this.isDestroyed = true;
-    }
+    },
 });

@@ -30,7 +30,7 @@ import {
     COMMITTING,  // Request in progress to commit record
     NEW,         // Record is not created on source (has no source id)
     DIRTY,       // Record has local changes not yet committing
-    OBSOLETE     // Record may have changes not yet requested
+    OBSOLETE,    // Record may have changes not yet requested
 } from '../record/Status.js';
 // eslint-disable-next-line no-duplicate-imports
 import * as Status from '../record/Status.js';
@@ -579,7 +579,7 @@ var Store = Class({
                     create: { storeKeys: [], records: [] },
                     update: { storeKeys: [], records: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
-                    state: _typeToClientState[ typeId ]
+                    state: _typeToClientState[ typeId ],
                 };
                 _typeToStatus[ typeId ] |= COMMITTING;
                 types[ typeId ] = Type;
@@ -707,7 +707,7 @@ var Store = Class({
             inverse = {
                 create: [],
                 update: [],
-                destroy: []
+                destroy: [],
             },
             storeKey, Type;
 
@@ -720,7 +720,7 @@ var Store = Class({
                 storeKey,
                 Object.filter(
                     _skToCommitted[ storeKey ], _skToChanged[ storeKey ]
-                )
+                ),
             ]);
         }
         for ( storeKey in _destroyed ) {
@@ -731,7 +731,7 @@ var Store = Class({
                 Object.filter(
                     clone( _skToData[ storeKey ] ),
                     Record.getClientSettableAttributes( Type )
-                )
+                ),
             ]);
         }
 
@@ -992,7 +992,7 @@ var Store = Class({
                 message:
                     '\nStatus: ' +
                         ( Object.keyOf( Status, status ) || status ) +
-                    '\nData: ' + JSON.stringify( data )
+                    '\nData: ' + JSON.stringify( data ),
             });
             return this;
         }
@@ -1274,7 +1274,7 @@ var Store = Class({
                 message:
                     '\nStatus: ' +
                         ( Object.keyOf( Status, status ) || status ) +
-                    '\nData: ' + JSON.stringify( data )
+                    '\nData: ' + JSON.stringify( data ),
             });
             return false;
         }
@@ -1834,7 +1834,7 @@ var Store = Class({
                 this.setStatus( storeKey, status & ~(COMMITTING|NEW) );
             } else {
                 RunLoop.didError({
-                    name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR
+                    name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR,
                 });
             }
         }
@@ -2066,7 +2066,7 @@ var Store = Class({
                 this.unloadRecord( storeKey );
             } else {
                 RunLoop.didError({
-                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
+                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR,
                 });
             }
         }
@@ -2131,7 +2131,7 @@ var Store = Class({
                 }
             } else {
                 RunLoop.didError({
-                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
+                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR,
                 });
             }
         }
@@ -2329,7 +2329,7 @@ var Store = Class({
             query = new QueryClass( extend( mixin || {}, {
                 id: id,
                 store: this,
-                source: this.source
+                source: this.source,
             }) );
         }
         if ( query ) {
@@ -2396,7 +2396,7 @@ var Store = Class({
                 typeQueries[l].storeDidChangeRecords( typeChanges );
             }
             this.fire( typeId, {
-                storeKeys: typeChanges
+                storeKeys: typeChanges,
             });
         }
 
@@ -2409,7 +2409,7 @@ var Store = Class({
         while ( l-- ) {
             _liveQueries[l].set( 'status', READY );
         }
-    }
+    },
 });
 
 [ 'on', 'once', 'off' ].forEach( function ( property ) {

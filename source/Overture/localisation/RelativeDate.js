@@ -134,7 +134,7 @@ Date.implement({
 
         return isFuture ?
             loc( '[_1] from now', time ) : loc( '[_1] ago', time );
-    }
+    },
 });
 
 // TODO(cmorgan/modulify): do something about these exports: Date#relativeTo,

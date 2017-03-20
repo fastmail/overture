@@ -76,5 +76,5 @@ export default {
     */
     getDragDataOfType: function ( type/*, drag*/ ) {
         return this._dragData[ type ];
-    }
+    },
 };

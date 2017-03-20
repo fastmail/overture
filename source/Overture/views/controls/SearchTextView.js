@@ -28,8 +28,8 @@ var SearchTextView = Class({
                 new ClearSearchButtonView({
                     label: loc( 'Clear Search' ),
                     target: this,
-                    method: 'reset'
-                })
+                    method: 'reset',
+                }),
             ]).end()
         );
         return children;
@@ -38,7 +38,7 @@ var SearchTextView = Class({
     reset: function () {
         this.set( 'value', '' )
             .blur();
-    }
+    },
 });
 
 export default SearchTextView;

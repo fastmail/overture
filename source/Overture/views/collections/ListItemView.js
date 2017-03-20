@@ -46,13 +46,13 @@ var ListItemView = Class({
             y = ( index - ( isNew ? 1 : 0 ) ) * itemHeight;
         return {
             transform: 'translate3d(0,' + y + 'px,0)',
-            opacity: isNew ? 0 : 1
+            opacity: isNew ? 0 : 1,
         };
     } : function () {
         var index = this.get( 'index' ),
             itemHeight = this.get( 'itemHeight' );
         return {
-            top: index * itemHeight
+            top: index * itemHeight,
         };
     }).property( 'index', 'itemHeight' ),
 
@@ -60,7 +60,7 @@ var ListItemView = Class({
         if ( this.get( 'animateIn' ) ) {
             this.computedPropertyDidChange( 'layout' );
         }
-    }.nextFrame().observes( 'isInDocument' )
+    }.nextFrame().observes( 'isInDocument' ),
 });
 
 export default ListItemView;

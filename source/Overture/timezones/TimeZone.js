@@ -190,7 +190,7 @@ var TimeZone = Class({
     },
     toJSON: function () {
         return this.id;
-    }
+    },
 });
 
 TimeZone.fromJSON = function ( id ) {
@@ -215,7 +215,7 @@ var addTimeZone = function ( timeZone ) {
 };
 
 TimeZone.rules = {
-    '-': []
+    '-': [],
 };
 TimeZone.areas = {};
 

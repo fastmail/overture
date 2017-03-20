@@ -249,11 +249,11 @@ var WindowController = Class({
                 this.get( 'broadcastKey' ),
                 JSON.stringify( extend({
                     wcId: this.id,
-                    type: type
+                    type: type,
                 }, data ))
             );
         } catch ( error ) {}
-    }
+    },
 }).extend({
     openExternal: function ( href ) {
         var newWindow = window.open( '', '_blank' );
@@ -278,7 +278,7 @@ var WindowController = Class({
             }
         }
         return newWindow;
-    }
+    },
 });
 
 export default WindowController;

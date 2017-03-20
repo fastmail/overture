@@ -148,7 +148,7 @@ var Source = Class({
     */
     commitChanges: function (/* changes, callback */) {
         return false;
-    }
+    },
 });
 
 export default Source;

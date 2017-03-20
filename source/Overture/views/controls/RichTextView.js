@@ -105,14 +105,14 @@ var RichTextView = Class({
         [ 'Tahoma', 'tahoma, sans-serif' ],
         [ 'Times New Roman', '"Times New Roman", times, serif' ],
         [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
-        [ 'Verdana', 'verdana, sans-serif' ]
+        [ 'Verdana', 'verdana, sans-serif' ],
     ],
     fontSizeOptions: function () {
         return [
             [ loc( 'Small' ), '10px' ],
             [ loc( 'Medium' ), null  ],
             [ loc( 'Large' ), '16px' ],
-            [ loc( 'Huge' ),  '22px' ]
+            [ loc( 'Huge' ),  '22px' ],
         ];
     }.property(),
 
@@ -212,7 +212,7 @@ var RichTextView = Class({
         var editingLayer = this._editingLayer = el( 'div', {
             tabIndex: this.get( 'tabIndex' ),
             className: 'v-RichText-input' +
-                ( editorClassName ? ' ' + editorClassName : '' )
+                ( editorClassName ? ' ' + editorClassName : '' ),
         });
         // The nodes must be in a document or document fragment for DOM Range
         // API to work; otherwise will throw INVALID_NODE_TYPE_ERR errors.
@@ -237,11 +237,11 @@ var RichTextView = Class({
 
         return [
             el( 'style', { type: 'text/css' }, [
-                this.get( 'styles' )
+                this.get( 'styles' ),
             ]),
             this.get( 'showToolbar' ) !== TOOLBAR_HIDDEN ?
                 this.get( 'toolbarView' ) :
-                null
+                null,
         ];
     },
 
@@ -333,7 +333,7 @@ var RichTextView = Class({
                 .set( 'layout', {
                     top: scrollView.get( 'pxTop' ),
                     left: position.left - borders.left,
-                    width: toolbarView.get( 'pxWidth' )
+                    width: toolbarView.get( 'pxWidth' ),
                 });
             newParent.insertView( toolbarView );
         } else {
@@ -341,7 +341,7 @@ var RichTextView = Class({
                 .set( 'layout', {
                     top: 0,
                     left: 0,
-                    right: 0
+                    right: 0,
                 });
             this.insertView( toolbarView, null, 'top' );
         }
@@ -375,7 +375,7 @@ var RichTextView = Class({
                 position.top + position.height + 10 :
                 position.top -
                     this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
-            ) + 'px,0)'
+            ) + 'px,0)',
         });
     },
 
@@ -401,9 +401,9 @@ var RichTextView = Class({
             'quote', 'unquote', '-',
             'left', 'centre', 'right', 'justify', '-',
             'ltr', 'rtl', '-',
-            'unformat'
+            'unformat',
         ],
-        right: []
+        right: [],
     },
 
     toolbarView: function () {
@@ -418,9 +418,9 @@ var RichTextView = Class({
                 zIndex: 1,
                 top: 0,
                 left: 0,
-                right: 0
+                right: 0,
             } : bind( this, 'floatingToolbarLayout' ),
-            preventOverlap: showToolbar === TOOLBAR_AT_TOP
+            preventOverlap: showToolbar === TOOLBAR_AT_TOP,
         }).registerViews({
             bold: new ButtonView({
                 tabIndex: -1,
@@ -437,7 +437,7 @@ var RichTextView = Class({
                         richTextView.bold();
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             italic: new ButtonView({
                 tabIndex: -1,
@@ -454,7 +454,7 @@ var RichTextView = Class({
                         richTextView.italic();
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             underline: new ButtonView({
                 tabIndex: -1,
@@ -471,7 +471,7 @@ var RichTextView = Class({
                         richTextView.underline();
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             strikethrough: new ButtonView({
                 tabIndex: -1,
@@ -488,7 +488,7 @@ var RichTextView = Class({
                         richTextView.strikethrough();
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             size: new ButtonView({
                 tabIndex: -1,
@@ -497,7 +497,7 @@ var RichTextView = Class({
                 label: loc( 'Font Size' ),
                 tooltip: loc( 'Font Size' ),
                 target: this,
-                method: 'showFontSizeMenu'
+                method: 'showFontSizeMenu',
             }),
             font: new ButtonView({
                 tabIndex: -1,
@@ -506,7 +506,7 @@ var RichTextView = Class({
                 label: loc( 'Font Face' ),
                 tooltip: loc( 'Font Face' ),
                 target: this,
-                method: 'showFontFaceMenu'
+                method: 'showFontFaceMenu',
             }),
             color: new ButtonView({
                 tabIndex: -1,
@@ -515,7 +515,7 @@ var RichTextView = Class({
                 label: loc( 'Text Color' ),
                 tooltip: loc( 'Text Color' ),
                 target: this,
-                method: 'showTextColorMenu'
+                method: 'showTextColorMenu',
             }),
             bgcolor: new ButtonView({
                 tabIndex: -1,
@@ -524,7 +524,7 @@ var RichTextView = Class({
                 label: loc( 'Text Highlight' ),
                 tooltip: loc( 'Text Highlight' ),
                 target: this,
-                method: 'showTextHighlightColorMenu'
+                method: 'showTextHighlightColorMenu',
             }),
             link: new ButtonView({
                 tabIndex: -1,
@@ -541,7 +541,7 @@ var RichTextView = Class({
                         richTextView.showLinkOverlay( this );
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             image: new FileButtonView({
                 tabIndex: -1,
@@ -552,7 +552,7 @@ var RichTextView = Class({
                 acceptMultiple: true,
                 acceptOnlyTypes: 'image/jpeg, image/png, image/gif',
                 target: this,
-                method: 'insertImagesFromFiles'
+                method: 'insertImagesFromFiles',
             }),
             left: new ButtonView({
                 tabIndex: -1,
@@ -564,7 +564,7 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.setTextAlignment( 'left' );
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             centre: new ButtonView({
                 tabIndex: -1,
@@ -576,7 +576,7 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.setTextAlignment( 'center' );
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             right: new ButtonView({
                 tabIndex: -1,
@@ -588,7 +588,7 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.setTextAlignment( 'right' );
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             justify: new ButtonView({
                 tabIndex: -1,
@@ -600,7 +600,7 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.setTextAlignment( 'justify' );
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             ltr: new ButtonView({
                 tabIndex: -1,
@@ -612,7 +612,7 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.setTextDirection( 'ltr' );
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             rtl: new ButtonView({
                 tabIndex: -1,
@@ -624,7 +624,7 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.setTextDirection( 'rtl' );
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             quote: new ButtonView({
                 tabIndex: -1,
@@ -634,7 +634,7 @@ var RichTextView = Class({
                 tooltip: loc( 'Quote' ) + '\n' +
                     formatKeyForPlatform( 'cmd-]' ),
                 target: richTextView,
-                method: 'increaseQuoteLevel'
+                method: 'increaseQuoteLevel',
             }),
             unquote: new ButtonView({
                 tabIndex: -1,
@@ -644,7 +644,7 @@ var RichTextView = Class({
                 tooltip: loc( 'Unquote' ) + '\n' +
                     formatKeyForPlatform( 'cmd-[' ),
                 target: richTextView,
-                method: 'decreaseQuoteLevel'
+                method: 'decreaseQuoteLevel',
             }),
             ul: new ButtonView({
                 tabIndex: -1,
@@ -661,7 +661,7 @@ var RichTextView = Class({
                         richTextView.makeUnorderedList();
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             ol: new ButtonView({
                 tabIndex: -1,
@@ -678,7 +678,7 @@ var RichTextView = Class({
                         richTextView.makeOrderedList();
                     }
                     this.fire( 'button:activate' );
-                }
+                },
             }),
             unformat: new ButtonView({
                 tabIndex: -1,
@@ -689,8 +689,8 @@ var RichTextView = Class({
                 activate: function () {
                     richTextView.removeAllFormatting();
                     this.fire( 'button:activate' );
-                }
-            })
+                },
+            }),
         }).registerConfig( 'standard', this.get( 'toolbarConfig' ) );
     }.property(),
 
@@ -702,15 +702,15 @@ var RichTextView = Class({
                 var fontSize = item[1];
                 return new ButtonView({
                     layout: fontSize ? {
-                        fontSize: fontSize
+                        fontSize: fontSize,
                     } : null,
                     label: item[0],
                     method: 'setFontSize',
                     setFontSize: function () {
                         richTextView.setFontSize( fontSize );
-                    }
+                    },
                 });
-            })
+            }),
         });
     }.property(),
 
@@ -724,7 +724,7 @@ var RichTextView = Class({
             alignWithView: buttonView,
             alignEdge: 'centre',
             showCallout: true,
-            offsetTop: 2
+            offsetTop: 2,
         });
     },
 
@@ -736,15 +736,15 @@ var RichTextView = Class({
                 var fontFace = item[1];
                 return new ButtonView({
                     layout: fontFace ? {
-                        fontFamily: fontFace
+                        fontFamily: fontFace,
                     } : null,
                     label: item[0],
                     method: 'setFontFace',
                     setFontFace: function () {
                         richTextView.setFontFace( fontFace );
-                    }
+                    },
                 });
-            })
+            }),
         });
     }.property(),
 
@@ -758,7 +758,7 @@ var RichTextView = Class({
             alignWithView: buttonView,
             alignEdge: 'centre',
             showCallout: true,
-            offsetTop: 2
+            offsetTop: 2,
         });
     },
 
@@ -783,7 +783,7 @@ var RichTextView = Class({
                     color = '#' + color;
                     return new ButtonView({
                         layout: {
-                            backgroundColor: color
+                            backgroundColor: color,
                         },
                         label: color,
                         method: 'setColor',
@@ -793,9 +793,9 @@ var RichTextView = Class({
                             } else {
                                 richTextView.setHighlightColor( color );
                             }
-                        }
+                        },
                     });
-                })
+                }),
         });
     }.property(),
 
@@ -810,7 +810,7 @@ var RichTextView = Class({
             alignWithView: buttonView,
             alignEdge: 'centre',
             showCallout: true,
-            offsetTop: 2
+            offsetTop: 2,
         });
     },
 
@@ -825,7 +825,7 @@ var RichTextView = Class({
             alignWithView: buttonView,
             alignEdge: 'centre',
             showCallout: true,
-            offsetTop: 2
+            offsetTop: 2,
         });
     },
 
@@ -837,26 +837,26 @@ var RichTextView = Class({
             draw: function ( layer, Element, el ) {
                 return [
                     el( 'h3.u-bold', [
-                        loc( 'Add a link to the following URL or email:' )
+                        loc( 'Add a link to the following URL or email:' ),
                     ]),
                     this._input = new TextView({
                         value: bindTwoWay( 'value', this ),
-                        placeholder: 'e.g. www.example.com'
+                        placeholder: 'e.g. www.example.com',
                     }),
                     el( 'p.u-alignRight', [
                         new ButtonView({
                             type: 'v-Button--destructive v-Button--size13',
                             label: loc( 'Cancel' ),
                             target: popOver,
-                            method: 'hide'
+                            method: 'hide',
                         }),
                         new ButtonView({
                             type: 'v-Button--constructive v-Button--size13',
                             label: loc( 'Add Link' ),
                             target: this,
-                            method: 'addLink'
-                        })
-                    ])
+                            method: 'addLink',
+                        }),
+                    ]),
                 ];
             },
             focus: function () {
@@ -897,7 +897,7 @@ var RichTextView = Class({
                 richTextView.makeLink( url );
                 popOver.hide();
                 richTextView.focus();
-            }
+            },
         });
     }.property(),
 
@@ -917,7 +917,7 @@ var RichTextView = Class({
             alignWithView: buttonView,
             showCallout: true,
             offsetTop: 2,
-            offsetLeft: -4
+            offsetLeft: -4,
         });
     },
 
@@ -1012,7 +1012,7 @@ var RichTextView = Class({
                     scrollView.scrollToView( this, {
                         y: 32 +
                             this.get( 'pxHeight' ) -
-                            scrollView.get( 'pxHeight' )
+                            scrollView.get( 'pxHeight' ),
                     }, true );
                 }
             }
@@ -1133,7 +1133,7 @@ var RichTextView = Class({
         'image/gif': true,
         'image/jpeg': true,
         'image/png': true,
-        'image/tiff': true
+        'image/tiff': true,
     },
 
     dropEffect: DragEffect.COPY,
@@ -1147,7 +1147,7 @@ var RichTextView = Class({
                 break;
             }
         }
-    }
+    },
 });
 
 RichTextView.isSupported = (

@@ -126,7 +126,7 @@ var MenuController = Class({
         up: 'focusPrevious',
         down: 'focusNext',
         left: 'closeIfSub',
-        right: 'activateIfMenu'
+        right: 'activateIfMenu',
     },
 
     triggerKeyBinding: function ( event ) {
@@ -164,7 +164,7 @@ var MenuController = Class({
                 focussedOption.get( 'button' ) instanceof MenuButtonView ) {
             this.selectFocussed();
         }
-    }
+    },
 });
 
 export default MenuController;

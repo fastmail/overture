@@ -44,7 +44,7 @@ var GestureManager = new Object({
             }
         }
         event.propagationStopped = false;
-    }
+    },
 });
 
 ViewEventsController.addEventTarget( GestureManager, 30 );

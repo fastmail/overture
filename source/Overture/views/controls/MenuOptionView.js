@@ -105,7 +105,7 @@ var MenuOptionView = Class({
     activate: function () {
         var button = this.get( 'button' );
         if ( button.activate ) { button.activate(); }
-    }
+    },
 });
 
 export default MenuOptionView;

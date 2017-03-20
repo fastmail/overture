@@ -56,5 +56,5 @@ export default Class({
     stopPropagation: function () {
         this.propagationStopped = true;
         return this;
-    }
+    },
 });

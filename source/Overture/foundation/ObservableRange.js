@@ -94,7 +94,7 @@ export default {
         ( metadata.rangeObservers || ( metadata.rangeObservers = [] ) ).push({
             range: range,
             object: object,
-            method: method
+            method: method,
         });
         return this;
     },
@@ -129,5 +129,5 @@ export default {
             }
         }
         return this;
-    }
+    },
 };

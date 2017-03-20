@@ -22,7 +22,7 @@ var instanceOf = function ( value, Type ) {
 
 var attributeErrorsObserver = {
     object: null,
-    method: 'notifyAttributeErrors'
+    method: 'notifyAttributeErrors',
 };
 var addValidityObserver = function ( observers, propKey ) {
     var keyObservers = observers[ propKey ];
@@ -75,9 +75,9 @@ var RecordAttribute = Class({
                 if ( AttributeErrorsType.forRecordType !== RecordType ) {
                     AttributeErrorsType = object.AttributeErrorsType =
                         Class({
-                            Extends: AttributeErrorsType
+                            Extends: AttributeErrorsType,
                         }).extend({
-                            forRecordType: RecordType
+                            forRecordType: RecordType,
                         });
                     metadata = meta( AttributeErrorsType );
                     dependents = metadata.dependents =
@@ -344,7 +344,7 @@ var RecordAttribute = Class({
             currentAttrValue !== null && Type && Type.fromJSON ?
                 Type.fromJSON( currentAttrValue ) : currentAttrValue :
             this.defaultValue;
-    }
+    },
 });
 
 export default RecordAttribute;

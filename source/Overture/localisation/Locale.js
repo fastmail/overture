@@ -382,7 +382,7 @@ var Locale = Class({
         fullDateAndTime: '%A, %-d %B %Y %H:%M',
         abbreviatedFullDate: '%a, %-d %b %Y',
         shortDayMonth: '%-d %b',
-        shortDayMonthYear: '%-d %b ’%y'
+        shortDayMonthYear: '%-d %b ’%y',
     },
 
     /**
@@ -621,7 +621,7 @@ var Locale = Class({
         sprintf: function ( string ) {
             return String.prototype.format.apply( string,
                 Array.prototype.slice.call( arguments, 1 ) );
-        }
+        },
     },
 
     /**
@@ -727,7 +727,7 @@ var Locale = Class({
             parts[i] = args[ parts[i] - 1 ] || null;
         }
         return parts;
-    }
+    },
 });
 
 export default Locale;

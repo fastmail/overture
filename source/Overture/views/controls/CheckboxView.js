@@ -54,9 +54,9 @@ var CheckboxView = Class({
             this._domControl = el( 'input', {
                 className: 'v-Checkbox-input',
                 type: 'checkbox',
-                checked: this.get( 'value' )
+                checked: this.get( 'value' ),
             }),
-            CheckboxView.parent.draw.call( this, layer, Element, el )
+            CheckboxView.parent.draw.call( this, layer, Element, el ),
         ];
     },
 
@@ -118,7 +118,7 @@ var CheckboxView = Class({
             }
             this.set( 'value', value );
         }
-    }.on( 'click', 'tap' )
+    }.on( 'click', 'tap' ),
 });
 
 export default CheckboxView;

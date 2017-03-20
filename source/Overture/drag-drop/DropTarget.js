@@ -133,5 +133,5 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    drop: function (/* drag */) {}
+    drop: function (/* drag */) {},
 };

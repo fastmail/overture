@@ -417,7 +417,7 @@ var LiveQuery = Class({
                     removed: removed,
                     removedIndexes: removedIndexes,
                     added: added,
-                    addedIndexes: addedIndexes
+                    addedIndexes: addedIndexes,
                 });
             return true;
         }
@@ -470,7 +470,7 @@ var LiveQuery = Class({
     getStoreKeysForAllObjects: function ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
         return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
-    }
+    },
 });
 
 export default LiveQuery;

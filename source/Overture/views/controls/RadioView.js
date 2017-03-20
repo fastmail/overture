@@ -53,9 +53,9 @@ var RadioView = Class({
             this._domControl = el( 'input', {
                 className: 'v-Radio-input',
                 type: 'radio',
-                checked: this.get( 'value' )
+                checked: this.get( 'value' ),
             }),
-            RadioView.parent.draw.call( this, layer, Element, el )
+            RadioView.parent.draw.call( this, layer, Element, el ),
         ];
     },
 
@@ -89,7 +89,7 @@ var RadioView = Class({
         if ( !this.get( 'isDisabled' ) ) {
             this.set( 'value', true );
         }
-    }.on( 'click' )
+    }.on( 'click' ),
 });
 
 export default RadioView;

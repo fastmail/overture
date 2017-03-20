@@ -204,7 +204,7 @@ var ViewEventsController = {
                 }
             }
         }
-    }.invokeInRunLoop()
+    }.invokeInRunLoop(),
 };
 ViewEventsController.addEventTarget( ViewEventsController, 0 );
 

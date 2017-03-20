@@ -19,7 +19,7 @@ import Object from '../foundation/Object.js';
 
 var dummyStorage = {
     setItem: function () {},
-    getItem: function () {}
+    getItem: function () {},
 };
 
 /**
@@ -74,7 +74,7 @@ var LocalStorage = Class({
             this._store.setItem( this._name + key, JSON.stringify( value ) );
         } catch ( error ) {}
         return LocalStorage.parent.set.call( this, key, value );
-    }
+    },
 });
 
 export default LocalStorage;

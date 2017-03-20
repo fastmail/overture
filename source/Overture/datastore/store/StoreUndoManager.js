@@ -52,7 +52,7 @@ var StoreUndoManager = Class({
             StoreUndoManager.parent.undo.call( this );
         }
         return this;
-    }
+    },
 });
 
 export default StoreUndoManager;

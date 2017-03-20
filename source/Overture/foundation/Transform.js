@@ -137,5 +137,5 @@ export default {
                 syncValue === value :
                 syncValue ? value : undefined;
         };
-    }
+    },
 };

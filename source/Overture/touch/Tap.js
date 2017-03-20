@@ -35,14 +35,14 @@ var MouseEventRemover = Class({
             event.preventDefault();
         }
         event.propagationStopped = isMouse;
-    }
+    },
 });
 
 var TapEvent = Class({
 
     Extends: Event,
 
-    originalType: 'tap'
+    originalType: 'tap',
 });
 
 var TrackedTouch = function ( x, y, time, target ) {
@@ -184,5 +184,5 @@ export default new Gesture({
                 delete tracking[ id ];
             }
         }
-    }
+    },
 });

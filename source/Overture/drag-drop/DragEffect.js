@@ -38,6 +38,6 @@ export default {
         'copyLink',
         'linkMove',
         'all',
-        ''
-    ]
+        '',
+    ],
 };

@@ -22,7 +22,7 @@ var isControl = {
     INPUT: 1,
     OPTION: 1,
     SELECT: 1,
-    TEXTAREA: 1
+    TEXTAREA: 1,
 };
 var effectToString = DragEffect.effectToString;
 var DEFAULT = DragEffect.DEFAULT;
@@ -245,8 +245,8 @@ var DragController = new Object({
                         event: event,
                         startPosition: {
                             x: this._x,
-                            y: this._y
-                        }
+                            y: this._y,
+                        },
                     });
                 }
                 this._ignore = true;
@@ -287,7 +287,7 @@ var DragController = new Object({
         if ( view && !isControl[ touchEvent.target.nodeName ] ) {
             this._drag = new Drag({
                 dragSource: view,
-                event: touchEvent
+                event: touchEvent,
             });
             this._touchId = touch.identifier;
         }
@@ -372,7 +372,7 @@ var DragController = new Object({
         } else {
             new Drag({
                 event: event,
-                isNative: true
+                isNative: true,
             });
         }
     }.on( 'dragstart' ),
@@ -407,7 +407,7 @@ var DragController = new Object({
             drag = new Drag({
                 event: event,
                 isNative: true,
-                allowedEffects: effectToString.indexOf( effectAllowed )
+                allowedEffects: effectToString.indexOf( effectAllowed ),
             });
         } else {
             var x = event.clientX,
@@ -527,7 +527,7 @@ var DragController = new Object({
         if ( drag && DOMEvent.lookupKey( event ) === 'esc' ) {
             drag.endDrag();
         }
-    }.on( 'keydown' )
+    }.on( 'keydown' ),
 });
 
 [ 'dragover', 'dragenter', 'dragleave', 'drop', 'dragend' ]

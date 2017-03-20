@@ -321,7 +321,7 @@ var View = Class({
             id: this.get( 'id' ),
             className: this.get( 'className' ),
             style: Object.toCSSString( this.get( 'layerStyles' ) ),
-            unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on'
+            unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on',
         });
         this.didCreateLayer( layer );
         this.redrawAriaAttributes( layer );
@@ -542,7 +542,7 @@ var View = Class({
         var allowTextSelection = this.get( 'allowTextSelection' );
         return extend({
             position: this.get( 'positioning' ),
-            userSelect: allowTextSelection ? 'text' : userSelectNone
+            userSelect: allowTextSelection ? 'text' : userSelectNone,
         }, this.get( 'layout' ) );
     }.property( 'layout', 'allowTextSelection', 'positioning' ),
 
@@ -624,7 +624,7 @@ var View = Class({
             }
             needsRedraw[l] = [
                 layerProperty,
-                oldProp
+                oldProp,
             ];
             if ( this.get( 'isInDocument' ) ) {
                 RunLoop.queueFn( 'render', this.redraw, this );
@@ -814,7 +814,7 @@ var View = Class({
             top: this.get( 'pxTop' ),
             left: this.get( 'pxLeft' ),
             width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' )
+            height: this.get( 'pxHeight' ),
         };
     }.property(),
 
@@ -907,7 +907,7 @@ var View = Class({
             x: this.get( 'scrollLeft' ),
             y: this.get( 'scrollTop' ),
             width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' )
+            height: this.get( 'pxHeight' ),
         };
     }.property( 'scrollLeft', 'scrollTop', 'pxLayout' ),
 
@@ -1217,7 +1217,7 @@ var View = Class({
             parent = parent.get( 'parentView' );
         } while ( parent && !( parent instanceof Type ) );
         return parent || null;
-    }
+    },
 });
 
 // Expose Globals:
@@ -1226,7 +1226,7 @@ View.LAYOUT_FILL_PARENT = {
     top: 0,
     left: 0,
     bottom: 0,
-    right: 0
+    right: 0,
 };
 
 View.POSITION_SAME = POSITION_SAME;

@@ -93,7 +93,7 @@ var UndoManager = Class({
 
     getUndoData: function () {},
 
-    applyChange: function (/* data, isRedo */) {}
+    applyChange: function (/* data, isRedo */) {},
 });
 
 export default UndoManager;

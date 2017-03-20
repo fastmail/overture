@@ -276,5 +276,5 @@ export default Class({
         }
 
         return this;
-    }
+    },
 });

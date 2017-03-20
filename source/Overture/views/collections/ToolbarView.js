@@ -73,7 +73,7 @@ var OverflowMenuView = Class({
             this.activate();
         }
         button.activate();
-    }
+    },
 });
 
 var ToolbarView = Class({
@@ -91,14 +91,14 @@ var ToolbarView = Class({
         this._views = {
             overflow: new OverflowMenuView({
                 label: loc( 'More' ),
-                popOverView: mixin.popOverView || new PopOverView()
-            })
+                popOverView: mixin.popOverView || new PopOverView(),
+            }),
         };
         this._configs = {
             standard: {
                 left: [],
-                right: []
-            }
+                right: [],
+            },
         };
         this._measureView = null;
         this._widths = {};
@@ -190,7 +190,7 @@ var ToolbarView = Class({
                         .map( toView, this )
                         .filter( function ( view ) {
                             return view instanceof View;
-                        })
+                        }),
                 }) );
 
                 if ( l > 0 ) {
@@ -225,9 +225,9 @@ var ToolbarView = Class({
                 draw: function ( layer, Element, el ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),
-                        View.prototype.draw.call( this, layer, Element, el )
+                        View.prototype.draw.call( this, layer, Element, el ),
                     ];
-                }
+                },
             }),
             this.get( 'layer' ).lastChild,
             'before'
@@ -291,7 +291,7 @@ var ToolbarView = Class({
             ),
             el( 'div.v-Toolbar-section.v-Toolbar-section--right',
                 this.get( 'right' )
-            )
+            ),
         ];
     },
 
@@ -345,7 +345,7 @@ var ToolbarView = Class({
                 container.appendChild( view );
             }
         }
-    }
+    },
 });
 
 export default ToolbarView;

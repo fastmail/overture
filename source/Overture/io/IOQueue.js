@@ -184,7 +184,7 @@ var IOQueue = Class({
         if ( this._queue.length ) {
             this.send( this._queue.shift() );
         }
-    }.on( 'io:end' )
+    }.on( 'io:end' ),
 });
 
 IOQueue.QUEUE = 1;

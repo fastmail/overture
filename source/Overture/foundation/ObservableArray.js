@@ -279,7 +279,7 @@ var ObservableArray = Class({
     */
     slice: function ( start, end ) {
         return this._array.slice( start, end );
-    }
+    },
 });
 
 export default ObservableArray;

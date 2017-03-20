@@ -35,7 +35,7 @@ Record.implement({
         if ( recordArray && !isInCache ) {
             recordArray.updateListFromRecord();
         }
-    }
+    },
 });
 
 // ---
@@ -119,7 +119,7 @@ var RecordArray = Class({
             this.replaceObjectsAt( index, 1 );
         }
         return this;
-    }
+    },
 });
 
 // ---
@@ -127,7 +127,7 @@ var RecordArray = Class({
 
 var notifyRecordArrayObserver = {
     object: null,
-    method: 'notifyRecordArray'
+    method: 'notifyRecordArray',
 };
 
 var ToManyAttribute = Class({
@@ -188,7 +188,7 @@ var ToManyAttribute = Class({
     setRaw: function ( record, propKey, data ) {
         return ToManyAttribute.parent.call.call(
             this, record, data, propKey );
-    }
+    },
 });
 
 export default ToManyAttribute;

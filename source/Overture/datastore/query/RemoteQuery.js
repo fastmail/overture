@@ -25,7 +25,7 @@ import {
     LOADING,
     // OBSOLETE => The list may have changed on the server since the last fetch
     // was initiated.
-    OBSOLETE
+    OBSOLETE,
 } from '../record/Status.js';
 
 /**
@@ -605,11 +605,11 @@ var RemoteQuery = Class({
                 removed: removedStoreKeys,
                 removedIndexes: removedIndexes,
                 added: addedStoreKeys,
-                addedIndexes: addedIndexes
+                addedIndexes: addedIndexes,
             });
         }
         return this.fire( 'query:idsLoaded' );
-    }
+    },
 });
 
 export default RemoteQuery;

@@ -149,5 +149,5 @@ export default {
             }
         }
         return this;
-    }
+    },
 };

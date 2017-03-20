@@ -69,7 +69,7 @@ var SelectView = Class({
             this._drawSelect( this.get( 'options' ) );
         return [
             SelectView.parent.draw.call( this, layer, Element, el ),
-            control
+            control,
         ];
     },
 
@@ -89,14 +89,14 @@ var SelectView = Class({
             el = Element.create,
             select = el( 'select', {
                 className: 'v-Select-input',
-                disabled: this.get( 'isDisabled' )
+                disabled: this.get( 'isDisabled' ),
             },
                 options.map( function ( option, i ) {
                     return el( 'option', {
                         text: option.text,
                         value: i,
                         selected: isEqual( option.value, selected ),
-                        disabled: !!option.isDisabled
+                        disabled: !!option.isDisabled,
                     });
                 })
             );
@@ -175,7 +175,7 @@ var SelectView = Class({
     syncBackValue: function () {
         var i = this._domControl.selectedIndex;
         this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
-    }.on( 'change' )
+    }.on( 'change' ),
 });
 
 export default SelectView;

@@ -76,7 +76,7 @@ var RunLoop = {
         render: [],
         after: [],
         nextLoop: [],
-        nextFrame: []
+        nextFrame: [],
     },
 
     /**
@@ -438,7 +438,7 @@ var RunLoop = {
         if ( window.console ) {
             console.log( error.name, error.message, error.stack );
         }
-    }
+    },
 };
 
 export default RunLoop;
@@ -506,7 +506,7 @@ Function.implement({
         return function () {
             RunLoop.invoke( fn, this, arguments );
         };
-    }
+    },
 });
 
 var nextLoop = RunLoop.invoke.bind( RunLoop,

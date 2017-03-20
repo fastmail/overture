@@ -97,5 +97,5 @@ export default {
     splice: function ( index, numberRemoved ) {
         var newItems = slice.call( arguments, 2 );
         return this.replaceObjectsAt( index, numberRemoved, newItems );
-    }
+    },
 };

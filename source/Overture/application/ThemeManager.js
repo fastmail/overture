@@ -185,7 +185,7 @@ var ThemeManager = Class({
             themeImages = _images[ this.get( 'theme' ) ] || {},
             themeIndependentImages = _images.all;
         return themeImages[ id ] || themeIndependentImages[ id ] || null;
-    }
+    },
 });
 
 export default ThemeManager;

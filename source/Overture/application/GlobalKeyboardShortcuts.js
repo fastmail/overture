@@ -19,7 +19,7 @@ var allowedInputs = {
     checkbox: 1,
     radio: 1,
     file: 1,
-    submit: 1
+    submit: 1,
 };
 
 var DEFAULT_IN_INPUT = 0;
@@ -210,7 +210,7 @@ var GlobalKeyboardShortcuts = Class({
                 event.preventDefault();
             }
         }
-    }.on( 'keydown', 'keypress' )
+    }.on( 'keydown', 'keypress' ),
 });
 
 GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;

@@ -74,7 +74,7 @@ export default {
             return t * ( cY + t * ( bY + t * aY ) );
         }.extend({
             cssName: 'cubic-bezier(' + p1x + ',' + p1y + ',' +
-                p2x + ',' + p2y + ')'
+                p2x + ',' + p2y + ')',
         });
     },
 
@@ -152,5 +152,5 @@ export default {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    easeInOut: cubicBezier( 0.42, 0, 0.58, 1 )
+    easeInOut: cubicBezier( 0.42, 0, 0.58, 1 ),
 };

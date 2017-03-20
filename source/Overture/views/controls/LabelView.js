@@ -97,7 +97,7 @@ var LabelView = Class({
     */
     redrawValue: function ( layer ) {
         layer.textContent = this.get( 'value' );
-    }
+    },
 });
 
 export default LabelView;

@@ -98,7 +98,7 @@ var AttributeErrors = Class({
                 oldValue: this[ propKey ],
                 newValue: this[ propKey ] = ( attribute.validate ?
                   attribute.validate( record.get( propKey ), propKey, record ) :
-                  null )
+                  null ),
             };
         }
         this.endPropertyChanges();
@@ -133,7 +133,7 @@ var AttributeErrors = Class({
         }
         this.set( 'errorCount', errorCount )
             ._record.set( 'isValid', !errorCount );
-    }.observes( '*' )
+    }.observes( '*' ),
 });
 
 export default AttributeErrors;

@@ -103,11 +103,11 @@ var FileButtonView = Class({
                 className: 'v-FileButton-input',
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                multiple: this.get( 'acceptMultiple' ) && canUseMultiple
+                multiple: this.get( 'acceptMultiple' ) && canUseMultiple,
             }),
             icon,
             AbstractControlView.prototype.draw
-                .call( this, layer, Element, el )
+                .call( this, layer, Element, el ),
         ];
     },
 
@@ -148,7 +148,7 @@ var FileButtonView = Class({
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
                     accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                    multiple: this.get( 'acceptMultiple' ) && canUseMultiple
+                    multiple: this.get( 'acceptMultiple' ) && canUseMultiple,
                 }), input );
             if ( !FormData.isFake && input.files ) {
                 files = Array.prototype.slice.call( input.files );
@@ -158,7 +158,7 @@ var FileButtonView = Class({
                     name: filePath.slice( filePath.lastIndexOf( '/' ) + 1 ),
                     size: 0,
                     type: '',
-                    file: input
+                    file: input,
                 }];
             }
             if ( !this.get( 'isDisabled' ) ) {
@@ -166,7 +166,7 @@ var FileButtonView = Class({
                 if ( ( action = this.get( 'action' ) ) ) {
                     target.fire( action, {
                         originView: this,
-                        files: files
+                        files: files,
                     });
                 } else if ( ( action = this.get( 'method' ) ) ) {
                     target[ action ]( files, this );
@@ -174,7 +174,7 @@ var FileButtonView = Class({
                 this.fire( 'button:activate' );
             }
         }
-    }.on( 'change' )
+    }.on( 'change' ),
 });
 
 export default FileButtonView;

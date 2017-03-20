@@ -86,7 +86,7 @@ var HttpRequest = Class({
         `{headerName: headerValue}`.
     */
     headers: {
-        'Accept': 'application/json, */*'
+        'Accept': 'application/json, */*',
     },
 
     /**
@@ -209,7 +209,7 @@ var HttpRequest = Class({
             transport.io = null;
             this._transport = null;
         }
-    }.on( 'io:success', 'io:failure', 'io:abort' )
+    }.on( 'io:success', 'io:failure', 'io:abort' ),
 
     // ---
 

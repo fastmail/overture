@@ -246,7 +246,7 @@ var SingleSelectionController = Class({
 
     contentWasReset: function () {
         this._recordDidChange();
-    }
+    },
 });
 
 export default SingleSelectionController;

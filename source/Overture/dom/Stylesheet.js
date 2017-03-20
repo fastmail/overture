@@ -34,9 +34,9 @@ export default {
         var style = Element.create( 'style', {
             type: 'text/css',
             id: id,
-            text: css
+            text: css,
         });
         document.head.appendChild( style );
         return style;
-    }
+    },
 };

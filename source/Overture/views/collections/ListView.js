@@ -55,7 +55,7 @@ var ListView = Class({
         this._rendered = {};
         this._renderRange = {
             start: 0,
-            end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
+            end: 0x7fffffff, // Max positive signed 32bit int: 2^31 - 1
         };
 
         this.selection = null;
@@ -118,7 +118,7 @@ var ListView = Class({
             height = 16777216;
         }
         return itemHeight ? {
-            height: height
+            height: height,
         } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
@@ -155,7 +155,7 @@ var ListView = Class({
             index: index,
             list: list,
             isAdded: isAdded,
-            selection: this.get( 'selection' )
+            selection: this.get( 'selection' ),
         });
     },
 
@@ -295,7 +295,7 @@ var ListView = Class({
     // --- Can't add views by hand; just bound to content ---
 
     insertView: null,
-    replaceView: null
+    replaceView: null,
 });
 
 export default ListView;

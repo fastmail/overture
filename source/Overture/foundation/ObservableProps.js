@@ -107,7 +107,7 @@ Function.implement({
         this.__setupProperty__ = setupObserver;
         this.__teardownProperty__ = teardownObserver;
         return this;
-    }
+    },
 });
 
 /**
@@ -385,7 +385,7 @@ export default {
                 prop = dependents[l];
                 if ( !changed[ prop ] ) {
                     changed[ prop ] = {
-                        oldValue: cache[ prop ]
+                        oldValue: cache[ prop ],
                     };
                 }
                 delete cache[ prop ];
@@ -393,7 +393,7 @@ export default {
 
             changed[ key ] = {
                 oldValue: changed[ key ] ? changed[ key ].oldValue : oldValue,
-                newValue: newValue
+                newValue: newValue,
             };
 
             if ( metadata.depth ) {
@@ -518,7 +518,7 @@ export default {
             keyObservers.push({
                 path: restOfPath,
                 object: object,
-                method: method
+                method: method,
             });
             if ( value && !( value instanceof Binding ) ) {
                 value.addObserverForPath( restOfPath, object, method );
@@ -570,7 +570,7 @@ export default {
             }
         }
         return this;
-    }
+    },
 };
 
 // TODO(cmorgan/modulify): do something about these exports: Function#observes

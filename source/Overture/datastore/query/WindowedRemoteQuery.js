@@ -21,7 +21,7 @@ import {
     LOADING,
     // OBSOLETE => The data on the server may have changed since the last update
     // was requested.
-    OBSOLETE
+    OBSOLETE,
 } from '../record/Status.js';
 import RemoteQuery from './RemoteQuery.js';
 
@@ -192,7 +192,7 @@ var composeUpdates = function ( u1, u2 ) {
         truncateAtFirstGap:
             u1.truncateAtFirstGap || u2.truncateAtFirstGap,
         total: u2.total,
-        upto: u2.upto
+        upto: u2.upto,
     };
 };
 
@@ -403,7 +403,7 @@ var WindowedRemoteQuery = Class({
                     id,
                     function () {
                         callback( this._list.indexOf( storeKey, from ) );
-                    }.bind( this )
+                    }.bind( this ),
                 ]);
                 this.get( 'source' ).fetchQuery( this );
             } else {
@@ -754,7 +754,7 @@ var WindowedRemoteQuery = Class({
             removed: removedStoreKeys,
             removedIndexes: removedIndexes,
             added: addedStoreKeys,
-            addedIndexes: addedIndexes
+            addedIndexes: addedIndexes,
         });
 
         // --- And process any waiting data packets ---
@@ -944,7 +944,7 @@ var WindowedRemoteQuery = Class({
                 var normalisedUpdate = this._normaliseUpdate({
                     added: update.added,
                     total: update.total,
-                    upto: update.upto
+                    upto: update.upto,
                 });
 
                 // Find the removedIndexes for our update. If they were removed
@@ -985,7 +985,7 @@ var WindowedRemoteQuery = Class({
                         removedIndexes: _indexes,
                         removedStoreKeys: _storeKeys,
                         addedIndexes: [],
-                        addedStoreKeys: []
+                        addedStoreKeys: [],
                     }), ll;
                     _indexes = _storeKeys.reduce(
                     function ( indexes, storeKey ) {
@@ -1285,7 +1285,7 @@ var WindowedRemoteQuery = Class({
                         } else {
                             recordRequests.push( rPrev = {
                                 start: start,
-                                count: windowSize
+                                count: windowSize,
                             });
                         }
                         status |= WINDOW_LOADING;
@@ -1307,7 +1307,7 @@ var WindowedRemoteQuery = Class({
                         } else {
                             idRequests.push( iPrev = {
                                 start: start,
-                                count: windowSize
+                                count: windowSize,
                             });
                         }
                         status |= WINDOW_LOADING;
@@ -1323,7 +1323,7 @@ var WindowedRemoteQuery = Class({
                     } else {
                         idRequests.push( iPrev = {
                             start: start,
-                            count: windowSize
+                            count: windowSize,
                         });
                     }
                 }
@@ -1346,9 +1346,9 @@ var WindowedRemoteQuery = Class({
                     return status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING);
                 });
                 this.set( 'status', this.get( 'status' ) & ~LOADING );
-            }.bind( this )
+            }.bind( this ),
         };
-    }
+    },
 });
 
 export default WindowedRemoteQuery;

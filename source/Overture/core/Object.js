@@ -120,7 +120,7 @@ Object.extend({
            result[ parts[0] ] = parts[1];
         });
         return result;
-    }
+    },
 });
 
 // TODO(cmorgan/modulify): do something about these exports: Object.values,

@@ -168,7 +168,7 @@ var SelectionController = Class({
             .set( 'isLoadingSelection', false );
 
         return this;
-    }
+    },
 });
 
 export default SelectionController;

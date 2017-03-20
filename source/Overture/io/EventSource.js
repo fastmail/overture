@@ -195,7 +195,7 @@ var EventSource = NativeEventSource ? Class({
             }
             this._eventSource = null;
         }
-    }.observes( 'readyState' )
+    }.observes( 'readyState' ),
 }) : Class({
 
     Extends: Object,
@@ -210,7 +210,7 @@ var EventSource = NativeEventSource ? Class({
     open: function () {
         var headers = {
             'Accept': 'text/event-stream',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
         };
         if ( this._lastEventId ) {
             headers[ 'Last-Event-ID' ] = this._lastEventId;
@@ -349,12 +349,12 @@ var EventSource = NativeEventSource ? Class({
             this.fire( type || 'message', {
                 data: data,
                 // origin: '',
-                lastEventId: this._lastEventId
+                lastEventId: this._lastEventId,
             });
         }
         this._data = '';
         this._eventName = '';
-    }
+    },
 });
 
 /**
@@ -379,7 +379,7 @@ var EventSource = NativeEventSource ? Class({
 EventSource.extend({
     CONNECTING: CONNECTING,
     OPEN: OPEN,
-    CLOSED: CLOSED
+    CLOSED: CLOSED,
 });
 
 export default EventSource;

@@ -110,7 +110,7 @@ var ProgressiveListView = Class({
                 this.viewNeedsRedraw();
             }
         }
-    }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' )
+    }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' ),
 });
 
 export default ProgressiveListView;

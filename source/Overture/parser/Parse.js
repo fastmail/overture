@@ -19,7 +19,7 @@ var Parse = Class({
     assimilate: function ( parse ) {
         this.string = parse.string;
         this.tokens = parse.tokens;
-    }
+    },
 });
 
 Parse.define = function ( name, regexp, context ) {

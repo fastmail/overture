@@ -59,5 +59,5 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragEnded: function (/* drag */) {}
+    dragEnded: function (/* drag */) {},
 };

@@ -58,7 +58,7 @@ var RootView = Class({
             'dragstart',
             'touchstart', 'touchmove', 'touchend', 'touchcancel',
             'cut',
-            'submit'
+            'submit',
         ];
         for ( l = events.length; l--; ) {
             node.addEventListener( events[l], this, false );
@@ -153,7 +153,7 @@ var RootView = Class({
             return;
         }
         ViewEventsController.handleEvent( event, null, this );
-    }.invokeInRunLoop()
+    }.invokeInRunLoop(),
 });
 
 export default RootView;

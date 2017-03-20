@@ -359,7 +359,7 @@ var Enumerable = {
             }
         }
         return false;
-    }
+    },
 };
 
 Array.implement( Enumerable );

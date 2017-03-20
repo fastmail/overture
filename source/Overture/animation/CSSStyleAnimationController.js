@@ -72,7 +72,7 @@ var CSSStyleAnimationController = {
                 event.elapsedTime
             );
         }
-    }.invokeInRunLoop()
+    }.invokeInRunLoop(),
 };
 
 [ 'transitionend', 'webkitTransitionEnd', 'oTransitionEnd' ].forEach(

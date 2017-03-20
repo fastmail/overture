@@ -163,7 +163,7 @@ Function.implement({
     doNotNotify: function () {
         this.isSilent = true;
         return this;
-    }
+    },
 });
 
 /**
@@ -412,7 +412,7 @@ export default {
     */
     toggle: function ( key ) {
         return this.set( key, !this.get( key ) );
-    }
+    },
 };
 
 // TODO(cmorgan/modulify): do something about these exports: Function#property,

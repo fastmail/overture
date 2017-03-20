@@ -80,7 +80,7 @@ Date.extend({
     getDaysInYear: function ( year ) {
         return isLeapYear( year ) ? 366 : 365;
     },
-    isLeapYear: isLeapYear
+    isLeapYear: isLeapYear,
 });
 
 var pad = function ( num, nopad, character ) {
@@ -94,7 +94,7 @@ var duration = {
     minute: 60000,
     hour: 3600000,
     day: aDay,
-    week: 604800000
+    week: 604800000,
 };
 
 Date.implement({
@@ -529,7 +529,7 @@ Date.implement({
                 return string;
             }
         }) : this.toString();
-    }
+    },
 });
 
 // TODO(cmorgan/modulify): do something about these exports: Date#fromJSON,

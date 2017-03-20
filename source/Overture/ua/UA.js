@@ -39,7 +39,7 @@ var ua = navigator.userAgent.toLowerCase(),
     prefix = {
         firefox: '-moz-',
         msie: '-ms-',
-        opera: '-o-'
+        opera: '-o-',
     }[ browser ] || '-webkit-',
     cssProps = {};
 
@@ -53,28 +53,28 @@ if ( browser === 'opr/' ) {
         props = {
             'box-shadow': {
                 name: 'box-shadow',
-                value: '0 0 0 #000'
+                value: '0 0 0 #000',
             },
             transform: {
                 name: 'transform',
-                value: 'translateX(0)'
+                value: 'translateX(0)',
             },
             transform3d: {
                 name: 'transform',
-                value: 'translateZ(0)'
+                value: 'translateZ(0)',
             },
             transition: {
                 name: 'transition',
-                value: 'all .3s'
+                value: 'all .3s',
             },
             perspective: {
                 name: 'perspective',
-                value: '1px'
+                value: '1px',
             },
             'user-select': {
                 name: 'user-select',
-                value: 'none'
-            }
+                value: 'none',
+            },
         },
         prop, test, css;
 
@@ -304,5 +304,5 @@ export default {
     */
     // TODO: Find a way of detecting this rather than hardcoding
     // For now, referencing http://caniuse.com/#feat=u2f
-    canU2F: browser === 'chrome' && version >= 41
+    canU2F: browser === 'chrome' && version >= 41,
 };

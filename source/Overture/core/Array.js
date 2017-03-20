@@ -116,7 +116,7 @@ Array.implement({
             }
         }
         return this;
-    }
+    },
 });
 
 // TODO(cmorgan/modulify): do something about these exports: Array#get,

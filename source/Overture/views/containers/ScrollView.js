@@ -41,7 +41,7 @@ var ScrollAnimation = Class({
             y = position < 1 ?
                 this.startY + ( position * this.deltaY ) : this.endY;
         this.object._scrollTo( x, y );
-    }
+    },
 });
 
 /**
@@ -194,7 +194,7 @@ var ScrollView = Class({
     */
     scrollAnimation: function ( ) {
         return new ScrollAnimation({
-            object: this
+            object: this,
         });
     }.property(),
 
@@ -350,7 +350,7 @@ var ScrollView = Class({
         if ( withAnimation && this.get( 'isInDocument' ) ) {
             scrollAnimation.animate({
                 x: x,
-                y: y
+                y: y,
             });
         } else {
             this.beginPropertyChanges()
@@ -416,7 +416,7 @@ var ScrollView = Class({
                 Tap.cancel();
             }
         }
-    }.on( 'scroll' )
+    }.on( 'scroll' ),
 });
 
 if ( UA.isIOS ) {
@@ -452,7 +452,7 @@ if ( UA.isIOS ) {
                                 'auto;' : 'hidden;' ) +
                         'overflow-y:' +
                             ( this.get( 'showScrollbarY' ) ?
-                                'auto;' : 'hidden;' )
+                                'auto;' : 'hidden;' ),
                 });
                 layer.appendChild( wrapper );
                 layer = wrapper;
@@ -489,7 +489,7 @@ if ( UA.isIOS ) {
                 layer.appendChild(
                     el( 'div', {
                         style: 'position:absolute;top:100%;left:0px;' +
-                            'width:1px;height:' + scrollFixerHeight + 'px;'
+                            'width:1px;height:' + scrollFixerHeight + 'px;',
                     })
                 );
             }
@@ -534,7 +534,7 @@ if ( UA.isIOS ) {
             }
             return ScrollView.parent.insertView.call(
                 this, view, relativeTo, where );
-        }
+        },
     });
 }
 

@@ -308,7 +308,7 @@ var XHR = Class({
               .fire( isSuccess ? 'io:success' : 'io:failure', {
                 status: status,
                 headers: responseHeaders,
-                data: response
+                data: response,
               })
               .fire( 'io:end' );
         }
@@ -355,7 +355,7 @@ var XHR = Class({
             }
         }
         return this;
-    }
+    },
 });
 
 export default XHR;

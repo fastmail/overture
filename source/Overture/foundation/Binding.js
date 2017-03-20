@@ -532,7 +532,7 @@ var Binding = Class({
             }
         }
         return true;
-    }
+    },
 });
 
 /**

@@ -33,7 +33,7 @@ import Locale from './Locale.js';
     Stores the loaded <O.Locale> instances.
 */
 var locales = {
-    xx: new Locale({ code: 'xx' })
+    xx: new Locale({ code: 'xx' }),
 };
 
 var alternatives = {
@@ -62,7 +62,7 @@ var alternatives = {
     'W': '[Ww\u0174\u0175\u02b7\u1d42\u1e80-\u1e89\u1e98\u24b2\u24cc\u24e6\u33ba-\u33bf\u33dd\uff37\uff57]',
     'X': '[Xx\u02e3\u1e8a-\u1e8d\u2093\u213b\u2168-\u216b\u2178-\u217b\u24b3\u24cd\u24e7\u33d3\uff38\uff58]',
     'Y': '[Yy\xdd\xfd\xff\u0176-\u0178\u0232\u0233\u02b8\u1e8e\u1e8f\u1e99\u1ef2-\u1ef9\u24b4\u24ce\u24e8\u33c9\uff39\uff59]',
-    'Z': '[Zz\u0179-\u017e\u01f1-\u01f3\u1dbb\u1e90-\u1e95\u2124\u2128\u24b5\u24cf\u24e9\u3390-\u3394\uff3a\uff5a]'
+    'Z': '[Zz\u0179-\u017e\u01f1-\u01f3\u1dbb\u1e90-\u1e95\u2124\u2128\u24b5\u24cf\u24e9\u3390-\u3394\uff3a\uff5a]',
 };
 
 /**
@@ -119,7 +119,7 @@ var LocaleController = {
             this.activeLocaleCode = localeCode;
             if ( typeof Intl !== 'undefined' ) {
                 this.compare = new Intl.Collator( localeCode, {
-                    sensitivity: 'base'
+                    sensitivity: 'base',
                 }).compare;
             }
         }
@@ -300,7 +300,7 @@ var LocaleController = {
         Maps upper-case A-Z to a character class string containing all unicode
         alternatives that resemble that letter.
     */
-    letterAlternatives: alternatives
+    letterAlternatives: alternatives,
 };
 
 var loc = LocaleController.localise;
@@ -310,5 +310,5 @@ export default LocaleController;
 export {
     LocaleController,
     LocaleController as i18n,
-    loc
+    loc,
 };

@@ -91,7 +91,7 @@ var ModalEventHandler = Class({
             this._seenMouseDown = true;
         }
         event.seenByModal = true;
-    }.on( 'touchstart' )
+    }.on( 'touchstart' ),
 });
 
 export default ModalEventHandler;

@@ -243,7 +243,7 @@ var Router = Class({
 
     getUrlForEncodedState: function ( state ) {
         return this.get( 'baseUrl' ) + state;
-    }
+    },
 });
 
 export default Router;

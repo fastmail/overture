@@ -63,7 +63,7 @@ var RecordArray = Class({
                          .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
         return record;
-    }
+    },
 });
 
 export default RecordArray;

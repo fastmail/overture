@@ -213,7 +213,7 @@ var MemoryManager = Class({
             }
         }
         return deleted;
-    }
+    },
 });
 
 export default MemoryManager;

@@ -197,7 +197,7 @@ var CSSStyleAnimation = Class({
             }
         }
         return this;
-    }
+    },
 });
 
 export default CSSStyleAnimation;

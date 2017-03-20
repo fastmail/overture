@@ -94,7 +94,7 @@ export default {
             CSSStyleAnimation : StyleAnimation;
         return new Animation({
             object: this,
-            element: this.get( 'layer' )
+            element: this.get( 'layer' ),
         });
     }.property(),
 
@@ -151,5 +151,5 @@ export default {
                 setStyle( layer, property, null );
             }
         }
-    }
+    },
 };

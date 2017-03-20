@@ -47,7 +47,7 @@ var directProperties = {
     html: 'innerHTML',
     text: 'textContent',
     unselectable: 'unselectable',
-    value: 'value'
+    value: 'value',
 };
 
 /**
@@ -66,7 +66,7 @@ var booleanProperties = {
     multiple: 1,
     readOnly: 1,
     required: 1,
-    selected: 1
+    selected: 1,
 };
 
 /**
@@ -131,7 +131,7 @@ Element.prototype.set = function ( key, value ) {
 */
 var cssNoPx = {
     opacity: 1,
-    zIndex: 1
+    zIndex: 1,
 };
 
 /**
@@ -144,7 +144,7 @@ var styleNames = ( function () {
     var styles = UA.cssProps,
         styleNames = {
             'float': document.body.style.cssFloat !== undefined ?
-                'cssFloat' : 'styleFloat'
+                'cssFloat' : 'styleFloat',
         },
         property, style;
     for ( property in styles ) {
@@ -427,7 +427,7 @@ export default {
                         'Style: ' + style +
                       '\nValue: ' + value +
                       '\nEl id: ' + el.id +
-                      '\nEl class: ' + el.className
+                      '\nEl class: ' + el.className,
                 });
             }
         }
@@ -542,7 +542,7 @@ export default {
                 top: rect.top,
                 left: rect.left,
                 width: rect.width,
-                height: rect.height
+                height: rect.height,
             };
         if ( ancestor ) {
             rect = getPosition( ancestor );
@@ -555,7 +555,7 @@ export default {
             position.left -= rect.left - ancestor.scrollLeft;
         }
         return position;
-    }
+    },
 };
 
 /**

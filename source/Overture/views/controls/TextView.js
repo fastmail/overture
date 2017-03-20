@@ -122,7 +122,7 @@ var TextView = Class({
         - pattern: String (regexp)
     */
     inputAttributes: {
-        autocomplete: 'off'
+        autocomplete: 'off',
     },
 
     /**
@@ -175,7 +175,7 @@ var TextView = Class({
         }
         return selection || {
             start: start,
-            end: end
+            end: end,
         };
     }.property().nocache(),
 
@@ -239,7 +239,7 @@ var TextView = Class({
             position: this.get( 'positioning' ),
             display: this.get( 'isMultiline' ) ? 'block' : 'inline-block',
             cursor: 'text',
-            userSelect: 'text'
+            userSelect: 'text',
         }, this.get( 'layout' ) );
     }.property( 'layout', 'positioning' ),
 
@@ -261,7 +261,7 @@ var TextView = Class({
                     type: this.get( 'inputType' ),
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
-                    value: value
+                    value: value,
                 });
 
         this.redrawInputAttributes();
@@ -279,7 +279,7 @@ var TextView = Class({
         layer.title = this.get( 'tooltip' );
 
         return [
-            control
+            control,
         ];
     },
 
@@ -547,7 +547,7 @@ var TextView = Class({
         if ( key === 'esc' && this.get( 'blurOnEscape' ) ) {
             this.blur();
         }
-    }.on( 'keydown' )
+    }.on( 'keydown' ),
 });
 
 export default TextView;

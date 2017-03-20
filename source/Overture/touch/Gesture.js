@@ -20,5 +20,5 @@ export default Class({
     cancel: function () {},
     start: function () {},
     move: function () {},
-    end: function () {}
+    end: function () {},
 });

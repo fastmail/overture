@@ -42,11 +42,11 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         seconds = define( 'second', /^[0-5][0-9]/ ),
         meridian = firstMatch([
             define( 'am', datePatterns.am ),
-            define( 'pm', datePatterns.pm )
+            define( 'pm', datePatterns.pm ),
         ]),
         timeSuffix = sequence([
             optional( whitespace ),
-            meridian
+            meridian,
         ]),
         timeDelimiter = define( 'timeDelimiter', ( /^[:.]/ ) ),
         timeContext = define( 'timeContext', datePatterns.timeContext ),
@@ -57,13 +57,13 @@ var generateLocalisedDateParser = function ( locale, mode ) {
                 minutes,
                 optional( sequence([
                     timeDelimiter,
-                    seconds
-                ]))
+                    seconds,
+                ])),
             ])),
             optional(
                 timeSuffix
             ),
-            whitespace
+            whitespace,
         ]);
 
     if ( mode === JUST_TIME ) {
@@ -71,9 +71,9 @@ var generateLocalisedDateParser = function ( locale, mode ) {
             time,
             sequence([
                 hours,
-                minutes
+                minutes,
             ]),
-            whitespace
+            whitespace,
         ]);
     }
 
@@ -83,28 +83,28 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         day = sequence([
             define( 'day', /^(?:[0-2]\d|3[0-1]|\d)/ ),
             optional( ordinalSuffix ),
-            not( timeContext )
+            not( timeContext ),
         ]),
         monthnumber = sequence([
             define( 'month', /^(?:1[0-2]|0\d|\d)/ ),
             not( firstMatch([
                 timeContext,
-                ordinalSuffix
-            ]))
+                ordinalSuffix,
+            ])),
         ]),
         monthname = anyInLocale( 'monthname',
             'jan feb mar apr may jun jul aug sep oct nov dec' ),
         month = firstMatch([
             monthnumber,
-            monthname
+            monthname,
         ]),
         fullyear = define( 'year', /^\d{4}/ ),
         year = sequence([
             define( 'year', /^\d\d(?:\d\d)?/ ),
             not( firstMatch([
                 timeContext,
-                ordinalSuffix
-            ]))
+                ordinalSuffix,
+            ])),
         ]),
         searchMethod = anyInLocale( 'searchMethod', 'past future' ),
 
@@ -142,42 +142,42 @@ var generateLocalisedDateParser = function ( locale, mode ) {
             dateDelimiter,
             month,
             dateDelimiter,
-            year
+            year,
         ]),
         dayMonth = sequence([
             day,
             dateDelimiter,
-            month
+            month,
         ]),
         monthYear = sequence([
             month,
             dateDelimiter,
             year,
-            not( timeContext )
+            not( timeContext ),
         ]),
         monthDayYear = sequence([
             month,
             dateDelimiter,
             day,
             dateDelimiter,
-            year
+            year,
         ]),
         monthDay = sequence([
             month,
             dateDelimiter,
-            day
+            day,
         ]),
         yearMonthDay = sequence([
             year,
             dateDelimiter,
             month,
             dateDelimiter,
-            day
+            day,
         ]),
         yearMonth = sequence([
             year,
             dateDelimiter,
-            month
+            month,
         ]),
 
         date = sequence([
@@ -191,7 +191,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
                         monthDayYear,
                         monthDay,
                         yearMonthDay,
-                        yearMonth
+                        yearMonth,
                     ] : locale.dateElementOrder === 'mdy' ?     [
                         monthDayYear,
                         monthDay,
@@ -199,7 +199,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
                         dayMonthYear,
                         dayMonth,
                         yearMonthDay,
-                        yearMonth
+                        yearMonth,
                     ] : [
                         yearMonthDay,
                         yearMonth,
@@ -207,11 +207,11 @@ var generateLocalisedDateParser = function ( locale, mode ) {
                         dayMonth,
                         monthYear,
                         monthDayYear,
-                        monthDay
+                        monthDay,
                     ]
-                )
+                ),
             ]),
-            not( define( '', /^\d/ ) )
+            not( define( '', /^\d/ ) ),
         ]);
 
     if ( mode === JUST_DATE ) {
@@ -223,7 +223,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
             day,
             relativeDate,
             searchMethod,
-            whitespace
+            whitespace,
         ]);
     }
 
@@ -236,7 +236,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         day,
         relativeDate,
         searchMethod,
-        whitespace
+        whitespace,
     ]);
 };
 
@@ -515,7 +515,7 @@ var interpreter = {
         date.day = now.getDate();
         date.month = now.getMonth();
         date.year = now.getFullYear();
-    }
+    },
 };
 
 // ---
@@ -567,7 +567,7 @@ export default {
     interpretDateTime: interpretDateTime,
     time: time,
     date: date,
-    dateTime: dateTime
+    dateTime: dateTime,
 };
 
 export {
@@ -575,5 +575,5 @@ export {
     interpretDateTime,
     time,
     date,
-    dateTime
+    dateTime,
 };

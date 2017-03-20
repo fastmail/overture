@@ -20,7 +20,7 @@ var HoldEvent = Class({
     init: function ( touch ) {
         HoldEvent.parent.init.call( this, 'hold', touch.target );
         this.touch = touch;
-    }
+    },
 });
 
 var fireHoldEvent = function () {
@@ -83,5 +83,5 @@ export default new Gesture({
                 delete tracking[ id ];
             }
         }
-    }
+    },
 });

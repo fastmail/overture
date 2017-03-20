@@ -42,8 +42,8 @@ export default {
             x: left - x + this.get( 'scrollLeft' ),
             y: top - y + this.get( 'scrollTop' ),
             width: across,
-            height: down
+            height: down,
         };
     }.property( 'scrollTop', 'scrollLeft',
-        'pxLayout', 'parentView.visibleRect', 'isInDocument' )
+        'pxLayout', 'parentView.visibleRect', 'isInDocument' ),
 };
