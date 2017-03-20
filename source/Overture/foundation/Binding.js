@@ -520,7 +520,7 @@ var Binding = Class({
         }
 
         key = this[ to + 'Key' ];
-        value = this.transform.call( this,
+        value = this.transform(
             this[ from + 'Object' ].getFromPath( this[ from + 'Path' ] ),
             syncForward
         );
