@@ -8,8 +8,8 @@ import '../../foundation/ObservableProps.js';  // For Function#observes
 import View from '../View.js';
 import Element from '../../dom/Element.js';
 
-var forEachView = function ( views, method, args ) {
-    var l = views ? views.length : 0,
+const forEachView = function ( views, method, args ) {
+    let l = views ? views.length : 0,
         view;
     while ( l-- ) {
         view = views[l];
@@ -23,7 +23,7 @@ var forEachView = function ( views, method, args ) {
     }
 };
 
-var flattenAndPrune = function ( array, node ) {
+const flattenAndPrune = function ( array, node ) {
     if ( node instanceof Array ) {
         node.reduce( flattenAndPrune, array );
     } else if ( node ) {
@@ -32,7 +32,7 @@ var flattenAndPrune = function ( array, node ) {
     return array;
 };
 
-var SwitchView = Class({
+const SwitchView = Class({
 
     Extends: View,
 
@@ -51,9 +51,9 @@ var SwitchView = Class({
 
         this.isRendered = true;
 
-        var views = this.get( 'views' ),
-            l = views.length,
-            view;
+        const views = this.get( 'views' );
+        let l = views.length;
+        let view;
         while ( l-- ) {
             view = views[l];
             if ( view && !( view instanceof Array ) ) {
@@ -63,7 +63,7 @@ var SwitchView = Class({
     },
 
     destroy: function () {
-        var views = this.get( 'views' ),
+        let views = this.get( 'views' ),
             l = views.length;
         while ( l-- ) {
             forEachView( views[l], 'destroy' );
@@ -106,13 +106,12 @@ var SwitchView = Class({
     // ---
 
     redraw: function () {
-        var oldIndex = this._index,
-            newIndex = this.get( 'index' ),
-            parentView;
+        const oldIndex = this._index;
+        const newIndex = this.get( 'index' );
         // If not yet added to parent, nothing to redraw; _add will be called
         // automatically soon.
         if ( !this.isDestroyed && oldIndex > -1 && oldIndex !== newIndex ) {
-            parentView = this.get( 'parentView' );
+            const parentView = this.get( 'parentView' );
             if ( parentView ) {
                 this._remove( parentView );
                 this._add();
@@ -149,14 +148,14 @@ var SwitchView = Class({
     }.observes( 'parentView' ),
 
     _add: function () {
-        var index = this.get( 'index' ),
-            views = this.get( 'views' )[ index ],
-            subViews = this.get( 'subViews' )[ index ],
-            parent = this.get( 'parentView' ),
-            isInDocument = parent.get( 'isInDocument' ),
-            position = this.get( 'layer' ),
-            layer = position.parentNode,
-            l, node, before;
+        const index = this.get( 'index' );
+        const views = this.get( 'views' )[ index ];
+        const subViews = this.get( 'subViews' )[ index ];
+        const parent = this.get( 'parentView' );
+        const isInDocument = parent.get( 'isInDocument' );
+        const position = this.get( 'layer' );
+        const layer = position.parentNode;
+        let l, node, before;
 
         // May be a NOP, but just in case.
         parent.removeObserverForKey( 'childViews', this, '_add' );
@@ -200,11 +199,11 @@ var SwitchView = Class({
     },
 
     _remove: function ( parent ) {
-        var oldIndex = this._index,
-            views = this.get( 'views' )[ oldIndex ],
-            subViews = this.get( 'subViews' )[ oldIndex ],
-            isInDocument = parent.get( 'isInDocument' ),
-            l, node, childViews, view, index, numToRemove;
+        const oldIndex = this._index;
+        const views = this.get( 'views' )[ oldIndex ];
+        const subViews = this.get( 'subViews' )[ oldIndex ];
+        const isInDocument = parent.get( 'isInDocument' );
+        let l, node, childViews, view, index, numToRemove;
 
         if ( isInDocument && subViews ) {
             forEachView( subViews, 'willLeaveDocument' );
@@ -255,7 +254,7 @@ var SwitchView = Class({
     */
     insertView: function ( view, parentNode ) {
         this.childViews.push( view );
-        var oldParent = view.get( 'parentView' );
+        const oldParent = view.get( 'parentView' );
         if ( oldParent ) {
             oldParent.removeView( view );
         }
@@ -270,7 +269,7 @@ var SwitchView = Class({
                 [ view ] :
             null;
         this.views[ index ] = view && view.reduce( flattenAndPrune, [] );
-        var subViews = this.childViews;
+        const subViews = this.childViews;
         if ( subViews.length ) {
             this.subViews[ index ] = subViews;
             this.childViews = [];
@@ -295,15 +294,15 @@ var SwitchView = Class({
 
 export default SwitchView;
 
-var pickViewWhen = function ( bool ) {
+const pickViewWhen = function ( bool ) {
     return bool ? 0 : 1;
 };
-var pickViewUnless = function ( bool ) {
+const pickViewUnless = function ( bool ) {
     return bool ? 1 : 0;
 };
 
-var createView = function ( object, property, transform ) {
-    var switchView = new SwitchView({
+const createView = function ( object, property, transform ) {
+    const switchView = new SwitchView({
         index: bind( object, property, transform ),
     });
     switchView._oldView = Element.forView( switchView );
@@ -311,13 +310,13 @@ var createView = function ( object, property, transform ) {
 };
 
 Element.when = function ( object, property, transform ) {
-    var pickView = transform ? function ( value, syncForward ) {
+    const pickView = transform ? function ( value, syncForward ) {
         return pickViewWhen( transform( value, syncForward ) );
     } : pickViewWhen;
     return createView( object, property, pickView );
 };
 Element.unless = function ( object, property, transform ) {
-    var pickView = transform ? function ( value, syncForward ) {
+    const pickView = transform ? function ( value, syncForward ) {
         return pickViewUnless( transform( value, syncForward ) );
     } : pickViewUnless;
     return createView( object, property, pickView );

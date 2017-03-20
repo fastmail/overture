@@ -5,21 +5,20 @@ import '../../foundation/ObservableProps.js';  // For Function#observes
 import UA from '../../ua/UA.js';
 import View from '../View.js';
 
-var byIndex = function ( a, b ) {
+const byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );
 };
 
-var addToTable = function ( array, table ) {
-    var i, l;
-    for ( i = 0, l = array.length; i < l; i += 1 ) {
+const addToTable = function ( array, table ) {
+    for ( let i = 0, l = array.length; i < l; i += 1 ) {
         table[ array[i] ] = true;
     }
     return table;
 };
 
-var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
-    var length = childViews.length;
-    var view, item;
+const getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
+    const length = childViews.length;
+    let view, item;
     while ( fromIndex < length ) {
         view = childViews[ fromIndex ];
         item = view.get( 'content' );
@@ -31,7 +30,7 @@ var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
     return fromIndex;
 };
 
-var ListView = Class({
+const ListView = Class({
 
     Extends: View,
 
@@ -54,7 +53,7 @@ var ListView = Class({
 
         ListView.parent.init.call( this, mixin );
 
-        var selection = this.get( 'selection' );
+        const selection = this.get( 'selection' );
         if ( selection ) {
             selection.addObserverForKey(
                 'selectedStoreKeys', this, 'redrawSelection' );
@@ -62,13 +61,13 @@ var ListView = Class({
     },
 
     destroy: function () {
-        var selection = this.get( 'selection' );
+        const selection = this.get( 'selection' );
         if ( selection ) {
             selection.removeObserverForKey(
                 'selectedStoreKeys', this, 'redrawSelection' );
         }
         if ( this.get( 'isRendered' ) ) {
-            var content = this.get( 'content' );
+            const content = this.get( 'content' );
             if ( content ) {
                 content.removeObserverForRange(
                     this._renderRange, this, 'viewNeedsRedraw' );
@@ -80,7 +79,7 @@ var ListView = Class({
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
         if ( this.get( 'isRendered' ) ) {
-            var range = this._renderRange;
+            const range = this._renderRange;
             if ( oldVal ) {
                 oldVal.removeObserverForRange( range, this, 'viewNeedsRedraw' );
                 oldVal.off( 'query:updated', this, 'contentWasUpdated' );
@@ -101,8 +100,8 @@ var ListView = Class({
     },
 
     layout: function () {
-        var itemHeight = this.get( 'itemHeight' );
-        var height = itemHeight * ( this.get( 'contentLength' ) || 0 );
+        const itemHeight = this.get( 'itemHeight' );
+        let height = itemHeight * ( this.get( 'contentLength' ) || 0 );
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
@@ -116,8 +115,8 @@ var ListView = Class({
 
     draw: function ( layer, Element/*, el*/ ) {
         // Render any unmanaged child views first.
-        var children = ListView.parent.draw.call( this, layer ),
-            content = this.get( 'content' );
+        const children = ListView.parent.draw.call( this, layer );
+        const content = this.get( 'content' );
         if ( children ) {
             Element.appendChildren( layer, children );
         }
@@ -140,7 +139,7 @@ var ListView = Class({
     },
 
     createItemView: function ( content, index, list, isAdded ) {
-        var ItemView = this.get( 'ItemView' );
+        const ItemView = this.get( 'ItemView' );
         return new ItemView({
             parentView: this,
             content: content,
@@ -156,24 +155,24 @@ var ListView = Class({
     },
 
     redrawLayer: function ( layer ) {
-        var list = this.get( 'content' ) || [];
-        var childViews = this.get( 'childViews' );
-        var isInDocument = this.get( 'isInDocument' );
+        const list = this.get( 'content' ) || [];
+        const childViews = this.get( 'childViews' );
+        const isInDocument = this.get( 'isInDocument' );
         // Limit to this range in the content array.
-        var renderRange = this._renderRange;
-        var start = Math.max( 0, renderRange.start );
-        var end = Math.min( list.get( 'length' ), renderRange.end );
+        const renderRange = this._renderRange;
+        const start = Math.max( 0, renderRange.start );
+        const end = Math.min( list.get( 'length' ), renderRange.end );
         // Set of already rendered views.
-        var rendered = this._rendered;
-        var newRendered = this._rendered = {};
+        const rendered = this._rendered;
+        const newRendered = this._rendered = {};
         // Are they new or always been there?
-        var added = this._added;
-        var removed = this._removed;
+        const added = this._added;
+        const removed = this._removed;
         // Bookkeeping
-        var viewsDidEnterDoc = [];
-        var frag = null;
-        var currentViewIndex;
-        var viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
+        const viewsDidEnterDoc = [];
+        let frag = null;
+        let currentViewIndex;
+        let viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
 
         // Mark views we still need
         for ( i = start, l = end; i < l; i += 1 ) {
@@ -270,13 +269,12 @@ var ListView = Class({
     },
 
     redrawSelection: function () {
-        var selection = this.get( 'selection' ),
-            itemViews = this.get( 'childViews' ),
-            l = itemViews.length,
-            view, storeKey;
+        const selection = this.get( 'selection' );
+        const itemViews = this.get( 'childViews' );
+        let l = itemViews.length;
         while ( l-- ) {
-            view = itemViews[l];
-            storeKey = view.getFromPath( 'content.storeKey' );
+            const view = itemViews[l];
+            const storeKey = view.getFromPath( 'content.storeKey' );
             if ( storeKey ) {
                 view.set( 'isSelected',
                     selection.isStoreKeySelected( storeKey ) );

@@ -14,7 +14,7 @@ import { loc } from '../localisation/LocaleController.js';
     consists of stylesheets and images. These can be loaded in stages and
     hotswapped if themes are changed.
 */
-var ThemeManager = Class({
+const ThemeManager = Class({
 
     Extends: Object,
 
@@ -46,9 +46,8 @@ var ThemeManager = Class({
             newTheme - {String} The name of the newly active theme.
     */
     changeTheme: function ( oldTheme, newTheme ) {
-        var active = this._activeStylesheets,
-            id;
-        for ( id in active ) {
+        const active = this._activeStylesheets;
+        for ( const id in active ) {
             if ( active[ id ] ) {
                 this.addStylesheet( id, newTheme );
                 this.removeStylesheet( id, oldTheme );
@@ -69,7 +68,7 @@ var ThemeManager = Class({
             data  - {String} The base64 encoded data for the image.
     */
     imageDidLoad: function ( theme, id, data ) {
-        var themeImages = this._images[ theme ] ||
+        const themeImages = this._images[ theme ] ||
             ( this._images[ theme ] = {} );
         themeImages[ id ] = data;
         return this;
@@ -88,7 +87,7 @@ var ThemeManager = Class({
             data  - {String} The base64 encoded data for the image.
     */
     stylesheetDidLoad: function ( theme, id, data ) {
-        var themeStyles = this._styles[ theme ] ||
+        const themeStyles = this._styles[ theme ] ||
             ( this._styles[ theme ] = {} );
         themeStyles[ id ] = data;
         return this;
@@ -111,16 +110,16 @@ var ThemeManager = Class({
     addStylesheet: function ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
-        var styles = this._styles[ theme ],
-            data = styles[ id ] || this._styles.all[ id ],
-            images = this._images[ theme ] || {},
-            themeIndependentImages = this._images.all,
-            active = this._activeStylesheets;
+        const styles = this._styles[ theme ];
+        let data = styles[ id ] || this._styles.all[ id ];
+        const images = this._images[ theme ] || {};
+        const themeIndependentImages = this._images.all;
+        const active = this._activeStylesheets;
 
         if ( data ) {
             // Substitute in images.
             data = data.replace( /url\(([^)]+)\)/g, function ( url, src ) {
-                var imageData =
+                let imageData =
                         images[ src ] ||
                         themeIndependentImages[ src ] ||
                         loc( src );
@@ -151,7 +150,7 @@ var ThemeManager = Class({
     removeStylesheet: function ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
-        var sheet = document.getElementById( theme + '-' + id );
+        const sheet = document.getElementById( theme + '-' + id );
         if ( sheet ) {
             sheet.parentNode.removeChild( sheet );
             this._activeStylesheets[ id ] -= 1;
@@ -173,9 +172,9 @@ var ThemeManager = Class({
             available, otherwise null.
     */
     getImageSrc: function ( id ) {
-        var _images = this._images,
-            themeImages = _images[ this.get( 'theme' ) ] || {},
-            themeIndependentImages = _images.all;
+        const _images = this._images;
+        const themeImages = _images[ this.get( 'theme' ) ] || {};
+        const themeIndependentImages = _images.all;
         return themeImages[ id ] || themeIndependentImages[ id ] || null;
     },
 });

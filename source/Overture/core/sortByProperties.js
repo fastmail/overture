@@ -27,21 +27,20 @@ import { i18n } from '../localisation/LocaleController.js';
         {Function} This function may be passed to the Array#sort method to
         sort the array of objects by the properties specified.
 */
-var isNumber = /^\d+$/;
+const isNumber = /^\d+$/;
 export default function sortByProperties ( properties ) {
     if ( !( properties instanceof Array ) ) {
         properties = [ properties ];
     }
-    var l = properties.length;
+    const l = properties.length;
 
     return function ( a, b ) {
-        var hasGet = !!a.get,
-            i, prop, aVal, bVal, type;
-        for ( i = 0; i < l; i += 1 ) {
-            prop = properties[i];
-            aVal = hasGet ? a.get( prop ) : a[ prop ];
-            bVal = hasGet ? b.get( prop ) : b[ prop ];
-            type = typeof aVal;
+        const hasGet = !!a.get;
+        for ( let i = 0; i < l; i += 1 ) {
+            const prop = properties[i];
+            let aVal = hasGet ? a.get( prop ) : a[ prop ];
+            let bVal = hasGet ? b.get( prop ) : b[ prop ];
+            const type = typeof aVal;
 
             // Must be the same type
             if ( type === typeof bVal ) {

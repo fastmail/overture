@@ -9,7 +9,7 @@ import Object from '../../foundation/Object.js';
     A source provides persistent storage for a set of records. Data is fetched
     and commited back to here by an instance of <O.Store>.
 */
-var Source = Class({
+const Source = Class({
 
     Extends: Object,
 

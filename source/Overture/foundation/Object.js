@@ -31,17 +31,15 @@ export default Class({
                         methods).
     */
     init: function (/* ...mixins */) {
-        var i, l, metadata, inits, method;
-
         this.isDestroyed = false;
 
-        for ( i = 0, l = arguments.length; i < l; i += 1 ) {
+        for ( let i = 0, l = arguments.length; i < l; i += 1 ) {
             mixin( this, arguments[i] );
         }
 
-        metadata = meta( this );
-        inits = metadata.inits;
-        for ( method in inits ) {
+        const metadata = meta( this );
+        const inits = metadata.inits;
+        for ( const method in inits ) {
             if ( inits[ method ] ) {
                 this[ 'init' + method ]();
             }
@@ -56,9 +54,8 @@ export default Class({
         bindings) so the object will be available for garbage collection.
     */
     destroy: function () {
-        var destructors = meta( this ).inits,
-            method;
-        for ( method in destructors ) {
+        const destructors = meta( this ).inits;
+        for ( const method in destructors ) {
             if ( destructors[ method ] ) {
                 this[ 'destroy' + method ]();
             }

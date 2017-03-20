@@ -31,7 +31,7 @@ import UA from '../ua/UA.js';
     this controller as well. It also monitors whether the window currently has
     focus or not.
 */
-var WindowController = Class({
+const WindowController = Class({
 
     Extends: Object,
 
@@ -87,12 +87,12 @@ var WindowController = Class({
 
         this.broadcast( 'wc:hello' );
 
-        var that = this;
-        var check = function check () {
+        const that = this;
+        const check = function check () {
             that.checkMaster();
             that._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
         };
-        var ping = function ping () {
+        const ping = function ping () {
             that.sendPing();
             that._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
         };
@@ -127,7 +127,7 @@ var WindowController = Class({
         case 'storage':
             if ( event.key === this.get( 'broadcastKey' ) ) {
                 try {
-                    var data = JSON.parse( event.newValue );
+                    const data = JSON.parse( event.newValue );
                     // IE fires events in the same window that set the
                     // property. Ignore these.
                     if ( data.wcId !== this.id ) {
@@ -209,12 +209,11 @@ var WindowController = Class({
         property based on whether this window has the lowest ordered id.
     */
     checkMaster: function () {
-        var now = Date.now(),
-            isMaster = true,
-            seenWCs = this._seenWCs,
-            ourId = this.id,
-            id;
-        for ( id in seenWCs ) {
+        const now = Date.now();
+        let isMaster = true;
+        const seenWCs = this._seenWCs;
+        const ourId = this.id;
+        for ( const id in seenWCs ) {
             if ( seenWCs[ id ] + 23000 < now ) {
                 delete seenWCs[ id ];
             } else if ( id < ourId ) {
@@ -246,8 +245,8 @@ var WindowController = Class({
     },
 }).extend({
     openExternal: function ( href ) {
-        var newWindow = window.open( '', '_blank' );
-        var htmlHref = href;
+        const newWindow = window.open( '', '_blank' );
+        let htmlHref = href;
         if ( newWindow ) {
             // From goog.window.open; IE has trouble if there's a
             // semi-colon in the URL apparently.

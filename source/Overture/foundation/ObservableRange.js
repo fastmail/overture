@@ -28,22 +28,21 @@ export default {
     */
     rangeDidChange: function ( start, end ) {
         if ( end === undefined ) { end = start + 1; }
-        var metadata = meta( this ),
-            key, index;
-        for ( key in metadata.observers ) {
-            index = parseInt( key, 10 );
+        const metadata = meta( this );
+        for ( const key in metadata.observers ) {
+            const index = parseInt( key, 10 );
             if ( start <= index && index < end ) {
                 this.propertyDidChange( key );
             }
         }
-        var observers = metadata.rangeObservers,
-            l = observers ? observers.length : 0,
-            enumerableLength = this.get( 'length' ) || 0;
+        const observers = metadata.rangeObservers;
+        let l = observers ? observers.length : 0;
+        const enumerableLength = this.get( 'length' ) || 0;
         while ( l-- ) {
-            var observer = observers[l],
-                range = observer.range,
-                observerStart = range.start || 0,
-                observerEnd = 'end' in range ?
+            const observer = observers[l];
+            const range = observer.range;
+            let observerStart = range.start || 0;
+            let observerEnd = 'end' in range ?
                     range.end : Math.max( enumerableLength, end );
             if ( observerStart < 0 ) { observerStart += enumerableLength; }
             if ( observerEnd < 0 ) { observerEnd += enumerableLength; }
@@ -82,7 +81,7 @@ export default {
             {O.ObservableRange} Returns self.
     */
     addObserverForRange: function ( range, object, method ) {
-        var metadata = meta( this );
+        const metadata = meta( this );
         ( metadata.rangeObservers || ( metadata.rangeObservers = [] ) ).push({
             range: range,
             object: object,
@@ -110,10 +109,10 @@ export default {
             {O.ObservableRange} Returns self.
     */
     removeObserverForRange: function ( range, object, method ) {
-        var observers = meta( this ).rangeObservers,
-            l = observers ? observers.length : 0;
+        const observers = meta( this ).rangeObservers;
+        let l = observers ? observers.length : 0;
         while ( l-- ) {
-            var observer = observers[l];
+            const observer = observers[l];
             if ( observer.range === range &&
                  observer.object === object && observer.method === method ) {
                     observers.splice( l, 1 );

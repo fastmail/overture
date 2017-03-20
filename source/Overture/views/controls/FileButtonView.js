@@ -7,7 +7,7 @@ import Element from '../../dom/Element.js';
 import ButtonView from './ButtonView.js';
 import AbstractControlView from './AbstractControlView.js';
 
-var canUseMultiple = FormData.isFake ? null : 'multiple';
+const canUseMultiple = FormData.isFake ? null : 'multiple';
 
 /**
     Class: O.FileButtonView
@@ -32,7 +32,7 @@ var canUseMultiple = FormData.isFake ? null : 'multiple';
         </label>
 
 */
-var FileButtonView = Class({
+const FileButtonView = Class({
 
     Extends: ButtonView,
 
@@ -84,7 +84,7 @@ var FileButtonView = Class({
         general <O.FileButtonView> notes.
     */
     draw: function ( layer, Element, el ) {
-        var icon = this.get( 'icon' );
+        let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
@@ -129,9 +129,9 @@ var FileButtonView = Class({
         `files` property on the event object.
     */
     _fileWasChosen: function ( event ) {
-        var input = this._domControl,
-            files, filePath,
-            target, action;
+        const input = this._domControl;
+        let files, filePath;
+        let target, action;
         if ( event.target === input ) {
             input.parentNode.replaceChild(
                 this._domControl = Element.create( 'input', {

@@ -5,7 +5,7 @@ import Object from '../../foundation/Object.js';
     Class: O.UndoManager
 */
 
-var UndoManager = Class({
+const UndoManager = Class({
 
     Extends: Object,
 
@@ -42,7 +42,7 @@ var UndoManager = Class({
 
     saveUndoCheckpoint: function () {
         if ( !this._isInUndoState ) {
-            var data = this.getUndoData();
+            const data = this.getUndoData();
             if ( data !== null ) {
                 this._pushState( this._undoStack, data );
             } else {
@@ -59,7 +59,8 @@ var UndoManager = Class({
                 this.saveUndoCheckpoint();
                 this.undo();
             } else {
-                var redoData = this.applyChange( this._undoStack.pop(), false );
+                const redoData = this.applyChange(
+                    this._undoStack.pop(), false );
                 if ( redoData ) {
                     this._pushState( this._redoStack, redoData );
                 }

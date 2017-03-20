@@ -9,7 +9,7 @@ import UA from '../ua/UA.js';
     CSSStyleAnimation class that its animation has finished.
     There is normally no reason to interact with this object directly.
 */
-var CSSStyleAnimationController = {
+const CSSStyleAnimationController = {
     /**
         Property: O.CSSStyleAnimationController.animations
         Type: Object
@@ -55,8 +55,8 @@ var CSSStyleAnimationController = {
             event - {Event} The transitionend event object.
     */
     handleEvent: function ( event ) {
-        var animation = this.animations[ guid( event.target ) ],
-            property = event.propertyName;
+        const animation = this.animations[ guid( event.target ) ];
+        const property = event.propertyName;
         if ( animation ) {
             event.stopPropagation();
             animation.transitionEnd(

@@ -14,8 +14,8 @@ Object.extend({
             {Array} The list of values.
     */
     values: function ( object ) {
-        var values = [];
-        for ( var key in object ) {
+        const values = [];
+        for ( const key in object ) {
             if ( object.hasOwnProperty( key ) ) {
                 values.push( object[ key ] );
             }
@@ -38,7 +38,7 @@ Object.extend({
             Undefined is returned if the value is not found.
     */
     keyOf: function ( object, value ) {
-        for ( var key in object ) {
+        for ( const key in object ) {
             if ( object[ key ] === value ) {
                 return key;
             }
@@ -61,9 +61,8 @@ Object.extend({
             {Object} The filtered object.
     */
     filter: function ( object, include ) {
-        var result = {},
-            key;
-        for ( key in object ) {
+        const result = {};
+        for ( const key in object ) {
             if ( include[ key ] ) {
                 result[ key ] = object[ key ];
             }
@@ -85,8 +84,8 @@ Object.extend({
             {Object} The object mapping keys to values.
     */
     zip: function ( keys, values ) {
-        var l = Math.min( keys.length, values.length ),
-            obj = {};
+        let l = Math.min( keys.length, values.length );
+        const obj = {};
         while ( l-- ) {
             obj[ keys[l] ] = values[l];
         }
@@ -106,9 +105,9 @@ Object.extend({
             {Object} The key/value pairs in object form.
     */
     fromQueryString: function ( query ) {
-        var result = {};
+        const result = {};
         query.split( '&' ).forEach( function ( pair ) {
-           var parts = pair.split( '=' ).map( decodeURIComponent );
+           const parts = pair.split( '=' ).map( decodeURIComponent );
            result[ parts[0] ] = parts[1];
         });
         return result;

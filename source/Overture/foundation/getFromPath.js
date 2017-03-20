@@ -15,19 +15,17 @@
     Returns:
         {*} Returns the value at the end of the path.
 */
-var isNum = /^\d+$/;
+const isNum = /^\d+$/;
 export default function getFromPath ( root, path ) {
-    var currentPosition = 0,
-        pathLength = path.length,
-        nextDot,
-        key;
+    let currentPosition = 0;
+    const pathLength = path.length;
     while ( currentPosition < pathLength ) {
         if ( !root ) {
             return undefined;
         }
-        nextDot = path.indexOf( '.', currentPosition );
+        let nextDot = path.indexOf( '.', currentPosition );
         if ( nextDot === -1 ) { nextDot = pathLength; }
-        key = path.slice( currentPosition, nextDot );
+        const key = path.slice( currentPosition, nextDot );
         root = root.getObjectAt && isNum.test( key ) ?
             root.getObjectAt( +key ) :
             root.get ?

@@ -10,68 +10,68 @@ import '../foundation/Enumerable.js';  // For Array#forEach on ES3 browsers?
     application is running.
 */
 
-var ua = navigator.userAgent.toLowerCase(),
-    other = [ 'other', '0' ],
-    platform = /windows phone/.test( ua ) ? 'winphone' :
-        /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
-        /android|webos/.exec( ua ) ||
-        /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
-        other
-    )[0],
-    browser = (
-        /firefox|edge|msie|iemobile|opr\//.exec( ua ) ||
-        /chrome|safari|opera/.exec( ua ) ||
-        other
-    )[0],
-    version = parseFloat((
-        /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/
-            .exec( ua ) ||
-        /chrome\/(\d+\.\d+)/.exec( ua ) ||
-        other
-    )[1].replace( '_', '.' ) ),
-    prefix = {
-        firefox: '-moz-',
-        msie: '-ms-',
-        opera: '-o-',
-    }[ browser ] || '-webkit-',
-    cssProps = {};
+const ua = navigator.userAgent.toLowerCase();
+const other = [ 'other', '0' ];
+const platform = /windows phone/.test( ua ) ? 'winphone' :
+    /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
+    /android|webos/.exec( ua ) ||
+    /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
+    other
+)[0];
+let browser = (
+    /firefox|edge|msie|iemobile|opr\//.exec( ua ) ||
+    /chrome|safari|opera/.exec( ua ) ||
+    other
+)[0];
+const version = parseFloat((
+    /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/
+        .exec( ua ) ||
+    /chrome\/(\d+\.\d+)/.exec( ua ) ||
+    other
+)[1].replace( '_', '.' ) );
+const prefix = {
+    firefox: '-moz-',
+    msie: '-ms-',
+    opera: '-o-',
+}[ browser ] || '-webkit-';
+const cssProps = {};
 
 if ( browser === 'opr/' ) {
     browser = 'opera';
 }
 
 ( function () {
-    var el = document.createElement( 'div' ),
-        style = el.style,
-        props = {
-            'box-shadow': {
-                name: 'box-shadow',
-                value: '0 0 0 #000',
-            },
-            transform: {
-                name: 'transform',
-                value: 'translateX(0)',
-            },
-            transform3d: {
-                name: 'transform',
-                value: 'translateZ(0)',
-            },
-            transition: {
-                name: 'transition',
-                value: 'all .3s',
-            },
-            perspective: {
-                name: 'perspective',
-                value: '1px',
-            },
-            'user-select': {
-                name: 'user-select',
-                value: 'none',
-            },
+    const props = {
+        'box-shadow': {
+            name: 'box-shadow',
+            value: '0 0 0 #000',
         },
-        prop, test, css;
+        transform: {
+            name: 'transform',
+            value: 'translateX(0)',
+        },
+        transform3d: {
+            name: 'transform',
+            value: 'translateZ(0)',
+        },
+        transition: {
+            name: 'transition',
+            value: 'all .3s',
+        },
+        perspective: {
+            name: 'perspective',
+            value: '1px',
+        },
+        'user-select': {
+            name: 'user-select',
+            value: 'none',
+        },
+    };
+    const el = document.createElement( 'div' );
+    const style = el.style;
+    let test, css;
 
-    for ( prop in props ) {
+    for ( const prop in props ) {
         test = props[ prop ];
         css = test.name + ':' + test.value;
         style.cssText = css;
@@ -87,14 +87,12 @@ if ( browser === 'opr/' ) {
         cssProps.flexbox = 'flex';
     } else {
         style.cssText = 'display:' + prefix + 'flex';
-        cssProps.flexbox = el.style.length ? prefix + 'flex' : null;
+        cssProps.flexbox = style.length ? prefix + 'flex' : null;
     }
     css = cssProps.transition;
     [ 'delay', 'timing', 'duration', 'property' ].forEach( function ( prop ) {
         cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
     });
-    el = null;
-    style = null;
 
     // Browser bugs:
     // 1. iOS5 Sometimes fails to transform stuff.

@@ -12,7 +12,7 @@ import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
 import Element from '../../dom/Element.js';
 import DOMEvent from '../../dom/DOMEvent.js';
 import DropTarget from '../../drag-drop/DropTarget.js';
-import DragEffect from '../../drag-drop/DragEffect.js';
+import * as DragEffect from '../../drag-drop/DragEffect.js';
 import { loc } from '../../localisation/LocaleController.js';
 import UA from '../../ua/UA.js';
 import View from '../View.js';
@@ -25,9 +25,9 @@ import FileButtonView from './FileButtonView.js';
 import MenuView from './MenuView.js';
 import TextView from './TextView.js';
 
-var execCommand = function ( command ) {
+const execCommand = function ( command ) {
     return function ( arg ) {
-        var editor = this.get( 'editor' );
+        const editor = this.get( 'editor' );
         if ( editor ) {
             editor[ command ]( arg );
         }
@@ -35,38 +35,38 @@ var execCommand = function ( command ) {
     };
 };
 
-var queryCommandState = function ( tag ) {
-    var regexp = new RegExp( '(?:^|>)' + tag + '\\b' );
+const queryCommandState = function ( tag ) {
+    const regexp = new RegExp( '(?:^|>)' + tag + '\\b' );
     return function () {
-        var path = this.get( 'path' );
+        const path = this.get( 'path' );
         return path === '(selection)' ?
             this.get( 'editor' ).hasFormat( tag ) :
             regexp.test( path );
     }.property( 'path' );
 };
 
-var emailRegExp = RegExp.email,
-    // Use a more relaxed definition of a URL than normal; anything URL-like we
-    // want to accept so we can prefill the link destination box.
-    urlRegExp =
-        /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
+const emailRegExp = RegExp.email;
+// Use a more relaxed definition of a URL than normal; anything URL-like we
+// want to accept so we can prefill the link destination box.
+const urlRegExp =
+    /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
 
-var popOver = new PopOverView();
+const popOver = new PopOverView();
 
-var equalTo = Transform.isEqualToValue;
+const equalTo = Transform.isEqualToValue;
 
-var TOOLBAR_HIDDEN = 0;
-var TOOLBAR_AT_SELECTION = 1;
-var TOOLBAR_AT_TOP = 2;
+const TOOLBAR_HIDDEN = 0;
+const TOOLBAR_AT_SELECTION = 1;
+const TOOLBAR_AT_TOP = 2;
 
-var hiddenFloatingToolbarLayout = {
+const hiddenFloatingToolbarLayout = {
     top: 0,
     left: 0,
     maxWidth: '100%',
     transform: 'translate3d(-100vw,0,0)',
 };
 
-var RichTextView = Class({
+const RichTextView = Class({
 
     Extends: View,
 
@@ -116,7 +116,7 @@ var RichTextView = Class({
 
     _value: '',
     value: function ( html ) {
-        var editor = this.get( 'editor' );
+        const editor = this.get( 'editor' );
         if ( editor ) {
             if ( html !== undefined ) {
                 editor.setHTML( html );
@@ -134,7 +134,7 @@ var RichTextView = Class({
     }.property().nocache(),
 
     destroy: function () {
-        var editor = this.get( 'editor' );
+        const editor = this.get( 'editor' );
         if ( editor ) {
             editor.destroy();
         }
@@ -151,7 +151,7 @@ var RichTextView = Class({
     },
 
     didEnterDocument: function () {
-        var scrollView = this.getParent( ScrollView );
+        const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
                 scrollView.addObserverForKey(
@@ -166,7 +166,7 @@ var RichTextView = Class({
     },
 
     willLeaveDocument: function () {
-        var scrollView = this.getParent( ScrollView );
+        const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
                 scrollView.removeObserverForKey(
@@ -201,8 +201,8 @@ var RichTextView = Class({
     }.property( 'isFocussed', 'isDisabled' ),
 
     draw: function ( layer, Element, el ) {
-        var editorClassName = this.get( 'editorClassName' );
-        var editingLayer = this._editingLayer = el( 'div', {
+        const editorClassName = this.get( 'editorClassName' );
+        const editingLayer = this._editingLayer = el( 'div', {
             tabIndex: this.get( 'tabIndex' ),
             className: 'v-RichText-input' +
                 ( editorClassName ? ' ' + editorClassName : '' ),
@@ -210,7 +210,7 @@ var RichTextView = Class({
         // The nodes must be in a document or document fragment for DOM Range
         // API to work; otherwise will throw INVALID_NODE_TYPE_ERR errors.
         document.createDocumentFragment().appendChild( editingLayer );
-        var editor = new Squire( editingLayer, this.get( 'blockDefaults' ) );
+        const editor = new Squire( editingLayer, this.get( 'blockDefaults' ) );
         editor
             .setHTML( this._value )
             .addEventListener( 'input', this )
@@ -256,24 +256,24 @@ var RichTextView = Class({
 
     redrawIOSCursor: function () {
         if ( this.get( 'isFocussed' ) ) {
-            var editor = this.get( 'editor' );
+            const editor = this.get( 'editor' );
             editor.setSelection( editor.getSelection() );
         }
     }.nextFrame(),
 
     scrollIntoView: function () {
-        var scrollView = this.getParent( ScrollView );
-        var editor = this.get( 'editor' );
-        var cursorPosition = editor && editor.getCursorPosition();
+        const scrollView = this.getParent( ScrollView );
+        const editor = this.get( 'editor' );
+        const cursorPosition = editor && editor.getCursorPosition();
         if ( !scrollView || !cursorPosition || !this.get( 'isFocussed' ) ) {
             return;
         }
-        var scrollViewOffsetTop =
+        const scrollViewOffsetTop =
             scrollView.get( 'layer' ).getBoundingClientRect().top;
-        var offsetTop = cursorPosition.top - scrollViewOffsetTop;
-        var offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
-        var scrollViewHeight = scrollView.get( 'pxHeight' );
-        var scrollBy = 0;
+        const offsetTop = cursorPosition.top - scrollViewOffsetTop;
+        const offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
+        let scrollViewHeight = scrollView.get( 'pxHeight' );
+        let scrollBy = 0;
         if ( UA.isIOS ) {
             scrollViewHeight -=
                 // Keyboard height (in WKWebView, but not Safari)
@@ -290,12 +290,11 @@ var RichTextView = Class({
     }.queue( 'after' ).on( 'cursor' ),
 
     _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
-        var toolbarView = this.get( 'toolbarView' ),
-            offsetHeight = this._offsetHeight,
-            offsetTop = this._offsetTop,
-            now = Date.now(),
-            wasSticky = toolbarView.get( 'parentView' ) !== this,
-            isSticky;
+        const toolbarView = this.get( 'toolbarView' );
+        let offsetHeight = this._offsetHeight;
+        let offsetTop = this._offsetTop;
+        const now = Date.now();
+        const wasSticky = toolbarView.get( 'parentView' ) !== this;
 
         // For performance, cache the size and position for 1/2 second from last
         // use.
@@ -307,7 +306,7 @@ var RichTextView = Class({
         }
         this._offsetExpiry = now + 500;
 
-        isSticky =
+        const isSticky =
             scrollTop > offsetTop &&
             scrollTop < offsetTop + offsetHeight -
                 ( scrollView.get( 'pxHeight' ) >> 2 );
@@ -318,10 +317,10 @@ var RichTextView = Class({
     },
     _setToolbarPosition: function ( scrollView, toolbarView, isSticky ) {
         if ( isSticky ) {
-            var newParent = scrollView.get( 'parentView' ),
-                position = toolbarView.getPositionRelativeTo( newParent ),
-                // Need to account separately for any border in the new parent.
-                borders = scrollView.getPositionRelativeTo( newParent );
+            const newParent = scrollView.get( 'parentView' );
+            const position = toolbarView.getPositionRelativeTo( newParent );
+            // Need to account separately for any border in the new parent.
+            const borders = scrollView.getPositionRelativeTo( newParent );
             toolbarView
                 .set( 'layout', {
                     top: scrollView.get( 'pxTop' ),
@@ -352,13 +351,12 @@ var RichTextView = Class({
         if ( this.get( 'showToolbar' ) !== TOOLBAR_AT_SELECTION ) {
             return;
         }
-        var range = this.get( 'editor' ).getSelection();
-        var node = UA.isIOS ? range.endContainer : range.startContainer;
-        var position;
+        const range = this.get( 'editor' ).getSelection();
+        let node = UA.isIOS ? range.endContainer : range.startContainer;
         if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
             node = node.parentNode;
         }
-        position = Element.getPosition( node, this.get( 'layer' ) );
+        const position = Element.getPosition( node, this.get( 'layer' ) );
         this.set( 'floatingToolbarLayout', {
             top: 0,
             left: 0,
@@ -373,7 +371,7 @@ var RichTextView = Class({
     },
 
     showFloatingToolbarIfSelection: function () {
-        var toolbarIsVisible =
+        const toolbarIsVisible =
                 this.get( 'floatingToolbarLayout' ) !==
                     hiddenFloatingToolbarLayout;
         if ( !toolbarIsVisible && this.get( 'isTextSelected' ) ) {
@@ -400,8 +398,8 @@ var RichTextView = Class({
     },
 
     toolbarView: function () {
-        var richTextView = this;
-        var showToolbar = this.get( 'showToolbar' );
+        const richTextView = this;
+        const showToolbar = this.get( 'showToolbar' );
 
         return new ToolbarView({
             className: 'v-Toolbar v-RichText-toolbar',
@@ -688,11 +686,11 @@ var RichTextView = Class({
     }.property(),
 
     fontSizeMenuView: function () {
-        var richTextView = this;
+        const richTextView = this;
         return new MenuView({
             showFilter: false,
             options: this.get( 'fontSizeOptions' ).map( function ( item ) {
-                var fontSize = item[1];
+                const fontSize = item[1];
                 return new ButtonView({
                     layout: fontSize ? {
                         fontSize: fontSize,
@@ -722,11 +720,11 @@ var RichTextView = Class({
     },
 
     fontFaceMenuView: function () {
-        var richTextView = this;
+        const richTextView = this;
         return new MenuView({
             showFilter: false,
             options: this.get( 'fontFaceOptions' ).map( function ( item ) {
-                var fontFace = item[1];
+                const fontFace = item[1];
                 return new ButtonView({
                     layout: fontFace ? {
                         fontFamily: fontFace,
@@ -758,7 +756,7 @@ var RichTextView = Class({
     _colorText: true,
 
     textColorMenuView: function () {
-        var richTextView = this;
+        const richTextView = this;
         return new MenuView({
             className: 'v-ColorMenu',
             showFilter: false,
@@ -823,7 +821,7 @@ var RichTextView = Class({
     },
 
     linkOverlayView: function () {
-        var richTextView = this;
+        const richTextView = this;
         return new View({
             className: 'v-UrlPicker',
             value: '',
@@ -867,7 +865,7 @@ var RichTextView = Class({
                 }
             }.on( 'keyup' ),
             addLink: function () {
-                var url = this.get( 'value' ).trim(),
+                let url = this.get( 'value' ).trim(),
                     email;
                 // Don't allow malicious links
                 if ( /^(?:javascript|data):/i.test( url ) ) {
@@ -895,8 +893,8 @@ var RichTextView = Class({
     }.property(),
 
     showLinkOverlay: function ( buttonView ) {
-        var view = this.get( 'linkOverlayView' ),
-            value = this.getSelectedText().trim();
+        const view = this.get( 'linkOverlayView' );
+        let value = this.getSelectedText().trim();
         if ( !urlRegExp.test( value ) && !emailRegExp.test( value ) ) {
             value = '';
         }
@@ -917,7 +915,7 @@ var RichTextView = Class({
     // --- Commands ---
 
     focus: function () {
-        var editor = this.get( 'editor' );
+        const editor = this.get( 'editor' );
         if ( editor ) {
             editor.focus();
         }
@@ -925,7 +923,7 @@ var RichTextView = Class({
     },
 
     blur: function () {
-        var editor = this.get( 'editor' );
+        const editor = this.get( 'editor' );
         if ( editor ) {
             editor.blur();
         }
@@ -973,8 +971,8 @@ var RichTextView = Class({
     insertImagesFromFiles: function ( files ) {
         if ( window.FileReader ) {
             files.forEach( function ( file ) {
-                var img = this.get( 'editor' ).insertImage(),
-                    reader = new FileReader();
+                const img = this.get( 'editor' ).insertImage();
+                const reader = new FileReader();
                 reader.onload = function () {
                     img.src = reader.result;
                     reader.onload = null;
@@ -985,12 +983,12 @@ var RichTextView = Class({
     },
 
     getSelectedText: function () {
-        var editor = this.get( 'editor' );
+        const editor = this.get( 'editor' );
         return editor ? editor.getSelectedText() : '';
     },
 
     kbShortcuts: function ( event ) {
-        var isMac = UA.isMac;
+        const isMac = UA.isMac;
         switch ( DOMEvent.lookupKey( event ) ) {
         case isMac ? 'meta-k' : 'ctrl-k':
             event.preventDefault();
@@ -1000,7 +998,7 @@ var RichTextView = Class({
             break;
         case 'pagedown':
             if ( !isMac ) {
-                var scrollView = this.getParent( ScrollView );
+                const scrollView = this.getParent( ScrollView );
                 if ( scrollView ) {
                     scrollView.scrollToView( this, {
                         y: 32 +
@@ -1046,13 +1044,13 @@ var RichTextView = Class({
     isLink: queryCommandState( 'A' ),
 
     alignment: function () {
-        var path = this.get( 'path' ),
-            results = /\.align-(\w+)/.exec( path ),
-            alignment;
+        const path = this.get( 'path' );
+        const results = /\.align-(\w+)/.exec( path );
+        let alignment;
         if ( path === '(selection)' ) {
             alignment = '';
             this._forEachBlock( function ( block ) {
-                var align = block.style.textAlign || 'left';
+                const align = block.style.textAlign || 'left';
                 if ( alignment && align !== alignment ) {
                     alignment = '';
                     return true;
@@ -1067,13 +1065,13 @@ var RichTextView = Class({
     }.property( 'path' ),
 
     direction: function () {
-        var path = this.get( 'path' ),
-            results = /\[dir=(\w+)\]/.exec( path ),
-            dir;
+        const path = this.get( 'path' );
+        const results = /\[dir=(\w+)\]/.exec( path );
+        let dir;
         if ( path === '(selection)' ) {
             dir = '';
             this._forEachBlock( function ( block ) {
-                var blockDir = block.dir || 'ltr';
+                const blockDir = block.dir || 'ltr';
                 if ( dir && blockDir !== dir ) {
                     dir = '';
                     return true;
@@ -1096,7 +1094,7 @@ var RichTextView = Class({
         // Ignore real dragover/drop events from Squire. They wil be handled
         // by the standard event delegation system. We only observe these
         // to get the image paste fake dragover/drop events.
-        var type = event.type;
+        const type = event.type;
         if ( ( type === 'dragover' || type === 'drop' ) &&
                 event.stopPropagation ) {
             return;
@@ -1132,9 +1130,8 @@ var RichTextView = Class({
     dropEffect: DragEffect.COPY,
 
     drop: function ( drag ) {
-        var types = this.get( 'dropAcceptedDataTypes' ),
-            type;
-        for ( type in types ) {
+        const types = this.get( 'dropAcceptedDataTypes' );
+        for ( const type in types ) {
             if ( drag.hasDataType( type ) ) {
                 this.insertImagesFromFiles( drag.getFiles( /^image\/.*/ ) );
                 break;

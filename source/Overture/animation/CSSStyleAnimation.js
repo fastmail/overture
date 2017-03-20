@@ -28,7 +28,7 @@ import CSSStyleAnimationController from './CSSStyleAnimationController.js';
     to animate and the <#current> property to an object of the current styles
     on the object.
 */
-var CSSStyleAnimation = Class({
+const CSSStyleAnimation = Class({
 
     init: function ( mixin ) {
         this._deadMan = null;
@@ -104,17 +104,16 @@ var CSSStyleAnimation = Class({
             this.ease = ease;
         }
 
-        var el = this.element,
-            current = this.current,
-            animating = this.animating,
-            object = this.object,
-            setStyle = Element.setStyle,
-            property, value;
+        const el = this.element;
+        const current = this.current;
+        const animating = this.animating;
+        const object = this.object;
+        const setStyle = Element.setStyle;
 
         this.current = styles;
 
-        for ( property in styles ) {
-            value = styles[ property ];
+        for ( const property in styles ) {
+            const value = styles[ property ];
             if ( value !== current[ property ] ) {
                 animating.push( property );
                 setStyle( el, property, value );
@@ -155,8 +154,8 @@ var CSSStyleAnimation = Class({
                        transitioning.
     */
     transitionEnd: function ( property ) {
-        var animating = this.animating,
-            index = animating.indexOf( property );
+        const animating = this.animating;
+        const index = animating.indexOf( property );
         if ( index > -1 ) {
             animating.splice( index, 1 );
             if ( !animating.length ) { this.stop(); }
@@ -183,7 +182,7 @@ var CSSStyleAnimation = Class({
 
             Element.setStyle( this.element, 'transition', 'none' );
 
-            var object = this.object;
+            const object = this.object;
             if ( object && object.didAnimate ) {
                 object.didAnimate( this );
             }

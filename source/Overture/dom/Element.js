@@ -22,7 +22,7 @@ import View from '../views/View.js';  // Circular but it's OK
 */
 
 // Vars used to store references to fns so they can call each other.
-var setStyle, setStyles, setAttributes, appendChildren, getPosition;
+let setStyle, setStyles, setAttributes, appendChildren, getPosition;
 
 /**
     Property (private): Element-directProperties
@@ -31,7 +31,7 @@ var setStyle, setStyles, setAttributes, appendChildren, getPosition;
     Any names that match keys in this map will be set as direct properties
     rather than as attributes on the element.
 */
-var directProperties = {
+const directProperties = {
     'class': 'className',
     className: 'className',
     defaultValue: 'defaultValue',
@@ -49,7 +49,7 @@ var directProperties = {
     Any names that match keys in this map will be set as direct properties and
     have their value converted to a boolean.
 */
-var booleanProperties = {
+const booleanProperties = {
     autofocus: 1,
     checked: 1,
     defaultChecked: 1,
@@ -73,7 +73,7 @@ var booleanProperties = {
         {String|Boolean} The attribute or property.
 */
 Element.prototype.get = function ( key ) {
-    var prop = directProperties[ key ];
+    const prop = directProperties[ key ];
     return prop ?
         this[ prop ] :
     booleanProperties[ key ] ?
@@ -94,8 +94,7 @@ Element.prototype.get = function ( key ) {
         {Element} Returns self.
 */
 Element.prototype.set = function ( key, value ) {
-    var prop = directProperties[ key ],
-        child;
+    const prop = directProperties[ key ];
     if ( prop ) {
         this[ prop ] = ( value == null ? '' : '' + value );
     } else if ( booleanProperties[ key ] ) {
@@ -103,6 +102,7 @@ Element.prototype.set = function ( key, value ) {
     } else if ( key === 'styles' ) {
         setStyles( this, value );
     } else if ( key === 'children' ) {
+        let child;
         while ( child = this.lastChild ) {
             this.removeChild( child );
         }
@@ -121,7 +121,7 @@ Element.prototype.set = function ( key, value ) {
 
     Keys for CSS properties that take raw numbers as a value.
 */
-var cssNoPx = {
+const cssNoPx = {
     opacity: 1,
     zIndex: 1,
 };
@@ -132,15 +132,14 @@ var cssNoPx = {
 
     Map of normal CSS names to the name used on the style object.
 */
-var styleNames = ( function () {
-    var styles = UA.cssProps,
-        styleNames = {
-            'float': document.body.style.cssFloat !== undefined ?
-                'cssFloat' : 'styleFloat',
-        },
-        property, style;
-    for ( property in styles ) {
-        style = styles[ property ];
+const styleNames = ( function () {
+    const styles = UA.cssProps;
+    const styleNames = {
+        'float': document.body.style.cssFloat !== undefined ?
+            'cssFloat' : 'styleFloat',
+    };
+    for ( const property in styles ) {
+        let style = styles[ property ];
         if ( style ) {
             style = style.camelCase();
             // Stupid MS, don't follow convention.
@@ -159,7 +158,7 @@ var styleNames = ( function () {
 
     A reference to the document object.
 */
-var doc = document;
+const doc = document;
 
 /**
     Property (private): O.Element-ieEventModel
@@ -167,11 +166,12 @@ var doc = document;
 
     Does the browser only support the IE event model?
 */
-var ieEventModel = !!doc.addEventListener.isFake;
+const ieEventModel = !!doc.addEventListener.isFake;
 
-var DOCUMENT_POSITION_CONTAINED_BY = 16; // Node.DOCUMENT_POSITION_CONTAINED_BY;
+// = Node.DOCUMENT_POSITION_CONTAINED_BY
+const DOCUMENT_POSITION_CONTAINED_BY = 16;
 
-var view = null;
+let view = null;
 
 export default {
     /**
@@ -192,7 +192,7 @@ export default {
             {(O.View|null)} The previous view DOM elements were associated with.
     */
     forView: function ( newView ) {
-        var oldView = view;
+        const oldView = view;
         view = newView;
         return oldView;
     },
@@ -224,8 +224,6 @@ export default {
             {Element} The new element.
     */
     create: function ( tag, props, children ) {
-        var i, l, parts, name, el;
-
         if ( props instanceof Array ) {
             children = props;
             props = null;
@@ -233,11 +231,12 @@ export default {
 
         // Parse id/class names out of tag.
         if ( /[#.]/.test( tag ) ) {
-            parts = tag.split( /([#.])/ );
+            const parts = tag.split( /([#.])/ );
             tag = parts[0];
             if ( !props ) { props = {}; }
-            for ( i = 1, l = parts.length; i + 1 < l; i += 2 ) {
-                name = parts[ i + 1 ];
+            const l = parts.length;
+            for ( let i = 1; i + 1 < l; i += 2 ) {
+                const name = parts[ i + 1 ];
                 if ( parts[i] === '#' ) {
                     props.id = name;
                 } else {
@@ -248,7 +247,7 @@ export default {
         }
 
         // Create element, set props and add children
-        el = doc.createElement( tag );
+        const el = doc.createElement( tag );
 
         if ( ieEventModel && ( tag === 'input' ||
                 tag === 'select' || tag === 'textarea' ) ) {
@@ -280,7 +279,7 @@ export default {
             {Element} The element.
     */
     setAttributes: setAttributes = function ( el, props ) {
-        var prop, value;
+        let prop, value;
         for ( prop in props ) {
             value = props[ prop ];
             if ( value !== undefined ) {
@@ -309,9 +308,8 @@ export default {
     */
     appendChildren: appendChildren = function ( el, children ) {
         if ( !( children instanceof Array ) ) { children = [ children ]; }
-        var i, l, node;
-        for ( i = 0, l = children.length; i < l; i += 1 ) {
-            node = children[i];
+        for ( let i = 0, l = children.length; i < l; i += 1 ) {
+            let node = children[i];
             if ( node ) {
                 if ( node instanceof Array ) {
                     appendChildren( el, node );
@@ -358,7 +356,7 @@ export default {
             {O.Element} Returns self.
     */
     addClass: function ( el, className ){
-        var current = el.className;
+        const current = el.className;
         if ( !current.contains( className, ' ' ) ) {
             el.className = ( current ? current + ' ' : '' ) + className;
         }
@@ -378,8 +376,8 @@ export default {
             {O.Element} Returns self.
     */
     removeClass: function ( el, className ) {
-        var current = el.className,
-            index = (' ' + current + ' ' ).indexOf( ' ' + className + ' ' );
+        const current = el.className;
+        const index = (' ' + current + ' ' ).indexOf( ' ' + className + ' ' );
         if ( index > -1 ) {
             el.className = current.slice( 0, index && index - 1 ) +
                            current.slice( index + className.length );
@@ -439,7 +437,7 @@ export default {
             {O.Element} Returns self.
     */
     setStyles: setStyles = function ( el, styles ) {
-        for ( var prop in styles ) {
+        for ( const prop in styles ) {
             setStyle( el, prop, styles[ prop ] );
         }
         return this;
@@ -462,7 +460,7 @@ export default {
             first element?
     */
     contains: function ( el, potentialChild ) {
-        var relation = el.compareDocumentPosition( potentialChild );
+        const relation = el.compareDocumentPosition( potentialChild );
         return !relation || !!( relation & DOCUMENT_POSITION_CONTAINED_BY );
     },
 
@@ -491,7 +489,7 @@ export default {
     nearest: function ( el, test, limit ) {
         if ( !limit ) { limit = el.ownerDocument.documentElement; }
         if ( typeof test === 'string' ) {
-            var nodeName = test.toUpperCase();
+            const nodeName = test.toUpperCase();
             test = function ( el ) {
                 return ( el.nodeName === nodeName );
             };
@@ -529,13 +527,13 @@ export default {
             - height: `Number`
     */
     getPosition: getPosition = function ( el, ancestor ) {
-        var rect = el.getBoundingClientRect(),
-            position = {
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height,
-            };
+        let rect = el.getBoundingClientRect();
+        const position = {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+        };
         if ( ancestor ) {
             rect = getPosition( ancestor );
             if ( ancestor.nodeName === 'BODY' ) {
@@ -564,10 +562,9 @@ export default {
         {String} The CSS string.
 */
 Object.toCSSString = function ( object ) {
-    var result = '',
-        key, value;
-    for ( key in object ) {
-        value = object[ key ];
+    let result = '';
+    for ( let key in object ) {
+        let value = object[ key ];
         if ( value !== undefined ) {
             if ( typeof value === 'number' && !cssNoPx[ key ] ) {
                 value += 'px';

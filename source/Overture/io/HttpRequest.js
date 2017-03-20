@@ -7,11 +7,11 @@ import RunLoop from '../foundation/RunLoop.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import XHR from './XHR.js';
 
-var xhrPool = [];
-var getXhr = function () {
+const xhrPool = [];
+const getXhr = function () {
     return xhrPool.pop() || new XHR();
 };
-var releaseXhr = function ( xhr ) {
+const releaseXhr = function ( xhr ) {
     xhrPool.push( xhr );
 };
 
@@ -25,7 +25,7 @@ var releaseXhr = function ( xhr ) {
     depending on browser support.
 */
 
-var HttpRequest = Class({
+const HttpRequest = Class({
 
     Extends: Object,
 
@@ -120,7 +120,7 @@ var HttpRequest = Class({
     // ---
 
     setTimeout: function () {
-        var timeout = this.get( 'timeout' );
+        const timeout = this.get( 'timeout' );
         if ( timeout ) {
             this._lastActivity = Date.now();
             this._timer = RunLoop.invokeAfterDelay(
@@ -133,7 +133,7 @@ var HttpRequest = Class({
     }.on( 'io:uploadProgress', 'io:loading', 'io:progress' ),
 
     clearTimeout: function () {
-        var timer = this._timer;
+        const timer = this._timer;
         if ( timer ) {
             RunLoop.cancel( timer );
         }
@@ -141,9 +141,9 @@ var HttpRequest = Class({
 
     didTimeout: function () {
         this._timer = null;
-        var timeout = this.get( 'timeout' ),
-            timeSinceLastReset = Date.now() - this._lastActivity,
-            timeToTimeout = timeout - timeSinceLastReset;
+        const timeout = this.get( 'timeout' );
+        const timeSinceLastReset = Date.now() - this._lastActivity;
+        const timeToTimeout = timeout - timeSinceLastReset;
         // Allow for 10ms jitter
         if ( timeToTimeout < 10 ) {
             this.fire( 'io:timeout' )
@@ -157,20 +157,19 @@ var HttpRequest = Class({
     // ---
 
     send: function () {
-        var method = this.get( 'method' ).toUpperCase();
-        var url = this.get( 'url' );
-        var data = this.get( 'data' ) || null;
-        var headers = this.get( 'headers' );
-        var withCredentials = this.get( 'withCredentials' );
-        var responseType = this.get( 'responseType' );
-        var transport = getXhr();
-        var contentType;
+        const method = this.get( 'method' ).toUpperCase();
+        let url = this.get( 'url' );
+        let data = this.get( 'data' ) || null;
+        const headers = this.get( 'headers' );
+        const withCredentials = this.get( 'withCredentials' );
+        const responseType = this.get( 'responseType' );
+        const transport = getXhr();
 
         if ( data && method === 'GET' ) {
             url += ( url.contains( '?' ) ? '&' : '?' ) + data;
             data = null;
         }
-        contentType = headers[ 'Content-type' ];
+        const contentType = headers[ 'Content-type' ];
         if ( contentType && method === 'POST' && typeof data === 'string' &&
                 contentType.indexOf( ';' ) === -1 ) {
             // All string data is sent as UTF-8 by the browser.
@@ -188,14 +187,14 @@ var HttpRequest = Class({
     },
 
     abort: function () {
-        var transport = this._transport;
+        const transport = this._transport;
         if ( transport && transport.io === this ) {
             transport.abort();
         }
     },
 
     _releaseXhr: function () {
-        var transport = this._transport;
+        const transport = this._transport;
         if ( transport instanceof XHR ) {
             releaseXhr( transport );
             transport.io = null;

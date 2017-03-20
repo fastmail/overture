@@ -1,4 +1,4 @@
-import DragEffect from './DragEffect.js';
+import * as DragEffect from './DragEffect.js';
 
 /**
     Class: O.DragDataSource
@@ -6,7 +6,7 @@ import DragEffect from './DragEffect.js';
     Represents a set of data for a drag operation. This can either be
     instantiated like so:
 
-        var ddsource = new O.DragDataSource({
+        const ddsource = new O.DragDataSource({
             'text/plain': 'My *data*',
             'text/html': 'My <strong>data</strong>'
         });

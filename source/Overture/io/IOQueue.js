@@ -17,11 +17,11 @@ import '../foundation/EventTarget.js';  // For Function#on
     Manage concurrent HTTP requests.
 */
 
-var QUEUE = 1,
-    IGNORE = 2,
-    ABORT = 3;
+const QUEUE = 1;
+const IGNORE = 2;
+const ABORT = 3;
 
-var IOQueue = Class({
+const IOQueue = Class({
 
     Extends: Object,
 
@@ -164,7 +164,7 @@ var IOQueue = Class({
             transport - {Transport} The transport object.
     */
     _complete: function ( event ) {
-        var request = event.target;
+        const request = event.target;
         if ( this._recent === request ) {
             this._recent = null;
         }

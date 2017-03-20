@@ -2,7 +2,7 @@ import {
     Class, meta, clone, extend, isEqual,
 } from '../../core/Core.js';  // Also Function#extend
 
-var instanceOf = function ( value, Type ) {
+const instanceOf = function ( value, Type ) {
     switch ( typeof value ) {
         case 'string':
             return Type === String;
@@ -14,12 +14,12 @@ var instanceOf = function ( value, Type ) {
     return value instanceof Type;
 };
 
-var attributeErrorsObserver = {
+const attributeErrorsObserver = {
     object: null,
     method: 'notifyAttributeErrors',
 };
-var addValidityObserver = function ( observers, propKey ) {
-    var keyObservers = observers[ propKey ];
+const addValidityObserver = function ( observers, propKey ) {
+    let keyObservers = observers[ propKey ];
     if ( keyObservers && keyObservers.contains( attributeErrorsObserver ) ) {
         return;
     }
@@ -35,10 +35,10 @@ var addValidityObserver = function ( observers, propKey ) {
 
     Represents an attribute on a record.
 */
-var RecordAttribute = Class({
+const RecordAttribute = Class({
 
     __setupProperty__: function ( metadata, propKey, object ) {
-        var attrs = metadata.attrs,
+        let attrs = metadata.attrs,
             dependents, observers, dependencies, l, key,
             RecordType, AttributeErrorsType;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
@@ -94,7 +94,7 @@ var RecordAttribute = Class({
     },
 
     __teardownProperty__: function ( metadata, propKey, object ) {
-        var attrs = metadata.attrs;
+        let attrs = metadata.attrs;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = Object.create( attrs );
         }
@@ -302,10 +302,10 @@ var RecordAttribute = Class({
             {*} The attribute.
     */
     call: function ( record, propValue, propKey ) {
-        var store = record.get( 'store' );
-        var storeKey = record.get( 'storeKey' );
-        var data = storeKey ? store.getData( storeKey ) : record._data;
-        var attrKey, attrValue, currentAttrValue, update, Type;
+        const store = record.get( 'store' );
+        const storeKey = record.get( 'storeKey' );
+        const data = storeKey ? store.getData( storeKey ) : record._data;
+        let attrKey, attrValue, currentAttrValue, update, Type;
         if ( data ) {
             attrKey = this.key || propKey;
             currentAttrValue = data[ attrKey ];

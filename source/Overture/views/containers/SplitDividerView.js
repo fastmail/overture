@@ -7,8 +7,8 @@ import Draggable from '../../drag-drop/Draggable.js';
 
 import SplitViewController from './SplitViewController.js';
 
-var VERTICAL = SplitViewController.VERTICAL;
-var TOP_LEFT = SplitViewController.TOP_LEFT;
+const VERTICAL = SplitViewController.VERTICAL;
+const TOP_LEFT = SplitViewController.TOP_LEFT;
 
 /**
     Class: O.SplitDividerView
@@ -21,7 +21,7 @@ var TOP_LEFT = SplitViewController.TOP_LEFT;
     controllered by an <O.SplitViewController> instance. It can be dragged to
     resize the static pane in the split view.
 */
-var SplitDividerView = Class({
+const SplitDividerView = Class({
 
     Extends: View,
 
@@ -104,8 +104,8 @@ var SplitDividerView = Class({
         (top/left/bottom/right).
     */
     anchor: function () {
-        var flexTL = this.get( 'flex' ) === TOP_LEFT,
-            isVertical = this.get( 'direction' ) === VERTICAL;
+        const flexTL = this.get( 'flex' ) === TOP_LEFT;
+        const isVertical = this.get( 'direction' ) === VERTICAL;
         return isVertical ?
             ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
     }.property( 'flex', 'direction' ),
@@ -127,8 +127,8 @@ var SplitDividerView = Class({
         direction, anchor, thickness and offset properties.
     */
     layout: function () {
-        var thickness = this.get( 'thickness' ),
-            styles;
+        const thickness = this.get( 'thickness' );
+        let styles;
         if ( this.get( 'direction' ) === VERTICAL ) {
             styles = {
                 top: 0,
@@ -167,10 +167,10 @@ var SplitDividerView = Class({
             drag - {O.Drag} The drag instance.
     */
     dragMoved: function ( drag ) {
-        var dir = this._dir,
-            delta = drag.get( 'cursorPosition' )[ dir ] -
-                drag.get( 'startPosition' )[ dir ],
-            sign = this.get( 'flex' ) === TOP_LEFT ? -1 : 1;
+        const dir = this._dir;
+        const delta = drag.get( 'cursorPosition' )[ dir ] -
+            drag.get( 'startPosition' )[ dir ];
+        const sign = this.get( 'flex' ) === TOP_LEFT ? -1 : 1;
 
         this.set( 'offset',
             ( this._offset + ( sign * delta ) )

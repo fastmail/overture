@@ -1,6 +1,6 @@
 import './Core.js';  // For Function#implement
 
-var splitter =
+const splitter =
     /%(\+)?(?:'(.))?(-)?(\d+)?(?:\.(\d+))?(?:\$(\d+))?([%sn@])/g;
 
 String.implement({
@@ -44,7 +44,7 @@ String.implement({
         // Reset RegExp.
         splitter.lastIndex = 0;
 
-        var output = '',
+        let output = '',
             i = 0,
             argIndex = 1,
             part, data, toInsert, padLength, padChar, padding;
@@ -123,7 +123,7 @@ String.implement({
             {String} The repeated string.
     */
     repeat: function ( n ) {
-        var string = this,
+        let string = this,
             output = '';
         while ( n ) {
             if ( n % 2 === 1 ) {
@@ -240,11 +240,11 @@ String.implement({
             {Number} The hash. This is a *signed* 32-bit int.
     */
     hash: function () {
-        var hash = this.length,
-            remainder = hash & 1,
-            l = hash - remainder;
+        let hash = this.length;
+        const remainder = hash & 1;
+        const l = hash - remainder;
 
-        for ( var i = 0; i < l; i += 2 ) {
+        for ( let i = 0; i < l; i += 2 ) {
             hash += this.charCodeAt( i );
             hash = ( hash << 16 ) ^
                 ( ( this.charCodeAt( i + 1 ) << 11 ) ^ hash );
@@ -278,14 +278,14 @@ String.implement({
             {String} The 128 bit hash in the form of a hexadecimal string.
     */
     md5: ( function () {
-        var r = [
+        const r = [
             7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
             5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
             4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
             6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
         ];
 
-        var k = [
+        const k = [
             0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
             0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
             0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
@@ -304,8 +304,8 @@ String.implement({
             0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
         ];
 
-        var utf16To8 = function ( string ) {
-            var utf8 = '',
+        const utf16To8 = function ( string ) {
+            let utf8 = '',
                 i, l, c;
             for ( i = 0, l = string.length; i < l; i += 1 ) {
                 c = string.charCodeAt( i );
@@ -323,15 +323,15 @@ String.implement({
             return utf8;
         };
 
-        var stringToWords = function ( string ) {
+        const stringToWords = function ( string ) {
             // Each character is 8 bits. Pack into an array of 32 bit numbers
             // then pad the end as specified by the MD5 standard: a single one
             // bit followed by as many zeros as need to make the length in bits
             // === 448 mod 512, then finally the length of the input, in bits,
             // as a 64 bit little-endian long int.
-            var length = string.length,
-                blocks = [ 0 ],
-                i, j, k, padding;
+            const length = string.length;
+            const blocks = [ 0 ];
+            let i, j, k;
             for ( i = 0, j = 0, k = 0; j < length; j += 1 ) {
                 blocks[i] |= string.charCodeAt( j ) << k;
                 k += 8;
@@ -343,7 +343,7 @@ String.implement({
             blocks[i] |= 0x80 << k;
             i += 1;
 
-            padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
+            const padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
             for ( ; i < padding ; i += 1 ) {
                 blocks[i] = 0;
             }
@@ -356,19 +356,19 @@ String.implement({
         };
 
         // Add unsigned 32 bit ints with overflow.
-        var add = function ( a, b ) {
-            var lsw = ( a & 0xffff ) + ( b & 0xffff ),
-                msw = ( a >> 16 ) + ( b >> 16 ) + ( lsw >> 16 );
+        const add = function ( a, b ) {
+            const lsw = ( a & 0xffff ) + ( b & 0xffff );
+            const msw = ( a >> 16 ) + ( b >> 16 ) + ( lsw >> 16 );
             return ( msw << 16 ) | ( lsw & 0xffff );
         };
 
-        var leftRotate = function ( a, b ) {
+        const leftRotate = function ( a, b ) {
             return ( a << b ) | ( a >>> ( 32 - b ) );
         };
 
-        var hexCharacters = '0123456789abcdef';
-        var hex = function ( number ) {
-            var string = '',
+        const hexCharacters = '0123456789abcdef';
+        const hex = function ( number ) {
+            let string = '',
                 i;
             for ( i = 0; i < 32; i += 8 ) {
                 string += hexCharacters[ ( number >> i + 4 ) & 0xf ];
@@ -378,20 +378,20 @@ String.implement({
         };
 
         return function () {
-            var words = stringToWords( utf16To8( this ) ),
-                h0 = 0x67452301,
-                h1 = 0xEFCDAB89,
-                h2 = 0x98BADCFE,
-                h3 = 0x10325476,
-                i, j, l, a, b, c, d, f, g, temp;
+            const words = stringToWords( utf16To8( this ) );
+            let h0 = 0x67452301;
+            let h1 = 0xEFCDAB89;
+            let h2 = 0x98BADCFE;
+            let h3 = 0x10325476;
 
-            for ( j = 0, l = words.length; j < l; j += 16 ) {
-                a = h0;
-                b = h1;
-                c = h2;
-                d = h3;
+            for ( let j = 0, l = words.length; j < l; j += 16 ) {
+                let a = h0;
+                let b = h1;
+                let c = h2;
+                let d = h3;
+                let f, g, temp;
 
-                for ( i = 0; i < 64; i += 1 ) {
+                for ( let i = 0; i < 64; i += 1 ) {
                     if ( i < 16 ) {
                         f = ( b & c ) | ( (~b) & d );
                         g = i;

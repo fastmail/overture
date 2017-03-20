@@ -2,7 +2,7 @@ import { Class } from '../../core/Core.js';
 
 import UndoManager from './UndoManager.js';
 
-var StoreUndoManager = Class({
+const StoreUndoManager = Class({
 
     Extends: UndoManager,
 
@@ -25,16 +25,15 @@ var StoreUndoManager = Class({
     },
 
     getUndoData: function () {
-        var store = this.get( 'store' );
+        const store = this.get( 'store' );
         return store.checkForChanges().get( 'hasChanges' ) ?
             store.getInverseChanges() : null;
     },
 
     applyChange: function ( data ) {
-        var store = this.get( 'store' ),
-            inverse;
+        const store = this.get( 'store' );
         store.applyChanges( data );
-        inverse = store.getInverseChanges();
+        const inverse = store.getInverseChanges();
         store.commitChanges();
         return inverse;
     },

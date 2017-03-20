@@ -10,26 +10,26 @@ import getFromPath from './getFromPath.js';
     coding and observation as well as bindings and a run loop.
 */
 
-var slice = Array.prototype.slice;
+const slice = Array.prototype.slice;
 
-var makeComputedDidChange = function ( key ) {
+const makeComputedDidChange = function ( key ) {
     return function () {
         this.computedPropertyDidChange( key );
     };
 };
 
-var setupComputed = function ( metadata, key, obj ) {
-    var dependencies = this.dependencies,
-        dependents = metadata.dependents,
-        l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
+const setupComputed = function ( metadata, key, obj ) {
+    const dependencies = this.dependencies;
+    let dependents = metadata.dependents;
+    let method, pathObservers, methodObservers;
 
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
         dependents = metadata.dependents = clone( dependents );
         metadata.allDependents = {};
     }
-    l = dependencies.length;
+    let l = dependencies.length;
     while ( l-- ) {
-        valueThisKeyDependsOn = dependencies[l];
+        const valueThisKeyDependsOn = dependencies[l];
         if ( valueThisKeyDependsOn.indexOf( '.' ) === -1 ) {
             ( dependents[ valueThisKeyDependsOn ] ||
                 ( dependents[ valueThisKeyDependsOn ] = [] ) ).push( key );
@@ -61,18 +61,18 @@ var setupComputed = function ( metadata, key, obj ) {
     }
 };
 
-var teardownComputed = function ( metadata, key ) {
-    var dependencies = this.dependencies,
-        dependents = metadata.dependents,
-        l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
+const teardownComputed = function ( metadata, key ) {
+    const dependencies = this.dependencies;
+    let dependents = metadata.dependents;
+    let method, pathObservers, methodObservers;
 
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
         dependents = metadata.dependents = clone( dependents );
         metadata.allDependents = {};
     }
-    l = dependencies.length;
+    let l = dependencies.length;
     while ( l-- ) {
-        valueThisKeyDependsOn = dependencies[l];
+        const valueThisKeyDependsOn = dependencies[l];
         if ( valueThisKeyDependsOn.indexOf( '.' ) === -1 ) {
             dependents[ valueThisKeyDependsOn ].erase( key );
         } else {
@@ -192,12 +192,12 @@ Function.implement({
     Returns:
         {String[]} The results array.
 */
-var computeDependentKeys = function ( cache, key, results ) {
-    var dependents = cache[ key ];
+const computeDependentKeys = function ( cache, key, results ) {
+    const dependents = cache[ key ];
     if ( dependents ) {
-        var l = dependents.length;
+        let l = dependents.length;
         while ( l-- ) {
-            var dependentKey = dependents[l];
+            const dependentKey = dependents[l];
             // May be multiple ways to get to this dependency.
             if ( results.indexOf( dependentKey ) === -1 ) {
                 results.push( dependentKey );
@@ -222,7 +222,7 @@ export default {
             {Array} Returns the list of dependents (may be empty).
     */
     propertiesDependentOnKey: function ( key ) {
-        var metadata = meta( this );
+        const metadata = meta( this );
         return metadata.allDependents[ key ] ||
             ( metadata.allDependents[ key ] =
                 computeDependentKeys( metadata.dependents, key, [] ) );
@@ -242,9 +242,9 @@ export default {
             {O.ComputedProps} Returns self.
     */
     propertyDidChange: function ( key/*, oldValue, newValue*/ ) {
-        var dependents = this.propertiesDependentOnKey( key ),
-            l = dependents.length,
-            cache = meta( this ).cache;
+        const dependents = this.propertiesDependentOnKey( key );
+        let l = dependents.length;
+        const cache = meta( this ).cache;
         while ( l-- ) {
             delete cache[ dependents[l] ];
         }
@@ -265,8 +265,8 @@ export default {
             {O.ComputedProps} Returns self.
     */
     computedPropertyDidChange: function ( key, newValue ) {
-        var cache = meta( this ).cache,
-            oldValue = cache[ key ];
+        const cache = meta( this ).cache;
+        const oldValue = cache[ key ];
         delete cache[ key ];
         if ( newValue !== undefined ) {
             cache[ key ] = newValue;
@@ -308,7 +308,7 @@ export default {
             {O.ComputedProps} Returns self.
     */
     set: function ( key, value ) {
-        var oldValue = this[ key ],
+        let oldValue = this[ key ],
             silent, cache;
         if ( oldValue && oldValue.isProperty ) {
             silent = !!oldValue.isSilent;
@@ -344,13 +344,12 @@ export default {
             {*} The value of the property.
     */
     get: function ( key ) {
-        var value = this[ key ],
-            cache;
+        const value = this[ key ];
         if ( value && value.isProperty ) {
             if ( value.isVolatile ) {
                 return value.call( this, undefined, key );
             }
-            cache = meta( this ).cache;
+            const cache = meta( this ).cache;
             return ( key in cache ) ? cache[ key ] :
                 ( cache[ key ] = value.call( this, undefined, key ) );
         }

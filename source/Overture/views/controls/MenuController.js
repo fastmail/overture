@@ -14,7 +14,7 @@ import PopOverView from '../panels/PopOverView.js';
 // isHidden: Boolean
 // isDisabled: Boolean
 
-var MenuController = Class({
+const MenuController = Class({
 
     Extends: Object,
 
@@ -29,15 +29,14 @@ var MenuController = Class({
     focussedOption: null,
 
     getAdjacentOption: function ( step ) {
-        var options = this.get( 'options' ),
-            l = options.get( 'length' ),
-            i = options.indexOf( this.get( 'focussedOption' ) ),
-            current;
+        const options = this.get( 'options' );
+        const l = options.get( 'length' );
+        let i = options.indexOf( this.get( 'focussedOption' ) );
 
         if ( i < 0 && step < 0 ) {
             i = l;
         }
-        current = i.mod( l );
+        const current = i.mod( l );
 
         do {
             i = ( i + step ).mod( l );
@@ -58,7 +57,7 @@ var MenuController = Class({
     },
 
     focusOption: function ( option ) {
-        var current = this.get( 'focussedOption' );
+        const current = this.get( 'focussedOption' );
         if ( current !== option ) {
             if ( current ) {
                 current.set( 'isFocussed', false );
@@ -84,7 +83,7 @@ var MenuController = Class({
 
     selectFocussed: function ( event ) {
         if ( event ) { event.preventDefault(); }
-        var focussedOption = this.get( 'focussedOption' );
+        const focussedOption = this.get( 'focussedOption' );
         if ( focussedOption && this.canSelect( focussedOption ) ) {
             focussedOption.activate( this );
         }
@@ -96,11 +95,11 @@ var MenuController = Class({
     filter: '',
 
     filterDidChange: function () {
-        var value = this.get( 'filter' ),
-            pattern = value ? i18n.makeSearchRegExp( value ) : null,
-            options = this.get( 'options' ),
-            l = options.get( 'length' ),
-            focussedOption = this.get( 'focussedOption' );
+        const value = this.get( 'filter' );
+        const pattern = value ? i18n.makeSearchRegExp( value ) : null;
+        const options = this.get( 'options' );
+        let l = options.get( 'length' );
+        const focussedOption = this.get( 'focussedOption' );
 
         while ( l-- ) {
             options.getObjectAt( l ).filter( pattern );
@@ -122,8 +121,8 @@ var MenuController = Class({
     },
 
     triggerKeyBinding: function ( event ) {
-        var key = DOMEvent.lookupKey( event ),
-            bindings = this.get( 'keyBindings' );
+        const key = DOMEvent.lookupKey( event );
+        const bindings = this.get( 'keyBindings' );
         if ( bindings[ key ] ) {
             event.stopPropagation();
             this[ bindings[ key ] ]( event, key );
@@ -132,7 +131,7 @@ var MenuController = Class({
 
     onEscape: function ( event ) {
         event.preventDefault();
-        var filter = this.get( 'filter' );
+        const filter = this.get( 'filter' );
         if ( filter ) {
             this.set( 'filter', '' );
         } else {
@@ -141,8 +140,8 @@ var MenuController = Class({
     },
 
     closeIfSub: function () {
-        var view = this.get( 'view' ),
-            popOverView;
+        const view = this.get( 'view' );
+        let popOverView;
         if ( !view.get( 'showFilter' ) &&
                 ( popOverView = view.getParent( PopOverView ) ) &&
                   popOverView.get( 'parentPopOverView' ) ) {
@@ -151,7 +150,7 @@ var MenuController = Class({
     },
 
     activateIfMenu: function () {
-        var focussedOption = this.get( 'focussedOption' );
+        const focussedOption = this.get( 'focussedOption' );
         if ( focussedOption &&
                 focussedOption.get( 'button' ) instanceof MenuButtonView ) {
             this.selectFocussed();

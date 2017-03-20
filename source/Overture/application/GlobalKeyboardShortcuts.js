@@ -6,19 +6,19 @@ import DOMEvent from '../dom/DOMEvent.js';
 import RichTextView from '../views/controls/RichTextView.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 
-var isMac = UA.isMac;
-var allowedInputs = {
+const isMac = UA.isMac;
+const allowedInputs = {
     checkbox: 1,
     radio: 1,
     file: 1,
     submit: 1,
 };
 
-var DEFAULT_IN_INPUT = 0;
-var ACTIVE_IN_INPUT = 1;
-var DISABLE_IN_INPUT = 2;
+const DEFAULT_IN_INPUT = 0;
+const ACTIVE_IN_INPUT = 1;
+const DISABLE_IN_INPUT = 2;
 
-var handleOnDown = {};
+const handleOnDown = {};
 
 /**
     Class: O.GlobalKeyboardShortcuts
@@ -27,7 +27,7 @@ var handleOnDown = {};
 
     This class facilitates adding keyboard shortcuts to your application.
 */
-var GlobalKeyboardShortcuts = Class({
+const GlobalKeyboardShortcuts = Class({
 
     Extends: Object,
 
@@ -105,7 +105,7 @@ var GlobalKeyboardShortcuts = Class({
     */
     register: function ( key, object, method, ifInput ) {
         key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
-        var shortcuts = this._shortcuts;
+        const shortcuts = this._shortcuts;
         ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
             .push([ object, method, ifInput || DEFAULT_IN_INPUT ]);
         return this;
@@ -127,12 +127,11 @@ var GlobalKeyboardShortcuts = Class({
    */
     deregister: function ( key, object, method ) {
         key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
-        var current = this._shortcuts[ key ],
-            length = current ? current.length : 0,
-            l = length,
-            item;
+        const current = this._shortcuts[ key ];
+        const length = current ? current.length : 0;
+        let l = length;
         while ( l-- ) {
-            item = current[l];
+            const item = current[l];
             if ( item[0] === object && item[1] === method ) {
                 if ( length === 1 ) {
                     delete this._shortcuts[ key ];
@@ -158,7 +157,7 @@ var GlobalKeyboardShortcuts = Class({
             the event, or null if nothing is registered for this key press.
    */
     getHandlerForKey: function ( key ) {
-        var shortcuts = this._shortcuts[ key ];
+        const shortcuts = this._shortcuts[ key ];
         if ( shortcuts && this.get( 'isEnabled' ) ) {
             return shortcuts[ shortcuts.length - 1 ];
         }
@@ -174,25 +173,24 @@ var GlobalKeyboardShortcuts = Class({
             event - {DOMEvent} The keydown/keypress event.
    */
     trigger: function ( event ) {
-        var target = event.target;
-        var nodeName = target.nodeName;
-        var isSpecialKey = event.ctrlKey || event.metaKey;
-        var inputIsFocused = (
+        const target = event.target;
+        const nodeName = target.nodeName;
+        const isSpecialKey = event.ctrlKey || event.metaKey;
+        const inputIsFocused = (
             nodeName === 'TEXTAREA' ||
             nodeName === 'SELECT' ||
             ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
             ( event.targetView instanceof RichTextView )
         );
-        var handler, key, ifInput;
-        key = DOMEvent.lookupKey( event );
+        const key = DOMEvent.lookupKey( event );
         if ( event.type === 'keydown' ) {
             handleOnDown[ key ] = true;
         } else if ( handleOnDown[ key ] ) {
             return;
         }
-        handler = this.getHandlerForKey( key );
+        const handler = this.getHandlerForKey( key );
         if ( handler ) {
-            ifInput = handler[2];
+            const ifInput = handler[2];
             if ( inputIsFocused && ifInput !== ACTIVE_IN_INPUT &&
                     ( !isSpecialKey || ifInput === DISABLE_IN_INPUT ) ) {
                 return;

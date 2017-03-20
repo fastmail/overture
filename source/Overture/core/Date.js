@@ -4,15 +4,15 @@ import './Number.js';  // For Number#mod
 // See the note in Core.js for a phony explanation of why this is OK.
 import { i18n } from '../localisation/LocaleController.js';
 
-var isLeapYear = function ( year ) {
+const isLeapYear = function ( year ) {
     return (
         ( ( year % 4 === 0 ) && ( year % 100 !== 0 ) ) || ( year % 400 === 0 )
     );
 };
-var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+const daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 
 // eslint-disable-next-line max-len
-var dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
+const dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
 Date.extend({
     fromJSON: function ( value ) {
@@ -45,7 +45,7 @@ Date.extend({
                 )?
             )?$/;
         */
-        var results = value ? dateFormat.exec( value ) : null;
+        const results = value ? dateFormat.exec( value ) : null;
         return results ?
             new Date( Date.UTC(
                 +results[1] || 0,            // Year
@@ -76,13 +76,13 @@ Date.extend({
     isLeapYear: isLeapYear,
 });
 
-var pad = function ( num, nopad, character ) {
+const pad = function ( num, nopad, character ) {
     return ( nopad || num > 9 ) ? num : ( character || '0' ) + num;
 };
 
-var aDay = 86400000; // milliseconds in a day
+const aDay = 86400000; // milliseconds in a day
 
-var duration = {
+const duration = {
     second: 1000,
     minute: 60000,
     hour: 3600000,
@@ -101,10 +101,10 @@ Date.implement({
             {Boolean} Is the date today?
     */
     isToday: function ( utc ) {
-        var now = new Date(),
-            date = now.getDate(),
-            month = now.getMonth(),
-            year = now.getFullYear();
+        const now = new Date();
+        const date = now.getDate();
+        const month = now.getMonth();
+        const year = now.getFullYear();
         return utc ?
             this.getUTCFullYear() === year &&
             this.getUTCMonth() === month &&
@@ -155,9 +155,9 @@ Date.implement({
             {String} Localised day name.
     */
     getDayName: function ( abbreviate, utc ) {
-        var names = i18n && i18n.get(
-                ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' ),
-            day = utc ? this.getUTCDay() : this.getDay();
+        const names = i18n && i18n.get(
+                ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' );
+        const day = utc ? this.getUTCDay() : this.getDay();
         return names ? names[ day ] : day;
     },
 
@@ -178,9 +178,9 @@ Date.implement({
             {String} Localised month name.
     */
     getMonthName: function ( abbreviate, utc ) {
-        var names = i18n && i18n.get(
-                ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' ),
-            day = utc ? this.getUTCMonth() : this.getMonth();
+        const names = i18n && i18n.get(
+                ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' );
+        const day = utc ? this.getUTCMonth() : this.getMonth();
         return names ? names[ day ] : day;
     },
 
@@ -197,7 +197,7 @@ Date.implement({
             {Number} The day of the year (1--366).
     */
     getDayOfYear: function ( utc ) {
-        var beginningOfYear = utc ?
+        const beginningOfYear = utc ?
             Date.UTC( this.getUTCFullYear(), 0, 1 ) :
             +new Date( this.getFullYear(), 0, 1 );
         return ~~( ( this.getTime() - beginningOfYear ) / aDay ) + 1;
@@ -222,9 +222,9 @@ Date.implement({
             {Number} The week of the year (0--53).
     */
     getWeekNumber: function ( firstDayOfWeek, utc ) {
-        var day = utc ? this.getUTCDay() : this.getDay(),
-            dayOfYear = this.getDayOfYear( utc ) - 1, // Day of the year 0-index
-            daysToNext = ( ( firstDayOfWeek || 0 ) - day ).mod( 7 ) || 7;
+        const day = utc ? this.getUTCDay() : this.getDay();
+        const dayOfYear = this.getDayOfYear( utc ) - 1; // 0-indexed
+        const daysToNext = ( ( firstDayOfWeek || 0 ) - day ).mod( 7 ) || 7;
         return Math.floor( ( dayOfYear + daysToNext ) / 7 );
     },
 
@@ -260,18 +260,18 @@ Date.implement({
         if ( firstDayOfWeek == null ) { firstDayOfWeek = 1; }
 
         // 4th January is always in week 1.
-        var jan4 = utc ?
+        const jan4 = utc ?
                 new Date( Date.UTC( this.getUTCFullYear(), 0, 4 ) ) :
-                new Date( this.getFullYear(), 0, 4 ),
-            jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay(),
-            // Find Monday before 4th Jan
-            wk1Start = jan4 - ( jan4WeekDay - firstDayOfWeek ).mod( 7 ) * aDay,
-            // Week No == How many weeks have past since then, + 1.
-            week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1,
-            date, day;
+                new Date( this.getFullYear(), 0, 4 );
+        const jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay();
+        // Find Monday before 4th Jan
+        const wk1Start = jan4 - ( jan4WeekDay - firstDayOfWeek )
+                .mod( 7 ) * aDay;
+        // Week No == How many weeks have past since then, + 1.
+        let week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1;
         if ( week === 53 ) {
-            date = utc ? this.getUTCDate() : this.getDate();
-            day = utc ? this.getUTCDay() : this.getDay();
+            const date = utc ? this.getUTCDate() : this.getDate();
+            const day = utc ? this.getUTCDay() : this.getDay();
             // First day of week must be no greater than 28th December
             if ( date - ( day - firstDayOfWeek ).mod( 7 ) > 28 ) {
                 week = 1;
@@ -386,11 +386,11 @@ Date.implement({
             {String} The formatted date string.
     */
     format: function ( format, utc ) {
-        var date = this;
+        const date = this;
         return format ?
             format.replace(/%(-)?([%A-Za-z])/g,
                 function ( string, nopad, character ) {
-            var num, str;
+            let num, str;
             switch ( character ) {
             case 'a':
                 // Abbreviated day of the week, e.g. 'Mon'.

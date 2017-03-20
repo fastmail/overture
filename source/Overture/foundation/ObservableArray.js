@@ -5,8 +5,8 @@ import Enumerable from './Enumerable.js';
 import MutableEnumerable from './MutableEnumerable.js';
 import './ComputedProps.js';  // For Function#property
 
-var splice = Array.prototype.splice;
-var slice = Array.prototype.slice;
+const splice = Array.prototype.splice;
+const slice = Array.prototype.slice;
 
 /**
     Class: O.ObservableArray
@@ -20,7 +20,7 @@ var slice = Array.prototype.slice;
     observed. Note, all access must be via getObjectAt/setObjectAt, not direct
     array[i].
 */
-var ObservableArray = Class({
+const ObservableArray = Class({
 
     Extends: Object,
 
@@ -52,11 +52,11 @@ var ObservableArray = Class({
     */
     '[]': function ( array ) {
         if ( array ) {
-            var oldArray = this._array,
-                oldLength = this._length,
-                newLength = array.length,
-                start = 0,
-                end = newLength;
+            const oldArray = this._array;
+            const oldLength = this._length;
+            const newLength = array.length;
+            let start = 0;
+            let end = newLength;
 
             this._array = array;
             this._length = newLength;
@@ -66,7 +66,7 @@ var ObservableArray = Class({
                 start += 1;
             }
             if ( newLength === oldLength ) {
-                var last = end - 1;
+                let last = end - 1;
                 while ( ( end > start ) &&
                         ( array[ last ] === oldArray[ last ] ) ) {
                     end = last;
@@ -106,7 +106,7 @@ var ObservableArray = Class({
         The length of the array.
     */
     length: function ( value ) {
-        var length = this._length;
+        let length = this._length;
         if ( typeof value === 'number' && value !== length ) {
             this._array.length = value;
             this._length = value;
@@ -132,7 +132,7 @@ var ObservableArray = Class({
     */
     setObjectAt: function ( index, value ) {
         this._array[ index ] = value;
-        var length = this._length;
+        const length = this._length;
         if ( length <= index ) {
             this._length = index + 1;
             this.propertyDidChange( 'length', length, index + 1 );
@@ -156,21 +156,22 @@ var ObservableArray = Class({
             {Array} Returns an array of the removed objects.
     */
     replaceObjectsAt: function ( index, numberRemoved, newItems ) {
-        var oldLength = this._length,
-            array = this._array,
-            removed, newLength, i, l;
+        const oldLength = this._length;
+        const array = this._array;
+        let removed;
 
         newItems = newItems ? slice.call( newItems ) : [];
 
         if ( oldLength <= index ) {
-            for ( i = 0, l = newItems.length; i < l; i += 1 ) {
+            const l = newItems.length;
+            for ( let i = 0; i < l; i += 1 ) {
                 array[ index + i ] = newItems[i];
             }
         } else {
             newItems.unshift( index, numberRemoved );
             removed = splice.apply( array, newItems );
         }
-        newLength = array.length;
+        const newLength = array.length;
         if ( oldLength !== newLength ) {
             this._length = newLength;
             this.propertyDidChange( 'length', oldLength, newLength );
@@ -229,10 +230,10 @@ var ObservableArray = Class({
             {Array} Returns new concatenated array.
     */
     concat: function () {
-        var args = [],
-            i, l, item;
-        for ( i = 0, l = arguments.length; i < l; i += 1 ) {
-            item = arguments[i];
+        const args = [];
+        const l = arguments.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const item = arguments[i];
             args[i] = item instanceof ObservableArray ? item._array : item;
         }
         return Array.prototype.concat.apply( this._array, args );

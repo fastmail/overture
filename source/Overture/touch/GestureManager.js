@@ -4,7 +4,7 @@ import '../core/Array.js';  // For Array#erase
 import Object from '../foundation/Object.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 
-var GestureManager = new Object({
+const GestureManager = new Object({
 
     _gestures: [],
 
@@ -20,8 +20,8 @@ var GestureManager = new Object({
 
     fire: function ( type, event ) {
         if ( /^touch/.test( type ) ) {
-            var gestures = this._gestures,
-                l = gestures.length;
+            const gestures = this._gestures;
+            let l = gestures.length;
             type = type.slice( 5 );
             while ( l-- ) {
                 gestures[l][ type ]( event );

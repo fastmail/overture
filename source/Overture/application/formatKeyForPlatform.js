@@ -1,8 +1,8 @@
 import '../core/String.js';  // For String#capitalise
 import UA from '../ua/UA.js';
 
-var isMac = UA.isMac;
-var platformKeys = {
+const isMac = UA.isMac;
+const platformKeys = {
     alt: isMac ? '⌥' : 'Alt-',
     cmd: isMac ? '⌘' : 'Ctrl-',
     meta: isMac ? '⌘' : 'Meta-',

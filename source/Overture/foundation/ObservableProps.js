@@ -1,16 +1,16 @@
 import { meta } from '../core/Core.js';  // Also Function#implement
 import Binding from './Binding.js';
 
-var setupObserver = function ( metadata, method ) {
-    var observes = this.observedProperties,
-        observers = metadata.observers,
-        l = observes.length,
-        key, keyObservers, pathObservers;
+const setupObserver = function ( metadata, method ) {
+    const observes = this.observedProperties;
+    const observers = metadata.observers;
+    let l = observes.length;
+    let pathObservers;
 
     while ( l-- ) {
-        key = observes[l];
+        const key = observes[l];
         if ( key.indexOf( '.' ) === -1 ) {
-            keyObservers = observers[ key ];
+            let keyObservers = observers[ key ];
             if ( !observers.hasOwnProperty( key ) ) {
                 keyObservers = observers[ key ] = keyObservers ?
                     keyObservers.slice() : [];
@@ -36,22 +36,22 @@ var setupObserver = function ( metadata, method ) {
     }
 };
 
-var teardownObserver = function ( metadata, method ) {
-    var observes = this.observedProperties,
-        observers = metadata.observers,
-        l = observes.length,
-        key, keyObservers, observer, j, pathObservers;
+const teardownObserver = function ( metadata, method ) {
+    const observes = this.observedProperties;
+    const observers = metadata.observers;
+    let l = observes.length;
+    let pathObservers;
 
     while ( l-- ) {
-        key = observes[l];
+        const key = observes[l];
         if ( key.indexOf( '.' ) === -1 ) {
-            keyObservers = observers[ key ];
+            let keyObservers = observers[ key ];
             if ( !observers.hasOwnProperty( key ) ) {
                 keyObservers = observers[ key ] = keyObservers.slice();
             }
-            j = keyObservers.length;
+            let j = keyObservers.length;
             while ( j-- ) {
-                observer = keyObservers[j];
+                const observer = keyObservers[j];
                 if ( observer.object === null &&
                         observer.method === method ) {
                     keyObservers.splice( j, 1 );
@@ -90,9 +90,9 @@ Function.implement({
             {Function} Returns self.
      */
     observes: function () {
-        var properties = ( this.observedProperties ||
-            ( this.observedProperties = [] ) ),
-            l = arguments.length;
+        const properties = ( this.observedProperties ||
+            ( this.observedProperties = [] ) );
+        let l = arguments.length;
         while ( l-- ) {
             properties.push( arguments[l] );
         }
@@ -111,13 +111,12 @@ Function.implement({
         obj    - {Object} The object to setup/teardown path observers for.
         method - {String} Either 'addObserverForPath' or 'removeObserverForPath'
 */
-var _setupTeardownPaths = function ( obj, method ) {
-    var pathObservers = meta( obj ).pathObservers,
-        key, paths, l;
-    for ( key in pathObservers ) {
-        paths = pathObservers[ key ];
+const _setupTeardownPaths = function ( obj, method ) {
+    const pathObservers = meta( obj ).pathObservers;
+    for ( const key in pathObservers ) {
+        const paths = pathObservers[ key ];
         if ( paths ) {
-            l = paths.length;
+            let l = paths.length;
             while ( l-- ) {
                 obj[ method ]( paths[l], obj, key );
             }
@@ -140,21 +139,21 @@ var _setupTeardownPaths = function ( obj, method ) {
         oldValue - {*} The old value for the property.
         newValue - {*} The new value for the property.
 */
-var _notifyObserversOfKey =
+const _notifyObserversOfKey =
         function ( that, metadata, key, oldValue, newValue ) {
-    var observers = metadata.observers[ key ],
-        isInitialised = metadata.isInitialised,
-        haveCheckedForNew = false,
-        observer, object, method, path, l;
+    let observers = metadata.observers[ key ];
+    let l;
     if ( observers && ( l = observers.length ) ) {
+        const isInitialised = metadata.isInitialised;
+        let haveCheckedForNew = false;
         // Remember, observers may be removed (or possibly added, but that's
         // less likely) during the iterations. Clone array before iterating
         // to avoid the problem.
         observers = observers.slice();
         while ( l-- ) {
-            observer = observers[l];
-            object = observer.object || that;
-            method = observer.method;
+            const observer = observers[l];
+            const object = observer.object || that;
+            const method = observer.method;
             // During initialisation, this method is only called when a
             // binding syncs. We want to give the illusion of the bound
             // properties being present on the object from the beginning, so
@@ -163,6 +162,7 @@ var _notifyObserversOfKey =
             // another binding that is bound to this one, we need to notify
             // that to ensure it syncs the correct initial value.
             // We also need to set up any path observers correctly.
+            let path;
             if ( isInitialised ) {
                 if ( path = observer.path ) {
                     // If it's a computed property we don't really want to call
@@ -214,13 +214,12 @@ var _notifyObserversOfKey =
         changed  - {Object} A map of property names to another object. This
                    object has an oldValue and possibly a newValue property.
 */
-var _notifyGenericObservers = function ( that, metadata, changed ) {
-    var observers = metadata.observers[ '*' ],
-        observer, l;
+const _notifyGenericObservers = function ( that, metadata, changed ) {
+    const observers = metadata.observers[ '*' ];
     if ( observers ) {
-        l = observers.length;
+        let l = observers.length;
         while ( l-- ) {
-            observer = observers[l];
+            const observer = observers[l];
             ( observer.object || that )[ observer.method ]( that, changed );
         }
     }
@@ -270,13 +269,12 @@ export default {
             {Boolean} Does the object have any observers?
     */
     hasObservers: function () {
-        var observers = meta( this ).observers,
-            key, keyObservers, l, object;
-        for ( key in observers ) {
-            keyObservers = observers[ key ];
-            l = keyObservers.length;
+        const observers = meta( this ).observers;
+        for ( const key in observers ) {
+            const keyObservers = observers[ key ];
+            let l = keyObservers.length;
             while ( l-- ) {
-                object = keyObservers[l].object;
+                const object = keyObservers[l].object;
                 if ( object && object !== this &&
                         // Ignore bindings that belong to the object.
                         !( ( object instanceof Binding ) &&
@@ -317,13 +315,13 @@ export default {
             {O.ObservableProps} Returns self.
     */
     endPropertyChanges: function () {
-        var metadata = meta( this ),
-            changed, key;
+        const metadata = meta( this );
         if ( metadata.depth === 1 ) {
             // Notify observers.
+            let changed;
             while ( changed = metadata.changed ) {
                 metadata.changed = null;
-                for ( key in changed ) {
+                for ( const key in changed ) {
                     _notifyObserversOfKey( this, metadata,
                         key, changed[ key ].oldValue, changed[ key ].newValue );
                 }
@@ -358,23 +356,22 @@ export default {
             {O.ObservableProps} Returns self.
     */
     propertyDidChange: function ( key, oldValue, newValue ) {
-        var metadata = meta( this ),
-            isInitialised = metadata.isInitialised,
-            dependents = isInitialised ?
-                this.propertiesDependentOnKey( key ) : [],
-            l = dependents.length,
-            depth = metadata.depth,
-            hasGenericObservers = metadata.observers[ '*' ],
-            fastPath = !l && !depth && !hasGenericObservers,
-            changed = fastPath ? null : metadata.changed || {},
-            cache = metadata.cache,
-            prop;
+        const metadata = meta( this );
+        const isInitialised = metadata.isInitialised;
+        const dependents = isInitialised ?
+                this.propertiesDependentOnKey( key ) : [];
+        let l = dependents.length;
+        const depth = metadata.depth;
+        const hasGenericObservers = metadata.observers[ '*' ];
+        const fastPath = !l && !depth && !hasGenericObservers;
+        const changed = fastPath ? null : metadata.changed || {};
+        const cache = metadata.cache;
 
         if ( fastPath ) {
             _notifyObserversOfKey( this, metadata, key, oldValue, newValue );
         } else {
             while ( l-- ) {
-                prop = dependents[l];
+                const prop = dependents[l];
                 if ( !changed[ prop ] ) {
                     changed[ prop ] = {
                         oldValue: cache[ prop ],
@@ -392,7 +389,7 @@ export default {
                 metadata.changed = changed;
             } else {
                 // Notify observers of dependent keys.
-                for ( prop in changed ) {
+                for ( const prop in changed ) {
                     _notifyObserversOfKey( this, metadata, prop,
                         changed[ prop ].oldValue, changed[ prop ].newValue );
                 }
@@ -427,8 +424,8 @@ export default {
             {O.ObservableProps} Returns self.
     */
     addObserverForKey: function ( key, object, method ) {
-        var observers = meta( this ).observers,
-            keyObservers = observers[ key ];
+        const observers = meta( this ).observers;
+        let keyObservers = observers[ key ];
         if ( !observers.hasOwnProperty( key ) ) {
             keyObservers = observers[ key ] = keyObservers ?
                 keyObservers.slice() : [];
@@ -454,13 +451,12 @@ export default {
             {O.ObservableProps} Returns self.
     */
     removeObserverForKey: function ( key, object, method ) {
-        var observers = meta( this ).observers,
-            keyObservers = observers[ key ],
-            observer, l;
+        const observers = meta( this ).observers;
+        const keyObservers = observers[ key ];
         if ( keyObservers ) {
-            l = keyObservers.length;
+            let l = keyObservers.length;
             while ( l-- ) {
-                observer = keyObservers[l];
+                const observer = keyObservers[l];
                 if ( observer.object === object &&
                         observer.method === method ) {
                     keyObservers.splice( l, 1 );
@@ -492,16 +488,16 @@ export default {
             {O.ObservableProps} Returns self.
     */
     addObserverForPath: function ( path, object, method ) {
-        var nextDot = path.indexOf( '.' );
+        const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.addObserverForKey( path, object, method );
         }
         else {
-            var key = path.slice( 0, nextDot ),
-                value = this.get( key ),
-                restOfPath = path.slice( nextDot + 1 ),
-                observers = meta( this ).observers,
-                keyObservers = observers[ key ];
+            const key = path.slice( 0, nextDot );
+            const value = this.get( key );
+            const restOfPath = path.slice( nextDot + 1 );
+            const observers = meta( this ).observers;
+            let keyObservers = observers[ key ];
             if ( !observers.hasOwnProperty( key ) ) {
                 keyObservers = observers[ key ] = keyObservers ?
                     keyObservers.slice() : [];
@@ -534,21 +530,20 @@ export default {
             {O.ObservableProps} Returns self.
     */
     removeObserverForPath: function ( path, object, method ) {
-        var nextDot = path.indexOf( '.' );
+        const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.removeObserverForKey( path, object, method );
         }
         else {
-            var key = path.slice( 0, nextDot ),
-                value = this.get( key ),
-                restOfPath = path.slice( nextDot + 1 ),
-                observers = meta( this ).observers[ key ],
-                observer, l;
+            const key = path.slice( 0, nextDot );
+            const value = this.get( key );
+            const restOfPath = path.slice( nextDot + 1 );
+            const observers = meta( this ).observers[ key ];
 
             if ( observers ) {
-                l = observers.length;
+                let l = observers.length;
                 while ( l-- ) {
-                    observer = observers[l];
+                    const observer = observers[l];
                     if ( observer.path === restOfPath &&
                          observer.object === object &&
                          observer.method === method) {

@@ -7,7 +7,7 @@ import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
 import { READY, DESTROYED } from '../record/Status.js';
 
-var numerically = function ( a, b ) {
+const numerically = function ( a, b ) {
     return a - b;
 };
 
@@ -24,7 +24,7 @@ var numerically = function ( a, b ) {
     Normally you will not create a LiveQuery instance yourself but get it by
     retrieving the query from the store.
  */
-var LiveQuery = Class({
+const LiveQuery = Class({
 
     Extends: Object,
 
@@ -99,15 +99,14 @@ var LiveQuery = Class({
             mixin - {Object} The properties for the query.
     */
     init: function ( mixin ) {
-        var Type = mixin.Type,
-            sort = mixin.sort,
-            store = mixin.store || this.store,
-            results;
+        const Type = mixin.Type;
+        let sort = mixin.sort;
+        const store = mixin.store || this.store;
 
         if ( sort && !( sort instanceof Function ) ) {
             sort = mixin.sort = sortByProperties( sort );
         }
-        results = store.findAll( Type, mixin.filter, sort );
+        const results = store.findAll( Type, mixin.filter, sort );
 
         this._storeKeys = results;
         this._sort = results.sortFn;
@@ -157,8 +156,8 @@ var LiveQuery = Class({
         A standard array of record objects for the records in this query.
     */
     '[]': function () {
-        var store = this.get( 'store' ),
-            Type = this.get( 'Type' );
+        const store = this.get( 'store' );
+        const Type = this.get( 'Type' );
         return this._storeKeys.map( function ( storeKey ) {
             return store.materialiseRecord( storeKey, Type );
         });
@@ -188,7 +187,7 @@ var LiveQuery = Class({
             {Number} The index of the store key, or -1 if not found.
     */
     indexOfStoreKey: function ( storeKey, from, callback ) {
-        var index = this._storeKeys.indexOf( storeKey, from );
+        const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             callback( index );
         }
@@ -207,13 +206,11 @@ var LiveQuery = Class({
             {O.Record} The record at index i in this array.
     */
     getObjectAt: function ( index ) {
-        var storeKey = this._storeKeys[ index ],
-            record;
+        const storeKey = this._storeKeys[ index ];
         if ( storeKey ) {
-            record = this.get( 'store' )
+            return this.get( 'store' )
                          .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
-        return record;
     },
 
     /**
@@ -242,10 +239,10 @@ var LiveQuery = Class({
             {O.LiveQuery} Returns self.
     */
     reset: function () {
-        var oldStoreKeys = this._storeKeys,
-            storeKeys = this.get( 'store' ).findAll(
-                this.get( 'Type' ), this.filter, this.sort ),
-            maxLength = Math.max( storeKeys.length, oldStoreKeys.length );
+        const oldStoreKeys = this._storeKeys;
+        const storeKeys = this.get( 'store' ).findAll(
+                this.get( 'Type' ), this.filter, this.sort );
+        const maxLength = Math.max( storeKeys.length, oldStoreKeys.length );
 
         this._storeKeys = storeKeys;
 
@@ -272,24 +269,21 @@ var LiveQuery = Class({
             {Boolean} Was there a change in the query results?
     */
     storeDidChangeRecords: function ( storeKeysOfChanged ) {
-        var filter = this._filter,
-            sort = this._sort,
-            storeKeys = this._storeKeys,
-            added = [], addedIndexes = [],
-            removed = [], removedIndexes = [],
-            oldLength = this.get( 'length' ),
-            store = this.get( 'store' ),
-            i, l, storeKey, index, shouldBeInQuery,
-            newStoreKeys, oi, ri, ai, a, b,
-            addedLength, removedLength, newLength, maxLength;
+        const filter = this._filter;
+        const sort = this._sort;
+        const storeKeys = this._storeKeys;
+        const added = [], addedIndexes = [];
+        const removed = [], removedIndexes = [];
+        const oldLength = this.get( 'length' );
+        const store = this.get( 'store' );
 
         // 1. Find indexes of removed and ids of added
         // If it's changed, it's added to both.
-        l = storeKeysOfChanged.length;
+        let l = storeKeysOfChanged.length;
         while ( l-- ) {
-            storeKey = storeKeysOfChanged[l];
-            index = storeKeys.indexOf( storeKey );
-            shouldBeInQuery = ( store.getStatus( storeKey ) & READY ) &&
+            const storeKey = storeKeysOfChanged[l];
+            const index = storeKeys.indexOf( storeKey );
+            const shouldBeInQuery = ( store.getStatus( storeKey ) & READY ) &&
                 ( !filter || filter( storeKey ) );
             // If in query
             if ( index > -1 ) {
@@ -315,13 +309,14 @@ var LiveQuery = Class({
             }
         }
 
-        removedLength = removedIndexes.length;
-        addedLength = added.length;
+        let newStoreKeys, newLength, maxLength;
+        let removedLength = removedIndexes.length;
+        let addedLength = added.length;
 
         // 2. Sort removed indexes and find removed ids.
         if ( removedLength ) {
             removedIndexes.sort( numerically );
-            for ( i = 0; i < removedLength; i += 1 ) {
+            for ( let i = 0; i < removedLength; i += 1 ) {
                 removed[i] = storeKeys[ removedIndexes[i] ];
             }
         }
@@ -333,14 +328,14 @@ var LiveQuery = Class({
             }
             newLength = oldLength - removedLength + addedLength;
             newStoreKeys = new Array( newLength );
-            for ( i = 0, oi = 0, ri = 0, ai = 0; i < newLength; i += 1 ) {
+            for ( let i = 0, oi = 0, ri = 0, ai = 0; i < newLength; i += 1 ) {
                 while ( ri < removedLength && oi === removedIndexes[ ri ] ) {
                     ri += 1;
                     oi += 1;
                 }
                 if ( sort && oi < oldLength && ai < addedLength ) {
-                    a = storeKeys[ oi ];
-                    b = added[ ai ];
+                    const a = storeKeys[ oi ];
+                    const b = added[ ai ];
                     if ( sort( a, b ) < 0 ) {
                         newStoreKeys[i] = a;
                         oi += 1;
@@ -363,7 +358,7 @@ var LiveQuery = Class({
         // 4. Sort added/addedIndexes arrays by index
         if ( addedLength ) {
             addedIndexes.sort( numerically );
-            for ( i = 0; i < addedLength; i += 1 ) {
+            for ( let i = 0; i < addedLength; i += 1 ) {
                 added[i] = newStoreKeys[ addedIndexes[i] ];
             }
         }

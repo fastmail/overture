@@ -1,4 +1,4 @@
-import DragEffect from './DragEffect.js';
+import * as DragEffect from './DragEffect.js';
 
 /**
     Mixin: O.DropTarget
@@ -62,9 +62,9 @@ export default {
             {Boolean} Can the drag be dropped here?
     */
     willAcceptDrag: function ( drag ) {
-        var acceptedTypes = this.get( 'dropAcceptedDataTypes' ),
-            availableTypes = drag.get( 'dataTypes' ),
-            l = availableTypes.length;
+        const acceptedTypes = this.get( 'dropAcceptedDataTypes' );
+        const availableTypes = drag.get( 'dataTypes' );
+        let l = availableTypes.length;
         while ( l-- ) {
             if ( acceptedTypes[ availableTypes[l] ] ) {
                 return true;

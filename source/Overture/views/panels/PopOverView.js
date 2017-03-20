@@ -9,7 +9,7 @@ import ScrollView from '../containers/ScrollView.js';
 
 import ModalEventHandler from './ModalEventHandler.js';
 
-var PopOverView = Class({
+const PopOverView = Class({
 
     Extends: View,
 
@@ -46,20 +46,19 @@ var PopOverView = Class({
         this._options = options;
 
         // Set layout and insert in the right place
-        var eventHandler = this.get( 'eventHandler' ),
-            view = options.view,
-            alignWithView = options.alignWithView,
-            atNode = options.atNode || alignWithView.get( 'layer' ),
-            atNodeWidth = atNode.offsetWidth,
-            atNodeHeight = atNode.offsetHeight,
-            positionToThe = options.positionToThe || 'bottom',
-            alignEdge = options.alignEdge || 'left',
-            parent = options.inParent,
-            deltaLeft = 0,
-            deltaTop = 0,
-            layout, position, layer,
-            el = Element.create,
-            prop;
+        const eventHandler = this.get( 'eventHandler' );
+        const view = options.view;
+        const alignWithView = options.alignWithView;
+        const atNode = options.atNode || alignWithView.get( 'layer' );
+        let atNodeWidth = atNode.offsetWidth;
+        let atNodeHeight = atNode.offsetHeight;
+        const positionToThe = options.positionToThe || 'bottom';
+        const alignEdge = options.alignEdge || 'left';
+        let parent = options.inParent;
+        let deltaLeft = 0;
+        let deltaTop = 0;
+        const el = Element.create;
+        let prop;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
@@ -74,9 +73,9 @@ var PopOverView = Class({
         }
 
         // Now find out our offsets;
-        position = Element.getPosition( atNode, parent instanceof ScrollView ?
-            parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
-        layout = {
+        const position = Element.getPosition( atNode, parent.get(
+            parent instanceof ScrollView ? 'scrollLayer' : 'layer' ) );
+        const layout = {
             top: position.top,
             left: position.left,
         };
@@ -130,7 +129,7 @@ var PopOverView = Class({
         this.render();
 
         // Callout
-        layer = this.get( 'layer' );
+        const layer = this.get( 'layer' );
         if ( options.showCallout ) {
             layer.appendChild(
                 el( 'b', {
@@ -194,15 +193,13 @@ var PopOverView = Class({
     },
 
     adjustPosition: function ( deltaLeft, deltaTop ) {
-        var parent = this.get( 'parentView' ),
-            layer = this.get( 'layer' ),
-            layout = this.get( 'layout' ),
-            positionToThe = this._options.positionToThe || 'bottom',
-            callout = this._callout,
-            calloutDelta = 0,
-            calloutIsAtTopOrBottom =
-                ( positionToThe === 'top' || positionToThe === 'bottom' ),
-            position, gap;
+        let parent = this.get( 'parentView' );
+        const layer = this.get( 'layer' );
+        const layout = this.get( 'layout' );
+        const positionToThe = this._options.positionToThe || 'bottom';
+        const callout = this._callout;
+        const calloutIsAtTopOrBottom =
+                ( positionToThe === 'top' || positionToThe === 'bottom' );
 
         if ( !deltaLeft ) { deltaLeft = 0; }
         if ( !deltaTop ) { deltaTop = 0; }
@@ -212,7 +209,9 @@ var PopOverView = Class({
             parent = parent.getParent( ScrollView ) ||
                 parent.getParent( RootView );
         }
-        position = Element.getPosition( layer, parent.get( 'layer' ) );
+        const position = Element.getPosition( layer, parent.get( 'layer' ) );
+        let gap;
+        let calloutDelta = 0;
 
         // Check right edge
         if ( !parent.get( 'showScrollbarX' ) ) {
@@ -288,16 +287,16 @@ var PopOverView = Class({
 
     hide: function () {
         if ( this.get( 'isVisible' ) ) {
-            var subPopOverView = this.hasSubView() ?
-                    this.get( 'subPopOverView' ) : null,
-                eventHandler = this.get( 'eventHandler' ),
-                options = this._options,
-                onHide, view, layer;
+            const subPopOverView = this.hasSubView() ?
+                    this.get( 'subPopOverView' ) : null;
+            const eventHandler = this.get( 'eventHandler' );
+            const options = this._options;
+            let onHide, layer;
             if ( subPopOverView ) {
                 subPopOverView.hide();
             }
             this.set( 'isVisible', false );
-            view = this.get( 'childViews' )[0];
+            const view = this.get( 'childViews' )[0];
             this.detach();
             this.removeView( view );
             if ( options.showCallout ) {
@@ -336,7 +335,7 @@ var PopOverView = Class({
     },
 
     keyOutside: function ( event ) {
-        var view = this;
+        let view = this;
         while ( view.hasSubView() ) {
             view = view.get( 'subPopOverView' );
         }

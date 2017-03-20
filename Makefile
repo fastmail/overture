@@ -30,5 +30,5 @@ MODULE = $(patsubst build/%-raw.js,%,$@)
 build/%-raw.js: $$(shell find source/% -name "*.js")
 	mkdir -p $(@D)
 	$(REMOVE_OLD)
-	rollup --format iife --name O source/$(MODULE)/$(MODULE).js -o $@
+	rollup source/$(MODULE)/$(MODULE).js -o $@ -c
 	$(GZIP_AND_COMPRESS)

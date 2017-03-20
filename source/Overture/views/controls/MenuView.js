@@ -14,7 +14,7 @@ import SearchTextView from './SearchTextView.js';
 import MenuController from './MenuController.js';
 import MenuOptionView from './MenuOptionView.js';
 
-var MenuView = Class({
+const MenuView = Class({
 
     Extends: View,
 
@@ -37,8 +37,8 @@ var MenuView = Class({
 
     didEnterDocument: function () {
         MenuView.parent.didEnterDocument.call( this );
-        var scrollView = this._scrollView,
-            windowHeight, delta, controller, input;
+        const scrollView = this._scrollView;
+        let windowHeight, delta, controller, input;
         if ( scrollView ) {
             windowHeight = ( this.getParent( ScrollView ) ||
                 this.getParent( RootView ) ).get( 'pxHeight' );
@@ -71,7 +71,7 @@ var MenuView = Class({
     },
 
     didLeaveDocument: function () {
-        var controller = this.get( 'controller' );
+        const controller = this.get( 'controller' );
         if ( this.get( 'showFilter' ) ) {
             controller.set( 'filter', '' );
         } else {
@@ -97,11 +97,11 @@ var MenuView = Class({
     ItemView: MenuOptionView,
 
     draw: function ( layer, Element, el ) {
-        var controller = this.get( 'controller' ),
-            MenuOptionView = this.get( 'ItemView' ),
-            optionViews = this.get( 'options' ).map( function ( view ) {
-                return new MenuOptionView( view, controller );
-            });
+        const controller = this.get( 'controller' );
+        const MenuOptionView = this.get( 'ItemView' );
+        const optionViews = this.get( 'options' ).map( function ( view ) {
+            return new MenuOptionView( view, controller );
+        });
         controller.set( 'options', optionViews );
         return [
             this.get( 'showFilter' ) ? el( 'div.v-Menu-filter', [
@@ -120,7 +120,7 @@ var MenuView = Class({
     },
 
     hide: function () {
-        var parent = this.get( 'parentView' );
+        const parent = this.get( 'parentView' );
         if ( parent ) {
             RunLoop.invokeInNextFrame( parent.hide, parent );
         }
@@ -128,7 +128,7 @@ var MenuView = Class({
 
     hideAll: function () {
         if ( this.get( 'closeOnActivate' ) ) {
-            var popOverView = this.getParent( PopOverView ) ||
+            let popOverView = this.getParent( PopOverView ) ||
                     this.get( 'parentView' ),
                 parent;
             if ( popOverView ) {
@@ -142,10 +142,10 @@ var MenuView = Class({
 
     fireShortcut: function ( event ) {
         if ( !this.get( 'showFilter' ) ) {
-            var key = DOMEvent.lookupKey( event ),
-                handler = ViewEventsController
-                    .kbShortcuts.getHandlerForKey( key ),
-                parent, object, method;
+            const key = DOMEvent.lookupKey( event );
+            const handler = ViewEventsController
+                .kbShortcuts.getHandlerForKey( key );
+            let parent, object, method;
             if ( handler ) {
                 parent = object = handler[0];
                 method = handler[1];

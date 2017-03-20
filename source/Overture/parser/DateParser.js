@@ -5,21 +5,21 @@ import Parse from './Parse.js';
 
 // --- Date Grammar ---
 
-var JUST_TIME = 1,
-    JUST_DATE = 2,
-    DATE_AND_TIME = 3;
+const JUST_TIME = 1;
+const JUST_DATE = 2;
+const DATE_AND_TIME = 3;
 
-var generateLocalisedDateParser = function ( locale, mode ) {
-    var define = Parse.define,
-        optional = Parse.optional,
-        not = Parse.not,
-        sequence = Parse.sequence,
-        firstMatch = Parse.firstMatch,
-        longestMatch = Parse.longestMatch;
+const generateLocalisedDateParser = function ( locale, mode ) {
+    const define = Parse.define;
+    const optional = Parse.optional;
+    const not = Parse.not;
+    const sequence = Parse.sequence;
+    const firstMatch = Parse.firstMatch;
+    const longestMatch = Parse.longestMatch;
 
-    var datePatterns = locale.datePatterns;
+    const datePatterns = locale.datePatterns;
 
-    var anyInLocale = function ( type, names ) {
+    const anyInLocale = function ( type, names ) {
         return firstMatch(
             names.split( ' ' ).map( function ( name ) {
                 return define( type, datePatterns[ name ], name );
@@ -27,36 +27,36 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         );
     };
 
-    var whitespace = define( 'whitespace', (/^(?:[\s"']+|$)/) );
+    const whitespace = define( 'whitespace', (/^(?:[\s"']+|$)/) );
 
-    var hours = define( 'hour', /^(?:2[0-3]|[01]?\d)/ ),
-        minutes = define( 'minute', /^[0-5][0-9]/ ),
-        seconds = define( 'second', /^[0-5][0-9]/ ),
-        meridian = firstMatch([
-            define( 'am', datePatterns.am ),
-            define( 'pm', datePatterns.pm ),
-        ]),
-        timeSuffix = sequence([
-            optional( whitespace ),
-            meridian,
-        ]),
-        timeDelimiter = define( 'timeDelimiter', ( /^[:.]/ ) ),
-        timeContext = define( 'timeContext', datePatterns.timeContext ),
-        time = sequence([
-            hours,
+    const hours = define( 'hour', /^(?:2[0-3]|[01]?\d)/ );
+    const minutes = define( 'minute', /^[0-5][0-9]/ );
+    const seconds = define( 'second', /^[0-5][0-9]/ );
+    const meridian = firstMatch([
+        define( 'am', datePatterns.am ),
+        define( 'pm', datePatterns.pm ),
+    ]);
+    const timeSuffix = sequence([
+        optional( whitespace ),
+        meridian,
+    ]);
+    const timeDelimiter = define( 'timeDelimiter', ( /^[:.]/ ) );
+    const timeContext = define( 'timeContext', datePatterns.timeContext );
+    const time = sequence([
+        hours,
+        optional( sequence([
+            timeDelimiter,
+            minutes,
             optional( sequence([
                 timeDelimiter,
-                minutes,
-                optional( sequence([
-                    timeDelimiter,
-                    seconds,
-                ])),
+                seconds,
             ])),
-            optional(
-                timeSuffix
-            ),
-            whitespace,
-        ]);
+        ])),
+        optional(
+            timeSuffix
+        ),
+        whitespace,
+    ]);
 
     if ( mode === JUST_TIME ) {
         return firstMatch([
@@ -69,44 +69,44 @@ var generateLocalisedDateParser = function ( locale, mode ) {
         ]);
     }
 
-    var ordinalSuffix = define( 'ordinalSuffix', datePatterns.ordinalSuffix ),
+    const ordinalSuffix = define( 'ordinalSuffix', datePatterns.ordinalSuffix );
 
-        weekday = anyInLocale( 'weekday', 'sun mon tue wed thu fri sat' ),
-        day = sequence([
+    const weekday = anyInLocale( 'weekday', 'sun mon tue wed thu fri sat' );
+    const day = sequence([
             define( 'day', /^(?:[0-2]\d|3[0-1]|\d)/ ),
             optional( ordinalSuffix ),
             not( timeContext ),
-        ]),
-        monthnumber = sequence([
+        ]);
+    const monthnumber = sequence([
             define( 'month', /^(?:1[0-2]|0\d|\d)/ ),
             not( firstMatch([
                 timeContext,
                 ordinalSuffix,
             ])),
-        ]),
-        monthname = anyInLocale( 'monthname',
-            'jan feb mar apr may jun jul aug sep oct nov dec' ),
-        month = firstMatch([
+        ]);
+    const monthname = anyInLocale( 'monthname',
+            'jan feb mar apr may jun jul aug sep oct nov dec' );
+    const month = firstMatch([
             monthnumber,
             monthname,
-        ]),
-        fullyear = define( 'year', /^\d{4}/ ),
-        year = sequence([
+        ]);
+    const fullyear = define( 'year', /^\d{4}/ );
+    const year = sequence([
             define( 'year', /^\d\d(?:\d\d)?/ ),
             not( firstMatch([
                 timeContext,
                 ordinalSuffix,
             ])),
-        ]),
-        searchMethod = anyInLocale( 'searchMethod', 'past future' ),
+        ]);
+    const searchMethod = anyInLocale( 'searchMethod', 'past future' );
 
-        dateDelimiter = define( 'dateDelimiter',
-            ( /^(?:[\s\-.,'/]|of)+/ ) ),
+    const dateDelimiter = define( 'dateDelimiter',
+            ( /^(?:[\s\-.,'/]|of)+/ ) );
 
-        relativeDate = anyInLocale( 'relativeDate',
-            'yesterday tomorrow today now' ),
+    const relativeDate = anyInLocale( 'relativeDate',
+            'yesterday tomorrow today now' );
 
-        standardDate = sequence(
+    const standardDate = sequence(
             locale.dateFormats.date.split( /%-?([dmbY])/ ).map(
             function ( part, i ) {
                 if ( i & 1 ) {
@@ -127,52 +127,52 @@ var generateLocalisedDateParser = function ( locale, mode ) {
                 }
                 return null;
             }).filter( function ( x ) { return !!x; } )
-        ),
+        );
 
-        dayMonthYear = sequence([
+    const dayMonthYear = sequence([
             day,
             dateDelimiter,
             month,
             dateDelimiter,
             year,
-        ]),
-        dayMonth = sequence([
+        ]);
+    const dayMonth = sequence([
             day,
             dateDelimiter,
             month,
-        ]),
-        monthYear = sequence([
+        ]);
+    const monthYear = sequence([
             month,
             dateDelimiter,
             year,
             not( timeContext ),
-        ]),
-        monthDayYear = sequence([
+        ]);
+    const monthDayYear = sequence([
             month,
             dateDelimiter,
             day,
             dateDelimiter,
             year,
-        ]),
-        monthDay = sequence([
+        ]);
+    const monthDay = sequence([
             month,
             dateDelimiter,
             day,
-        ]),
-        yearMonthDay = sequence([
+        ]);
+    const yearMonthDay = sequence([
             year,
             dateDelimiter,
             month,
             dateDelimiter,
             day,
-        ]),
-        yearMonth = sequence([
+        ]);
+    const yearMonth = sequence([
             year,
             dateDelimiter,
             month,
-        ]),
+        ]);
 
-        date = sequence([
+    const date = sequence([
             firstMatch([
                 standardDate,
                 longestMatch(
@@ -234,7 +234,7 @@ var generateLocalisedDateParser = function ( locale, mode ) {
 
 // --- Interpreter ---
 
-var monthNameToIndex = {
+const monthNameToIndex = {
     jan: 0,
     feb: 1,
     mar: 2,
@@ -249,7 +249,7 @@ var monthNameToIndex = {
     dec: 11,
 };
 
-var dayNameToIndex = {
+const dayNameToIndex = {
     sun: 0,
     mon: 1,
     tue: 2,
@@ -259,20 +259,20 @@ var dayNameToIndex = {
     sat: 6,
 };
 
-var isLeapYear = Date.isLeapYear;
-var getDaysInMonth = Date.getDaysInMonth;
+const isLeapYear = Date.isLeapYear;
+const getDaysInMonth = Date.getDaysInMonth;
 
-var NOW = 0;
-var PAST = -1;
-var FUTURE = 1;
+const NOW = 0;
+const PAST = -1;
+const FUTURE = 1;
 
-var interpreter = {
+const interpreter = {
     interpret: function ( tokens, implicitSearchMethod ) {
-        var date = {},
-            i, l, token, name;
-        for ( i = 0, l = tokens.length; i < l; i += 1 ) {
-            token = tokens[i];
-            name = token[0];
+        const date = {};
+        const l = tokens.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const token = tokens[i];
+            const name = token[0];
             if ( this[ name ] ) {
                 this[ name ]( date, token[1], token[2], tokens );
             }
@@ -280,12 +280,12 @@ var interpreter = {
         return this.findDate( date, date.searchMethod || implicitSearchMethod );
     },
     findDate: function ( constraints, searchMethod ) {
-        var keys = Object.keys( constraints );
+        const keys = Object.keys( constraints );
         if ( !keys.length ) {
             return null;
         }
-        var date = new Date(),
-            currentDay = date.getDate();
+        let date = new Date();
+        const currentDay = date.getDate();
 
         // If we don't do this, setting month lower down could go wrong,
         // because if the date is 30th and we set month as Feb, we'll end up
@@ -299,16 +299,16 @@ var interpreter = {
         date.setMilliseconds( 0 );
 
         // Date:
-        var day = constraints.day,
-            month = constraints.month,
-            year = constraints.year,
-            weekday = constraints.weekday,
+        let day = constraints.day;
+        let month = constraints.month;
+        let year = constraints.year;
+        const weekday = constraints.weekday;
 
-            hasMonth = !!( month || month === 0 ),
-            hasWeekday = !!( weekday || weekday === 0 ),
+        const hasMonth = !!( month || month === 0 );
+        const hasWeekday = !!( weekday || weekday === 0 );
 
-            dayInMs = 86400000,
-            currentMonth, isFeb29, delta;
+        const dayInMs = 86400000;
+        let currentMonth, isFeb29, delta;
 
         if ( day && hasMonth && year ) {
             if ( day > getDaysInMonth( month, year ) ) {
@@ -465,7 +465,7 @@ var interpreter = {
         date.month = monthNameToIndex[ name ];
     },
     year: function ( date, string ) {
-        var year = +string;
+        let year = +string;
         if ( string.length === 2 ) {
             year += 2000;
             if ( year > new Date().getFullYear() + 30 ) {
@@ -476,7 +476,7 @@ var interpreter = {
     },
     hour: function ( date, string ) {
         date.hour = +string;
-        var meridian = date.meridian;
+        const meridian = date.meridian;
         if ( meridian ) {
             this[ meridian ]( date );
         }
@@ -489,14 +489,14 @@ var interpreter = {
     },
     am: function ( date ) {
         date.meridian = 'am';
-        var hour = date.hour;
+        const hour = date.hour;
         if ( hour && hour === 12 ) {
             date.hour = 0;
         }
     },
     pm: function ( date ) {
         date.meridian = 'pm';
-        var hour = date.hour;
+        const hour = date.hour;
         if ( hour && hour < 12 ) {
             date.hour = hour + 12;
         }
@@ -505,8 +505,8 @@ var interpreter = {
         date.searchMethod = ( pastOrFuture === 'past' ) ? PAST : FUTURE;
     },
     relativeDate: function ( date, string, context ) {
-        var now = new Date(),
-            dayInMs = 86400000;
+        const now = new Date();
+        const dayInMs = 86400000;
         switch ( context ) {
             case 'yesterday':
                 now.setTime( now.getTime() - dayInMs );
@@ -523,20 +523,20 @@ var interpreter = {
 
 // ---
 
-var unknown = Parse.define( 'unknown', /^[^\s]+/ );
+const unknown = Parse.define( 'unknown', /^[^\s]+/ );
 
-var dateParsers = {};
-var parseDateTime = function ( string, locale, mode ) {
+const dateParsers = {};
+const parseDateTime = function ( string, locale, mode ) {
     if ( !locale ) {
         locale = i18n.getLocale();
     }
     string = string.trim().replace(/[０-９]/g, function ( wideNum ) {
         return String.fromCharCode( wideNum.charCodeAt( 0 ) - 65248 );
     });
-    var code = locale.code + mode;
-    var dateParser = dateParsers[ code ] ||
+    const code = locale.code + mode;
+    const dateParser = dateParsers[ code ] ||
         ( dateParsers[ code ] = generateLocalisedDateParser( locale, mode ) );
-    var parse = new Parse( string );
+    const parse = new Parse( string );
     while ( parse.string.length ) {
         if ( !dateParser( parse ) ) {
             // We've hit something unexpected. Skip it.
@@ -546,22 +546,22 @@ var parseDateTime = function ( string, locale, mode ) {
     return parse.tokens;
 };
 
-var interpretDateTime = function ( tokens, implicitSearchMethod ) {
+const interpretDateTime = function ( tokens, implicitSearchMethod ) {
     return interpreter.interpret( tokens, implicitSearchMethod || NOW );
 };
 
-var time = function ( string, locale ) {
-    var tokens = parseDateTime( string, locale, JUST_TIME );
+const time = function ( string, locale ) {
+    const tokens = parseDateTime( string, locale, JUST_TIME );
     return interpreter.interpret( tokens );
 };
 
-var date = function ( string, locale, implicitPast ) {
-    var tokens = parseDateTime( string, locale, JUST_DATE );
+const date = function ( string, locale, implicitPast ) {
+    const tokens = parseDateTime( string, locale, JUST_DATE );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
-var dateTime = function ( string, locale, implicitPast ) {
-    var tokens = parseDateTime( string, locale, DATE_AND_TIME );
+const dateTime = function ( string, locale, implicitPast ) {
+    const tokens = parseDateTime( string, locale, DATE_AND_TIME );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 

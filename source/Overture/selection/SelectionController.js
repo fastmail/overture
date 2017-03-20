@@ -3,7 +3,7 @@ import Object from '../foundation/Object.js';
 import '../foundation/ObservableProps.js';  // For Function#observes
 import '../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-var SelectionController = Class({
+const SelectionController = Class({
 
     Extends: Object,
 
@@ -19,7 +19,7 @@ var SelectionController = Class({
 
         SelectionController.parent.init.call( this, mixin );
 
-        var content = this.get( 'content' );
+        const content = this.get( 'content' );
         if ( content ) {
             content.on( 'query:updated', this, 'contentWasUpdated' );
         }
@@ -38,15 +38,15 @@ var SelectionController = Class({
     contentWasUpdated: function ( event ) {
         // If an id has been removed, it may no
         // longer belong to the selection
-        var _selectedStoreKeys = this._selectedStoreKeys;
-        var length = this.get( 'length' );
-        var removed = event.removed;
-        var added = event.added.reduce( function ( set, storeKey ) {
+        const _selectedStoreKeys = this._selectedStoreKeys;
+        let length = this.get( 'length' );
+        const removed = event.removed;
+        const added = event.added.reduce( function ( set, storeKey ) {
             set[ storeKey ] = true;
             return set;
         }, {} );
-        var l = removed.length;
-        var storeKey;
+        let l = removed.length;
+        let storeKey;
 
         while ( l-- ) {
             storeKey = removed[l];
@@ -79,10 +79,10 @@ var SelectionController = Class({
         // Make sure we've got a boolean
         isSelected = !!isSelected;
 
-        var _selectedStoreKeys = this._selectedStoreKeys;
-        var howManyChanged = 0;
-        var l = storeKeys.length;
-        var storeKey, wasSelected;
+        const _selectedStoreKeys = this._selectedStoreKeys;
+        let howManyChanged = 0;
+        let l = storeKeys.length;
+        let storeKey, wasSelected;
 
         while ( l-- ) {
             storeKey = storeKeys[l];
@@ -108,25 +108,25 @@ var SelectionController = Class({
     },
 
     selectIndex: function ( index, isSelected, includeRangeFromLastSelected ) {
-        var lastSelectedIndex = this._lastSelectedIndex,
-            start = includeRangeFromLastSelected ?
-                Math.min( index, lastSelectedIndex ) : index,
-            end = ( includeRangeFromLastSelected ?
+        const lastSelectedIndex = this._lastSelectedIndex;
+        const start = includeRangeFromLastSelected ?
+                Math.min( index, lastSelectedIndex ) : index;
+        const end = ( includeRangeFromLastSelected ?
                 Math.max( index, lastSelectedIndex ) : index ) + 1;
         this._lastSelectedIndex = index;
         return this.selectRange( start, end, isSelected );
     },
 
     selectRange: function ( start, end, isSelected ) {
-        var content = this.get( 'content' ),
-            selectionId = ( this._selectionId += 1 ),
-            loading = content.getStoreKeysForObjectsInRange(
-                start, end = Math.min( end, content.get( 'length' ) || 0 ),
-                function ( storeKeys, start, end ) {
-                    this.selectStoreKeys( storeKeys,
-                        isSelected, selectionId, start, end );
-                }.bind( this )
-            );
+        const content = this.get( 'content' );
+        const selectionId = ( this._selectionId += 1 );
+        const loading = content.getStoreKeysForObjectsInRange(
+            start, end = Math.min( end, content.get( 'length' ) || 0 ),
+            function ( storeKeys, start, end ) {
+                this.selectStoreKeys( storeKeys,
+                    isSelected, selectionId, start, end );
+            }.bind( this )
+        );
 
         if ( loading ) {
             this.set( 'isLoadingSelection', true );
@@ -136,9 +136,9 @@ var SelectionController = Class({
     },
 
     selectAll: function () {
-        var content = this.get( 'content' );
-        var selectionId = ( this._selectionId += 1 );
-        var loading = content.getStoreKeysForAllObjects(
+        const content = this.get( 'content' );
+        const selectionId = ( this._selectionId += 1 );
+        const loading = content.getStoreKeysForAllObjects(
             function ( storeKeys, start, end ) {
                 this.selectStoreKeys( storeKeys,
                     true, selectionId, start, end );

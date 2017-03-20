@@ -4,7 +4,7 @@ import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
 import '../foundation/ObservableProps.js';  // For Function#observes
 import { READY } from '../datastore/record/Status.js';
 
-var SingleSelectionController = Class({
+const SingleSelectionController = Class({
 
     Extends: Object,
 
@@ -21,8 +21,8 @@ var SingleSelectionController = Class({
 
         SingleSelectionController.parent.init.call( this, mixin );
 
-        var content = this.get( 'content' );
-        var record = this.get( 'record' );
+        const content = this.get( 'content' );
+        const record = this.get( 'record' );
         if ( content ) {
             this.contentDidChange( null, '', null, content );
         }
@@ -34,7 +34,7 @@ var SingleSelectionController = Class({
     },
 
     destroy: function () {
-        var content = this.get( 'content' );
+        const content = this.get( 'content' );
         if ( content ) {
             content.off( 'query:reset', this, 'contentWasReset' )
                    .off( 'query:updated', this, 'contentWasUpdated' );
@@ -46,7 +46,7 @@ var SingleSelectionController = Class({
 
     recordAtIndexDidChange: function () {
         if ( !this.get( 'record' ) ) {
-            var content = this.get( 'content' );
+            const content = this.get( 'content' );
             this.set( 'record', content &&
                 content.getObjectAt( this.get( 'index' ) ) ||
                 null
@@ -55,11 +55,10 @@ var SingleSelectionController = Class({
     }.queue( 'before' ),
 
     _indexDidChange: function () {
-        var list = this.get( 'content' ),
-            length = list ? list.get( 'length' ) : 0,
-            index = this.get( 'index' ),
-            range = this._range,
-            record;
+        const list = this.get( 'content' );
+        const length = list ? list.get( 'length' ) : 0;
+        const index = this.get( 'index' );
+        const range = this._range;
         range.start = index;
         range.end = index + 1;
         if ( !this._ignore ) {
@@ -69,6 +68,7 @@ var SingleSelectionController = Class({
             } else if ( length > 0 && index >= length ) {
                 this.set( 'index', length - 1 );
             } else {
+                let record;
                 if ( length && index > -1 ) {
                     record = list.getObjectAt( index );
                 }
@@ -81,13 +81,13 @@ var SingleSelectionController = Class({
 
     _recordDidChange: function () {
         if ( !this._ignore ) {
-            var record = this.get( 'record' ),
-                list = this.get( 'content' );
+            const record = this.get( 'record' );
+            const list = this.get( 'content' );
             // If both content and record are bound, content *must* be synced
             // first in order to look for the new record in the new list.
             // If changed, return as the new record will be handled by the
             // setRecordInNewContent fn.
-            var binding = meta( this ).bindings.content;
+            const binding = meta( this ).bindings.content;
             if ( binding ) {
                 this._ignore = true;
                 binding.sync();
@@ -123,14 +123,14 @@ var SingleSelectionController = Class({
             return;
         }
         // If we're about to sync a new record, nothing to do
-        var binding = meta( this ).bindings.record;
+        const binding = meta( this ).bindings.record;
         if ( binding && binding.isNotInSync && binding.willSyncForward ) {
             return;
         }
 
-        var allowNoSelection = this.get( 'allowNoSelection' ),
-            record = this.get( 'record' ),
-            index = allowNoSelection ? -1 : 0;
+        const allowNoSelection = this.get( 'allowNoSelection' );
+        let record = this.get( 'record' );
+        let index = allowNoSelection ? -1 : 0;
 
         // Race condition check: has the content property changed since the
         // SingleSelectionController#contentBecameReady call?
@@ -156,7 +156,7 @@ var SingleSelectionController = Class({
     },
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
-        var range = this._range;
+        const range = this._range;
         if ( oldVal ) {
             oldVal.off( 'query:reset', this, 'contentWasReset' )
                   .off( 'query:updated', this, 'contentWasUpdated' );
@@ -192,14 +192,12 @@ var SingleSelectionController = Class({
     },
 
     contentWasUpdated: function ( updates ) {
-        var record = this.get( 'record' ),
-            index = record ?
-                updates.added.indexOf( record.get( 'storeKey' ) ) : -1,
-            removedIndexes = updates.removedIndexes,
-            addedIndexes = updates.addedIndexes,
-            content = this.get( 'content' ),
-            change = 0,
-            i, l;
+        let record = this.get( 'record' );
+        let index = record ?
+                updates.added.indexOf( record.get( 'storeKey' ) ) : -1;
+        const removedIndexes = updates.removedIndexes;
+        const addedIndexes = updates.addedIndexes;
+        const content = this.get( 'content' );
 
         // No current record, no update of position required.
         if ( !record ) {
@@ -214,13 +212,16 @@ var SingleSelectionController = Class({
             if ( index === -1 ) {
                 return;
             }
-            for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
+            let l = removedIndexes.length;
+            let change = 0;
+            for ( let i = 0; i < l; i += 1 ) {
                 if ( removedIndexes[i] < index ) { change += 1; }
                 // Guaranteed in ascending order.
                 else { break; }
             }
             index -= change;
-            for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
+            l = addedIndexes.length;
+            for ( let i = 0; i < l; i += 1 ) {
                 if ( addedIndexes[i] <= index ) { index += 1; }
                 // Guaranteed in ascending order.
                 else { break; }

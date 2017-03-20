@@ -2,11 +2,11 @@ import Animation from './Animation.js';
 import { Class, clone } from '../core/Core.js';
 import Element from '../dom/Element.js';
 
-var splitTransform = function ( transform ) {
-    var result = [];
-    var i = 0;
-    var l = transform.length;
-    var next = 0;
+const splitTransform = function ( transform ) {
+    const result = [];
+    let i = 0;
+    const l = transform.length;
+    let next = 0;
 
     while ( true ) {
         // Gather text part
@@ -31,9 +31,9 @@ var splitTransform = function ( transform ) {
     }
 };
 
-var numbersRe = /[.\-\d]/g;
+const numbersRe = /[.\-\d]/g;
 
-var styleAnimators = {
+const styleAnimators = {
     display: {
         calcDelta: function ( startValue, endValue ) {
             return endValue === 'none' ? startValue : endValue;
@@ -44,7 +44,7 @@ var styleAnimators = {
     },
     transform: {
         calcDelta: function ( startValue, endValue ) {
-            var start = splitTransform( startValue ),
+            let start = splitTransform( startValue ),
                 end = splitTransform( endValue );
             if ( start.length !== end.length ) {
                 start = [ startValue ];
@@ -58,11 +58,10 @@ var styleAnimators = {
             };
         },
         calcValue: function ( position, deltaValue ) {
-            var start = deltaValue.start,
-                delta = deltaValue.delta,
-                transform = start[0],
-                i, l;
-            for ( i = 1, l = start.length; i < l; i += 2 ) {
+            const start = deltaValue.start;
+            const delta = deltaValue.delta;
+            let transform = start[0];
+            for ( let i = 1, l = start.length; i < l; i += 2 ) {
                 transform += start[ i ] + ( position * delta[ i ] );
                 transform += start[ i + 1 ];
             }
@@ -71,7 +70,7 @@ var styleAnimators = {
     },
 };
 
-var supported = {
+const supported = {
     display: 1,
 
     top: 1,
@@ -128,24 +127,22 @@ export default Class({
             {Boolean} True if any of the styles are going to be animated.
     */
     prepare: function ( styles ) {
-        var animated = this.animated = [],
-            from = this.startValue = this.current,
-            current = this.current = clone( from ),
-            delta = this.deltaValue = {},
-            units = this.units = {},
-
-            property, start, end, animator;
+        const animated = this.animated = [];
+        const from = this.startValue = this.current;
+        const current = this.current = clone( from );
+        const delta = this.deltaValue = {};
+        const units = this.units = {};
 
         this.endValue = styles;
 
-        for ( property in styles ) {
-            start = from[ property ] || 0;
-            end = styles[ property ] || 0;
+        for ( const property in styles ) {
+            let start = from[ property ] || 0;
+            const end = styles[ property ] || 0;
             if ( start !== end ) {
                 // We only support animating key layout properties.
                 if ( supported[ property ] ) {
                     animated.push( property );
-                    animator = styleAnimators[ property ];
+                    const animator = styleAnimators[ property ];
                     if ( animator ) {
                         delta[ property ] = animator.calcDelta( start, end );
                     } else {
@@ -180,31 +177,30 @@ export default Class({
             position - {Number} The position in the animation.
     */
     drawFrame: function ( position ) {
-        var animated = this.animated,
-            l = animated.length,
+        const animated = this.animated;
+        let l = animated.length;
 
-            from = this.startValue,
-            to = this.endValue,
-            difference = this.deltaValue,
-            units = this.units,
-            current = this.current,
+        const from = this.startValue;
+        const to = this.endValue;
+        const difference = this.deltaValue;
+        const units = this.units;
+        const current = this.current;
 
-            el = this.element,
-            setStyle = Element.setStyle,
-            property, value, start, end, delta, unit, animator;
+        const el = this.element;
+        const setStyle = Element.setStyle;
 
         while ( l-- ) {
-            property = animated[l];
+            const property = animated[l];
 
             // Calculate new value.
-            start = from[ property ] || 0;
-            end = to[ property ] || 0;
-            delta = difference[ property ];
-            unit = units[ property ];
+            const start = from[ property ] || 0;
+            const end = to[ property ] || 0;
+            const delta = difference[ property ];
+            const unit = units[ property ];
 
-            animator = styleAnimators[ property ];
+            const animator = styleAnimators[ property ];
 
-            value = current[ property ] = position < 1 ?
+            const value = current[ property ] = position < 1 ?
                 animator ?
                     animator.calcValue( position, delta, start, end ) :
                     ( start + ( position * delta ) ) + unit :

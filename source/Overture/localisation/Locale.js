@@ -1,13 +1,13 @@
 import { Class, merge } from '../core/Core.js';
 import '../core/Date.js';  // For Date#format
 
-var compileTranslation = function ( translation ) {
-    var compiled = '',
-        start = 0,
-        searchIndex = 0,
-        length = translation.length,
-        end, parts, part, partLength,
-        i, j, l;
+const compileTranslation = function ( translation ) {
+    let compiled = '';
+    let start = 0;
+    let searchIndex = 0;
+    const length = translation.length;
+    let end, parts, part, partLength;
+    let i, j, l;
 
     outer: while ( true ) {
         end = translation.indexOf( '[', searchIndex ) ;
@@ -128,8 +128,8 @@ var compileTranslation = function ( translation ) {
     );
 };
 
-var formatInt = function ( number, locale ) {
-    var string = number + '';
+const formatInt = function ( number, locale ) {
+    let string = number + '';
     if ( string.length > 3 ) {
         string = string.replace(
             /(\d+?)(?=(?:\d{3})+$)/g,
@@ -145,7 +145,7 @@ var formatInt = function ( number, locale ) {
     Locale packs for use in localisation are created as instances of the
     O.Locale class.
 */
-var Locale = Class({
+const Locale = Class({
 
     /**
         Constructor: O.Locale
@@ -226,9 +226,9 @@ var Locale = Class({
             {String} The localised number.
     */
     getFormattedNumber: function ( number ) {
-        var integer = number + '',
-            fraction = '',
-            decimalPointIndex = integer.indexOf( '.' );
+        let integer = number + '';
+        let fraction = '';
+        const decimalPointIndex = integer.indexOf( '.' );
         if ( decimalPointIndex > -1 ) {
             fraction = integer.slice( decimalPointIndex + 1 );
             integer = integer.slice( 0, decimalPointIndex );
@@ -267,17 +267,16 @@ var Locale = Class({
             {String} The localised, human-readable file size.
     */
     getFormattedFileSize: function ( bytes, decimalPlaces ) {
-        var units = this.fileSizeUnits,
-            l = units.length - 1,
-            i = 0,
-            ORDER_MAGNITUDE = 1000,
-            number;
+        const units = this.fileSizeUnits;
+        const l = units.length - 1;
+        let i = 0;
+        const ORDER_MAGNITUDE = 1000;
         while ( i < l && bytes >= ORDER_MAGNITUDE ) {
             bytes /= ORDER_MAGNITUDE;
             i += 1;
         }
         // B/KB to nearest whole number, MB/GB to 1 decimal place.
-        number = ( i < 2 ) ?
+        const number = ( i < 2 ) ?
             Math.round( bytes ) + '' :
             bytes.toFixed( decimalPlaces || 0 );
         // Use a &nbsp; to join the number to the unit.
@@ -401,8 +400,8 @@ var Locale = Class({
             {String} The localised date.
     */
     getFormattedDate: function ( date, type, utc ) {
-        var dateFormats = this.dateFormats,
-            format = dateFormats[ type ] || dateFormats.date;
+        const dateFormats = this.dateFormats;
+        const format = dateFormats[ type ] || dateFormats.date;
         return format instanceof Function ?
             dateFormats[ type ]( date, this, utc ) : date.format( format, utc );
     },
@@ -469,7 +468,7 @@ var Locale = Class({
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
         '*3b': function ( n, singular, plural1, plural2, zero ) {
-            var mod100 = n % 100;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -482,8 +481,8 @@ var Locale = Class({
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
         '*3c': function ( n, form1, form2, form3, zero ) {
-            var mod10 = n % 10,
-                mod100 = n % 100;
+            const mod10 = n % 10;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 mod10 === 1 && mod100 !== 11 ? form1 :
@@ -496,8 +495,8 @@ var Locale = Class({
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
         '*3d': function ( n, form1, form2, form3, zero ) {
-            var mod10 = n % 10,
-                mod100 = n % 100;
+            const mod10 = n % 10;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 mod10 === 1 && mod100 !== 11 ? form1 :
@@ -523,8 +522,8 @@ var Locale = Class({
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
         '*3f': function ( n, singular, plural1, plural2, zero ) {
-            var mod10 = n % 10,
-                mod100 = n % 100;
+            const mod10 = n % 10;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -539,7 +538,7 @@ var Locale = Class({
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
         '*4a': function ( n, end01, end02, end03or04, plural, zero ) {
-            var mod100 = n % 100;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 mod100 === 1 ? end01 :
@@ -585,7 +584,7 @@ var Locale = Class({
         // Case 5: ends in 11-99.
         // Case 6: everything else.
         '*6': function ( n, zero, singular, doubular, pl1, pl2, pl3 ) {
-            var mod100 = n % 100;
+            const mod100 = n % 100;
             return (
                 !n ? zero :
                 n === 1 ? singular :
@@ -605,7 +604,7 @@ var Locale = Class({
             return n !== 1 ? plural || ( singular + 's' ) : singular;
         },
         numf: function ( n ) {
-            var parts = ( n + '' ).split( '.' );
+            const parts = ( n + '' ).split( '.' );
             parts[0] = parts[0].replace( /(\d+?)(?=(?:\d{3})+$)/g,
                 '$1' + this.thousandsSeparator );
             return parts.join( this.decimalPoint );
@@ -693,17 +692,17 @@ var Locale = Class({
             {(String|Array)} The localised string or array of localised parts.
     */
     translate: function ( string ) {
-        var translation = this.translations[ string ],
-            returnString = true,
-            args = [],
-            i, l, arg, compiled, parts;
+        let translation = this.translations[ string ];
+        let returnString = true;
+        const args = [];
+        let i, l;
 
         if ( translation === undefined ) {
             translation = string;
         }
 
         for ( i = 1, l = arguments.length; i < l; i += 1 ) {
-            arg = arguments[i];
+            const arg = arguments[i];
             if ( typeof arg === 'object' ) {
                 returnString = false;
             }
@@ -711,12 +710,12 @@ var Locale = Class({
         }
 
         if ( returnString ) {
-            compiled = this.compiled[ string ] ||
+            const compiled = this.compiled[ string ] ||
                 ( this.compiled[ string ] = compileTranslation( translation ) );
             return compiled( this, args );
         }
 
-        parts = translation.split( /\[_(\d)\]/ );
+        const parts = translation.split( /\[_(\d)\]/ );
         for ( i = 1, l = parts.length; i < l; i += 2 ) {
             parts[i] = args[ parts[i] - 1 ] || null;
         }

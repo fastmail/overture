@@ -3,7 +3,7 @@ import { Class } from '../../core/Core.js';
 import RecordAttribute from './RecordAttribute.js';
 import Record from './Record.js';
 
-var ToOneAttribute = Class({
+const ToOneAttribute = Class({
 
     Extends: RecordAttribute,
 
@@ -20,7 +20,7 @@ var ToOneAttribute = Class({
     },
 
     call: function ( record, propValue, propKey ) {
-        var result = ToOneAttribute.parent.call.call(
+        let result = ToOneAttribute.parent.call.call(
             this, record, propValue, propKey );
         if ( result && typeof result === 'string' ) {
             result = record.get( 'store' ).getRecord( this.Type, '#' + result );

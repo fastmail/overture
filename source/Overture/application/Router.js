@@ -11,12 +11,12 @@ import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop, #queue
     The Application module contains classes for managing an HTML5 application.
 */
 
-var getHash = function ( location ) {
-    var href = location.href,
-        i = href.indexOf( '#/' );
+const getHash = function ( location ) {
+    const href = location.href;
+    const i = href.indexOf( '#/' );
     return  i > -1 ? href.slice( i + 2 ) : '';
 };
-var getUrl = function ( location, base ) {
+const getUrl = function ( location, base ) {
     return location.pathname.slice( base.length );
 };
 /**
@@ -27,7 +27,7 @@ var getUrl = function ( location, base ) {
     This class adds the ability to manage the URL in the browser window,
     updating it when your application state changes and vice versa.
 */
-var Router = Class({
+const Router = Class({
 
     Extends: Object,
 
@@ -122,8 +122,8 @@ var Router = Class({
     init: function ( mixin, win ) {
         Router.parent.init.call( this, mixin );
         if ( !win ) { win = window; }
-        var location = win.location,
-            path = ( this.useHash && getHash( location ) ) ||
+        const location = win.location;
+        const path = ( this.useHash && getHash( location ) ) ||
                 getUrl( location, this.baseUrl );
         this.set( 'currentPath', path );
         this.restoreStateFromUrl( path );
@@ -150,8 +150,8 @@ var Router = Class({
         the new URL.
     */
     handleEvent: function () {
-        var location = this._win.location,
-            path = this.useHash ?
+        const location = this._win.location;
+        const path = this.useHash ?
                 getHash( location ) : getUrl( location, this.baseUrl );
 
         if ( this.get( 'mayGoBack' ) && path !== this.get( 'currentPath' ) ) {
@@ -174,12 +174,12 @@ var Router = Class({
             {O.Router} Returns self.
     */
     restoreStateFromUrl: function ( url ) {
-        var routes = this.get( 'routes' ),
-            i, l, route, match;
+        const routes = this.get( 'routes' );
 
-        for ( i = 0, l = routes.length; i < l; i += 1 ) {
-            route = routes[i];
-            if ( match = route.url.exec( url ) ) {
+        for ( let i = 0, l = routes.length; i < l; i += 1 ) {
+            const route = routes[i];
+            const match = route.url.exec( url );
+            if ( match ) {
                 this.beginPropertyChanges();
                 route.handle.apply( this, match );
                 this.endPropertyChanges();
@@ -197,26 +197,25 @@ var Router = Class({
         whenever this property changes.
     */
     encodeStateToUrl: function () {
-        var state = this.get( 'encodedState' ),
-            replaceState = this.get( 'replaceState' ),
-            win = this._win,
-            location, history, href, i, title, url;
+        const state = this.get( 'encodedState' );
+        const replaceState = this.get( 'replaceState' );
+        const win = this._win;
         if ( this.get( 'currentPath' ) !== state ) {
             this.set( 'currentPath', state );
             if ( this.useHash ) {
-                location = win.location;
+                const location = win.location;
                 if ( replaceState ) {
-                    href = location.href;
-                    i = href.indexOf( '#' );
+                    let href = location.href;
+                    const i = href.indexOf( '#' );
                     if ( i > -1 ) { href = href.slice( 0, i ); }
                     location.replace( href + '#/' + state );
                 } else {
                     location.hash = '#/' + state;
                 }
             } else {
-                history = win.history;
-                title = this.get( 'title' );
-                url = this.getUrlForEncodedState( state );
+                const history = win.history;
+                const title = this.get( 'title' );
+                const url = this.getUrlForEncodedState( state );
                 // Firefox sometimes throws an error for no good reason,
                 // especially on replaceState, so wrap in a try/catch.
                 try {

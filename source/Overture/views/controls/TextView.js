@@ -9,7 +9,7 @@ import DOMEvent from '../../dom/DOMEvent.js';
 import ScrollView from '../containers/ScrollView.js';
 import AbstractControlView from './AbstractControlView.js';
 
-var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
+const nativePlaceholder = 'placeholder' in document.createElement( 'input' );
 
 /**
     Class: O.TextView
@@ -19,7 +19,7 @@ var nativePlaceholder = 'placeholder' in document.createElement( 'input' );
     A text input control. The `value` property is two-way bindable, representing
     the input text.
 */
-var TextView = Class({
+const TextView = Class({
 
     Extends: AbstractControlView,
 
@@ -140,11 +140,11 @@ var TextView = Class({
 
     */
     selection: function ( selection ) {
-        var control = this._domControl,
-            isNumber = ( typeof selection === 'number' ),
-            start = selection ? isNumber ?
-                    selection : selection.start : 0,
-            end = selection ? isNumber ?
+        const control = this._domControl;
+        const isNumber = ( typeof selection === 'number' );
+        let start = selection ? isNumber ?
+                    selection : selection.start : 0;
+        let end = selection ? isNumber ?
                     selection : selection.end || start : start;
         if ( selection !== undefined ) {
             // Ensure any value changes have been drawn.
@@ -216,7 +216,7 @@ var TextView = Class({
         is-disabled  - The <#isDisabled> property is true.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Text' +
             ( this.get( 'isHighlighted' ) ? ' is-highlighted' : '' ) +
             ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
@@ -241,10 +241,10 @@ var TextView = Class({
         Overridden to draw view. See <O.View#draw>.
     */
     draw: function ( layer, Element, el ) {
-        var value = this.get( 'value' ),
-            placeholder = this.get( 'placeholder' ),
-            isMultiline = this.get( 'isMultiline' ),
-            control = this._domControl = el(
+        const value = this.get( 'value' );
+        const placeholder = this.get( 'placeholder' );
+        const isMultiline = this.get( 'isMultiline' );
+        const control = this._domControl = el(
                 isMultiline ? 'textarea' : 'input', {
                     id: this.get( 'id' ) + '-input',
                     className: 'v-Text-input',
@@ -284,7 +284,7 @@ var TextView = Class({
         redraw.
     */
     textNeedsRedraw: function ( self, property, oldValue ) {
-        var isValue = ( property === 'value' );
+        const isValue = ( property === 'value' );
         if ( !isValue || !this._settingFromInput ) {
             this.propertyNeedsRedraw( self, property, oldValue );
         }
@@ -300,7 +300,7 @@ var TextView = Class({
         <#value> property.
     */
     redrawValue: function () {
-        var value = this.get( 'value' );
+        const value = this.get( 'value' );
         this._domControl.value = value;
         // Ensure placeholder is updated.
         if ( !nativePlaceholder && !this.get( 'isFocussed' ) ) {
@@ -315,8 +315,8 @@ var TextView = Class({
         changes.
     */
     redrawPlaceholder: function () {
-        var placeholder = this.get( 'placeholder' ),
-            control = this._domControl;
+        const placeholder = this.get( 'placeholder' );
+        const control = this._domControl;
         if ( nativePlaceholder ) {
             control.placeholder = placeholder;
         } else if ( this._placeholderShowing ) {
@@ -330,23 +330,21 @@ var TextView = Class({
         Updates any other properties of the `<input>` element.
     */
     redrawInputAttributes: function () {
-        var inputAttributes = this.get( 'inputAttributes' ),
-            control = this._domControl,
-            property;
-        for ( property in inputAttributes ) {
+        const inputAttributes = this.get( 'inputAttributes' );
+        const control = this._domControl;
+        for ( const property in inputAttributes ) {
             control.set( property, inputAttributes[ property ] );
         }
     },
 
     redrawTextHeight: function () {
-        var control = this._domControl,
-            style = control.style,
-            scrollView = this.getParent( ScrollView ),
-            scrollHeight;
+        const control = this._domControl;
+        const style = control.style;
+        const scrollView = this.getParent( ScrollView );
         // Set to auto to collapse it back to one line, otherwise it would
         // never shrink if you delete text.
         style.height = 'auto';
-        scrollHeight = control.scrollHeight;
+        const scrollHeight = control.scrollHeight;
         // Presto returns 0 immediately after appending to doc.
         if ( scrollHeight ) {
             style.height = scrollHeight + 'px';
@@ -388,14 +386,14 @@ var TextView = Class({
         }
         // Restore scroll positions:
         if ( this.get( 'isMultiline' ) ) {
-            var control = this._domControl,
-                left = this.get( 'scrollLeft' ),
-                top = this.get( 'scrollTop' );
+            const control = this._domControl;
+            const left = this.get( 'scrollLeft' );
+            const top = this.get( 'scrollTop' );
             if ( left ) { control.scrollLeft = left; }
             if ( top ) { control.scrollTop = top; }
             control.addEventListener( 'scroll', this, false );
         }
-        var selection = this.get( 'savedSelection' );
+        const selection = this.get( 'savedSelection' );
         if ( selection ) {
             this.set( 'selection', selection ).focus();
             this.set( 'savedSelection', null );
@@ -432,9 +430,9 @@ var TextView = Class({
             event - {Event} The scroll event.
     */
     _syncBackScrolls: function ( event ) {
-        var control = this._domControl,
-            left = control.scrollLeft,
-            top = control.scrollTop;
+        const control = this._domControl;
+        const left = control.scrollLeft;
+        const top = control.scrollTop;
 
         this.beginPropertyChanges()
             .set( 'scrollLeft', left )
@@ -470,8 +468,7 @@ var TextView = Class({
     */
     _setPlaceholder: nativePlaceholder ? null :
     function ( _, __, ___, isFocussed ) {
-        var control = this._domControl,
-            placeholder;
+        const control = this._domControl;
         if ( isFocussed ) {
             if ( this._placeholderShowing ) {
                 this._placeholderShowing = false;
@@ -479,7 +476,7 @@ var TextView = Class({
                 control.value = '';
             }
         } else {
-            placeholder = this.get( 'placeholder' );
+            const placeholder = this.get( 'placeholder' );
             if ( placeholder && !this.get( 'value' ) ) {
                 this._placeholderShowing = true;
                 Element.addClass( control, 'v-Text-input--placeholder' );
@@ -533,7 +530,7 @@ var TextView = Class({
             event - {Event} The keydown event.
     */
     _blurOnEsc: function ( event ) {
-        var key = DOMEvent.lookupKey( event, true );
+        const key = DOMEvent.lookupKey( event, true );
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
         if ( key === 'esc' && this.get( 'blurOnEscape' ) ) {

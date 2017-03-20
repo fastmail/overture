@@ -14,7 +14,7 @@ import View from '../View.js';
 
     Although you may often want to change the layer tag (e.g. to an `h1` etc.)
 */
-var LabelView = Class({
+const LabelView = Class({
 
     Extends: View,
 

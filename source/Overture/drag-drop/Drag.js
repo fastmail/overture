@@ -12,7 +12,7 @@ import ScrollView from '../views/containers/ScrollView.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 
 import DragController from './DragController.js';  // Circular but it's OK
-import DragEffect from './DragEffect.js';
+import * as DragEffect from './DragEffect.js';
 
 /* Issues with native drag and drop.
 
@@ -44,15 +44,6 @@ show-stopping bugs here, so this is handled as normal.
 
 */
 
-// Inlined from O.DragEffect
-var NONE = 0,
-    COPY = 1,
-    MOVE = 2,
-    LINK = 4,
-    ALL = COPY|MOVE|LINK,
-    DEFAULT = 8,
-    effectToString = DragEffect.effectToString;
-
 /**
     Class: O.Drag
 
@@ -60,7 +51,7 @@ var NONE = 0,
 
     Represents a drag operation being performed by a user.
 */
-var Drag = Class({
+const Drag = Class({
 
     Extends: Object,
 
@@ -73,7 +64,7 @@ var Drag = Class({
                     triggered the drag.
     */
     init: function ( mixin ) {
-        var event = mixin.event;
+        const event = mixin.event;
 
         this._dragCursor = null;
         this._stylesheet = null;
@@ -85,10 +76,10 @@ var Drag = Class({
 
         this.isNative = false;
         this.dragSource = null;
-        this.allowedEffects = ALL;
+        this.allowedEffects = DragEffect.ALL;
         this.dataSource = null;
         this.dropTarget = null;
-        this.dropEffect = DEFAULT;
+        this.dropEffect = DragEffect.DEFAULT;
         this.cursorPosition = this.startPosition = {
             x: event.clientX,
             y: event.clientY,
@@ -215,10 +206,10 @@ var Drag = Class({
     */
     _dragImageDidChange: function ( _, __, oldImage, image ) {
         if ( this.isNative ) {
-            var offset = this.get( 'dragImageOffset' );
+            const offset = this.get( 'dragImageOffset' );
             this.event.dataTransfer.setDragImage( image, offset.x, offset.y );
         } else {
-            var dragCursor = this._dragCursor;
+            let dragCursor = this._dragCursor;
             if ( dragCursor ) {
                 if ( oldImage ) {
                     dragCursor.removeChild( oldImage );
@@ -242,11 +233,10 @@ var Drag = Class({
         native drag, where the browser will automatically update the drag image.
     */
     _updateDragImagePosition: function () {
-        var dragImage = this._dragCursor,
-            cursor, offset;
+        const dragImage = this._dragCursor;
         if ( dragImage ) {
-            cursor = this.get( 'cursorPosition' );
-            offset = this.get( 'dragImageOffset' );
+            const cursor = this.get( 'cursorPosition' );
+            const offset = this.get( 'dragImageOffset' );
             dragImage.style.left = ( cursor.x + Math.max( offset.x, 5 ) ) +
                 'px';
             dragImage.style.top = ( cursor.y + Math.max( offset.y, 5 ) ) + 'px';
@@ -265,7 +255,7 @@ var Drag = Class({
                   (e.g. hand when over a link, pointer otherwise).
     */
     _setCursor: function ( set ) {
-        var stylesheet = this._stylesheet,
+        let stylesheet = this._stylesheet,
             cursor = this.get( 'defaultCursor' );
         if ( stylesheet ) {
             stylesheet.parentNode.removeChild( stylesheet );
@@ -273,13 +263,13 @@ var Drag = Class({
         }
         if ( set ) {
             switch ( this.get( 'dropEffect' ) ) {
-                case NONE:
+                case DragEffect.NONE:
                     cursor = 'no-drop';
                     break;
-                case COPY:
+                case DragEffect.COPY:
                     cursor = 'copy';
                     break;
-                case LINK:
+                case DragEffect.LINK:
                     cursor = 'alias';
                     break;
             }
@@ -301,22 +291,21 @@ var Drag = Class({
         file, will also contain a `'Files'` data type.
     */
     dataTypes: function () {
-        var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
+        const dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
         if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
             return dataSource.get( 'dragDataTypes' );
         }
         if ( this.isNative ) {
-            var dataTransfer = this.event.dataTransfer;
+            const dataTransfer = this.event.dataTransfer;
             // Current HTML5 DnD interface
-            var items = dataTransfer.items,
-                types = [],
-                hasFiles = false,
-                l, item, itemType;
+            const items = dataTransfer.items;
+            const types = [];
+            let hasFiles = false;
             if ( items ) {
-                l = items.length;
+                let l = items.length;
                 while ( l-- ) {
-                    item = items[l];
-                    itemType = item.type;
+                    const item = items[l];
+                    const itemType = item.type;
                     if ( !hasFiles ) {
                         hasFiles = ( item.kind === 'file' );
                     }
@@ -363,15 +352,16 @@ var Drag = Class({
             MIME type.
     */
     getFiles: function ( typeRegExp ) {
-        var files = [],
-            dataTransfer = this.event.dataTransfer,
-            items, i, l, item, itemType;
+        const files = [];
+        const dataTransfer = this.event.dataTransfer;
         if ( dataTransfer ) {
             // Current HTML5 DnD interface
+            let items;
             if ( ( items = dataTransfer.items ) ) {
-                for ( i = 0, l = items.length; i < l; i += 1 ) {
-                    item = items[i];
-                    itemType = item.type;
+                const l = items.length;
+                for ( let i = 0; i < l; i += 1 ) {
+                    const item = items[i];
+                    const itemType = item.type;
                     if ( item.kind === 'file' ) {
                         // Ignore folders
                         if ( !itemType ) {
@@ -393,9 +383,10 @@ var Drag = Class({
             }
             // Deprecated HTML5 DnD interface (FF etc.)
             else if ( ( items = dataTransfer.files ) ) {
-                for ( i = 0, l = items.length; i < l; i += 1 ) {
-                    item = items[i];
-                    itemType = item.type;
+                const l = items.length;
+                for ( let i = 0; i < l; i += 1 ) {
+                    const item = items[i];
+                    const itemType = item.type;
                     // Check it's not a folder (size > 0) and it matches any
                     // type requirements
                     if ( item.size &&
@@ -424,20 +415,20 @@ var Drag = Class({
             {O.Drag} Returns self.
     */
     getDataOfType: function ( type, callback ) {
-        var dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' ),
-            dataFound = false;
+        const dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
+        let dataFound = false;
         if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
             callback( dataSource.getDragDataOfType( type, this ) );
             dataFound = true;
         }
         else if ( this.isNative ) {
-            var dataTransfer = this.event.dataTransfer,
-                items = dataTransfer.items,
-                i, l, item;
+            const dataTransfer = this.event.dataTransfer;
+            const items = dataTransfer.items;
             // Current HTML5 DnD interface
             if ( items ) {
-                for ( i = 0, l = items.length; i < l; i += 1 ) {
-                    item = items[i];
+                const l = items.length;
+                for ( let i = 0; i < l; i += 1 ) {
+                    const item = items[i];
                     if ( item.type === type ) {
                         item.getAsString( callback );
                         dataFound = true;
@@ -471,29 +462,29 @@ var Drag = Class({
     startDrag: function () {
         DragController.register( this );
         this.fire( 'dragStarted' );
-        var dragSource = this.get( 'dragSource' ),
-            allowedEffects, dataTransfer, dataSource, dataIsSet, data;
+        const dragSource = this.get( 'dragSource' );
         // No drag source if drag started in another window/app.
         if ( dragSource ) {
             dragSource.set( 'isDragging', true ).dragStarted( this );
 
-            allowedEffects = dragSource.get( 'allowedDragEffects' );
+            const allowedEffects = dragSource.get( 'allowedDragEffects' );
             this.set( 'allowedEffects', allowedEffects );
 
             // Native DnD support.
             if ( this.isNative ) {
-                dataTransfer = this.event.dataTransfer;
-                dataSource = this.get( 'dataSource' ) || dragSource;
-                dataIsSet = false;
+                const dataTransfer = this.event.dataTransfer;
+                const dataSource = this.get( 'dataSource' ) || dragSource;
+                let dataIsSet = false;
 
                 dataTransfer.effectAllowed =
-                    effectToString[ this.get( 'allowedEffects' ) ];
+                    DragEffect.effectToString[ this.get( 'allowedEffects' ) ];
 
                 if ( dataSource.get( 'isDragDataSource' ) ) {
                     dataSource.get( 'dragDataTypes' )
                               .forEach( function ( type ) {
                         if ( type.contains( '/' ) ) {
-                            data = dataSource.getDragDataOfType( type, this );
+                            const data = dataSource.getDragDataOfType(
+                                type, this );
                             // Current HTML5 DnD interface
                             if ( dataTransfer.items ) {
                                 dataTransfer.items.add( data, type );
@@ -532,8 +523,8 @@ var Drag = Class({
             {O.Drag} Returns self.
     */
     endDrag: function () {
-        var dropTarget = this.get( 'dropTarget' ),
-            dragSource = this.get( 'dragSource' );
+        const dropTarget = this.get( 'dropTarget' );
+        const dragSource = this.get( 'dragSource' );
         if ( dropTarget ) {
             dropTarget.dropExited( this );
         }
@@ -577,7 +568,7 @@ var Drag = Class({
         // Find which view is currently under the cursor. If none, presume we've
         // moved the cursor over the drag image, so we're probably still over
         // the current drop.
-        var view = event.targetView,
+        let view = event.targetView,
             x, y;
         if ( !view ) {
             view = this.get( 'dropTarget' );
@@ -647,10 +638,9 @@ var Drag = Class({
             y    - The current y-coordinate of the mouse.
     */
     _check: function ( view, x, y ) {
-        var scroll = this._scrollBounds,
-            scrollView = this._scrollView,
-            outsideTriggerRegionWidth = 15,
-            bounds, deltaX, deltaY;
+        let scroll = this._scrollBounds;
+        let scrollView = this._scrollView;
+        const outsideTriggerRegionWidth = 15;
 
         // If we don't have any containing scroll container bounds, recalculate.
         if ( !scroll ||
@@ -665,15 +655,16 @@ var Drag = Class({
                     scrollView = scrollView.getParent( ScrollView );
                 }
                 if ( scrollView ) {
-                    bounds = scrollView.get( 'layer' ).getBoundingClientRect();
+                    const bounds = scrollView.get( 'layer' )
+                            .getBoundingClientRect();
                     scroll = {
                         l: bounds.left - outsideTriggerRegionWidth,
                         r: bounds.right + outsideTriggerRegionWidth,
                         t: bounds.top - outsideTriggerRegionWidth,
                         b: bounds.bottom + outsideTriggerRegionWidth,
                     };
-                    deltaX = Math.min( 75, bounds.width >> 2 );
-                    deltaY = Math.min( 75, bounds.height >> 2 );
+                    const deltaX = Math.min( 75, bounds.width >> 2 );
+                    const deltaY = Math.min( 75, bounds.height >> 2 );
                     scroll.hl = scroll.l + deltaX;
                     scroll.hr = scroll.r - deltaX;
                     scroll.ht = scroll.t + deltaY;
@@ -690,8 +681,8 @@ var Drag = Class({
         }
         // And set a new timer if we are currently in a hotspot.
         if ( scroll ) {
-            deltaX = x < scroll.hl ? -10 : x > scroll.hr ? 10 : 0;
-            deltaY = y < scroll.ht ? -10 : y > scroll.hb ? 10 : 0;
+            const deltaX = x < scroll.hl ? -10 : x > scroll.hr ? 10 : 0;
+            const deltaY = y < scroll.ht ? -10 : y > scroll.hb ? 10 : 0;
             if ( deltaX || deltaY ) {
                 this._scrollBy = { x: deltaX, y: deltaY };
                 this._scrollInterval =
@@ -707,12 +698,12 @@ var Drag = Class({
         over.
     */
     _scroll: function () {
-        var scrollView = this._scrollView,
-            scrollBy = this._scrollBy;
+        const scrollView = this._scrollView;
+        const scrollBy = this._scrollBy;
 
         if ( scrollView.scrollBy( scrollBy.x, scrollBy.y ) ) {
-            var cursor = this.get( 'cursorPosition' ),
-                target = document.elementFromPoint( cursor.x, cursor.y );
+            const cursor = this.get( 'cursorPosition' );
+            const target = document.elementFromPoint( cursor.x, cursor.y );
             if ( target ) {
                 this._update( ViewEventsController.getViewFromNode( target ) );
             }
@@ -729,8 +720,8 @@ var Drag = Class({
             view - {O.View} The view the mouse is currently over.
     */
     _update: function ( view ) {
-        var currentDrop = this.get( 'dropTarget' ),
-            dragSource = this.get( 'dragSource' );
+        let currentDrop = this.get( 'dropTarget' );
+        const dragSource = this.get( 'dragSource' );
 
         // Find the current drop Target
         while ( view ) {
@@ -778,9 +769,10 @@ var Drag = Class({
     */
     drop: function ( event ) {
         this.event = event;
-        var dropEffect = this.dropEffect;
+        const dropEffect = this.dropEffect;
         if ( this.dropTarget &&
-                dropEffect !== NONE && dropEffect !== DEFAULT ) {
+                dropEffect !== DragEffect.NONE &&
+                dropEffect !== DragEffect.DEFAULT ) {
             this.dropTarget.drop( this );
         }
         return this;

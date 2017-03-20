@@ -79,8 +79,8 @@ Array.implement({
             {Array} Returns self.
     */
     include: function ( item ) {
-        var i = 0,
-            l = this.length;
+        let i = 0;
+        const l = this.length;
         while ( i < l && this[i] !== item ) {
             i += 1;
         }
@@ -101,7 +101,7 @@ Array.implement({
             {Array} Returns self.
     */
     erase: function ( item ) {
-        var l = this.length;
+        let l = this.length;
         while ( l-- ) {
             if ( this[l] === item ) {
                 this.splice( l, 1 );

@@ -9,28 +9,28 @@ import UA from '../../ua/UA.js';
 import View from '../View.js';
 import ViewEventsController from '../ViewEventsController.js';
 
-var ScrollAnimation = Class({
+const ScrollAnimation = Class({
 
     Extends: Animation,
 
     duration: 250,
 
     prepare: function ( coordinates ) {
-        var object = this.object,
-            startX = this.startX = object.get( 'scrollLeft' ),
-            startY = this.startY = object.get( 'scrollTop' ),
-            endX = this.endX = coordinates.x || 0,
-            endY = this.endY = coordinates.y || 0,
-            deltaX = this.deltaX = endX - startX,
-            deltaY = this.deltaY = endY - startY;
+        const object = this.object;
+        const startX = this.startX = object.get( 'scrollLeft' );
+        const startY = this.startY = object.get( 'scrollTop' );
+        const endX = this.endX = coordinates.x || 0;
+        const endY = this.endY = coordinates.y || 0;
+        const deltaX = this.deltaX = endX - startX;
+        const deltaY = this.deltaY = endY - startY;
 
         return !!( deltaX || deltaY );
     },
 
     drawFrame: function ( position ) {
-        var x = position < 1 ?
-                this.startX + ( position * this.deltaX ) : this.endX,
-            y = position < 1 ?
+        const x = position < 1 ?
+                this.startX + ( position * this.deltaX ) : this.endX;
+        const y = position < 1 ?
                 this.startY + ( position * this.deltaY ) : this.endY;
         this.object._scrollTo( x, y );
     },
@@ -46,7 +46,7 @@ var ScrollAnimation = Class({
     only be shown for vertical overflow. Set the <O.ScrollView#showScrollbarX>
     property to `true` to show a scrollbar on horizontal overflow as well.
 */
-var ScrollView = Class({
+const ScrollView = Class({
 
     Extends: View,
 
@@ -101,7 +101,7 @@ var ScrollView = Class({
         Sets the overflow styles to show the scrollbars.
     */
     layerStyles: function () {
-        var styles = View.prototype.layerStyles.call( this );
+        const styles = View.prototype.layerStyles.call( this );
         styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
         styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
         styles.WebkitOverflowScrolling = 'touch';
@@ -140,10 +140,9 @@ var ScrollView = Class({
         this.get( 'scrollLayer' ).addEventListener( 'scroll', this, false );
 
         // Add keyboard shortcuts:
-        var keys = this.get( 'keys' ),
-            shortcuts = ViewEventsController.kbShortcuts,
-            key;
-        for ( key in keys ) {
+        const keys = this.get( 'keys' );
+        const shortcuts = ViewEventsController.kbShortcuts;
+        for ( const key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
         }
 
@@ -152,10 +151,9 @@ var ScrollView = Class({
 
     willLeaveDocument: function () {
         // Remove keyboard shortcuts:
-        var keys = this.get( 'keys' ),
-            shortcuts = ViewEventsController.kbShortcuts,
-            key;
-        for ( key in keys ) {
+        const keys = this.get( 'keys' );
+        const shortcuts = ViewEventsController.kbShortcuts;
+        for ( const key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );
         }
 
@@ -168,7 +166,7 @@ var ScrollView = Class({
         // Scroll is reset to 0 in some browsers whenever it is removed from the
         // DOM, so we need to set it to what it should be.
         if ( this.get( 'isInDocument' ) ) {
-            var layer = this.get( 'scrollLayer' );
+            const layer = this.get( 'scrollLayer' );
             layer.scrollLeft = this.get( 'scrollLeft' );
             layer.scrollTop = this.get( 'scrollTop' );
         }
@@ -278,8 +276,8 @@ var ScrollView = Class({
             {Boolean} Did the view actually scroll (false if already at end)?
     */
     scrollBy: function ( x, y, withAnimation ) {
-        var left = this.get( 'scrollLeft' ),
-            top = this.get( 'scrollTop' );
+        const left = this.get( 'scrollLeft' );
+        const top = this.get( 'scrollTop' );
         x += left;
         y += top;
 
@@ -306,7 +304,7 @@ var ScrollView = Class({
             {O.ScrollView} Returns self.
     */
     scrollToView: function ( view, offset, withAnimation ) {
-        var position = view.getPositionRelativeTo( this );
+        const position = view.getPositionRelativeTo( this );
         return this.scrollTo(
             position.left + ( offset && offset.x || 0 ),
             position.top + ( offset && offset.y || 0 ),
@@ -336,7 +334,7 @@ var ScrollView = Class({
         x = x < 0 ? 0 : Math.round( x );
         y = y < 0 ? 0 : Math.round( y );
 
-        var scrollAnimation = this.get( 'scrollAnimation' );
+        const scrollAnimation = this.get( 'scrollAnimation' );
         scrollAnimation.stop();
 
         if ( withAnimation && this.get( 'isInDocument' ) ) {
@@ -371,9 +369,9 @@ var ScrollView = Class({
         Redraws the scroll position in the layer to match the view's state.
     */
     redrawScroll: function () {
-        var layer = this.get( 'scrollLayer' ),
-            x = this.get( 'scrollLeft' ),
-            y = this.get( 'scrollTop' );
+        const layer = this.get( 'scrollLayer' );
+        const x = this.get( 'scrollLeft' );
+        const y = this.get( 'scrollTop' );
         layer.scrollLeft = x;
         layer.scrollTop = y;
         // In case we've gone past the end.
@@ -394,9 +392,9 @@ var ScrollView = Class({
         if ( this._needsRedraw ) {
             return;
         }
-        var layer = this.get( 'scrollLayer' ),
-            x = layer.scrollLeft,
-            y = layer.scrollTop;
+        const layer = this.get( 'scrollLayer' );
+        const x = layer.scrollLeft;
+        const y = layer.scrollTop;
         this.beginPropertyChanges()
             .set( 'scrollLeft', x )
             .set( 'scrollTop', y )
@@ -414,19 +412,19 @@ var ScrollView = Class({
 if ( UA.isIOS ) {
     ScrollView.implement({
         isFixedDimensions: function () {
-            var positioning = this.get( 'positioning' );
+            const positioning = this.get( 'positioning' );
             return positioning === 'absolute' || positioning === 'fixed';
         }.property( 'positioning' ),
 
         draw: function ( layer, Element, el ) {
-            var isFixedDimensions = this.get( 'isFixedDimensions' ),
-                scrollFixerHeight = 1,
-                wrapper = null,
-                safariVersion = UA.safari,
-                children;
+            const isFixedDimensions = this.get( 'isFixedDimensions' );
+            let scrollFixerHeight = 1;
+            let wrapper = null;
+            const safariVersion = UA.safari;
 
             // Render the children.
-            children = ScrollView.parent.draw.call( this, layer, Element, el );
+            const children = ScrollView.parent.draw.call( this,
+                layer, Element, el );
 
             // Trick 1: The dual overflow:scroll view.
             // By default, iOS Safari will scroll the containing scroll view
@@ -489,8 +487,8 @@ if ( UA.isIOS ) {
 
         _setNotAtEnd: function () {
             if ( this.get( 'isInDocument' ) ) {
-                var scrollTop = this.get( 'scrollTop' ),
-                    scrollLeft = this.get( 'scrollLeft' );
+                const scrollTop = this.get( 'scrollTop' );
+                const scrollLeft = this.get( 'scrollLeft' );
                 if ( !scrollTop ) {
                     this.scrollTo( scrollLeft, 1 );
                 } else if ( scrollTop + this.get( 'pxHeight' ) ===
@@ -502,7 +500,7 @@ if ( UA.isIOS ) {
 
         preventRootScroll: function ( event ) {
             if ( !this.get( 'isFixedDimensions' ) ) {
-                var layer = this.get( 'layer' );
+                const layer = this.get( 'layer' );
                 if ( layer.scrollHeight <= layer.offsetHeight ) {
                     event.preventDefault();
                 }

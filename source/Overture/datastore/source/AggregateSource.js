@@ -12,7 +12,7 @@ import Source from './Source.js';
     on an aggregate source is passed around the sources it is managing until it
     finds one that can handle it.
 */
-var AggregateSource = Class({
+const AggregateSource = Class({
 
     Extends: Source,
 
@@ -60,7 +60,7 @@ var AggregateSource = Class({
     },
 
     storeWasSet: function () {
-        var store = this.get( 'store' );
+        const store = this.get( 'store' );
         this.sources.forEach( function ( source ) {
             source.set( 'store', store );
         });
@@ -85,7 +85,7 @@ var AggregateSource = Class({
     },
 
     commitChanges: function ( changes, callback ) {
-        var waiting = 0,
+        let waiting = 0,
             callbackAfterAll;
         if ( callback ) {
             callbackAfterAll = function () {

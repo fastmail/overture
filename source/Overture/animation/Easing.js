@@ -1,6 +1,6 @@
 import '../core/Core.js';  // For Function#extend
 
-var cubicBezier;
+let cubicBezier;
 
 /**
     Object: O.Easing
@@ -29,27 +29,27 @@ export default {
     cubicBezier: cubicBezier = function ( p1x, p1y, p2x, p2y ) {
         // Calculate constants in parametric bezier formular
         // http://www.moshplant.com/direct-or/bezier/math.html
-        var cX = 3 * p1x,
-            bX = 3 * ( p2x - p1x ) - cX,
-            aX = 1 - cX - bX,
+        const cX = 3 * p1x;
+        const bX = 3 * ( p2x - p1x ) - cX;
+        const aX = 1 - cX - bX;
 
-            cY = 3 * p1y,
-            bY = 3 * ( p2y - p1y ) - cY,
-            aY = 1 - cY - bY;
+        const cY = 3 * p1y;
+        const bY = 3 * ( p2y - p1y ) - cY;
+        const aY = 1 - cY - bY;
 
         // Functions for calculating x, x', y for t
-        var bezierX = function ( t ) {
+        const bezierX = function ( t ) {
             return t * ( cX + t * ( bX + t * aX ) );
         };
-        var bezierXDerivative = function ( t ) {
+        const bezierXDerivative = function ( t ) {
             return cX + t * ( 2 * bX + 3 * aX * t );
         };
 
         // Use Newton-Raphson method to find t for a given x.
         // Since x = a*t^3 + b*t^2 + c*t, we find the root for
         // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
-        var newtonRaphson = function ( x ) {
-            var prev,
+        const newtonRaphson = function ( x ) {
+            let prev,
                 // Initial estimation is linear
                 t = x;
             do {
@@ -61,7 +61,7 @@ export default {
         };
 
         return function ( x ) {
-            var t = newtonRaphson( x );
+            const t = newtonRaphson( x );
             // This is y given t on the bezier curve.
             return t * ( cY + t * ( bY + t * aY ) );
         }.extend({

@@ -14,9 +14,9 @@ import { loc } from './LocaleController.js';
     Returns:
         {String} The formatted duration.
 */
-var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
-    var durationInSeconds = Math.abs( Math.floor( durationInMS / 1000 ) ),
-        time, weeks, days, hours, minutes;
+const formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
+    const durationInSeconds = Math.abs( Math.floor( durationInMS / 1000 ) );
+    let time, weeks, days, hours, minutes;
 
     if ( durationInSeconds < 60 ) {
         if ( approx ) {
@@ -82,9 +82,9 @@ Date.implement({
     relativeTo: function ( date, approx ) {
         if ( !date ) { date = new Date(); }
 
-        var duration = ( date - this ),
-            isFuture = ( duration < 0 ),
-            time, years, months;
+        let duration = ( date - this );
+        const isFuture = ( duration < 0 );
+        let time, years, months;
 
         if ( isFuture ) {
             duration = -duration;

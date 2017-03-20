@@ -12,7 +12,7 @@ import CheckboxView from './CheckboxView.js';
     A radio-button control view. The `value` property is two-way bindable,
     representing the state of the button (`true` => selected).
 */
-var RadioView = Class({
+const RadioView = Class({
 
     Extends: AbstractControlView,
 
@@ -28,7 +28,7 @@ var RadioView = Class({
         Overrides default in <O.View#className>.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Radio ' +
             ( this.get( 'value' ) ? 'is-checked' : 'is-unchecked' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +

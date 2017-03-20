@@ -3,31 +3,31 @@
 import '../core/Core.js';  // For Function#implement
 import Heap from './Heap.js';
 
-var win = window;
+const win = window;
 
-var setImmediate = window.setImmediate || function ( fn ) {
+const setImmediate = window.setImmediate || function ( fn ) {
         return setTimeout( fn, 0 );
     };
 
-var requestAnimFrame =
+const requestAnimFrame =
     win.requestAnimationFrame       ||
     win.oRequestAnimationFrame      ||
     win.webkitRequestAnimationFrame ||
     win.mozRequestAnimationFrame    ||
     win.msRequestAnimationFrame     ||
     ( function () {
-        var lastTime = 0;
+        let lastTime = 0;
         return function ( callback ) {
-            var time = Date.now(),
-                timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
-                lastTime = time;
+            const time = Date.now();
+            const timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
+            lastTime = time;
             win.setTimeout( function () {
                 callback( time + timeToNextCall );
             }, timeToNextCall );
         };
     }() );
 
-var Timeout = function ( time, period, fn, bind ) {
+const Timeout = function ( time, period, fn, bind ) {
     this.time = time;
     this.period = period;
     this.fn = fn;
@@ -42,9 +42,11 @@ var Timeout = function ( time, period, fn, bind ) {
     To use, wrap the entry point functions in a call to <O.RunLoop.invoke>.
 */
 
-var nextLoop, processTimeouts, nextFrame;
+// eslint-disable-next-line prefer-const
+let nextLoop, processTimeouts, nextFrame;
+// (Because of a false positive. TODO(cmorgan): report this as a bug in eslint.)
 
-var RunLoop = {
+const RunLoop = {
 
     mayRedraw: false,
 
@@ -121,17 +123,16 @@ var RunLoop = {
             {Boolean} Were any functions actually invoked?
     */
     flushQueue: function ( queue ) {
-        var toInvoke = this._queues[ queue ],
-            l = toInvoke.length,
-            i, tuple, fn, bind;
+        const toInvoke = this._queues[ queue ];
+        const l = toInvoke.length;
 
         if ( l ) {
             this._queues[ queue ] = [];
 
-            for ( i = 0; i < l; i += 1 ) {
-                tuple = toInvoke[i];
-                fn = tuple[0];
-                bind = tuple[1];
+            for ( let i = 0; i < l; i += 1 ) {
+                const tuple = toInvoke[i];
+                const fn = tuple[0];
+                const bind = tuple[1];
                 try {
                     if ( bind ) {
                         fn.call( bind );
@@ -162,8 +163,9 @@ var RunLoop = {
             {Boolean} Were any functions actually invoked?
     */
     flushAllQueues: function () {
-        var order = this._queueOrder,
-            i = 0, l = order.length;
+        const order = this._queueOrder;
+        const l = order.length;
+        let i = 0;
         while ( i < l ) {
             // Render waits for next frame, except if in bg, since
             // animation frames don't fire while in the background
@@ -195,9 +197,8 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     queueFn: function ( queue, fn, bind, allowDups ) {
-        var toInvoke = this._queues[ queue ],
-            l = toInvoke.length,
-            i, tuple;
+        const toInvoke = this._queues[ queue ];
+        const l = toInvoke.length;
         // Log error here, as the stack trace is useless inside flushQueue.
         if ( !fn ) {
             try {
@@ -207,8 +208,8 @@ var RunLoop = {
             }
         } else {
             if ( !allowDups ) {
-                for ( i = 0; i < l; i += 1 ) {
-                    tuple = toInvoke[i];
+                for ( let i = 0; i < l; i += 1 ) {
+                    const tuple = toInvoke[i];
                     if ( tuple[0] === fn && tuple[1] === bind ) {
                         return this;
                     }
@@ -273,7 +274,7 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     invokeInNextEventLoop: function ( fn, bind ) {
-        var nextLoopQueue = this._queues.nextLoop;
+        const nextLoopQueue = this._queues.nextLoop;
         if ( !nextLoopQueue.length ) {
             setImmediate( nextLoop );
         }
@@ -295,7 +296,7 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     invokeInNextFrame: function ( fn, bind ) {
-        var nextFrameQueue = this._queues.nextFrame;
+        const nextFrameQueue = this._queues.nextFrame;
         if ( !nextFrameQueue.length ) {
             requestAnimFrame( nextFrame );
         }
@@ -322,7 +323,7 @@ var RunLoop = {
             to cancel the scheduled invocation.
     */
     invokeAfterDelay: function ( fn, delay, bind ) {
-        var timeout = new Timeout( Date.now() + delay, 0, fn, bind );
+        const timeout = new Timeout( Date.now() + delay, 0, fn, bind );
         this._timeouts.push( timeout );
         this._scheduleTimeout();
         return timeout;
@@ -346,7 +347,7 @@ var RunLoop = {
             by this call.
     */
     invokePeriodically: function ( fn, period, bind ) {
-        var timeout = new Timeout( Date.now() + period, period, fn, bind );
+        const timeout = new Timeout( Date.now() + period, period, fn, bind );
         this._timeouts.push( timeout );
         this._scheduleTimeout();
         return timeout;
@@ -359,12 +360,11 @@ var RunLoop = {
         timeout in the priority queue.
     */
     _scheduleTimeout: function () {
-        var timeout = this._timeouts.peek(),
-            time = timeout ? timeout.time : 0,
-            delay;
+        const timeout = this._timeouts.peek();
+        const time = timeout ? timeout.time : 0;
         if ( time && time !== this._nextTimeout ) {
             clearTimeout( this._timer );
-            delay = time - Date.now();
+            const delay = time - Date.now();
             if ( delay > 0 ) {
                 this._timer = setTimeout( processTimeouts, time - Date.now() );
                 this._nextTimeout = time;
@@ -384,10 +384,10 @@ var RunLoop = {
             {O.RunLoop} Returns self.
     */
     processTimeouts: function () {
-        var timeouts = this._timeouts,
-            timeout, period;
+        const timeouts = this._timeouts;
         while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
-            timeout = timeouts.pop();
+            const timeout = timeouts.pop();
+            let period;
             if ( period = timeout.period ) {
                 timeout.time = Date.now() + period;
                 timeouts.push( timeout );
@@ -450,7 +450,7 @@ Function.implement({
             <O.RunLoop.queueFn>.
     */
     queue: function ( queue ) {
-        var fn = this;
+        const fn = this;
         return function () {
             RunLoop.queueFn( queue, fn, this );
             return this;
@@ -465,7 +465,7 @@ Function.implement({
             <O.RunLoop.invokeInNextEventLoop>.
     */
     nextLoop: function () {
-        var fn = this;
+        const fn = this;
         return function () {
             RunLoop.invokeInNextEventLoop( fn, this );
             return this;
@@ -480,7 +480,7 @@ Function.implement({
             <O.RunLoop.invokeInNextFrame>.
     */
     nextFrame: function () {
-        var fn = this;
+        const fn = this;
         return function () {
             RunLoop.invokeInNextFrame( fn, this );
             return this;
@@ -496,7 +496,7 @@ Function.implement({
             {Function} Returns wrapped function.
     */
     invokeInRunLoop: function () {
-        var fn = this;
+        const fn = this;
         return function () {
             RunLoop.invoke( fn, this, arguments );
         };

@@ -5,7 +5,7 @@ import ViewEventsController from '../views/ViewEventsController.js';
 import Tap from './Tap.js';
 import Gesture from './Gesture.js';
 
-var HoldEvent = Class({
+const HoldEvent = Class({
 
     Extends: Event,
 
@@ -15,7 +15,7 @@ var HoldEvent = Class({
     },
 });
 
-var fireHoldEvent = function () {
+const fireHoldEvent = function () {
     if ( !this._ignore ) {
         ViewEventsController.handleEvent(
             new HoldEvent( this.touch )
@@ -23,7 +23,7 @@ var fireHoldEvent = function () {
     }
 };
 
-var TrackedTouch = function ( touch ) {
+const TrackedTouch = function ( touch ) {
     this.touch = touch;
     this.x = touch.screenX;
     this.y = touch.screenY;
@@ -48,12 +48,12 @@ export default new Gesture({
     cancel: Tap.cancel,
 
     start: function ( event ) {
-        var touches = event.changedTouches,
-            tracking = this._tracking,
-            i, l, touch, id;
-        for ( i = 0, l = touches.length; i < l; i += 1 ) {
-            touch = touches[i];
-            id = touch.identifier;
+        const touches = event.changedTouches;
+        const tracking = this._tracking;
+        const l = touches.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const touch = touches[i];
+            const id = touch.identifier;
             if ( !tracking[ id ] ) {
                 tracking[ id ] = new TrackedTouch( touch );
             }
@@ -63,13 +63,13 @@ export default new Gesture({
     move: Tap.move,
 
     end: function ( event ) {
-        var touches = event.changedTouches,
-            tracking = this._tracking,
-            i, l, touch, id, trackedTouch;
-        for ( i = 0, l = touches.length; i < l; i += 1 ) {
-            touch = touches[i];
-            id = touch.identifier;
-            trackedTouch = tracking[ id ];
+        const touches = event.changedTouches;
+        const tracking = this._tracking;
+        const l = touches.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const touch = touches[i];
+            const id = touch.identifier;
+            const trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 trackedTouch.done();
                 delete tracking[ id ];

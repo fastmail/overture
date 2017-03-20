@@ -12,7 +12,7 @@ import '../../foundation/ComputedProps.js';  // For Function#property
 
     An immutable enumerable object representing a list of records.
  */
-var RecordArray = Class({
+const RecordArray = Class({
 
     Extends: Object,
 
@@ -48,13 +48,11 @@ var RecordArray = Class({
             {O.Record} The record at index i in this array.
     */
     getObjectAt: function ( index ) {
-        var storeKey = this.get( 'storeKeys' )[ index ],
-            record;
+        const storeKey = this.get( 'storeKeys' )[ index ];
         if ( storeKey ) {
-            record = this.get( 'store' )
+            return this.get( 'store' )
                          .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
-        return record;
     },
 });
 

@@ -8,11 +8,11 @@ import '../foundation/EventTarget.js';  // For Function#on
 import '../foundation/ObservableProps.js';  // For Function#observes
 import XHR from './XHR.js';
 
-var NativeEventSource = window.EventSource;
+const NativeEventSource = window.EventSource;
 
-var CONNECTING = 0;
-var OPEN = 1;
-var CLOSED = 2;
+const CONNECTING = 0;
+const OPEN = 1;
+const CLOSED = 2;
 
 /**
     Class: O.EventSource
@@ -25,7 +25,7 @@ var CLOSED = 2;
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
-var EventSource = NativeEventSource ? Class({
+const EventSource = NativeEventSource ? Class({
 
     Extends: Object,
 
@@ -66,10 +66,9 @@ var EventSource = NativeEventSource ? Class({
 
         EventSource.parent.init.call( this, mixin );
 
-        var eventTypes = [ 'open', 'message', 'error' ],
-            observers = meta( this ).observers,
-            type;
-        for ( type in observers ) {
+        const eventTypes = [ 'open', 'message', 'error' ];
+        const observers = meta( this ).observers;
+        for ( const type in observers ) {
             if ( /^__event__/.test( type ) ) {
                 eventTypes.include( type.slice( 9 ) );
             }
@@ -78,8 +77,8 @@ var EventSource = NativeEventSource ? Class({
     },
 
     on: function ( type ) {
-        var types = this._eventTypes,
-            eventSource = this._eventSource;
+        const types = this._eventTypes;
+        const eventSource = this._eventSource;
         if ( types.indexOf( type ) === -1 ) {
             types.push( type );
             if ( eventSource ) {
@@ -101,7 +100,7 @@ var EventSource = NativeEventSource ? Class({
         connection.
     */
     _check: function () {
-        var now = Date.now();
+        const now = Date.now();
         if ( now - this._then > 67500 ) {
             this.fire( 'restart' )
                 .close()
@@ -121,7 +120,7 @@ var EventSource = NativeEventSource ? Class({
         Sets up the timer to check if the computer has been asleep.
     */
     _startStopCheck: function () {
-        var tick = this._tick;
+        const tick = this._tick;
         if ( this.get( 'readyState' ) !== CLOSED ) {
             if ( !tick ) {
                 this._then = Date.now();
@@ -146,7 +145,7 @@ var EventSource = NativeEventSource ? Class({
     */
     open: function () {
         if ( this.get( 'readyState' ) === CLOSED ) {
-            var eventSource = this._eventSource =
+            const eventSource = this._eventSource =
                 new NativeEventSource( this.get( 'url' ) );
 
             this._eventTypes.forEach( function ( type ) {
@@ -178,9 +177,9 @@ var EventSource = NativeEventSource ? Class({
     */
     _sourceDidClose: function () {
         if ( this.get( 'readyState' ) === CLOSED ) {
-            var eventSource = this._eventSource,
-                types = this._eventTypes,
-                l = types.length;
+            const eventSource = this._eventSource;
+            const types = this._eventTypes;
+            let l = types.length;
             eventSource.close();
             while ( l-- ) {
                 eventSource.removeEventListener( types[l], this, false );
@@ -200,7 +199,7 @@ var EventSource = NativeEventSource ? Class({
     },
 
     open: function () {
-        var headers = {
+        const headers = {
             'Accept': 'text/event-stream',
             'Cache-Control': 'no-cache',
         };
@@ -231,12 +230,12 @@ var EventSource = NativeEventSource ? Class({
     // ---
 
     _dataDidArrive: function () {
-        var xhr = this._xhr;
+        const xhr = this._xhr;
         // Must start with text/event-stream (i.e. indexOf must === 0)
         // If it doesn't, fail the connection.
         // IE doesn't let you read headers in the loading phase, so if we don't
         // know the response type, we'll just presume it's correct.
-        var contentType = xhr.getHeader( 'Content-type' );
+        const contentType = xhr.getHeader( 'Content-type' );
         if ( contentType && contentType.indexOf( 'text/event-stream' ) !== 0 ) {
             this._failConnection();
         } else {
@@ -276,9 +275,8 @@ var EventSource = NativeEventSource ? Class({
 
     _processData: function ( text ) {
         // Look for a new line character since the last processed
-        var lastIndex = this._lastNewLineIndex,
-            newLine = /\u000d\u000a?|\u000a/g,
-            match;
+        let lastIndex = this._lastNewLineIndex;
+        const newLine = /\u000d\u000a?|\u000a/g;
 
         // One leading U+FEFF BYTE ORDER MARK character must be ignored if any
         // are present.
@@ -286,6 +284,7 @@ var EventSource = NativeEventSource ? Class({
             lastIndex = 1;
         }
         newLine.lastIndex = this._processedIndex;
+        let match;
         while ( match = newLine.exec( text ) ) {
             this._processLine( text.slice( lastIndex, match.index ) );
             lastIndex = newLine.lastIndex;
@@ -299,9 +298,9 @@ var EventSource = NativeEventSource ? Class({
         if ( /^\s*$/.test( line ) ) {
             this._dispatchEvent();
         } else {
-            var colon = line.indexOf( ':' ),
-                field = line,
-                value = '';
+            const colon = line.indexOf( ':' );
+            let field = line;
+            let value = '';
             // Line starts with colon -> ignore.
             if ( !colon ) {
                 return;
@@ -332,8 +331,8 @@ var EventSource = NativeEventSource ? Class({
     },
 
     _dispatchEvent: function () {
-        var data = this._data,
-            type = this._eventName;
+        let data = this._data;
+        const type = this._eventName;
         if ( data ) {
             if ( data.slice( -1 ) === '\u000a' ) {
                 data = data.slice( 0, -1 );

@@ -18,7 +18,7 @@ import Element from '../../dom/Element.js';
     and should not be instantiated directly; it is only intended to be
     subclassed.
 */
-var AbstractControlView = Class({
+const AbstractControlView = Class({
 
     Extends: View,
 
@@ -95,7 +95,7 @@ var AbstractControlView = Class({
         informing the user of the keyboard shortcut for the control, if set.
     */
     tooltip: function () {
-        var shortcut = this.get( 'shortcut' );
+        const shortcut = this.get( 'shortcut' );
         return shortcut ?
             loc( 'Shortcut: [_1]',
                 shortcut
@@ -112,7 +112,7 @@ var AbstractControlView = Class({
         See <O.View#didEnterDocument>.
     */
     didEnterDocument: function () {
-        var shortcut = this.get( 'shortcut' );
+        const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
                 ViewEventsController.kbShortcuts
@@ -129,7 +129,7 @@ var AbstractControlView = Class({
         See <O.View#didEnterDocument>.
     */
     willLeaveDocument: function () {
-        var shortcut = this.get( 'shortcut' );
+        const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
                 ViewEventsController.kbShortcuts
@@ -176,10 +176,10 @@ var AbstractControlView = Class({
         Overridden to set properties and add label. See <O.View#draw>.
     */
     draw: function ( layer, Element, el ) {
-        var control = this._domControl,
-            name = this.get( 'name' ),
-            shortcut = this.get( 'shortcut' ),
-            tabIndex = this.get( 'tabIndex' );
+        const control = this._domControl;
+        const name = this.get( 'name' );
+        const shortcut = this.get( 'shortcut' );
+        const tabIndex = this.get( 'tabIndex' );
 
         if ( !control.id ) {
             control.id = this.get( 'id' ) + '-input';
@@ -224,8 +224,8 @@ var AbstractControlView = Class({
         Updates the DOM label to match the label property of the view.
     */
     redrawLabel: function () {
-        var label = this._domLabel,
-            child;
+        const label = this._domLabel;
+        let child;
         while ( child = label.firstChild ) {
             label.removeChild( child );
         }

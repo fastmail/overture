@@ -3,12 +3,12 @@
 import { Class } from '../core/Core.js';
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 
-var isLocal = location.protocol === 'file:';
+const isLocal = location.protocol === 'file:';
 
-var parseHeaders = function ( allHeaders ) {
-    var headers = {};
-    var start = 0;
-    var end, name;
+const parseHeaders = function ( allHeaders ) {
+    const headers = {};
+    let start = 0;
+    let end, name;
     while ( true ) {
         // Ignore any leading white space
         while ( /\s/.test( allHeaders.charAt( start ) ) ) {
@@ -52,7 +52,7 @@ var parseHeaders = function ( allHeaders ) {
     into the more fully featured <O.HttpRequest> class; you should use that
     class for most things.
 */
-var XHR = Class({
+const XHR = Class({
     /**
         Property: O.XHR#io
         Type: (O.Object|null)
@@ -121,7 +121,7 @@ var XHR = Class({
             {String} The text of the header or the empty string if not found.
     */
     getHeader: function ( name ) {
-        var header;
+        let header;
         try {
             header = this.xhr.getResponseHeader( name );
         } catch ( error ) {}
@@ -188,10 +188,10 @@ var XHR = Class({
         }
         this._isRunning = true;
 
-        var xhr = this.xhr = new XMLHttpRequest();
-        var io = this.io;
-        var that = this;
-        var name;
+        const xhr = this.xhr = new XMLHttpRequest();
+        const io = this.io;
+        const that = this;
+        let name;
 
         xhr.open( method, url, this.makeAsyncRequests );
         xhr.withCredentials = !!withCredentials;
@@ -245,10 +245,10 @@ var XHR = Class({
             xhr - {XMLHttpRequest} The object whose state has changed.
     */
     _xhrStateDidChange: function ( xhr ) {
-        var state = xhr.readyState;
-        var io = this.io;
-        var status, allHeaders, isSuccess;
-        var responseHeaders, response;
+        const state = xhr.readyState;
+        const io = this.io;
+        let status, allHeaders, isSuccess;
+        let responseHeaders, response;
 
         if ( state < 3 || !this._isRunning ) {
             return;
@@ -307,8 +307,8 @@ var XHR = Class({
     }.invokeInRunLoop(),
 
     handleEvent: function ( event ) {
-        var io = this.io;
-        var type;
+        const io = this.io;
+        let type;
         if ( io && event.type === 'progress' ) {
             type = event.target === this.xhr ? 'progress' : 'uploadProgress';
             // CORE-47058. Limit to 99% on progress events, as Opera can report
@@ -333,8 +333,8 @@ var XHR = Class({
     abort: function () {
         if ( this._isRunning ) {
             this._isRunning = false;
-            var xhr = this.xhr;
-            var io = this.io;
+            const xhr = this.xhr;
+            const io = this.io;
             xhr.abort();
             xhr.onreadystatechange = function () {};
             if ( xhr.upload ) {

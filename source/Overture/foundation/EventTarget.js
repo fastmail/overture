@@ -4,8 +4,8 @@ import '../core/Array.js';  // For Array#erase
 import Event from './Event.js';
 import RunLoop from './RunLoop.js';
 
-var slice = Array.prototype.slice;
-var eventPrefix = '__event__';
+const slice = Array.prototype.slice;
+const eventPrefix = '__event__';
 
 Function.implement({
     /**
@@ -78,8 +78,8 @@ export default {
         }
         type = eventPrefix + type;
 
-        var observers = meta( this ).observers,
-            handlers = observers[ type ];
+        const observers = meta( this ).observers;
+        let handlers = observers[ type ];
         if ( !observers.hasOwnProperty( type ) ) {
             handlers = observers[ type ] = handlers ?
                 handlers.slice() : [];
@@ -102,7 +102,7 @@ export default {
             {O.EventTarget} Returns self.
     */
     once: function ( type, fn ) {
-        var once = function ( event ) {
+        const once = function ( event ) {
             fn.call( this, event );
             this.off( type, once );
         };
@@ -135,9 +135,8 @@ export default {
             {O.EventTarget} Returns self.
     */
     fire: function ( type, event ) {
-        var target = this,
-            typeKey = eventPrefix + type,
-            handler, handlers, length;
+        let target = this;
+        const typeKey = eventPrefix + type;
 
         if ( !event || !( event instanceof Event ) ) {
             if ( event && /Event\]$/.test( event.toString() ) ) {
@@ -152,11 +151,11 @@ export default {
         event.propagationStopped = false;
 
         while ( target ) {
-            handlers = meta( target ).observers[ typeKey ];
-            length = handlers ? handlers.length : 0;
+            const handlers = meta( target ).observers[ typeKey ];
+            let length = handlers ? handlers.length : 0;
             while ( length-- ) {
                 try {
-                    handler = handlers[ length ];
+                    const handler = handlers[ length ];
                     if ( handler instanceof Function ) {
                         handler.call( target, event );
                     } else {
@@ -202,17 +201,17 @@ export default {
     off: function ( type, obj, method ) {
         type = eventPrefix + type;
 
-        var observers = meta( this ).observers,
-            handlers = observers[ type ];
+        const observers = meta( this ).observers;
+        let handlers = observers[ type ];
         if ( handlers ) {
             if ( !observers.hasOwnProperty( type ) ) {
                 handlers = observers[ type ] = handlers.slice();
             }
             if ( obj ) {
                 if ( !( obj instanceof Function ) ) {
-                    var l = handlers.length;
+                    let l = handlers.length;
                     while ( l-- ) {
-                        var handler = handlers[l];
+                        const handler = handlers[l];
                         if ( handler.object === obj &&
                                 handler.method === method ) {
                             handlers.splice( l, 1 );

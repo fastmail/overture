@@ -3,7 +3,7 @@ import { loc } from '../../localisation/LocaleController.js';
 import TextView from './TextView.js';
 import ClearSearchButtonView from './ClearSearchButtonView.js';
 
-var SearchTextView = Class({
+const SearchTextView = Class({
 
     Extends: TextView,
 
@@ -12,7 +12,7 @@ var SearchTextView = Class({
     icon: null,
 
     draw: function ( layer, Element, el ) {
-        var children =
+        const children =
                 SearchTextView.parent.draw.call( this, layer, Element, el );
         children.push(
             this.get( 'icon' ),

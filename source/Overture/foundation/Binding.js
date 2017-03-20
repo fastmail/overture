@@ -46,12 +46,12 @@ import RunLoop from './RunLoop.js';
         root      - {Object} The object to treat as root.
         path      - {String} The path string.
 */
-var _resolveRootAndPath = function ( binding, direction, root, path ) {
-    var beginObservablePath = path.lastIndexOf( '*' ) + 1,
-        observablePath = path.slice( beginObservablePath ),
-        staticPath = beginObservablePath ?
-            path.slice( 0, beginObservablePath - 1 ) : '',
-        lastDot = observablePath.lastIndexOf( '.' );
+const _resolveRootAndPath = function ( binding, direction, root, path ) {
+    const beginObservablePath = path.lastIndexOf( '*' ) + 1;
+    const observablePath = path.slice( beginObservablePath );
+    const staticPath = beginObservablePath ?
+            path.slice( 0, beginObservablePath - 1 ) : '';
+    const lastDot = observablePath.lastIndexOf( '.' );
 
     binding[ direction + 'Object' ] =
         staticPath ? getFromPath( root, staticPath ) : root;
@@ -61,7 +61,7 @@ var _resolveRootAndPath = function ( binding, direction, root, path ) {
     binding[ direction + 'Key' ] = observablePath.slice( lastDot + 1 );
 };
 
-var isNum = /^\d+$/;
+const isNum = /^\d+$/;
 
 /**
     Method (private): O.Binding-identity
@@ -74,9 +74,9 @@ var isNum = /^\d+$/;
     Returns:
         {*} The value v.
 */
-var identity = function ( v ) { return v; };
+const identity = function ( v ) { return v; };
 
-var Binding = Class({
+const Binding = Class({
 
     __setupProperty__: function ( metadata, key ) {
         metadata.bindings[ key ] = this;
@@ -168,7 +168,7 @@ var Binding = Class({
         this.transform = identity;
         this.queue = 'bindings';
 
-        for ( var key in mixin ) {
+        for ( const key in mixin ) {
             this[ key ] = mixin[ key ];
         }
     },
@@ -203,7 +203,7 @@ var Binding = Class({
             {O.Binding} Returns self.
     */
     from: function ( root, path ) {
-        var rootIsPath = ( typeof root === 'string' );
+        const rootIsPath = ( typeof root === 'string' );
         this._fromRoot = rootIsPath ? path : root;
         this._fromPath = rootIsPath ? root : path;
         return this;
@@ -228,7 +228,7 @@ var Binding = Class({
             {O.Binding} Returns self.
     */
     to: function ( root, path ) {
-        var rootIsPath = ( typeof root === 'string' );
+        const rootIsPath = ( typeof root === 'string' );
         this._toRoot = rootIsPath ? path : root;
         this._toPath = rootIsPath ? root : path;
         return this;
@@ -325,8 +325,8 @@ var Binding = Class({
         _resolveRootAndPath(
             this, 'to', this._toRoot || this._fromRoot, this._toPath );
 
-        var fromObject = this.fromObject,
-            toObject = this.toObject;
+        const fromObject = this.fromObject;
+        const toObject = this.toObject;
 
         if ( toObject instanceof Element ) {
             this.queue = 'render';
@@ -463,8 +463,8 @@ var Binding = Class({
             {O.Binding} Returns self.
     */
     needsSync: function ( direction ) {
-        var queue = this.queue,
-            inQueue = this.isNotInSync;
+        const queue = this.queue;
+        const inQueue = this.isNotInSync;
         this.willSyncForward = direction;
         this.isNotInSync = true;
         if ( !inQueue && !this.isSuspended ) {
@@ -497,12 +497,11 @@ var Binding = Class({
 
         this.isNotInSync = false;
 
-        var syncForward = this.willSyncForward,
-            from = syncForward ? 'from' : 'to',
-            to = syncForward ? 'to' : 'from',
-            pathBeforeKey = this[ to + 'PathBeforeKey' ],
-            toObject = this[ to + 'Object' ],
-            key, value;
+        const syncForward = this.willSyncForward;
+        const from = syncForward ? 'from' : 'to';
+        const to = syncForward ? 'to' : 'from';
+        const pathBeforeKey = this[ to + 'PathBeforeKey' ];
+        let toObject = this[ to + 'Object' ];
 
         if ( pathBeforeKey ) {
             toObject = toObject.getFromPath( pathBeforeKey );
@@ -511,8 +510,8 @@ var Binding = Class({
             return false;
         }
 
-        key = this[ to + 'Key' ];
-        value = this.transform(
+        const key = this[ to + 'Key' ];
+        const value = this.transform(
             this[ from + 'Object' ].getFromPath( this[ from + 'Path' ] ),
             syncForward
         );
@@ -545,8 +544,8 @@ var Binding = Class({
     Returns:
         {O.Binding} The new binding.
 */
-var bind = function ( root, path, transform ) {
-    var binding = new Binding().from( root, path );
+const bind = function ( root, path, transform ) {
+    const binding = new Binding().from( root, path );
     if ( transform ) {
         binding.transform = transform;
     }
@@ -572,8 +571,8 @@ var bind = function ( root, path, transform ) {
     Returns:
         {O.Binding} The new binding.
 */
-var bindTwoWay = function ( root, path, transform ) {
-    var binding = bind( root, path, transform );
+const bindTwoWay = function ( root, path, transform ) {
+    const binding = bind( root, path, transform );
     binding.isTwoWay = true;
     return binding;
 };

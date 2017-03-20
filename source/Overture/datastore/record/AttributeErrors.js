@@ -11,7 +11,7 @@ import RecordAttribute from './RecordAttribute.js';
 
     Maintains the state of the validity of each attribute on a record.
 */
-var AttributeErrors = Class({
+const AttributeErrors = Class({
 
     Extends: Object,
 
@@ -31,9 +31,9 @@ var AttributeErrors = Class({
     init: function ( record ) {
         AttributeErrors.parent.init.call( this );
 
-        var attrs = meta( record ).attrs;
-        var errorCount = 0;
-        var attrKey, propKey, attribute, error;
+        const attrs = meta( record ).attrs;
+        let errorCount = 0;
+        let attrKey, propKey, attribute, error;
 
         for ( attrKey in attrs ) {
             // Check if attribute has been removed (e.g. in a subclass).
@@ -67,12 +67,12 @@ var AttributeErrors = Class({
             property - {String} The name of the property which has changed.
     */
     recordPropertyDidChange: function ( _, property ) {
-        var metadata = meta( this );
-        var changed = metadata.changed = {};
-        var dependents = metadata.dependents[ property ];
-        var l = dependents ? dependents.length : 0;
-        var record = this._record;
-        var i, propKey, attribute;
+        const metadata = meta( this );
+        const changed = metadata.changed = {};
+        const dependents = metadata.dependents[ property ];
+        const l = dependents ? dependents.length : 0;
+        const record = this._record;
+        let i, propKey, attribute;
 
         this.beginPropertyChanges();
         for ( i = 0; i <= l; i += 1 ) {
@@ -108,7 +108,7 @@ var AttributeErrors = Class({
             changed - {Object} A map of validity string changes.
     */
     setRecordValidity: function ( _, changed ) {
-        var errorCount = this.get( 'errorCount' ),
+        let errorCount = this.get( 'errorCount' ),
             key, vals, wasValid, isValid;
         for ( key in changed ) {
             if ( key !== 'errorCount' ) {

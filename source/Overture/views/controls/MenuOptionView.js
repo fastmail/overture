@@ -8,7 +8,7 @@ import ScrollView from '../containers/ScrollView.js';
 import PopOverView from '../panels/PopOverView.js';
 import MenuView from './MenuView.js';
 
-var MenuOptionView = Class({
+const MenuOptionView = Class({
 
     Extends: View,
 
@@ -38,12 +38,12 @@ var MenuOptionView = Class({
 
     scrollIntoView: function () {
         if ( this.get( 'isFocussed' ) ) {
-            var scrollView = this.getParent( ScrollView );
+            const scrollView = this.getParent( ScrollView );
             if ( scrollView ) {
-                var scrollHeight = scrollView.get( 'pxHeight' ),
-                    scrollTop = scrollView.get( 'scrollTop' ),
-                    top = this.getPositionRelativeTo( scrollView ).top,
-                    height = this.get( 'pxHeight' );
+                const scrollHeight = scrollView.get( 'pxHeight' );
+                const scrollTop = scrollView.get( 'scrollTop' );
+                const top = this.getPositionRelativeTo( scrollView ).top;
+                const height = this.get( 'pxHeight' );
 
                 if ( top < scrollTop ) {
                     scrollView.scrollTo( 0, top - ( height >> 1 ), true );
@@ -69,7 +69,7 @@ var MenuOptionView = Class({
 
     mouseMove: function () {
         if ( !this.get( 'isFocussed' ) && !this._focusTimeout ) {
-            var popOverView = this.getParent( PopOverView );
+            const popOverView = this.getParent( PopOverView );
             if ( popOverView && popOverView.hasSubView() ) {
                 this._focusTimeout = RunLoop.invokeAfterDelay(
                     this.takeFocus, 75, this );
@@ -90,12 +90,12 @@ var MenuOptionView = Class({
     }.on( 'mouseout' ),
 
     filter: function ( pattern ) {
-        var label = this.get( 'button' ).get( 'label' );
+        const label = this.get( 'button' ).get( 'label' );
         this.set( 'isHidden', !!pattern && !pattern.test( label ) );
     },
 
     activate: function () {
-        var button = this.get( 'button' );
+        const button = this.get( 'button' );
         if ( button.activate ) { button.activate(); }
     },
 });

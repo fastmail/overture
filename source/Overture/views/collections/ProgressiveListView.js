@@ -5,7 +5,7 @@ import ScrollView from '../containers/ScrollView.js';
 import ListView from './ListView.js';
 import TrueVisibleRect from './TrueVisibleRect.js';
 
-var ProgressiveListView = Class({
+const ProgressiveListView = Class({
 
     Extends: ListView,
 
@@ -20,18 +20,18 @@ var ProgressiveListView = Class({
     },
 
     contentWasUpdated: function ( event ) {
-        var scrollView = this.getParent( ScrollView );
+        const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             // Update scroll view correctly.
-            var itemHeight = this.get( 'itemHeight' ),
-                y = Math.max( this.get( 'visibleRect' ).y, 0 ),
-                // Index of first item rendered
-                top = ~~( y / itemHeight ),
-                removedIndexes = event.removedIndexes,
-                addedIndexes = event.addedIndexes,
-                rendered = this._rendered,
-                change = 0,
-                i, l, id, view;
+            const itemHeight = this.get( 'itemHeight' );
+            const y = Math.max( this.get( 'visibleRect' ).y, 0 );
+            // Index of first item rendered
+            let top = ~~( y / itemHeight );
+            const removedIndexes = event.removedIndexes;
+            const addedIndexes = event.addedIndexes;
+            const rendered = this._rendered;
+            let change = 0;
+            let i, l, id, view;
 
             // If we are within 3 items of the top, don't change anything.
             // The new items will push down the old so you will see the change.
@@ -83,18 +83,18 @@ var ProgressiveListView = Class({
     visibleRectDidChange: function () {
         // We only care about changes when we're visible.
         if ( this.get( 'isInDocument' ) ) {
-            var visible = this.get( 'visibleRect' ),
-                extension = this.get( 'triggerInPx' ),
-                batchSize = this.get( 'batchSize' ),
-                height = this.get( 'itemHeight' ) * batchSize,
-                y = visible.y,
-                // Index of first item we want rendered
-                start = Math.max( 0,
-                    ~~( ( y - extension ) / height ) * batchSize ),
-                // Index of last item we want rendered
-                end = ~~( ( y + visible.height + extension ) / height ) *
-                    batchSize + batchSize,
-                _renderRange = this._renderRange;
+            const visible = this.get( 'visibleRect' );
+            const extension = this.get( 'triggerInPx' );
+            const batchSize = this.get( 'batchSize' );
+            const height = this.get( 'itemHeight' ) * batchSize;
+            const y = visible.y;
+            // Index of first item we want rendered
+            const start = Math.max( 0,
+                    ~~( ( y - extension ) / height ) * batchSize );
+            // Index of last item we want rendered
+            const end = ~~( ( y + visible.height + extension ) / height ) *
+                    batchSize + batchSize;
+            const _renderRange = this._renderRange;
 
             if ( start !== _renderRange.start || end !== _renderRange.end ) {
                 _renderRange.start = start;

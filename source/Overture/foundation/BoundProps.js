@@ -1,6 +1,6 @@
 import { meta, guid } from '../core/Core.js';
 
-var bindingKey = '__binding__';
+const bindingKey = '__binding__';
 
 /**
     Mixin: O.BoundProps
@@ -23,11 +23,11 @@ export default {
             {O.BoundProps} Returns self.
     */
     initBindings: function () {
-        var bindings = meta( this ).bindings,
-            key, binding;
-        for ( key in bindings ) {
+        const bindings = meta( this ).bindings;
+        for ( const key in bindings ) {
             // Guard in case a previously bound property has been overridden in
             // a subclass by a non-bound value.
+            let binding;
             if ( binding = bindings[ key ] ) {
                 if ( !bindings.hasOwnProperty( key ) ) {
                     binding = bindings[ key ] = Object.create( binding );
@@ -55,12 +55,12 @@ export default {
             {O.BoundProps} Returns self.
     */
     destroyBindings: function () {
-        var bindings = meta( this ).bindings,
-            key, binding;
-        for ( key in bindings ) {
+        const bindings = meta( this ).bindings;
+        for ( const key in bindings ) {
             // Guard in case a previously bound property has been overridden in
             // a subclass by a non-bound value.
-            if ( binding = bindings[ key ] ) {
+            const binding = bindings[ key ];
+            if ( binding ) {
                 binding.destroy();
             }
         }
@@ -77,7 +77,7 @@ export default {
             {O.BoundProps} Returns self.
     */
     registerBinding: function ( binding ) {
-        var metadata = meta( this );
+        const metadata = meta( this );
         metadata.bindings[ bindingKey + guid( binding ) ] = binding;
         metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
         return this;
@@ -93,9 +93,9 @@ export default {
             {O.BoundProps} Returns self.
     */
     deregisterBinding: function ( binding ) {
-        var metadata = meta( this );
-        var bindings = metadata.bindings;
-        var key = Object.keyOf( bindings, binding );
+        const metadata = meta( this );
+        const bindings = metadata.bindings;
+        const key = Object.keyOf( bindings, binding );
         if ( key ) {
             bindings[ key ] = null;
             metadata.inits.Bindings -= 1;
@@ -114,10 +114,10 @@ export default {
             {O.BoundProps} Returns self.
     */
     suspendBindings: function () {
-        var bindings = meta( this ).bindings,
-            key, binding;
-        for ( key in bindings ) {
-            if ( binding = bindings[ key ] ) {
+        const bindings = meta( this ).bindings;
+        for ( const key in bindings ) {
+            const binding = bindings[ key ];
+            if ( binding ) {
                 binding.suspend();
             }
         }
@@ -133,10 +133,10 @@ export default {
             {O.BoundProps} Returns self.
     */
     resumeBindings:  function () {
-        var bindings = meta( this ).bindings,
-            key, binding;
-        for ( key in bindings ) {
-            if ( binding = bindings[ key ] ) {
+        const bindings = meta( this ).bindings;
+        for ( const key in bindings ) {
+            const binding = bindings[ key ];
+            if ( binding ) {
                 binding.resume();
             }
         }

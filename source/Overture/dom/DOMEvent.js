@@ -3,7 +3,7 @@
 
     O.DOMEvent contains functions for use with DOM event objects
 */
-var DOMEvent = {
+const DOMEvent = {
     /**
         Property: O.DOMEvent.keys
         Type: Object
@@ -55,24 +55,23 @@ var DOMEvent = {
         // keypress on all browsers. However, if event.which === 0 then it was a
         // special key and so it should be looked up in the table of function
         // keys. Anything from code 32 downwards must also be a special char.
-        var code = event.keyCode || event.which,
-            isKeyPress = ( event.type === 'keypress' ),
-            preferAsci = isKeyPress && code > 32 &&
-                event.which !== 0 && event.charCode !== 0,
-            str = String.fromCharCode( code ).toLowerCase(),
-            key = ( !preferAsci && DOMEvent.keys[ code ] ) || str,
-            altAndShift;
+        const code = event.keyCode || event.which;
+        const isKeyPress = ( event.type === 'keypress' );
+        const preferAsci = isKeyPress && code > 32 &&
+                event.which !== 0 && event.charCode !== 0;
+        const str = String.fromCharCode( code ).toLowerCase();
+        let key = ( !preferAsci && DOMEvent.keys[ code ] ) || str;
 
         // Function keys
         if ( !preferAsci && 111 < code && code < 124 ) {
             key = 'f' + ( code - 111 );
         }
         // Append modifiers (use alphabetical order)
-        var modifiers = '';
+        let modifiers = '';
         if ( !noModifiers ) {
             // Different keyboard layouts may require Shift/Alt for non A-Z
             // keys, so we only add meta and ctrl modifiers.
-            altAndShift = !isKeyPress || ( /[a-z]/.test( key ) );
+            const altAndShift = !isKeyPress || ( /[a-z]/.test( key ) );
             if ( event.altKey && altAndShift ) { modifiers += 'alt-'; }
             if ( event.ctrlKey ) { modifiers += 'ctrl-'; }
             if ( event.metaKey ) { modifiers += 'meta-'; }

@@ -33,7 +33,7 @@ Number.implement({
             {Number} The number mod n.
     */
     mod: function ( n ) {
-        var m = this % n;
+        const m = this % n;
         return m < 0 ? m + n : m;
     },
 });

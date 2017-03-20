@@ -6,30 +6,33 @@
     The Loader class handles loading in modules as and when they're
     needed.
 */
-var UNREQUESTED = 0,
-    LOADING = 1,
-    LOADED = 2,
-    WILL_EXECUTE = 4,
-    EXECUTED = 8;
+const UNREQUESTED = 0;
+const LOADING = 1;
+const LOADED = 2;
+const WILL_EXECUTE = 4;
+const EXECUTED = 8;
 
-var LS_PREFIX = 'OResource-';
-var LS_V_PREFIX = 'OResource-v-';
+const LS_PREFIX = 'OResource-';
+const LS_V_PREFIX = 'OResource-v-';
 
-var moduleInfo = {};
-var require;
-var loader;
+const moduleInfo = {};
+// We get the choice of whether we offend no-use-before-define or prefer-const.
+// Frankly no-use-before-define would probably be better, but this way we only
+// have to twiddle the switch once…
+let require;  // eslint-disable-line prefer-const
+let loader;  // eslint-disable-line prefer-const
 
-var CORSRequest =
+const CORSRequest =
     ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
     ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
 
-var getFile = function ( src, callback ) {
-    var xhr = new CORSRequest(),
-        send = function () {
-            xhr.open( 'GET', src );
-            xhr.send();
-        },
-        wait = 1000;
+const getFile = function ( src, callback ) {
+    const xhr = new CORSRequest();
+    const send = function () {
+        xhr.open( 'GET', src );
+        xhr.send();
+    };
+    let wait = 1000;
     xhr.onload = function () {
         xhr.onload = xhr.onerror = null;
         callback( this.responseText );
@@ -45,12 +48,11 @@ var getFile = function ( src, callback ) {
 
 // Will the browser execute the scripts in the order they are injected into the
 // page?
-var inOrderScripts = ( CORSRequest === XMLHttpRequest );
+const inOrderScripts = ( CORSRequest === XMLHttpRequest );
 
-var afterModuleExecute = function ( name ) {
-    var info = moduleInfo[ name ],
-        callbacks = info.callbacks,
-        i, l, callback, fn, bind;
+let afterModuleExecute = function ( name ) {
+    const info = moduleInfo[ name ];
+    const callbacks = info.callbacks;
 
     if ( loader.fire ) {
         loader.fire( 'loader:didLoadModule', { module: name } );
@@ -61,11 +63,11 @@ var afterModuleExecute = function ( name ) {
     info.status = EXECUTED;
 
     if ( callbacks ) {
-        for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
-            callback = callbacks[i];
+        for ( let i = 0, l = callbacks.length; i < l; i += 1 ) {
+            const callback = callbacks[i];
             if ( !( callback.refCount -= 1 ) ) {
-                fn = callback.fn;
-                bind = callback.bind;
+                const fn = callback.fn;
+                const bind = callback.bind;
                 if ( bind ) {
                     fn.call( bind );
                 } else {
@@ -77,13 +79,13 @@ var afterModuleExecute = function ( name ) {
     info.callbacks = null;
 };
 
-var executeModule = function ( name ) {
+const executeModule = function ( name ) {
     // If inside an event handler from a different context (i.e. an
     // iframe), Opera will sometimes get into a weird internal state
     // if you execute the code immediately, so delay to the next
     // event loop.
-    var info = moduleInfo[ name ],
-        data = info.data;
+    const info = moduleInfo[ name ];
+    const data = info.data;
     setTimeout( function () {
         // `eval` would execute in the local scope. `( 1, eval )` is global.
         // eslint-disable-next-line no-eval
@@ -93,8 +95,8 @@ var executeModule = function ( name ) {
     info.data = null;
 };
 
-var checkAndExecuteModule = function ( name ) {
-    var info = moduleInfo[ name ];
+const checkAndExecuteModule = function ( name ) {
+    const info = moduleInfo[ name ];
     if ( info.status === LOADED ) {
         info.status = (LOADED|WILL_EXECUTE);
         if ( info.dependencies ) {
@@ -107,9 +109,9 @@ var checkAndExecuteModule = function ( name ) {
     }
 };
 
-var moduleDidLoad = function ( name, data ) {
-    var info = moduleInfo[ name ],
-        currentStatus = info.status;
+const moduleDidLoad = function ( name, data ) {
+    const info = moduleInfo[ name ];
+    const currentStatus = info.status;
 
     info.data = data;
     info.status = LOADED;
@@ -120,19 +122,19 @@ var moduleDidLoad = function ( name, data ) {
 };
 
 // Loads text, but does not parse/execute unless executeOnLoad is set.
-var load = function ( name, executeOnLoad, force ) {
-    var info = moduleInfo[ name ],
-        src = info.src,
-        status = info.status,
-        useScriptTag = !CORSRequest || loader.debug,
-        dependencies, data, doc, script;
+const load = function ( name, executeOnLoad, force ) {
+    const info = moduleInfo[ name ];
+    const src = info.src;
+    const status = info.status;
+    const useScriptTag = !CORSRequest || loader.debug;
 
     if ( useScriptTag ) {
         if ( !executeOnLoad ) {
             return;
         }
+        const dependencies = info.dependencies;
         if ( !inOrderScripts && !force &&
-                ( dependencies = info.dependencies ) ) {
+                dependencies ) {
             require( dependencies, function () {
                 load( name, executeOnLoad, true );
             });
@@ -150,7 +152,7 @@ var load = function ( name, executeOnLoad, force ) {
         // Check local storage for module data
         if ( loader.cacheModules ) {
             try {
-                data = localStorage.getItem( LS_PREFIX + name );
+                const data = localStorage.getItem( LS_PREFIX + name );
                 if ( data ) {
                     if ( localStorage.getItem( LS_V_PREFIX + name ) === src ) {
                         moduleDidLoad( name, data );
@@ -165,13 +167,13 @@ var load = function ( name, executeOnLoad, force ) {
 
         // If not found, request.
         if ( useScriptTag ) {
-            doc = document;
-            script = doc.createElement( 'script' );
+            const doc = document;
+            const script = doc.createElement( 'script' );
             script.type = 'text/javascript';
             script.charset = 'utf-8';
             script.async = false;
             script.onload = script.onreadystatechange = function () {
-                var readyState = script.readyState;
+                const readyState = script.readyState;
                 if ( readyState &&
                         readyState !== 'loaded' && readyState !== 'complete' ) {
                     return;
@@ -184,7 +186,7 @@ var load = function ( name, executeOnLoad, force ) {
             doc.documentElement.firstChild.appendChild( script );
         } else {
             getFile( src, function ( response ) {
-                var data = response + '\n//# sourceURL=' + src;
+                const data = response + '\n//# sourceURL=' + src;
                 if ( loader.cacheModules ) {
                     try {
                         localStorage.setItem( LS_V_PREFIX + name, src );
@@ -211,7 +213,7 @@ require = function ( modules, fn, bind ) {
          modules = [ modules ];
     }
 
-    var allLoaded = true,
+    let allLoaded = true,
         l = modules.length,
         module, info, dependencies, waitObj;
 
@@ -291,9 +293,9 @@ loader = {
     },
 
     prefetch: function ( name ) {
-        var info = moduleInfo[ name ],
-            dependencies = info.dependencies,
-            l = dependencies ? dependencies.length : 0;
+        const info = moduleInfo[ name ];
+        const dependencies = info.dependencies;
+        let l = dependencies ? dependencies.length : 0;
         while ( l-- ) {
             load( dependencies[l] );
         }

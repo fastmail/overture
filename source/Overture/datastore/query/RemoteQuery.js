@@ -31,7 +31,7 @@ import {
     the array is calculated by a server rather than the client. In its simplest
     form, you would use remote query like this:
 
-        var query = new O.RemoteQuery({
+        const query = new O.RemoteQuery({
             store: TodoApp.store
             Type: TodoApp.TodoItem,
             filter: 'done',
@@ -60,7 +60,7 @@ import {
     sending back unneccessary data.
 
 */
-var RemoteQuery = Class({
+const RemoteQuery = Class({
 
     Extends: Object,
 
@@ -216,7 +216,7 @@ var RemoteQuery = Class({
             {O.RemoteQuery} Returns self.
     */
     refresh: function ( force, callback ) {
-        var status = this.get( 'status' );
+        const status = this.get( 'status' );
         if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
             if ( status & READY ) {
                 this._refresh = true;
@@ -239,7 +239,7 @@ var RemoteQuery = Class({
             {O.RemoteQuery} Returns self.
     */
     reset: function ( _, _key ) {
-        var length = this.get( 'length' );
+        const length = this.get( 'length' );
 
         this._list.length = 0;
         this._refresh = false;
@@ -276,8 +276,7 @@ var RemoteQuery = Class({
             record will be returned, or null if the id is not yet loaded.
     */
     getObjectAt: function ( index, doNotFetch ) {
-        var length = this.get( 'length' );
-        var storeKey;
+        const length = this.get( 'length' );
 
         if ( length === null || index < 0 || index >= length ) {
             return undefined;
@@ -287,7 +286,7 @@ var RemoteQuery = Class({
             doNotFetch = this.fetchDataForObjectAt( index );
         }
 
-        storeKey = this._list[ index ];
+        const storeKey = this._list[ index ];
         return storeKey ?
             this.get( 'store' )
                 .getRecord( this.get( 'Type' ), '#' + storeKey, doNotFetch ) :
@@ -341,7 +340,7 @@ var RemoteQuery = Class({
             {Number} The index of the store key, or -1 if not found.
     */
     indexOfStoreKey: function ( storeKey, from, callback ) {
-        var index = this._list.indexOf( storeKey, from );
+        const index = this._list.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
                 this.get( 'source' ).fetchQuery( this, function () {
@@ -383,7 +382,7 @@ var RemoteQuery = Class({
             asynchronously at a later point.)
     */
     getStoreKeysForObjectsInRange: function ( start, end, callback ) {
-        var length = this.get( 'length' );
+        const length = this.get( 'length' );
 
         if ( length === null ) {
             this._awaitingIdFetch.push([ start, end, callback ]);
@@ -440,10 +439,10 @@ var RemoteQuery = Class({
                        were addded.
     */
     _adjustIdFetches: function ( event ) {
-        var added = event.addedIndexes;
-        var removed = event.removedIndexes;
-        var awaitingIdFetch = this._awaitingIdFetch;
-        var i, l, call, start, end, j, ll, index;
+        const added = event.addedIndexes;
+        const removed = event.removedIndexes;
+        const awaitingIdFetch = this._awaitingIdFetch;
+        let i, l, call, start, end, j, ll, index;
         for ( i = 0, l = awaitingIdFetch.length; i < l; i += 1 ) {
             call = awaitingIdFetch[i];
             start = call[0];
@@ -476,7 +475,7 @@ var RemoteQuery = Class({
         been delivered).
     */
     _idsWereFetched: function () {
-        var awaitingIdFetch = this._awaitingIdFetch;
+        const awaitingIdFetch = this._awaitingIdFetch;
         if ( awaitingIdFetch.length ) {
             this._awaitingIdFetch = [];
             awaitingIdFetch.forEach( function ( call ) {
@@ -500,7 +499,7 @@ var RemoteQuery = Class({
             has an efficient way of calculating changes from the state).
     */
     sourceWillFetchQuery: function () {
-        var refresh = this._refresh;
+        const refresh = this._refresh;
         this._refresh = false;
         this.set( 'status',
             ( this.get( 'status' )|LOADING ) & ~OBSOLETE );
@@ -540,21 +539,21 @@ var RemoteQuery = Class({
 
         // Could use a proper diffing algorithm to calculate added/removed
         // arrays, but probably not worth it.
-        var store = this.get( 'store' );
-        var toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
-        var oldList = this._list;
-        var list = this._list = args.idList.map( toStoreKey );
-        var oldTotal = this.get( 'length' );
-        var total = list.length;
-        var removedIndexes = [];
-        var removedStoreKeys = [];
-        var addedIndexes = [];
-        var addedStoreKeys = [];
-        var firstChange = 0;
-        var lastChangeNew = total - 1;
-        var lastChangeOld = ( oldTotal || 0 ) - 1;
-        var l = Math.min( total, oldTotal || 0 );
-        var i;
+        const store = this.get( 'store' );
+        const toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
+        const oldList = this._list;
+        const list = this._list = args.idList.map( toStoreKey );
+        const oldTotal = this.get( 'length' );
+        const total = list.length;
+        const removedIndexes = [];
+        const removedStoreKeys = [];
+        const addedIndexes = [];
+        const addedStoreKeys = [];
+        let firstChange = 0;
+        let lastChangeNew = total - 1;
+        let lastChangeOld = ( oldTotal || 0 ) - 1;
+        const l = Math.min( total, oldTotal || 0 );
+        let i;
 
         // Initial fetch, oldTotal === null
         if ( oldTotal !== null ) {

@@ -1,6 +1,6 @@
 import { Class } from '../core/Core.js';
 
-var Parse = Class({
+const Parse = Class({
     init: function ( string, tokens ) {
         this.string = string;
         this.tokens = tokens || [];
@@ -16,11 +16,10 @@ var Parse = Class({
 
 Parse.define = function ( name, regexp, context ) {
     return function ( parse ) {
-        var string = parse.string,
-            result = regexp.exec( string ),
-            part;
+        const string = parse.string;
+        const result = regexp.exec( string );
         if ( result ) {
-            part = result[0];
+            const part = result[0];
             parse.tokens.push([ name, part, context || null ]);
             parse.string = string.slice( part.length );
         }
@@ -37,7 +36,7 @@ Parse.optional = function ( pattern ) {
 
 Parse.not = function ( pattern ) {
     return function ( parse ) {
-        var newParse = parse.clone();
+        const newParse = parse.clone();
         return !pattern( newParse );
     };
 };
@@ -46,8 +45,8 @@ Parse.repeat = function ( pattern, min, max ) {
     // Max int: 2^31 - 1;
     if ( !max ) { max = 2147483647; }
     return function ( parse ) {
-        var newParse = parse.clone(),
-            i = 0;
+        const newParse = parse.clone();
+        let i = 0;
         do {
             if ( pattern( newParse ) ) {
                 i += 1;
@@ -67,8 +66,8 @@ Parse.repeat = function ( pattern, min, max ) {
 
 Parse.sequence = function ( patterns ) {
     return function ( parse ) {
-        var newParse = parse.clone();
-        for ( var i = 0, l = patterns.length; i < l; i += 1 ) {
+        const newParse = parse.clone();
+        for ( let i = 0, l = patterns.length; i < l; i += 1 ) {
             if ( !patterns[i]( newParse ) ) {
                 return false;
             }
@@ -81,7 +80,7 @@ Parse.sequence = function ( patterns ) {
 
 Parse.firstMatch = function ( patterns ) {
     return function ( parse ) {
-        for ( var i = 0, l = patterns.length; i < l; i += 1 ) {
+        for ( let i = 0, l = patterns.length; i < l; i += 1 ) {
             if ( patterns[i]( parse ) ) {
                 return true;
             }
@@ -92,10 +91,10 @@ Parse.firstMatch = function ( patterns ) {
 
 Parse.longestMatch = function ( patterns ) {
     return function ( parse ) {
-        var parses = [],
-            i, l, newParse;
-        for ( i = 0, l = patterns.length; i < l; i += 1 ) {
-            newParse = parse.clone();
+        const parses = [];
+        let l = patterns.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const newParse = parse.clone();
             if ( patterns[i]( newParse ) ) {
                 parses.push( newParse );
                 // Have we found a perfect parse? If so, stop.
@@ -107,7 +106,7 @@ Parse.longestMatch = function ( patterns ) {
         // Find the parse with shortest string left over.
         l = parses.length;
         if ( l-- ) {
-            newParse = parses[l];
+            let newParse = parses[l];
             while ( l-- ) {
                 if ( parses[l].string.length <= newParse.string.length ) {
                     newParse = parses[l];

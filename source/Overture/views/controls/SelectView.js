@@ -13,7 +13,7 @@ import AbstractControlView from './AbstractControlView.js';
     A view representing an HTML `<select>` menu. The `value` property is two-way
     bindable, representing the selected option.
 */
-var SelectView = Class({
+const SelectView = Class({
 
     Extends: AbstractControlView,
 
@@ -44,7 +44,7 @@ var SelectView = Class({
         Overrides default in <O.View#className>.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Select' +
             ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
@@ -57,7 +57,7 @@ var SelectView = Class({
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
     draw: function ( layer, Element, el ) {
-        var control = this._domControl =
+        const control = this._domControl =
             this._drawSelect( this.get( 'options' ) );
         return [
             SelectView.parent.draw.call( this, layer, Element, el ),
@@ -77,9 +77,9 @@ var SelectView = Class({
             {Element} The `<select>`.
     */
     _drawSelect: function ( options ) {
-        var selected = this.get( 'value' ),
-            el = Element.create,
-            select = el( 'select', {
+        const selected = this.get( 'value' );
+        const el = Element.create;
+        const select = el( 'select', {
                 className: 'v-Select-input',
                 disabled: this.get( 'isDisabled' ),
             },
@@ -114,13 +114,12 @@ var SelectView = Class({
         changes.
     */
     redrawOptions: function ( layer, oldOptions ) {
-        var options = this.get( 'options' );
-        var select, isFocussed;
+        const options = this.get( 'options' );
         if ( !isEqual( options, oldOptions ) ) {
             // Must blur before removing from DOM in iOS, otherwise
             // the slot-machine selector will not hide
-            isFocussed = this.get( 'isFocussed' );
-            select = this._drawSelect( options );
+            const isFocussed = this.get( 'isFocussed' );
+            const select = this._drawSelect( options );
             if ( isFocussed ) {
                 this.blur();
             }
@@ -139,9 +138,9 @@ var SelectView = Class({
         <O.SelectView#value> property changes.
     */
     redrawValue: function () {
-        var value = this.get( 'value' ),
-            options = this.get( 'options' ),
-            l = options.length;
+        const value = this.get( 'value' );
+        const options = this.get( 'options' );
+        let l = options.length;
 
         while ( l-- ) {
             if ( isEqual( options[l].value, value ) ) {
@@ -165,7 +164,7 @@ var SelectView = Class({
         the user selects a different option.
     */
     syncBackValue: function () {
-        var i = this._domControl.selectedIndex;
+        const i = this._domControl.selectedIndex;
         this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
     }.on( 'change' ),
 });

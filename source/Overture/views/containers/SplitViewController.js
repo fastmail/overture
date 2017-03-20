@@ -2,19 +2,19 @@ import { Class } from '../../core/Core.js';  // Also Function#extend
 import Object from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 
-var VERTICAL = 1;
-var HORIZONTAL = 2;
-var TOP_LEFT = 4;
-var BOTTOM_RIGHT = 8;
+const VERTICAL = 1;
+const HORIZONTAL = 2;
+const TOP_LEFT = 4;
+const BOTTOM_RIGHT = 8;
 
-var auto = 'auto';
+const auto = 'auto';
 
 /**
     Class: O.SplitViewController
 
     Extends: O.Object
 */
-var SplitViewController = Class({
+const SplitViewController = Class({
 
     Extends: Object,
 
@@ -78,9 +78,9 @@ var SplitViewController = Class({
         The layout properties to use to position the top/left pane.
     */
     topLeftLayout: function ( layout ) {
-        var flexDir = this.get( 'direction' ),
-            flexPane = this.get( 'flex' ),
-            staticLength = this.get( 'staticPaneLength' );
+        const flexDir = this.get( 'direction' );
+        const flexPane = this.get( 'flex' );
+        const staticLength = this.get( 'staticPaneLength' );
         return layout || {
             top: 0,
             left: 0,
@@ -102,9 +102,9 @@ var SplitViewController = Class({
         The layout properties to use to position the bottom/right pane.
     */
     bottomRightLayout: function ( layout ) {
-        var flexDir = this.get( 'direction' ),
-            flexPane = this.get( 'flex' ),
-            staticLength = this.get( 'staticPaneLength' );
+        const flexDir = this.get( 'direction' );
+        const flexPane = this.get( 'flex' );
+        const staticLength = this.get( 'staticPaneLength' );
         return layout || {
             bottom: 0,
             right: 0,

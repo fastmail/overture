@@ -8,7 +8,7 @@
         explanation - {String} A description of the error (normally used to
                       present to the user).
 */
-var ValidationError = function ( type, explanation ) {
+const ValidationError = function ( type, explanation ) {
     this.type = type;
     this.explanation = explanation;
 };

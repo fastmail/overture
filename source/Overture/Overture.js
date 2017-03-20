@@ -64,7 +64,8 @@ export { default as Stylesheet } from './dom/Stylesheet.js';
 export { default as Drag } from './drag-drop/Drag.js';
 export { default as DragController } from './drag-drop/DragController.js';
 export { default as DragDataSource } from './drag-drop/DragDataSource.js';
-export { default as DragEffect } from './drag-drop/DragEffect.js';
+import * as DragEffect from './drag-drop/DragEffect.js';
+export { DragEffect };
 export { default as Draggable } from './drag-drop/Draggable.js';
 export { default as DropTarget } from './drag-drop/DropTarget.js';
 

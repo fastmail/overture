@@ -9,7 +9,7 @@ import Object from '../foundation/Object.js';
     The Storage module provides classes for persistant storage in the client.
 */
 
-var dummyStorage = {
+const dummyStorage = {
     setItem: function () {},
     getItem: function () {},
 };
@@ -27,7 +27,7 @@ var dummyStorage = {
     Since data is serialised to a string for storage, only native JS types
     should be stored; class instances will not be restored correctly.
 */
-var LocalStorage = Class({
+const LocalStorage = Class({
 
     Extends: Object,
 
@@ -50,7 +50,7 @@ var LocalStorage = Class({
 
     get: function ( key ) {
         if ( !( key in this ) ) {
-            var item;
+            let item;
             // Firefox sometimes throws and error
             try {
                 item = this._store.getItem( this._name + key );

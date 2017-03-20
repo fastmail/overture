@@ -4,38 +4,37 @@ import RunLoop from '../foundation/RunLoop.js';
 import Easing from './Easing.js';
 
 // List of currently active animations
-var animations = [];
+const animations = [];
 
 // Draw the next frame in all currently active animations.
-var nextFrame = function () {
+const nextFrame = function () {
     // Cache to local variable for speed
-    var anims = animations,
-        l = anims.length,
-        time = RunLoop.frameStartTime,
-        objAnimations, i,
-        hasMultiple, animation, object, animTime, duration;
+    const anims = animations;
+    let l = anims.length;
+    const time = RunLoop.frameStartTime;
 
     if ( l ) {
         // Request first to get in shortest time.
         RunLoop.invokeInNextFrame( nextFrame );
 
         while ( l-- ) {
-            objAnimations = anims[l];
-            i = objAnimations.length;
-            hasMultiple = i > 1;
+            const objAnimations = anims[l];
+            let i = objAnimations.length;
+            const hasMultiple = i > 1;
+            let object;
             if ( hasMultiple ) {
                 object = objAnimations[0].object;
                 object.beginPropertyChanges();
             }
             while ( i-- ) {
-                animation = objAnimations[i];
-                animTime = time - animation.startTime;
+                const animation = objAnimations[i];
+                let animTime = time - animation.startTime;
                 // For Safari 7, sigh.
                 if ( animTime === time ) {
                     animation.startTime = time;
                     animTime = 0;
                 }
-                duration = animation.duration;
+                const duration = animation.duration;
                 if ( animTime < duration ) {
                     animation.drawFrame(
                         // Normalised position along timeline [0..1].
@@ -164,9 +163,10 @@ export default Class({
             return this;
         }
 
-        var object = this.object,
-            metadata = meta( object ),
-            objAnimations = metadata.animations || ( metadata.animations = [] );
+        const object = this.object;
+        const metadata = meta( object );
+        const objAnimations = metadata.animations ||
+            ( metadata.animations = [] );
 
         this.startTime = 0;
 
@@ -234,7 +234,7 @@ export default Class({
     */
     drawFrame: function ( position, time, isLastFrame ) {
         // And interpolate to find new value.
-        var value = isLastFrame ?
+        const value = isLastFrame ?
             this.endValue :
             this.startValue + ( position * this.deltaValue );
 
@@ -252,8 +252,8 @@ export default Class({
     stop: function () {
         if ( this.isRunning ) {
             // Remove from animation lists.
-            var object = this.object,
-                objAnimations = meta( object ).animations;
+            const object = this.object;
+            const objAnimations = meta( object ).animations;
             objAnimations.erase( this );
 
             if ( !objAnimations.length ) {

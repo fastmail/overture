@@ -25,7 +25,7 @@ import MenuView from './MenuView.js';
     The most common way to use O.ButtonView is to create an instance as part of
     the <O.View#draw method of your view class. For example:
 
-        var Element = O.Element,
+        const Element = O.Element,
             el = Element.create;
 
         Element.appendChildren( layer, [
@@ -65,7 +65,7 @@ import MenuView from './MenuView.js';
     If there is no icon property set, a comment node will be inserted in its
     position.
 */
-var ButtonView = Class({
+const ButtonView = Class({
 
     Extends: AbstractControlView,
 
@@ -140,7 +140,7 @@ var ButtonView = Class({
         disabled    - If the view's isDisabled property is true.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Button' +
             ( type ? ' ' + type : '' ) +
             ( this.get( 'icon' ) ? ' v-Button--hasIcon' : '' ) +
@@ -158,7 +158,7 @@ var ButtonView = Class({
         general <O.ButtonView> notes.
     */
     draw: function ( layer, Element, el ) {
-        var icon = this.get( 'icon' );
+        let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
@@ -185,7 +185,7 @@ var ButtonView = Class({
     }.observes( 'icon', 'isWaiting' ),
 
     redrawIcon: function ( layer ) {
-        var icon = this.get( 'icon' );
+        let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
@@ -253,8 +253,8 @@ var ButtonView = Class({
     */
     activate: function () {
         if ( !this.get( 'isDisabled' ) && !this.get( 'isWaiting' ) ) {
-            var target = this.get( 'target' ) || this;
-            var action;
+            const target = this.get( 'target' ) || this;
+            let action;
             if ( ( action = this.get( 'action' ) ) ) {
                 target.fire( action, { originView: this } );
             } else if ( ( action = this.get( 'method' ) ) ) {

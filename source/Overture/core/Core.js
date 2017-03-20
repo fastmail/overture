@@ -104,7 +104,7 @@
         {Object} The metadata for the object.
 */
 
-var Metadata = function ( object ) {
+const Metadata = function ( object ) {
     this.object = object;
     this.dependents = {};
     this.allDependents = {};
@@ -120,8 +120,8 @@ var Metadata = function ( object ) {
     object.__meta__ = this;
 };
 
-var meta = function ( object ) {
-    var data = object.__meta__;
+const meta = function ( object ) {
+    let data = object.__meta__;
     if ( !data ) {
         data = new Metadata( object );
     } else if ( data.object !== object ) {
@@ -168,8 +168,8 @@ var meta = function ( object ) {
     Returns:
         {String} The id for the item.
 */
-var guidValue = 0;
-var guid = function ( item ) {
+let guidValue = 0;
+const guid = function ( item ) {
     if ( item === null ) {
         return 'null';
     }
@@ -208,16 +208,16 @@ var guid = function ( item ) {
     Returns:
         {Object} Returns the object parameter.
 */
-var mixin = function ( object, extras, doNotOverwrite ) {
+const mixin = function ( object, extras, doNotOverwrite ) {
     if ( extras ) {
-        var force = !doNotOverwrite,
-            key, old, value, metadata;
+        const force = !doNotOverwrite;
+        let metadata;
 
-        for ( key in extras ) {
+        for ( const key in extras ) {
             if ( key !== '__meta__' &&
                     ( force || !object.hasOwnProperty( key ) ) ) {
-                old = object[ key ];
-                value = extras[ key ];
+                const old = object[ key ];
+                const value = extras[ key ];
                 if ( old && old.__teardownProperty__ ) {
                     if ( !metadata ) { metadata = meta( object ); }
                     old.__teardownProperty__( metadata, key, object );
@@ -252,8 +252,8 @@ var mixin = function ( object, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-var extend = function ( base, extras, doNotOverwrite ) {
-    for ( var key in extras ) {
+const extend = function ( base, extras, doNotOverwrite ) {
+    for ( const key in extras ) {
         if ( extras.hasOwnProperty( key ) &&
                 ( !doNotOverwrite || !base.hasOwnProperty( key ) ) ) {
             base[ key ] = extras[ key ];
@@ -278,8 +278,8 @@ var extend = function ( base, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-var merge = function ( base, extras ) {
-    for ( var key in extras ) {
+const merge = function ( base, extras ) {
+    for ( const key in extras ) {
         if ( extras.hasOwnProperty( key ) ) {
             if ( base.hasOwnProperty( key ) &&
                     base[ key ] && extras[ key ] &&
@@ -306,8 +306,8 @@ var merge = function ( base, extras ) {
     Returns:
         {*} The clone of the value.
 */
-var clone = function ( value ) {
-    var cloned = value,
+const clone = function ( value ) {
+    let cloned = value,
         l, key;
     if ( value && typeof value === 'object' ) {
         if ( value instanceof Array ) {
@@ -342,8 +342,8 @@ var clone = function ( value ) {
         {Boolean} Are the values equal, i.e. are they identical primitives, or
         are the both arrays or objects with equal members?
 */
-var isEqual = function ( a, b ) {
-    var i, l, key, constructor;
+const isEqual = function ( a, b ) {
+    let i, l, key, constructor;
     if ( a === b ) {
         return true;
     }
@@ -398,8 +398,8 @@ var isEqual = function ( a, b ) {
 
     For example:
 
-        > var MyClass = O.Class({ sayBoo: function (){ alert( 'boo' ); } });
-        > var instance = new MyClass();
+        > const MyClass = O.Class({ sayBoo: function (){ alert( 'boo' ); } });
+        > let instance = new MyClass();
         > instance.sayBoo(); // Alerts 'boo'.
 
     Parameters:
@@ -409,16 +409,15 @@ var isEqual = function ( a, b ) {
     Returns:
         {Constructor} The constructor function for the new class.
 */
-var Class = function ( params ) {
-    var parent = params.Extends,
-        mixins = params.Mixin,
-        init = params.init || ( parent ?
+const Class = function ( params ) {
+    const parent = params.Extends;
+    let mixins = params.Mixin;
+    const init = params.init || ( parent ?
             function () { parent.apply( this, arguments ); } :
-            function () {} ),
-        proto, i, l;
+            function () {} );
 
     if ( parent ) {
-        proto = parent.prototype;
+        const proto = parent.prototype;
         init.parent = proto;
         init.prototype = Object.create( proto );
         init.prototype.constructor = init;
@@ -429,7 +428,7 @@ var Class = function ( params ) {
         if ( !( mixins instanceof Array ) ) {
             mixins = [ mixins ];
         }
-        for ( i = 0, l = mixins.length; i < l; i += 1 ) {
+        for ( let i = 0, l = mixins.length; i < l; i += 1 ) {
             init.implement( mixins[i], true );
         }
         delete params.Mixin;

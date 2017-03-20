@@ -1,4 +1,3 @@
-export default {
 /**
     Enum: O.DragEffect
 
@@ -9,12 +8,12 @@ export default {
     ALL     - Data may be copied, moved or linked by target.
     DEFAULT - The default browser action when released.
 */
-    NONE: 0,
-    COPY: 1,
-    MOVE: 2,
-    LINK: 4,
-    ALL: 1|2|4,
-    DEFAULT: 8,
+export const NONE = 0;
+export const COPY = 1;
+export const MOVE = 2;
+export const LINK = 4;
+export const ALL = 1|2|4;
+export const DEFAULT = 8;
 
 /**
     Property: O.DragEffect.effectToString
@@ -22,15 +21,14 @@ export default {
 
     Maps bit mask effect to string
 */
-    effectToString:  [
-        'none',
-        'copy',
-        'move',
-        'copyMove',
-        'link',
-        'copyLink',
-        'linkMove',
-        'all',
-        '',
-    ],
-};
+export const effectToString = [
+    'none',
+    'copy',
+    'move',
+    'copyMove',
+    'link',
+    'copyLink',
+    'linkMove',
+    'all',
+    '',
+];

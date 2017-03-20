@@ -2,7 +2,7 @@ import { Class } from '../../core/Core.js';
 import Object from '../../foundation/Object.js';
 import '../../foundation/EventTarget.js';  // For Function#on
 
-var ModalEventHandler = Class({
+const ModalEventHandler = Class({
 
     Extends: Object,
 
@@ -12,8 +12,8 @@ var ModalEventHandler = Class({
     },
 
     inView: function ( event ) {
-        var targetView = event.targetView,
-            view = this.get( 'view' );
+        let targetView = event.targetView;
+        const view = this.get( 'view' );
         while ( targetView && targetView !== view ) {
             targetView = targetView.get( 'parentView' );
         }
@@ -37,8 +37,8 @@ var ModalEventHandler = Class({
     // before hiding on click. On Android/iOS, we will not see a mousedown
     // event, so we also count a touchstart event.
     handleMouse: function ( event ) {
-        var type = event.type,
-            view;
+        const type = event.type;
+        let view;
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.stopPropagation();
             if ( type === 'mousedown' ) {
@@ -67,7 +67,7 @@ var ModalEventHandler = Class({
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.stopPropagation();
             // View may be interested in key events:
-            var view = this.get( 'view' );
+            const view = this.get( 'view' );
             if ( view.keyOutside ) {
                 view.keyOutside( event );
             }

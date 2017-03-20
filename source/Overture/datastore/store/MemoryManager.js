@@ -13,7 +13,7 @@ import RemoteQuery from '../query/RemoteQuery.js';
     breached.
 */
 
-var MemoryManager = Class({
+const MemoryManager = Class({
 
     /**
         Property (private): O.MemoryManager#_index
@@ -104,13 +104,13 @@ var MemoryManager = Class({
         automatically called periodically by the memory manager.
     */
     cleanup: function () {
-        var index = this._index,
-            restrictions = this._restrictions[ index ],
-            Type = restrictions.Type,
-            ParentType = Type,
-            max = restrictions.max,
-            afterFn = restrictions.afterCleanup,
-            deleted;
+        let index = this._index;
+        const restrictions = this._restrictions[ index ];
+        const Type = restrictions.Type;
+        let ParentType = Type;
+        const max = restrictions.max;
+        const afterFn = restrictions.afterCleanup;
+        let deleted;
 
         if ( this.isPaused ) {
             RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
@@ -149,23 +149,22 @@ var MemoryManager = Class({
         Removes excess records from the store.
     */
     cleanupRecordType: function ( Type, max ) {
-        var store = this._store,
-            _skToLastAccess = store._skToLastAccess,
-            _skToData = store._skToData,
-            storeKeys =
-                Object.keys( store._typeToSkToId[ guid( Type ) ] || {} ),
-            l = storeKeys.length,
-            numberToDelete = l - max,
-            deleted = [],
-            data, storeKey;
+        const store = this._store;
+        const _skToLastAccess = store._skToLastAccess;
+        const _skToData = store._skToData;
+        const storeKeys =
+            Object.keys( store._typeToSkToId[ guid( Type ) ] || {} );
+        let l = storeKeys.length;
+        let numberToDelete = l - max;
+        const deleted = [];
 
         storeKeys.sort( function ( a, b ) {
             return _skToLastAccess[b] - _skToLastAccess[a];
         });
 
         while ( numberToDelete > 0 && l-- ) {
-            storeKey = storeKeys[l];
-            data = _skToData[ storeKey ];
+            const storeKey = storeKeys[l];
+            const data = _skToData[ storeKey ];
             if ( store.unloadRecord( storeKey ) ) {
                 numberToDelete -= 1;
                 if ( data ) { deleted.push( data ); }
@@ -184,20 +183,19 @@ var MemoryManager = Class({
         Removes excess remote queries from the store.
     */
     cleanupQueryType: function ( Type, max ) {
-        var queries = this._store.getAllRemoteQueries()
+        const queries = this._store.getAllRemoteQueries()
                           .filter( function ( query ) {
                 return query instanceof Type;
-            }),
-            l = queries.length,
-            numberToDelete = l - max,
-            deleted = [],
-            query;
+            });
+        let l = queries.length;
+        let numberToDelete = l - max;
+        const deleted = [];
 
         queries.sort( function ( a, b ) {
             return b.lastAccess - a.lastAccess;
         });
         while ( numberToDelete > 0 && l-- ) {
-            query = queries[l];
+            const query = queries[l];
             if ( !query.hasObservers() ) {
                 query.destroy();
                 deleted.push( query );

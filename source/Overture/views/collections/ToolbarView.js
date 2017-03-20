@@ -10,13 +10,13 @@ import PopOverView from '../panels/PopOverView.js';
 import MenuButtonView from '../controls/MenuButtonView.js';
 import MenuView from '../controls/MenuView.js';
 
-var toView = function ( name ) {
+const toView = function ( name ) {
     return ( name === '-' ) ?
         Element.create( 'span.v-Toolbar-divider' ) :
         this._views[ name ];
 };
 
-var OverflowMenuView = Class({
+const OverflowMenuView = Class({
 
     Extends: MenuButtonView,
 
@@ -32,9 +32,9 @@ var OverflowMenuView = Class({
     },
 
     shortcuts: function () {
-        var views = this.getFromPath( 'menuView.options' );
+        const views = this.getFromPath( 'menuView.options' );
         return views ? views.reduce( function ( acc, view ) {
-            var shortcut = view.get( 'shortcut' );
+            const shortcut = view.get( 'shortcut' );
             if ( shortcut ) {
                 shortcut.split( ' ' ).forEach( function ( key ) {
                     acc[ key ] = view;
@@ -46,21 +46,20 @@ var OverflowMenuView = Class({
 
     setShortcuts: function ( _, __, oldShortcuts, shortcuts ) {
         if ( this.get( 'isInDocument' ) ) {
-            var kbShortcuts = ViewEventsController.kbShortcuts,
-                key;
+            const kbShortcuts = ViewEventsController.kbShortcuts;
             if ( !shortcuts ) { shortcuts = this.get( 'shortcuts' ); }
-            for ( key in oldShortcuts ) {
+            for ( const key in oldShortcuts ) {
                 kbShortcuts.deregister( key, this, 'activateButton' );
             }
-            for ( key in shortcuts ) {
+            for ( const key in shortcuts ) {
                 kbShortcuts.register( key, this, 'activateButton' );
             }
         }
     }.observes( 'shortcuts' ),
 
     activateButton: function ( event ) {
-        var key = DOMEvent.lookupKey( event ),
-            button = this.get( 'shortcuts' )[ key ];
+        const key = DOMEvent.lookupKey( event );
+        const button = this.get( 'shortcuts' )[ key ];
         if ( button instanceof MenuButtonView ) {
             this.activate();
         }
@@ -68,7 +67,7 @@ var OverflowMenuView = Class({
     },
 });
 
-var ToolbarView = Class({
+const ToolbarView = Class({
 
     Extends: View,
 
@@ -106,7 +105,7 @@ var ToolbarView = Class({
     },
 
     registerViews: function ( views ) {
-        for ( var name in views ) {
+        for ( const name in views ) {
             this.registerView( name, views[ name ], true );
         }
         if ( this.get( 'isInDocument' ) && this.get( 'preventOverlap' ) ) {
@@ -124,7 +123,7 @@ var ToolbarView = Class({
     },
 
     registerConfigs: function ( configs ) {
-        for ( var name in configs ) {
+        for ( const name in configs ) {
             this.registerConfig( name, configs[ name ] );
         }
         return this;
@@ -141,23 +140,23 @@ var ToolbarView = Class({
     // ---
 
     leftConfig: function () {
-        var configs = this._configs,
-            config = configs[ this.get( 'config' ) ];
+        const configs = this._configs;
+        const config = configs[ this.get( 'config' ) ];
         return ( config && config.left ) || configs.standard.left;
     }.property( 'config' ),
 
     rightConfig: function () {
-        var configs = this._configs,
-            config = configs[ this.get( 'config' ) ];
+        const configs = this._configs;
+        const config = configs[ this.get( 'config' ) ];
         return ( config && config.right ) || configs.standard.right;
     }.property( 'config' ),
 
     left: function () {
-        var leftConfig = this.get( 'leftConfig' ),
-            rightConfig = this.get( 'rightConfig' ),
-            pxWidth = this.get( 'pxWidth' ),
-            widths = this._widths,
-            i, l;
+        let leftConfig = this.get( 'leftConfig' );
+        const rightConfig = this.get( 'rightConfig' );
+        let pxWidth = this.get( 'pxWidth' );
+        const widths = this._widths;
+        let i, l;
 
         if ( widths && pxWidth && this.get( 'preventOverlap' ) ) {
             pxWidth -= this.get( 'minimumGap' );
@@ -228,16 +227,15 @@ var ToolbarView = Class({
     },
 
     postMeasure: function () {
-        var widths = this._widths,
-            views = this._views,
-            measureView = this._measureView,
-            unused = measureView.get( 'childViews' ),
-            container = measureView.get( 'layer' ),
-            containerBoundingClientRect = container.getBoundingClientRect(),
-            firstButton = unused.length ? unused[0].get( 'layer' ) : null,
-            name, l;
+        const widths = this._widths;
+        const views = this._views;
+        const measureView = this._measureView;
+        const unused = measureView.get( 'childViews' );
+        const container = measureView.get( 'layer' );
+        const containerBoundingClientRect = container.getBoundingClientRect();
+        const firstButton = unused.length ? unused[0].get( 'layer' ) : null;
 
-        for ( name in views ) {
+        for ( const name in views ) {
             widths[ name ] = views[ name ].get( 'pxWidth' ) || widths[ name ];
         }
 
@@ -249,7 +247,7 @@ var ToolbarView = Class({
         ) - containerBoundingClientRect.left;
 
         this.removeView( measureView );
-        l = unused.length;
+        let l = unused.length;
         while ( l-- ) {
             measureView.removeView( unused[l] );
         }
@@ -301,7 +299,7 @@ var ToolbarView = Class({
     },
 
     redrawSide: function ( container, oldViews, newViews ) {
-        var start = 0,
+        let start = 0,
             isEqual = true,
             i, l, view, parent;
 

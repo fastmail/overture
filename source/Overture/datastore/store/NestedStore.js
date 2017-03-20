@@ -23,7 +23,7 @@ import Store from './Store.js';
     parent store. The changes may be discarded instead of committing without
     ever affecting the parent store.
 */
-var NestedStore = Class({
+const NestedStore = Class({
 
     Extends: Store,
 
@@ -113,16 +113,15 @@ var NestedStore = Class({
     */
     commitChanges: function () {
         this.fire( 'willCommit' );
-        var _created = this._created,
-            _destroyed = this._destroyed,
-            _skToData = this._skToData,
-            _skToChanged = this._skToChanged,
-            parent = this._parentStore,
-            storeKey, status, data;
+        const _created = this._created;
+        const _destroyed = this._destroyed;
+        const _skToData = this._skToData;
+        const _skToChanged = this._skToChanged;
+        const parent = this._parentStore;
 
-        for ( storeKey in _created ) {
-            status = parent.getStatus( storeKey );
-            data = _skToData[ storeKey ];
+        for ( const storeKey in _created ) {
+            const status = parent.getStatus( storeKey );
+            const data = _skToData[ storeKey ];
             if ( status === EMPTY || status === DESTROYED ) {
                 parent.createRecord( storeKey, data );
             } else if ( ( status & ~(OBSOLETE|LOADING) ) ===
@@ -136,11 +135,11 @@ var NestedStore = Class({
                     ( status & ~(DESTROYED|DIRTY) ) | READY );
             }
         }
-        for ( storeKey in _skToChanged ) {
+        for ( const storeKey in _skToChanged ) {
             parent.updateData( storeKey, Object.filter(
                 _skToData[ storeKey ], _skToChanged[ storeKey ] ), true );
         }
-        for ( storeKey in _destroyed ) {
+        for ( const storeKey in _destroyed ) {
             parent.destroyRecord( storeKey );
         }
 
@@ -166,7 +165,7 @@ var NestedStore = Class({
     discardChanges: function () {
         NestedStore.parent.discardChanges.call( this );
 
-        var parent = this._parentStore;
+        const parent = this._parentStore;
 
         this._skToData = Object.create( parent._skToData );
         this._skToStatus = Object.create( parent._skToStatus );
@@ -177,7 +176,7 @@ var NestedStore = Class({
     // === Low level (primarily internal) API: uses storeKey ===================
 
     getStatus: function ( storeKey ) {
-        var status = this._skToStatus[ storeKey ] || EMPTY;
+        const status = this._skToStatus[ storeKey ] || EMPTY;
         return this._skToData.hasOwnProperty( storeKey ) ?
             status : status & ~(NEW|COMMITTING|DIRTY);
     },
@@ -208,7 +207,7 @@ var NestedStore = Class({
             status   - {O.Status} The new status value.
     */
     parentDidChangeStatus: function ( storeKey, previous, status ) {
-        var _skToStatus = this._skToStatus;
+        const _skToStatus = this._skToStatus;
 
         previous = previous & ~(NEW|COMMITTING|DIRTY);
         status = status & ~(NEW|COMMITTING|DIRTY);
@@ -236,7 +235,7 @@ var NestedStore = Class({
             if ( ( previous ^ status ) & READY ) {
                 this._recordDidChange( storeKey );
             }
-            var record = this._skToRecord[ storeKey ];
+            const record = this._skToRecord[ storeKey ];
             if ( record ) {
                 record.propertyDidChange( 'status', previous, status );
             }
@@ -280,18 +279,18 @@ var NestedStore = Class({
     */
     parentDidUpdateData: function ( storeKey, changedKeys ) {
         if ( this._skToData.hasOwnProperty( storeKey ) ) {
-            var _skToData = this._skToData,
-                _skToChanged = this._skToChanged,
-                _skToCommitted = this._skToCommitted,
-                parent = this._parentStore,
-                rebase = this.rebaseConflicts,
-                newBase = parent.getData( storeKey ),
-                oldData = _skToData[ storeKey ],
-                oldChanged = _skToChanged[ storeKey ],
-                newData = {},
-                newChanged = {},
-                clean = true,
-                isChanged, key;
+            const _skToData = this._skToData;
+            const _skToChanged = this._skToChanged;
+            const _skToCommitted = this._skToCommitted;
+            const parent = this._parentStore;
+            const rebase = this.rebaseConflicts;
+            const newBase = parent.getData( storeKey );
+            const oldData = _skToData[ storeKey ];
+            const oldChanged = _skToChanged[ storeKey ];
+            const newData = {};
+            const newChanged = {};
+            let clean = true;
+            let isChanged, key;
 
             changedKeys = [];
 

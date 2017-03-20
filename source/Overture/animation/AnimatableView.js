@@ -82,7 +82,7 @@ export default {
         animate the layer styles. Automatically generated when first accessed.
     */
     layerAnimation: function () {
-        var Animation = UA.cssProps.transition ?
+        const Animation = UA.cssProps.transition ?
             CSSStyleAnimation : StyleAnimation;
         return new Animation({
             object: this,
@@ -101,10 +101,9 @@ export default {
             oldStyles - {Object|null} The previous layer styles for the view.
     */
     redrawLayerStyles: function ( layer, oldStyles ) {
-        var newStyles = this.get( 'layerStyles' ),
-            layerAnimation = this.get( 'layerAnimation' ),
-            setStyle = Element.setStyle,
-            property, value;
+        const newStyles = this.get( 'layerStyles' );
+        const layerAnimation = this.get( 'layerAnimation' );
+        const setStyle = Element.setStyle;
 
         // Animate
         if ( this.get( 'animateLayer' ) ) {
@@ -129,8 +128,8 @@ export default {
             layerAnimation.stop();
             layerAnimation.current = newStyles;
             setStyle( layer, 'transition-property', 'none' );
-            for ( property in newStyles ) {
-                value = newStyles[ property ];
+            for ( const property in newStyles ) {
+                const value = newStyles[ property ];
                 if ( value !== oldStyles[ property ] ) {
                     setStyle( layer, property, value );
                 }
@@ -138,7 +137,7 @@ export default {
         }
         // Just remove styles that are not specified in the new styles, but were
         // in the old styles
-        for ( property in oldStyles ) {
+        for ( const property in oldStyles ) {
             if ( !( property in newStyles ) ) {
                 setStyle( layer, property, null );
             }

@@ -13,7 +13,7 @@ import AbstractControlView from './AbstractControlView.js';
     A checkbox control view. The `value` property is two-way bindable,
     representing the state of the checkbox (`true` => checked).
 */
-var CheckboxView = Class({
+const CheckboxView = Class({
 
     Extends: AbstractControlView,
 
@@ -29,7 +29,7 @@ var CheckboxView = Class({
         Overrides default in <O.View#className>.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Checkbox ' +
             ( this.get( 'value' ) ? 'is-checked' : 'is-unchecked' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
@@ -97,13 +97,13 @@ var CheckboxView = Class({
         when the user toggles the checkbox.
     */
     syncBackValue: function ( event ) {
-        var isTap = ( event.type === 'tap' );
+        const isTap = ( event.type === 'tap' );
         // Ignore simulated click events
         if ( ( isTap || !event.originalType ) &&
                 event.targetView === this &&
                 !this.get( 'isDisabled' ) ) {
-            var control = this._domControl,
-                value = control.checked;
+            const control = this._domControl;
+            let value = control.checked;
             if ( isTap || event.target !== control ) {
                 event.preventDefault();
                 value = !value;

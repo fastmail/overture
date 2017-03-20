@@ -36,7 +36,7 @@ import MenuOptionView from './MenuOptionView.js';
             })
         });
 */
-var MenuButtonView = Class({
+const MenuButtonView = Class({
 
     Extends: ButtonView,
 
@@ -123,9 +123,9 @@ var MenuButtonView = Class({
     activate: function () {
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
-            var buttonView = this,
-                popOverView, menuOptionView, rootView,
-                popOverOptions = extend({
+            const buttonView = this;
+            let popOverView, menuOptionView, rootView;
+            const popOverOptions = extend({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
                     alignEdge: this.get( 'alignMenu' ),

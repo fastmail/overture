@@ -23,7 +23,7 @@ export default {
             {Element} The <style> node that was created.
     */
     create: function ( id, css ) {
-        var style = Element.create( 'style', {
+        const style = Element.create( 'style', {
             type: 'text/css',
             id: id,
             text: css,

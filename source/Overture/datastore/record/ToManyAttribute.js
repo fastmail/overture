@@ -5,7 +5,7 @@ import ObservableArray from '../../foundation/ObservableArray.js';
 import RecordAttribute from './RecordAttribute.js';
 import Record from './Record.js';
 
-var slice = Array.prototype.slice;
+const slice = Array.prototype.slice;
 
 // ---
 
@@ -20,8 +20,8 @@ Record.implement({
         If true, any changes to the record will not be committed to the source.
     */
     notifyRecordArray: function ( _, propKey ) {
-        var recordArray = this[ '_' + propKey + 'RecordArray' ];
-        var isInCache = propKey in meta( this ).cache;
+        const recordArray = this[ '_' + propKey + 'RecordArray' ];
+        const isInCache = propKey in meta( this ).cache;
         // If it's already been updated due to a fetch to the property,
         // the array will be in the cache. Don't waste time calling again.
         if ( recordArray && !isInCache ) {
@@ -32,7 +32,7 @@ Record.implement({
 
 // ---
 
-var RecordArray = Class({
+const RecordArray = Class({
 
     Extends: ObservableArray,
 
@@ -53,16 +53,16 @@ var RecordArray = Class({
 
     updateListFromRecord: function () {
         if ( !this._updatingStore ) {
-            var record = this.get( 'record' ),
-                propKey = this.get( 'propKey' ),
-                list = record[ propKey ].getRaw( record, propKey );
+            const record = this.get( 'record' );
+            const propKey = this.get( 'propKey' );
+            const list = record[ propKey ].getRaw( record, propKey );
 
             this.set( '[]', list ? list.slice() : [] );
         }
     },
 
     getObjectAt: function ( index ) {
-        var storeKey = RecordArray.parent.getObjectAt.call( this, index );
+        const storeKey = RecordArray.parent.getObjectAt.call( this, index );
         return storeKey ?
             this.get( 'store' )
                 .getRecord( this.get( 'Type' ), '#' + storeKey ) :
@@ -77,11 +77,11 @@ var RecordArray = Class({
     replaceObjectsAt: function ( index, numberRemoved, newItems ) {
         newItems = newItems ? slice.call( newItems ) : [];
 
-        var record = this.get( 'record' ),
-            propKey = this.get( 'propKey' ),
-            Type = this.get( 'Type' ),
-            store = this.get( 'store' ),
-            oldItems = RecordArray.parent.replaceObjectsAt.call(
+        const record = this.get( 'record' );
+        const propKey = this.get( 'propKey' );
+        const Type = this.get( 'Type' );
+        const store = this.get( 'store' );
+        const oldItems = RecordArray.parent.replaceObjectsAt.call(
                 this, index, numberRemoved, newItems.map( function ( record ) {
                     return record.get( 'storeKey' );
                 })
@@ -97,7 +97,7 @@ var RecordArray = Class({
     },
 
     add: function ( record ) {
-        var index = this._array.indexOf( record.get( 'storeKey' ) );
+        const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index === -1 ) {
             this.replaceObjectsAt(
                 this.get( 'length' ), 0, [ record ] );
@@ -106,7 +106,7 @@ var RecordArray = Class({
     },
 
     remove: function ( record ) {
-        var index = this._array.indexOf( record.get( 'storeKey' ) );
+        const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index > -1 ) {
             this.replaceObjectsAt( index, 1 );
         }
@@ -117,20 +117,20 @@ var RecordArray = Class({
 // ---
 
 
-var notifyRecordArrayObserver = {
+const notifyRecordArrayObserver = {
     object: null,
     method: 'notifyRecordArray',
 };
 
-var ToManyAttribute = Class({
+const ToManyAttribute = Class({
 
     Extends: RecordAttribute,
 
     __setupProperty__: function ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__setupProperty__.call( this, metadata, propKey, object );
-        var observers = metadata.observers;
-        var keyObservers = observers[ propKey ];
+        const observers = metadata.observers;
+        let keyObservers = observers[ propKey ];
         if ( !observers.hasOwnProperty( propKey ) ) {
             keyObservers = observers[ propKey ] = keyObservers ?
                 keyObservers.slice() : [];
@@ -141,8 +141,8 @@ var ToManyAttribute = Class({
     __teardownProperty__: function ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__teardownProperty__.call( this, metadata, propKey, object );
-        var observers = metadata.observers;
-        var keyObservers = observers[ propKey ];
+        const observers = metadata.observers;
+        let keyObservers = observers[ propKey ];
         if ( !observers.hasOwnProperty( propKey ) ) {
             keyObservers = observers[ propKey ] = keyObservers.slice();
         }
@@ -153,8 +153,8 @@ var ToManyAttribute = Class({
     recordType: null,
 
     call: function ( record, _, propKey ) {
-        var arrayKey = '_' + propKey + 'RecordArray';
-        var recordArray = record[ arrayKey ];
+        const arrayKey = '_' + propKey + 'RecordArray';
+        let recordArray = record[ arrayKey ];
         // Race condition: another observer may fetch this before
         // our notifyRecordArray method has been called.
         if ( recordArray ) {

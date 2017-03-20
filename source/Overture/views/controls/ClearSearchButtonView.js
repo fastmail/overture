@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import ButtonView from './ButtonView.js';
 
-var ClearSearchButtonView = new Class({
+const ClearSearchButtonView = new Class({
 
     Extends: ButtonView,
 
