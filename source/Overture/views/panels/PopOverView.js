@@ -67,8 +67,6 @@ var PopOverView = Class({
             deltaTop = 0,
             layout, position, layer,
             el = Element.create,
-            RootView = RootView,
-            ScrollView = ScrollView,
             prop;
 
         // Want nearest parent scroll view (or root view if none).

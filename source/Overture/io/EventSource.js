@@ -16,7 +16,7 @@ import '../foundation/EventTarget.js';  // For Function#on
 import '../foundation/ObservableProps.js';  // For Function#observes
 import XHR from './XHR.js';
 
-var NativeEventSource = typeof EventSource !== 'undefined' ? EventSource : null;
+var NativeEventSource = window.EventSource;
 
 var CONNECTING = 0;
 var OPEN = 1;

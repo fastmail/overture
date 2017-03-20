@@ -50,6 +50,8 @@ var Timeout = function ( time, period, fn, bind ) {
     To use, wrap the entry point functions in a call to <O.RunLoop.invoke>.
 */
 
+var nextLoop, processTimeouts, nextFrame;
+
 var RunLoop = {
 
     mayRedraw: false,
@@ -509,12 +511,12 @@ Function.implement({
     },
 });
 
-var nextLoop = RunLoop.invoke.bind( RunLoop,
+nextLoop = RunLoop.invoke.bind( RunLoop,
     RunLoop.flushQueue, RunLoop, [ 'nextLoop' ]
 );
-var processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
+processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
 
-var nextFrame = function ( time ) {
+nextFrame = function ( time ) {
     RunLoop.frameStartTime = time;
     RunLoop.mayRedraw = true;
     RunLoop.invoke( RunLoop.flushQueue, RunLoop, [ 'nextFrame' ] );

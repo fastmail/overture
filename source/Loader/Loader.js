@@ -24,6 +24,7 @@ var LS_V_PREFIX = 'OResource-v-';
 
 var moduleInfo = {};
 var require;
+var loader;
 
 var CORSRequest =
     ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
@@ -279,7 +280,7 @@ require = function ( modules, fn, bind ) {
     This event is fired immediately after a new module finishes
     loading, before any waiting require() functions are called.
 */
-var loader = {
+loader = {
     debug: false,
     cacheModules: false,
     modules: moduleInfo,

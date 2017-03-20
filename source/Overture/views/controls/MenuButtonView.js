@@ -132,6 +132,7 @@ var MenuButtonView = Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             var buttonView = this,
+                popOverView, menuOptionView, rootView,
                 popOverOptions = extend({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
@@ -143,8 +144,7 @@ var MenuButtonView = Class({
                                 'isFocussed', popOverView, 'hide' );
                         }
                     },
-                }, this.get( 'popOverOptions' ) ),
-                popOverView, menuOptionView, rootView;
+                }, this.get( 'popOverOptions' ) );
             if ( this.get( 'isInMenu' ) ) {
                 popOverView = this.getParent( PopOverView );
                 menuOptionView = this.get( 'parentView' );

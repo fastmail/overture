@@ -153,8 +153,7 @@ export default new Gesture({
         var touches = event.changedTouches,
             tracking = this._tracking,
             now = Date.now(),
-            i, l, touch, id, trackedTouch, target, tapEvent, clickEvent,
-            ViewEventsController = ViewEventsController;
+            i, l, touch, id, trackedTouch, target, tapEvent, clickEvent;
         for ( i = 0, l = touches.length; i < l; i += 1 ) {
             touch = touches[i];
             id = touch.identifier;

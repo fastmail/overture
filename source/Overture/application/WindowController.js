@@ -95,8 +95,6 @@ var WindowController = Class({
 
         this.broadcast( 'wc:hello' );
 
-        var RunLoop = RunLoop;
-
         var that = this;
         var check = function check () {
             that.checkMaster();
