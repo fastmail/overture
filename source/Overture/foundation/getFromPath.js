@@ -2,7 +2,8 @@
     Function: O.getFromPath
 
     Follows a path string (e.g. 'mailbox.messages.howMany') to retrieve the
-    final object/value from a root object. At each stage of the path, if the current object supports a 'get' function, that will be used to retrieve the
+    final object/value from a root object. At each stage of the path, if the
+    current object supports a 'get' function, that will be used to retrieve the
     next stage, otherwise it will just be read directly as a property.
 
     If the full path cannot be followed, `undefined` will be returned.

@@ -1,4 +1,6 @@
-import { Class, meta, clone } from '../../core/Core.js';  // Also Function#extend
+import {
+    Class, meta, clone,
+} from '../../core/Core.js';  // Also Function#extend
 import Object from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 

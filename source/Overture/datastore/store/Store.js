@@ -1674,7 +1674,8 @@ var Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchUpdates: function ( Type, changed, removed, oldState, newState ) {
+    sourceDidFetchUpdates: function ( Type, changed, removed, oldState,
+            newState ) {
         var typeId = guid( Type );
         if ( this._typeToClientState[ typeId ] === oldState ) {
             if ( changed ) {

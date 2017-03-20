@@ -43,7 +43,8 @@
                     the old and possibly the new value.
     depth         - The number of calls to
                     <O.ObservableProps#beginPropertyChanges> without a
-                    corresponding call to <O.ObservableProps#endPropertyChanges>.
+                    corresponding call to
+                    <O.ObservableProps#endPropertyChanges>.
     pathObservers - A mapping of keys to a list of paths they observe.
     bindings      - A mapping of keys to Binding objects.
     inits         - A mapping of mixin names to a reference count of the number

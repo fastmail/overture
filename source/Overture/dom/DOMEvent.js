@@ -85,7 +85,8 @@ var DOMEvent = {
     /**
         Function: O.DOMEvent.isClickModified
 
-        Determines if a secondary mouse button was pressed, or a modifier key was held down while the mouse was clicked.
+        Determines if a secondary mouse button was pressed, or a modifier key
+        was held down while the mouse was clicked.
 
         Parameters:
             event - {MouseEvent} The W3C DOM click event object.

@@ -1,4 +1,6 @@
-import { Class, meta, clone, extend, isEqual } from '../../core/Core.js';  // Also Function#extend
+import {
+    Class, meta, clone, extend, isEqual,
+} from '../../core/Core.js';  // Also Function#extend
 
 var instanceOf = function ( value, Type ) {
     switch ( typeof value ) {

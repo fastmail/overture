@@ -34,6 +34,7 @@ RegExp.email = /\b([\w.%+-]+@(?:[\w-]+\.)+[A-Z]{2,})\b/i;
 //     [^\s`!()\[\]{};:'".,<>?«»“”‘’] # or not a space or one of these punct
 // )
 
+// eslint-disable-next-line max-len
 RegExp.url = /\b(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.-]+[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’])/i;
 
 // TODO(cmorgan/modulify): do something about these exports: RegExp.email,

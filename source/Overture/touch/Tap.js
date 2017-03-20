@@ -169,7 +169,8 @@ export default new Gesture({
                     if ( !isInputOrLink( target ) ) {
                         event.preventDefault();
                     }
-                    new MouseEventRemover( target, clickEvent.defaultPrevented );
+                    new MouseEventRemover(
+                        target, clickEvent.defaultPrevented );
                 }
                 trackedTouch.done();
                 delete tracking[ id ];

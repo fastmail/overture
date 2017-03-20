@@ -1,4 +1,4 @@
-/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage, O */
+/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage, O*/
 
 /*
     Object: O.Loader

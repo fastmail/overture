@@ -35,7 +35,9 @@ native implementation (and indeed the spec) is extremely buggy. Problems (as of
    implementations are likely to change as well.
 5. In Firefox, setDragImage only works with visible elements.
 
-If you want to initiate a drag with data for an external app (e.g. a file download), you can still do this, by setting a draggable="true" attribute on the HTML element to be dragged and handling the dragstart event.
+If you want to initiate a drag with data for an external app (e.g. a file
+download), you can still do this, by setting a draggable="true" attribute on the
+HTML element to be dragged and handling the dragstart event.
 
 Native support is turned on for drop targets though, as there are no
 show-stopping bugs here, so this is handled as normal.
@@ -245,7 +247,8 @@ var Drag = Class({
         if ( dragImage ) {
             cursor = this.get( 'cursorPosition' );
             offset = this.get( 'dragImageOffset' );
-            dragImage.style.left = ( cursor.x + Math.max( offset.x, 5 ) ) + 'px';
+            dragImage.style.left = ( cursor.x + Math.max( offset.x, 5 ) ) +
+                'px';
             dragImage.style.top = ( cursor.y + Math.max( offset.y, 5 ) ) + 'px';
         }
     }.queue( 'render' ).observes( 'cursorPosition', 'dragImageOffset' ),

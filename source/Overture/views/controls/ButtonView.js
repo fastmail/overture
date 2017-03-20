@@ -148,7 +148,8 @@ var ButtonView = Class({
             ( this.get( 'isActive' ) ? ' is-active' : '' ) +
             ( this.get( 'isWaiting' ) ? ' is-waiting' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' );
-    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isWaiting', 'isDisabled' ),
+    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isWaiting',
+                'isDisabled' ),
 
     /**
         Method: O.ButtonView#draw

@@ -35,7 +35,8 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             hours = ~~( durationInSeconds / ( 60 * 60 ) );
             minutes = ~~( ( durationInSeconds / 60 ) % 60 );
         }
-        time = loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]', hours, minutes );
+        time = loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
+            hours, minutes );
     } else if ( approx ? durationInSeconds < 60 * 60 * 24 * 21 :
             durationInSeconds < 60 * 60 * 24 * 7 ) {
         if ( approx ) {

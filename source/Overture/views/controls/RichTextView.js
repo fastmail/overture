@@ -6,7 +6,8 @@ import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import Transform from '../../foundation/Transform.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import RunLoop from '../../foundation/RunLoop.js';  // Also Function#nextFrame, #queue
+import RunLoop from '../../foundation/RunLoop.js';  // Also Function#nextFrame
+                                                    // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
 import Element from '../../dom/Element.js';
 import DOMEvent from '../../dom/DOMEvent.js';

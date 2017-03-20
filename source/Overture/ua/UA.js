@@ -24,7 +24,8 @@ var ua = navigator.userAgent.toLowerCase(),
         other
     )[0],
     version = parseFloat((
-        /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua ) ||
+        /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/
+            .exec( ua ) ||
         /chrome\/(\d+\.\d+)/.exec( ua ) ||
         other
     )[1].replace( '_', '.' ) ),

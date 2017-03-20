@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export * from './core/Core.js';
 export { default as sortByProperties } from './core/sortByProperties.js';
 import './core/Array.js';

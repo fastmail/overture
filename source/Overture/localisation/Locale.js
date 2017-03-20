@@ -658,7 +658,9 @@ var Locale = Class({
            numbers you need to interpolate, your source string should use the
            appropriate pluralisation macro for your language. e.g.
 
-               O.loc( "[*2,_1,1 file was,%n files were,No files were] found in [_2]", 11, "Documents" );
+               O.loc(
+                 "[*2,_1,1 file was,%n files were,No files were] found in [_2]",
+                 11, "Documents" );
                => "11 files were found in Documents"
 
         2. If at least one of the arguments is an object:

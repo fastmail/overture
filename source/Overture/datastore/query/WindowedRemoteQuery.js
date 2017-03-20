@@ -133,7 +133,8 @@ var mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
     return [ rA, rB ];
 };
 
-var adjustIndexes = function ( removed, added, removedBefore, storeKeys, removedBeforeStoreKeys ) {
+var adjustIndexes = function ( removed, added, removedBefore, storeKeys,
+        removedBeforeStoreKeys ) {
     var resultIndexes = [],
         resultStoreKeys = [],
         i, l, index, position, j, ll;
