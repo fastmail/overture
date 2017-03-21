@@ -390,7 +390,7 @@ const RemoteQuery = Class({
             return true;
         }
 
-        if ( start < 0 ) { start = 0 ; }
+        if ( start < 0 ) { start = 0; }
         if ( end > length ) { end = length; }
         callback( this._list.slice( start, end ), start, end );
 

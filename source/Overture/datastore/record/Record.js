@@ -202,7 +202,7 @@ const Record = Class({
     */
     saveToStore: function () {
         if ( this.get( 'storeKey' ) ) {
-            throw new Error( "Record already created in store." );
+            throw new Error( 'Record already created in store.' );
         }
         const Type = this.constructor;
         const data = this._data;

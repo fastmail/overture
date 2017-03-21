@@ -344,7 +344,7 @@ String.implement({
             i += 1;
 
             const padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
-            for ( ; i < padding ; i += 1 ) {
+            for ( ; i < padding; i += 1 ) {
                 blocks[i] = 0;
             }
 

@@ -10,7 +10,7 @@ const compileTranslation = function ( translation ) {
     let i, j, l;
 
     outer: while ( true ) {
-        end = translation.indexOf( '[', searchIndex ) ;
+        end = translation.indexOf( '[', searchIndex );
         // If there are no more macros, just the last text section to
         // process.
         if ( end === -1 ) {

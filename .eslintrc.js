@@ -250,7 +250,13 @@ module.exports = {
         "prefer-spread": "off",
         "prefer-template": "off",
         "quote-props": "off",
-        "quotes": "off",
+        "quotes": [
+            "error",
+            "single",
+            {
+                "avoidEscape": true
+            }
+        ],
         "radix": [
             "error",
             "always"
@@ -258,8 +264,8 @@ module.exports = {
         "require-await": "error",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",
-        "semi": "off",
-        "semi-spacing": "off",
+        "semi": "error",
+        "semi-spacing": "error",
         "sort-imports": "off",
         "sort-keys": "off",
         "sort-vars": "off",

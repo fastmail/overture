@@ -85,7 +85,7 @@ const Enumerable = {
     lastIndexOf: function ( item, from ) {
         const l = this.get( 'length' );
         for ( from = ( from < 0 ) ? ( l + from ) : ( from || l - 1 );
-                from >= 0 ; from -= 1 ){
+                from >= 0; from -= 1 ){
             if ( this.getObjectAt( from ) === item ) {
                 return from;
             }

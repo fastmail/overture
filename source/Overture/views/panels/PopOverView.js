@@ -4,7 +4,7 @@ import DOMEvent from '../../dom/DOMEvent.js';
 import Element from '../../dom/Element.js';
 import RootView from '../RootView.js';
 import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js'
+import ViewEventsController from '../ViewEventsController.js';
 import ScrollView from '../containers/ScrollView.js';
 
 import ModalEventHandler from './ModalEventHandler.js';

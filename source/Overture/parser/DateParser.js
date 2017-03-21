@@ -364,7 +364,7 @@ const interpreter = {
                     }
                     date.setFullYear( year );
                 }
-                delta = ( isFeb29 ? 4 : 1 ) * ( searchMethod || 1 ) ;
+                delta = ( isFeb29 ? 4 : 1 ) * ( searchMethod || 1 );
                 while ( date.getDay() !== weekday ) {
                     do {
                         year += delta;
