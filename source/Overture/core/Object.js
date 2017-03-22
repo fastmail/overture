@@ -13,7 +13,7 @@ Object.extend({
         Returns:
             {Array} The list of values.
     */
-    values: function ( object ) {
+    values( object ) {
         const values = [];
         for ( const key in object ) {
             if ( object.hasOwnProperty( key ) ) {
@@ -37,7 +37,7 @@ Object.extend({
             {String|undefined} The key for that value in the object.
             Undefined is returned if the value is not found.
     */
-    keyOf: function ( object, value ) {
+    keyOf( object, value ) {
         for ( const key in object ) {
             if ( object[ key ] === value ) {
                 return key;
@@ -60,7 +60,7 @@ Object.extend({
         Returns:
             {Object} The filtered object.
     */
-    filter: function ( object, include ) {
+    filter( object, include ) {
         const result = {};
         for ( const key in object ) {
             if ( include[ key ] ) {
@@ -83,7 +83,7 @@ Object.extend({
         Returns:
             {Object} The object mapping keys to values.
     */
-    zip: function ( keys, values ) {
+    zip( keys, values ) {
         let l = Math.min( keys.length, values.length );
         const obj = {};
         while ( l-- ) {
@@ -104,7 +104,7 @@ Object.extend({
         Returns:
             {Object} The key/value pairs in object form.
     */
-    fromQueryString: function ( query ) {
+    fromQueryString( query ) {
         const result = {};
         query.split( '&' ).forEach( function ( pair ) {
            const parts = pair.split( '=' ).map( decodeURIComponent );

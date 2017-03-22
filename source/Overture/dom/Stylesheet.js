@@ -22,10 +22,10 @@ export default {
         Returns:
             {Element} The <style> node that was created.
     */
-    create: function ( id, css ) {
+    create( id, css ) {
         const style = Element.create( 'style', {
             type: 'text/css',
-            id: id,
+            id,
             text: css,
         });
         document.head.appendChild( style );

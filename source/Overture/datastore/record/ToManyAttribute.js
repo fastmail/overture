@@ -19,7 +19,7 @@ Record.implement({
 
         If true, any changes to the record will not be committed to the source.
     */
-    notifyRecordArray: function ( _, propKey ) {
+    notifyRecordArray( _, propKey ) {
         const recordArray = this[ '_' + propKey + 'RecordArray' ];
         const isInCache = propKey in meta( this ).cache;
         // If it's already been updated due to a fetch to the property,
@@ -36,7 +36,7 @@ const RecordArray = Class({
 
     Extends: ObservableArray,
 
-    init: function ( record, propKey, value, Type ) {
+    init( record, propKey, value, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;
@@ -47,11 +47,11 @@ const RecordArray = Class({
         RecordArray.parent.init.call( this, value && value.slice() );
     },
 
-    toJSON: function () {
+    toJSON() {
         return this._array.slice();
     },
 
-    updateListFromRecord: function () {
+    updateListFromRecord() {
         if ( !this._updatingStore ) {
             const record = this.get( 'record' );
             const propKey = this.get( 'propKey' );
@@ -61,7 +61,7 @@ const RecordArray = Class({
         }
     },
 
-    getObjectAt: function ( index ) {
+    getObjectAt( index ) {
         const storeKey = RecordArray.parent.getObjectAt.call( this, index );
         return storeKey ?
             this.get( 'store' )
@@ -69,12 +69,12 @@ const RecordArray = Class({
             null;
     },
 
-    setObjectAt: function ( index, value ) {
+    setObjectAt( index, value ) {
         this.replaceObjectsAt( index, 1, [ value ] );
         return this;
     },
 
-    replaceObjectsAt: function ( index, numberRemoved, newItems ) {
+    replaceObjectsAt( index, numberRemoved, newItems ) {
         newItems = newItems ? slice.call( newItems ) : [];
 
         const record = this.get( 'record' );
@@ -96,7 +96,7 @@ const RecordArray = Class({
         return oldItems;
     },
 
-    add: function ( record ) {
+    add( record ) {
         const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index === -1 ) {
             this.replaceObjectsAt(
@@ -105,7 +105,7 @@ const RecordArray = Class({
         return this;
     },
 
-    remove: function ( record ) {
+    remove( record ) {
         const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index > -1 ) {
             this.replaceObjectsAt( index, 1 );
@@ -126,7 +126,7 @@ const ToManyAttribute = Class({
 
     Extends: RecordAttribute,
 
-    __setupProperty__: function ( metadata, propKey, object ) {
+    __setupProperty__( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__setupProperty__.call( this, metadata, propKey, object );
         const observers = metadata.observers;
@@ -138,7 +138,7 @@ const ToManyAttribute = Class({
         keyObservers.push( notifyRecordArrayObserver );
     },
 
-    __teardownProperty__: function ( metadata, propKey, object ) {
+    __teardownProperty__( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__teardownProperty__.call( this, metadata, propKey, object );
         const observers = metadata.observers;
@@ -152,7 +152,7 @@ const ToManyAttribute = Class({
     Type: Array,
     recordType: null,
 
-    call: function ( record, _, propKey ) {
+    call( record, _, propKey ) {
         const arrayKey = '_' + propKey + 'RecordArray';
         let recordArray = record[ arrayKey ];
         // Race condition: another observer may fetch this before
@@ -172,12 +172,12 @@ const ToManyAttribute = Class({
         return recordArray;
     },
 
-    getRaw: function ( record, propKey ) {
+    getRaw( record, propKey ) {
         return ToManyAttribute.parent.call.call(
             this, record, undefined, propKey );
     },
 
-    setRaw: function ( record, propKey, data ) {
+    setRaw( record, propKey, data ) {
         return ToManyAttribute.parent.call.call(
             this, record, data, propKey );
     },

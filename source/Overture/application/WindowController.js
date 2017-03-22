@@ -72,7 +72,7 @@ const WindowController = Class({
         other open window.
     */
 
-    init: function ( mixin ) {
+    init( mixin ) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocussed = document.hasFocus ? document.hasFocus() : true;
@@ -88,11 +88,11 @@ const WindowController = Class({
         this.broadcast( 'wc:hello' );
 
         const that = this;
-        const check = function check () {
+        const check = function () {
             that.checkMaster();
             that._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
         };
-        const ping = function ping () {
+        const ping = function () {
             that.sendPing();
             that._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
         };
@@ -100,7 +100,7 @@ const WindowController = Class({
         this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
     },
 
-    destroy: function () {
+    destroy() {
         RunLoop.cancel( this._pingTimeout )
                .cancel( this._checkTimeout );
 
@@ -155,7 +155,7 @@ const WindowController = Class({
         Sends a ping to let other windows know about the existence of this one.
         Automatically called periodically.
     */
-    sendPing: function () {
+    sendPing() {
         this.broadcast( 'wc:ping' );
     },
 
@@ -208,7 +208,7 @@ const WindowController = Class({
         Looks at the set of other windows it knows about and sets the isMaster
         property based on whether this window has the lowest ordered id.
     */
-    checkMaster: function () {
+    checkMaster() {
         const now = Date.now();
         let isMaster = true;
         const seenWCs = this._seenWCs;
@@ -232,19 +232,19 @@ const WindowController = Class({
             type - {String} The name of the event being broadcast.
             data - {Object} (optional). The data to broadcast.
     */
-    broadcast: function ( type, data ) {
+    broadcast( type, data ) {
         try {
             localStorage.setItem(
                 this.get( 'broadcastKey' ),
                 JSON.stringify( extend({
                     wcId: this.id,
-                    type: type,
+                    type,
                 }, data ))
             );
         } catch ( error ) {}
     },
 }).extend({
-    openExternal: function ( href ) {
+    openExternal( href ) {
         const newWindow = window.open( '', '_blank' );
         let htmlHref = href;
         if ( newWindow ) {

@@ -168,7 +168,7 @@ const Locale = Class({
         Parameters:
             mixin - {Object} Information for this locale.
     */
-    init: function ( mixin ) {
+    init( mixin ) {
         [ 'macros', 'dateFormats' ].forEach( function ( obj ) {
             this[ obj ] = Object.create( this[ obj ] );
         }, this );
@@ -225,7 +225,7 @@ const Locale = Class({
         Returns:
             {String} The localised number.
     */
-    getFormattedNumber: function ( number ) {
+    getFormattedNumber( number ) {
         let integer = number + '';
         let fraction = '';
         const decimalPointIndex = integer.indexOf( '.' );
@@ -249,7 +249,7 @@ const Locale = Class({
         Returns:
             {String} The localised ordinal.
     */
-    getFormattedOrdinal: function ( number ) {
+    getFormattedOrdinal( number ) {
         return number + '.';
     },
 
@@ -266,7 +266,7 @@ const Locale = Class({
         Returns:
             {String} The localised, human-readable file size.
     */
-    getFormattedFileSize: function ( bytes, decimalPlaces ) {
+    getFormattedFileSize( bytes, decimalPlaces ) {
         const units = this.fileSizeUnits;
         const l = units.length - 1;
         let i = 0;
@@ -363,7 +363,7 @@ const Locale = Class({
     */
     dateFormats: {
         date: '%d/%m/%Y',
-        time: function ( date, locale, utc ) {
+        time( date, locale, utc ) {
             return date.format(
                 locale.use24hClock ? this.time24 : this.time12, utc );
         },
@@ -399,7 +399,7 @@ const Locale = Class({
         Returns:
             {String} The localised date.
     */
-    getFormattedDate: function ( date, type, utc ) {
+    getFormattedDate( date, type, utc ) {
         const dateFormats = this.dateFormats;
         const format = dateFormats[ type ] || dateFormats.date;
         return format instanceof Function ?
@@ -419,7 +419,7 @@ const Locale = Class({
         // Japanese, Vietnamese, Korean.
         // Case 1: everything.
         // Case 2: is 0 (optional; case 1 used if not supplied).
-        '*1': function ( n, singular, zero ) {
+        '*1'( n, singular, zero ) {
             return ( !n && zero !== undefined ? zero : singular
             ).replace( '%n', formatInt( n, this ) );
         },
@@ -427,7 +427,7 @@ const Locale = Class({
         // Case 1: is 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; plural used if not supplied).
-        '*2': function ( n, singular, plural, zero ) {
+        '*2'( n, singular, plural, zero ) {
             return ( n === 1 ? singular :
                 !n && zero !== undefined ? zero : plural
             ).replace( '%n', formatInt( n, this ) );
@@ -436,7 +436,7 @@ const Locale = Class({
         // Case 1: is 0 or 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; singular used if not supplied).
-        '*2a': function ( n, singular, plural, zero ) {
+        '*2a'( n, singular, plural, zero ) {
             return ( n > 1 ? plural :
                 !n && zero !== undefined ? zero : singular
             ).replace( '%n', formatInt( n, this ) );
@@ -446,7 +446,7 @@ const Locale = Class({
         // Case 2: everything else
         //        (*1,*2,*4,*5,*7,*9,*10,*40,*50,*70,*90,*000,*0000,*00000).
         // Case 3: is 0 (optional; case 1 used if not supplied)
-        '*2b': function ( n, form1, form2, zero ) {
+        '*2b'( n, form1, form2, zero ) {
             return ( !n ? zero !== undefined ? zero : form1 :
                 ( /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test( n + '' ) ) ?
                 form1 : form2
@@ -456,7 +456,7 @@ const Locale = Class({
         // Case 1: is 0.
         // Case 2: ends in 1, does not end in 11.
         // Case 3: everything else.
-        '*3a': function ( n, zero, plural1, plural2 ) {
+        '*3a'( n, zero, plural1, plural2 ) {
             return (
                 !n ? zero :
                 n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
@@ -467,7 +467,7 @@ const Locale = Class({
         // Case 2: is 0 or ends in 01-19.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3b': function ( n, singular, plural1, plural2, zero ) {
+        '*3b'( n, singular, plural1, plural2, zero ) {
             const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
@@ -480,7 +480,7 @@ const Locale = Class({
         // Case 2: ends in 0 or ends in 10-20.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3c': function ( n, form1, form2, form3, zero ) {
+        '*3c'( n, form1, form2, form3, zero ) {
             const mod10 = n % 10;
             const mod100 = n % 100;
             return (
@@ -494,7 +494,7 @@ const Locale = Class({
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3d': function ( n, form1, form2, form3, zero ) {
+        '*3d'( n, form1, form2, form3, zero ) {
             const mod10 = n % 10;
             const mod100 = n % 100;
             return (
@@ -509,7 +509,7 @@ const Locale = Class({
         // Case 2: is 2-4.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3e': function ( n, singular, plural1, plural2, zero ) {
+        '*3e'( n, singular, plural1, plural2, zero ) {
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -521,7 +521,7 @@ const Locale = Class({
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3f': function ( n, singular, plural1, plural2, zero ) {
+        '*3f'( n, singular, plural1, plural2, zero ) {
             const mod10 = n % 10;
             const mod100 = n % 100;
             return (
@@ -537,7 +537,7 @@ const Locale = Class({
         // Case 3: ends in 03 or 04.
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4a': function ( n, end01, end02, end03or04, plural, zero ) {
+        '*4a'( n, end01, end02, end03or04, plural, zero ) {
             const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
@@ -552,7 +552,7 @@ const Locale = Class({
         // Case 3: is 3-19.
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4b': function ( n, form1, form2, form3, form4, zero ) {
+        '*4b'( n, form1, form2, form3, form4, zero ) {
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 || n === 11 ? form1 :
@@ -567,7 +567,7 @@ const Locale = Class({
         // Case 4: is 7-10.
         // Case 5: everything else.
         // Case 6: is 0 (optional; case 5 used if not supplied)
-        '*5': function ( n, singular, doubular, form1, form2, form3, zero ) {
+        '*5'( n, singular, doubular, form1, form2, form3, zero ) {
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -583,7 +583,7 @@ const Locale = Class({
         // Case 4: ends in 03-10.
         // Case 5: ends in 11-99.
         // Case 6: everything else.
-        '*6': function ( n, zero, singular, doubular, pl1, pl2, pl3 ) {
+        '*6'( n, zero, singular, doubular, pl1, pl2, pl3 ) {
             const mod100 = n % 100;
             return (
                 !n ? zero :
@@ -595,21 +595,21 @@ const Locale = Class({
         },
 
         // The following four are deprecated and will be removed.
-        quant: function ( n, singular, plural, zero ) {
+        quant( n, singular, plural, zero ) {
             return ( !n && zero !== undefined ) ? zero :
                    ( n === 1 ) ? '1 ' + singular :
                    ( n + ' ' ) + ( plural || ( singular + 's' ) );
         },
-        numerate: function ( n, singular, plural ) {
+        numerate( n, singular, plural ) {
             return n !== 1 ? plural || ( singular + 's' ) : singular;
         },
-        numf: function ( n ) {
+        numf( n ) {
             const parts = ( n + '' ).split( '.' );
             parts[0] = parts[0].replace( /(\d+?)(?=(?:\d{3})+$)/g,
                 '$1' + this.thousandsSeparator );
             return parts.join( this.decimalPoint );
         },
-        sprintf: function ( string ) {
+        sprintf( string ) {
             return String.prototype.format.apply( string,
                 Array.prototype.slice.call( arguments, 1 ) );
         },
@@ -691,7 +691,7 @@ const Locale = Class({
         Returns:
             {(String|Array)} The localised string or array of localised parts.
     */
-    translate: function ( string ) {
+    translate( string ) {
         let translation = this.translations[ string ];
         let returnString = true;
         const args = [];

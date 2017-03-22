@@ -228,8 +228,8 @@ require = function ( modules, fn, bind ) {
             if ( fn ) {
                 if ( !waitObj ) {
                     waitObj = {
-                        fn: fn,
-                        bind: bind,
+                        fn,
+                        bind,
                         refCount: 0,
                     };
                 }
@@ -281,9 +281,9 @@ loader = {
     modules: moduleInfo,
     baseHref: '',
 
-    getFile: getFile,
+    getFile,
 
-    register: function ( name, info ) {
+    register( name, info ) {
         if ( !info.status ) {
             info.status = info.src ? UNREQUESTED : LOADED;
         }
@@ -292,7 +292,7 @@ loader = {
         return this;
     },
 
-    prefetch: function ( name ) {
+    prefetch( name ) {
         const info = moduleInfo[ name ];
         const dependencies = info.dependencies;
         let l = dependencies ? dependencies.length : 0;
@@ -305,7 +305,7 @@ loader = {
     // Requires all modules listed.
     // Returns whether loaded.
     // Presuming all dependency chains resolved.
-    require: require,
+    require,
 };
 
 export { loader, require };

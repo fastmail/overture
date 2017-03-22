@@ -111,7 +111,7 @@ const AbstractControlView = Class({
         Overridden to add keyboard shortcuts.
         See <O.View#didEnterDocument>.
     */
-    didEnterDocument: function () {
+    didEnterDocument() {
         const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
@@ -128,7 +128,7 @@ const AbstractControlView = Class({
         Overridden to remove keyboard shortcuts.
         See <O.View#didEnterDocument>.
     */
-    willLeaveDocument: function () {
+    willLeaveDocument() {
         const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( function ( key ) {
@@ -175,7 +175,7 @@ const AbstractControlView = Class({
 
         Overridden to set properties and add label. See <O.View#draw>.
     */
-    draw: function ( layer, Element, el ) {
+    draw( layer, Element, el ) {
         const control = this._domControl;
         const name = this.get( 'name' );
         const shortcut = this.get( 'shortcut' );
@@ -214,7 +214,7 @@ const AbstractControlView = Class({
         Updates the disabled attribute on the DOM control to match the
         isDisabled property of the view.
     */
-    redrawIsDisabled: function () {
+    redrawIsDisabled() {
         this._domControl.disabled = this.get( 'isDisabled' );
     },
 
@@ -223,7 +223,7 @@ const AbstractControlView = Class({
 
         Updates the DOM label to match the label property of the view.
     */
-    redrawLabel: function () {
+    redrawLabel() {
         const label = this._domLabel;
         let child;
         while ( child = label.firstChild ) {
@@ -240,7 +240,7 @@ const AbstractControlView = Class({
         Updates the name attribute on the DOM control to match the name
         property of the view.
     */
-    redrawName: function () {
+    redrawName() {
         this._domControl.name = this.get( 'name' );
     },
 
@@ -253,7 +253,7 @@ const AbstractControlView = Class({
         Updates the title attribute on the DOM layer to match the tooltip
         property of the view.
     */
-    redrawTooltip: function ( layer ) {
+    redrawTooltip( layer ) {
         layer.title = this.get( 'tooltip' );
     },
 
@@ -263,7 +263,7 @@ const AbstractControlView = Class({
         Updates the tabIndex attribute on the DOM control to match the tabIndex
         property of the view.
     */
-    redrawTabIndex: function () {
+    redrawTabIndex() {
         this._domControl.tabIndex = this.get( 'tabIndex' );
     },
 
@@ -277,7 +277,7 @@ const AbstractControlView = Class({
         Returns:
             {O.AbstractControlView} Returns self.
     */
-    focus: function () {
+    focus() {
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.focus();
             // Fire event synchronously.
@@ -296,7 +296,7 @@ const AbstractControlView = Class({
         Returns:
             {O.AbstractControlView} Returns self.
     */
-    blur: function () {
+    blur() {
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.blur();
             // Fire event synchronously.
@@ -328,7 +328,7 @@ const AbstractControlView = Class({
         performed when the control is activated, either by being clicked on or
         via a keyboard shortcut.
     */
-    activate: function () {},
+    activate() {},
 
 });
 

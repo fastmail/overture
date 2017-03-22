@@ -30,7 +30,7 @@ export default Class({
                         you can pass it getter/setter functions or observing
                         methods).
     */
-    init: function (/* ...mixins */) {
+    init(/* ...mixins */) {
         this.isDestroyed = false;
 
         for ( let i = 0, l = arguments.length; i < l; i += 1 ) {
@@ -53,7 +53,7 @@ export default Class({
         Removes any connections to other objects (e.g. path observers and
         bindings) so the object will be available for garbage collection.
     */
-    destroy: function () {
+    destroy() {
         const destructors = meta( this ).inits;
         for ( const method in destructors ) {
             if ( destructors[ method ] ) {

@@ -98,7 +98,7 @@ const LiveQuery = Class({
         Parameters:
             mixin - {Object} The properties for the query.
     */
-    init: function ( mixin ) {
+    init( mixin ) {
         const Type = mixin.Type;
         let sort = mixin.sort;
         const store = mixin.store || this.store;
@@ -128,7 +128,7 @@ const LiveQuery = Class({
         does not continue monitoring the store for changes and can be garbage
         collected.
     */
-    destroy: function () {
+    destroy() {
         this.set( 'status', DESTROYED );
         this.get( 'store' ).removeQuery( this );
         LiveQuery.parent.destroy.call( this );
@@ -145,7 +145,7 @@ const LiveQuery = Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is: function ( status ) {
+    is( status ) {
         return !!( this.get( 'status' ) & status );
     },
 
@@ -186,7 +186,7 @@ const LiveQuery = Class({
         Returns:
             {Number} The index of the store key, or -1 if not found.
     */
-    indexOfStoreKey: function ( storeKey, from, callback ) {
+    indexOfStoreKey( storeKey, from, callback ) {
         const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             callback( index );
@@ -205,7 +205,7 @@ const LiveQuery = Class({
         Returns:
             {O.Record} The record at index i in this array.
     */
-    getObjectAt: function ( index ) {
+    getObjectAt( index ) {
         const storeKey = this._storeKeys[ index ];
         if ( storeKey ) {
             return this.get( 'store' )
@@ -225,7 +225,7 @@ const LiveQuery = Class({
         Returns:
             {O.LiveQuery} Returns self.
     */
-    refresh: function ( force ) {
+    refresh( force ) {
         this.get( 'store' ).fetchAll( this.get( 'Type' ), force );
         return this;
     },
@@ -238,7 +238,7 @@ const LiveQuery = Class({
         Returns:
             {O.LiveQuery} Returns self.
     */
-    reset: function () {
+    reset() {
         const oldStoreKeys = this._storeKeys;
         const storeKeys = this.get( 'store' ).findAll(
                 this.get( 'Type' ), this.filter, this.sort );
@@ -268,7 +268,7 @@ const LiveQuery = Class({
         Returns:
             {Boolean} Was there a change in the query results?
     */
-    storeDidChangeRecords: function ( storeKeysOfChanged ) {
+    storeDidChangeRecords( storeKeysOfChanged ) {
         const filter = this._filter;
         const sort = this._sort;
         const storeKeys = this._storeKeys;
@@ -401,10 +401,10 @@ const LiveQuery = Class({
                 .endPropertyChanges()
                 .fire( 'query:updated', {
                     query: this,
-                    removed: removed,
-                    removedIndexes: removedIndexes,
-                    added: added,
-                    addedIndexes: addedIndexes,
+                    removed,
+                    removedIndexes,
+                    added,
+                    addedIndexes,
                 });
             return true;
         }
@@ -431,7 +431,7 @@ const LiveQuery = Class({
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
     */
-    getStoreKeysForObjectsInRange: function ( start, end, callback ) {
+    getStoreKeysForObjectsInRange( start, end, callback ) {
         start = Math.max( 0, start );
         end = Math.min( this.get( 'length' ), end );
         callback( this._storeKeys.slice( start, end ), start, end );
@@ -454,7 +454,7 @@ const LiveQuery = Class({
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
     */
-    getStoreKeysForAllObjects: function ( callback ) {
+    getStoreKeysForAllObjects( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
         return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
     },

@@ -37,7 +37,7 @@ const addValidityObserver = function ( observers, propKey ) {
 */
 const RecordAttribute = Class({
 
-    __setupProperty__: function ( metadata, propKey, object ) {
+    __setupProperty__( metadata, propKey, object ) {
         let attrs = metadata.attrs,
             dependents, observers, dependencies, l, key,
             RecordType, AttributeErrorsType;
@@ -93,7 +93,7 @@ const RecordAttribute = Class({
         }
     },
 
-    __teardownProperty__: function ( metadata, propKey, object ) {
+    __teardownProperty__( metadata, propKey, object ) {
         let attrs = metadata.attrs;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = Object.create( attrs );
@@ -108,7 +108,7 @@ const RecordAttribute = Class({
         Parameters:
             mixin - {Object} (optional) Override the default properties.
     */
-    init: function ( mixin ) {
+    init( mixin ) {
         extend( this, mixin );
     },
 
@@ -204,7 +204,7 @@ const RecordAttribute = Class({
         Returns:
             {Boolean} May the value be set?
     */
-    willSet: function ( propValue, propKey, record ) {
+    willSet( propValue, propKey, record ) {
         if ( !record.get( 'isEditable' ) ) {
             return false;
         }
@@ -301,7 +301,7 @@ const RecordAttribute = Class({
         Returns:
             {*} The attribute.
     */
-    call: function ( record, propValue, propKey ) {
+    call( record, propValue, propKey ) {
         const store = record.get( 'store' );
         const storeKey = record.get( 'storeKey' );
         const data = storeKey ? store.getData( storeKey ) : record._data;

@@ -37,7 +37,7 @@ const PopOverView = Class({
         - offsetTop
         - onHide: fn
     */
-    show: function ( options ) {
+    show( options ) {
         if ( options.alignWithView === this ) {
             return this.get( 'subPopOverView' ).show( options );
         }
@@ -192,7 +192,7 @@ const PopOverView = Class({
         return this;
     },
 
-    adjustPosition: function ( deltaLeft, deltaTop ) {
+    adjustPosition( deltaLeft, deltaTop ) {
         let parent = this.get( 'parentView' );
         const layer = this.get( 'layer' );
         const layout = this.get( 'layout' );
@@ -279,13 +279,13 @@ const PopOverView = Class({
         }
     },
 
-    didLeaveDocument: function () {
+    didLeaveDocument() {
         PopOverView.parent.didLeaveDocument.call( this );
         this.hide();
         return this;
     },
 
-    hide: function () {
+    hide() {
         if ( this.get( 'isVisible' ) ) {
             const subPopOverView = this.hasSubView() ?
                     this.get( 'subPopOverView' ) : null;
@@ -316,7 +316,7 @@ const PopOverView = Class({
         return this;
     },
 
-    hasSubView: function () {
+    hasSubView() {
         return !!meta( this ).cache.subPopOverView &&
             this.get( 'subPopOverView' ).get( 'isVisible' );
     },
@@ -330,11 +330,11 @@ const PopOverView = Class({
             null : new ModalEventHandler({ view: this });
     }.property(),
 
-    clickedOutside: function () {
+    clickedOutside() {
         this.hide();
     },
 
-    keyOutside: function ( event ) {
+    keyOutside( event ) {
         let view = this;
         while ( view.hasSubView() ) {
             view = view.get( 'subPopOverView' );

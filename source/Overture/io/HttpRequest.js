@@ -102,7 +102,7 @@ const HttpRequest = Class({
 
     // ---
 
-    init: function ( mixin ) {
+    init( mixin ) {
         this._transport = null;
         this._timer = null;
         this._lastActivity = 0;
@@ -139,7 +139,7 @@ const HttpRequest = Class({
         }
     }.on( 'io:end' ),
 
-    didTimeout: function () {
+    didTimeout() {
         this._timer = null;
         const timeout = this.get( 'timeout' );
         const timeSinceLastReset = Date.now() - this._lastActivity;
@@ -156,7 +156,7 @@ const HttpRequest = Class({
 
     // ---
 
-    send: function () {
+    send() {
         const method = this.get( 'method' ).toUpperCase();
         let url = this.get( 'url' );
         let data = this.get( 'data' ) || null;
@@ -186,7 +186,7 @@ const HttpRequest = Class({
         return this;
     },
 
-    abort: function () {
+    abort() {
         const transport = this._transport;
         if ( transport && transport.io === this ) {
             transport.abort();

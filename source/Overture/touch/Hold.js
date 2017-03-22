@@ -9,7 +9,7 @@ const HoldEvent = Class({
 
     Extends: Event,
 
-    init: function ( touch ) {
+    init( touch ) {
         HoldEvent.parent.init.call( this, 'hold', touch.target );
         this.touch = touch;
     },
@@ -47,7 +47,7 @@ export default new Gesture({
 
     cancel: Tap.cancel,
 
-    start: function ( event ) {
+    start( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const l = touches.length;
@@ -62,7 +62,7 @@ export default new Gesture({
 
     move: Tap.move,
 
-    end: function ( event ) {
+    end( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const l = touches.length;

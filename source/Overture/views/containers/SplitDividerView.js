@@ -152,7 +152,7 @@ const SplitDividerView = Class({
 
         Records the offset at the time the drag starts.
     */
-    dragStarted: function () {
+    dragStarted() {
         this._offset = this.get( 'offset' );
         this._dir = ( this.get( 'direction' ) === VERTICAL ) ? 'x' : 'y';
     },
@@ -166,7 +166,7 @@ const SplitDividerView = Class({
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragMoved: function ( drag ) {
+    dragMoved( drag ) {
         const dir = this._dir;
         const delta = drag.get( 'cursorPosition' )[ dir ] -
             drag.get( 'startPosition' )[ dir ];

@@ -40,7 +40,7 @@ const ListView = Class({
     ItemView: null,
     itemHeight: 0,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         this._added = null;
         this._removed = null;
         this._rendered = {};
@@ -60,7 +60,7 @@ const ListView = Class({
         }
     },
 
-    destroy: function () {
+    destroy() {
         const selection = this.get( 'selection' );
         if ( selection ) {
             selection.removeObserverForKey(
@@ -92,7 +92,7 @@ const ListView = Class({
         }
     }.observes( 'content' ),
 
-    contentWasUpdated: function ( event ) {
+    contentWasUpdated( event ) {
         if ( this.get( 'isInDocument' ) ) {
             this._added = addToTable( event.added, this._added || {} );
             this._removed = addToTable( event.removed, this._removed || {} );
@@ -108,12 +108,10 @@ const ListView = Class({
         if ( UA.firefox && height > 16777216 ) {
             height = 16777216;
         }
-        return itemHeight ? {
-            height: height,
-        } : {};
+        return itemHeight ? { height } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
-    draw: function ( layer, Element/*, el*/ ) {
+    draw( layer, Element/*, el*/ ) {
         // Render any unmanaged child views first.
         const children = ListView.parent.draw.call( this, layer );
         const content = this.get( 'content' );
@@ -128,33 +126,33 @@ const ListView = Class({
         }
     },
 
-    viewNeedsRedraw: function () {
+    viewNeedsRedraw() {
         this.propertyNeedsRedraw( this, 'layer' );
     },
 
     // -----------------------------------------------------------------------
 
-    isCorrectItemView: function ( view, item ) {
+    isCorrectItemView( view, item ) {
         return view.get( 'content' ) === item;
     },
 
-    createItemView: function ( content, index, list, isAdded ) {
+    createItemView( content, index, list, isAdded ) {
         const ItemView = this.get( 'ItemView' );
         return new ItemView({
             parentView: this,
-            content: content,
-            index: index,
-            list: list,
-            isAdded: isAdded,
+            content,
+            index,
+            list,
+            isAdded,
             selection: this.get( 'selection' ),
         });
     },
 
-    destroyItemView: function ( view ) {
+    destroyItemView( view ) {
         view.destroy();
     },
 
-    redrawLayer: function ( layer ) {
+    redrawLayer( layer ) {
         const list = this.get( 'content' ) || [];
         const childViews = this.get( 'childViews' );
         const isInDocument = this.get( 'isInDocument' );
@@ -268,7 +266,7 @@ const ListView = Class({
         this.endPropertyChanges();
     },
 
-    redrawSelection: function () {
+    redrawSelection() {
         const selection = this.get( 'selection' );
         const itemViews = this.get( 'childViews' );
         let l = itemViews.length;

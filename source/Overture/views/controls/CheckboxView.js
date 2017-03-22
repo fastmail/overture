@@ -41,7 +41,7 @@ const CheckboxView = Class({
 
         Overridden to draw checkbox in layer. See <O.View#draw>.
     */
-    draw: function ( layer, Element, el ) {
+    draw( layer, Element, el ) {
         return [
             this._domControl = el( 'input', {
                 className: 'v-Checkbox-input',
@@ -70,7 +70,7 @@ const CheckboxView = Class({
         Updates the checked status of the DOM `<input type="checkbox">` to match
         the value property of the view.
     */
-    redrawValue: function () {
+    redrawValue() {
         this._domControl.checked = this.get( 'value' );
     },
 
@@ -82,7 +82,7 @@ const CheckboxView = Class({
         Overridden to toggle the checked status of the control. See
         <O.AbstractControlView#activate>.
     */
-    activate: function () {
+    activate() {
         if ( !this.get( 'isDisabled' ) ) {
             this.toggle( 'value' );
         }

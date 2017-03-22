@@ -6,7 +6,7 @@ const StoreUndoManager = Class({
 
     Extends: UndoManager,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         StoreUndoManager.parent.init.call( this, mixin );
         this.get( 'store' )
             .on( 'willCommit', this, 'saveUndoCheckpoint' )
@@ -15,7 +15,7 @@ const StoreUndoManager = Class({
             .on( 'record:user:destroy', this, 'dataDidChange' );
     },
 
-    destroy: function () {
+    destroy() {
         this.get( 'store' )
             .off( 'willCommit', this, 'saveUndoCheckpoint' )
             .off( 'record:user:create', this, 'dataDidChange' )
@@ -24,13 +24,13 @@ const StoreUndoManager = Class({
         StoreUndoManager.parent.destroy.call( this );
     },
 
-    getUndoData: function () {
+    getUndoData() {
         const store = this.get( 'store' );
         return store.checkForChanges().get( 'hasChanges' ) ?
             store.getInverseChanges() : null;
     },
 
-    applyChange: function ( data ) {
+    applyChange( data ) {
         const store = this.get( 'store' );
         store.applyChanges( data );
         const inverse = store.getInverseChanges();
@@ -38,7 +38,7 @@ const StoreUndoManager = Class({
         return inverse;
     },
 
-    undo: function () {
+    undo() {
         if ( this._isInUndoState || !this.get( 'store' ).get( 'hasChanges' ) ) {
             StoreUndoManager.parent.undo.call( this );
         }

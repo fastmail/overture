@@ -10,8 +10,8 @@ import Object from '../foundation/Object.js';
 */
 
 const dummyStorage = {
-    setItem: function () {},
-    getItem: function () {},
+    setItem() {},
+    getItem() {},
 };
 
 /**
@@ -40,7 +40,7 @@ const LocalStorage = Class({
             sessionOnly - {Boolean} (optional) Should the values only be
                           persisted for the session?
     */
-    init: function ( name, sessionOnly ) {
+    init( name, sessionOnly ) {
         this._name = name + '.';
         this._store = location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? sessionStorage : localStorage;
@@ -48,7 +48,7 @@ const LocalStorage = Class({
         LocalStorage.parent.init.call( this );
     },
 
-    get: function ( key ) {
+    get( key ) {
         if ( !( key in this ) ) {
             let item;
             // Firefox sometimes throws and error
@@ -60,7 +60,7 @@ const LocalStorage = Class({
         return LocalStorage.parent.get.call( this, key );
     },
 
-    set: function ( key, value ) {
+    set( key, value ) {
         // If we exceed the storage quota, an error will be thrown.
         try {
             this._store.setItem( this._name + key, JSON.stringify( value ) );

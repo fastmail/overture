@@ -157,7 +157,7 @@ const ButtonView = Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.ButtonView> notes.
     */
-    draw: function ( layer, Element, el ) {
+    draw( layer, Element, el ) {
         let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
@@ -184,7 +184,7 @@ const ButtonView = Class({
        return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'icon', 'isWaiting' ),
 
-    redrawIcon: function ( layer ) {
+    redrawIcon( layer ) {
         let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
@@ -194,7 +194,7 @@ const ButtonView = Class({
         layer.replaceChild( icon, layer.firstChild );
     },
 
-    redrawIsDisabled: function () {
+    redrawIsDisabled() {
         this._domControl.disabled =
             this.get( 'isDisabled' ) || this.get( 'isWaiting' );
     },
@@ -251,7 +251,7 @@ const ButtonView = Class({
 
         It also fires an event called `button:activate` on itself.
     */
-    activate: function () {
+    activate() {
         if ( !this.get( 'isDisabled' ) && !this.get( 'isWaiting' ) ) {
             const target = this.get( 'target' ) || this;
             let action;
@@ -291,7 +291,7 @@ const ButtonView = Class({
     /**
         Method (private): O.ButtonView#_setIgnoreUntil
     */
-    _setIgnoreUntil: function () {
+    _setIgnoreUntil() {
         this._ignoreUntil = Date.now() + 200;
     },
 
@@ -336,7 +336,7 @@ const ButtonView = Class({
         }
     }.on( 'keypress' ),
 }).extend({
-    drawIcon: function ( icon ) {
+    drawIcon( icon ) {
         return Element.create( 'i', {
             className: 'icon ' + icon,
         });

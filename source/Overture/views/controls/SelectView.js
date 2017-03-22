@@ -56,7 +56,7 @@ const SelectView = Class({
 
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
-    draw: function ( layer, Element, el ) {
+    draw( layer, Element, el ) {
         const control = this._domControl =
             this._drawSelect( this.get( 'options' ) );
         return [
@@ -76,7 +76,7 @@ const SelectView = Class({
         Returns:
             {Element} The `<select>`.
     */
-    _drawSelect: function ( options ) {
+    _drawSelect( options ) {
         const selected = this.get( 'value' );
         const el = Element.create;
         const select = el( 'select', {
@@ -113,7 +113,7 @@ const SelectView = Class({
         Updates the DOM representation when the <O.SelectView#options> property
         changes.
     */
-    redrawOptions: function ( layer, oldOptions ) {
+    redrawOptions( layer, oldOptions ) {
         const options = this.get( 'options' );
         if ( !isEqual( options, oldOptions ) ) {
             // Must blur before removing from DOM in iOS, otherwise
@@ -137,7 +137,7 @@ const SelectView = Class({
         Selects the corresponding option in the select when the
         <O.SelectView#value> property changes.
     */
-    redrawValue: function () {
+    redrawValue() {
         const value = this.get( 'value' );
         const options = this.get( 'options' );
         let l = options.length;

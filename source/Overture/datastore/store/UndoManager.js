@@ -9,7 +9,7 @@ const UndoManager = Class({
 
     Extends: Object,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         this._undoStack = [];
         this._redoStack = [];
 
@@ -23,7 +23,7 @@ const UndoManager = Class({
         UndoManager.parent.init.call( this, mixin );
     },
 
-    _pushState: function ( stack, data ) {
+    _pushState( stack, data ) {
         stack.push( data );
         while ( stack.length > this.maxUndoCount ) {
             stack.shift();
@@ -31,7 +31,7 @@ const UndoManager = Class({
         this._isInUndoState = true;
     },
 
-    dataDidChange: function () {
+    dataDidChange() {
         this._isInUndoState = false;
         this._redoStack.length = 0;
         return this
@@ -40,7 +40,7 @@ const UndoManager = Class({
             .fire( 'input' );
     },
 
-    saveUndoCheckpoint: function () {
+    saveUndoCheckpoint() {
         if ( !this._isInUndoState ) {
             const data = this.getUndoData();
             if ( data !== null ) {
@@ -53,7 +53,7 @@ const UndoManager = Class({
         return this;
     },
 
-    undo: function () {
+    undo() {
         if ( this.get( 'canUndo' ) ) {
             if ( !this._isInUndoState ) {
                 this.saveUndoCheckpoint();
@@ -72,7 +72,7 @@ const UndoManager = Class({
         return this;
     },
 
-    redo: function () {
+    redo() {
         if ( this.get( 'canRedo' ) ) {
             this._pushState( this._undoStack,
                 this.applyChange( this._redoStack.pop(), true )
@@ -84,9 +84,9 @@ const UndoManager = Class({
         return this;
     },
 
-    getUndoData: function () {},
+    getUndoData() {},
 
-    applyChange: function (/* data, isRedo */) {},
+    applyChange(/* data, isRedo */) {},
 });
 
 export default UndoManager;

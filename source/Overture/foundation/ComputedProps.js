@@ -120,7 +120,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
     */
-    property: function () {
+    property() {
         this.isProperty = true;
         if ( arguments.length ) {
             this.dependencies = slice.call( arguments );
@@ -138,7 +138,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
     */
-    nocache: function () {
+    nocache() {
         this.isVolatile = true;
         return this;
     },
@@ -152,7 +152,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
     */
-    doNotNotify: function () {
+    doNotNotify() {
         this.isSilent = true;
         return this;
     },
@@ -221,7 +221,7 @@ export default {
         Returns:
             {Array} Returns the list of dependents (may be empty).
     */
-    propertiesDependentOnKey: function ( key ) {
+    propertiesDependentOnKey( key ) {
         const metadata = meta( this );
         return metadata.allDependents[ key ] ||
             ( metadata.allDependents[ key ] =
@@ -241,7 +241,7 @@ export default {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    propertyDidChange: function ( key/*, oldValue, newValue*/ ) {
+    propertyDidChange( key/*, oldValue, newValue*/ ) {
         const dependents = this.propertiesDependentOnKey( key );
         let l = dependents.length;
         const cache = meta( this ).cache;
@@ -264,7 +264,7 @@ export default {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    computedPropertyDidChange: function ( key, newValue ) {
+    computedPropertyDidChange( key, newValue ) {
         const cache = meta( this ).cache;
         const oldValue = cache[ key ];
         delete cache[ key ];
@@ -285,7 +285,7 @@ export default {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    clearPropertyCache: function () {
+    clearPropertyCache() {
         meta( this ).cache = {};
         return this;
     },
@@ -307,7 +307,7 @@ export default {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    set: function ( key, value ) {
+    set( key, value ) {
         let oldValue = this[ key ],
             silent, cache;
         if ( oldValue && oldValue.isProperty ) {
@@ -343,7 +343,7 @@ export default {
         Returns:
             {*} The value of the property.
     */
-    get: function ( key ) {
+    get( key ) {
         const value = this[ key ];
         if ( value && value.isProperty ) {
             if ( value.isVolatile ) {
@@ -368,7 +368,7 @@ export default {
         Returns:
             {*} The value at that path relative to this object.
     */
-    getFromPath: function ( path ) {
+    getFromPath( path ) {
         return getFromPath( this, path );
     },
 
@@ -385,7 +385,7 @@ export default {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    increment: function ( key, delta ) {
+    increment( key, delta ) {
         return this.set( key, this.get( key ) + delta );
     },
 
@@ -401,7 +401,7 @@ export default {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    toggle: function ( key ) {
+    toggle( key ) {
         return this.set( key, !this.get( key ) );
     },
 };

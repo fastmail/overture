@@ -29,7 +29,7 @@ const MenuOptionView = Class({
             ( this.get( 'isHidden' ) ? ' u-hidden' : '' );
     }.property( 'isFocussed', 'isHidden' ),
 
-    init: function ( view, controller ) {
+    init( view, controller ) {
         this.childViews = [ view ];
         this.button = view;
         this.controller = controller;
@@ -60,7 +60,7 @@ const MenuOptionView = Class({
 
     _focusTimeout: null,
 
-    takeFocus: function () {
+    takeFocus() {
         if ( this.get( 'isInDocument' ) ) {
             this.get( 'controller' ).focusOption( this )
                 .activateIfMenu();
@@ -89,12 +89,12 @@ const MenuOptionView = Class({
         }
     }.on( 'mouseout' ),
 
-    filter: function ( pattern ) {
+    filter( pattern ) {
         const label = this.get( 'button' ).get( 'label' );
         this.set( 'isHidden', !!pattern && !pattern.test( label ) );
     },
 
-    activate: function () {
+    activate() {
         const button = this.get( 'button' );
         if ( button.activate ) { button.activate(); }
     },

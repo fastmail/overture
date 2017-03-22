@@ -19,7 +19,7 @@ const isControl = {
 const effectToString = DragEffect.effectToString;
 const DEFAULT = DragEffect.DEFAULT;
 
-function TouchDragEvent ( touch ) {
+function TouchDragEvent( touch ) {
     const clientX = touch.clientX;
     const clientY = touch.clientY;
     const target = document.elementFromPoint( clientX, clientY ) ||
@@ -126,7 +126,7 @@ const DragController = new Object({
         Parameters:
             drag - {O.Drag} The new drag instance.
     */
-    register: function ( drag ) {
+    register( drag ) {
         if ( this._drag ) {
             this._drag.endDrag();
         }
@@ -142,7 +142,7 @@ const DragController = new Object({
         Parameters:
             drag - {O.Drag} The finished drag instance.
     */
-    deregister: function ( drag ) {
+    deregister( drag ) {
         if ( this._drag === drag ) {
             this._drag = null;
             this._touchId = null;
@@ -160,7 +160,7 @@ const DragController = new Object({
             (going up the tree) which is draggable. A view is draggable if it
             includes the <O.Draggable> mixin.
     */
-    getNearestDragView: function ( view ) {
+    getNearestDragView( view ) {
         while ( view ) {
             if ( view.get( 'isDraggable' ) ) {
                 break;
@@ -234,7 +234,7 @@ const DragController = new Object({
                 if ( view ) {
                     new Drag({
                         dragSource: view,
-                        event: event,
+                        event,
                         startPosition: {
                             x: this._x,
                             y: this._y,
@@ -363,7 +363,7 @@ const DragController = new Object({
             event.preventDefault();
         } else {
             new Drag({
-                event: event,
+                event,
                 isNative: true,
             });
         }
@@ -397,7 +397,7 @@ const DragController = new Object({
             }
             // Drag from external source
             drag = new Drag({
-                event: event,
+                event,
                 isNative: true,
                 allowedEffects: effectToString.indexOf( effectAllowed ),
             });

@@ -29,7 +29,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchRecord: function (/* Type, id, callback */) {
+    fetchRecord(/* Type, id, callback */) {
         return false;
     },
 
@@ -49,7 +49,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords: function (/* Type, state, callback */) {
+    fetchAllRecords(/* Type, state, callback */) {
         return false;
     },
 
@@ -68,7 +68,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
-    refreshRecord: function ( Type, id, callback ) {
+    refreshRecord( Type, id, callback ) {
         return this.fetchRecord( Type, id, callback );
     },
 
@@ -83,7 +83,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchQuery: function (/* query, callback */) {
+    fetchQuery(/* query, callback */) {
         return false;
     },
 
@@ -138,7 +138,7 @@ const Source = Class({
             callback will only be called if the source is handling at least one
             of the types being committed.
     */
-    commitChanges: function (/* changes, callback */) {
+    commitChanges(/* changes, callback */) {
         return false;
     },
 });

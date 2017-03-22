@@ -67,7 +67,7 @@ const MemoryManager = Class({
                            function is called in milliseconds. Default is 30000,
                            i.e. every 30 seconds.
     */
-    init: function ( store, restrictions, frequency ) {
+    init( store, restrictions, frequency ) {
         this._index = 0;
         this._store = store;
         this._restrictions = restrictions;
@@ -90,7 +90,7 @@ const MemoryManager = Class({
         Returns:
             {O.MemoryManager} Returns self.
     */
-    addRestriction: function ( restriction ) {
+    addRestriction( restriction ) {
         this._restrictions.push( restriction );
         return this;
     },
@@ -103,7 +103,7 @@ const MemoryManager = Class({
         until the number is under the set limit for that type. This is
         automatically called periodically by the memory manager.
     */
-    cleanup: function () {
+    cleanup() {
         let index = this._index;
         const restrictions = this._restrictions[ index ];
         const Type = restrictions.Type;
@@ -148,7 +148,7 @@ const MemoryManager = Class({
 
         Removes excess records from the store.
     */
-    cleanupRecordType: function ( Type, max ) {
+    cleanupRecordType( Type, max ) {
         const store = this._store;
         const _skToLastAccess = store._skToLastAccess;
         const _skToData = store._skToData;
@@ -182,7 +182,7 @@ const MemoryManager = Class({
 
         Removes excess remote queries from the store.
     */
-    cleanupQueryType: function ( Type, max ) {
+    cleanupQueryType( Type, max ) {
         const queries = this._store.getAllRemoteQueries()
                           .filter( function ( query ) {
                 return query instanceof Type;

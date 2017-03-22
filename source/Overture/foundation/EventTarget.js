@@ -22,7 +22,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
      */
-    on: function () {
+    on() {
         return this.observes.apply( this,
             slice.call( arguments ).map( function ( type ) {
                 return eventPrefix + type;
@@ -72,9 +72,9 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    on: function ( type, obj, method ) {
+    on( type, obj, method ) {
         if ( !( obj instanceof Function ) ) {
-            obj = { object: obj, method: method };
+            obj = { object: obj, method };
         }
         type = eventPrefix + type;
 
@@ -101,7 +101,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    once: function ( type, fn ) {
+    once( type, fn ) {
         const once = function ( event ) {
             fn.call( this, event );
             this.off( type, once );
@@ -134,7 +134,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    fire: function ( type, event ) {
+    fire( type, event ) {
         let target = this;
         const typeKey = eventPrefix + type;
 
@@ -198,7 +198,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    off: function ( type, obj, method ) {
+    off( type, obj, method ) {
         type = eventPrefix + type;
 
         const observers = meta( this ).observers;

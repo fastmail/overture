@@ -78,11 +78,11 @@ const identity = function ( v ) { return v; };
 
 const Binding = Class({
 
-    __setupProperty__: function ( metadata, key ) {
+    __setupProperty__( metadata, key ) {
         metadata.bindings[ key ] = this;
         metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
     },
-    __teardownProperty__: function ( metadata, key ) {
+    __teardownProperty__( metadata, key ) {
         metadata.bindings[ key ] = null;
         metadata.inits.Bindings -= 1;
     },
@@ -143,7 +143,7 @@ const Binding = Class({
             mixin - {Object} (optional). Can set isTwoWay or the transform to
                     use on the binding.
     */
-    init: function ( mixin ) {
+    init( mixin ) {
         this.isConnected = false;
         this.isSuspended = true;
         this.isNotInSync = true;
@@ -178,7 +178,7 @@ const Binding = Class({
 
         Disconnects binding and prevents any further value syncs.
     */
-    destroy: function () {
+    destroy() {
         this.disconnect();
         // Ignore any remaining queued connect() calls.
         this.isConnected = true;
@@ -202,7 +202,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    from: function ( root, path ) {
+    from( root, path ) {
         const rootIsPath = ( typeof root === 'string' );
         this._fromRoot = rootIsPath ? path : root;
         this._fromPath = rootIsPath ? root : path;
@@ -227,7 +227,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    to: function ( root, path ) {
+    to( root, path ) {
         const rootIsPath = ( typeof root === 'string' );
         this._toRoot = rootIsPath ? path : root;
         this._toPath = rootIsPath ? root : path;
@@ -314,7 +314,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    connect: function () {
+    connect() {
         if ( this.isConnected ) { return this; }
 
         this.isSuspended = false;
@@ -360,7 +360,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    disconnect: function () {
+    disconnect() {
         if ( !this.isConnected ) { return this; }
 
         this.fromObject.removeObserverForPath(
@@ -389,7 +389,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    suspend: function () {
+    suspend() {
         this.isSuspended = true;
         return this;
     },
@@ -403,7 +403,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    resume: function () {
+    resume() {
         if ( this.isSuspended && this.isConnected ) {
             this.isSuspended = false;
             this.sync();
@@ -432,7 +432,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    fromDidChange: function () {
+    fromDidChange() {
         return this.needsSync( true );
     },
 
@@ -446,7 +446,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    toDidChange: function () {
+    toDidChange() {
         return this.needsSync( false );
     },
 
@@ -462,7 +462,7 @@ const Binding = Class({
         Returns:
             {O.Binding} Returns self.
     */
-    needsSync: function ( direction ) {
+    needsSync( direction ) {
         const queue = this.queue;
         const inQueue = this.isNotInSync;
         this.willSyncForward = direction;
@@ -490,7 +490,7 @@ const Binding = Class({
         Returns:
             {Boolean} Did the binding actually make a change?
     */
-    sync: function ( force ) {
+    sync( force ) {
         if ( !force && ( !this.isNotInSync || this.isSuspended ) ) {
             return false;
         }

@@ -33,7 +33,7 @@ const ObservableArray = Class({
             array   - {Array} (optional) The initial contents of the array.
             mixin - {Object} (optional)
     */
-    init: function ( array, mixin ) {
+    init( array, mixin ) {
         this._array = array || [];
         this._length = this._array.length;
 
@@ -95,7 +95,7 @@ const ObservableArray = Class({
         Returns:
             {*} The value at index i in this array.
     */
-    getObjectAt: function ( index ) {
+    getObjectAt( index ) {
         return this._array[ index ];
     },
 
@@ -130,7 +130,7 @@ const ObservableArray = Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    setObjectAt: function ( index, value ) {
+    setObjectAt( index, value ) {
         this._array[ index ] = value;
         const length = this._length;
         if ( length <= index ) {
@@ -155,7 +155,7 @@ const ObservableArray = Class({
         Returns:
             {Array} Returns an array of the removed objects.
     */
-    replaceObjectsAt: function ( index, numberRemoved, newItems ) {
+    replaceObjectsAt( index, numberRemoved, newItems ) {
         const oldLength = this._length;
         const array = this._array;
         let removed;
@@ -196,7 +196,7 @@ const ObservableArray = Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    sort: function ( comparefn ) {
+    sort( comparefn ) {
         this._array.sort( comparefn );
         this.rangeDidChange( 0, this._length );
         return this;
@@ -210,7 +210,7 @@ const ObservableArray = Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    reverse: function () {
+    reverse() {
         this._array.reverse();
         this.rangeDidChange( 0, this._length );
         return this;
@@ -229,7 +229,7 @@ const ObservableArray = Class({
         Returns:
             {Array} Returns new concatenated array.
     */
-    concat: function () {
+    concat() {
         const args = [];
         const l = arguments.length;
         for ( let i = 0; i < l; i += 1 ) {
@@ -252,7 +252,7 @@ const ObservableArray = Class({
             {String} Concatenated string of all items joined by separator
             string.
     */
-    join: function ( separator ) {
+    join( separator ) {
         return this._array.join( separator );
     },
 
@@ -270,7 +270,7 @@ const ObservableArray = Class({
             {Array} Shallow copy of the underlying array between the given
             indexes.
     */
-    slice: function ( start, end ) {
+    slice( start, end ) {
         return this._array.slice( start, end );
     },
 });

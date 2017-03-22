@@ -14,7 +14,7 @@ Number.implement({
             {Number} The nearest number to the current value within the allowed
             range.
     */
-    limit: function ( min, max ) {
+    limit( min, max ) {
         // +0 is required to unbox 'this' back into a primitive number in IE.
         // Otherwise you get a boxed value, which amongst other things makes 0 a
         // truthy value, leading to all sorts of interesting behaviour...
@@ -32,7 +32,7 @@ Number.implement({
         Returns:
             {Number} The number mod n.
     */
-    mod: function ( n ) {
+    mod( n ) {
         const m = this % n;
         return m < 0 ? m + n : m;
     },

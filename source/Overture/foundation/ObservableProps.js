@@ -15,7 +15,7 @@ const setupObserver = function ( metadata, method ) {
                 keyObservers = observers[ key ] = keyObservers ?
                     keyObservers.slice() : [];
             }
-            keyObservers.push({ object: null, method: method });
+            keyObservers.push({ object: null, method });
         } else {
             if ( !pathObservers ) {
                 pathObservers = metadata.pathObservers;
@@ -89,7 +89,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
      */
-    observes: function () {
+    observes() {
         const properties = ( this.observedProperties ||
             ( this.observedProperties = [] ) );
         let l = arguments.length;
@@ -243,7 +243,7 @@ export default {
         iterate through the keys of `O.meta( this ).inits`, calling
         `this[ 'init' + key ]()` for all keys which map to truthy values.
     */
-    initObservers: function () {
+    initObservers() {
         _setupTeardownPaths( this, 'addObserverForPath' );
     },
 
@@ -255,7 +255,7 @@ export default {
         through the keys of `O.meta( this ).inits`, calling
         `this[ 'destroy' + key ]()` for all keys which map to a truthy value.
     */
-    destroyObservers: function () {
+    destroyObservers() {
         _setupTeardownPaths( this, 'removeObserverForPath' );
     },
 
@@ -268,7 +268,7 @@ export default {
         Returns:
             {Boolean} Does the object have any observers?
     */
-    hasObservers: function () {
+    hasObservers() {
         const observers = meta( this ).observers;
         for ( const key in observers ) {
             const keyObservers = observers[ key ];
@@ -298,7 +298,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    beginPropertyChanges: function () {
+    beginPropertyChanges() {
         meta( this ).depth += 1;
         return this;
     },
@@ -314,7 +314,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    endPropertyChanges: function () {
+    endPropertyChanges() {
         const metadata = meta( this );
         if ( metadata.depth === 1 ) {
             // Notify observers.
@@ -355,7 +355,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    propertyDidChange: function ( key, oldValue, newValue ) {
+    propertyDidChange( key, oldValue, newValue ) {
         const metadata = meta( this );
         const isInitialised = metadata.isInitialised;
         const dependents = isInitialised ?
@@ -382,7 +382,7 @@ export default {
 
             changed[ key ] = {
                 oldValue: changed[ key ] ? changed[ key ].oldValue : oldValue,
-                newValue: newValue,
+                newValue,
             };
 
             if ( metadata.depth ) {
@@ -423,14 +423,14 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    addObserverForKey: function ( key, object, method ) {
+    addObserverForKey( key, object, method ) {
         const observers = meta( this ).observers;
         let keyObservers = observers[ key ];
         if ( !observers.hasOwnProperty( key ) ) {
             keyObservers = observers[ key ] = keyObservers ?
                 keyObservers.slice() : [];
         }
-        keyObservers.push({ object: object, method: method });
+        keyObservers.push({ object, method });
         return this;
     },
 
@@ -450,7 +450,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    removeObserverForKey: function ( key, object, method ) {
+    removeObserverForKey( key, object, method ) {
         const observers = meta( this ).observers;
         const keyObservers = observers[ key ];
         if ( keyObservers ) {
@@ -487,7 +487,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    addObserverForPath: function ( path, object, method ) {
+    addObserverForPath( path, object, method ) {
         const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.addObserverForKey( path, object, method );
@@ -505,8 +505,8 @@ export default {
 
             keyObservers.push({
                 path: restOfPath,
-                object: object,
-                method: method,
+                object,
+                method,
             });
             if ( value && !( value instanceof Binding ) ) {
                 value.addObserverForPath( restOfPath, object, method );
@@ -529,7 +529,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    removeObserverForPath: function ( path, object, method ) {
+    removeObserverForPath( path, object, method ) {
         const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.removeObserverForKey( path, object, method );

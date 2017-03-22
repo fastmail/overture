@@ -1,14 +1,14 @@
 import { Class } from '../core/Core.js';
 
 const Parse = Class({
-    init: function ( string, tokens ) {
+    init( string, tokens ) {
         this.string = string;
         this.tokens = tokens || [];
     },
-    clone: function () {
+    clone() {
         return new Parse( this.string, this.tokens.slice() );
     },
-    assimilate: function ( parse ) {
+    assimilate( parse ) {
         this.string = parse.string;
         this.tokens = parse.tokens;
     },

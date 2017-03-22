@@ -31,7 +31,7 @@ const Enumerable = {
         Returns:
             {*} The first item in the enumerable.
     */
-    first: function () {
+    first() {
         return this.getObjectAt( 0 );
     },
 
@@ -41,7 +41,7 @@ const Enumerable = {
         Returns:
             {*} The last item in the enumerable.
     */
-    last: function () {
+    last() {
         return this.getObjectAt( this.get( 'length' ) - 1 );
     },
 
@@ -58,7 +58,7 @@ const Enumerable = {
             {Number} The (first) index in the array of the item or -1 if not
             found.
     */
-    indexOf: function ( item, from ) {
+    indexOf( item, from ) {
         const l = this.get( 'length' );
         for ( from = ( from < 0 ) ?
                 Math.max( 0, l + from ) : ( from || 0 ); from < l; from += 1 ){
@@ -82,7 +82,7 @@ const Enumerable = {
             {Number} The (last) index in the array of the item or -1 if not
             found.
     */
-    lastIndexOf: function ( item, from ) {
+    lastIndexOf( item, from ) {
         const l = this.get( 'length' );
         for ( from = ( from < 0 ) ? ( l + from ) : ( from || l - 1 );
                 from >= 0; from -= 1 ){
@@ -111,7 +111,7 @@ const Enumerable = {
         Returns:
             {Number} The index to place the value in the sorted array.
     */
-    binarySearch: function ( value, comparator ) {
+    binarySearch( value, comparator ) {
         let lower = 0,
             upper = this.get( 'length' ),
             middle, candidate;
@@ -139,7 +139,7 @@ const Enumerable = {
         Returns:
             {Boolean} True if the item is present.
     */
-    contains: function ( item ) {
+    contains( item ) {
         return this.indexOf( item ) > -1;
     },
 
@@ -162,7 +162,7 @@ const Enumerable = {
         Returns:
             {*} The object found, or null if none found.
     */
-    find: function ( fn, bind ) {
+    find( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             const value = this.getObjectAt( i );
@@ -193,7 +193,7 @@ const Enumerable = {
         Returns:
             {O.Enumerable} Returns self.
     */
-    forEach: function ( fn, bind ) {
+    forEach( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             callback( this.getObjectAt( i ), i, this );
@@ -220,7 +220,7 @@ const Enumerable = {
         Returns:
             {Array} The items which were accepted by the function.
     */
-    filter: function ( fn, bind ) {
+    filter( fn, bind ) {
         const callback = createCallback( fn, bind );
         const results = [];
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
@@ -251,7 +251,7 @@ const Enumerable = {
         Returns:
             {Array} The result of each function call.
     */
-    map: function ( fn, bind ) {
+    map( fn, bind ) {
         const callback = createCallback( fn, bind );
         const results = [];
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
@@ -274,7 +274,7 @@ const Enumerable = {
         Returns:
             {*} The reduced value.
     */
-    reduce: function ( fn, initial ) {
+    reduce( fn, initial ) {
         let i = 0;
         const l = this.get( 'length' );
         let acc;
@@ -314,7 +314,7 @@ const Enumerable = {
         Returns:
             {Boolean} Were all items accepted by the function?
     */
-    every: function ( fn, bind ) {
+    every( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             if ( !callback( this.getObjectAt( i ), i, this ) ) {
@@ -343,7 +343,7 @@ const Enumerable = {
         Returns:
             {Boolean} Did the function accept at least one item?
     */
-    some: function ( fn, bind ) {
+    some( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             if ( callback( this.getObjectAt( i ), i, this ) ) {

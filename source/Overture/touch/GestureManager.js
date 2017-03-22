@@ -8,17 +8,17 @@ const GestureManager = new Object({
 
     _gestures: [],
 
-    register: function ( gesture ) {
+    register( gesture ) {
         this._gestures.push( gesture );
     },
 
-    deregister: function ( gesture ) {
+    deregister( gesture ) {
         this._gestures.erase( gesture );
     },
 
     isMouseDown: false,
 
-    fire: function ( type, event ) {
+    fire( type, event ) {
         if ( /^touch/.test( type ) ) {
             const gestures = this._gestures;
             let l = gestures.length;

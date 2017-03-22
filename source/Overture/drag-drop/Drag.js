@@ -63,7 +63,7 @@ const Drag = Class({
                     include an `event` property containing the event object that
                     triggered the drag.
     */
-    init: function ( mixin ) {
+    init( mixin ) {
         const event = mixin.event;
 
         this._dragCursor = null;
@@ -335,7 +335,7 @@ const Drag = Class({
         Returns:
             {Boolean} Does the drag contain data of this type?
     */
-    hasDataType: function ( type ) {
+    hasDataType( type ) {
         return this.get( 'dataTypes' ).indexOf( type ) !== -1;
     },
 
@@ -351,7 +351,7 @@ const Drag = Class({
             regular expression is given, an array of all files with a matching
             MIME type.
     */
-    getFiles: function ( typeRegExp ) {
+    getFiles( typeRegExp ) {
         const files = [];
         const dataTransfer = this.event.dataTransfer;
         if ( dataTransfer ) {
@@ -414,7 +414,7 @@ const Drag = Class({
         Returns:
             {O.Drag} Returns self.
     */
-    getDataOfType: function ( type, callback ) {
+    getDataOfType( type, callback ) {
         const dataSource = this.get( 'dataSource' ) || this.get( 'dragSource' );
         let dataFound = false;
         if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
@@ -459,7 +459,7 @@ const Drag = Class({
         Returns:
             {O.Drag} Returns self.
     */
-    startDrag: function () {
+    startDrag() {
         DragController.register( this );
         this.fire( 'dragStarted' );
         const dragSource = this.get( 'dragSource' );
@@ -522,7 +522,7 @@ const Drag = Class({
         Returns:
             {O.Drag} Returns self.
     */
-    endDrag: function () {
+    endDrag() {
         const dropTarget = this.get( 'dropTarget' );
         const dragSource = this.get( 'dragSource' );
         if ( dropTarget ) {
@@ -562,7 +562,7 @@ const Drag = Class({
         Returns:
             {O.Drag} Returns self.
     */
-    move: function ( event ) {
+    move( event ) {
         this.event = event;
 
         // Find which view is currently under the cursor. If none, presume we've
@@ -637,7 +637,7 @@ const Drag = Class({
             x    - The current x-coordinate of the mouse.
             y    - The current y-coordinate of the mouse.
     */
-    _check: function ( view, x, y ) {
+    _check( view, x, y ) {
         let scroll = this._scrollBounds;
         let scrollView = this._scrollView;
         const outsideTriggerRegionWidth = 15;
@@ -697,7 +697,7 @@ const Drag = Class({
         Moves the scroll position of the scroll view currently being hovered
         over.
     */
-    _scroll: function () {
+    _scroll() {
         const scrollView = this._scrollView;
         const scrollBy = this._scrollBy;
 
@@ -719,7 +719,7 @@ const Drag = Class({
         Parameters:
             view - {O.View} The view the mouse is currently over.
     */
-    _update: function ( view ) {
+    _update( view ) {
         let currentDrop = this.get( 'dropTarget' );
         const dragSource = this.get( 'dragSource' );
 
@@ -767,7 +767,7 @@ const Drag = Class({
         Returns:
             {O.Drag} Returns self.
     */
-    drop: function ( event ) {
+    drop( event ) {
         this.event = event;
         const dropEffect = this.dropEffect;
         if ( this.dropTarget &&

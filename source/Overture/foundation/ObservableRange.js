@@ -26,7 +26,7 @@ export default {
         Returns:
             {O.ObservableRange} Returns self.
     */
-    rangeDidChange: function ( start, end ) {
+    rangeDidChange( start, end ) {
         if ( end === undefined ) { end = start + 1; }
         const metadata = meta( this );
         for ( const key in metadata.observers ) {
@@ -80,12 +80,12 @@ export default {
         Returns:
             {O.ObservableRange} Returns self.
     */
-    addObserverForRange: function ( range, object, method ) {
+    addObserverForRange( range, object, method ) {
         const metadata = meta( this );
         ( metadata.rangeObservers || ( metadata.rangeObservers = [] ) ).push({
-            range: range,
-            object: object,
-            method: method,
+            range,
+            object,
+            method,
         });
         return this;
     },
@@ -108,7 +108,7 @@ export default {
         Returns:
             {O.ObservableRange} Returns self.
     */
-    removeObserverForRange: function ( range, object, method ) {
+    removeObserverForRange( range, object, method ) {
         const observers = meta( this ).rangeObservers;
         let l = observers ? observers.length : 0;
         while ( l-- ) {

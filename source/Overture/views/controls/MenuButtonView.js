@@ -95,7 +95,7 @@ const MenuButtonView = Class({
 
     // --- Accessibility ---
 
-    didCreateLayer: function ( layer ) {
+    didCreateLayer( layer ) {
         layer.setAttribute( 'aria-expanded', 'false' );
     },
 
@@ -103,7 +103,7 @@ const MenuButtonView = Class({
        return this.propertyNeedsRedraw( self, 'aria', oldValue );
     }.observes( 'isActive' ),
 
-    redrawAria: function ( layer ) {
+    redrawAria( layer ) {
         // Set ARIA attribute to link the menu DOM element to this
         // button, so screen readers know what has opened.
         layer.setAttribute( 'aria-controls',
@@ -120,7 +120,7 @@ const MenuButtonView = Class({
         Overridden to show menu associated with button, if not already visible.
         Ignores target/method/action properties.
     */
-    activate: function () {
+    activate() {
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             const buttonView = this;
@@ -129,7 +129,7 @@ const MenuButtonView = Class({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
                     alignEdge: this.get( 'alignMenu' ),
-                    onHide: function () {
+                    onHide() {
                         buttonView.set( 'isActive', false );
                         if ( menuOptionView ) {
                             menuOptionView.removeObserverForKey(

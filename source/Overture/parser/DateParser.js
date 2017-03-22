@@ -267,7 +267,7 @@ const PAST = -1;
 const FUTURE = 1;
 
 const interpreter = {
-    interpret: function ( tokens, implicitSearchMethod ) {
+    interpret( tokens, implicitSearchMethod ) {
         const date = {};
         const l = tokens.length;
         for ( let i = 0; i < l; i += 1 ) {
@@ -279,7 +279,7 @@ const interpreter = {
         }
         return this.findDate( date, date.searchMethod || implicitSearchMethod );
     },
-    findDate: function ( constraints, searchMethod ) {
+    findDate( constraints, searchMethod ) {
         const keys = Object.keys( constraints );
         if ( !keys.length ) {
             return null;
@@ -452,19 +452,19 @@ const interpreter = {
         return date;
     },
 
-    weekday: function ( date, string, weekday ) {
+    weekday( date, string, weekday ) {
         date.weekday = dayNameToIndex[ weekday ];
     },
-    day: function ( date, string ) {
+    day( date, string ) {
         date.day = +string;
     },
-    month: function ( date, string ) {
+    month( date, string ) {
         date.month = +string - 1;
     },
-    monthname: function ( date, string, name ) {
+    monthname( date, string, name ) {
         date.month = monthNameToIndex[ name ];
     },
-    year: function ( date, string ) {
+    year( date, string ) {
         let year = +string;
         if ( string.length === 2 ) {
             year += 2000;
@@ -474,37 +474,37 @@ const interpreter = {
         }
         date.year = year;
     },
-    hour: function ( date, string ) {
+    hour( date, string ) {
         date.hour = +string;
         const meridian = date.meridian;
         if ( meridian ) {
             this[ meridian ]( date );
         }
     },
-    minute: function ( date, string ) {
+    minute( date, string ) {
         date.minute = +string;
     },
-    second: function ( date, string ) {
+    second( date, string ) {
         date.second = +string;
     },
-    am: function ( date ) {
+    am( date ) {
         date.meridian = 'am';
         const hour = date.hour;
         if ( hour && hour === 12 ) {
             date.hour = 0;
         }
     },
-    pm: function ( date ) {
+    pm( date ) {
         date.meridian = 'pm';
         const hour = date.hour;
         if ( hour && hour < 12 ) {
             date.hour = hour + 12;
         }
     },
-    searchMethod: function ( date, string, pastOrFuture ) {
+    searchMethod( date, string, pastOrFuture ) {
         date.searchMethod = ( pastOrFuture === 'past' ) ? PAST : FUTURE;
     },
-    relativeDate: function ( date, string, context ) {
+    relativeDate( date, string, context ) {
         const now = new Date();
         const dayInMs = 86400000;
         switch ( context ) {
@@ -567,10 +567,10 @@ const dateTime = function ( string, locale, implicitPast ) {
 
 export default {
     tokeniseDateTime: parseDateTime,
-    interpretDateTime: interpretDateTime,
-    time: time,
-    date: date,
-    dateTime: dateTime,
+    interpretDateTime,
+    time,
+    date,
+    dateTime,
 };
 
 export {

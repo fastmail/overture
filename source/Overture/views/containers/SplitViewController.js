@@ -121,10 +121,10 @@ const SplitViewController = Class({
 });
 
 SplitViewController.extend({
-    VERTICAL: VERTICAL,
-    HORIZONTAL: HORIZONTAL,
-    TOP_LEFT: TOP_LEFT,
-    BOTTOM_RIGHT: BOTTOM_RIGHT,
+    VERTICAL,
+    HORIZONTAL,
+    TOP_LEFT,
+    BOTTOM_RIGHT,
 });
 
 export default SplitViewController;

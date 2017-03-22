@@ -79,7 +79,7 @@ Date.implement({
         Returns:
             {String} Relative date string.
     */
-    relativeTo: function ( date, approx ) {
+    relativeTo( date, approx ) {
         if ( !date ) { date = new Date(); }
 
         let duration = ( date - this );

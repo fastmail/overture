@@ -10,13 +10,13 @@ import Gesture from './Gesture.js';
     remove it from the app's existence.
 */
 const MouseEventRemover = Class({
-    init: function ( target, defaultPrevented ) {
+    init( target, defaultPrevented ) {
         this.target = target;
         this.stop = defaultPrevented;
         this.time = Date.now();
         ViewEventsController.addEventTarget( this, 40 );
     },
-    fire: function ( type, event ) {
+    fire( type, event ) {
         const isClick = ( type === 'click' ) && !event.originalType;
         let isMouse = isClick || /^mouse/.test( type );
         if ( type === 'touchstart' || Date.now() - this.time > 1000 ) {
@@ -98,7 +98,7 @@ export default new Gesture({
 
     _tracking: {},
 
-    cancel: function () {
+    cancel() {
         const tracking = this._tracking;
         for ( const id in tracking ) {
             tracking[ id ].done();
@@ -106,7 +106,7 @@ export default new Gesture({
         this._tracking = {};
     },
 
-    start: function ( event ) {
+    start( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const now = Date.now();
@@ -121,7 +121,7 @@ export default new Gesture({
         }
     },
 
-    move: function ( event ) {
+    move( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const l = touches.length;
@@ -140,7 +140,7 @@ export default new Gesture({
         }
     },
 
-    end: function ( event ) {
+    end( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const now = Date.now();

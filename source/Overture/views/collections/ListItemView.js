@@ -18,7 +18,7 @@ const ListItemView = Class({
 
     animateIn: false,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         const selection = mixin.selection;
         const content = mixin.content;
         if ( selection && content ) {

@@ -50,7 +50,7 @@ const GlobalKeyboardShortcuts = Class({
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
-    init: function ( mixin ) {
+    init( mixin ) {
         this.isEnabled = true;
         this._shortcuts = {};
 
@@ -65,7 +65,7 @@ const GlobalKeyboardShortcuts = Class({
 
         Destructor.
     */
-    destroy: function () {
+    destroy() {
         if ( ViewEventsController.kbShortcuts === this ) {
             delete ViewEventsController.kbShortcuts;
         }
@@ -103,7 +103,7 @@ const GlobalKeyboardShortcuts = Class({
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
     */
-    register: function ( key, object, method, ifInput ) {
+    register( key, object, method, ifInput ) {
         key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
         const shortcuts = this._shortcuts;
         ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
@@ -125,7 +125,7 @@ const GlobalKeyboardShortcuts = Class({
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
    */
-    deregister: function ( key, object, method ) {
+    deregister( key, object, method ) {
         key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
         const current = this._shortcuts[ key ];
         const length = current ? current.length : 0;
@@ -156,7 +156,7 @@ const GlobalKeyboardShortcuts = Class({
             {Array|null} Returns the [ object, method ] tuple to be triggered by
             the event, or null if nothing is registered for this key press.
    */
-    getHandlerForKey: function ( key ) {
+    getHandlerForKey( key ) {
         const shortcuts = this._shortcuts[ key ];
         if ( shortcuts && this.get( 'isEnabled' ) ) {
             return shortcuts[ shortcuts.length - 1 ];

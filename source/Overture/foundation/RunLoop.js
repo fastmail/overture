@@ -122,7 +122,7 @@ const RunLoop = {
         Returns:
             {Boolean} Were any functions actually invoked?
     */
-    flushQueue: function ( queue ) {
+    flushQueue( queue ) {
         const toInvoke = this._queues[ queue ];
         const l = toInvoke.length;
 
@@ -162,7 +162,7 @@ const RunLoop = {
         Returns:
             {Boolean} Were any functions actually invoked?
     */
-    flushAllQueues: function () {
+    flushAllQueues() {
         const order = this._queueOrder;
         const l = order.length;
         let i = 0;
@@ -196,7 +196,7 @@ const RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    queueFn: function ( queue, fn, bind, allowDups ) {
+    queueFn( queue, fn, bind, allowDups ) {
         const toInvoke = this._queues[ queue ];
         const l = toInvoke.length;
         // Log error here, as the stack trace is useless inside flushQueue.
@@ -235,7 +235,7 @@ const RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    invoke: function ( fn, bind, args ) {
+    invoke( fn, bind, args ) {
         this._depth += 1;
         try {
             // Avoiding apply/call when not needed is faster
@@ -273,7 +273,7 @@ const RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    invokeInNextEventLoop: function ( fn, bind ) {
+    invokeInNextEventLoop( fn, bind ) {
         const nextLoopQueue = this._queues.nextLoop;
         if ( !nextLoopQueue.length ) {
             setImmediate( nextLoop );
@@ -295,7 +295,7 @@ const RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    invokeInNextFrame: function ( fn, bind ) {
+    invokeInNextFrame( fn, bind ) {
         const nextFrameQueue = this._queues.nextFrame;
         if ( !nextFrameQueue.length ) {
             requestAnimFrame( nextFrame );
@@ -322,7 +322,7 @@ const RunLoop = {
             <O.RunLoop.cancel> method before the function is invoked, in order
             to cancel the scheduled invocation.
     */
-    invokeAfterDelay: function ( fn, delay, bind ) {
+    invokeAfterDelay( fn, delay, bind ) {
         const timeout = new Timeout( Date.now() + delay, 0, fn, bind );
         this._timeouts.push( timeout );
         this._scheduleTimeout();
@@ -346,7 +346,7 @@ const RunLoop = {
             <O.RunLoop.cancel> method to cancel all future invocations scheduled
             by this call.
     */
-    invokePeriodically: function ( fn, period, bind ) {
+    invokePeriodically( fn, period, bind ) {
         const timeout = new Timeout( Date.now() + period, period, fn, bind );
         this._timeouts.push( timeout );
         this._scheduleTimeout();
@@ -359,7 +359,7 @@ const RunLoop = {
         Sets the browser timer if necessary to trigger at the time of the next
         timeout in the priority queue.
     */
-    _scheduleTimeout: function () {
+    _scheduleTimeout() {
         const timeout = this._timeouts.peek();
         const time = timeout ? timeout.time : 0;
         if ( time && time !== this._nextTimeout ) {
@@ -383,7 +383,7 @@ const RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    processTimeouts: function () {
+    processTimeouts() {
         const timeouts = this._timeouts;
         while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
             const timeout = timeouts.pop();
@@ -413,7 +413,7 @@ const RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    cancel: function ( token ) {
+    cancel( token ) {
         this._timeouts.remove( token );
         return this;
     },
@@ -428,7 +428,7 @@ const RunLoop = {
         Parameters:
             error - {Error} The error object.
     */
-    didError: function ( error ) {
+    didError( error ) {
         if ( window.console ) {
             console.log( error.name, error.message, error.stack );
         }
@@ -449,7 +449,7 @@ Function.implement({
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.queueFn>.
     */
-    queue: function ( queue ) {
+    queue( queue ) {
         const fn = this;
         return function () {
             RunLoop.queueFn( queue, fn, this );
@@ -464,7 +464,7 @@ Function.implement({
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextEventLoop>.
     */
-    nextLoop: function () {
+    nextLoop() {
         const fn = this;
         return function () {
             RunLoop.invokeInNextEventLoop( fn, this );
@@ -479,7 +479,7 @@ Function.implement({
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextFrame>.
     */
-    nextFrame: function () {
+    nextFrame() {
         const fn = this;
         return function () {
             RunLoop.invokeInNextFrame( fn, this );
@@ -495,7 +495,7 @@ Function.implement({
         Returns:
             {Function} Returns wrapped function.
     */
-    invokeInRunLoop: function () {
+    invokeInRunLoop() {
         const fn = this;
         return function () {
             RunLoop.invoke( fn, this, arguments );

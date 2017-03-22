@@ -40,7 +40,7 @@ String.implement({
         Returns:
             {String} The formatted string.
     */
-    format: function () {
+    format() {
         // Reset RegExp.
         splitter.lastIndex = 0;
 
@@ -122,7 +122,7 @@ String.implement({
         Returns:
             {String} The repeated string.
     */
-    repeat: function ( n ) {
+    repeat( n ) {
         let string = this,
             output = '';
         while ( n ) {
@@ -145,7 +145,7 @@ String.implement({
         Returns:
             {String} The escaped string.
     */
-    escapeHTML: function () {
+    escapeHTML() {
         return this.split( '&' ).join( '&amp;' )
                    .split( '<' ).join( '&lt;'  )
                    .split( '>' ).join( '&gt;'  );
@@ -160,7 +160,7 @@ String.implement({
         Returns:
             {String} The escaped string.
     */
-    escapeRegExp: function () {
+    escapeRegExp() {
         return this.replace( /([-.*+?^${}()|[\]/\\])/g, '\\$1' );
     },
 
@@ -172,7 +172,7 @@ String.implement({
         Returns:
             {String} The capitalised string.
     */
-    capitalise: function () {
+    capitalise() {
         return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
     },
 
@@ -185,7 +185,7 @@ String.implement({
         Returns:
             {String} The camel-cased string.
     */
-    camelCase: function () {
+    camelCase() {
         return this.replace( /-([a-z])/g, function ( _, letter ) {
             return letter.toUpperCase();
         });
@@ -200,7 +200,7 @@ String.implement({
         Returns:
             {String} The hyphenated string.
     */
-    hyphenate: function () {
+    hyphenate() {
         return this.replace( /[A-Z]/g, function ( letter ) {
             return ( '-' + letter.toLowerCase() );
         });
@@ -220,7 +220,7 @@ String.implement({
         Returns:
             {Boolean} Does this string contain the given string?
     */
-    contains: function ( string, separator ) {
+    contains( string, separator ) {
         return ( separator ?
             ( separator + this + separator ).indexOf(
                 separator + string + separator ) :
@@ -239,7 +239,7 @@ String.implement({
         Returns:
             {Number} The hash. This is a *signed* 32-bit int.
     */
-    hash: function () {
+    hash() {
         let hash = this.length;
         const remainder = hash & 1;
         const l = hash - remainder;

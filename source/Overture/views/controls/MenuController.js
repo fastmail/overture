@@ -22,13 +22,13 @@ const MenuController = Class({
 
     // --- Focus ---
 
-    canSelect: function ( option ) {
+    canSelect( option ) {
         return !option.get( 'isHidden' ) && !option.get( 'isDisabled' );
     },
 
     focussedOption: null,
 
-    getAdjacentOption: function ( step ) {
+    getAdjacentOption( step ) {
         const options = this.get( 'options' );
         const l = options.get( 'length' );
         let i = options.indexOf( this.get( 'focussedOption' ) );
@@ -46,17 +46,17 @@ const MenuController = Class({
         return options.getObjectAt( i );
     },
 
-    focusPrevious: function ( event ) {
+    focusPrevious( event ) {
         if ( event ) { event.preventDefault(); }
         return this.focusOption( this.getAdjacentOption( -1 ) );
     },
 
-    focusNext: function ( event ) {
+    focusNext( event ) {
         if ( event ) { event.preventDefault(); }
         return this.focusOption( this.getAdjacentOption( 1 ) );
     },
 
-    focusOption: function ( option ) {
+    focusOption( option ) {
         const current = this.get( 'focussedOption' );
         if ( current !== option ) {
             if ( current ) {
@@ -74,14 +74,14 @@ const MenuController = Class({
         return this;
     },
 
-    blurOption: function ( option ) {
+    blurOption( option ) {
         if ( this.get( 'focussedOption' ) === option ) {
             this.focusOption( null );
         }
         return this;
     },
 
-    selectFocussed: function ( event ) {
+    selectFocussed( event ) {
         if ( event ) { event.preventDefault(); }
         const focussedOption = this.get( 'focussedOption' );
         if ( focussedOption && this.canSelect( focussedOption ) ) {
@@ -129,7 +129,7 @@ const MenuController = Class({
         }
     }.on( 'keydown' ),
 
-    onEscape: function ( event ) {
+    onEscape( event ) {
         event.preventDefault();
         const filter = this.get( 'filter' );
         if ( filter ) {
@@ -139,7 +139,7 @@ const MenuController = Class({
         }
     },
 
-    closeIfSub: function () {
+    closeIfSub() {
         const view = this.get( 'view' );
         let popOverView;
         if ( !view.get( 'showFilter' ) &&
@@ -149,7 +149,7 @@ const MenuController = Class({
         }
     },
 
-    activateIfMenu: function () {
+    activateIfMenu() {
         const focussedOption = this.get( 'focussedOption' );
         if ( focussedOption &&
                 focussedOption.get( 'button' ) instanceof MenuButtonView ) {

@@ -225,7 +225,7 @@ module.exports = {
                 'allowMultiplePropertiesPerLine': true,
             },
         ],
-        'object-shorthand': 'off',
+        'object-shorthand': 'error',
         'one-var': 'off',
         'one-var-declaration-per-line': 'off',
         'operator-assignment': 'off',
@@ -270,7 +270,13 @@ module.exports = {
         'sort-keys': 'off',
         'sort-vars': 'off',
         'space-before-blocks': 'off',
-        'space-before-function-paren': 'error',
+        'space-before-function-paren': [
+            'error',
+            {
+                'anonymous': 'always',
+                'named': 'never',
+            },
+        ],
         'space-in-parens': 'off',
         'space-infix-ops': 'off',
         'space-unary-ops': 'off',

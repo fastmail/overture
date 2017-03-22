@@ -20,13 +20,13 @@ const OverflowMenuView = Class({
 
     Extends: MenuButtonView,
 
-    didEnterDocument: function () {
+    didEnterDocument() {
         OverflowMenuView.parent.didEnterDocument.call( this );
         this.setShortcuts( null, '', {}, this.get( 'shortcuts' ) );
         return this;
     },
 
-    willLeaveDocument: function () {
+    willLeaveDocument() {
         this.setShortcuts( null, '', this.get( 'shortcuts' ), {} );
         return OverflowMenuView.parent.willLeaveDocument.call( this );
     },
@@ -57,7 +57,7 @@ const OverflowMenuView = Class({
         }
     }.observes( 'shortcuts' ),
 
-    activateButton: function ( event ) {
+    activateButton( event ) {
         const key = DOMEvent.lookupKey( event );
         const button = this.get( 'shortcuts' )[ key ];
         if ( button instanceof MenuButtonView ) {
@@ -77,7 +77,7 @@ const ToolbarView = Class({
     minimumGap: 20,
     preventOverlap: false,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         ToolbarView.parent.init.call( this, mixin );
         this._views = {
             overflow: new OverflowMenuView({
@@ -95,7 +95,7 @@ const ToolbarView = Class({
         this._widths = {};
     },
 
-    registerView: function ( name, view, _dontMeasure ) {
+    registerView( name, view, _dontMeasure ) {
         this._views[ name ] = view;
         if ( !_dontMeasure && this.get( 'isInDocument' ) &&
                 this.get( 'preventOverlap' ) ) {
@@ -104,7 +104,7 @@ const ToolbarView = Class({
         return this;
     },
 
-    registerViews: function ( views ) {
+    registerViews( views ) {
         for ( const name in views ) {
             this.registerView( name, views[ name ], true );
         }
@@ -114,7 +114,7 @@ const ToolbarView = Class({
         return this;
     },
 
-    registerConfig: function ( name, config ) {
+    registerConfig( name, config ) {
         this._configs[ name ] = config;
         if ( this.get( 'config' ) === name ) {
             this.computedPropertyDidChange( 'config' );
@@ -122,18 +122,18 @@ const ToolbarView = Class({
         return this;
     },
 
-    registerConfigs: function ( configs ) {
+    registerConfigs( configs ) {
         for ( const name in configs ) {
             this.registerConfig( name, configs[ name ] );
         }
         return this;
     },
 
-    getView: function ( name ) {
+    getView( name ) {
         return this._views[ name ];
     },
 
-    getConfig: function ( config ) {
+    getConfig( config ) {
         return this._configs[ config ] || null;
     },
 
@@ -204,7 +204,7 @@ const ToolbarView = Class({
         return this.get( 'rightConfig' ).map( toView, this );
     }.property( 'rightConfig' ),
 
-    preMeasure: function () {
+    preMeasure() {
         this.insertView( this._measureView =
             new View({
                 className: 'v-Toolbar-section v-Toolbar-section--measure',
@@ -213,7 +213,7 @@ const ToolbarView = Class({
                                   .filter( function ( view ) {
                     return !view.get( 'parentView' );
                 }),
-                draw: function ( layer, Element, el ) {
+                draw( layer, Element, el ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),
                         View.prototype.draw.call( this, layer, Element, el ),
@@ -226,7 +226,7 @@ const ToolbarView = Class({
         return this;
     },
 
-    postMeasure: function () {
+    postMeasure() {
         const widths = this._widths;
         const views = this._views;
         const measureView = this._measureView;
@@ -257,14 +257,14 @@ const ToolbarView = Class({
         return this;
     },
 
-    willEnterDocument: function () {
+    willEnterDocument() {
         if ( this.get( 'preventOverlap' ) ) {
             this.preMeasure();
         }
         return ToolbarView.parent.willEnterDocument.call( this );
     },
 
-    didEnterDocument: function () {
+    didEnterDocument() {
         this.beginPropertyChanges();
         ToolbarView.parent.didEnterDocument.call( this );
         if ( this.get( 'preventOverlap' ) ) {
@@ -274,7 +274,7 @@ const ToolbarView = Class({
         return this;
     },
 
-    draw: function ( layer, Element, el ) {
+    draw( layer, Element, el ) {
         return [
             el( 'div.v-Toolbar-section.v-Toolbar-section--left',
                 this.get( 'left' )
@@ -291,14 +291,14 @@ const ToolbarView = Class({
         }
     }.observes( 'left', 'right' ),
 
-    redrawLeft: function ( layer, oldViews ) {
+    redrawLeft( layer, oldViews ) {
         this.redrawSide( layer.firstChild, oldViews, this.get( 'left' ) );
     },
-    redrawRight: function ( layer, oldViews ) {
+    redrawRight( layer, oldViews ) {
         this.redrawSide( layer.lastChild, oldViews, this.get( 'right' ) );
     },
 
-    redrawSide: function ( container, oldViews, newViews ) {
+    redrawSide( container, oldViews, newViews ) {
         let start = 0,
             isEqual = true,
             i, l, view, parent;

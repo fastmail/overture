@@ -6,12 +6,12 @@ const ModalEventHandler = Class({
 
     Extends: Object,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         ModalEventHandler.parent.init.call( this, mixin );
         this._seenMouseDown = false;
     },
 
-    inView: function ( event ) {
+    inView( event ) {
         let targetView = event.targetView;
         const view = this.get( 'view' );
         while ( targetView && targetView !== view ) {

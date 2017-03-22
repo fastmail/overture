@@ -118,7 +118,7 @@ export default {
         The operating system being run: "mac", "win", "linux", "android",
         "ios", "webos" or "other.
     */
-    platform: platform,
+    platform,
 
     /**
         Property: O.UA.isMac
@@ -177,7 +177,7 @@ export default {
         The browser being run. "chrome", "firefox", "msie", "edge", "opera",
         "safari" or "iemobile".
     */
-    browser: browser,
+    browser,
     /**
         Property: O.UA.version
         Type: Number
@@ -186,7 +186,7 @@ export default {
         minor revision as well as the major revision. For example, if the user
         is running Opera 12.5, this will be `12.5`, not just `12`.
     */
-    version: version,
+    version,
 
     /**
         Property: O.UA.chrome
@@ -270,7 +270,7 @@ export default {
         transform3d, transition, transition-delay, transition-duration,
         transition-property and transition-timing.
     */
-    cssProps: cssProps,
+    cssProps,
     /**
         Property: O.UA.cssPrefix
         Type: String

@@ -15,7 +15,7 @@ const daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 const dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
 Date.extend({
-    fromJSON: function ( value ) {
+    fromJSON( value ) {
         /*
             /^
             (\d{4}|[+-]\d{6})       // 1. Year
@@ -66,14 +66,14 @@ Date.extend({
             null;
     },
 
-    getDaysInMonth: function ( month, year ) {
+    getDaysInMonth( month, year ) {
         return ( month === 1 && isLeapYear( year ) ) ?
             29 : daysInMonths[ month ];
     },
-    getDaysInYear: function ( year ) {
+    getDaysInYear( year ) {
         return isLeapYear( year ) ? 366 : 365;
     },
-    isLeapYear: isLeapYear,
+    isLeapYear,
 });
 
 const pad = function ( num, nopad, character ) {
@@ -100,7 +100,7 @@ Date.implement({
         Returns:
             {Boolean} Is the date today?
     */
-    isToday: function ( utc ) {
+    isToday( utc ) {
         const now = new Date();
         const date = now.getDate();
         const month = now.getMonth();
@@ -128,7 +128,7 @@ Date.implement({
         Returns:
             {Boolean} Are the dates on the same day?
     */
-    isOnSameDayAs: function ( date, utc ) {
+    isOnSameDayAs( date, utc ) {
         return utc ?
             date.getUTCFullYear() === this.getUTCFullYear() &&
             date.getUTCMonth() === this.getUTCMonth() &&
@@ -154,7 +154,7 @@ Date.implement({
         Returns:
             {String} Localised day name.
     */
-    getDayName: function ( abbreviate, utc ) {
+    getDayName( abbreviate, utc ) {
         const names = i18n && i18n.get(
                 ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' );
         const day = utc ? this.getUTCDay() : this.getDay();
@@ -177,7 +177,7 @@ Date.implement({
         Returns:
             {String} Localised month name.
     */
-    getMonthName: function ( abbreviate, utc ) {
+    getMonthName( abbreviate, utc ) {
         const names = i18n && i18n.get(
                 ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' );
         const day = utc ? this.getUTCMonth() : this.getMonth();
@@ -196,7 +196,7 @@ Date.implement({
         Returns:
             {Number} The day of the year (1--366).
     */
-    getDayOfYear: function ( utc ) {
+    getDayOfYear( utc ) {
         const beginningOfYear = utc ?
             Date.UTC( this.getUTCFullYear(), 0, 1 ) :
             +new Date( this.getFullYear(), 0, 1 );
@@ -221,7 +221,7 @@ Date.implement({
         Returns:
             {Number} The week of the year (0--53).
     */
-    getWeekNumber: function ( firstDayOfWeek, utc ) {
+    getWeekNumber( firstDayOfWeek, utc ) {
         const day = utc ? this.getUTCDay() : this.getDay();
         const dayOfYear = this.getDayOfYear( utc ) - 1; // 0-indexed
         const daysToNext = ( ( firstDayOfWeek || 0 ) - day ).mod( 7 ) || 7;
@@ -251,7 +251,7 @@ Date.implement({
         Returns:
             {Number} The week of the year (1--53).
     */
-    getISOWeekNumber: function ( firstDayOfWeek, utc ) {
+    getISOWeekNumber( firstDayOfWeek, utc ) {
         // The week number of the year (Monday as the first day of
         // the week) as a decimal number [01,53]. If the week containing
         // 1 January has four or more days in the new year, then it is
@@ -296,7 +296,7 @@ Date.implement({
         Returns:
             {Date} Returns self.
     */
-    add: function ( number, unit ) {
+    add( number, unit ) {
         if ( unit === 'year' ) {
             this.setFullYear( this.getFullYear() + number );
         } else if ( unit === 'month' ) {
@@ -322,7 +322,7 @@ Date.implement({
         Returns:
             {Date} Returns self.
     */
-    subtract: function ( number, unit ) {
+    subtract( number, unit ) {
         return this.add( -number, unit );
     },
 
@@ -385,7 +385,7 @@ Date.implement({
         Returns:
             {String} The formatted date string.
     */
-    format: function ( format, utc ) {
+    format( format, utc ) {
         const date = this;
         return format ?
             format.replace(/%(-)?([%A-Za-z])/g,

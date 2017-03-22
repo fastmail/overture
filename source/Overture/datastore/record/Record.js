@@ -32,7 +32,7 @@ const Record = Class({
                        can then be committed to the store using the
                        <O.Record#saveToStore> method.
     */
-    init: function ( store, storeKey ) {
+    init( store, storeKey ) {
         this._noSync = false;
         this._data = storeKey ? null : {};
         this.store = store;
@@ -53,7 +53,7 @@ const Record = Class({
         Returns:
             {O.Record} The new record.
     */
-    clone: function ( store ) {
+    clone( store ) {
         const Type = this.constructor;
         const prototype = Type.prototype;
         const clone = new Type( store );
@@ -126,7 +126,7 @@ const Record = Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is: function ( state ) {
+    is( state ) {
         return !!( this.get( 'status' ) & state );
     },
 
@@ -138,7 +138,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    setObsolete: function () {
+    setObsolete() {
         const storeKey = this.get( 'storeKey' );
         const status = this.get( 'status' );
         if ( storeKey ) {
@@ -155,7 +155,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    setLoading: function () {
+    setLoading() {
         const storeKey = this.get( 'storeKey' );
         const status = this.get( 'status' );
         if ( storeKey ) {
@@ -181,11 +181,11 @@ const Record = Class({
             this.get( this.constructor.primaryKey );
     }.property(),
 
-    toJSON: function () {
+    toJSON() {
         return this.get( 'storeKey' );
     },
 
-    toIdOrStoreKey: function () {
+    toIdOrStoreKey() {
         return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
     },
 
@@ -200,7 +200,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    saveToStore: function () {
+    saveToStore() {
         if ( this.get( 'storeKey' ) ) {
             throw new Error( 'Record already created in store.' );
         }
@@ -247,7 +247,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    discardChanges: function () {
+    discardChanges() {
         if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
             this.destroy();
         } else {
@@ -268,7 +268,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    refresh: function () {
+    refresh() {
         const storeKey = this.get( 'storeKey' );
         if ( storeKey ) { this.get( 'store' ).fetchData( storeKey ); }
         return this;
@@ -280,7 +280,7 @@ const Record = Class({
         Destroy the record. This will inform the store, which will commit it to
         the source.
     */
-    destroy: function () {
+    destroy() {
         const storeKey = this.get( 'storeKey' );
         if ( storeKey && this.get( 'isEditable' ) ) {
             this.get( 'store' )
@@ -299,7 +299,7 @@ const Record = Class({
             {O.Record} Returns the record instance for the same record in the
             given store.
     */
-    getDoppelganger: function ( store ) {
+    getDoppelganger( store ) {
         if ( this.get( 'store' ) === store ) {
             return this;
         }
@@ -313,7 +313,7 @@ const Record = Class({
         This should only be called by the store, when it unloads the record's
         data to free up memory.
     */
-    storeWillUnload: function () {
+    storeWillUnload() {
         Record.parent.destroy.call( this );
     },
 
@@ -333,7 +333,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    stopSync: function () {
+    stopSync() {
         this._noSync = true;
         return this;
     },
@@ -347,7 +347,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    startSync: function () {
+    startSync() {
         this._noSync = false;
         return this;
     },
@@ -391,7 +391,7 @@ const Record = Class({
             {O.ValidationError|null} The error, or null if the assignment would
             be valid.
     */
-    errorToSet: function ( key, value ) {
+    errorToSet( key, value ) {
         const attr = this[ key ];
         return attr.validate ? attr.validate( value, key, this ) : null;
     },
@@ -413,14 +413,14 @@ const Record = Class({
     /**
         Method: O.Record#notifyAttributeErrors
     */
-    notifyAttributeErrors: function ( _, propKey ) {
+    notifyAttributeErrors( _, propKey ) {
         const attributeErrors = meta( this ).cache.errorForAttribute;
         if ( attributeErrors ) {
             attributeErrors.recordPropertyDidChange( this, propKey );
         }
     },
 }).extend({
-    getClientSettableAttributes: function ( Type ) {
+    getClientSettableAttributes( Type ) {
         let clientSettableAttributes = Type.clientSettableAttributes;
         let prototype, attrs, attrKey, propKey, attribute;
         if ( !clientSettableAttributes ) {

@@ -36,7 +36,7 @@ const SwitchView = Class({
 
     Extends: View,
 
-    init: function ( mixin ) {
+    init( mixin ) {
         this._oldView = null;
         // -1 => Not added views to parent
         // Otherwise => Index of view(s) currently in parent
@@ -62,7 +62,7 @@ const SwitchView = Class({
         }
     },
 
-    destroy: function () {
+    destroy() {
         let views = this.get( 'views' ),
             l = views.length;
         while ( l-- ) {
@@ -82,30 +82,30 @@ const SwitchView = Class({
         return document.createComment( 'SwitchView ' + this.get( 'id' ) );
     }.property(),
 
-    willEnterDocument: function () {
+    willEnterDocument() {
         this.resumeBindings();
         this.redraw();
         return this;
     },
 
-    didEnterDocument: function () {
+    didEnterDocument() {
         if ( this.get( 'index' ) !== this._index ) {
             this.switchNeedsRedraw();
         }
         return this.set( 'isInDocument', true );
     },
 
-    willLeaveDocument: function () {
+    willLeaveDocument() {
         return this.set( 'isInDocument', false );
     },
 
-    didLeaveDocument: function () {
+    didLeaveDocument() {
         return this.suspendBindings();
     },
 
     // ---
 
-    redraw: function () {
+    redraw() {
         const oldIndex = this._index;
         const newIndex = this.get( 'index' );
         // If not yet added to parent, nothing to redraw; _add will be called
@@ -147,7 +147,7 @@ const SwitchView = Class({
         }
     }.observes( 'parentView' ),
 
-    _add: function () {
+    _add() {
         const index = this.get( 'index' );
         const views = this.get( 'views' )[ index ];
         const subViews = this.get( 'subViews' )[ index ];
@@ -198,7 +198,7 @@ const SwitchView = Class({
         }
     },
 
-    _remove: function ( parent ) {
+    _remove( parent ) {
         const oldIndex = this._index;
         const views = this.get( 'views' )[ oldIndex ];
         const subViews = this.get( 'subViews' )[ oldIndex ];
@@ -252,7 +252,7 @@ const SwitchView = Class({
         them up, then pass them as subViews when show() or otherwise() is
         called.
     */
-    insertView: function ( view, parentNode ) {
+    insertView( view, parentNode ) {
         this.childViews.push( view );
         const oldParent = view.get( 'parentView' );
         if ( oldParent ) {
@@ -262,7 +262,7 @@ const SwitchView = Class({
         return this;
     },
 
-    _addCondition: function ( view, index ) {
+    _addCondition( view, index ) {
         view = view ?
             view instanceof Array ?
                 view :
@@ -277,15 +277,15 @@ const SwitchView = Class({
         return this;
     },
 
-    show: function ( view ) {
+    show( view ) {
         return this._addCondition( view, 0 );
     },
 
-    otherwise: function ( view ) {
+    otherwise( view ) {
         return this._addCondition( view, 1 );
     },
 
-    end: function () {
+    end() {
         Element.forView( this._oldView );
         this._oldView = null;
         return this;
