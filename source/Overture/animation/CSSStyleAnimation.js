@@ -1,6 +1,6 @@
 /*global document */
 
-import { Class, extend } from '../core/Core.js';
+import { Class } from '../core/Core.js';
 import RunLoop from '../foundation/RunLoop.js';
 import Element from '../dom/Element.js';
 import Easing from './Easing.js';
@@ -39,7 +39,7 @@ const CSSStyleAnimation = Class({
         this.animating = [];
         this.current = null;
 
-        extend( this, mixin );
+        Object.assign( this, mixin );
     },
 
     /**

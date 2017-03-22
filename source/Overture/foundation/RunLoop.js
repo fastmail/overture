@@ -1,6 +1,5 @@
 /*global setTimeout, clearTimeout, console */
 
-import '../core/Core.js';  // For Function#implement
 import Heap from './Heap.js';
 
 const win = window;
@@ -437,7 +436,7 @@ const RunLoop = {
 
 export default RunLoop;
 
-Function.implement({
+Object.assign( Function.prototype, {
     /**
         Method: Function#queue
 

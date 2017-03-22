@@ -1,4 +1,4 @@
-import { Class } from '../../core/Core.js';  // Also Function#implement
+import { Class } from '../../core/Core.js';
 import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/EventTarget.js';  // For Function#on
@@ -410,7 +410,7 @@ const ScrollView = Class({
 });
 
 if ( UA.isIOS ) {
-    ScrollView.implement({
+    Object.assign( ScrollView.prototype, {
         isFixedDimensions: function () {
             const positioning = this.get( 'positioning' );
             return positioning === 'absolute' || positioning === 'fixed';

@@ -1,4 +1,4 @@
-import { Class, extend } from '../core/Core.js';
+import { Class } from '../core/Core.js';
 import '../core/Date.js';  // For Date#add
 import '../core/String.js';  // For String#format
 
@@ -226,7 +226,7 @@ TimeZone.load = function ( json ) {
             TimeZone[ id ] = TimeZone[ alias[ id ] ];
         }
     }
-    extend( TimeZone.rules, json.rules );
+    Object.assign( TimeZone.rules, json.rules );
 };
 
 export default TimeZone;

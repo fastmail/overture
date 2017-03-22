@@ -19,7 +19,7 @@ const isControl = {
 const effectToString = DragEffect.effectToString;
 const DEFAULT = DragEffect.DEFAULT;
 
-function TouchDragEvent( touch ) {
+const TouchDragEvent = function ( touch ) {
     const clientX = touch.clientX;
     const clientY = touch.clientY;
     const target = document.elementFromPoint( clientX, clientY ) ||
@@ -29,7 +29,7 @@ function TouchDragEvent( touch ) {
     this.clientY = clientY;
     this.target = target;
     this.targetView = ViewEventsController.getViewFromNode( target );
-}
+};
 
 const getTouch = function ( touches, touchId ) {
     let l = touches.length,

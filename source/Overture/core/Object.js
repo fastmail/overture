@@ -1,28 +1,4 @@
-import './Core.js';  // For Function#extend
-
-Object.extend({
-    /**
-        Function: Object.values
-
-        Returns an array of values for all enumerable properties defined
-        explicitly on the object (not its prototype).
-
-        Parameters:
-            object - {Object} The object to get the array of values from.
-
-        Returns:
-            {Array} The list of values.
-    */
-    values( object ) {
-        const values = [];
-        for ( const key in object ) {
-            if ( object.hasOwnProperty( key ) ) {
-                values.push( object[ key ] );
-            }
-        }
-        return values;
-    },
-
+Object.assign( Object, {
     /**
         Function: Object.keyOf
 
@@ -114,5 +90,5 @@ Object.extend({
     },
 });
 
-// TODO(cmorgan/modulify): do something about these exports: Object.values,
+// TODO(cmorgan/modulify): do something about these exports:
 // Object.keyOf, Object.filter, Object.zip, Object.fromQueryString

@@ -1,4 +1,3 @@
-import './Core.js';  // For Function#extend, Function#implement
 import './Number.js';  // For Number#mod
 
 // See the note in Core.js for a phony explanation of why this is OK.
@@ -14,7 +13,7 @@ const daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 // eslint-disable-next-line max-len
 const dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
-Date.extend({
+Object.assign( Date, {
     fromJSON( value ) {
         /*
             /^
@@ -90,7 +89,7 @@ const duration = {
     week: 604800000,
 };
 
-Date.implement({
+Object.assign( Date.prototype, {
     /**
         Method: Date#isToday
 

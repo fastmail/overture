@@ -63,7 +63,10 @@ module.exports = {
             'error',
             'never',
         ],
-        'func-style': 'off',
+        'func-style': [
+            'error',
+            'expression',
+        ],
         'generator-star-spacing': 'error',
         'global-require': 'error',
         'guard-for-in': 'off',

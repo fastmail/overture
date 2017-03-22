@@ -1,4 +1,3 @@
-import '../core/Core.js';  // For Function#implement
 import { loc } from './LocaleController.js';
 
 /**
@@ -62,73 +61,71 @@ const formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
     return time.trim();
 };
 
-Date.implement({
-    /**
-        Method: Date#relativeTo
+/**
+    Method: Date#relativeTo
 
-        Returns the difference in time between the date given in the sole
-        argument (or now if not supplied) and this date, in a human friendly,
-        localised form. e.g. 5 hours 3 minutes ago.
+    Returns the difference in time between the date given in the sole
+    argument (or now if not supplied) and this date, in a human friendly,
+    localised form. e.g. 5 hours 3 minutes ago.
 
-        Parameters:
-            date   - {Date} Date to compare it to.
-            approx - {Boolean} (optional) If true, only return a string for the
-                     most significant part of the relative time (e.g. just "5
-                     hours ago" instead of "5 hours 34 mintues ago").
+    Parameters:
+        date   - {Date} Date to compare it to.
+        approx - {Boolean} (optional) If true, only return a string for the
+                 most significant part of the relative time (e.g. just "5
+                 hours ago" instead of "5 hours 34 mintues ago").
 
-        Returns:
-            {String} Relative date string.
-    */
-    relativeTo( date, approx ) {
-        if ( !date ) { date = new Date(); }
+    Returns:
+        {String} Relative date string.
+*/
+Date.prototype.relativeTo = function ( date, approx ) {
+    if ( !date ) { date = new Date(); }
 
-        let duration = ( date - this );
-        const isFuture = ( duration < 0 );
-        let time, years, months;
+    let duration = ( date - this );
+    const isFuture = ( duration < 0 );
+    let time, years, months;
+
+    if ( isFuture ) {
+        duration = -duration;
+    }
+    // Less than a day
+    if ( duration < 1000 * 60 * 60 * 24 ) {
+        time = formatDuration( duration, approx );
+    }
+    // Less than 6 weeks
+    else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
+        if ( approx ) {
+            duration = new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            ) - new Date(
+                this.getFullYear(),
+                this.getMonth(),
+                this.getDate()
+            );
+        }
+        time = formatDuration( duration, approx );
+    }
+    else {
+        years = date.getFullYear() - this.getFullYear();
+        months = date.getMonth() - this.getMonth();
 
         if ( isFuture ) {
-            duration = -duration;
+            years = -years;
+            months = -months;
         }
-        // Less than a day
-        if ( duration < 1000 * 60 * 60 * 24 ) {
-            time = formatDuration( duration, approx );
+        if ( months < 0 ) {
+            years -= 1;
+            months += 12;
         }
-        // Less than 6 weeks
-        else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
-            if ( approx ) {
-                duration = new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate()
-                ) - new Date(
-                    this.getFullYear(),
-                    this.getMonth(),
-                    this.getDate()
-                );
-            }
-            time = formatDuration( duration, approx );
-        }
-        else {
-            years = date.getFullYear() - this.getFullYear();
-            months = date.getMonth() - this.getMonth();
+        time =
+            loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
+                years, months ).trim();
+    }
 
-            if ( isFuture ) {
-                years = -years;
-                months = -months;
-            }
-            if ( months < 0 ) {
-                years -= 1;
-                months += 12;
-            }
-            time =
-                loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
-                    years, months ).trim();
-        }
-
-        return isFuture ?
-            loc( '[_1] from now', time ) : loc( '[_1] ago', time );
-    },
-});
+    return isFuture ?
+        loc( '[_1] from now', time ) : loc( '[_1] ago', time );
+};
 
 // TODO(cmorgan/modulify): do something about these exports: Date#relativeTo,
 // Date.formatDuration

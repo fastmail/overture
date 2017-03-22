@@ -1,9 +1,9 @@
-import { Class, extend } from '../core/Core.js';
+import { Class } from '../core/Core.js';
 import GestureManager from './GestureManager.js';
 
 export default Class({
     init( mixin ) {
-        extend( this, mixin );
+        Object.assign( this, mixin );
         GestureManager.register( this );
     },
     destroy() {

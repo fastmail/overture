@@ -1,4 +1,4 @@
-import { meta, clone } from '../core/Core.js';  // Also Function#implement
+import { meta, clone } from '../core/Core.js';
 import '../core/Array.js';  // For Array#erase
 
 import getFromPath from './getFromPath.js';
@@ -97,7 +97,7 @@ const teardownComputed = function ( metadata, key ) {
     }
 };
 
-Function.implement({
+Object.assign( Function.prototype, {
     /**
         Method: Function#property
 

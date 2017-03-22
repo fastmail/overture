@@ -1,4 +1,4 @@
-import { meta } from '../core/Core.js';  // Also Function#implement
+import { meta } from '../core/Core.js';
 import '../core/Array.js';  // For Array#erase
 
 import Event from './Event.js';
@@ -7,29 +7,27 @@ import RunLoop from './RunLoop.js';
 const slice = Array.prototype.slice;
 const eventPrefix = '__event__';
 
-Function.implement({
-    /**
-        Method: Function#on
+/**
+    Method: Function#on
 
-        Defines the list of events this method is interested in. Whenever one of
-        these events is triggered on the object to which this method belongs,
-        the method will automatically be called.
+    Defines the list of events this method is interested in. Whenever one of
+    these events is triggered on the object to which this method belongs,
+    the method will automatically be called.
 
-        Parameters:
-            var_args - {...String} All arguments are treated as the names of
-                       events this method should be triggered by.
+    Parameters:
+        var_args - {...String} All arguments are treated as the names of
+                   events this method should be triggered by.
 
-        Returns:
-            {Function} Returns self.
-     */
-    on() {
-        return this.observes.apply( this,
-            slice.call( arguments ).map( function ( type ) {
-                return eventPrefix + type;
-            })
-        );
-    },
-});
+    Returns:
+        {Function} Returns self.
+ */
+Function.prototype.on = function () {
+    return this.observes.apply( this,
+        slice.call( arguments ).map( function ( type ) {
+            return eventPrefix + type;
+        })
+    );
+};
 
 /**
     Mixin: O.EventTarget

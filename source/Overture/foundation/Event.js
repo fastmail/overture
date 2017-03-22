@@ -1,4 +1,4 @@
-import { Class, extend } from '../core/Core.js';
+import { Class } from '../core/Core.js';
 
 /**
     Class: O.Event
@@ -21,7 +21,7 @@ export default Class({
         this.target = target;
         this.defaultPrevented = false;
         this.propagationStopped = false;
-        extend( this, mixin );
+        Object.assign( this, mixin );
     },
 
     /**

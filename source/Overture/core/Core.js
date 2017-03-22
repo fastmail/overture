@@ -241,6 +241,10 @@ const mixin = function ( object, extras, doNotOverwrite ) {
     Only adds properties actually on the object, not any properties on the
     prototype chain.
 
+    DEPRECATED. Use {Object.assign( base, extras )} instead. Caution: there is
+    a difference in semantics: `Object.assign` essentially has `doNotOverride`
+    turned off. But frankly, this is what you need in most cases.
+
     Parameters:
         base           - {Object} The object to be extended.
         extras         - {Object} The object whose properties are to be added to
@@ -253,6 +257,9 @@ const mixin = function ( object, extras, doNotOverwrite ) {
         {Object} Returns base.
 */
 const extend = function ( base, extras, doNotOverwrite ) {
+    if ( window.console && console.warn ) {
+        console.warn( 'O.extend is deprecated' );
+    }
     for ( const key in extras ) {
         if ( extras.hasOwnProperty( key ) &&
                 ( !doNotOverwrite || !base.hasOwnProperty( key ) ) ) {
@@ -429,12 +436,12 @@ const Class = function ( params ) {
             mixins = [ mixins ];
         }
         for ( let i = 0, l = mixins.length; i < l; i += 1 ) {
-            init.implement( mixins[i], true );
+            mixin( init.prototype, mixins[i], false );
         }
         delete params.Mixin;
     }
 
-    init.implement( params, true );
+    mixin( init.prototype, params, false );
 
     return init;
 };
@@ -445,6 +452,13 @@ const Class = function ( params ) {
     Adds a set of methods or other properties to the prototype of a function, so
     all instances will have access to them.
 
+    DEPRECATED. Use {Object.assign( this.prototype, methods )} instead.
+    Caution: there is a difference in semantics: `Object.assign` essentially
+    has `force` turned on. But frankly, this is what you need in most cases.
+    Also, if you were using this method to add anything but functions,
+    (a) why were you doing that? and
+    (b) you’ll need to use {mixin( this.prototype, methods, !force )} instead.
+
     Parameters:
         methods - {Object} The methods or properties to add to the prototype.
         force   - {Boolean} Unless this is true, existing methods/properties
@@ -454,6 +468,9 @@ const Class = function ( params ) {
         {Function} Returns self.
 */
 Function.prototype.implement = function ( methods, force ) {
+    if ( window.console && console.warn ) {
+        console.warn( 'Function#implement is deprecated' );
+    }
     mixin( this.prototype, methods, !force );
     return this;
 };
@@ -462,6 +479,10 @@ Function.prototype.implement = function ( methods, force ) {
     Method: Function#extend
 
     Adds a set of static methods/properties to the function.
+
+    DEPRECATED. Use {Object.assign( this, methods )} instead.
+    Caution: there is a difference in semantics: `Object.assign` essentially
+    has `force` turned on. But frankly, this is what you need in most cases.
 
     Parameters:
         methods - {Object} The methods/properties to add.
@@ -472,6 +493,9 @@ Function.prototype.implement = function ( methods, force ) {
         {Function} Returns self.
 */
 Function.prototype.extend = function ( methods, force ) {
+    if ( window.console && console.warn ) {
+        console.warn( 'Function#extend is deprecated' );
+    }
     extend( this, methods, !force );
     return this;
 };

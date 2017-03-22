@@ -1,4 +1,4 @@
-import { meta } from '../core/Core.js';  // Also Function#implement
+import { meta } from '../core/Core.js';
 import Binding from './Binding.js';
 
 const setupObserver = function ( metadata, method ) {
@@ -74,33 +74,31 @@ const teardownObserver = function ( metadata, method ) {
     }
 };
 
-Function.implement({
-    /**
-        Method: Function#observes
+/**
+    Method: Function#observes
 
-        Defines the list of properties (on the same object) or paths (relative
-        to this object) that this method is interested in. Whenever one of these
-        properties changes, the method will automatically be called.
+    Defines the list of properties (on the same object) or paths (relative
+    to this object) that this method is interested in. Whenever one of these
+    properties changes, the method will automatically be called.
 
-        Parameters:
-            var_args - {...String} All arguments are treated as the names of
-                       properties this method should observe.
+    Parameters:
+        var_args - {...String} All arguments are treated as the names of
+                   properties this method should observe.
 
-        Returns:
-            {Function} Returns self.
-     */
-    observes() {
-        const properties = ( this.observedProperties ||
-            ( this.observedProperties = [] ) );
-        let l = arguments.length;
-        while ( l-- ) {
-            properties.push( arguments[l] );
-        }
-        this.__setupProperty__ = setupObserver;
-        this.__teardownProperty__ = teardownObserver;
-        return this;
-    },
-});
+    Returns:
+        {Function} Returns self.
+ */
+Function.prototype.observes = function () {
+    const properties = ( this.observedProperties ||
+        ( this.observedProperties = [] ) );
+    let l = arguments.length;
+    while ( l-- ) {
+        properties.push( arguments[l] );
+    }
+    this.__setupProperty__ = setupObserver;
+    this.__teardownProperty__ = teardownObserver;
+    return this;
+};
 
 /**
     Method (private): O.ObservableProps-_setupTeardownPaths

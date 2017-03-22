@@ -1,4 +1,4 @@
-import { Class, meta, extend } from '../core/Core.js';
+import { Class, meta } from '../core/Core.js';
 import '../core/Array.js';  // For Array#erase
 import RunLoop from '../foundation/RunLoop.js';
 import Easing from './Easing.js';
@@ -83,7 +83,7 @@ export default Class({
         this.endValue = null;
         this.deltaValue = null;
 
-        extend( this, mixin );
+        Object.assign( this, mixin );
     },
 
     /**

@@ -1,4 +1,4 @@
-import { Class, meta } from '../../core/Core.js';  // Also Function#implement
+import { Class, meta } from '../../core/Core.js';
 import '../../core/Array.js';  // For Array#erase
 import ObservableArray from '../../foundation/ObservableArray.js';
 
@@ -9,26 +9,24 @@ const slice = Array.prototype.slice;
 
 // ---
 
-Record.implement({
-    /**
-        Method: O.Record#notifyRecordArray
+/**
+    Method: O.Record#notifyRecordArray
 
-        Parameters:
-            _       - Unused
-            propKey - The propKey that changed on the
+    Parameters:
+        _       - Unused
+        propKey - The propKey that changed on the
 
-        If true, any changes to the record will not be committed to the source.
-    */
-    notifyRecordArray( _, propKey ) {
-        const recordArray = this[ '_' + propKey + 'RecordArray' ];
-        const isInCache = propKey in meta( this ).cache;
-        // If it's already been updated due to a fetch to the property,
-        // the array will be in the cache. Don't waste time calling again.
-        if ( recordArray && !isInCache ) {
-            recordArray.updateListFromRecord();
-        }
-    },
-});
+    If true, any changes to the record will not be committed to the source.
+*/
+Record.prototype.notifyRecordArray = function ( _, propKey ) {
+    const recordArray = this[ '_' + propKey + 'RecordArray' ];
+    const isInCache = propKey in meta( this ).cache;
+    // If it's already been updated due to a fetch to the property,
+    // the array will be in the cache. Don't waste time calling again.
+    if ( recordArray && !isInCache ) {
+        recordArray.updateListFromRecord();
+    }
+};
 
 // ---
 

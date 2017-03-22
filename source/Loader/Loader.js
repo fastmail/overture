@@ -57,7 +57,7 @@ let afterModuleExecute = function ( name ) {
     if ( loader.fire ) {
         loader.fire( 'loader:didLoadModule', { module: name } );
     } else if ( O.meta ) {
-        O.extend( loader, O.EventTarget );
+        Object.assign( loader, O.EventTarget );
         afterModuleExecute = afterModuleExecute.invokeInRunLoop();
     }
     info.status = EXECUTED;

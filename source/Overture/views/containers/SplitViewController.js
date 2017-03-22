@@ -1,4 +1,4 @@
-import { Class } from '../../core/Core.js';  // Also Function#extend
+import { Class } from '../../core/Core.js';
 import Object from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 
@@ -120,11 +120,9 @@ const SplitViewController = Class({
     }.property( 'flex', 'direction', 'staticPaneLength' ),
 });
 
-SplitViewController.extend({
-    VERTICAL,
-    HORIZONTAL,
-    TOP_LEFT,
-    BOTTOM_RIGHT,
-});
+SplitViewController.VERTICAL = VERTICAL;
+SplitViewController.HORIZONTAL = HORIZONTAL;
+SplitViewController.TOP_LEFT = TOP_LEFT;
+SplitViewController.BOTTOM_RIGHT = BOTTOM_RIGHT;
 
 export default SplitViewController;

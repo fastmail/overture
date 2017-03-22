@@ -1,9 +1,7 @@
-import './Core.js';  // For Function#implement
-
 const splitter =
     /%(\+)?(?:'(.))?(-)?(\d+)?(?:\.(\d+))?(?:\$(\d+))?([%sn@])/g;
 
-String.implement({
+Object.assign( String.prototype, {
     /**
         Method: String#format
 
@@ -107,33 +105,6 @@ String.implement({
         // Add any remaining string
         output += this.slice( i );
 
-        return output;
-    },
-
-    /**
-        Method: String#repeat
-
-        ES6 method. Repeats the string n times.
-
-        Parameters
-            n - {Number} The number of times to repeat the string.
-                Must be an integer >= 0.
-
-        Returns:
-            {String} The repeated string.
-    */
-    repeat( n ) {
-        let string = this,
-            output = '';
-        while ( n ) {
-            if ( n % 2 === 1 ) {
-                output += string;
-            }
-            if ( n > 1 ) {
-                string += string;
-            }
-            n = n >> 1;
-        }
         return output;
     },
 

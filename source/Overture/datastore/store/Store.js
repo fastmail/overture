@@ -1,6 +1,6 @@
 /*global JSON */
 
-import { Class, meta, isEqual, guid, clone, extend } from '../../core/Core.js';
+import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
 import '../../core/Array.js';  // For Array#erase
 import RunLoop from '../../foundation/RunLoop.js';
 import OObject from '../../foundation/Object.js';
@@ -1555,7 +1555,7 @@ const Store = Class({
             if ( status & DIRTY ) {
                 // If we have a conflict we can either rebase on top, or discard
                 // our local changes.
-                update = extend( _skToCommitted[ storeKey ], update );
+                update = Object.assign( _skToCommitted[ storeKey ], update );
                 if ( this.rebaseConflicts ) {
                     const oldData = _skToData[ storeKey ];
                     const oldChanged = _skToChanged[ storeKey ];
@@ -2296,7 +2296,7 @@ const Store = Class({
     getQuery( id, QueryClass, mixin ) {
         let query = ( id && this._idToQuery[ id ] ) || null;
         if ( !query && QueryClass ) {
-            query = new QueryClass( extend( mixin || {}, {
+            query = new QueryClass( Object.assign( mixin || {}, {
                 id,
                 store: this,
                 source: this.source,

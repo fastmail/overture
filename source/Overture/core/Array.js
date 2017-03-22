@@ -1,6 +1,4 @@
-import './Core.js';  // For Function#implement
-
-Array.implement({
+Object.assign( Array.prototype, {
     /**
         Method: Array#get
 

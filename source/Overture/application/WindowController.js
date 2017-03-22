@@ -1,6 +1,6 @@
 /*global JSON, window, document, localStorage */
 
-import { Class, extend } from '../core/Core.js';  // Also Function#extend
+import { Class } from '../core/Core.js';
 import '../core/Date.js';  // For Date#format
 import '../core/String.js';  // For String#escapeHTML
 import Object from '../foundation/Object.js';
@@ -236,38 +236,38 @@ const WindowController = Class({
         try {
             localStorage.setItem(
                 this.get( 'broadcastKey' ),
-                JSON.stringify( extend({
+                JSON.stringify( Object.assign({
                     wcId: this.id,
                     type,
                 }, data ))
             );
         } catch ( error ) {}
     },
-}).extend({
-    openExternal( href ) {
-        const newWindow = window.open( '', '_blank' );
-        let htmlHref = href;
-        if ( newWindow ) {
-            // From goog.window.open; IE has trouble if there's a
-            // semi-colon in the URL apparently.
-            if ( UA.msie && href.indexOf( ';' ) > -1 ) {
-                htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
-            }
-            htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
-            try {
-                newWindow.opener = null;
-                newWindow.document.write(
-                    '<META HTTP-EQUIV="refresh" content="0; url=' +
-                        htmlHref +
-                    '">'
-                );
-                newWindow.document.close();
-            } catch ( error ) {
-                newWindow.location.href = href;
-            }
-        }
-        return newWindow;
-    },
 });
+
+WindowController.openExternal = function ( href ) {
+    const newWindow = window.open( '', '_blank' );
+    let htmlHref = href;
+    if ( newWindow ) {
+        // From goog.window.open; IE has trouble if there's a
+        // semi-colon in the URL apparently.
+        if ( UA.msie && href.indexOf( ';' ) > -1 ) {
+            htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
+        }
+        htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
+        try {
+            newWindow.opener = null;
+            newWindow.document.write(
+                '<META HTTP-EQUIV="refresh" content="0; url=' +
+                    htmlHref +
+                '">'
+            );
+            newWindow.document.close();
+        } catch ( error ) {
+            newWindow.location.href = href;
+        }
+    }
+    return newWindow;
+};
 
 export default WindowController;

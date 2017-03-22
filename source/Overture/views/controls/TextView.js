@@ -1,6 +1,6 @@
 /*global document */
 
-import { Class, extend } from '../../core/Core.js';
+import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
@@ -227,7 +227,7 @@ const TextView = Class({
         'isFocussed', 'isValid', 'isDisabled' ),
 
     layerStyles: function () {
-        return extend({
+        return Object.assign({
             position: this.get( 'positioning' ),
             display: this.get( 'isMultiline' ) ? 'block' : 'inline-block',
             cursor: 'text',

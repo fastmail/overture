@@ -1,6 +1,4 @@
-import {
-    Class, meta, clone, extend, isEqual,
-} from '../../core/Core.js';  // Also Function#extend
+import { Class, meta, clone, isEqual } from '../../core/Core.js';
 
 const instanceOf = function ( value, Type ) {
     switch ( typeof value ) {
@@ -70,9 +68,8 @@ const RecordAttribute = Class({
                     AttributeErrorsType = object.AttributeErrorsType =
                         Class({
                             Extends: AttributeErrorsType,
-                        }).extend({
-                            forRecordType: RecordType,
                         });
+                    AttributeErrorsType.forRecordType = RecordType;
                     metadata = meta( AttributeErrorsType );
                     dependents = metadata.dependents =
                         clone( metadata.dependents );
@@ -109,7 +106,7 @@ const RecordAttribute = Class({
             mixin - {Object} (optional) Override the default properties.
     */
     init( mixin ) {
-        extend( this, mixin );
+        Object.assign( this, mixin );
     },
 
     /**

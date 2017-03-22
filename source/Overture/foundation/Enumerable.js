@@ -1,5 +1,3 @@
-import '../core/Core.js';  // For Function#implement
-
 const defaultComparator = function ( a, b ) {
     return a < b ? -1 : a > b ? 1 : 0;
 };
@@ -354,7 +352,14 @@ const Enumerable = {
     },
 };
 
-Array.implement( Enumerable );
+// Copy the Enumerable methods to `Array.prototype`. This should be only the
+// following: first last, binarySearch and contains.
+// TODO: replace `contains` completely with the standardised method `includes`.
+for ( const key in Enumerable ) {
+    if ( !Array.prototype.hasOwnProperty( key ) ) {
+        Array.prototype[ key ] = Enumerable[ key ];
+    }
+}
 
 export default Enumerable;
 

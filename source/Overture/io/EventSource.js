@@ -1,6 +1,6 @@
 /*global EventSource */
 
-import { Class, meta } from '../core/Core.js';  // Also Function#extend
+import { Class, meta } from '../core/Core.js';
 import '../core/Array.js';  // For Array#include
 import Object from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
@@ -367,10 +367,8 @@ const EventSource = NativeEventSource ? Class({
     <O.EventSource#readyState> when there is no connection and it is not being
     reestablished.
 */
-EventSource.extend({
-    CONNECTING,
-    OPEN,
-    CLOSED,
-});
+EventSource.CONNECTING = CONNECTING;
+EventSource.OPEN = OPEN;
+EventSource.CLOSED = CLOSED;
 
 export default EventSource;

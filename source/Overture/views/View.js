@@ -1,4 +1,4 @@
-import { Class, extend } from '../core/Core.js';
+import { Class } from '../core/Core.js';
 import '../core/String.js';  // For String#capitalise
 import OObject from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';
@@ -530,7 +530,7 @@ const View = Class({
     */
     layerStyles: function () {
         const allowTextSelection = this.get( 'allowTextSelection' );
-        return extend({
+        return Object.assign({
             position: this.get( 'positioning' ),
             userSelect: allowTextSelection ? 'text' : userSelectNone,
         }, this.get( 'layout' ) );

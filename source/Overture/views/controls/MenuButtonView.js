@@ -1,4 +1,4 @@
-import { Class, extend } from '../../core/Core.js';
+import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
@@ -125,7 +125,7 @@ const MenuButtonView = Class({
             this.set( 'isActive', true );
             const buttonView = this;
             let popOverView, menuOptionView, rootView;
-            const popOverOptions = extend({
+            const popOverOptions = Object.assign({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
                     alignEdge: this.get( 'alignMenu' ),

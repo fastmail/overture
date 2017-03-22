@@ -1,6 +1,4 @@
-import {
-    Class, meta, clone,
-} from '../../core/Core.js';  // Also Function#extend
+import { Class, meta, clone } from '../../core/Core.js';
 import Object from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
@@ -419,28 +417,28 @@ const Record = Class({
             attributeErrors.recordPropertyDidChange( this, propKey );
         }
     },
-}).extend({
-    getClientSettableAttributes( Type ) {
-        let clientSettableAttributes = Type.clientSettableAttributes;
-        let prototype, attrs, attrKey, propKey, attribute;
-        if ( !clientSettableAttributes ) {
-            prototype = Type.prototype;
-            attrs = meta( prototype ).attrs;
-            clientSettableAttributes = {};
-            for ( attrKey in attrs ) {
-                propKey = attrs[ attrKey ];
-                if ( propKey ) {
-                    attribute = prototype[ propKey ];
-                    if ( !attribute.noSync ) {
-                        clientSettableAttributes[ attrKey ] = true;
-                    }
+});
+
+Record.getClientSettableAttributes = function ( Type ) {
+    let clientSettableAttributes = Type.clientSettableAttributes;
+    let prototype, attrs, attrKey, propKey, attribute;
+    if ( !clientSettableAttributes ) {
+        prototype = Type.prototype;
+        attrs = meta( prototype ).attrs;
+        clientSettableAttributes = {};
+        for ( attrKey in attrs ) {
+            propKey = attrs[ attrKey ];
+            if ( propKey ) {
+                attribute = prototype[ propKey ];
+                if ( !attribute.noSync ) {
+                    clientSettableAttributes[ attrKey ] = true;
                 }
             }
-            Type.clientSettableAttributes = clientSettableAttributes;
         }
-        return clientSettableAttributes;
-    },
-});
+        Type.clientSettableAttributes = clientSettableAttributes;
+    }
+    return clientSettableAttributes;
+};
 
 /**
     Property: O.Record.primaryKey
