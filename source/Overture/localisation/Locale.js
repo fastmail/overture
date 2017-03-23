@@ -593,26 +593,6 @@ const Locale = Class({
                 11 <= mod100 && mod100 <= 99 ? pl2 : pl3
             ).replace( '%n', formatInt( n, this ) );
         },
-
-        // The following four are deprecated and will be removed.
-        quant( n, singular, plural, zero ) {
-            return ( !n && zero !== undefined ) ? zero :
-                   ( n === 1 ) ? '1 ' + singular :
-                   ( n + ' ' ) + ( plural || ( singular + 's' ) );
-        },
-        numerate( n, singular, plural ) {
-            return n !== 1 ? plural || ( singular + 's' ) : singular;
-        },
-        numf( n ) {
-            const parts = ( n + '' ).split( '.' );
-            parts[0] = parts[0].replace( /(\d+?)(?=(?:\d{3})+$)/g,
-                '$1' + this.thousandsSeparator );
-            return parts.join( this.decimalPoint );
-        },
-        sprintf( string ) {
-            return String.prototype.format.apply( string,
-                Array.prototype.slice.call( arguments, 1 ) );
-        },
     },
 
     /**
