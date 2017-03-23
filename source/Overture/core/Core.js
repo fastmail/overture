@@ -168,7 +168,8 @@ const meta = function ( object ) {
     Returns:
         {String} The id for the item.
 */
-let guidValue = 0;
+const guids = new WeakMap();
+let nextGuid = 0;
 const guid = function ( item ) {
     if ( item === null ) {
         return 'null';
@@ -186,9 +187,14 @@ const guid = function ( item ) {
     if ( item instanceof Date ) {
         return 'date:' + (+item);
     }
-    return item.__guid__ || ( item.__guid__ =
-        'id:' + ( guidValue += 1 ).toString( 36 )
-    );
+
+    let guid = guids.get( item );
+    if ( !guid ) {
+        guid = 'id:' + nextGuid.toString(36);
+        nextGuid += 1;
+        guids.set( item, guid );
+    }
+    return guid;
 };
 
 /**
