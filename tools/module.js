@@ -3,7 +3,6 @@
 "use strict";
 
 var fs = require( 'fs' );
-var less = require( 'less' );
 
 var escapeRegExp = function ( string ) {
     return string.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
