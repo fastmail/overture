@@ -153,8 +153,7 @@ var sortByDependencies = function ( files ) {
 
 var fontToMIME = {
     woff: 'application/font-woff',
-    eot: 'application/vnd.ms-fontobject',
-    ttf: 'application/x-font-ttf'
+    woff2: 'font/woff2',
 };
 
 var makeModule = function ( themeManager, theme, inputs, output ) {
@@ -162,7 +161,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
     inputs.sort();
     // 1. Divide by type
     var fonts = inputs.filter( function ( input ) {
-        return ( /\.(?:ttf|woff|eot)$/i.test( input ) );
+        return ( /\.woff2?$/i.test( input ) );
     });
     var images = inputs.filter( function ( input ) {
         return ( /\.(?:png|jpe?g|gif|svg)$/i.test( input ) );
