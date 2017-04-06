@@ -299,12 +299,12 @@ const EventSource = NativeEventSource ? Class({
             this._dispatchEvent();
         } else {
             const colon = line.indexOf( ':' );
-            let field = line;
-            let value = '';
             // Line starts with colon -> ignore.
             if ( !colon ) {
                 return;
             }
+            let field = line;
+            let value = '';
             // Line contains colon:
             if ( colon > 0 ) {
                 field = line.slice( 0, colon );
@@ -332,12 +332,11 @@ const EventSource = NativeEventSource ? Class({
 
     _dispatchEvent() {
         let data = this._data;
-        const type = this._eventName;
         if ( data ) {
             if ( data.slice( -1 ) === '\u000a' ) {
                 data = data.slice( 0, -1 );
             }
-            this.fire( type || 'message', {
+            this.fire( this._eventName || 'message', {
                 data,
                 // origin: '',
                 lastEventId: this._lastEventId,

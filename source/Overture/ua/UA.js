@@ -69,12 +69,10 @@ if ( browser === 'opr/' ) {
     };
     const el = document.createElement( 'div' );
     const style = el.style;
-    let test, css;
 
     for ( const prop in props ) {
-        test = props[ prop ];
-        css = test.name + ':' + test.value;
-        style.cssText = css;
+        const test = props[ prop ];
+        const css = style.cssText = test.name + ':' + test.value;
         if ( style.length ) {
             cssProps[ prop ] = test.name;
         } else {
@@ -89,7 +87,7 @@ if ( browser === 'opr/' ) {
         style.cssText = 'display:' + prefix + 'flex';
         cssProps.flexbox = style.length ? prefix + 'flex' : null;
     }
-    css = cssProps.transition;
+    const css = cssProps.transition;
     [ 'delay', 'timing', 'duration', 'property' ].forEach( function ( prop ) {
         cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
     });

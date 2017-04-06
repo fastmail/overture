@@ -213,13 +213,13 @@ require = function ( modules, fn, bind ) {
          modules = [ modules ];
     }
 
-    let allLoaded = true,
-        l = modules.length,
-        module, info, dependencies, waitObj;
+    let allLoaded = true;
+    let l = modules.length;
+    let waitObj;
 
     while ( l-- ) {
-        module = modules[l];
-        info = moduleInfo[ module ];
+        const module = modules[l];
+        const info = moduleInfo[ module ];
 
         if ( info.status !== EXECUTED ) {
             allLoaded = false;
@@ -241,7 +241,8 @@ require = function ( modules, fn, bind ) {
             }
 
             // Load module dependencies
-            if ( ( dependencies = info.dependencies ) ) {
+            const dependencies = info.dependencies;
+            if ( dependencies ) {
                 require( dependencies );
             }
 

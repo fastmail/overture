@@ -42,10 +42,10 @@ Object.assign( String.prototype, {
         // Reset RegExp.
         splitter.lastIndex = 0;
 
-        let output = '',
-            i = 0,
-            argIndex = 1,
-            part, data, toInsert, padLength, padChar, padding;
+        let output = '';
+        let i = 0;
+        let argIndex = 1;
+        let part, toInsert;
 
         while ( ( part = splitter.exec( this ) ) ) {
             // Add everything between last placeholder and this placeholder
@@ -55,7 +55,7 @@ Object.assign( String.prototype, {
 
             // Find argument to subsitute in; either the one specified in
             // (6) or the index of this placeholder.
-            data = arguments[ ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
+            const data = arguments[ ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
 
             // Generate the string form of the data from the type specified
             // in (7).
@@ -80,11 +80,11 @@ Object.assign( String.prototype, {
             }
 
             // (4) Check minimum width
-            padLength = ( part[4] || 0 ) - toInsert.length;
+            let padLength = ( part[4] || 0 ) - toInsert.length;
             if ( padLength > 0 ) {
                 // Padding character is (2) or a space
-                padChar = part[2] || ' ';
-                padding = padChar;
+                const padChar = part[2] || ' ';
+                let padding = padChar;
                 while ( ( padLength -= 1 ) ) {
                     padding += padChar;
                 }
@@ -276,10 +276,9 @@ Object.assign( String.prototype, {
         ];
 
         const utf16To8 = function ( string ) {
-            let utf8 = '',
-                i, l, c;
-            for ( i = 0, l = string.length; i < l; i += 1 ) {
-                c = string.charCodeAt( i );
+            let utf8 = '';
+            for ( let i = 0, l = string.length; i < l; i += 1 ) {
+                const c = string.charCodeAt( i );
                 if ( c < 128 ) {
                     utf8 += string.charAt( i );
                 } else if ( c < 2048 ) {
@@ -339,9 +338,8 @@ Object.assign( String.prototype, {
 
         const hexCharacters = '0123456789abcdef';
         const hex = function ( number ) {
-            let string = '',
-                i;
-            for ( i = 0; i < 32; i += 8 ) {
+            let string = '';
+            for ( let i = 0; i < 32; i += 8 ) {
                 string += hexCharacters[ ( number >> i + 4 ) & 0xf ];
                 string += hexCharacters[ ( number >> i ) & 0xf ];
             }

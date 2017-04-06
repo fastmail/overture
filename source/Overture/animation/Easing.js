@@ -21,9 +21,9 @@ const cubicBezier = function ( p1x, p1y, p2x, p2y ) {
     // Since x = a*t^3 + b*t^2 + c*t, we find the root for
     // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
     const newtonRaphson = function ( x ) {
-        let prev,
-            // Initial estimation is linear
-            t = x;
+        let prev;
+        // Initial estimation is linear
+        let t = x;
         do {
             prev = t;
             t = t - ( ( bezierX( t ) - x ) / bezierXDerivative( t ) );

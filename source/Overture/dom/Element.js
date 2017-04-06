@@ -279,9 +279,8 @@ export default {
             {Element} The element.
     */
     setAttributes: setAttributes = function ( el, props ) {
-        let prop, value;
-        for ( prop in props ) {
-            value = props[ prop ];
+        for ( const prop in props ) {
+            const value = props[ prop ];
             if ( value !== undefined ) {
                 if ( value instanceof Binding ) {
                     value.to( prop, el ).connect();

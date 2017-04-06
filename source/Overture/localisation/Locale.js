@@ -6,11 +6,9 @@ const compileTranslation = function ( translation ) {
     let start = 0;
     let searchIndex = 0;
     const length = translation.length;
-    let end, parts, part, partLength;
-    let i, j, l;
 
     outer: while ( true ) {
-        end = translation.indexOf( '[', searchIndex );
+        let end = translation.indexOf( '[', searchIndex );
         // If there are no more macros, just the last text section to
         // process.
         if ( end === -1 ) {
@@ -18,7 +16,7 @@ const compileTranslation = function ( translation ) {
         } else {
             // Check the '[' isn't escaped (preceded by an odd number of
             // '~' characters):
-            j = end;
+            let j = end;
             while ( j-- ) {
                 if ( translation[ j ] !== '~' ) {
                     break;
@@ -30,7 +28,7 @@ const compileTranslation = function ( translation ) {
             }
         }
         // Standard text section
-        part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
+        const part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
         if ( part ) {
             if ( compiled ) { compiled += '+'; }
             compiled += '"';
@@ -51,7 +49,7 @@ const compileTranslation = function ( translation ) {
                 break outer;
             }
             // Check the ']' character isn't escaped.
-            j = end;
+            let j = end;
             while ( j-- ) {
                 if ( translation[ j ] !== '~' ) {
                     break;
@@ -63,8 +61,8 @@ const compileTranslation = function ( translation ) {
             searchIndex = end + 1;
         }
         // Split into parts
-        parts = translation.slice( start, end ).split( ',' );
-        l = parts.length;
+        const parts = translation.slice( start, end ).split( ',' );
+        const l = parts.length;
 
         if ( compiled ) {
             compiled += '+';
@@ -72,7 +70,7 @@ const compileTranslation = function ( translation ) {
         if ( l > 1 ) {
             compiled += 'lang.macros["';
         }
-        for ( i = 0; i < l; i += 1 ) {
+        for ( let i = 0; i < l; i += 1 ) {
             // If not the first part, add a comma to separate the
             // arguments to the macro function call.
             if ( i > 1 ) {
@@ -80,8 +78,8 @@ const compileTranslation = function ( translation ) {
             }
             // If a comma was escaped, we split up an argument.
             // Rejoin these.
-            part = parts[i];
-            partLength = part.length;
+            let part = parts[i];
+            let partLength = part.length;
             while ( partLength && part[ partLength - 1 ] === '~' ) {
                 i += 1;
                 part += ',';

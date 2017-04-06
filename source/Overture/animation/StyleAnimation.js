@@ -44,8 +44,8 @@ const styleAnimators = {
     },
     transform: {
         calcDelta( startValue, endValue ) {
-            let start = splitTransform( startValue ),
-                end = splitTransform( endValue );
+            let start = splitTransform( startValue );
+            let end = splitTransform( endValue );
             if ( start.length !== end.length ) {
                 start = [ startValue ];
                 end = [ endValue ];
@@ -177,25 +177,19 @@ export default Class({
             position - {Number} The position in the animation.
     */
     drawFrame( position ) {
-        const animated = this.animated;
-        let l = animated.length;
+        const { startValue, endValue, deltaValue, units, current, animated,
+                element } = this;
 
-        const from = this.startValue;
-        const to = this.endValue;
-        const difference = this.deltaValue;
-        const units = this.units;
-        const current = this.current;
-
-        const el = this.element;
         const setStyle = Element.setStyle;
+        let l = animated.length;
 
         while ( l-- ) {
             const property = animated[l];
 
             // Calculate new value.
-            const start = from[ property ] || 0;
-            const end = to[ property ] || 0;
-            const delta = difference[ property ];
+            const start = startValue[ property ] || 0;
+            const end = endValue[ property ] || 0;
+            const delta = deltaValue[ property ];
             const unit = units[ property ];
 
             const animator = styleAnimators[ property ];
@@ -207,7 +201,7 @@ export default Class({
                 end;
 
             // And set.
-            setStyle( el, property, value );
+            setStyle( element, property, value );
         }
     },
 });

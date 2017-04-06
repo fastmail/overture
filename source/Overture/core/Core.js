@@ -314,12 +314,11 @@ const merge = function ( base, extras ) {
         {*} The clone of the value.
 */
 const clone = function ( value ) {
-    let cloned = value,
-        l, key;
+    let cloned = value;
     if ( value && typeof value === 'object' ) {
         if ( value instanceof Array ) {
             cloned = [];
-            l = value.length;
+            let l = value.length;
             while ( l-- ) {
                 cloned[l] = clone( value[l] );
             }
@@ -327,7 +326,7 @@ const clone = function ( value ) {
             cloned = new Date( value );
         } else {
             cloned = {};
-            for ( key in value ) {
+            for ( const key in value ) {
                 cloned[ key ] = clone( value[ key ] );
             }
         }

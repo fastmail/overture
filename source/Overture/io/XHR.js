@@ -8,21 +8,20 @@ const isLocal = location.protocol === 'file:';
 const parseHeaders = function ( allHeaders ) {
     const headers = {};
     let start = 0;
-    let end, name;
     while ( true ) {
         // Ignore any leading white space
         while ( /\s/.test( allHeaders.charAt( start ) ) ) {
             start += 1;
         }
         // Look for ":"
-        end = allHeaders.indexOf( ':', start );
+        let end = allHeaders.indexOf( ':', start );
         if ( end < 0 ) {
             break;
         }
         // Slice out the header name.
         // Convert to lower-case: HTTP2 will always be lower case, but HTTP1
         // may be mixed case, which causes bugs!
-        name = allHeaders.slice( start, end ).toLowerCase();
+        const name = allHeaders.slice( start, end ).toLowerCase();
         // Trim off any spaces after the colon.
         start = end + 1;
         while ( allHeaders.charAt( start ) === ' ' ) {
@@ -121,11 +120,11 @@ const XHR = Class({
             {String} The text of the header or the empty string if not found.
     */
     getHeader( name ) {
-        let header;
         try {
-            header = this.xhr.getResponseHeader( name );
-        } catch ( error ) {}
-        return header || '';
+            return this.xhr.getResponseHeader( name ) || '';
+        } catch ( error ) {
+            return '';
+        }
     },
 
     /**
@@ -190,7 +189,6 @@ const XHR = Class({
         const xhr = this.xhr = new XMLHttpRequest();
         const io = this.io;
         const that = this;
-        let name;
 
         xhr.open( method, url, this.makeAsyncRequests );
         xhr.withCredentials = !!withCredentials;
@@ -203,7 +201,7 @@ const XHR = Class({
             // check. We assume all the other values will work fine.)
             this._actualResponseType = responseType;
         }
-        for ( name in headers || {} ) {
+        for ( const name in headers || {} ) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
             if ( name !== 'Content-type' || !( data instanceof FormData ) ) {
@@ -246,8 +244,6 @@ const XHR = Class({
     _xhrStateDidChange: function ( xhr ) {
         const state = xhr.readyState;
         const io = this.io;
-        let status, allHeaders, isSuccess;
-        let responseHeaders, response;
 
         if ( state < 3 || !this._isRunning ) {
             return;
@@ -268,16 +264,16 @@ const XHR = Class({
             xhr.removeEventListener( 'progress', this, false );
         }
 
-        status = xhr.status;
+        let status = xhr.status;
         this._status = status =
             // Local requests will have a 0 response
             ( !status && isLocal ) ? 200 :
             status;
 
         if ( io ) {
-            allHeaders = xhr.getAllResponseHeaders();
-            responseHeaders = parseHeaders( allHeaders );
-            response = this.getResponse();
+            const allHeaders = xhr.getAllResponseHeaders();
+            const responseHeaders = parseHeaders( allHeaders );
+            let response = this.getResponse();
             if ( this._actualResponseType === 'json' ) {
                 try {
                     response = JSON.parse( response );
@@ -289,7 +285,7 @@ const XHR = Class({
             // real connection there must have been at least one header, so
             // check that's not empty. Except for cross-domain requests no
             // headers may be returned, so also check for a body
-            isSuccess = ( status >= 200 && status < 300 ) &&
+            const isSuccess = ( status >= 200 && status < 300 ) &&
                 ( !!allHeaders || !!response );
             io.set( 'uploadProgress', 100 )
               .set( 'progress', 100 )
@@ -307,9 +303,9 @@ const XHR = Class({
 
     handleEvent: function ( event ) {
         const io = this.io;
-        let type;
         if ( io && event.type === 'progress' ) {
-            type = event.target === this.xhr ? 'progress' : 'uploadProgress';
+            const type = event.target === this.xhr ? 'progress'
+                                                   : 'uploadProgress';
             // CORE-47058. Limit to 99% on progress events, as Opera can report
             // event.loaded > event.total! Will be set to 100 in onSuccess
             // handler.
