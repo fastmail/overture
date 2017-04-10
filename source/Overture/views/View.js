@@ -510,7 +510,6 @@ var View = NS.Class({
         var allowTextSelection = this.get( 'allowTextSelection' );
         return NS.extend({
             position: this.get( 'positioning' ),
-            cursor: allowTextSelection ? 'auto' : undefined,
             userSelect: allowTextSelection ? 'text' : userSelectNone
         }, this.get( 'layout' ) );
     }.property( 'layout', 'allowTextSelection', 'positioning' ),
