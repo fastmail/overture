@@ -95,6 +95,16 @@ var HttpRequest = NS.Class({
     */
     withCredentials: false,
 
+    /**
+        Property: O.HttpRequest#responseType
+        Type: String
+        Default: ''
+
+        What type should {data} in an {io:success} or {io:failure} event be?
+        Refer to {XMLHttpRequest.responseType} for permitted values.
+    */
+    responseType: '',
+
     // ---
 
     init: function ( mixin ) {
@@ -157,6 +167,7 @@ var HttpRequest = NS.Class({
         var data = this.get( 'data' ) || null;
         var headers = this.get( 'headers' );
         var withCredentials = this.get( 'withCredentials' );
+        var responseType = this.get( 'responseType' );
         var transport = getXhr();
         var contentType;
 
@@ -175,7 +186,8 @@ var HttpRequest = NS.Class({
         // Send the request
         this._transport = transport;
         transport.io = this;
-        transport.send( method, url, data, headers, withCredentials );
+        transport.send( method, url, data, headers, withCredentials,
+            responseType );
 
         return this;
     },
