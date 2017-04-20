@@ -41,8 +41,6 @@ var CANNOT_CREATE_EXISTING_RECORD_ERROR =
     'O.Store Error: Cannot create existing record';
 var CANNOT_WRITE_TO_UNREADY_RECORD_ERROR =
     'O.Store Error: Cannot write to unready record';
-var FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR =
-    'O.Store Error: Record loaded which has status destroyed or non-existent';
 var SOURCE_COMMIT_CREATE_MISMATCH_ERROR =
     'O.Store Error: Source committed a create on a record not marked new';
 var SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
@@ -1174,7 +1172,7 @@ var Store = NS.Class({
     fetchData: function ( storeKey ) {
         var status = this.getStatus( storeKey );
         var Type, typeId, id;
-        // Nothing to do if already loading or new, destroyed or non-existant.
+        // Nothing to do if already loading or new, destroyed or non-existent.
         if ( status & (LOADING|NEW|DESTROYED|NON_EXISTENT) ) {
             return this;
         }
@@ -1464,17 +1462,10 @@ var Store = NS.Class({
             }
             // Anything else is new.
             else {
-                // Shouldn't have been able to fetch a destroyed or non-existent
-                // record. Smells like an error: log it.
                 if ( !( status & EMPTY ) ) {
-                    NS.RunLoop.didError({
-                        name: FETCHED_IS_DESTROYED_OR_NON_EXISTENT_ERROR,
-                        message:
-                            '\nStatus: ' +
-                                ( Object.keyOf( Status, status ) || status ) +
-                            '\nId: ' + id
-                    });
-                    // Set status back to empty so setData works.
+                    // Record was destroyed or non-existent, but has now been
+                    // created (again). Set status back to empty so setData
+                    // works.
                     this.setStatus( storeKey, EMPTY );
                 }
                 this.setData( storeKey, data );
