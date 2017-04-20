@@ -30,8 +30,14 @@ var SingleSelectionController = NS.Class({
         SingleSelectionController.parent.init.call( this, mixin );
 
         var content = this.get( 'content' );
+        var record = this.get( 'record' );
         if ( content ) {
             this.contentDidChange( null, '', null, content );
+        }
+        // Treat as explicitly set; contentDidChange will have triggered
+        // setRecordInNewContent which may have blanked it.
+        if ( record ) {
+            this.set( 'record', record );
         }
     },
 
