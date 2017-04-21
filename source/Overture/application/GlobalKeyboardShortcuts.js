@@ -43,6 +43,10 @@ var allowedInputs = {
     submit: 1
 };
 
+var DEFAULT_IN_INPUT = 0;
+var ACTIVE_IN_INPUT = 1;
+var DISABLE_IN_INPUT = 2;
+
 var handleOnDown = {};
 
 /**
@@ -108,25 +112,33 @@ var GlobalKeyboardShortcuts = NS.Class({
         the new handler is removed.
 
         Parameters:
-            key    - {String} The key to trigger the callback on. Modifier keys
-                     (alt, ctrl, meta, shift) should be prefixed in alphabetical
-                     order and with a hypen after each one. Letters should be
-                     lower case. e.g. `ctrl-f`.
+            key     - {String} The key to trigger the callback on. Modifier keys
+                      (alt, ctrl, meta, shift) should be prefixed in
+                      alphabetical order and with a hypen after each one.
+                      Letters should be lower case. e.g. `ctrl-f`.
 
-                     The special modifier "cmd-" may be used, which will map
-                     to "meta-" on a Mac (the command key) and "Ctrl-"
-                     elsewhere.
-            object - {Object} The object to trigger the callback on.
-            method - {String} The name of the method to trigger.
+                      The special modifier "cmd-" may be used, which will map
+                      to "meta-" on a Mac (the command key) and "Ctrl-"
+                      elsewhere.
+            object  - {Object} The object to trigger the callback on.
+            method  - {String} The name of the method to trigger.
+            ifInput - {Number} Determines whether the shortcut is active when
+                      focused inside an <input> or equivalent. Defaults to
+                      active if and only if meta or ctrl are part of the
+                      shortcut. The value must be one of:
+
+                      * DEFAULT_IN_INPUT (Use the default)
+                      * ACTIVE_IN_INPUT (Active when input is focused)
+                      * DISABLE_IN_INPUT (Not active when input is focused)
 
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
     */
-    register: function ( key, object, method ) {
+    register: function ( key, object, method, ifInput ) {
         key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
         var shortcuts = this._shortcuts;
         ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
-            .push([ object, method ]);
+            .push([ object, method, ifInput || DEFAULT_IN_INPUT ]);
         return this;
     },
 
@@ -193,17 +205,16 @@ var GlobalKeyboardShortcuts = NS.Class({
             event - {DOMEvent} The keydown/keypress event.
    */
     trigger: function ( event ) {
-        var target = event.target,
-            nodeName = target.nodeName,
-            isSpecialKey = event.ctrlKey || event.metaKey,
-            handler, key;
-        if ( !isSpecialKey && ( nodeName === 'TEXTAREA' ||
-                ( nodeName === 'SELECT' ) ||
-                ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
-                ( event.targetView instanceof NS.RichTextView )
-             ) ) {
-            return;
-        }
+        var target = event.target;
+        var nodeName = target.nodeName;
+        var isSpecialKey = event.ctrlKey || event.metaKey;
+        var inputIsFocused = (
+            nodeName === 'TEXTAREA' ||
+            nodeName === 'SELECT' ||
+            ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
+            ( event.targetView instanceof NS.RichTextView )
+        );
+        var handler, key, ifInput;
         key = NS.DOMEvent.lookupKey( event );
         if ( event.type === 'keydown' ) {
             handleOnDown[ key ] = true;
@@ -212,6 +223,11 @@ var GlobalKeyboardShortcuts = NS.Class({
         }
         handler = this.getHandlerForKey( key );
         if ( handler ) {
+            ifInput = handler[2];
+            if ( inputIsFocused && ifInput !== ACTIVE_IN_INPUT &&
+                    ( !isSpecialKey || ifInput === DISABLE_IN_INPUT ) ) {
+                return;
+            }
             handler[0][ handler[1] ]( event );
             if ( !event.doDefault ) {
                 event.preventDefault();
@@ -219,6 +235,10 @@ var GlobalKeyboardShortcuts = NS.Class({
         }
     }.on( 'keydown', 'keypress' )
 });
+
+GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;
+GlobalKeyboardShortcuts.ACTIVE_IN_INPUT = ACTIVE_IN_INPUT;
+GlobalKeyboardShortcuts.DISABLE_IN_INPUT = DISABLE_IN_INPUT;
 
 NS.GlobalKeyboardShortcuts = GlobalKeyboardShortcuts;
 
