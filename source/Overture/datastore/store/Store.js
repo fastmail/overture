@@ -69,7 +69,7 @@ const filter = function ( accept, storeKey ) {
 };
 
 const sort = function ( compare, a, b ) {
-    const _skToData = this._skToData;
+    const { _skToData } = this;
     const aIsFirst = compare( _skToData[ a ], _skToData[ b ], this );
     return aIsFirst || ( ~~a.slice( 1 ) - ~~b.slice( 1 ) );
 };
@@ -541,17 +541,9 @@ const Store = Class({
         this.isCommitting = true;
 
         this.fire( 'willCommit' );
-        const _created = this._created;
-        const _destroyed = this._destroyed;
-        const _skToData = this._skToData;
-        const _skToStatus = this._skToStatus;
-        const _skToType = this._skToType;
-        const _typeToSkToId = this._typeToSkToId;
-        const _skToChanged = this._skToChanged;
-        const _skToCommitted = this._skToCommitted;
-        const _skToRollback = this._skToRollback;
-        const _typeToClientState = this._typeToClientState;
-        const _typeToStatus = this._typeToStatus;
+        const { _created, _destroyed, _skToData, _skToStatus, _skToType,
+            _typeToSkToId, _skToChanged, _skToCommitted, _skToRollback,
+            _typeToClientState, _typeToStatus } = this;
 
         const newSkToChanged = {};
         const newDestroyed = {};
@@ -664,12 +656,10 @@ const Store = Class({
             {O.Store} Returns self.
     */
     discardChanges() {
-        const _created = this._created;
-        const _destroyed = this._destroyed;
-        const _skToChanged = this._skToChanged;
-        const _skToCommitted = this._skToCommitted;
-        const _skToType = this._skToType;
-        const _skToData = this._skToData;
+        const {
+            _created, _destroyed, _skToChanged, _skToCommitted, _skToType,
+            _skToData,
+        } = this;
 
         for ( const storeKey in _created ) {
             this.destroyRecord( storeKey );
@@ -689,12 +679,8 @@ const Store = Class({
     },
 
     getInverseChanges() {
-        const _created = this._created;
-        const _destroyed = this._destroyed;
-        const _skToType = this._skToType;
-        const _skToData = this._skToData;
-        const _skToChanged = this._skToChanged;
-        const _skToCommitted = this._skToCommitted;
+        const { _created, _destroyed, _skToType, _skToData, _skToChanged,
+            _skToCommitted } = this;
         const inverse = {
             create: [],
             update: [],
@@ -1083,7 +1069,7 @@ const Store = Class({
     sourceStateDidChange( Type, newState ) {
         const typeId = guid( Type );
         const clientState = this._typeToClientState[ typeId ];
-        const _remoteQueries = this._remoteQueries;
+        const { _remoteQueries } = this;
         let l = _remoteQueries.length;
 
         if ( clientState && newState !== clientState ) {
@@ -1244,9 +1230,7 @@ const Store = Class({
     */
     updateData( storeKey, data, changeIsDirty ) {
         const status = this.getStatus( storeKey );
-        const _skToData = this._skToData;
-        const _skToCommitted = this._skToCommitted;
-        const _skToChanged = this._skToChanged;
+        const { _skToData, _skToCommitted, _skToChanged } = this;
         let current = _skToData[ storeKey ];
         const changedKeys = [];
         let seenChange = false;
@@ -1417,7 +1401,7 @@ const Store = Class({
     */
     sourceDidFetchRecords( Type, records, state, isAll ) {
         const typeId = guid( Type );
-        const _typeToClientState = this._typeToClientState;
+        const { _typeToClientState } = this;
         let l = records.length;
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
@@ -1515,12 +1499,9 @@ const Store = Class({
     */
     sourceDidFetchPartialRecords( Type, updates, _idsAreSKs ) {
         const typeId = guid( Type );
-        const _skToData = this._skToData;
-        const _skToStatus = this._skToStatus;
+        const { _skToData, _skToStatus, _skToChanged, _skToCommitted } = this;
         const _idToSk = this._typeToIdToSk[ typeId ] || {};
         const _skToId = this._typeToSkToId[ typeId ] || {};
-        const _skToChanged = this._skToChanged;
-        const _skToCommitted = this._skToCommitted;
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
         const foreignRefAttrs = _idsAreSKs ? [] : getForeignRefAttrs( Type );
@@ -1618,8 +1599,7 @@ const Store = Class({
     */
     sourceCouldNotFindRecords( Type, idList ) {
         let l = idList.length;
-        const _skToCommitted = this._skToCommitted;
-        const _skToChanged = this._skToChanged;
+        const { _skToCommitted, _skToChanged } = this;
 
         while ( l-- ) {
             const storeKey = this.getStoreKey( Type, idList[l] );
@@ -1692,7 +1672,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidModifyRecords( Type, idList ) {
-        const _skToStatus = this._skToStatus;
+        const { _skToStatus } = this;
         const _idToSk = this._typeToIdToSk[ guid( Type ) ] || {};
         let l = idList.length;
 
@@ -1752,7 +1732,7 @@ const Store = Class({
     */
     sourceCommitDidChangeState( Type, oldState, newState ) {
         const typeId = guid( Type );
-        const _typeToClientState = this._typeToClientState;
+        const { _typeToClientState } = this;
 
         if ( _typeToClientState[ typeId ] === oldState ) {
             _typeToClientState[ typeId ] = newState;
@@ -1782,9 +1762,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidCommitCreate( skToPartialData ) {
-        const _skToType = this._skToType;
-        const _typeToSkToId = this._typeToSkToId;
-        const _typeToIdToSk = this._typeToIdToSk;
+        const { _skToType, _typeToSkToId, _typeToIdToSk } = this;
         for ( const storeKey in skToPartialData ) {
             const status = this.getStatus( storeKey );
             if ( status & NEW ) {
@@ -1857,9 +1835,7 @@ const Store = Class({
     */
     sourceDidNotCreate( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
-        const _skToCommitted = this._skToCommitted;
-        const _skToChanged = this._skToChanged;
-        const _created = this._created;
+        const { _skToCommitted, _skToChanged, _created } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
@@ -1903,7 +1879,7 @@ const Store = Class({
     */
     sourceDidCommitUpdate( storeKeys ) {
         let l = storeKeys.length;
-        const _skToRollback = this._skToRollback;
+        const { _skToRollback } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
@@ -1955,10 +1931,7 @@ const Store = Class({
     */
     sourceDidNotUpdate( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
-        const _skToData = this._skToData;
-        const _skToChanged = this._skToChanged;
-        const _skToCommitted = this._skToCommitted;
-        const _skToRollback = this._skToRollback;
+        const { _skToData, _skToChanged, _skToCommitted, _skToRollback } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
@@ -2088,7 +2061,7 @@ const Store = Class({
     */
     sourceDidNotDestroy( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
-        const _destroyed = this._destroyed;
+        const { _destroyed } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
@@ -2156,7 +2129,7 @@ const Store = Class({
     */
     findAll( Type, accept, compare ) {
         const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
-        const _skToStatus = this._skToStatus;
+        const { _skToStatus } = this;
         let results = [];
 
         for ( const storeKey in _skToId ) {
@@ -2199,7 +2172,7 @@ const Store = Class({
     */
     findOne( Type, accept ) {
         const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
-        const _skToStatus = this._skToStatus;
+        const { _skToStatus } = this;
         const filterFn = accept && filter.bind( this, accept );
 
         for ( const storeKey in _skToId ) {
@@ -2227,7 +2200,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     addQuery( query ) {
-        const source = this.source;
+        const { source } = this;
         this._idToQuery[ query.get( 'id' ) ] = query;
         if ( query instanceof LiveQuery ) {
             const Type = query.get( 'Type' );
@@ -2259,7 +2232,7 @@ const Store = Class({
     removeQuery( query ) {
         delete this._idToQuery[ query.get( 'id' ) ];
         if ( query instanceof LiveQuery ) {
-            const _liveQueries = this._liveQueries;
+            const { _liveQueries } = this;
             const typeId = guid( query.get( 'Type' ) );
             const typeQueries = _liveQueries[ typeId ];
             if ( typeQueries.length > 1 ) {
@@ -2332,7 +2305,7 @@ const Store = Class({
     */
     _recordDidChange( storeKey ) {
         const typeId = guid( this._skToType[ storeKey ] );
-        const _typeToChangedSks = this._typeToChangedSks;
+        const { _typeToChangedSks } = this;
         const changedSks = _typeToChangedSks[ typeId ] ||
                 ( _typeToChangedSks[ typeId ] = {} );
         changedSks[ storeKey ] = true;
@@ -2350,8 +2323,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     refreshLiveQueries() {
-        const _typeToChangedSks = this._typeToChangedSks;
-        const _liveQueries = this._liveQueries;
+        const { _typeToChangedSks, _liveQueries } = this;
 
         this._typeToChangedSks = {};
 

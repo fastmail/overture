@@ -113,10 +113,7 @@ const NestedStore = Class({
     */
     commitChanges() {
         this.fire( 'willCommit' );
-        const _created = this._created;
-        const _destroyed = this._destroyed;
-        const _skToData = this._skToData;
-        const _skToChanged = this._skToChanged;
+        const { _created, _destroyed, _skToData, _skToChanged } = this;
         const parent = this._parentStore;
 
         for ( const storeKey in _created ) {
@@ -207,7 +204,7 @@ const NestedStore = Class({
             status   - {O.Status} The new status value.
     */
     parentDidChangeStatus( storeKey, previous, status ) {
-        const _skToStatus = this._skToStatus;
+        const { _skToStatus } = this;
 
         previous = previous & ~(NEW|COMMITTING|DIRTY);
         status = status & ~(NEW|COMMITTING|DIRTY);
@@ -279,9 +276,7 @@ const NestedStore = Class({
     */
     parentDidUpdateData( storeKey, changedKeys ) {
         if ( this._skToData.hasOwnProperty( storeKey ) ) {
-            const _skToData = this._skToData;
-            const _skToChanged = this._skToChanged;
-            const _skToCommitted = this._skToCommitted;
+            const { _skToData, _skToChanged, _skToCommitted } = this;
             const parent = this._parentStore;
             const rebase = this.rebaseConflicts;
             const newBase = parent.getData( storeKey );
