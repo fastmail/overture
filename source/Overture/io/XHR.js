@@ -140,19 +140,14 @@ var XHR = NS.Class({
     /**
         Method: O.XHR#getResponse
 
-        Returns the full text of the response to the request.
+        Returns the response to the request.
 
         Returns:
-            {String} The response text.
+            {String|ArrayBuffer|Blob|Document|Object} The response.
+            (The type is determined by the responseType parameter to #send.)
     */
     getResponse: function () {
-        // Internet Explorer may throw an error if you try to read the
-        // responseText before it is in readyState 4.
-        var response = '';
-        try {
-            response = this.xhr.responseText;
-        } catch ( error ) {}
-        return response || '';
+        return this.xhr.response;
     },
 
     /**
@@ -198,11 +193,18 @@ var XHR = NS.Class({
             headers - {Object} (Optional) A set of key:value pairs corresponding
                       to header names and their values which will be sent with
                       the request.
+            withCredentials - {Boolean} (Optional) (Default false) Whether or
+                              not to include credentials in cross-site requests
+            responseType - {String} See XMLHttpRequest.responseType for
+                           permitted values. This controls the type of
+                           {O.XHR#getResponse} and in consequence the {data}
+                           field on an {io:success} or {io:failure} event.
 
         Returns:
             {O.XHR} Returns self.
     */
-    send: function ( method, url, data, headers, withCredentials ) {
+    send: function ( method, url, data, headers, withCredentials,
+            responseType ) {
         if ( this._isRunning ) {
             this.abort();
         }
@@ -215,6 +217,15 @@ var XHR = NS.Class({
 
         xhr.open( method, url, this.makeAsyncRequests );
         xhr.withCredentials = !!withCredentials;
+        responseType = responseType || '';
+        xhr.responseType = responseType;
+        if ( xhr.responseType !== responseType ) {
+            // Browser doesn't support that particular value. At the time of
+            // writing, that should just be 'json' in IE 11. (IE<10 miss
+            // responseType altogether but we don't support them so no feature
+            // check. We assume all the other values will work fine.)
+            this._actualResponseType = responseType;
+        }
         for ( name in headers || {} ) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
@@ -291,6 +302,13 @@ var XHR = NS.Class({
             responseHeaders = parseHeaders( allHeaders );
             responseType = this.getResponseType();
             response = this.getResponse();
+            if ( this._actualResponseType === 'json' ) {
+                try {
+                    response = JSON.parse( response );
+                } catch ( error ) {
+                    response = null;
+                }
+            }
             // IE returns 200 status code when there's no network! But for a
             // real connection there must have been at least one header, so
             // check that's not empty. Except for cross-domain requests no
