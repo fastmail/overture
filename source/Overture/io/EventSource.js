@@ -238,8 +238,8 @@ var EventSource = NativeEventSource ? NS.Class({
         // If it doesn't, fail the connection.
         // IE doesn't let you read headers in the loading phase, so if we don't
         // know the response type, we'll just presume it's correct.
-        var responseType = xhr.getResponseType();
-        if ( responseType && responseType.indexOf( 'text/event-stream' ) ) {
+        var contentType = xhr.getHeader( 'Content-type' );
+        if ( contentType && contentType.indexOf( 'text/event-stream' ) !== 0 ) {
             this._failConnection();
         } else {
             this._openConnection();

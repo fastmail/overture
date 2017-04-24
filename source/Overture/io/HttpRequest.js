@@ -106,7 +106,6 @@ var HttpRequest = NS.Class({
         this.progress = 0;
 
         this.status = 0;
-        this.responseType = '';
         this.responseHeaders = {};
         this.response = '';
 
@@ -239,7 +238,6 @@ var HttpRequest = NS.Class({
 
         status  - The HTTP status code of the response.
         headers - The headers of the response.
-        type    - The MIME type of the response.
         data    - The data returned by the response.
     */
 
@@ -252,7 +250,6 @@ var HttpRequest = NS.Class({
 
         status  - The HTTP status code of the response.
         headers - The headers of the response.
-        type    - The MIME type of the response.
         data    - The data returned by the response.
     */
 

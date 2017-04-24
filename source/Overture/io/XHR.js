@@ -156,19 +156,6 @@ var XHR = NS.Class({
     },
 
     /**
-        Method: O.XHR#getResponseType
-
-        Returns the MIME type of the response, according to the Content-type
-        header set by the server.
-
-        Returns:
-            {String} The MIME type of the response.
-    */
-    getResponseType: function () {
-        return this.getHeader( 'Content-type' );
-    },
-
-    /**
         Method: O.XHR#getStatus
 
         Returns the HTTP status code returned by the server in response to the
@@ -259,7 +246,7 @@ var XHR = NS.Class({
         var state = xhr.readyState;
         var io = this.io;
         var status, allHeaders, isSuccess;
-        var responseHeaders, responseType, response;
+        var responseHeaders, response;
 
         if ( state < 3 || !this._isRunning ) {
             return;
@@ -289,7 +276,6 @@ var XHR = NS.Class({
         if ( io ) {
             allHeaders = xhr.getAllResponseHeaders();
             responseHeaders = parseHeaders( allHeaders );
-            responseType = this.getResponseType();
             response = this.getResponse();
             // IE returns 200 status code when there's no network! But for a
             // real connection there must have been at least one header, so
@@ -301,12 +287,10 @@ var XHR = NS.Class({
               .set( 'progress', 100 )
               .set( 'status', status )
               .set( 'responseHeaders', responseHeaders )
-              .set( 'responseType', responseType )
               .set( 'response', response )
               .fire( isSuccess ? 'io:success' : 'io:failure', {
                 status: status,
                 headers: responseHeaders,
-                type: responseType,
                 data: response
               })
               .fire( 'io:end' );
