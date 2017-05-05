@@ -689,19 +689,18 @@ const RichTextView = Class({
         const richTextView = this;
         return new MenuView({
             showFilter: false,
-            options: this.get( 'fontSizeOptions' ).map( function ( item ) {
-                const fontSize = item[1];
-                return new ButtonView({
+            options: this.get( 'fontSizeOptions' ).map(
+                ([ label, fontSize ]) => new ButtonView({
                     layout: fontSize ? {
                         fontSize,
                     } : null,
-                    label: item[0],
+                    label,
                     method: 'setFontSize',
                     setFontSize() {
                         richTextView.setFontSize( fontSize );
                     },
-                });
-            }),
+                })
+            ),
         });
     }.property(),
 
@@ -723,19 +722,18 @@ const RichTextView = Class({
         const richTextView = this;
         return new MenuView({
             showFilter: false,
-            options: this.get( 'fontFaceOptions' ).map( function ( item ) {
-                const fontFace = item[1];
-                return new ButtonView({
+            options: this.get( 'fontFaceOptions' ).map(
+                ([ label, fontFace ]) => new ButtonView({
                     layout: fontFace ? {
                         fontFamily: fontFace,
                     } : null,
-                    label: item[0],
+                    label,
                     method: 'setFontFace',
                     setFontFace() {
                         richTextView.setFontFace( fontFace );
                     },
-                });
-            }),
+                })
+            ),
         });
     }.property(),
 
@@ -760,33 +758,29 @@ const RichTextView = Class({
         return new MenuView({
             className: 'v-ColorMenu',
             showFilter: false,
-            options: (
-                '000000 b22222 ff0000 ffa07a fff0f5 ' +
-                '800000 a52a2a ff8c00 ffa500 faebd7 ' +
-                '8b4513 daa520 ffd700 ffff00 ffffe0 ' +
-                '2f4f4f 006400 008000 00ff00 f0fff0 ' +
-                '008080 40e0d0 00ffff afeeee f0ffff ' +
-                '000080 0000cd 0000ff add8e6 f0f8ff ' +
-                '4b0082 800080 ee82ee dda0dd e6e6fa ' +
-                '696969 808080 a9a9a9 d3d3d3 ffffff' )
-                .split( ' ' )
-                .map( function ( color ) {
-                    color = '#' + color;
-                    return new ButtonView({
-                        layout: {
-                            backgroundColor: color,
-                        },
-                        label: color,
-                        method: 'setColor',
-                        setColor() {
-                            if ( richTextView._colorText ) {
-                                richTextView.setTextColor( color );
-                            } else {
-                                richTextView.setHighlightColor( color );
-                            }
-                        },
-                    });
-                }),
+            options: [
+                    '#000000', '#b22222', '#ff0000', '#ffa07a', '#fff0f5',
+                    '#800000', '#a52a2a', '#ff8c00', '#ffa500', '#faebd7',
+                    '#8b4513', '#daa520', '#ffd700', '#ffff00', '#ffffe0',
+                    '#2f4f4f', '#006400', '#008000', '#00ff00', '#f0fff0',
+                    '#008080', '#40e0d0', '#00ffff', '#afeeee', '#f0ffff',
+                    '#000080', '#0000cd', '#0000ff', '#add8e6', '#f0f8ff',
+                    '#4b0082', '#800080', '#ee82ee', '#dda0dd', '#e6e6fa',
+                    '#696969', '#808080', '#a9a9a9', '#d3d3d3', '#ffffff',
+                ].map( color => new ButtonView({
+                    layout: {
+                        backgroundColor: color,
+                    },
+                    label: color,
+                    method: 'setColor',
+                    setColor() {
+                        if ( richTextView._colorText ) {
+                            richTextView.setTextColor( color );
+                        } else {
+                            richTextView.setHighlightColor( color );
+                        }
+                    },
+                })),
         });
     }.property(),
 
@@ -970,15 +964,15 @@ const RichTextView = Class({
     insertImage: execCommand( 'insertImage' ),
     insertImagesFromFiles( files ) {
         if ( window.FileReader ) {
-            files.forEach( function ( file ) {
+            files.forEach( file => {
                 const img = this.get( 'editor' ).insertImage();
                 const reader = new FileReader();
-                reader.onload = function () {
+                reader.onload = () => {
                     img.src = reader.result;
                     reader.onload = null;
                 };
                 reader.readAsDataURL( file );
-            }, this );
+            });
         }
     },
 
@@ -1049,7 +1043,7 @@ const RichTextView = Class({
         let alignment;
         if ( path === '(selection)' ) {
             alignment = '';
-            this._forEachBlock( function ( block ) {
+            this._forEachBlock( block => {
                 const align = block.style.textAlign || 'left';
                 if ( alignment && align !== alignment ) {
                     alignment = '';
@@ -1070,7 +1064,7 @@ const RichTextView = Class({
         let dir;
         if ( path === '(selection)' ) {
             dir = '';
-            this._forEachBlock( function ( block ) {
+            this._forEachBlock( block => {
                 const blockDir = block.dir || 'ltr';
                 if ( dir && blockDir !== dir ) {
                     dir = '';

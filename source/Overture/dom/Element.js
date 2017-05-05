@@ -132,25 +132,22 @@ const cssNoPx = {
 
     Map of normal CSS names to the name used on the style object.
 */
-const styleNames = ( function () {
-    const styles = UA.cssProps;
-    const styleNames = {
-        'float': document.body.style.cssFloat !== undefined ?
-            'cssFloat' : 'styleFloat',
-    };
-    for ( const property in styles ) {
-        let style = styles[ property ];
-        if ( style ) {
-            style = style.camelCase();
-            // Stupid MS, don't follow convention.
-            if ( style.slice( 0, 2 ) === 'Ms' ) {
-                style = 'm' + style.slice( 1 );
-            }
-            styleNames[ property.camelCase() ] = style;
+const styleNames = {
+    'float': document.body.style.cssFloat !== undefined ?
+        'cssFloat' : 'styleFloat',
+};
+const styles = UA.cssProps;
+for ( const property in styles ) {
+    let style = styles[ property ];
+    if ( style ) {
+        style = style.camelCase();
+        // Stupid MS, don't follow convention.
+        if ( style.slice( 0, 2 ) === 'Ms' ) {
+            style = 'm' + style.slice( 1 );
         }
+        styleNames[ property.camelCase() ] = style;
     }
-    return styleNames;
-}() );
+}
 
 /**
     Property (private): O.Element-doc
@@ -489,9 +486,7 @@ export default {
         if ( !limit ) { limit = el.ownerDocument.documentElement; }
         if ( typeof test === 'string' ) {
             const nodeName = test.toUpperCase();
-            test = function ( el ) {
-                return ( el.nodeName === nodeName );
-            };
+            test = el => el.nodeName === nodeName;
         }
         while ( el && !test( el ) ) {
             if ( !el || el === limit ) {

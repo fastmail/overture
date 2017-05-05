@@ -522,10 +522,9 @@ const DragController = new Object({
     }.on( 'keydown' ),
 });
 
-[ 'dragover', 'dragenter', 'dragleave', 'drop', 'dragend' ]
-    .forEach( function ( type ) {
-        document.addEventListener( type, DragController, false );
-    });
+[ 'dragover', 'dragenter', 'dragleave', 'drop', 'dragend' ].forEach( type => {
+    document.addEventListener( type, DragController, false );
+});
 
 ViewEventsController.addEventTarget( DragController, 20 );
 

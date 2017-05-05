@@ -98,7 +98,7 @@ const SingleSelectionController = Class({
                 list.indexOfStoreKey(
                     record.get( 'storeKey' ),
                     0,
-                    function ( index ) {
+                    index => {
                         if ( this.get( 'record' ) === record &&
                                 this.get( 'content' ) === list ) {
                             this._ignore = true;
@@ -106,7 +106,7 @@ const SingleSelectionController = Class({
                             this._ignore = false;
                             this.set( 'isFetchingIndex', false );
                         }
-                    }.bind( this )
+                    }
                 );
             } else if ( record || this.get( 'allowNoSelection' ) ) {
                 this._ignore = true;

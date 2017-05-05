@@ -41,7 +41,7 @@ const SelectionController = Class({
         const _selectedStoreKeys = this._selectedStoreKeys;
         let length = this.get( 'length' );
         const removed = event.removed;
-        const added = event.added.reduce( function ( set, storeKey ) {
+        const added = event.added.reduce( ( set, storeKey ) => {
             set[ storeKey ] = true;
             return set;
         }, {} );
@@ -122,10 +122,10 @@ const SelectionController = Class({
         const selectionId = ( this._selectionId += 1 );
         const loading = content.getStoreKeysForObjectsInRange(
             start, end = Math.min( end, content.get( 'length' ) || 0 ),
-            function ( storeKeys, start, end ) {
+            ( storeKeys, start, end ) => {
                 this.selectStoreKeys( storeKeys,
                     isSelected, selectionId, start, end );
-            }.bind( this )
+            }
         );
 
         if ( loading ) {
@@ -139,10 +139,10 @@ const SelectionController = Class({
         const content = this.get( 'content' );
         const selectionId = ( this._selectionId += 1 );
         const loading = content.getStoreKeysForAllObjects(
-            function ( storeKeys, start, end ) {
+            ( storeKeys, start, end ) => {
                 this.selectStoreKeys( storeKeys,
                     true, selectionId, start, end );
-            }.bind( this )
+            }
         );
 
         if ( loading ) {

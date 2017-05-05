@@ -114,10 +114,10 @@ const AbstractControlView = Class({
     didEnterDocument() {
         const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
-            shortcut.split( ' ' ).forEach( function ( key ) {
+            shortcut.split( ' ' ).forEach( key => {
                 ViewEventsController.kbShortcuts
                     .register( key, this, 'activate' );
-            }, this );
+            });
         }
         return AbstractControlView.parent.didEnterDocument.call( this );
     },
@@ -131,10 +131,10 @@ const AbstractControlView = Class({
     willLeaveDocument() {
         const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
-            shortcut.split( ' ' ).forEach( function ( key ) {
+            shortcut.split( ' ' ).forEach( key => {
                 ViewEventsController.kbShortcuts
                     .deregister( key, this, 'activate' );
-            }, this );
+            });
         }
         // iOS is very buggy if you remove a focussed control from the doc;
         // the picker/keyboard stays up and cannot be dismissed

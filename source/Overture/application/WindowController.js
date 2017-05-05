@@ -87,14 +87,13 @@ const WindowController = Class({
 
         this.broadcast( 'wc:hello' );
 
-        const that = this;
-        const check = function () {
-            that.checkMaster();
-            that._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
+        const check = () => {
+            this.checkMaster();
+            this._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
         };
-        const ping = function () {
-            that.sendPing();
-            that._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
+        const ping = () => {
+            this.sendPing();
+            this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
         };
         this._checkTimeout = RunLoop.invokeAfterDelay( check, 500 );
         this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );

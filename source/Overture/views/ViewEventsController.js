@@ -153,9 +153,9 @@ const ViewEventsController = {
             {O.ViewEventsController} Returns self.
     */
     removeEventTarget( eventTarget ) {
-        this._eventTargets = this._eventTargets.filter( function ( target ) {
-            return target[1] !== eventTarget;
-        });
+        this._eventTargets = this._eventTargets.filter(
+            target => target[1] !== eventTarget
+        );
         return this;
     },
 

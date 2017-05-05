@@ -88,7 +88,7 @@ if ( browser === 'opr/' ) {
         cssProps.flexbox = style.length ? prefix + 'flex' : null;
     }
     const css = cssProps.transition;
-    [ 'delay', 'timing', 'duration', 'property' ].forEach( function ( prop ) {
+    [ 'delay', 'timing', 'duration', 'property' ].forEach( prop => {
         cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
     });
 

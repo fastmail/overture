@@ -481,7 +481,7 @@ const Drag = Class({
 
                 if ( dataSource.get( 'isDragDataSource' ) ) {
                     dataSource.get( 'dragDataTypes' )
-                              .forEach( function ( type ) {
+                              .forEach( type => {
                         if ( type.contains( '/' ) ) {
                             const data = dataSource.getDragDataOfType(
                                 type, this );

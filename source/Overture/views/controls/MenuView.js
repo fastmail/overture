@@ -99,9 +99,9 @@ const MenuView = Class({
     draw( layer, Element, el ) {
         const controller = this.get( 'controller' );
         const MenuOptionView = this.get( 'ItemView' );
-        const optionViews = this.get( 'options' ).map( function ( view ) {
-            return new MenuOptionView( view, controller );
-        });
+        const optionViews = this.get( 'options' ).map(
+            view => new MenuOptionView( view, controller )
+        );
         controller.set( 'options', optionViews );
         return [
             this.get( 'showFilter' ) ? el( 'div.v-Menu-filter', [

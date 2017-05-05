@@ -22,7 +22,7 @@ const platformKeys = {
         {String} The shortcut formatted for display on the user's platform.
 */
 export default function formatKeyForPlatform( shortcut ) {
-    return shortcut.split( '-' ).map( function ( key ) {
-        return platformKeys[ key ] || key.capitalise();
-    }).join( '' );
+    return shortcut.split( '-' ).map(
+        key => platformKeys[ key ] || key.capitalise()
+    ).join( '' );
 }

@@ -21,9 +21,8 @@ const generateLocalisedDateParser = function ( locale, mode ) {
 
     const anyInLocale = function ( type, names ) {
         return firstMatch(
-            names.split( ' ' ).map( function ( name ) {
-                return define( type, datePatterns[ name ], name );
-            })
+            names.split( ' ' )
+                 .map( name => define( type, datePatterns[ name ], name ) )
         );
     };
 
@@ -108,7 +107,7 @@ const generateLocalisedDateParser = function ( locale, mode ) {
 
     const standardDate = sequence(
             locale.dateFormats.date.split( /%-?([dmbY])/ ).map(
-            function ( part, i ) {
+            ( part, i ) => {
                 if ( i & 1 ) {
                     switch ( part ) {
                     case 'd':
@@ -126,7 +125,7 @@ const generateLocalisedDateParser = function ( locale, mode ) {
                     );
                 }
                 return null;
-            }).filter( function ( x ) { return !!x; } )
+            }).filter( x => x )
         );
 
     const dayMonthYear = sequence([
@@ -530,9 +529,9 @@ const parseDateTime = function ( string, locale, mode ) {
     if ( !locale ) {
         locale = i18n.getLocale();
     }
-    string = string.trim().replace(/[０-９]/g, function ( wideNum ) {
-        return String.fromCharCode( wideNum.charCodeAt( 0 ) - 65248 );
-    });
+    string = string.trim().replace(/[０-９]/g,
+        wideNum => String.fromCharCode( wideNum.charCodeAt( 0 ) - 65248 )
+    );
     const code = locale.code + mode;
     const dateParser = dateParsers[ code ] ||
         ( dateParsers[ code ] = generateLocalisedDateParser( locale, mode ) );

@@ -148,9 +148,9 @@ const EventSource = NativeEventSource ? Class({
             const eventSource = this._eventSource =
                 new NativeEventSource( this.get( 'url' ) );
 
-            this._eventTypes.forEach( function ( type ) {
-                eventSource.addEventListener( type, this, false );
-            }, this );
+            this._eventTypes.forEach(
+                type => eventSource.addEventListener( type, this, false )
+            );
 
             this.set( 'readyState', eventSource.readyState );
         }

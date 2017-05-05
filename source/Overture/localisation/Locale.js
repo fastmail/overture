@@ -167,9 +167,9 @@ const Locale = Class({
             mixin - {Object} Information for this locale.
     */
     init( mixin ) {
-        [ 'macros', 'dateFormats' ].forEach( function ( obj ) {
+        [ 'macros', 'dateFormats' ].forEach( obj => {
             this[ obj ] = Object.create( this[ obj ] );
-        }, this );
+        });
         this.compiled = {};
         merge( this, mixin );
     },

@@ -33,10 +33,10 @@ const OverflowMenuView = Class({
 
     shortcuts: function () {
         const views = this.getFromPath( 'menuView.options' );
-        return views ? views.reduce( function ( acc, view ) {
+        return views ? views.reduce( ( acc, view ) => {
             const shortcut = view.get( 'shortcut' );
             if ( shortcut ) {
-                shortcut.split( ' ' ).forEach( function ( key ) {
+                shortcut.split( ' ' ).forEach( key => {
                     acc[ key ] = view;
                 });
             }
@@ -179,9 +179,7 @@ const ToolbarView = Class({
                     showFilter: false,
                     options: leftConfig.slice( l )
                         .map( toView, this )
-                        .filter( function ( view ) {
-                            return view instanceof View;
-                        }),
+                        .filter( view => view instanceof View ),
                 }) );
 
                 if ( l > 0 ) {
@@ -210,9 +208,7 @@ const ToolbarView = Class({
                 className: 'v-Toolbar-section v-Toolbar-section--measure',
                 layerStyles: {},
                 childViews: Object.values( this._views )
-                                  .filter( function ( view ) {
-                    return !view.get( 'parentView' );
-                }),
+                                  .filter( view => !view.get( 'parentView' ) ),
                 draw( layer, Element, el ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),

@@ -118,7 +118,7 @@ const ThemeManager = Class({
 
         if ( data ) {
             // Substitute in images.
-            data = data.replace( /url\(([^)]+)\)/g, function ( url, src ) {
+            data = data.replace( /url\(([^)]+)\)/g, ( url, src ) => {
                 let imageData =
                         images[ src ] ||
                         themeIndependentImages[ src ] ||

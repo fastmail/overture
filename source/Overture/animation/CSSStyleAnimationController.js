@@ -67,8 +67,7 @@ const CSSStyleAnimationController = {
     }.invokeInRunLoop(),
 };
 
-[ 'transitionend', 'webkitTransitionEnd', 'oTransitionEnd' ].forEach(
-function ( type ) {
+[ 'transitionend', 'webkitTransitionEnd', 'oTransitionEnd' ].forEach( type => {
     document.addEventListener( type, CSSStyleAnimationController, true );
 });
 

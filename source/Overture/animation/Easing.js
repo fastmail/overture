@@ -10,17 +10,13 @@ const cubicBezier = function ( p1x, p1y, p2x, p2y ) {
     const aY = 1 - cY - bY;
 
     // Functions for calculating x, x', y for t
-    const bezierX = function ( t ) {
-        return t * ( cX + t * ( bX + t * aX ) );
-    };
-    const bezierXDerivative = function ( t ) {
-        return cX + t * ( 2 * bX + 3 * aX * t );
-    };
+    const bezierX = t => t * ( cX + t * ( bX + t * aX ) );
+    const bezierXDerivative = t => cX + t * ( 2 * bX + 3 * aX * t );
 
     // Use Newton-Raphson method to find t for a given x.
     // Since x = a*t^3 + b*t^2 + c*t, we find the root for
     // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
-    const newtonRaphson = function ( x ) {
+    const newtonRaphson = x => {
         let prev;
         // Initial estimation is linear
         let t = x;
@@ -32,7 +28,7 @@ const cubicBezier = function ( p1x, p1y, p2x, p2y ) {
         return t;
     };
 
-    const output = function ( x ) {
+    const output = x => {
         const t = newtonRaphson( x );
         // This is y given t on the bezier curve.
         return t * ( cY + t * ( bY + t * aY ) );

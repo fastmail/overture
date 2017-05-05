@@ -83,14 +83,14 @@ const SelectView = Class({
                 className: 'v-Select-input',
                 disabled: this.get( 'isDisabled' ),
             },
-                options.map( function ( option, i ) {
-                    return el( 'option', {
+                options.map(
+                    ( option, i ) => el( 'option', {
                         text: option.text,
                         value: i,
                         selected: isEqual( option.value, selected ),
                         disabled: !!option.isDisabled,
-                    });
-                })
+                    })
+                )
             );
         return select;
     },

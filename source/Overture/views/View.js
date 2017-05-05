@@ -50,7 +50,7 @@ const userSelectNone =
                 return 'v-Message' +
                     ( this.get( 'isImportant' ) ? ' is-important' : '' );
             }.property( 'isImportant' ),
-            draw: function ( layer, Element, el ) {
+            draw( layer, Element, el ) {
                 return [
                     el( 'h1#title', {
                         text: O.bind( this, 'title' )
@@ -65,7 +65,7 @@ const userSelectNone =
                         ])
                     ])
                 ];
-            }
+            },
         });
 
     If the view type is going to be reused, you should create a subclass
@@ -113,14 +113,12 @@ const userSelectNone =
     O.CheckboxView etc. For example:
 
         new O.View({
-            draw: function ( layer, Element, el ) {
+            draw( layer, Element, el ) {
                 const content = this.get( 'content' );
                 return [
                     el( 'h1#title', {
                         className: O.bind( content, 'isDone',
-                        function ( isDone ) {
-                            return isDone ? 'done' : 'todo';
-                        }),
+                            isDone => isDone ? 'done' : 'todo' ),
                         text: O.bind( content, 'title' )
                     }),
                     el( 'p', [
