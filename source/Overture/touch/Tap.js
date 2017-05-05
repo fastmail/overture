@@ -37,26 +37,28 @@ const TapEvent = Class({
     originalType: 'tap',
 });
 
-const TrackedTouch = function ( x, y, time, target ) {
-    this.x = x;
-    this.y = y;
-    this.time = time;
-    const activeEls = this.activeEls = [];
-    do {
-        if ( /^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
-            activeEls.push( target );
-            Element.addClass( target, 'tap-active' );
-        }
-    } while ( target = target.parentNode );
-};
-
-TrackedTouch.prototype.done  = function () {
-    const activeEls = this.activeEls;
-    const l = activeEls.length;
-    for ( let i = 0; i < l; i += 1 ) {
-        Element.removeClass( activeEls[i], 'tap-active' );
+class TrackedTouch {
+    constructor( x, y, time, target ) {
+        this.x = x;
+        this.y = y;
+        this.time = time;
+        const activeEls = this.activeEls = [];
+        do {
+            if ( /^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
+                activeEls.push( target );
+                Element.addClass( target, 'tap-active' );
+            }
+        } while ( target = target.parentNode );
     }
-};
+
+    done() {
+        const activeEls = this.activeEls;
+        const l = activeEls.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            Element.removeClass( activeEls[i], 'tap-active' );
+        }
+    }
+}
 
 const isInputOrLink = function ( node ) {
     const nodeName = node.nodeName;

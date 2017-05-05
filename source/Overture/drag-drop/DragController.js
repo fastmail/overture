@@ -19,17 +19,19 @@ const isControl = {
 const effectToString = DragEffect.effectToString;
 const DEFAULT = DragEffect.DEFAULT;
 
-const TouchDragEvent = function ( touch ) {
-    const clientX = touch.clientX;
-    const clientY = touch.clientY;
-    const target = document.elementFromPoint( clientX, clientY ) ||
-            touch.target;
-    this.touch = touch;
-    this.clientX = clientX;
-    this.clientY = clientY;
-    this.target = target;
-    this.targetView = ViewEventsController.getViewFromNode( target );
-};
+class TouchDragEvent {
+    constructor( touch ) {
+        const clientX = touch.clientX;
+        const clientY = touch.clientY;
+        const target = document.elementFromPoint( clientX, clientY ) ||
+                touch.target;
+        this.touch = touch;
+        this.clientX = clientX;
+        this.clientY = clientY;
+        this.target = target;
+        this.targetView = ViewEventsController.getViewFromNode( target );
+    }
+}
 
 const getTouch = function ( touches, touchId ) {
     let l = touches.length,
