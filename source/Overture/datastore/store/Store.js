@@ -671,6 +671,8 @@ var Store = NS.Class({
             _destroyed = this._destroyed,
             _skToChanged = this._skToChanged,
             _skToCommitted = this._skToCommitted,
+            _skToType = this._skToType,
+            _skToData = this._skToData,
             storeKey;
 
         for ( storeKey in _created ) {
@@ -680,7 +682,8 @@ var Store = NS.Class({
             this.updateData( storeKey, _skToCommitted[ storeKey ], true );
         }
         for ( storeKey in _destroyed ) {
-            this.undestroyRecord( storeKey );
+            this.undestroyRecord(
+                storeKey, _skToType[ storeKey ], _skToData[ storeKey ] );
         }
 
         this._created = {};
