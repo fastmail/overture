@@ -56,7 +56,7 @@ var RichTextView = NS.Class({
 
     showToolbar: !UA.isIOS,
     fontFaceOptions: [
-        [ loc( 'Default' ), null ],
+        [ NS.loc( 'Default' ), null ],
         [ 'Arial', 'arial, sans-serif' ],
         [ 'Georgia', 'georgia, serif' ],
         [ 'Helvetica', 'helvetica, arial, sans-serif' ],
