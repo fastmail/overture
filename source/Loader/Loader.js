@@ -250,7 +250,7 @@ require = function ( modules, fn, bind ) {
             }
 
             // Load module dependencies
-            if ( dependencies = info.dependencies ) {
+            if ( ( dependencies = info.dependencies ) ) {
                 require( dependencies );
             }
 
@@ -330,7 +330,7 @@ NS.require = require;
         code - {String} The code to evaluate.
 
 */
-/* jshint ignore:start */
+/* eslint-disable */
 O.execute = ( function ( global ) {
     var isGlobal = function ( original, Object ) {
         try {
@@ -373,4 +373,4 @@ O.execute = ( function ( global ) {
         head.removeChild( script );
     };
 }( this ) );
-/* jshint ignore:end */
+/* eslint-enable */
