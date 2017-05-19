@@ -22,7 +22,7 @@ var fs = require( 'fs' );
                 });
             }
 
-            fs.writeFile( output, 'var index = ' +
+            fs.writeFileSync( output, 'var index = ' +
                 JSON.stringify( searchIndex ) + ';' );
         }
     });

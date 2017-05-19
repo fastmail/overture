@@ -26,7 +26,7 @@ var replaceFileNames = function ( names, input, output ) {
                     map[ name ]
                 );
             }
-            fs.writeFile( output, data );
+            fs.writeFileSync( output, data );
         }
     });
 };
@@ -39,7 +39,7 @@ var addModuleList = function ( variable, modules, input, output ) {
         return prev + '"' + name + '": "${' + name + '.js}",\n';
     }, '' ).slice( 0, -2 ) );
 
-    fs.writeFile( output, data );
+    fs.writeFileSync( output, data );
 };
 
 var stripStrict = function ( string ) {
@@ -239,7 +239,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
 
     module += sortByDependencies( jsData ).join( '\n\n' );
 
-    fs.writeFile( output, module );
+    fs.writeFileSync( output, module );
 };
 
 ( function () {

@@ -244,7 +244,7 @@ var extract = function ( dbFilePath, filesToScanPaths, outputPath, allData ) {
                 seen[ id1 ].count < seen[ id2 ].count ? 1 :
                 id1 < id2 ? -1 : 1;
         });
-        fs.writeFile( outputPath,
+        fs.writeFileSync( outputPath,
             JSON.stringify( allData ? seen : ids )
         );
     });
@@ -614,7 +614,7 @@ var makeLangModule = function ( idListPath, poPath, outputPath ) {
         if ( !idList || !idToEntry ) {
             return;
         }
-        fs.writeFile( outputPath,
+        fs.writeFileSync( outputPath,
             _makeLangModule( code, idList, idToEntry )
         );
     };
@@ -636,7 +636,7 @@ var insertLocale = function ( englishDbPath, strings, input, output ) {
         return 'loc( ' + index[ id ];
     });
 
-    fs.writeFile( output, input );
+    fs.writeFileSync( output, input );
 };
 
 var insertEnglish = function ( englishDbPath, input, output ) {
@@ -651,7 +651,7 @@ var insertEnglish = function ( englishDbPath, input, output ) {
         return 'loc( ' + JSON.stringify( idToEntry[ id ].string );
     });
 
-    fs.writeFile( output, input );
+    fs.writeFileSync( output, input );
 };
 
 var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) {
@@ -709,7 +709,7 @@ var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) 
         output += '\n\n';
     });
 
-    fs.writeFile( outputPoPath, output );
+    fs.writeFileSync( outputPoPath, output );
 };
 
 var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
@@ -749,7 +749,7 @@ var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
         output += '\n\n';
     });
 
-    fs.writeFile( outputPoPath, output );
+    fs.writeFileSync( outputPoPath, output );
 };
 
 ( function () {

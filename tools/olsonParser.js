@@ -244,7 +244,7 @@ var formatHeaderLine = function ( text, length ) {
         delete json.link;
     }
     var outputName = args[1];
-    fs.writeFile( outputName,
+    fs.writeFileSync( outputName,
         formatHeaderLine( new Array( 80 - 6 + 1 ).join( '-' ), 80 ) +
         formatHeaderLine( 'File: ' + outputName.slice( outputName.lastIndexOf( '/' ) + 1 ), 80 ) +
         formatHeaderLine( 'Module: TimeZones', 80 ) +

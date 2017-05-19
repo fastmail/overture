@@ -431,5 +431,5 @@ var renderFullIndex = function () {
             return '';
         });
 
-    fs.writeFile( outputFileName, html );
+    fs.writeFileSync( outputFileName, html );
 }() );

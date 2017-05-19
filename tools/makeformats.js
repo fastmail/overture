@@ -121,7 +121,7 @@ function makeLangFile( defaults, strings, output ) {
         }
     };
 
-    fs.writeFile( output, JSON.stringify( localisation, null, 2 ) );
+    fs.writeFileSync( output, JSON.stringify( localisation, null, 2 ) );
 }
 
 // Usage: node makeformats.js default.po in.po out.json

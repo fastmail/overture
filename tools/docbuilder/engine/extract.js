@@ -145,7 +145,7 @@ var parseFile = function ( contents ) {
         if ( error ) {
             console.log( 'Could not read ' + input );
         } else {
-            fs.writeFile( output,
+            fs.writeFileSync( output,
                 JSON.stringify( parseFile( data ), null, 4 ) );
         }
     });

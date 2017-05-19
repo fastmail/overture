@@ -35,7 +35,7 @@ function convert( dbFile, dbFile2 ) {
             }
         }
 
-        fs.writeFile( dbFile2, output );
+        fs.writeFileSync( dbFile2, output );
     });
 }
 
@@ -71,7 +71,7 @@ function sort( dbFile ) {
                 id + '.description=' + ( entry.description || '""' ) + '\n\n';
         }
 
-        fs.writeFile( dbFile, output );
+        fs.writeFileSync( dbFile, output );
     });
 }
 
@@ -108,7 +108,7 @@ function filter ( dbFile ) {
             }
         });
 
-        fs.writeFile( dbFile, output.join( '\n' ) );
+        fs.writeFileSync( dbFile, output.join( '\n' ) );
     });
 }
 
@@ -208,7 +208,7 @@ function dbToPo ( dbFile, poFile ) {
             poString += '\n';
         }
 
-        fs.writeFile( poFile, poString );
+        fs.writeFileSync( poFile, poString );
     });
 }
 

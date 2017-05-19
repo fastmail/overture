@@ -39,7 +39,7 @@ var fs = require( 'fs' );
                 }
                 return include;
             });
-            fs.writeFile( output,
+            fs.writeFileSync( output,
                 lines.join( '\n' )
                      .replace( /\n{3,}/g, '\n\n' )
                      .replace( /\n\s*,\s*\n/g, ',\n' )

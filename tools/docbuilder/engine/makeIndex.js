@@ -51,7 +51,8 @@ var makeIndex = function ( data, index, file ) {
                 );
                 toProcess -= 1;
                 if ( !toProcess ) {
-                    fs.writeFile( output, JSON.stringify( index, null, 4 ) );
+                    fs.writeFileSync( output,
+                        JSON.stringify( index, null, 4 ) );
                 }
             }
         });

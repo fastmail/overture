@@ -267,7 +267,7 @@ exports.minify = function ( css ) {
                         results[i] = css;
                         toProcess -= 1;
                         if ( !toProcess ) {
-                            fs.writeFile( dest, results.join( '\n\n' ) );
+                            fs.writeFileSync( dest, results.join( '\n\n' ) );
                         }
                     });
                 })
@@ -276,7 +276,7 @@ exports.minify = function ( css ) {
         minify: function ( srcs, dest ) {
             processFiles( srcs, inlineImports, function ( results ) {
                 exports.fromLess( results.join( '\n\n' ), function ( css ) {
-                    fs.writeFile( dest, exports.minify( css ) );
+                    fs.writeFileSync( dest, exports.minify( css ) );
                 });
             });
         },
@@ -289,14 +289,14 @@ exports.minify = function ( css ) {
         makeSingleFile: function ( srcs, dest ) {
             processFiles( srcs, inlineImports, function ( results ) {
                 exports.fromLess( results.join('\n\n'), function ( css ) {
-                    fs.writeFile( dest, css );
+                    fs.writeFileSync( dest, css );
                 });
             });
         },
         makeSingleIncImages: function ( srcs, dest ) {
             processFiles( srcs, inlineImportsAndImages, function ( results ) {
                 exports.fromLess( results.join('\n\n'), function ( css ) {
-                    fs.writeFile( dest, css );
+                    fs.writeFileSync( dest, css );
                 });
             });
         }

@@ -25,7 +25,7 @@ var concatenate = function ( inputs, output, minify ) {
     });
     if ( minify ) { data = compressJS( data ); }
     if ( strict ) { data = '"use strict";\n' + data; }
-    fs.writeFile( output, data );
+    fs.writeFileSync( output, data );
 };
 
 ( function () {
