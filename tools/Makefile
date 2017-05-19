@@ -98,6 +98,8 @@ MAKE_TZ := $(TOOLS)/olsonParser.js
 UPDATE_PO := $(TOOLS)/localise.js updatePo
 DB_TO_PO := $(TOOLS)/localise.js dbToPo
 
+UGLIFY_JS := node_modules/.bin/uglifyjs
+
 ifeq ($(shell which sha1sum),)
 HASH_FILE := md5 -q
 else
@@ -110,7 +112,7 @@ TYPE=`echo $@ | cut -d . -f 2-`; \
 HASH=`$(HASH_FILE) $@ | cut -c 1-8`; \
 COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
 if [ $$TYPE = js ]; then \
-uglifyjs $@ -c warnings=false -m > $$COMPRESSEDNAME || { rm $@; exit 1; } \
+$(UGLIFY_JS) $@ -c warnings=false -m > $$COMPRESSEDNAME || { rm $@; exit 1; } \
 elif [ $$TYPE = css ]; then \
 $(MINIFY_CSS) $@ $$COMPRESSEDNAME || { rm $@; exit 1; }; \
 else \
