@@ -203,6 +203,8 @@ var TextView = NS.Class({
     */
     type: '',
 
+    layerTag: 'span',
+
     /**
         Property: O.TextView#className
         Type: String
@@ -272,7 +274,6 @@ var TextView = NS.Class({
         layer.title = this.get( 'tooltip' );
 
         return [
-            this._domLabel = el( 'span', [ this.get( 'label' ) ] ),
             control
         ];
     },
@@ -359,6 +360,8 @@ var TextView = NS.Class({
             scrollView.redrawScroll();
         }
     },
+
+    redrawLabel: function() {},
 
     // --- Activate ---
 
