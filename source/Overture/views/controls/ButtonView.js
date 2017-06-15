@@ -115,15 +115,6 @@ var ButtonView = NS.Class({
     */
     icon: null,
 
-    /**
-        Property: O.ButtonView#tabIndex
-        Type: Number
-        Default: -1
-
-        Overrides default in <O.AbstractControlView#tabIndex>.
-    */
-    tabIndex: -1,
-
     // --- Render ---
 
     /**
