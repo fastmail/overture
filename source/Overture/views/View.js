@@ -650,7 +650,7 @@ var View = NS.Class({
             this.removeView( view );
             view.destroy();
         }
-        while ( node = layer.lastChild ) {
+        while ( ( node = layer.lastChild ) ) {
             layer.removeChild( node );
         }
         Element.appendChildren( layer,
@@ -1094,14 +1094,14 @@ var View = NS.Class({
             parent = a,
             al, bl, children, l, view;
 
-        while ( parent = parent.get( 'parentView' ) ) {
+        while ( ( parent = parent.get( 'parentView' ) ) ) {
             if ( parent === b ) {
                 return POSITION_CONTAINED_BY;
             }
             aParents.push( parent );
         }
         parent = b;
-        while ( parent = parent.get( 'parentView' ) ) {
+        while ( ( parent = parent.get( 'parentView' ) ) ) {
             if ( parent === a ) {
                 return POSITION_CONTAINS;
             }
