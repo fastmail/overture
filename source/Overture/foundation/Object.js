@@ -11,6 +11,7 @@
 ( function ( NS ) {
 
 var meta = NS.meta;
+var mixin = NS.mixin;
 
 /**
     Class: O.Object
@@ -31,19 +32,23 @@ NS.Object = NS.Class({
         Constructor: O.Object
 
         Parameters:
-            mixin - {Object} (optional) Any properties in this object will be
-                    added to the new O.Object instance before initialisation (so
-                    you can pass it getter/setter functions or observing
-                    methods).
+            ...mixins - {Object} (optional) Each argument passed will be treated
+                        as an object, with any properties in that object added
+                        to the new O.Object instance before initialisation (so
+                        you can pass it getter/setter functions or observing
+                        methods).
     */
-    init: function ( mixin ) {
+    init: function (/* ...mixins */) {
+        var i, l, metadata, inits, method;
+
         this.isDestroyed = false;
 
-        NS.mixin( this, mixin );
+        for ( i = 0, l = arguments.length; i < l; i += 1 ) {
+            mixin( this, arguments[i] );
+        }
 
-        var metadata = meta( this ),
-            inits = metadata.inits,
-            method;
+        metadata = meta( this );
+        inits = metadata.inits;
         for ( method in inits ) {
             if ( inits[ method ] ) {
                 this[ 'init' + method ]();

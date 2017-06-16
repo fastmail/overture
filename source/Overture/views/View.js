@@ -199,7 +199,7 @@ var View = NS.Class({
     */
     syncOnlyInDocument: true,
 
-    init: function ( mixin ) {
+    init: function () {
         this._needsRedraw = null;
 
         this.id = 'v' + UID++;
@@ -207,7 +207,7 @@ var View = NS.Class({
         this.isRendered = false;
         this.isInDocument = false;
 
-        View.parent.init.call( this, mixin );
+        View.parent.init.apply( this, arguments );
 
         var children = this.get( 'childViews' ) || ( this.childViews = [] ),
             l = children.length;
