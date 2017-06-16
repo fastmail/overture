@@ -21,6 +21,10 @@ var PopOverView = NS.Class({
     isVisible: false,
     parentPopOverView: null,
 
+    ariaAttributes: {
+        modal: 'true'
+    },
+
     /*
         Options
         - view -> The view to append to the pop over
