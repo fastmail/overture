@@ -236,6 +236,25 @@ var View = NS.Class({
         View.parent.destroy.call( this );
     },
 
+    // --- Screen reader accessibility ---
+
+    /**
+        Property: O.View#ariaAttributes
+        Type: Object|null
+
+        A set of aria attributes to apply to the layer node. The key is the name
+        of the attribute, excluding the 'aria-' prefix. The role attribute can
+        also be set here.
+
+        Example value:
+
+            {
+                role: 'menu',
+                modal: 'true'
+            }
+    */
+    ariaAttributes: null,
+
     // --- Layer ---
 
     /**
@@ -293,6 +312,7 @@ var View = NS.Class({
             unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on'
         });
         this.didCreateLayer( layer );
+        this.redrawAriaAttributes( layer );
         return layer;
     }.property(),
 
@@ -600,7 +620,7 @@ var View = NS.Class({
             }
         }
         return this;
-    }.observes( 'className', 'layerStyles' ),
+    }.observes( 'className', 'layerStyles', 'ariaAttributes' ),
 
     /**
         Method: O.View#redraw
@@ -684,6 +704,27 @@ var View = NS.Class({
     redrawLayerStyles: function ( layer ) {
         layer.style.cssText = Object.toCSSString( this.get( 'layerStyles' ) );
         this.didResize();
+    },
+
+    /**
+        Method: O.View#redrawLayerStyles
+
+        Sets the style attribute on the layer to match the layerStyles property
+        of the view. Called automatically when the layerStyles property changes.
+
+        Parameters:
+            layer - {Element} The view's layer.
+    */
+    redrawAriaAttributes: function ( layer ) {
+        var ariaAttributes = this.get( 'ariaAttributes' );
+        var attribute, value;
+        for ( attribute in ariaAttributes ) {
+            value = ariaAttributes[ attribute ];
+            if ( attribute !== 'role' ) {
+                attribute = 'aria-' + attribute;
+            }
+            layer.setAttribute( attribute, value );
+        }
     },
 
     // --- Dimensions ---
