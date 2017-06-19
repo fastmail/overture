@@ -107,8 +107,15 @@ var ListView = NS.Class({
 
     layout: function () {
         var itemHeight = this.get( 'itemHeight' );
+        var height = itemHeight * ( this.get( 'contentLength' ) || 0 );
+        // Firefox breaks in weird and wonderful ways when a scroll area is
+        // over a certain height, somewhere between 2^24 and 2^25px tall.
+        // 2^24 = 16,777,216
+        if ( NS.UA.firefox && height > 16777216 ) {
+            height = 16777216;
+        }
         return itemHeight ? {
-            height: itemHeight * ( this.get( 'contentLength' ) || 0 )
+            height: height
         } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
