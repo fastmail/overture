@@ -44,6 +44,10 @@ var ButtonView = NS.ButtonView;
 var equalTo = NS.Transform.isEqualToValue;
 var UA = NS.UA;
 
+var TOOLBAR_HIDDEN = 0;
+var TOOLBAR_AT_SELECTION = 1;
+var TOOLBAR_AT_TOP = 2;
+
 var RichTextView = NS.Class({
 
     Extends: NS.View,
@@ -55,7 +59,7 @@ var RichTextView = NS.Class({
 
     allowTextSelection: true,
 
-    showToolbar: !UA.isIOS,
+    showToolbar: UA.isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
     fontFaceOptions: [
         [ NS.loc( 'Default' ), null ],
         [ 'Arial', 'arial, sans-serif' ],
@@ -120,7 +124,7 @@ var RichTextView = NS.Class({
     didEnterDocument: function () {
         var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
-            if ( this.get( 'showToolbar' ) ) {
+            if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
                 scrollView.addObserverForKey(
                     'scrollTop', this, '_calcToolbarPosition' );
             }
@@ -135,7 +139,7 @@ var RichTextView = NS.Class({
     willLeaveDocument: function () {
         var scrollView = this.getParent( NS.ScrollView );
         if ( scrollView ) {
-            if ( this.get( 'showToolbar' ) ) {
+            if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
                 scrollView.removeObserverForKey(
                     'scrollTop', this, '_calcToolbarPosition' );
                 this._setToolbarPosition(
@@ -163,7 +167,8 @@ var RichTextView = NS.Class({
         return 'v-RichText' +
             ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
-            ( this.get( 'showToolbar' ) ? '' : ' v-RichText--noToolbar' );
+            ( this.get( 'showToolbar' ) === TOOLBAR_HIDDEN ?
+                ' v-RichText--noToolbar' : '' );
     }.property( 'isFocussed', 'isDisabled' ),
 
     draw: function ( layer, Element, el ) {
@@ -197,7 +202,9 @@ var RichTextView = NS.Class({
             el( 'style', { type: 'text/css' }, [
                 this.get( 'styles' )
             ]),
-            this.get( 'showToolbar' ) ? this.get( 'toolbarView' ) : null
+            this.get( 'showToolbar' ) !== TOOLBAR_HIDDEN ?
+                this.get( 'toolbarView' ) :
+                null
         ];
     },
 
@@ -299,6 +306,36 @@ var RichTextView = NS.Class({
         }
     },
 
+    floatingToolbarLayout: null,
+    setFloatingToolbarLayout: function ( event ) {
+        var layout, node, position;
+        if ( this.get( 'showToolbar' ) === TOOLBAR_AT_SELECTION ) {
+            layout = {
+                top: 0,
+                left: 0,
+                maxWidth: '100%',
+            };
+            if ( event && event.type === 'select' ) {
+                node = NS.UA.isIOS ?
+                    event.range.endContainer :
+                    event.range.startContainer;
+                if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
+                    node = node.parentNode;
+                }
+                position = NS.Element.getPosition( node, this.get( 'layer' ) );
+                layout.transform = 'translate3d(0,' + (
+                    NS.UA.isIOS ?
+                    position.top + position.height + 10 :
+                    position.top -
+                        this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
+                ) + 'px,0)';
+            } else {
+                layout.transform = 'translate3d(-100vw,0,0)';
+            }
+            this.set( 'floatingToolbarLayout', layout );
+        }
+    }.on( 'select', 'cursor' ),
+
     toolbarConfig: {
         left: [
             'bold', 'italic', 'underline', 'strikethrough', '-',
@@ -316,20 +353,25 @@ var RichTextView = NS.Class({
     },
 
     toolbarView: function () {
-        var bind = NS.bind,
-            richTextView = this;
+        var bind = NS.bind;
+        var richTextView = this;
+        var showToolbar = this.get( 'showToolbar' );
+
+        if ( showToolbar === TOOLBAR_AT_SELECTION ) {
+            this.setFloatingToolbarLayout();
+        }
 
         return new NS.ToolbarView({
             className: 'v-Toolbar v-RichText-toolbar',
             positioning: 'absolute',
-            layout: {
+            layout: showToolbar === TOOLBAR_AT_TOP ? {
                 overflow: 'hidden',
                 zIndex: 1,
                 top: 0,
                 left: 0,
                 right: 0
-            },
-            preventOverlap: true
+            } : bind( this, 'floatingToolbarLayout' ),
+            preventOverlap: showToolbar === TOOLBAR_AT_TOP
         }).registerViews({
             bold: new ButtonView({
                 type: 'v-Button--iconOnly',
@@ -1048,6 +1090,10 @@ RichTextView.isSupported = (
     // bugs.
     ( !UA.isIOS || UA.isWKWebView )
 );
+
+RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
+RichTextView.TOOLBAR_AT_SELECTION = TOOLBAR_AT_SELECTION;
+RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 
 NS.RichTextView = RichTextView;
 
