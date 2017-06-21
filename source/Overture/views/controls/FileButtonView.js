@@ -91,9 +91,7 @@ var FileButtonView = NS.Class({
     draw: function ( layer, Element, el ) {
         var icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
-            icon = el( 'i', {
-                className: 'icon ' + icon
-            });
+            icon = NS.ButtonView.drawIcon( icon );
         } else if ( !icon ) {
             icon = document.createComment( 'icon' );
         }

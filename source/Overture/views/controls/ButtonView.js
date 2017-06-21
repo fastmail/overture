@@ -160,9 +160,7 @@ var ButtonView = NS.Class({
     draw: function ( layer, Element, el ) {
         var icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
-            icon = el( 'i', {
-                className: 'icon ' + icon
-            });
+            icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
             icon = document.createComment( 'icon' );
         }
@@ -189,9 +187,7 @@ var ButtonView = NS.Class({
     redrawIcon: function ( layer ) {
         var icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
-            icon = NS.Element.create( 'i', {
-                className: 'icon ' + icon
-            });
+            icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
             icon = document.createComment( 'icon' );
         }
@@ -339,6 +335,12 @@ var ButtonView = NS.Class({
             event.stopPropagation();
         }
     }.on( 'keypress' )
+}).extend({
+    drawIcon: function ( icon ) {
+        return NS.Element.create( 'i', {
+            className: 'icon ' + icon
+        });
+    }
 });
 
 NS.ButtonView = ButtonView;
