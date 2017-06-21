@@ -51,6 +51,7 @@ var RichTextView = NS.Class({
     Mixin: NS.DropTarget,
 
     isFocussed: false,
+    isDisabled: false,
 
     allowTextSelection: true,
 
@@ -160,8 +161,10 @@ var RichTextView = NS.Class({
 
     className: function () {
         return 'v-RichText' +
+            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
             ( this.get( 'showToolbar' ) ? '' : ' v-RichText--noToolbar' );
-    }.property(),
+    }.property( 'isFocussed', 'isDisabled' ),
 
     draw: function ( layer, Element, el ) {
         var editorClassName = this.get( 'editorClassName' );
@@ -177,6 +180,7 @@ var RichTextView = NS.Class({
             .setHTML( this._value )
             .addEventListener( 'input', this )
             .addEventListener( 'select', this )
+            .addEventListener( 'cursor', this )
             .addEventListener( 'pathChange', this )
             .addEventListener( 'undoStateChange', this )
             .addEventListener( 'dragover', this )
@@ -184,12 +188,27 @@ var RichTextView = NS.Class({
             .didError = NS.RunLoop.didError;
         this.set( 'editor', editor )
             .set( 'path', editor.getPath() );
+
+        if ( this.get( 'isDisabled' ) ) {
+            this.redrawIsDisabled();
+        }
+
         return [
             el( 'style', { type: 'text/css' }, [
                 this.get( 'styles' )
             ]),
             this.get( 'showToolbar' ) ? this.get( 'toolbarView' ) : null
         ];
+    },
+
+    disabledNeedsRedraw: function ( self, property, oldValue ) {
+        this.propertyNeedsRedraw( self, property, oldValue );
+    }.observes( 'isDisabled' ),
+
+    redrawIsDisabled: function () {
+        this._editingLayer.setAttribute( 'contenteditable',
+            this.get( 'isDisabled' )  ? 'false' : 'true'
+        );
     },
 
     // ---
