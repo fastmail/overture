@@ -162,12 +162,12 @@ var FileButtonView = NS.Class({
             }
             if ( !this.get( 'isDisabled' ) ) {
                 target = this.get( 'target' ) || this;
-                if ( action = this.get( 'action' ) ) {
+                if ( ( action = this.get( 'action' ) ) ) {
                     target.fire( action, {
                         originView: this,
                         files: files
                     });
-                } else if ( action = this.get( 'method' ) ) {
+                } else if ( ( action = this.get( 'method' ) ) ) {
                     target[ action ]( files, this );
                 }
                 this.fire( 'button:activate' );

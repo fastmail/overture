@@ -257,11 +257,11 @@ var ButtonView = NS.Class({
     */
     activate: function () {
         if ( !this.get( 'isDisabled' ) && !this.get( 'isWaiting' ) ) {
-            var target = this.get( 'target' ) || this,
-                action;
-            if ( action = this.get( 'action' ) ) {
+            var target = this.get( 'target' ) || this;
+            var action;
+            if ( ( action = this.get( 'action' ) ) ) {
                 target.fire( action, { originView: this } );
-            } else if ( action = this.get( 'method' ) ) {
+            } else if ( ( action = this.get( 'method' ) ) ) {
                 target[ action ]( this );
             }
             this.fire( 'button:activate' );
