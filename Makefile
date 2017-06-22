@@ -14,7 +14,7 @@ build:
 	mkdir build
 
 clean:
-	rm -rf build docs
+	rm -rf build
 
 clobber: clean
 	rm -rf node_modules
@@ -28,7 +28,7 @@ include $(PATH_TO_TOOLS)/Makefile
 
 PATH_TO_DOC := tools/docbuilder
 PATH_TO_DOC_SOURCES := source/Overture
-PATH_TO_DOC_OUTPUT := docs
+PATH_TO_DOC_OUTPUT := build/docs
 include $(PATH_TO_DOC)/Makefile
 
 # === Build ===

@@ -17,28 +17,28 @@ DOCS := $(addsuffix .html,$(addprefix $(PATH_TO_DOC_OUTPUT)/,$(DOCS_STEMS)))
 
 DOCS_STYLES := $(PATH_TO_DOC_OUTPUT)/main.css $(PATH_TO_DOC_OUTPUT)/reset.css
 DOCS_SCRIPTS := $(PATH_TO_DOC_OUTPUT)/main.js $(PATH_TO_DOC_OUTPUT)/search.js $(PATH_TO_DOC_OUTPUT)/index.js
+DOCS_IMAGES := $(patsubst $(PATH_TO_DOC)/%,$(PATH_TO_DOC_OUTPUT)/%,$(wildcard $(PATH_TO_DOC)/images/*.png))
 
 .PHONY: docs
 
-docs: $(DOCS_STYLES) $(DOCS_SCRIPTS) $(DOCS) $(PATH_TO_DOC_OUTPUT)/index.html
-	cp -r $(PATH_TO_DOC)/images $(PATH_TO_DOC_OUTPUT)
+docs: $(DOCS_STYLES) $(DOCS_SCRIPTS) $(DOCS_IMAGES) $(DOCS) $(PATH_TO_DOC_OUTPUT)/index.html
 
-$(PATH_TO_DOC_OUTPUT)/%.js: $(PATH_TO_DOC)/scripts/%.js
-	mkdir -p $(@D)
+$(PATH_TO_DOC_OUTPUT)/images/%.png: $(PATH_TO_DOC)/images/%.png | $(PATH_TO_DOC_OUTPUT)/images
+	cp $< $@
+
+$(PATH_TO_DOC_OUTPUT) $(PATH_TO_DOC_OUTPUT)/_parse $(PATH_TO_DOC_OUTPUT)/images:
+	mkdir -p $@
+
+$(PATH_TO_DOC_OUTPUT)/%.js: $(PATH_TO_DOC)/scripts/%.js node_modules | $(PATH_TO_DOC_OUTPUT)
 	$(UGLIFY_JS) $< -c warnings=false -m -o $@
 
-$(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json
+$(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json | $(PATH_TO_DOC_OUTPUT)
 	node $(PATH_TO_DOC)/engine/writeSearchIndex.js $^ $@
 
-$(PATH_TO_DOC_OUTPUT)/%.css: $(PATH_TO_DOC)/styles/%.less
-	mkdir -p $(@D)
+$(PATH_TO_DOC_OUTPUT)/%.css: $(PATH_TO_DOC)/styles/%.css | $(PATH_TO_DOC_OUTPUT)
 	$(MINIFY_CSS) $< $@
 
-$(PATH_TO_DOC_OUTPUT)/%.css: $(PATH_TO_DOC)/styles/%.css
-	mkdir -p $(@D)
-	$(MINIFY_CSS) $< $@
-
-$(PATH_TO_DOC_OUTPUT)/_parse/index.json: $(DOCS_JSON)
+$(PATH_TO_DOC_OUTPUT)/_parse/index.json: $(DOCS_JSON) | $(PATH_TO_DOC_OUTPUT)/_parse
 	node $(PATH_TO_DOC)/engine/makeIndex.js $^ $@
 
 $(PATH_TO_DOC_OUTPUT)/_parse/%.json: $(PATH_TO_DOC_SOURCES)/%.js
@@ -46,7 +46,6 @@ $(PATH_TO_DOC_OUTPUT)/_parse/%.json: $(PATH_TO_DOC_SOURCES)/%.js
 	node $(PATH_TO_DOC)/engine/extract.js $< $@
 
 $(PATH_TO_DOC_OUTPUT)/index.html: $(PATH_TO_DOC_OUTPUT)/_parse/index.json
-	mkdir -p $(@D)
 	node $(PATH_TO_DOC)/engine/write.js $(PATH_TO_DOC)/templates/index.html $(PATH_TO_DOC_OUTPUT)/_parse/index.json $^ $@
 
 $(PATH_TO_DOC_OUTPUT)/%.html: $(PATH_TO_DOC_OUTPUT)/_parse/%.json $(PATH_TO_DOC_OUTPUT)/_parse/index.json
