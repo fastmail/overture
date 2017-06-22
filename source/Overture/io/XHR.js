@@ -304,8 +304,8 @@ const XHR = Class({
     handleEvent: function ( event ) {
         const io = this.io;
         if ( io && event.type === 'progress' ) {
-            const type = event.target === this.xhr ? 'progress'
-                                                   : 'uploadProgress';
+            const type = event.target === this.xhr ? 'progress' :
+                                                     'uploadProgress';
             // CORE-47058. Limit to 99% on progress events, as Opera can report
             // event.loaded > event.total! Will be set to 100 in onSuccess
             // handler.

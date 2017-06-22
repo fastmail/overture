@@ -55,7 +55,8 @@ Object.assign( String.prototype, {
 
             // Find argument to subsitute in; either the one specified in
             // (6) or the index of this placeholder.
-            const data = arguments[ ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
+            const data = arguments[
+                ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
 
             // Generate the string form of the data from the type specified
             // in (7).
