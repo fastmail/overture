@@ -52,9 +52,9 @@ const styleAnimators = {
             }
             return {
                 start,
-                delta: end.map(
-                    ( value, index ) => index & 1 ? value - start[ index ] : 0
-                ),
+                delta: end.map( ( value, index ) => (
+                    index & 1 ? value - start[ index ] : 0
+                )),
             };
         },
         calcValue( position, deltaValue ) {

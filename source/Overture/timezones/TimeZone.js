@@ -125,7 +125,7 @@ const getRule = function ( rules, offset, datetime, isUTC, recurse ) {
 };
 
 const switchSign = function ( string ) {
-    return string.replace( /[+-]/, sign => sign === '+' ? '-' : '+' );
+    return string.replace( /[+-]/, sign => ( sign === '+' ? '-' : '+' ) );
 };
 
 const TimeZone = Class({

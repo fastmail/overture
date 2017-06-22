@@ -108,7 +108,12 @@ module.exports = {
         'no-caller': 'error',
         'no-catch-shadow': 'error',
         'no-compare-neg-zero': 'error',
-        'no-confusing-arrow': 'error',
+        'no-confusing-arrow': [
+            'error',
+            {
+                'allowParens': true,
+            },
+        ],
         'no-constant-condition': [
             'error',
             {
