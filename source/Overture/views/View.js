@@ -707,10 +707,11 @@ var View = NS.Class({
     },
 
     /**
-        Method: O.View#redrawLayerStyles
+        Method: O.View#redrawAriaAttributes
 
-        Sets the style attribute on the layer to match the layerStyles property
-        of the view. Called automatically when the layerStyles property changes.
+        Sets the ARIA attributes on the layer to match the ariaAttributes
+        property of the view. Called automatically when the ariaAttributes
+        property changes.
 
         Parameters:
             layer - {Element} The view's layer.
