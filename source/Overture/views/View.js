@@ -246,6 +246,11 @@ var View = NS.Class({
         of the attribute, excluding the 'aria-' prefix. The role attribute can
         also be set here.
 
+        It’s *possible* for a view to set ARIA attributes on the layer in other
+        places, so long as they never appear in this property, but that feels
+        like a bad idea. Just let this property control all the ARIA attributes;
+        life will be easier for you if you do this.
+
         Example value:
 
             {
@@ -715,10 +720,21 @@ var View = NS.Class({
 
         Parameters:
             layer - {Element} The view's layer.
+            oldAriaAttributes - {undefined|null|Object} The previous value.
     */
-    redrawAriaAttributes: function ( layer ) {
+    redrawAriaAttributes: function ( layer, oldAriaAttributes ) {
         var ariaAttributes = this.get( 'ariaAttributes' );
         var attribute, value;
+        // Step one: remove any now-excluded ARIA attributes from the layer.
+        for ( attribute in oldAriaAttributes ) {
+            if ( !ariaAttributes || !( attribute in ariaAttributes ) ) {
+                if ( attribute !== 'role' ) {
+                    attribute = 'aria-' + attribute;
+                }
+                layer.removeAttribute( attribute );
+            }
+        }
+        // Step two: now set (adding or replacing) the attributes we want.
         for ( attribute in ariaAttributes ) {
             value = ariaAttributes[ attribute ];
             if ( attribute !== 'role' ) {
