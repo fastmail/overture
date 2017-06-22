@@ -1,13 +1,23 @@
 # === Standard Targets ===
 
-.PHONY: all build install clean
+.PHONY: all compile install clean clobber
 
-all: build docs
+all: compile docs
 
-build: build/Loader-raw.js build/Overture-raw.js
+compile: build/Loader-raw.js build/Overture-raw.js
+
+node_modules: package.json yarn.lock
+	yarn
+	touch -c node_modules
+
+build:
+	mkdir build
 
 clean:
 	rm -rf build docs
+
+clobber: clean
+	rm -rf node_modules
 
 # === Tools ===
 
@@ -27,8 +37,7 @@ include $(PATH_TO_DOC)/Makefile
 
 MODULE = $(patsubst build/%-raw.js,%,$@)
 
-build/%-raw.js: $$(shell find source/% -name "*.js")
-	mkdir -p $(@D)
+build/%-raw.js: $$(shell find source/% -name "*.js") node_modules | build
 	$(REMOVE_OLD)
-	rollup source/$(MODULE)/$(MODULE).js -o $@ -c
+	yarn run -- rollup source/$(MODULE)/$(MODULE).js -o $@ -c
 	$(GZIP_AND_COMPRESS)
