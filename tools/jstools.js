@@ -3,7 +3,6 @@
 "use strict";
 
 var fs = require( 'fs' );
-var less = require( 'less' );
 var ug = require( 'uglify-js' );
 
 var compressJS = function ( code, output ) {

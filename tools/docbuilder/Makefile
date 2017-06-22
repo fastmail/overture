@@ -36,7 +36,7 @@ $(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json | $(PATH
 	node $(PATH_TO_DOC)/engine/writeSearchIndex.js $^ $@
 
 $(PATH_TO_DOC_OUTPUT)/%.css: $(PATH_TO_DOC)/styles/%.css | $(PATH_TO_DOC_OUTPUT)
-	$(MINIFY_CSS) $< $@
+	$(MINIFY_CSS_ONLY) $< $@
 
 $(PATH_TO_DOC_OUTPUT)/_parse/index.json: $(DOCS_JSON) | $(PATH_TO_DOC_OUTPUT)/_parse
 	node $(PATH_TO_DOC)/engine/makeIndex.js $^ $@

@@ -1,6 +1,5 @@
 // CSS Tools
 
-var less = require( 'less' );
 var fs = require( 'fs' );
 
 var CleanCSS = {
@@ -243,6 +242,7 @@ function emround ( css ) {
 exports.fromLess = function ( css, callback ) {
     css = css.replace( /(expression\([^;]+);/g, 'e("$1");' )
              .replace( /filter:\s*(alpha\([^;]+);/g, 'filter: e("$1");' );
+    var less = require( 'less' );
     less.render( css, function ( error, output ) {
         if ( !error ) {
             css = emround( output.css );
@@ -271,6 +271,11 @@ exports.minify = function ( css ) {
                         }
                     });
                 })
+            });
+        },
+        minifyCSSOnly: function (srcs, dest ) {
+            processFiles( srcs, inlineImports, function ( results ) {
+                fs.writeFileSync( dest, exports.minify( results.join( '' ) ) );
             });
         },
         minify: function ( srcs, dest ) {

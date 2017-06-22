@@ -56,9 +56,14 @@ CONCATENATE := $(TOOLS)/jstools.js concatenate
 MINIFY_JS := $(TOOLS)/jstools.js compress
 
 # Args:
-# Input files
+# Input files (LESS/CSS)
 # Output file
 MINIFY_CSS := $(TOOLS)/csstools.js minify
+
+# Args:
+# Input files (CSS only)
+# Output file
+MINIFY_CSS_ONLY := $(TOOLS)/csstools.js minifyCSSOnly
 
 # Converts any LESS files to CSS and concatenates.
 # Args:
@@ -114,7 +119,7 @@ COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
 if [ $$TYPE = js ]; then \
 $(UGLIFY_JS) $@ -c warnings=false -m > $$COMPRESSEDNAME || exit 1; \
 elif [ $$TYPE = css ]; then \
-$(MINIFY_CSS) $@ $$COMPRESSEDNAME || exit 1; \
+$(MINIFY_CSS_ONLY) $@ $$COMPRESSEDNAME || exit 1; \
 else \
 cp $@ $$COMPRESSEDNAME; \
 fi; \
