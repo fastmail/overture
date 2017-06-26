@@ -48,6 +48,13 @@ var TOOLBAR_HIDDEN = 0;
 var TOOLBAR_AT_SELECTION = 1;
 var TOOLBAR_AT_TOP = 2;
 
+var hiddenFloatingToolbarLayout = {
+    top: 0,
+    left: 0,
+    maxWidth: '100%',
+    transform: 'translate3d(-100vw,0,0)',
+};
+
 var RichTextView = NS.Class({
 
     Extends: NS.View,
@@ -58,6 +65,16 @@ var RichTextView = NS.Class({
     isDisabled: false,
 
     allowTextSelection: true,
+
+    // ---
+
+    isTextSelected: false,
+
+    setIsTextSelected: function ( event ) {
+        this.set( 'isTextSelected', event.type === 'select' );
+    }.on( 'cursor', 'select' ),
+
+    // ---
 
     showToolbar: UA.isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
     fontFaceOptions: [
@@ -306,35 +323,48 @@ var RichTextView = NS.Class({
         }
     },
 
-    floatingToolbarLayout: null,
-    setFloatingToolbarLayout: function ( event ) {
-        var layout, node, position;
-        if ( this.get( 'showToolbar' ) === TOOLBAR_AT_SELECTION ) {
-            layout = {
-                top: 0,
-                left: 0,
-                maxWidth: '100%',
-            };
-            if ( event && event.type === 'select' ) {
-                node = NS.UA.isIOS ?
-                    event.range.endContainer :
-                    event.range.startContainer;
-                if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
-                    node = node.parentNode;
-                }
-                position = NS.Element.getPosition( node, this.get( 'layer' ) );
-                layout.transform = 'translate3d(0,' + (
-                    NS.UA.isIOS ?
-                    position.top + position.height + 10 :
-                    position.top -
-                        this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
-                ) + 'px,0)';
-            } else {
-                layout.transform = 'translate3d(-100vw,0,0)';
-            }
-            this.set( 'floatingToolbarLayout', layout );
+    // ---
+
+    floatingToolbarLayout: hiddenFloatingToolbarLayout,
+
+    hideFloatingToolbar: function () {
+        this.set( 'floatingToolbarLayout', hiddenFloatingToolbarLayout );
+    }.on( 'cursor' ),
+
+    showFloatingToolbar: function () {
+        if ( this.get( 'showToolbar' ) !== TOOLBAR_AT_SELECTION ) {
+            return;
         }
-    }.on( 'select', 'cursor' ),
+        var range = this.get( 'editor' ).getSelection();
+        var node = NS.UA.isIOS ? range.endContainer : range.startContainer;
+        var position;
+        if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
+            node = node.parentNode;
+        }
+        position = NS.Element.getPosition( node, this.get( 'layer' ) );
+        this.set( 'floatingToolbarLayout', {
+            top: 0,
+            left: 0,
+            maxWidth: '100%',
+            transform: 'translate3d(0,' + (
+                NS.UA.isIOS ?
+                position.top + position.height + 10 :
+                position.top -
+                    this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
+            ) + 'px,0)'
+        });
+    },
+
+    showFloatingToolbarIfSelection: function () {
+        var toolbarIsVisible =
+                this.get( 'floatingToolbarLayout' ) !==
+                    hiddenFloatingToolbarLayout;
+        if ( !toolbarIsVisible && this.get( 'isTextSelected' ) ) {
+            this.showFloatingToolbar();
+        }
+    }.on( 'mouseup' ),
+
+    // ---
 
     toolbarConfig: {
         left: [
@@ -356,10 +386,6 @@ var RichTextView = NS.Class({
         var bind = NS.bind;
         var richTextView = this;
         var showToolbar = this.get( 'showToolbar' );
-
-        if ( showToolbar === TOOLBAR_AT_SELECTION ) {
-            this.setFloatingToolbarLayout();
-        }
 
         return new NS.ToolbarView({
             className: 'v-Toolbar v-RichText-toolbar',
