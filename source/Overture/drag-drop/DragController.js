@@ -359,13 +359,13 @@ var DragController = new NS.Object({
     */
     _onDragstart: function ( event ) {
         // Ignore any implicit drags; only use native API when draggable="true"
-        // is explicitly set
-        var target = event.target,
-            explicit = false;
-        while ( target && target.getAttribute ) {
+        // is explicitly set, or it's a link (browsers automatically make these
+        // draggable so you can drag the link to another window or tab).
+        var target = event.target;
+        var explicit = target.nodeName === 'A';
+        while ( !explicit && target && target.getAttribute ) {
             if ( target.getAttribute( 'draggable' ) === 'true' ) {
                 explicit = true;
-                break;
             }
             target = target.parentNode;
         }
