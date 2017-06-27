@@ -33,15 +33,7 @@ native implementation (and indeed the spec) is extremely buggy. Problems (as of
    implementations are likely to change as well.
 5. In Firefox, setDragImage only works with visible elements.
 
-If you want to initiate a drag with data for an external app (e.g. a file download), you can still do this, by:
-
-1. Setting a draggable="true" attribute on the HTML element to be dragged.
-2. Either then setting the data as normal in the dragStarted method (if the view
-   includes O.Draggable), or by handling the dragstart event. If the latter,
-   you should set the following properties:
-
-   event.dataTransfer.setData( type, data );
-   event.dataTransfer.setDragImage( el, offsetX, offsetY );
+If you want to initiate a drag with data for an external app (e.g. a file download), you can still do this, by setting a draggable="true" attribute on the HTML element to be dragged and handling the dragstart event.
 
 Native support is turned on for drop targets though, as there are no
 show-stopping bugs here, so this is handled as normal.
@@ -371,7 +363,7 @@ var Drag = NS.Class({
             items, i, l, item, itemType;
         if ( dataTransfer ) {
             // Current HTML5 DnD interface
-            if ( items = dataTransfer.items ) {
+            if ( ( items = dataTransfer.items ) ) {
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
                     itemType = item.type;
@@ -395,7 +387,7 @@ var Drag = NS.Class({
                 }
             }
             // Deprecated HTML5 DnD interface (FF etc.)
-            else if ( items = dataTransfer.files ) {
+            else if ( ( items = dataTransfer.files ) ) {
                 for ( i = 0, l = items.length; i < l; i += 1 ) {
                     item = items[i];
                     itemType = item.type;

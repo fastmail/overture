@@ -358,22 +358,14 @@ var DragController = new NS.Object({
             event - {Event} The dragstart event.
     */
     _onDragstart: function ( event ) {
-        // Ignore any implicit drags; only use native API when draggable="true"
-        // is explicitly set, or it's a link (browsers automatically make these
-        // draggable so you can drag the link to another window or tab).
-        var target = event.target;
-        var explicit = target.nodeName === 'A';
-        while ( !explicit && target && target.getAttribute ) {
-            if ( target.getAttribute( 'draggable' ) === 'true' ) {
-                explicit = true;
-            }
-            target = target.parentNode;
-        }
-        if ( !explicit ) {
+        // We'll do our own drag system for anything implementing O.Draggable
+        // Only allow native drag events for anything else (e.g. links and
+        // anything marked with a draggable="true" attribute).
+        var dragView = this.getNearestDragView( event.targetView );
+        if ( dragView ) {
             event.preventDefault();
         } else {
             new NS.Drag({
-                dragSource: this.getNearestDragView( event.targetView ),
                 event: event,
                 isNative: true
             });
