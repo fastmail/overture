@@ -276,7 +276,7 @@ var RichTextView = NS.Class({
         if ( scrollBy ) {
             scrollView.scrollBy( 0, Math.round( scrollBy ), true );
         }
-    }.queue( 'after' ).on( 'input' ),
+    }.queue( 'after' ).on( 'cursor' ),
 
     _calcToolbarPosition: function ( scrollView, _, __, scrollTop ) {
         var toolbarView = this.get( 'toolbarView' ),
