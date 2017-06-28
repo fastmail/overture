@@ -63,6 +63,7 @@ var RichTextView = NS.Class({
 
     isFocussed: false,
     isDisabled: false,
+    tabIndex: undefined,
 
     allowTextSelection: true,
 
@@ -191,6 +192,7 @@ var RichTextView = NS.Class({
     draw: function ( layer, Element, el ) {
         var editorClassName = this.get( 'editorClassName' );
         var editingLayer = this._editingLayer = el( 'div', {
+            tabIndex: this.get( 'tabIndex' ),
             className: 'v-RichText-input' +
                 ( editorClassName ? ' ' + editorClassName : '' )
         });
@@ -225,14 +227,18 @@ var RichTextView = NS.Class({
         ];
     },
 
-    disabledNeedsRedraw: function ( self, property, oldValue ) {
+    viewNeedsRedraw: function ( self, property, oldValue ) {
         this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'isDisabled' ),
+    }.observes( 'isDisabled', 'tabIndex' ),
 
     redrawIsDisabled: function () {
         this._editingLayer.setAttribute( 'contenteditable',
             this.get( 'isDisabled' )  ? 'false' : 'true'
         );
+    },
+
+    redrawTabIndex: function () {
+        this._editingLayer.set( 'tabIndex', this.get( 'tabIndex' ) );
     },
 
     // ---
