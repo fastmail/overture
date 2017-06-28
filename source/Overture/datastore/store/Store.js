@@ -541,9 +541,11 @@ const Store = Class({
         this.isCommitting = true;
 
         this.fire( 'willCommit' );
-        const { _created, _destroyed, _skToData, _skToStatus, _skToType,
+        const {
+            _created, _destroyed, _skToData, _skToStatus, _skToType,
             _typeToSkToId, _skToChanged, _skToCommitted, _skToRollback,
-            _typeToClientState, _typeToStatus } = this;
+            _typeToClientState, _typeToStatus,
+        } = this;
 
         const newSkToChanged = {};
         const newDestroyed = {};
@@ -679,8 +681,10 @@ const Store = Class({
     },
 
     getInverseChanges() {
-        const { _created, _destroyed, _skToType, _skToData, _skToChanged,
-            _skToCommitted } = this;
+        const {
+            _created, _destroyed, _skToType, _skToData, _skToChanged,
+            _skToCommitted,
+        } = this;
         const inverse = {
             create: [],
             update: [],

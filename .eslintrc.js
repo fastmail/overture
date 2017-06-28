@@ -222,7 +222,13 @@ module.exports = {
         'no-whitespace-before-property': 'error',
         'no-with': 'error',
         'nonblock-statement-body-position': 'error',
-        'object-curly-newline': 'off',
+        'object-curly-newline': [
+            'error',
+            {
+                'multiline': true,
+                'consistent': true,
+            },
+        ],
         'object-curly-spacing': [
             'error',
             'always',

@@ -177,8 +177,10 @@ export default Class({
             position - {Number} The position in the animation.
     */
     drawFrame( position ) {
-        const { startValue, endValue, deltaValue, units, current, animated,
-                element } = this;
+        const {
+            startValue, endValue, deltaValue,
+            units, current, animated, element,
+        } = this;
 
         const setStyle = Element.setStyle;
         let l = animated.length;
