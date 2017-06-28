@@ -9,8 +9,10 @@ module.exports = {
     },
     'rules': {
         'accessor-pairs': 'error',
+        'array-bracket-newline': 'off',
         'array-bracket-spacing': 'off',
         'array-callback-return': 'error',
+        'array-element-newline': 'off',
         'arrow-body-style': 'error',
         'arrow-parens': 'off',
         'arrow-spacing': 'error',
@@ -57,6 +59,7 @@ module.exports = {
         ],
         'eol-last': 'error',
         'eqeqeq': 'off',
+        'for-direction': 'error',
         'func-call-spacing': 'error',
         'func-name-matching': 'error',
         'func-names': [
@@ -85,7 +88,6 @@ module.exports = {
             'unix',
         ],
         'lines-around-comment': 'off',
-        'lines-around-directive': 'error',
         'max-depth': 'off',
         'max-len': [
             'error',
@@ -98,8 +100,6 @@ module.exports = {
         'max-statements-per-line': 'off',
         'multiline-ternary': 'off',
         'new-parens': 'error',
-        'newline-after-var': 'off',
-        'newline-before-return': 'off',
         'newline-per-chained-call': 'off',
         'no-alert': 'error',
         'no-array-constructor': 'error',
@@ -242,6 +242,11 @@ module.exports = {
             'after',
         ],
         'padded-blocks': 'off',
+        'padding-line-between-statements': [
+            'error',
+            { blankLine: 'always', prev: 'directive', next: '*' },
+            { blankLine: 'any', prev: 'directive', next: 'directive' },
+        ],
         'prefer-arrow-callback': 'off',
         'prefer-const': 'error',
         'prefer-destructuring': [
@@ -274,6 +279,7 @@ module.exports = {
         'rest-spread-spacing': 'error',
         'semi': 'error',
         'semi-spacing': 'error',
+        'semi-style': 'error',
         'sort-imports': 'off',
         'sort-keys': 'off',
         'sort-vars': 'off',
@@ -290,6 +296,7 @@ module.exports = {
         'space-unary-ops': 'off',
         'spaced-comment': 'off',
         'strict': 'error',
+        'switch-colon-spacing': 'error',
         'symbol-description': 'error',
         'template-curly-spacing': 'error',
         'template-tag-spacing': 'error',
