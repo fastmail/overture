@@ -247,7 +247,10 @@ module.exports = {
             'error',
             'after',
         ],
-        'padded-blocks': 'off',
+        'padded-blocks': [
+            'error',
+            'never',
+        ],
         'padding-line-between-statements': [
             'error',
             { blankLine: 'always', prev: 'directive', next: '*' },
