@@ -112,7 +112,7 @@ TYPE=`echo $@ | cut -d . -f 2-`; \
 HASH=`$(HASH_FILE) $@ | cut -c 1-8`; \
 COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
 if [ $$TYPE = js ]; then \
-$(UGLIFY_JS) $@ -c warnings=false -m > $$COMPRESSEDNAME || exit 1; \
+$(UGLIFY_JS) $@ -m > $$COMPRESSEDNAME || exit 1; \
 elif [ $$TYPE = css ]; then \
 $(MINIFY_CSS_ONLY) $@ $$COMPRESSEDNAME || exit 1; \
 else \

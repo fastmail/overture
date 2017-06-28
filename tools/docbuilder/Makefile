@@ -30,7 +30,7 @@ $(PATH_TO_DOC_OUTPUT) $(PATH_TO_DOC_OUTPUT)/_parse $(PATH_TO_DOC_OUTPUT)/images:
 	mkdir -p $@
 
 $(PATH_TO_DOC_OUTPUT)/%.js: $(PATH_TO_DOC)/scripts/%.js node_modules | $(PATH_TO_DOC_OUTPUT)
-	$(UGLIFY_JS) $< -c warnings=false -m -o $@
+	$(UGLIFY_JS) $< -m -o $@
 
 $(PATH_TO_DOC_OUTPUT)/index.js: $(PATH_TO_DOC_OUTPUT)/_parse/index.json | $(PATH_TO_DOC_OUTPUT)
 	node $(PATH_TO_DOC)/engine/writeSearchIndex.js $^ $@
