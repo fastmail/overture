@@ -51,11 +51,6 @@ INSERT_ENGLISH := $(TOOLS)/localise.js insertEnglish
 CONCATENATE := $(TOOLS)/jstools.js concatenate
 
 # Args:
-# Input files
-# Output file
-MINIFY_JS := $(TOOLS)/jstools.js compress
-
-# Args:
 # Input files (LESS/CSS)
 # Output file
 MINIFY_CSS := $(TOOLS)/csstools.js minify

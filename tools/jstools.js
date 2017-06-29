@@ -3,16 +3,8 @@
 "use strict";
 
 var fs = require( 'fs' );
-var ug = require( 'uglify-js' );
 
-var compressJS = function ( code, output ) {
-    var ast = ug.parser.parse( code );
-    ast = ug.uglify.ast_mangle( ast );
-    ast = ug.uglify.ast_squeeze( ast );
-    return ug.uglify.gen_code( ast );
-};
-
-var concatenate = function ( inputs, output, minify ) {
+var concatenate = function ( inputs, output ) {
     var data = '',
         strict = false;
     inputs.forEach( function ( input ) {
@@ -22,7 +14,6 @@ var concatenate = function ( inputs, output, minify ) {
         strict = true;
         return '';
     });
-    if ( minify ) { data = compressJS( data ); }
     if ( strict ) { data = '"use strict";\n' + data; }
     fs.writeFileSync( output, data );
 };
@@ -31,10 +22,7 @@ var concatenate = function ( inputs, output, minify ) {
     var args = process.argv.slice( 2 );
     switch ( args[0] ) {
         case 'concatenate':
-            concatenate( args.slice( 1, -1 ), args[ args.length - 1 ], false );
-            break;
-        case 'compress':
-            concatenate( args.slice( 1, -1 ), args[ args.length - 1 ], true );
+            concatenate( args.slice( 1, -1 ), args[ args.length - 1 ] );
             break;
     }
 }() );
