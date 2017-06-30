@@ -254,7 +254,7 @@ var RichTextView = NS.Class({
         var scrollView = this.getParent( NS.ScrollView );
         var editor = this.get( 'editor' );
         var cursorPosition = editor && editor.getCursorPosition();
-        if ( !scrollView || !cursorPosition ) {
+        if ( !scrollView || !cursorPosition || !this.get( 'isFocussed' ) ) {
             return;
         }
         var scrollViewOffsetTop =
