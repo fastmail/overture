@@ -284,7 +284,7 @@ loader = {
 
     getFile,
 
-    register( name, info ) {
+    register ( name, info ) {
         if ( !info.status ) {
             info.status = info.src ? UNREQUESTED : LOADED;
         }
@@ -293,7 +293,7 @@ loader = {
         return this;
     },
 
-    prefetch( name ) {
+    prefetch ( name ) {
         const info = moduleInfo[ name ];
         const dependencies = info.dependencies;
         let l = dependencies ? dependencies.length : 0;

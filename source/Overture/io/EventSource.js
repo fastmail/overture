@@ -58,7 +58,7 @@ const EventSource = NativeEventSource ? Class({
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
-    init( mixin ) {
+    init ( mixin ) {
         this._then = 0;
         this._tick = null;
 
@@ -76,7 +76,7 @@ const EventSource = NativeEventSource ? Class({
         this._eventTypes = eventTypes;
     },
 
-    on( type ) {
+    on ( type ) {
         const types = this._eventTypes;
         const eventSource = this._eventSource;
         if ( types.indexOf( type ) === -1 ) {
@@ -99,7 +99,7 @@ const EventSource = NativeEventSource ? Class({
         Checks the computer hasn't been asleep. If it has, it restarts the
         connection.
     */
-    _check() {
+    _check () {
         const now = Date.now();
         if ( now - this._then > 67500 ) {
             this.fire( 'restart' )
@@ -143,7 +143,7 @@ const EventSource = NativeEventSource ? Class({
         Returns:
             {O.EventSource} Returns self.
     */
-    open() {
+    open () {
         if ( this.get( 'readyState' ) === CLOSED ) {
             const eventSource = this._eventSource =
                 new NativeEventSource( this.get( 'url' ) );
@@ -165,7 +165,7 @@ const EventSource = NativeEventSource ? Class({
         Returns:
             {O.EventSource} Returns self.
     */
-    close() {
+    close () {
         return this.set( 'readyState', CLOSED );
     },
 
@@ -193,12 +193,12 @@ const EventSource = NativeEventSource ? Class({
 
     readyState: CONNECTING,
 
-    init( mixin ) {
+    init ( mixin ) {
         EventSource.parent.init.call( this, mixin );
         this._xhr = new XHR( this );
     },
 
-    open() {
+    open () {
         const headers = {
             'Accept': 'text/event-stream',
             'Cache-Control': 'no-cache',
@@ -216,7 +216,7 @@ const EventSource = NativeEventSource ? Class({
         return this;
     },
 
-    close() {
+    close () {
         if ( this.get( 'readyState' ) !== CLOSED ) {
             this._xhr.abort();
             this.set( 'readyState', CLOSED );
@@ -256,24 +256,24 @@ const EventSource = NativeEventSource ? Class({
 
     // ---
 
-    _openConnection() {
+    _openConnection () {
         if ( this.get( 'readyState' ) === CONNECTING ) {
             this.set( 'readyState', OPEN )
                 .fire( 'open' );
         }
     },
 
-    _failConnection() {
+    _failConnection () {
         this.close()
             .fire( 'error' );
     },
 
-    _reconnect() {
+    _reconnect () {
         RunLoop.invokeAfterDelay(
             this.open, this._reconnectAfter, this );
     },
 
-    _processData( text ) {
+    _processData ( text ) {
         // Look for a new line character since the last processed
         let lastIndex = this._lastNewLineIndex;
         const newLine = /\u000d\u000a?|\u000a/g;
@@ -293,7 +293,7 @@ const EventSource = NativeEventSource ? Class({
         this._processedIndex = text.length;
     },
 
-    _processLine( line ) {
+    _processLine ( line ) {
         // Blank line, dispatch event
         if ( /^\s*$/.test( line ) ) {
             this._dispatchEvent();
@@ -330,7 +330,7 @@ const EventSource = NativeEventSource ? Class({
         }
     },
 
-    _dispatchEvent() {
+    _dispatchEvent () {
         let data = this._data;
         if ( data ) {
             if ( data.slice( -1 ) === '\u000a' ) {

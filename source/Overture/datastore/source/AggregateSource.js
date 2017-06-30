@@ -16,7 +16,7 @@ const AggregateSource = Class({
 
     Extends: Source,
 
-    init( mixin ) {
+    init ( mixin ) {
         this.sources = [];
         AggregateSource.parent.init.call( this, mixin );
     },
@@ -38,7 +38,7 @@ const AggregateSource = Class({
         Returns:
             {O.AggregateSource} Returns self.
     */
-    addSource( source ) {
+    addSource ( source ) {
         source.set( 'store', this.get( 'store' ) );
         this.get( 'sources' ).push( source );
         return this;
@@ -54,7 +54,7 @@ const AggregateSource = Class({
         Returns:
             {O.AggregateSource} Returns self.
     */
-    removeSource( source ) {
+    removeSource ( source ) {
         this.get( 'sources' ).erase( source );
         return this;
     },
@@ -66,25 +66,25 @@ const AggregateSource = Class({
         });
     }.observes( 'store' ),
 
-    fetchRecord( Type, id, callback ) {
+    fetchRecord ( Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchRecord( Type, id, callback );
         });
     },
 
-    fetchAllRecords( Type, state, callback ) {
+    fetchAllRecords ( Type, state, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchAllRecords( Type, state, callback );
         });
     },
 
-    refreshRecord( Type, id, callback ) {
+    refreshRecord ( Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.refreshRecord( Type, id, callback );
         });
     },
 
-    commitChanges( changes, callback ) {
+    commitChanges ( changes, callback ) {
         let waiting = 0,
             callbackAfterAll;
         if ( callback ) {
@@ -102,7 +102,7 @@ const AggregateSource = Class({
         return this;
     },
 
-    fetchQuery( query, callback ) {
+    fetchQuery ( query, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchQuery( query, callback );
         });

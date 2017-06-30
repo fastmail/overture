@@ -188,7 +188,7 @@ export default {
         Returns:
             {(O.View|null)} The previous view DOM elements were associated with.
     */
-    forView( newView ) {
+    forView ( newView ) {
         const oldView = view;
         view = newView;
         return oldView;
@@ -220,7 +220,7 @@ export default {
         Returns:
             {Element} The new element.
     */
-    create( tag, props, children ) {
+    create ( tag, props, children ) {
         if ( props instanceof Array ) {
             children = props;
             props = null;
@@ -335,7 +335,7 @@ export default {
         Returns:
             {Boolean} Does the element have the class?
     */
-    hasClass( el, className ) {
+    hasClass ( el, className ) {
         return el.className.contains( className, ' ' );
     },
 
@@ -351,7 +351,7 @@ export default {
         Returns:
             {O.Element} Returns self.
     */
-    addClass( el, className ){
+    addClass ( el, className ){
         const current = el.className;
         if ( !current.contains( className, ' ' ) ) {
             el.className = ( current ? current + ' ' : '' ) + className;
@@ -371,7 +371,7 @@ export default {
         Returns:
             {O.Element} Returns self.
     */
-    removeClass( el, className ) {
+    removeClass ( el, className ) {
         const current = el.className;
         const index = (' ' + current + ' ' ).indexOf( ' ' + className + ' ' );
         if ( index > -1 ) {
@@ -455,7 +455,7 @@ export default {
             {Boolean} Is the second element equal to or a descendent of the
             first element?
     */
-    contains( el, potentialChild ) {
+    contains ( el, potentialChild ) {
         const relation = el.compareDocumentPosition( potentialChild );
         return !relation || !!( relation & DOCUMENT_POSITION_CONTAINED_BY );
     },
@@ -482,7 +482,7 @@ export default {
             {(Element|null)} The nearest matching element, or null if none
             matched.
     */
-    nearest( el, test, limit ) {
+    nearest ( el, test, limit ) {
         if ( !limit ) { limit = el.ownerDocument.documentElement; }
         if ( typeof test === 'string' ) {
             const nodeName = test.toUpperCase();

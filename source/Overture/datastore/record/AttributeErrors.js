@@ -28,7 +28,7 @@ const AttributeErrors = Class({
         Parameters:
             record - {O.Record} The record to manage attribute errors for.
     */
-    init( record ) {
+    init ( record ) {
         AttributeErrors.parent.init.call( this );
 
         const attrs = meta( record ).attrs;
@@ -66,7 +66,7 @@ const AttributeErrors = Class({
             _    - {*} Unused.
             property - {String} The name of the property which has changed.
     */
-    recordPropertyDidChange( _, property ) {
+    recordPropertyDidChange ( _, property ) {
         const metadata = meta( this );
         const changed = metadata.changed = {};
         const dependents = metadata.dependents[ property ];

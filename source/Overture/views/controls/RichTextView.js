@@ -133,7 +133,7 @@ const RichTextView = Class({
         return html;
     }.property().nocache(),
 
-    destroy() {
+    destroy () {
         const editor = this.get( 'editor' );
         if ( editor ) {
             editor.destroy();
@@ -143,14 +143,14 @@ const RichTextView = Class({
 
     // --- Render ---
 
-    willEnterDocument() {
+    willEnterDocument () {
         this.set( 'path', '' );
         RichTextView.parent.willEnterDocument.call( this );
         this.get( 'layer' ).appendChild( this._editingLayer );
         return this;
     },
 
-    didEnterDocument() {
+    didEnterDocument () {
         const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
@@ -165,7 +165,7 @@ const RichTextView = Class({
         return RichTextView.parent.didEnterDocument.call( this );
     },
 
-    willLeaveDocument() {
+    willLeaveDocument () {
         const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
@@ -182,7 +182,7 @@ const RichTextView = Class({
         return RichTextView.parent.willLeaveDocument.call( this );
     },
 
-    didLeaveDocument() {
+    didLeaveDocument () {
         // The nodes must be in a document or document fragment for DOM Range
         // API to work; otherwise will throw INVALID_NODE_TYPE_ERR errors.
         // This is important if the value is changed before appending.
@@ -200,7 +200,7 @@ const RichTextView = Class({
                 ' v-RichText--noToolbar' : '' );
     }.property( 'isFocussed', 'isDisabled' ),
 
-    draw( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         const editorClassName = this.get( 'editorClassName' );
         const editingLayer = this._editingLayer = el( 'div', {
             tabIndex: this.get( 'tabIndex' ),
@@ -242,13 +242,13 @@ const RichTextView = Class({
         this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'isDisabled', 'tabIndex' ),
 
-    redrawIsDisabled() {
+    redrawIsDisabled () {
         this._editingLayer.setAttribute( 'contenteditable',
             this.get( 'isDisabled' )  ? 'false' : 'true'
         );
     },
 
-    redrawTabIndex() {
+    redrawTabIndex () {
         this._editingLayer.set( 'tabIndex', this.get( 'tabIndex' ) );
     },
 
@@ -289,7 +289,7 @@ const RichTextView = Class({
         }
     }.queue( 'after' ).on( 'cursor' ),
 
-    _calcToolbarPosition( scrollView, _, __, scrollTop ) {
+    _calcToolbarPosition ( scrollView, _, __, scrollTop ) {
         const toolbarView = this.get( 'toolbarView' );
         let offsetHeight = this._offsetHeight;
         let offsetTop = this._offsetTop;
@@ -315,7 +315,7 @@ const RichTextView = Class({
             this._setToolbarPosition( scrollView, toolbarView, isSticky );
         }
     },
-    _setToolbarPosition( scrollView, toolbarView, isSticky ) {
+    _setToolbarPosition ( scrollView, toolbarView, isSticky ) {
         if ( isSticky ) {
             const newParent = scrollView.get( 'parentView' );
             const position = toolbarView.getPositionRelativeTo( newParent );
@@ -347,7 +347,7 @@ const RichTextView = Class({
         this.set( 'floatingToolbarLayout', hiddenFloatingToolbarLayout );
     }.on( 'cursor' ),
 
-    showFloatingToolbar() {
+    showFloatingToolbar () {
         if ( this.get( 'showToolbar' ) !== TOOLBAR_AT_SELECTION ) {
             return;
         }
@@ -421,7 +421,7 @@ const RichTextView = Class({
                 label: loc( 'Bold' ),
                 tooltip: loc( 'Bold' ) + '\n' +
                     formatKeyForPlatform( 'cmd-b' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isBold' ) ) {
                         richTextView.removeBold();
                     } else {
@@ -438,7 +438,7 @@ const RichTextView = Class({
                 label: loc( 'Italic' ),
                 tooltip: loc( 'Italic' ) + '\n' +
                     formatKeyForPlatform( 'cmd-i' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isItalic' ) ) {
                         richTextView.removeItalic();
                     } else {
@@ -455,7 +455,7 @@ const RichTextView = Class({
                 label: loc( 'Underline' ),
                 tooltip: loc( 'Underline' ) + '\n' +
                     formatKeyForPlatform( 'cmd-u' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isUnderlined' ) ) {
                         richTextView.removeUnderline();
                     } else {
@@ -472,7 +472,7 @@ const RichTextView = Class({
                 label: loc( 'Strikethrough' ),
                 tooltip: loc( 'Strikethrough' ) + '\n' +
                     formatKeyForPlatform( 'cmd-shift-7' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isStriked' ) ) {
                         richTextView.removeStrikethrough();
                     } else {
@@ -525,7 +525,7 @@ const RichTextView = Class({
                 label: loc( 'Link' ),
                 tooltip: loc( 'Link' ) + '\n' +
                     formatKeyForPlatform( 'cmd-k' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isLink' ) ) {
                         richTextView.removeLink();
                     } else {
@@ -552,7 +552,7 @@ const RichTextView = Class({
                 isActive: bind( 'alignment', this, equalTo( 'left' ) ),
                 label: loc( 'Left' ),
                 tooltip: loc( 'Left' ),
-                activate() {
+                activate () {
                     richTextView.setTextAlignment( 'left' );
                     this.fire( 'button:activate' );
                 },
@@ -564,7 +564,7 @@ const RichTextView = Class({
                 isActive: bind( 'alignment', this, equalTo( 'center' ) ),
                 label: loc( 'Center' ),
                 tooltip: loc( 'Center' ),
-                activate() {
+                activate () {
                     richTextView.setTextAlignment( 'center' );
                     this.fire( 'button:activate' );
                 },
@@ -576,7 +576,7 @@ const RichTextView = Class({
                 isActive: bind( 'alignment', this, equalTo( 'right' ) ),
                 label: loc( 'Right' ),
                 tooltip: loc( 'Right' ),
-                activate() {
+                activate () {
                     richTextView.setTextAlignment( 'right' );
                     this.fire( 'button:activate' );
                 },
@@ -588,7 +588,7 @@ const RichTextView = Class({
                 isActive: bind( 'alignment', this, equalTo( 'justify' ) ),
                 label: loc( 'Justify' ),
                 tooltip: loc( 'Justify' ),
-                activate() {
+                activate () {
                     richTextView.setTextAlignment( 'justify' );
                     this.fire( 'button:activate' );
                 },
@@ -600,7 +600,7 @@ const RichTextView = Class({
                 isActive: bind( 'direction', this, equalTo( 'ltr' ) ),
                 label: loc( 'Text Direction: Left to Right' ),
                 tooltip: loc( 'Text Direction: Left to Right' ),
-                activate() {
+                activate () {
                     richTextView.setTextDirection( 'ltr' );
                     this.fire( 'button:activate' );
                 },
@@ -612,7 +612,7 @@ const RichTextView = Class({
                 isActive: bind( 'direction', this, equalTo( 'rtl' ) ),
                 label: loc( 'Text Direction: Right to Left' ),
                 tooltip: loc( 'Text Direction: Right to Left' ),
-                activate() {
+                activate () {
                     richTextView.setTextDirection( 'rtl' );
                     this.fire( 'button:activate' );
                 },
@@ -645,7 +645,7 @@ const RichTextView = Class({
                 label: loc( 'Unordered List' ),
                 tooltip: loc( 'Unordered List' ) + '\n' +
                     formatKeyForPlatform( 'cmd-shift-8' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isUnorderedList' ) ) {
                         richTextView.removeList();
                     } else {
@@ -662,7 +662,7 @@ const RichTextView = Class({
                 label: loc( 'Ordered List' ),
                 tooltip: loc( 'Ordered List' ) + '\n' +
                     formatKeyForPlatform( 'cmd-shift-9' ),
-                activate() {
+                activate () {
                     if ( richTextView.get( 'isOrderedList' ) ) {
                         richTextView.removeList();
                     } else {
@@ -677,7 +677,7 @@ const RichTextView = Class({
                 icon: 'icon-clear-formatting',
                 label: loc( 'Clear Formatting' ),
                 tooltip: loc( 'Clear Formatting' ),
-                activate() {
+                activate () {
                     richTextView.removeAllFormatting();
                     this.fire( 'button:activate' );
                 },
@@ -696,7 +696,7 @@ const RichTextView = Class({
                     } : null,
                     label,
                     method: 'setFontSize',
-                    setFontSize() {
+                    setFontSize () {
                         richTextView.setFontSize( fontSize );
                     },
                 })
@@ -704,7 +704,7 @@ const RichTextView = Class({
         });
     }.property(),
 
-    showFontSizeMenu( buttonView ) {
+    showFontSizeMenu ( buttonView ) {
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( MenuView ) ) {
             buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
@@ -729,7 +729,7 @@ const RichTextView = Class({
                     } : null,
                     label,
                     method: 'setFontFace',
-                    setFontFace() {
+                    setFontFace () {
                         richTextView.setFontFace( fontFace );
                     },
                 })
@@ -737,7 +737,7 @@ const RichTextView = Class({
         });
     }.property(),
 
-    showFontFaceMenu( buttonView ) {
+    showFontFaceMenu ( buttonView ) {
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( MenuView ) ) {
             buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
@@ -773,7 +773,7 @@ const RichTextView = Class({
                     },
                     label: color,
                     method: 'setColor',
-                    setColor() {
+                    setColor () {
                         if ( richTextView._colorText ) {
                             richTextView.setTextColor( color );
                         } else {
@@ -784,7 +784,7 @@ const RichTextView = Class({
         });
     }.property(),
 
-    showTextColorMenu( buttonView ) {
+    showTextColorMenu ( buttonView ) {
         this._colorText = true;
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( MenuView ) ) {
@@ -799,7 +799,7 @@ const RichTextView = Class({
         });
     },
 
-    showTextHighlightColorMenu( buttonView ) {
+    showTextHighlightColorMenu ( buttonView ) {
         this._colorText = false;
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( MenuView ) ) {
@@ -819,7 +819,7 @@ const RichTextView = Class({
         return new View({
             className: 'v-UrlPicker',
             value: '',
-            draw( layer, Element, el ) {
+            draw ( layer, Element, el ) {
                 return [
                     el( 'h3.u-bold', [
                         loc( 'Add a link to the following URL or email:' ),
@@ -858,7 +858,7 @@ const RichTextView = Class({
                     this.addLink();
                 }
             }.on( 'keyup' ),
-            addLink() {
+            addLink () {
                 let url = this.get( 'value' ).trim(),
                     email;
                 // Don't allow malicious links
@@ -886,7 +886,7 @@ const RichTextView = Class({
         });
     }.property(),
 
-    showLinkOverlay( buttonView ) {
+    showLinkOverlay ( buttonView ) {
         const view = this.get( 'linkOverlayView' );
         let value = this.getSelectedText().trim();
         if ( !urlRegExp.test( value ) && !emailRegExp.test( value ) ) {
@@ -908,7 +908,7 @@ const RichTextView = Class({
 
     // --- Commands ---
 
-    focus() {
+    focus () {
         const editor = this.get( 'editor' );
         if ( editor ) {
             editor.focus();
@@ -916,7 +916,7 @@ const RichTextView = Class({
         return this;
     },
 
-    blur() {
+    blur () {
         const editor = this.get( 'editor' );
         if ( editor ) {
             editor.blur();
@@ -962,7 +962,7 @@ const RichTextView = Class({
     removeAllFormatting: execCommand( 'removeAllFormatting' ),
 
     insertImage: execCommand( 'insertImage' ),
-    insertImagesFromFiles( files ) {
+    insertImagesFromFiles ( files ) {
         if ( window.FileReader ) {
             files.forEach( file => {
                 const img = this.get( 'editor' ).insertImage();
@@ -976,7 +976,7 @@ const RichTextView = Class({
         }
     },
 
-    getSelectedText() {
+    getSelectedText () {
         const editor = this.get( 'editor' );
         return editor ? editor.getSelectedText() : '';
     },
@@ -1084,7 +1084,7 @@ const RichTextView = Class({
 
     // --- Keep state in sync with render ---
 
-    handleEvent( event ) {
+    handleEvent ( event ) {
         // Ignore real dragover/drop events from Squire. They wil be handled
         // by the standard event delegation system. We only observe these
         // to get the image paste fake dragover/drop events.
@@ -1123,7 +1123,7 @@ const RichTextView = Class({
 
     dropEffect: DragEffect.COPY,
 
-    drop( drag ) {
+    drop ( drag ) {
         const types = this.get( 'dropAcceptedDataTypes' );
         for ( const type in types ) {
             if ( drag.hasDataType( type ) ) {

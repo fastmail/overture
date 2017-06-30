@@ -241,7 +241,7 @@ export default {
         iterate through the keys of `O.meta( this ).inits`, calling
         `this[ 'init' + key ]()` for all keys which map to truthy values.
     */
-    initObservers() {
+    initObservers () {
         _setupTeardownPaths( this, 'addObserverForPath' );
     },
 
@@ -253,7 +253,7 @@ export default {
         through the keys of `O.meta( this ).inits`, calling
         `this[ 'destroy' + key ]()` for all keys which map to a truthy value.
     */
-    destroyObservers() {
+    destroyObservers () {
         _setupTeardownPaths( this, 'removeObserverForPath' );
     },
 
@@ -266,7 +266,7 @@ export default {
         Returns:
             {Boolean} Does the object have any observers?
     */
-    hasObservers() {
+    hasObservers () {
         const observers = meta( this ).observers;
         for ( const key in observers ) {
             const keyObservers = observers[ key ];
@@ -296,7 +296,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    beginPropertyChanges() {
+    beginPropertyChanges () {
         meta( this ).depth += 1;
         return this;
     },
@@ -312,7 +312,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    endPropertyChanges() {
+    endPropertyChanges () {
         const metadata = meta( this );
         if ( metadata.depth === 1 ) {
             // Notify observers.
@@ -353,7 +353,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    propertyDidChange( key, oldValue, newValue ) {
+    propertyDidChange ( key, oldValue, newValue ) {
         const metadata = meta( this );
         const isInitialised = metadata.isInitialised;
         const dependents = isInitialised ?
@@ -421,7 +421,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    addObserverForKey( key, object, method ) {
+    addObserverForKey ( key, object, method ) {
         const observers = meta( this ).observers;
         let keyObservers = observers[ key ];
         if ( !observers.hasOwnProperty( key ) ) {
@@ -448,7 +448,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    removeObserverForKey( key, object, method ) {
+    removeObserverForKey ( key, object, method ) {
         const observers = meta( this ).observers;
         const keyObservers = observers[ key ];
         if ( keyObservers ) {
@@ -485,7 +485,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    addObserverForPath( path, object, method ) {
+    addObserverForPath ( path, object, method ) {
         const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.addObserverForKey( path, object, method );
@@ -527,7 +527,7 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    removeObserverForPath( path, object, method ) {
+    removeObserverForPath ( path, object, method ) {
         const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.removeObserverForKey( path, object, method );

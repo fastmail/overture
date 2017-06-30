@@ -18,7 +18,7 @@ const RecordArray = Class({
 
     Mixin: Enumerable,
 
-    init( store, Type, storeKeys ) {
+    init ( store, Type, storeKeys ) {
         this.store = store;
         this.Type = Type;
         this.storeKeys = storeKeys;
@@ -47,7 +47,7 @@ const RecordArray = Class({
         Returns:
             {O.Record} The record at index i in this array.
     */
-    getObjectAt( index ) {
+    getObjectAt ( index ) {
         const storeKey = this.get( 'storeKeys' )[ index ];
         if ( storeKey ) {
             return this.get( 'store' )

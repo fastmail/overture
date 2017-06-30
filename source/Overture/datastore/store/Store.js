@@ -223,7 +223,7 @@ const Store = Class({
         Parameters:
             source - {O.Source} The source for this store.
     */
-    init( mixin ) {
+    init ( mixin ) {
         // Map store key -> record
         this._skToRecord = {};
         // Map store key -> data
@@ -300,7 +300,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    addNested( store ) {
+    addNested ( store ) {
         this._nestedStores.push( store );
         return this;
     },
@@ -319,7 +319,7 @@ const Store = Class({
             {O.Store} Returns self.
 
     */
-    removeNested( store ) {
+    removeNested ( store ) {
         this._nestedStores.erase( store );
         return this;
     },
@@ -341,7 +341,7 @@ const Store = Class({
         Returns:
             {String} Returns the store key for that record type and id.
     */
-    getStoreKey( Type, id ) {
+    getStoreKey ( Type, id ) {
         const typeId = guid( Type );
         const idToSk = ( this._typeToIdToSk[ typeId ] ||
                 ( this._typeToIdToSk[ typeId ] = {} ) );
@@ -373,7 +373,7 @@ const Store = Class({
             the store key was not found or does not have an id (normally because
             the server assigns ids and the record has not yet been committed).
     */
-    getIdFromStoreKey( storeKey ) {
+    getIdFromStoreKey ( storeKey ) {
         const Type = this._skToType[ storeKey ];
         return Type &&
             ( this._typeToSkToId[ guid( Type ) ] || {} )[ storeKey ];
@@ -391,7 +391,7 @@ const Store = Class({
             {(Type|null)} Returns the type for the record, or `null` if the
             store key is not found.
     */
-    getTypeFromStoreKey( storeKey ) {
+    getTypeFromStoreKey ( storeKey ) {
         return this._skToType[ storeKey ] || null;
     },
 
@@ -409,7 +409,7 @@ const Store = Class({
         Returns:
             {O.Status} The status in this store of the given record.
     */
-    getRecordStatus( Type, id ) {
+    getRecordStatus ( Type, id ) {
         const _idToSk = this._typeToIdToSk[ guid( Type ) ];
         return _idToSk ? this.getStatus( _idToSk[ id ] ) : EMPTY;
     },
@@ -432,7 +432,7 @@ const Store = Class({
             {O.Record|null} Returns the requested record, or null if no type or
             no id given.
     */
-    getRecord( Type, id, doNotFetch ) {
+    getRecord ( Type, id, doNotFetch ) {
         let storeKey;
         if ( !Type || !id ) {
             return null;
@@ -472,7 +472,7 @@ const Store = Class({
         Returns:
             {(O.Record|null)} The matching record, or null if none found.
     */
-    getOne( Type, filter ) {
+    getOne ( Type, filter ) {
         const storeKey = this.findOne( Type, filter );
         return storeKey ? this.materialiseRecord( storeKey, Type ) : null;
     },
@@ -499,12 +499,12 @@ const Store = Class({
         Returns:
             {O.RecordArray} A record array of results.
     */
-    getAll( Type, filter, sort ) {
+    getAll ( Type, filter, sort ) {
         const storeKeys = this.findAll( Type, filter, sort );
         return new RecordArray( this, Type, storeKeys );
     },
 
-    checkForChanges() {
+    checkForChanges () {
         let storeKey;
         for ( storeKey in this._created ) {
             return this.set( 'hasChanges', true );
@@ -657,7 +657,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    discardChanges() {
+    discardChanges () {
         const {
             _created, _destroyed, _skToChanged, _skToCommitted, _skToType,
             _skToData,
@@ -680,7 +680,7 @@ const Store = Class({
         return this.set( 'hasChanges', false );
     },
 
-    getInverseChanges() {
+    getInverseChanges () {
         const {
             _created, _destroyed, _skToType, _skToData, _skToChanged,
             _skToCommitted,
@@ -717,7 +717,7 @@ const Store = Class({
         return inverse;
     },
 
-    applyChanges( changes ) {
+    applyChanges ( changes ) {
         const create = changes.create;
         const update = changes.update;
         const destroy = changes.destroy;
@@ -754,7 +754,7 @@ const Store = Class({
         Returns:
             {O.Status} The status of the type in the store.
     */
-    getTypeStatus( Type ) {
+    getTypeStatus ( Type ) {
         return this._typeToStatus[ guid( Type ) ] || EMPTY;
     },
 
@@ -769,7 +769,7 @@ const Store = Class({
         Returns:
             {String|null} The client's current state token for the type.
     */
-    getTypeState( Type ) {
+    getTypeState ( Type ) {
         return this._typeToClientState[ guid( Type ) ] || null;
     },
 
@@ -784,7 +784,7 @@ const Store = Class({
         Returns:
             {O.Status} The status of the record with that store key.
     */
-    getStatus( storeKey ) {
+    getStatus ( storeKey ) {
         return this._skToStatus[ storeKey ] || EMPTY;
     },
 
@@ -800,7 +800,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    setStatus( storeKey, status ) {
+    setStatus ( storeKey, status ) {
         const previousStatus = this.getStatus( storeKey );
         const record = this._skToRecord[ storeKey ];
         if ( previousStatus !== status ) {
@@ -831,7 +831,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    setRecordForStoreKey( storeKey, record ) {
+    setRecordForStoreKey ( storeKey, record ) {
         this._skToRecord[ storeKey ] = record;
         return this;
     },
@@ -849,7 +849,7 @@ const Store = Class({
         Returns:
             {O.Record} Returns the requested record.
     */
-    materialiseRecord( storeKey, Type ) {
+    materialiseRecord ( storeKey, Type ) {
         return this._skToRecord[ storeKey ] ||
             ( this._skToRecord[ storeKey ] = new Type( this, storeKey ) );
     },
@@ -867,7 +867,7 @@ const Store = Class({
         Returns:
             {Boolean} True if the store may unload the record.
     */
-    mayUnloadRecord( storeKey ) {
+    mayUnloadRecord ( storeKey ) {
         const record = this._skToRecord[ storeKey ];
         const status = this.getStatus( storeKey );
         // Only unload unwatched clean, non-committing records.
@@ -893,7 +893,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    willUnloadRecord( storeKey ) {
+    willUnloadRecord ( storeKey ) {
         const record = this._skToRecord[ storeKey ];
         if ( record ) {
             record.storeWillUnload();
@@ -917,7 +917,7 @@ const Store = Class({
         Returns:
             {Boolean} Was the record unloaded?
     */
-    unloadRecord( storeKey ) {
+    unloadRecord ( storeKey ) {
         if ( !this.mayUnloadRecord( storeKey ) ) {
             return false;
         }
@@ -961,7 +961,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    createRecord( storeKey, data ) {
+    createRecord ( storeKey, data ) {
         const status = this.getStatus( storeKey );
         if ( status !== EMPTY && status !== DESTROYED ) {
             RunLoop.didError({
@@ -1003,7 +1003,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    destroyRecord( storeKey ) {
+    destroyRecord ( storeKey ) {
         const status = this.getStatus( storeKey );
         // If created -> just remove from created.
         if ( status === (READY|NEW|DIRTY) ) {
@@ -1035,7 +1035,7 @@ const Store = Class({
         return mayHaveChanges( this );
     },
 
-    undestroyRecord( storeKey, Type, data ) {
+    undestroyRecord ( storeKey, Type, data ) {
         const status = this.getStatus( storeKey );
         if ( status === EMPTY || status === DESTROYED ) {
             const idPropKey = Type.primaryKey || 'id';
@@ -1070,7 +1070,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceStateDidChange( Type, newState ) {
+    sourceStateDidChange ( Type, newState ) {
         const typeId = guid( Type );
         const clientState = this._typeToClientState[ typeId ];
         const { _remoteQueries } = this;
@@ -1102,7 +1102,7 @@ const Store = Class({
         Parameters:
             Type - {O.Class} The record type.
     */
-    _checkServerStatus( Type ) {
+    _checkServerStatus ( Type ) {
         const typeId = guid( Type );
         const serverState = this._typeToServerState[ typeId ];
         if ( serverState ) {
@@ -1124,7 +1124,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    fetchAll( Type, force ) {
+    fetchAll ( Type, force ) {
         const typeId = guid( Type );
         const status = this._typeToStatus[ typeId ];
         const state = this._typeToClientState[ typeId ];
@@ -1152,7 +1152,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    fetchData( storeKey ) {
+    fetchData ( storeKey ) {
         const status = this.getStatus( storeKey );
         // Nothing to do if already loading or new, destroyed or non-existent.
         if ( status & (LOADING|NEW|DESTROYED|NON_EXISTENT) ) {
@@ -1185,7 +1185,7 @@ const Store = Class({
         Returns:
             {Object|undefined} The record data, if loaded.
     */
-    getData( storeKey ) {
+    getData ( storeKey ) {
         return this._skToData[ storeKey ];
     },
 
@@ -1201,7 +1201,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    setData( storeKey, data ) {
+    setData ( storeKey, data ) {
         if ( this.getStatus( storeKey ) & READY ) {
             this.updateData( storeKey, data, false );
         } else {
@@ -1232,7 +1232,7 @@ const Store = Class({
             changeIsDirty flag is set but the current data is not yet loaded
             into memory.
     */
-    updateData( storeKey, data, changeIsDirty ) {
+    updateData ( storeKey, data, changeIsDirty ) {
         const status = this.getStatus( storeKey );
         const { _skToData, _skToCommitted, _skToChanged } = this;
         let current = _skToData[ storeKey ];
@@ -1327,7 +1327,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    revertData( storeKey ) {
+    revertData ( storeKey ) {
         const committed = this._skToCommitted[ storeKey ];
         if ( committed ) {
             this.updateData( storeKey, committed, true );
@@ -1348,7 +1348,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    _notifyRecordOfChanges( storeKey, changedKeys ) {
+    _notifyRecordOfChanges ( storeKey, changedKeys ) {
         const record = this._skToRecord[ storeKey ];
         if ( record ) {
             let errorForAttribute;
@@ -1403,7 +1403,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchRecords( Type, records, state, isAll ) {
+    sourceDidFetchRecords ( Type, records, state, isAll ) {
         const typeId = guid( Type );
         const { _typeToClientState } = this;
         let l = records.length;
@@ -1501,7 +1501,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchPartialRecords( Type, updates, _idsAreSKs ) {
+    sourceDidFetchPartialRecords ( Type, updates, _idsAreSKs ) {
         const typeId = guid( Type );
         const { _skToData, _skToStatus, _skToChanged, _skToCommitted } = this;
         const _idToSk = this._typeToIdToSk[ typeId ] || {};
@@ -1601,7 +1601,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceCouldNotFindRecords( Type, idList ) {
+    sourceCouldNotFindRecords ( Type, idList ) {
         let l = idList.length;
         const { _skToCommitted, _skToChanged } = this;
 
@@ -1644,7 +1644,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchUpdates( Type, changed, removed, oldState,
+    sourceDidFetchUpdates ( Type, changed, removed, oldState,
             newState ) {
         const typeId = guid( Type );
         if ( this._typeToClientState[ typeId ] === oldState ) {
@@ -1675,7 +1675,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidModifyRecords( Type, idList ) {
+    sourceDidModifyRecords ( Type, idList ) {
         const { _skToStatus } = this;
         const _idToSk = this._typeToIdToSk[ guid( Type ) ] || {};
         let l = idList.length;
@@ -1705,7 +1705,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidDestroyRecords( Type, idList ) {
+    sourceDidDestroyRecords ( Type, idList ) {
         let l = idList.length,
             storeKey;
 
@@ -1734,7 +1734,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceCommitDidChangeState( Type, oldState, newState ) {
+    sourceCommitDidChangeState ( Type, oldState, newState ) {
         const typeId = guid( Type );
         const { _typeToClientState } = this;
 
@@ -1765,7 +1765,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitCreate( skToPartialData ) {
+    sourceDidCommitCreate ( skToPartialData ) {
         const { _skToType, _typeToSkToId, _typeToIdToSk } = this;
         for ( const storeKey in skToPartialData ) {
             const status = this.getStatus( storeKey );
@@ -1837,7 +1837,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotCreate( storeKeys, isPermanent, errors ) {
+    sourceDidNotCreate ( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
         const { _skToCommitted, _skToChanged, _created } = this;
 
@@ -1881,7 +1881,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitUpdate( storeKeys ) {
+    sourceDidCommitUpdate ( storeKeys ) {
         let l = storeKeys.length;
         const { _skToRollback } = this;
 
@@ -1933,7 +1933,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotUpdate( storeKeys, isPermanent, errors ) {
+    sourceDidNotUpdate ( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
         const { _skToData, _skToChanged, _skToCommitted, _skToRollback } = this;
 
@@ -1996,7 +1996,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitDestroy( storeKeys ) {
+    sourceDidCommitDestroy ( storeKeys ) {
         let l = storeKeys.length,
             storeKey, status;
         while ( l-- ) {
@@ -2063,7 +2063,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotDestroy( storeKeys, isPermanent, errors ) {
+    sourceDidNotDestroy ( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
         const { _destroyed } = this;
 
@@ -2091,7 +2091,7 @@ const Store = Class({
         return mayHaveChanges( this );
     },
 
-    _notifyRecordOfError( storeKey, error ) {
+    _notifyRecordOfError ( storeKey, error ) {
         const record = this._skToRecord[ storeKey ];
         let isDefaultPrevented = false;
         if ( record ) {
@@ -2131,7 +2131,7 @@ const Store = Class({
         Returns:
             {String[]} An array of store keys.
     */
-    findAll( Type, accept, compare ) {
+    findAll ( Type, accept, compare ) {
         const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
         const { _skToStatus } = this;
         let results = [];
@@ -2174,7 +2174,7 @@ const Store = Class({
             {(String|null)} The store key for a matching record, or null if none
             found.
     */
-    findOne( Type, accept ) {
+    findOne ( Type, accept ) {
         const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
         const { _skToStatus } = this;
         const filterFn = accept && filter.bind( this, accept );
@@ -2203,7 +2203,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    addQuery( query ) {
+    addQuery ( query ) {
         const { source } = this;
         this._idToQuery[ query.get( 'id' ) ] = query;
         if ( query instanceof LiveQuery ) {
@@ -2233,7 +2233,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    removeQuery( query ) {
+    removeQuery ( query ) {
         delete this._idToQuery[ query.get( 'id' ) ];
         if ( query instanceof LiveQuery ) {
             const { _liveQueries } = this;
@@ -2270,7 +2270,7 @@ const Store = Class({
         Returns:
             {(O.LiveQuery|O.RemoteQuery|null)} The requested query.
     */
-    getQuery( id, QueryClass, mixin ) {
+    getQuery ( id, QueryClass, mixin ) {
         let query = ( id && this._idToQuery[ id ] ) || null;
         if ( !query && QueryClass ) {
             query = new QueryClass( Object.assign( mixin || {}, {
@@ -2294,7 +2294,7 @@ const Store = Class({
             {O.RemoteQuery[]} A list of all registered instances of
             <O.RemoteQuery>.
     */
-    getAllRemoteQueries() {
+    getAllRemoteQueries () {
         return this._remoteQueries;
     },
 
@@ -2307,7 +2307,7 @@ const Store = Class({
         Parameters:
             storeKey - {String} The store key of the record.
     */
-    _recordDidChange( storeKey ) {
+    _recordDidChange ( storeKey ) {
         const typeId = guid( this._skToType[ storeKey ] );
         const { _typeToChangedSks } = this;
         const changedSks = _typeToChangedSks[ typeId ] ||
@@ -2326,7 +2326,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    refreshLiveQueries() {
+    refreshLiveQueries () {
         const { _typeToChangedSks, _liveQueries } = this;
 
         this._typeToChangedSks = {};
@@ -2347,7 +2347,7 @@ const Store = Class({
         return this;
     },
 
-    liveQueriesAreReady( Type ) {
+    liveQueriesAreReady ( Type ) {
         const _liveQueries = this._liveQueries[ guid( Type ) ];
         let l = _liveQueries ? _liveQueries.length : 0;
         while ( l-- ) {

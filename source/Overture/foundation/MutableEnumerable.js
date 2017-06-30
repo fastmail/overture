@@ -22,7 +22,7 @@ export default {
         Returns:
             {Number} The new length of the array.
     */
-    push() {
+    push () {
         const newItems = slice.call( arguments );
         this.replaceObjectsAt( this.get( 'length' ), 0, newItems );
         return this.get( 'length' );
@@ -36,7 +36,7 @@ export default {
         Returns:
             {*} The removed last value from the array.
     */
-    pop() {
+    pop () {
         const length = this.get( 'length' );
         return length === 0 ?
             undefined : this.replaceObjectsAt( length - 1, 1 )[0];
@@ -53,7 +53,7 @@ export default {
         Returns:
             {Number} The new length of the array.
     */
-    unshift() {
+    unshift () {
         const newItems = slice.call( arguments );
         this.replaceObjectsAt( 0, 0, newItems );
         return this.get( 'length' );
@@ -67,7 +67,7 @@ export default {
         Returns:
             {*} The removed first value from the array.
     */
-    shift() {
+    shift () {
         return this.get( 'length' ) === 0 ?
             undefined : this.replaceObjectsAt( 0, 1 )[0];
     },
@@ -87,7 +87,7 @@ export default {
         Returns:
             {Array} The items removed from the array.
     */
-    splice( index, numberRemoved ) {
+    splice ( index, numberRemoved ) {
         const newItems = slice.call( arguments, 2 );
         return this.replaceObjectsAt( index, numberRemoved, newItems );
     },

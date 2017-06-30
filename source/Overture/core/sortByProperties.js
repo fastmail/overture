@@ -28,7 +28,7 @@ import { i18n } from '../localisation/LocaleController.js';
         sort the array of objects by the properties specified.
 */
 const isNumber = /^\d+$/;
-export default function sortByProperties( properties ) {
+export default function sortByProperties ( properties ) {
     if ( !( properties instanceof Array ) ) {
         properties = [ properties ];
     }

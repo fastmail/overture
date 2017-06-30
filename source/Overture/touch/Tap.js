@@ -10,13 +10,13 @@ import Gesture from './Gesture.js';
     remove it from the app's existence.
 */
 const MouseEventRemover = Class({
-    init( target, defaultPrevented ) {
+    init ( target, defaultPrevented ) {
         this.target = target;
         this.stop = defaultPrevented;
         this.time = Date.now();
         ViewEventsController.addEventTarget( this, 40 );
     },
-    fire( type, event ) {
+    fire ( type, event ) {
         const isClick = ( type === 'click' ) && !event.originalType;
         let isMouse = isClick || /^mouse/.test( type );
         if ( type === 'touchstart' || Date.now() - this.time > 1000 ) {
@@ -38,7 +38,7 @@ const TapEvent = Class({
 });
 
 class TrackedTouch {
-    constructor( x, y, time, target ) {
+    constructor ( x, y, time, target ) {
         this.x = x;
         this.y = y;
         this.time = time;
@@ -51,7 +51,7 @@ class TrackedTouch {
         } while ( target = target.parentNode );
     }
 
-    done() {
+    done () {
         const activeEls = this.activeEls;
         const l = activeEls.length;
         for ( let i = 0; i < l; i += 1 ) {
@@ -100,7 +100,7 @@ export default new Gesture({
 
     _tracking: {},
 
-    cancel() {
+    cancel () {
         const tracking = this._tracking;
         for ( const id in tracking ) {
             tracking[ id ].done();
@@ -108,7 +108,7 @@ export default new Gesture({
         this._tracking = {};
     },
 
-    start( event ) {
+    start ( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const now = Date.now();
@@ -123,7 +123,7 @@ export default new Gesture({
         }
     },
 
-    move( event ) {
+    move ( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const l = touches.length;
@@ -142,7 +142,7 @@ export default new Gesture({
         }
     },
 
-    end( event ) {
+    end ( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
         const now = Date.now();

@@ -48,7 +48,7 @@ const ListKBFocusView = Class({
         };
     }.property( 'itemHeight', 'index', 'record' ),
 
-    didEnterDocument() {
+    didEnterDocument () {
         const keys = this.get( 'keys' );
         const shortcuts = ViewEventsController.kbShortcuts;
         for ( const key in keys ) {
@@ -57,7 +57,7 @@ const ListKBFocusView = Class({
         this.checkInitialScroll();
         return ListKBFocusView.parent.didEnterDocument.call( this );
     },
-    willLeaveDocument() {
+    willLeaveDocument () {
         const keys = this.get( 'keys' );
         const shortcuts = ViewEventsController.kbShortcuts;
         for ( const key in keys ) {
@@ -99,7 +99,7 @@ const ListKBFocusView = Class({
         return 0;
     }.property().nocache(),
 
-    scrollIntoView( offset, withAnimation ) {
+    scrollIntoView ( offset, withAnimation ) {
         const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             const scrollHeight = scrollView.get( 'pxHeight' );
@@ -120,7 +120,7 @@ const ListKBFocusView = Class({
         }
     },
 
-    go( delta ) {
+    go ( delta ) {
         const index = this.get( 'index' );
         const singleSelection = this.get( 'singleSelection' );
         const list = singleSelection.get( 'content' );
@@ -139,13 +139,13 @@ const ListKBFocusView = Class({
             this.checkScroll();
         }
     },
-    goNext() {
+    goNext () {
         this.go( 1 );
     },
-    goPrev() {
+    goPrev () {
         this.go( -1 );
     },
-    select( event ) {
+    select ( event ) {
         const index = this.get( 'index' );
         const selection = this.get( 'selection' );
         const record = this.get( 'record' );
@@ -156,8 +156,8 @@ const ListKBFocusView = Class({
                 event.shiftKey );
         }
     },
-    trigger() {},
-    star() {},
+    trigger () {},
+    star () {},
 });
 
 export default ListKBFocusView;

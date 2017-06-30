@@ -40,7 +40,7 @@ const RadioView = Class({
 
         Overridden to draw radio button in layer. See <O.View#draw>.
     */
-    draw( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         return [
             this._domControl = el( 'input', {
                 className: 'v-Radio-input',

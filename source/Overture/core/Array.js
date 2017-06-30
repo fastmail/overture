@@ -11,7 +11,7 @@ Object.assign( Array.prototype, {
         Returns:
             {*} The requested property of this array.
     */
-    get( key ) {
+    get ( key ) {
         return this[ key ];
     },
 
@@ -27,7 +27,7 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    set( key, value ) {
+    set ( key, value ) {
         this[ key ] = value;
         return this;
     },
@@ -43,7 +43,7 @@ Object.assign( Array.prototype, {
         Returns:
             {*} The value at the given index in this array.
     */
-    getObjectAt( index ) {
+    getObjectAt ( index ) {
         return this[ index ];
     },
 
@@ -59,7 +59,7 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    setObjectAt( index, value ) {
+    setObjectAt ( index, value ) {
         this[ index ] = value;
         return this;
     },
@@ -76,7 +76,7 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    include( item ) {
+    include ( item ) {
         let i = 0;
         const l = this.length;
         while ( i < l && this[i] !== item ) {
@@ -98,7 +98,7 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    erase( item ) {
+    erase ( item ) {
         let l = this.length;
         while ( l-- ) {
             if ( this[l] === item ) {

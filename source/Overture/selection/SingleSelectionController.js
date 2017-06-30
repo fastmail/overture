@@ -10,7 +10,7 @@ const SingleSelectionController = Class({
 
     allowNoSelection: true,
 
-    init( mixin ) {
+    init ( mixin ) {
         this._ignore = false;
         this._range = { start: -1, end: 0 };
 
@@ -33,7 +33,7 @@ const SingleSelectionController = Class({
         }
     },
 
-    destroy() {
+    destroy () {
         const content = this.get( 'content' );
         if ( content ) {
             content.off( 'query:reset', this, 'contentWasReset' )
@@ -116,7 +116,7 @@ const SingleSelectionController = Class({
         }
     }.observes( 'record' ),
 
-    setRecordInNewContent( list ) {
+    setRecordInNewContent ( list ) {
         // If fetching an explicit index, we've already set the explicit
         // record we want; don't change it.
         if ( this.get( 'isFetchingIndex' ) ) {
@@ -181,7 +181,7 @@ const SingleSelectionController = Class({
         }
     }.observes( 'content' ),
 
-    contentBecameReady( list, key ) {
+    contentBecameReady ( list, key ) {
         if ( list.is( READY ) ) {
             list.removeObserverForKey( key, this, 'contentBecameReady' );
             // Queue so that all data from the server will have been loaded
@@ -191,7 +191,7 @@ const SingleSelectionController = Class({
         }
     },
 
-    contentWasUpdated( updates ) {
+    contentWasUpdated ( updates ) {
         let record = this.get( 'record' );
         let index = record ?
                 updates.added.indexOf( record.get( 'storeKey' ) ) : -1;
@@ -237,7 +237,7 @@ const SingleSelectionController = Class({
         }
     },
 
-    contentWasReset() {
+    contentWasReset () {
         this._recordDidChange();
     },
 });

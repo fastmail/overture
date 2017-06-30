@@ -135,7 +135,7 @@ const Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    linear( n ) {
+    linear ( n ) {
         return n;
     },
 };

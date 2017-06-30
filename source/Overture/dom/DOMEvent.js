@@ -49,7 +49,7 @@ const DOMEvent = {
         Returns:
             {String} The key pressed (in lowercase if a letter).
     */
-    lookupKey( event, noModifiers ) {
+    lookupKey ( event, noModifiers ) {
         // See http://unixpapa.com/js/key.html. Short summary:
         // event.keyCode || event.which gives the ASCII code for any normal
         // keypress on all browsers. However, if event.which === 0 then it was a
@@ -93,7 +93,7 @@ const DOMEvent = {
         Returns:
             {Boolean} Was a secondary button clicked or modifier held down?
     */
-    isClickModified( event ) {
+    isClickModified ( event ) {
         return !!event.button ||
             event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     },

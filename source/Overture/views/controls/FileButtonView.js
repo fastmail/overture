@@ -83,7 +83,7 @@ const FileButtonView = Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.FileButtonView> notes.
     */
-    draw( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
@@ -114,7 +114,7 @@ const FileButtonView = Class({
 
         Opens the OS file chooser dialog.
     */
-    activate() {
+    activate () {
         this._domControl.click();
     },
 

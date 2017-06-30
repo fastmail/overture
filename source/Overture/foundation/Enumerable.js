@@ -29,7 +29,7 @@ const Enumerable = {
         Returns:
             {*} The first item in the enumerable.
     */
-    first() {
+    first () {
         return this.getObjectAt( 0 );
     },
 
@@ -39,7 +39,7 @@ const Enumerable = {
         Returns:
             {*} The last item in the enumerable.
     */
-    last() {
+    last () {
         return this.getObjectAt( this.get( 'length' ) - 1 );
     },
 
@@ -56,7 +56,7 @@ const Enumerable = {
             {Number} The (first) index in the array of the item or -1 if not
             found.
     */
-    indexOf( item, from ) {
+    indexOf ( item, from ) {
         const l = this.get( 'length' );
         for ( from = ( from < 0 ) ?
                 Math.max( 0, l + from ) : ( from || 0 ); from < l; from += 1 ){
@@ -80,7 +80,7 @@ const Enumerable = {
             {Number} The (last) index in the array of the item or -1 if not
             found.
     */
-    lastIndexOf( item, from ) {
+    lastIndexOf ( item, from ) {
         const l = this.get( 'length' );
         for ( from = ( from < 0 ) ? ( l + from ) : ( from || l - 1 );
                 from >= 0; from -= 1 ){
@@ -109,7 +109,7 @@ const Enumerable = {
         Returns:
             {Number} The index to place the value in the sorted array.
     */
-    binarySearch( value, comparator ) {
+    binarySearch ( value, comparator ) {
         let lower = 0,
             upper = this.get( 'length' ),
             middle, candidate;
@@ -137,7 +137,7 @@ const Enumerable = {
         Returns:
             {Boolean} True if the item is present.
     */
-    contains( item ) {
+    contains ( item ) {
         return this.indexOf( item ) > -1;
     },
 
@@ -160,7 +160,7 @@ const Enumerable = {
         Returns:
             {*} The object found, or null if none found.
     */
-    find( fn, bind ) {
+    find ( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             const value = this.getObjectAt( i );
@@ -191,7 +191,7 @@ const Enumerable = {
         Returns:
             {O.Enumerable} Returns self.
     */
-    forEach( fn, bind ) {
+    forEach ( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             callback( this.getObjectAt( i ), i, this );
@@ -218,7 +218,7 @@ const Enumerable = {
         Returns:
             {Array} The items which were accepted by the function.
     */
-    filter( fn, bind ) {
+    filter ( fn, bind ) {
         const callback = createCallback( fn, bind );
         const results = [];
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
@@ -249,7 +249,7 @@ const Enumerable = {
         Returns:
             {Array} The result of each function call.
     */
-    map( fn, bind ) {
+    map ( fn, bind ) {
         const callback = createCallback( fn, bind );
         const results = [];
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
@@ -272,7 +272,7 @@ const Enumerable = {
         Returns:
             {*} The reduced value.
     */
-    reduce( fn, initial ) {
+    reduce ( fn, initial ) {
         let i = 0;
         const l = this.get( 'length' );
         let acc;
@@ -312,7 +312,7 @@ const Enumerable = {
         Returns:
             {Boolean} Were all items accepted by the function?
     */
-    every( fn, bind ) {
+    every ( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             if ( !callback( this.getObjectAt( i ), i, this ) ) {
@@ -341,7 +341,7 @@ const Enumerable = {
         Returns:
             {Boolean} Did the function accept at least one item?
     */
-    some( fn, bind ) {
+    some ( fn, bind ) {
         const callback = createCallback( fn, bind );
         for ( let i = 0, l = this.get( 'length' ); i < l; i += 1 ) {
             if ( callback( this.getObjectAt( i ), i, this ) ) {

@@ -7,7 +7,7 @@ const ToOneAttribute = Class({
 
     Extends: RecordAttribute,
 
-    willSet( propValue, propKey, record ) {
+    willSet ( propValue, propKey, record ) {
         if ( ToOneAttribute.parent.willSet.call(
                 this, propValue, propKey, record ) ) {
             if ( propValue && !propValue.get( 'storeKey' ) ) {
@@ -19,7 +19,7 @@ const ToOneAttribute = Class({
         return false;
     },
 
-    call( record, propValue, propKey ) {
+    call ( record, propValue, propKey ) {
         let result = ToOneAttribute.parent.call.call(
             this, record, propValue, propKey );
         if ( result && typeof result === 'string' ) {

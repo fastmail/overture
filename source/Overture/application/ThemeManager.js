@@ -18,7 +18,7 @@ const ThemeManager = Class({
 
     Extends: Object,
 
-    init( mixin ) {
+    init ( mixin ) {
         this._images = { all: {} };
         this._styles = { all: {} };
         this._activeStylesheets = {};
@@ -45,7 +45,7 @@ const ThemeManager = Class({
             oldTheme - {String} The name of the theme being deactivated.
             newTheme - {String} The name of the newly active theme.
     */
-    changeTheme( oldTheme, newTheme ) {
+    changeTheme ( oldTheme, newTheme ) {
         const active = this._activeStylesheets;
         for ( const id in active ) {
             if ( active[ id ] ) {
@@ -67,7 +67,7 @@ const ThemeManager = Class({
             id    - {String} An id for the image.
             data  - {String} The base64 encoded data for the image.
     */
-    imageDidLoad( theme, id, data ) {
+    imageDidLoad ( theme, id, data ) {
         const themeImages = this._images[ theme ] ||
             ( this._images[ theme ] = {} );
         themeImages[ id ] = data;
@@ -86,7 +86,7 @@ const ThemeManager = Class({
             id    - {String} An id for the image.
             data  - {String} The base64 encoded data for the image.
     */
-    stylesheetDidLoad( theme, id, data ) {
+    stylesheetDidLoad ( theme, id, data ) {
         const themeStyles = this._styles[ theme ] ||
             ( this._styles[ theme ] = {} );
         themeStyles[ id ] = data;
@@ -107,7 +107,7 @@ const ThemeManager = Class({
         Returns:
             {O.ThemeManager} Returns self.
     */
-    addStylesheet( id, theme ) {
+    addStylesheet ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
         const styles = this._styles[ theme ];
@@ -147,7 +147,7 @@ const ThemeManager = Class({
         Returns:
             {O.ThemeManager} Returns self.
     */
-    removeStylesheet( id, theme ) {
+    removeStylesheet ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
         const sheet = document.getElementById( theme + '-' + id );
@@ -171,7 +171,7 @@ const ThemeManager = Class({
             {(String|null)} A data URI for the requested image if the data is
             available, otherwise null.
     */
-    getImageSrc( id ) {
+    getImageSrc ( id ) {
         const _images = this._images;
         const themeImages = _images[ this.get( 'theme' ) ] || {};
         const themeIndependentImages = _images.all;

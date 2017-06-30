@@ -59,7 +59,7 @@ export default {
         animating a property on the object. Increments the <#animating>
         property.
     */
-    willAnimate() {
+    willAnimate () {
         this.increment( 'animating', 1 );
     },
 
@@ -70,7 +70,7 @@ export default {
         animating a property on the object. Decrements the <#animating>
         property.
     */
-    didAnimate() {
+    didAnimate () {
         this.increment( 'animating', -1 );
     },
 
@@ -100,7 +100,7 @@ export default {
             layer     - {Element} The view's layer.
             oldStyles - {Object|null} The previous layer styles for the view.
     */
-    redrawLayerStyles( layer, oldStyles ) {
+    redrawLayerStyles ( layer, oldStyles ) {
         const newStyles = this.get( 'layerStyles' );
         const layerAnimation = this.get( 'layerAnimation' );
         const setStyle = Element.setStyle;

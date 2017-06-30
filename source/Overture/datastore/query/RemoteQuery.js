@@ -136,7 +136,7 @@ const RemoteQuery = Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is( status ) {
+    is ( status ) {
         return !!( this.get( 'status' ) & status );
     },
 
@@ -148,7 +148,7 @@ const RemoteQuery = Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    setObsolete() {
+    setObsolete () {
         return this.set( 'status', this.get( 'status' ) | OBSOLETE );
     },
 
@@ -160,7 +160,7 @@ const RemoteQuery = Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    setLoading() {
+    setLoading () {
         return this.set( 'status', this.get( 'status' ) | LOADING );
     },
 
@@ -173,7 +173,7 @@ const RemoteQuery = Class({
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
-    init( mixin ) {
+    init ( mixin ) {
         this._list = [];
         this._awaitingIdFetch = [];
         this._refresh = false;
@@ -194,7 +194,7 @@ const RemoteQuery = Class({
         removes bindings and path observers so the object may be garbage
         collected.
     */
-    destroy() {
+    destroy () {
         this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
         this.get( 'store' ).removeQuery( this );
         RemoteQuery.parent.destroy.call( this );
@@ -215,7 +215,7 @@ const RemoteQuery = Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    refresh( force, callback ) {
+    refresh ( force, callback ) {
         const status = this.get( 'status' );
         if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
             if ( status & READY ) {
@@ -275,7 +275,7 @@ const RemoteQuery = Class({
             past the end of the array, undefined will be returned. Otherwise the
             record will be returned, or null if the id is not yet loaded.
     */
-    getObjectAt( index, doNotFetch ) {
+    getObjectAt ( index, doNotFetch ) {
         const length = this.get( 'length' );
 
         if ( length === null || index < 0 || index >= length ) {
@@ -309,7 +309,7 @@ const RemoteQuery = Class({
             store will be explicitly told not to fetch the data, as the fetching
             is being handled by the query.
     */
-    fetchDataForObjectAt(/* index */) {
+    fetchDataForObjectAt (/* index */) {
         return false;
     },
 
@@ -339,7 +339,7 @@ const RemoteQuery = Class({
         Returns:
             {Number} The index of the store key, or -1 if not found.
     */
-    indexOfStoreKey( storeKey, from, callback ) {
+    indexOfStoreKey ( storeKey, from, callback ) {
         const index = this._list.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
@@ -381,7 +381,7 @@ const RemoteQuery = Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getStoreKeysForObjectsInRange( start, end, callback ) {
+    getStoreKeysForObjectsInRange ( start, end, callback ) {
         const length = this.get( 'length' );
 
         if ( length === null ) {
@@ -414,7 +414,7 @@ const RemoteQuery = Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getStoreKeysForAllObjects( callback ) {
+    getStoreKeysForAllObjects ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
         return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
     },
@@ -498,7 +498,7 @@ const RemoteQuery = Class({
             cases may be the same, but can be handled separately if the server
             has an efficient way of calculating changes from the state).
     */
-    sourceWillFetchQuery() {
+    sourceWillFetchQuery () {
         const refresh = this._refresh;
         this._refresh = false;
         this.set( 'status',
@@ -526,7 +526,7 @@ const RemoteQuery = Class({
         Returns:
             {RemoteQuery} Returns self.
     */
-    sourceDidFetchQuery( args ) {
+    sourceDidFetchQuery ( args ) {
         // User may have changed sort or filter in intervening time; presume the
         // value on the object is the right one, so if data doesn't match, just
         // ignore it.

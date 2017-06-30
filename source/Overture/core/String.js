@@ -38,7 +38,7 @@ Object.assign( String.prototype, {
         Returns:
             {String} The formatted string.
     */
-    format() {
+    format () {
         // Reset RegExp.
         splitter.lastIndex = 0;
 
@@ -117,7 +117,7 @@ Object.assign( String.prototype, {
         Returns:
             {String} The escaped string.
     */
-    escapeHTML() {
+    escapeHTML () {
         return this.split( '&' ).join( '&amp;' )
                    .split( '<' ).join( '&lt;'  )
                    .split( '>' ).join( '&gt;'  );
@@ -132,7 +132,7 @@ Object.assign( String.prototype, {
         Returns:
             {String} The escaped string.
     */
-    escapeRegExp() {
+    escapeRegExp () {
         return this.replace( /([-.*+?^${}()|[\]/\\])/g, '\\$1' );
     },
 
@@ -144,7 +144,7 @@ Object.assign( String.prototype, {
         Returns:
             {String} The capitalised string.
     */
-    capitalise() {
+    capitalise () {
         return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
     },
 
@@ -157,7 +157,7 @@ Object.assign( String.prototype, {
         Returns:
             {String} The camel-cased string.
     */
-    camelCase() {
+    camelCase () {
         return this.replace( /-([a-z])/g, function ( _, letter ) {
             return letter.toUpperCase();
         });
@@ -172,7 +172,7 @@ Object.assign( String.prototype, {
         Returns:
             {String} The hyphenated string.
     */
-    hyphenate() {
+    hyphenate () {
         return this.replace( /[A-Z]/g, function ( letter ) {
             return ( '-' + letter.toLowerCase() );
         });
@@ -192,7 +192,7 @@ Object.assign( String.prototype, {
         Returns:
             {Boolean} Does this string contain the given string?
     */
-    contains( string, separator ) {
+    contains ( string, separator ) {
         return ( separator ?
             ( separator + this + separator ).indexOf(
                 separator + string + separator ) :
@@ -211,7 +211,7 @@ Object.assign( String.prototype, {
         Returns:
             {Number} The hash. This is a *signed* 32-bit int.
     */
-    hash() {
+    hash () {
         let hash = this.length;
         const remainder = hash & 1;
         const l = hash - remainder;

@@ -23,7 +23,7 @@ const TextView = Class({
 
     Extends: AbstractControlView,
 
-    init( mixin ) {
+    init ( mixin ) {
         TextView.parent.init.call( this, mixin );
         this._settingFromInput = false;
     },
@@ -240,7 +240,7 @@ const TextView = Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         const value = this.get( 'value' );
         const placeholder = this.get( 'placeholder' );
         const isMultiline = this.get( 'isMultiline' );
@@ -299,7 +299,7 @@ const TextView = Class({
         Updates the content of the `<textarea>` or `<input>` to match the
         <#value> property.
     */
-    redrawValue() {
+    redrawValue () {
         const value = this.get( 'value' );
         this._domControl.value = value;
         // Ensure placeholder is updated.
@@ -314,7 +314,7 @@ const TextView = Class({
         Updates the placeholder text in the DOM when the <#placeholder> property
         changes.
     */
-    redrawPlaceholder() {
+    redrawPlaceholder () {
         const placeholder = this.get( 'placeholder' );
         const control = this._domControl;
         if ( nativePlaceholder ) {
@@ -329,7 +329,7 @@ const TextView = Class({
 
         Updates any other properties of the `<input>` element.
     */
-    redrawInputAttributes() {
+    redrawInputAttributes () {
         const inputAttributes = this.get( 'inputAttributes' );
         const control = this._domControl;
         for ( const property in inputAttributes ) {
@@ -337,7 +337,7 @@ const TextView = Class({
         }
     },
 
-    redrawTextHeight() {
+    redrawTextHeight () {
         const control = this._domControl;
         const style = control.style;
         const scrollView = this.getParent( ScrollView );
@@ -356,7 +356,7 @@ const TextView = Class({
         }
     },
 
-    redrawLabel() {},
+    redrawLabel () {},
 
     // --- Activate ---
 
@@ -365,7 +365,7 @@ const TextView = Class({
 
         Overridden to focus the text view. See <O.AbstractControlView#activate>.
     */
-    activate() {
+    activate () {
         this.focus();
     },
 
@@ -379,7 +379,7 @@ const TextView = Class({
         Overridden to restore scroll position and selection. See
         <O.View#didEnterDocument>.
     */
-    didEnterDocument() {
+    didEnterDocument () {
         TextView.parent.didEnterDocument.call( this );
         if ( this.get( 'isExpanding' ) ) {
             this.redrawTextHeight();
@@ -407,7 +407,7 @@ const TextView = Class({
         Overridden to save scroll position and selection. See
         <O.View#willLeaveDocument>.
     */
-    willLeaveDocument() {
+    willLeaveDocument () {
         // If focussed, save cursor position
         if ( this.get( 'isFocussed' ) ) {
             this.set( 'savedSelection', this.get( 'selection' ) );

@@ -61,7 +61,7 @@ export default {
         Returns:
             {Boolean} Can the drag be dropped here?
     */
-    willAcceptDrag( drag ) {
+    willAcceptDrag ( drag ) {
         const acceptedTypes = this.get( 'dropAcceptedDataTypes' );
         const availableTypes = drag.get( 'dataTypes' );
         let l = availableTypes.length;
@@ -85,7 +85,7 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropEntered( drag ) {
+    dropEntered ( drag ) {
         drag.set( 'dropEffect', this.get( 'dropEffect' ) );
         this.set( 'hasDragOver', true );
     },
@@ -99,7 +99,7 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropMoved(/* drag */) {},
+    dropMoved (/* drag */) {},
 
     /**
         Method: O.DropTarget#dropExited
@@ -112,7 +112,7 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropExited( drag ) {
+    dropExited ( drag ) {
         drag.set( 'dropEffect', DragEffect.DEFAULT );
         this.set( 'hasDragOver', false );
     },
@@ -125,5 +125,5 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    drop(/* drag */) {},
+    drop (/* drag */) {},
 };

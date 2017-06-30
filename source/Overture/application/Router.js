@@ -119,7 +119,7 @@ const Router = Class({
     */
     routes: [],
 
-    init( mixin, win ) {
+    init ( mixin, win ) {
         Router.parent.init.call( this, mixin );
         if ( !win ) { win = window; }
         const location = win.location;
@@ -173,7 +173,7 @@ const Router = Class({
         Returns:
             {O.Router} Returns self.
     */
-    restoreStateFromUrl( url ) {
+    restoreStateFromUrl ( url ) {
         const routes = this.get( 'routes' );
 
         for ( let i = 0, l = routes.length; i < l; i += 1 ) {
@@ -232,7 +232,7 @@ const Router = Class({
         }
     }.queue( 'after' ).observes( 'encodedState' ),
 
-    getUrlForEncodedState( state ) {
+    getUrlForEncodedState ( state ) {
         return this.get( 'baseUrl' ) + state;
     },
 });

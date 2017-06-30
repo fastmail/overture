@@ -2,13 +2,13 @@ import { Class } from '../core/Core.js';
 
 export default Class({
 
-    init( comparator ) {
+    init ( comparator ) {
         this.data = [];
         this.length = 0;
         this.comparator = comparator;
     },
 
-    _up( i ) {
+    _up ( i ) {
         const data = this.data;
         const comparator = this.comparator;
         let parentNode;
@@ -30,7 +30,7 @@ export default Class({
         return i;
     },
 
-    _down( i ) {
+    _down ( i ) {
         const data = this.data;
         const length = this.length;
         const comparator = this.comparator;
@@ -65,7 +65,7 @@ export default Class({
         return i;
     },
 
-    push( node ) {
+    push ( node ) {
         if ( node != null ) {
             const length = this.length;
             this.data[ length ] = node;
@@ -75,7 +75,7 @@ export default Class({
         return this;
     },
 
-    pop() {
+    pop () {
         const data = this.data;
         let length = this.length;
 
@@ -95,11 +95,11 @@ export default Class({
         return nodeToReturn;
     },
 
-    peek() {
+    peek () {
         return this.data[0];
     },
 
-    remove( node ) {
+    remove ( node ) {
         const data = this.data;
         let length = this.length;
         const i = node == null || !length ?

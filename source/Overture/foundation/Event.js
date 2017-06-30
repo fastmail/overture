@@ -16,7 +16,7 @@ export default Class({
             mixin  - {Object} (optional) Any further properties to add to the
                      event.
     */
-    init( type, target, mixin ) {
+    init ( type, target, mixin ) {
         this.type = type;
         this.target = target;
         this.defaultPrevented = false;
@@ -32,7 +32,7 @@ export default Class({
         Returns:
             {O.Event} Returns self.
     */
-    preventDefault() {
+    preventDefault () {
         this.defaultPrevented = true;
         return this;
     },
@@ -45,7 +45,7 @@ export default Class({
         Returns:
             {O.Event} Returns self.
     */
-    stopPropagation() {
+    stopPropagation () {
         this.propagationStopped = true;
         return this;
     },

@@ -129,7 +129,7 @@ const switchSign = function ( string ) {
 };
 
 const TimeZone = Class({
-    init( id, periods ) {
+    init ( id, periods ) {
         let name = id.replace( /_/g, ' ' );
         // The IANA ids have the +/- the wrong way round for historical reasons.
         // Display correctly for the user.
@@ -142,7 +142,7 @@ const TimeZone = Class({
         this.periods = periods;
     },
 
-    convert( date, toTimeZone ) {
+    convert ( date, toTimeZone ) {
         const period = getPeriod( this.periods, date );
         let offset = period[1];
         const rule = getRule( TimeZone.rules[ period[2] ] || [],
@@ -155,13 +155,13 @@ const TimeZone = Class({
         }
         return new Date( +date + offset * 1000 );
     },
-    convertDateToUTC( date ) {
+    convertDateToUTC ( date ) {
         return this.convert( date, false );
     },
-    convertDateToTimeZone( date ) {
+    convertDateToTimeZone ( date ) {
         return this.convert( date, true );
     },
-    getSuffix( date ) {
+    getSuffix ( date ) {
         const period = getPeriod( this.periods, date, false );
         const offset = period[1];
         let rule = getRule( TimeZone.rules[ period[2] ],
@@ -177,7 +177,7 @@ const TimeZone = Class({
         }
         return suffix.format( rule ? rule[10] : '' );
     },
-    toJSON() {
+    toJSON () {
         return this.id;
     },
 });

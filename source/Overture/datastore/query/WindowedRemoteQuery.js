@@ -337,7 +337,7 @@ const WindowedRemoteQuery = Class({
         return ( l < 0 );
     }.property().nocache(),
 
-    init( mixin ) {
+    init ( mixin ) {
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];
@@ -372,7 +372,7 @@ const WindowedRemoteQuery = Class({
         };
     }.property(),
 
-    indexOfStoreKey( storeKey, from, callback ) {
+    indexOfStoreKey ( storeKey, from, callback ) {
         const index = this._list.indexOf( storeKey, from );
         let id;
         if ( callback ) {
@@ -403,7 +403,7 @@ const WindowedRemoteQuery = Class({
         return index;
     },
 
-    getStoreKeysForObjectsInRange( start, end, callback ) {
+    getStoreKeysForObjectsInRange ( start, end, callback ) {
         const length = this.get( 'length' );
         let isComplete = true;
         let windows, windowSize;
@@ -440,7 +440,7 @@ const WindowedRemoteQuery = Class({
     // Fetches all ids and records in window.
     // If within trigger distance of window edge, fetches adjacent window as
     // well.
-    fetchDataForObjectAt( index ) {
+    fetchDataForObjectAt ( index ) {
         // Load all headers in window containing index.
         const windowSize = this.get( 'windowSize' );
         const trigger = this.get( 'triggerPoint' );
@@ -477,7 +477,7 @@ const WindowedRemoteQuery = Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    fetchWindow( index, fetchRecords, prefetch ) {
+    fetchWindow ( index, fetchRecords, prefetch ) {
         let status = this.get( 'status' );
         const windows = this._windows;
         let doFetch = false;
@@ -519,7 +519,7 @@ const WindowedRemoteQuery = Class({
     },
 
     // Precondition: all ids are known
-    checkIfWindowIsFetched( index ) {
+    checkIfWindowIsFetched ( index ) {
         const store = this.get( 'store' );
         const windowSize = this.get( 'windowSize' );
         const list = this._list;
@@ -550,7 +550,7 @@ const WindowedRemoteQuery = Class({
                     containing this index).
             length - {Number} The new length of the list.
     */
-    recalculateFetchedWindows( start, length ) {
+    recalculateFetchedWindows ( start, length ) {
         if ( !start ) { start = 0; }
         if ( length === undefined ) { length = this.get( 'length' ); }
 
@@ -598,7 +598,7 @@ const WindowedRemoteQuery = Class({
 
     // ---- Updates ---
 
-    _normaliseUpdate( update ) {
+    _normaliseUpdate ( update ) {
         const list = this._list;
         let removedStoreKeys = update.removed || [];
         let removedIndexes = mapIndexes( list, removedStoreKeys );
@@ -649,7 +649,7 @@ const WindowedRemoteQuery = Class({
         return update;
     },
 
-    _applyUpdate( args ) {
+    _applyUpdate ( args ) {
         const removedIndexes = args.removedIndexes;
         const removedStoreKeys = args.removedStoreKeys;
         const removedLength = removedStoreKeys.length;
@@ -754,7 +754,7 @@ const WindowedRemoteQuery = Class({
         return this;
     },
 
-    _applyWaitingPackets() {
+    _applyWaitingPackets () {
         let didDropPackets = false;
         const waitingPackets = this._waitingPackets;
         let l = waitingPackets.length;
@@ -778,7 +778,7 @@ const WindowedRemoteQuery = Class({
         }
     },
 
-    _fetchObservedWindows() {
+    _fetchObservedWindows () {
         const ranges = meta( this ).rangeObservers;
         const length = this.get( 'length' );
         const windowSize = this.get( 'windowSize' );
@@ -820,7 +820,7 @@ const WindowedRemoteQuery = Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    clientDidGenerateUpdate( update ) {
+    clientDidGenerateUpdate ( update ) {
         this._normaliseUpdate( update );
         // Ignore completely any ids we don't have.
         update.truncateAtFirstGap = false;
@@ -1098,7 +1098,7 @@ const WindowedRemoteQuery = Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    sourceDidFetchIdList( args ) {
+    sourceDidFetchIdList ( args ) {
         // User may have changed sort or filter in intervening time; presume the
         // value on the object is the right one, so if data doesn't match, just
         // ignore it.
@@ -1231,7 +1231,7 @@ const WindowedRemoteQuery = Class({
             .fire( 'query:idsLoaded' );
     },
 
-    sourceWillFetchQuery() {
+    sourceWillFetchQuery () {
         // If optimise and no longer observed -> remove request
         // Move from requested -> loading
         const windowSize = this.get( 'windowSize' );

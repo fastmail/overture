@@ -30,7 +30,7 @@ import CSSStyleAnimationController from './CSSStyleAnimationController.js';
 */
 const CSSStyleAnimation = Class({
 
-    init( mixin ) {
+    init ( mixin ) {
         this._deadMan = null;
 
         this.duration = 300;
@@ -93,7 +93,7 @@ const CSSStyleAnimation = Class({
         Returns:
             {O.CSSStyleAnimation} Returns self.
     */
-    animate( styles, duration, ease ) {
+    animate ( styles, duration, ease ) {
         if ( this.isRunning ) {
             this.stop();
         }
@@ -153,7 +153,7 @@ const CSSStyleAnimation = Class({
             property - {String} The name of the style that has finished
                        transitioning.
     */
-    transitionEnd( property ) {
+    transitionEnd ( property ) {
         const animating = this.animating;
         const index = animating.indexOf( property );
         if ( index > -1 ) {
@@ -172,7 +172,7 @@ const CSSStyleAnimation = Class({
         Returns:
             {O.CSSStyleAnimation} Returns self.
     */
-    stop() {
+    stop () {
         if ( this.isRunning ) {
             this.isRunning = false;
             this.animating.length = 0;

@@ -23,19 +23,19 @@ const MenuView = Class({
     showFilter: false,
     closeOnActivate: true,
 
-    didCreateLayer( layer ) {
+    didCreateLayer ( layer ) {
         MenuView.parent.didCreateLayer.call( this, layer );
         layer.addEventListener( 'mousemove', this, false );
         layer.addEventListener( 'mouseout', this, false );
     },
 
-    willDestroyLayer( layer ) {
+    willDestroyLayer ( layer ) {
         layer.removeEventListener( 'mouseout', this, false );
         layer.removeEventListener( 'mousemove', this, false );
         MenuView.parent.willDestroyLayer.call( this, layer );
     },
 
-    didEnterDocument() {
+    didEnterDocument () {
         MenuView.parent.didEnterDocument.call( this );
         const scrollView = this._scrollView;
         let windowHeight, delta, controller, input;
@@ -70,7 +70,7 @@ const MenuView = Class({
         return this;
     },
 
-    didLeaveDocument() {
+    didLeaveDocument () {
         const controller = this.get( 'controller' );
         if ( this.get( 'showFilter' ) ) {
             controller.set( 'filter', '' );
@@ -96,7 +96,7 @@ const MenuView = Class({
 
     ItemView: MenuOptionView,
 
-    draw( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         const controller = this.get( 'controller' );
         const MenuOptionView = this.get( 'ItemView' );
         const optionViews = this.get( 'options' ).map(
@@ -119,7 +119,7 @@ const MenuView = Class({
         ];
     },
 
-    hide() {
+    hide () {
         const parent = this.get( 'parentView' );
         if ( parent ) {
             RunLoop.invokeInNextFrame( parent.hide, parent );

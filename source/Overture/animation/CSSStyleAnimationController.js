@@ -28,7 +28,7 @@ const CSSStyleAnimationController = {
             el        - {Element} The element being animated.
             animation - {O.CSSStyleAnimation} The animation controller.
     */
-    register( el, animation ) {
+    register ( el, animation ) {
         this.animations[ guid( el ) ] = animation;
     },
 
@@ -41,7 +41,7 @@ const CSSStyleAnimationController = {
         Parameters:
             el - {Element} The element that was being animated.
     */
-    deregister( el ) {
+    deregister ( el ) {
         delete this.animations[ guid( el ) ];
     },
 

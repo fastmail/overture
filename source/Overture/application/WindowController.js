@@ -72,7 +72,7 @@ const WindowController = Class({
         other open window.
     */
 
-    init( mixin ) {
+    init ( mixin ) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocussed = document.hasFocus ? document.hasFocus() : true;
@@ -99,7 +99,7 @@ const WindowController = Class({
         this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
     },
 
-    destroy() {
+    destroy () {
         RunLoop.cancel( this._pingTimeout )
                .cancel( this._checkTimeout );
 
@@ -154,7 +154,7 @@ const WindowController = Class({
         Sends a ping to let other windows know about the existence of this one.
         Automatically called periodically.
     */
-    sendPing() {
+    sendPing () {
         this.broadcast( 'wc:ping' );
     },
 
@@ -207,7 +207,7 @@ const WindowController = Class({
         Looks at the set of other windows it knows about and sets the isMaster
         property based on whether this window has the lowest ordered id.
     */
-    checkMaster() {
+    checkMaster () {
         const now = Date.now();
         let isMaster = true;
         const seenWCs = this._seenWCs;
@@ -231,7 +231,7 @@ const WindowController = Class({
             type - {String} The name of the event being broadcast.
             data - {Object} (optional). The data to broadcast.
     */
-    broadcast( type, data ) {
+    broadcast ( type, data ) {
         try {
             localStorage.setItem(
                 this.get( 'broadcastKey' ),

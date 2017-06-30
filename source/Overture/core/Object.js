@@ -13,7 +13,7 @@ Object.assign( Object, {
             {String|undefined} The key for that value in the object.
             Undefined is returned if the value is not found.
     */
-    keyOf( object, value ) {
+    keyOf ( object, value ) {
         for ( const key in object ) {
             if ( object[ key ] === value ) {
                 return key;
@@ -36,7 +36,7 @@ Object.assign( Object, {
         Returns:
             {Object} The filtered object.
     */
-    filter( object, include ) {
+    filter ( object, include ) {
         const result = {};
         for ( const key in object ) {
             if ( include[ key ] ) {
@@ -59,7 +59,7 @@ Object.assign( Object, {
         Returns:
             {Object} The object mapping keys to values.
     */
-    zip( keys, values ) {
+    zip ( keys, values ) {
         let l = Math.min( keys.length, values.length );
         const obj = {};
         while ( l-- ) {
@@ -80,7 +80,7 @@ Object.assign( Object, {
         Returns:
             {Object} The key/value pairs in object form.
     */
-    fromQueryString( query ) {
+    fromQueryString ( query ) {
         const result = {};
         query.split( '&' ).forEach( function ( pair ) {
            const parts = pair.split( '=' ).map( decodeURIComponent );

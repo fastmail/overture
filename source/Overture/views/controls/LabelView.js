@@ -50,7 +50,7 @@ const LabelView = Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw( layer/*, Element, el*/ ) {
+    draw ( layer/*, Element, el*/ ) {
         layer.title = this.get( 'tooltip' );
         layer.textContent = this.get( 'value' );
     },
@@ -74,7 +74,7 @@ const LabelView = Class({
         Updates the title attribute on the DOM layer to match the tooltip
         property of the view.
     */
-    redrawTooltip( layer ) {
+    redrawTooltip ( layer ) {
         layer.title = this.get( 'tooltip' );
     },
 
@@ -87,7 +87,7 @@ const LabelView = Class({
         Updates the text content of the DOM layer to match the value property of
         the view.
     */
-    redrawValue( layer ) {
+    redrawValue ( layer ) {
         layer.textContent = this.get( 'value' );
     },
 });

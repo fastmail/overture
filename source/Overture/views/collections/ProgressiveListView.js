@@ -14,12 +14,12 @@ const ProgressiveListView = Class({
     batchSize: 10,
     triggerInPx: 200,
 
-    init( mixin ) {
+    init ( mixin ) {
         ProgressiveListView.parent.init.call( this, mixin );
         this._renderRange.end = 0;
     },
 
-    contentWasUpdated( event ) {
+    contentWasUpdated ( event ) {
         const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             // Update scroll view correctly.

@@ -35,15 +35,15 @@ const numbersRe = /[.\-\d]/g;
 
 const styleAnimators = {
     display: {
-        calcDelta( startValue, endValue ) {
+        calcDelta ( startValue, endValue ) {
             return endValue === 'none' ? startValue : endValue;
         },
-        calcValue( position, deltaValue, startValue ) {
+        calcValue ( position, deltaValue, startValue ) {
             return position ? deltaValue : startValue;
         },
     },
     transform: {
-        calcDelta( startValue, endValue ) {
+        calcDelta ( startValue, endValue ) {
             let start = splitTransform( startValue );
             let end = splitTransform( endValue );
             if ( start.length !== end.length ) {
@@ -57,7 +57,7 @@ const styleAnimators = {
                 )),
             };
         },
-        calcValue( position, deltaValue ) {
+        calcValue ( position, deltaValue ) {
             const start = deltaValue.start;
             const delta = deltaValue.delta;
             let transform = start[0];
@@ -126,7 +126,7 @@ export default Class({
         Returns:
             {Boolean} True if any of the styles are going to be animated.
     */
-    prepare( styles ) {
+    prepare ( styles ) {
         const animated = this.animated = [];
         const from = this.startValue = this.current;
         const current = this.current = clone( from );
@@ -176,7 +176,7 @@ export default Class({
         Parameters:
             position - {Number} The position in the animation.
     */
-    drawFrame( position ) {
+    drawFrame ( position ) {
         const {
             startValue, endValue, deltaValue,
             units, current, animated, element,

@@ -52,7 +52,7 @@ const ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    registerActiveView( view ) {
+    registerActiveView ( view ) {
         this._activeViews[ view.get( 'id' ) ] = view;
         return this;
     },
@@ -69,7 +69,7 @@ const ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    deregisterActiveView( view ) {
+    deregisterActiveView ( view ) {
         delete this._activeViews[ view.get( 'id' ) ];
         return this;
     },
@@ -85,7 +85,7 @@ const ViewEventsController = {
         Returns:
             {O.View|null} The view which owns the node.
     */
-    getViewFromNode( node ) {
+    getViewFromNode ( node ) {
         const activeViews = this._activeViews;
         const doc = node.ownerDocument;
         let view = null;
@@ -123,7 +123,7 @@ const ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    addEventTarget( eventTarget, priority ) {
+    addEventTarget ( eventTarget, priority ) {
         if ( !priority ) { priority = 0; }
         const eventTargets = this._eventTargets.slice();
         let index = eventTargets.binarySearch( priority, etSearch );
@@ -152,7 +152,7 @@ const ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    removeEventTarget( eventTarget ) {
+    removeEventTarget ( eventTarget ) {
         this._eventTargets = this._eventTargets.filter(
             target => target[1] !== eventTarget
         );

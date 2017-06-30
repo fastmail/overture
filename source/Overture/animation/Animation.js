@@ -73,7 +73,7 @@ const nextFrame = function () {
 */
 export default Class({
 
-    init( mixin ) {
+    init ( mixin ) {
         this.duration = this.duration;
         this.ease = this.ease;
         this.isRunning = false;
@@ -147,7 +147,7 @@ export default Class({
         Returns:
             {O.Animation} Returns self.
     */
-    animate( value, duration, ease ) {
+    animate ( value, duration, ease ) {
         if ( this.isRunning ) {
             this.stop();
         }
@@ -203,7 +203,7 @@ export default Class({
             {Boolean} Is there anything to actually animate. Returns false if
             the value is already at the desired end point.
     */
-    prepare( value ) {
+    prepare ( value ) {
         if ( typeof value === 'object' ) {
             this.startValue = value.startValue;
             this.endValue = value.endValue;
@@ -232,7 +232,7 @@ export default Class({
                        function (the easing function may cause the number to go
                        beyond 0 and 1).
     */
-    drawFrame( position, time, isLastFrame ) {
+    drawFrame ( position, time, isLastFrame ) {
         // And interpolate to find new value.
         const value = isLastFrame ?
             this.endValue :
@@ -249,7 +249,7 @@ export default Class({
         Returns:
             {O.Animation} Returns self.
     */
-    stop() {
+    stop () {
         if ( this.isRunning ) {
             // Remove from animation lists.
             const object = this.object;

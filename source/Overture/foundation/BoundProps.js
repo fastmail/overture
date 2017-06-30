@@ -22,7 +22,7 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    initBindings() {
+    initBindings () {
         const bindings = meta( this ).bindings;
         for ( const key in bindings ) {
             // Guard in case a previously bound property has been overridden in
@@ -54,7 +54,7 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    destroyBindings() {
+    destroyBindings () {
         const bindings = meta( this ).bindings;
         for ( const key in bindings ) {
             // Guard in case a previously bound property has been overridden in
@@ -76,7 +76,7 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    registerBinding( binding ) {
+    registerBinding ( binding ) {
         const metadata = meta( this );
         metadata.bindings[ bindingKey + guid( binding ) ] = binding;
         metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
@@ -92,7 +92,7 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    deregisterBinding( binding ) {
+    deregisterBinding ( binding ) {
         const metadata = meta( this );
         const bindings = metadata.bindings;
         const key = Object.keyOf( bindings, binding );
@@ -113,7 +113,7 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    suspendBindings() {
+    suspendBindings () {
         const bindings = meta( this ).bindings;
         for ( const key in bindings ) {
             const binding = bindings[ key ];
@@ -132,7 +132,7 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    resumeBindings() {
+    resumeBindings () {
         const bindings = meta( this ).bindings;
         for ( const key in bindings ) {
             const binding = bindings[ key ];

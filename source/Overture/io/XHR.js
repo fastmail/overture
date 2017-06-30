@@ -84,14 +84,14 @@ const XHR = Class({
         Parameters:
             io - {O.Object} (optional).
     */
-    init( io ) {
+    init ( io ) {
         this._isRunning = false;
         this._status = 0;
         this.io = io || null;
         this.xhr = null;
     },
 
-    destroy() {
+    destroy () {
         this.abort();
     },
 
@@ -103,7 +103,7 @@ const XHR = Class({
         Returns:
             {Boolean} Is there a request still in progress?
     */
-    isRunning() {
+    isRunning () {
         return !!this._isRunning;
     },
 
@@ -119,7 +119,7 @@ const XHR = Class({
         Returns:
             {String} The text of the header or the empty string if not found.
     */
-    getHeader( name ) {
+    getHeader ( name ) {
         try {
             return this.xhr.getResponseHeader( name ) || '';
         } catch ( error ) {
@@ -136,7 +136,7 @@ const XHR = Class({
             {String|ArrayBuffer|Blob|Document|Object} The response.
             (The type is determined by the responseType parameter to #send.)
     */
-    getResponse() {
+    getResponse () {
         return this.xhr.response;
     },
 
@@ -149,7 +149,7 @@ const XHR = Class({
         Returns:
             {Number} The HTTP status code
     */
-    getStatus() {
+    getStatus () {
         return this._status;
     },
 
@@ -180,7 +180,7 @@ const XHR = Class({
         Returns:
             {O.XHR} Returns self.
     */
-    send( method, url, data, headers, withCredentials, responseType ) {
+    send ( method, url, data, headers, withCredentials, responseType ) {
         if ( this._isRunning ) {
             this.abort();
         }
@@ -325,7 +325,7 @@ const XHR = Class({
         Returns:
             {O.XHR} Returns self.
     */
-    abort() {
+    abort () {
         if ( this._isRunning ) {
             this._isRunning = false;
             const xhr = this.xhr;

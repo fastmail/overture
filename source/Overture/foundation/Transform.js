@@ -16,7 +16,7 @@ export default {
         Returns:
             {Boolean} The numerical value.
     */
-    toBoolean( value ) {
+    toBoolean ( value ) {
         return !!value;
     },
 
@@ -31,7 +31,7 @@ export default {
         Returns:
             {String} The string value.
     */
-    toString( value ) {
+    toString ( value ) {
         return value != null ? value + '' : '';
     },
 
@@ -46,7 +46,7 @@ export default {
         Returns:
             {Number} The integral numerical value.
     */
-    toInt( value ) {
+    toInt ( value ) {
         return parseInt( value, 10 ) || 0;
     },
 
@@ -61,7 +61,7 @@ export default {
         Returns:
             {Number} The numerical value.
     */
-    toFloat( value ) {
+    toFloat ( value ) {
         return parseFloat( value );
     },
 
@@ -76,7 +76,7 @@ export default {
         Returns:
             {Boolean} The inverse Boolean value.
     */
-    invert( value ) {
+    invert ( value ) {
         return !value;
     },
 
@@ -89,7 +89,7 @@ export default {
         Parameters:
             value - {*} The default value to use.
     */
-    defaultValue( value ) {
+    defaultValue ( value ) {
         return function ( v ) {
             return v !== undefined ? v : value;
         };
@@ -106,7 +106,7 @@ export default {
         Returns:
             {*} The value or null if the value is undefined.
     */
-    undefinedToNull( value ) {
+    undefinedToNull ( value ) {
         return value === undefined ? null : value;
     },
 
@@ -124,7 +124,7 @@ export default {
             Or, if the sync is in reverse, returns the given value if true or
             undefined if false.
     */
-    isEqualToValue( value ) {
+    isEqualToValue ( value ) {
         return function ( syncValue, syncForward ) {
             return syncForward ?
                 syncValue === value :

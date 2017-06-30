@@ -88,7 +88,7 @@ const LocaleController = {
         Returns:
             {O.LocaleController} Returns self.
     */
-    addLocale( locale ) {
+    addLocale ( locale ) {
         locales[ locale.code ] = locale;
         return this;
     },
@@ -107,7 +107,7 @@ const LocaleController = {
         Returns:
             {O.LocaleController} Returns self.
     */
-    setLocale( localeCode ) {
+    setLocale ( localeCode ) {
         if ( locales[ localeCode ] ) {
             active = locales[ localeCode ];
             this.activeLocaleCode = localeCode;
@@ -133,7 +133,7 @@ const LocaleController = {
         Returns:
             {Locale|null} Returns the locale object (null if not present).
     */
-    getLocale( localeCode ) {
+    getLocale ( localeCode ) {
         return localeCode ? locales[ localeCode ] || null : active;
     },
 
@@ -148,7 +148,7 @@ const LocaleController = {
         Returns:
             {*} The value for that key.
     */
-    get( key ) {
+    get ( key ) {
         return active[ key ];
     },
 
@@ -166,7 +166,7 @@ const LocaleController = {
         Returns:
             {String} The localised string.
     */
-    localise( text ) {
+    localise ( text ) {
         if ( arguments.length === 1 ) {
             const translation = active.translations[ text ];
             return translation !== undefined ? translation : text;
@@ -190,7 +190,7 @@ const LocaleController = {
         Returns:
             {String} The localised date.
     */
-    date( date, type, utc ) {
+    date ( date, type, utc ) {
         return active.getFormattedDate( date, type, utc );
     },
 
@@ -207,7 +207,7 @@ const LocaleController = {
         Returns:
             {String} The localised number.
     */
-    number( n ) {
+    number ( n ) {
         return active.getFormattedNumber( n );
     },
 
@@ -223,7 +223,7 @@ const LocaleController = {
         Returns:
             {String} The localised ordinal.
     */
-    ordinal( n ) {
+    ordinal ( n ) {
         return active.getFormattedOrdinal( n );
     },
 
@@ -240,7 +240,7 @@ const LocaleController = {
         Returns:
             {String} The localised, human-readable file size.
     */
-    fileSize( bytes, decimalPlaces ) {
+    fileSize ( bytes, decimalPlaces ) {
         return active.getFormattedFileSize( bytes, decimalPlaces );
     },
 
@@ -260,7 +260,7 @@ const LocaleController = {
             `1`  => a is after b,
             `0`  => they are the same as far as this fn is concerned.
     */
-    compare( a, b ) {
+    compare ( a, b ) {
         return a.toLowerCase().localeCompare( b.toLowerCase() );
     },
 
@@ -277,7 +277,7 @@ const LocaleController = {
 
         Returns: {RegExp} A regular expression that will search for the string.
     */
-    makeSearchRegExp( string ) {
+    makeSearchRegExp ( string ) {
         return new RegExp(
             '(?:^|\\W)' +
             string.escapeRegExp().replace( /[A-Z]/gi,

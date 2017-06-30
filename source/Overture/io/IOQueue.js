@@ -85,7 +85,7 @@ const IOQueue = Class({
                     methods to override the normal methods to create an
                     anonymous subclass.
     */
-    init( mixin ) {
+    init ( mixin ) {
         this._queue = [];
         this._recent = null;
         this.activeConnections = 0;
@@ -107,7 +107,7 @@ const IOQueue = Class({
         Returns:
             {O.IOQueue} Returns self.
     */
-    send( request ) {
+    send ( request ) {
         if ( this.get( 'activeConnections' ) >= this.get( 'maxConnections' ) ) {
             switch ( this.get( 'link' ) ) {
                 case QUEUE:
@@ -148,7 +148,7 @@ const IOQueue = Class({
         Returns:
             {O.IOQueue} Returns self.
     */
-    abort( request ) {
+    abort ( request ) {
         this._queue.erase( request );
         request.abort();
         return this;

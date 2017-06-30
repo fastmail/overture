@@ -11,7 +11,7 @@ const SearchTextView = Class({
 
     icon: null,
 
-    draw( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         const children =
                 SearchTextView.parent.draw.call( this, layer, Element, el );
         children.push(
@@ -27,7 +27,7 @@ const SearchTextView = Class({
         return children;
     },
 
-    reset() {
+    reset () {
         this.set( 'value', '' )
             .blur();
     },

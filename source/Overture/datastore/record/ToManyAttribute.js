@@ -34,7 +34,7 @@ const RecordArray = Class({
 
     Extends: ObservableArray,
 
-    init( record, propKey, value, Type ) {
+    init ( record, propKey, value, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;
@@ -45,11 +45,11 @@ const RecordArray = Class({
         RecordArray.parent.init.call( this, value && value.slice() );
     },
 
-    toJSON() {
+    toJSON () {
         return this._array.slice();
     },
 
-    updateListFromRecord() {
+    updateListFromRecord () {
         if ( !this._updatingStore ) {
             const record = this.get( 'record' );
             const propKey = this.get( 'propKey' );
@@ -59,7 +59,7 @@ const RecordArray = Class({
         }
     },
 
-    getObjectAt( index ) {
+    getObjectAt ( index ) {
         const storeKey = RecordArray.parent.getObjectAt.call( this, index );
         return storeKey ?
             this.get( 'store' )
@@ -67,12 +67,12 @@ const RecordArray = Class({
             null;
     },
 
-    setObjectAt( index, value ) {
+    setObjectAt ( index, value ) {
         this.replaceObjectsAt( index, 1, [ value ] );
         return this;
     },
 
-    replaceObjectsAt( index, numberRemoved, newItems ) {
+    replaceObjectsAt ( index, numberRemoved, newItems ) {
         newItems = newItems ? slice.call( newItems ) : [];
 
         const record = this.get( 'record' );
@@ -94,7 +94,7 @@ const RecordArray = Class({
         return oldItems;
     },
 
-    add( record ) {
+    add ( record ) {
         const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index === -1 ) {
             this.replaceObjectsAt(
@@ -103,7 +103,7 @@ const RecordArray = Class({
         return this;
     },
 
-    remove( record ) {
+    remove ( record ) {
         const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index > -1 ) {
             this.replaceObjectsAt( index, 1 );
@@ -124,7 +124,7 @@ const ToManyAttribute = Class({
 
     Extends: RecordAttribute,
 
-    __setupProperty__( metadata, propKey, object ) {
+    __setupProperty__ ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__setupProperty__.call( this, metadata, propKey, object );
         const observers = metadata.observers;
@@ -136,7 +136,7 @@ const ToManyAttribute = Class({
         keyObservers.push( notifyRecordArrayObserver );
     },
 
-    __teardownProperty__( metadata, propKey, object ) {
+    __teardownProperty__ ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__teardownProperty__.call( this, metadata, propKey, object );
         const observers = metadata.observers;
@@ -150,7 +150,7 @@ const ToManyAttribute = Class({
     Type: Array,
     recordType: null,
 
-    call( record, _, propKey ) {
+    call ( record, _, propKey ) {
         const arrayKey = '_' + propKey + 'RecordArray';
         let recordArray = record[ arrayKey ];
         // Race condition: another observer may fetch this before
@@ -170,12 +170,12 @@ const ToManyAttribute = Class({
         return recordArray;
     },
 
-    getRaw( record, propKey ) {
+    getRaw ( record, propKey ) {
         return ToManyAttribute.parent.call.call(
             this, record, undefined, propKey );
     },
 
-    setRaw( record, propKey, data ) {
+    setRaw ( record, propKey, data ) {
         return ToManyAttribute.parent.call.call(
             this, record, data, propKey );
     },

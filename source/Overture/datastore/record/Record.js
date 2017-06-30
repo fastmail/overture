@@ -30,7 +30,7 @@ const Record = Class({
                        can then be committed to the store using the
                        <O.Record#saveToStore> method.
     */
-    init( store, storeKey ) {
+    init ( store, storeKey ) {
         this._noSync = false;
         this._data = storeKey ? null : {};
         this.store = store;
@@ -51,7 +51,7 @@ const Record = Class({
         Returns:
             {O.Record} The new record.
     */
-    clone( store ) {
+    clone ( store ) {
         const Type = this.constructor;
         const prototype = Type.prototype;
         const clone = new Type( store );
@@ -124,7 +124,7 @@ const Record = Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is( state ) {
+    is ( state ) {
         return !!( this.get( 'status' ) & state );
     },
 
@@ -136,7 +136,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    setObsolete() {
+    setObsolete () {
         const storeKey = this.get( 'storeKey' );
         const status = this.get( 'status' );
         if ( storeKey ) {
@@ -153,7 +153,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    setLoading() {
+    setLoading () {
         const storeKey = this.get( 'storeKey' );
         const status = this.get( 'status' );
         if ( storeKey ) {
@@ -179,11 +179,11 @@ const Record = Class({
             this.get( this.constructor.primaryKey );
     }.property(),
 
-    toJSON() {
+    toJSON () {
         return this.get( 'storeKey' );
     },
 
-    toIdOrStoreKey() {
+    toIdOrStoreKey () {
         return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
     },
 
@@ -198,7 +198,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    saveToStore() {
+    saveToStore () {
         if ( this.get( 'storeKey' ) ) {
             throw new Error( 'Record already created in store.' );
         }
@@ -245,7 +245,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    discardChanges() {
+    discardChanges () {
         if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
             this.destroy();
         } else {
@@ -266,7 +266,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    refresh() {
+    refresh () {
         const storeKey = this.get( 'storeKey' );
         if ( storeKey ) { this.get( 'store' ).fetchData( storeKey ); }
         return this;
@@ -278,7 +278,7 @@ const Record = Class({
         Destroy the record. This will inform the store, which will commit it to
         the source.
     */
-    destroy() {
+    destroy () {
         const storeKey = this.get( 'storeKey' );
         if ( storeKey && this.get( 'isEditable' ) ) {
             this.get( 'store' )
@@ -297,7 +297,7 @@ const Record = Class({
             {O.Record} Returns the record instance for the same record in the
             given store.
     */
-    getDoppelganger( store ) {
+    getDoppelganger ( store ) {
         if ( this.get( 'store' ) === store ) {
             return this;
         }
@@ -311,7 +311,7 @@ const Record = Class({
         This should only be called by the store, when it unloads the record's
         data to free up memory.
     */
-    storeWillUnload() {
+    storeWillUnload () {
         Record.parent.destroy.call( this );
     },
 
@@ -331,7 +331,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    stopSync() {
+    stopSync () {
         this._noSync = true;
         return this;
     },
@@ -345,7 +345,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    startSync() {
+    startSync () {
         this._noSync = false;
         return this;
     },
@@ -389,7 +389,7 @@ const Record = Class({
             {O.ValidationError|null} The error, or null if the assignment would
             be valid.
     */
-    errorToSet( key, value ) {
+    errorToSet ( key, value ) {
         const attr = this[ key ];
         return attr.validate ? attr.validate( value, key, this ) : null;
     },
@@ -411,7 +411,7 @@ const Record = Class({
     /**
         Method: O.Record#notifyAttributeErrors
     */
-    notifyAttributeErrors( _, propKey ) {
+    notifyAttributeErrors ( _, propKey ) {
         const attributeErrors = meta( this ).cache.errorForAttribute;
         if ( attributeErrors ) {
             attributeErrors.recordPropertyDidChange( this, propKey );

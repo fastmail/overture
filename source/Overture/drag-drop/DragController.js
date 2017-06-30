@@ -20,7 +20,7 @@ const effectToString = DragEffect.effectToString;
 const DEFAULT = DragEffect.DEFAULT;
 
 class TouchDragEvent {
-    constructor( touch ) {
+    constructor ( touch ) {
         const clientX = touch.clientX;
         const clientY = touch.clientY;
         const target = document.elementFromPoint( clientX, clientY ) ||
@@ -128,7 +128,7 @@ const DragController = new Object({
         Parameters:
             drag - {O.Drag} The new drag instance.
     */
-    register( drag ) {
+    register ( drag ) {
         if ( this._drag ) {
             this._drag.endDrag();
         }
@@ -144,7 +144,7 @@ const DragController = new Object({
         Parameters:
             drag - {O.Drag} The finished drag instance.
     */
-    deregister( drag ) {
+    deregister ( drag ) {
         if ( this._drag === drag ) {
             this._drag = null;
             this._touchId = null;
@@ -162,7 +162,7 @@ const DragController = new Object({
             (going up the tree) which is draggable. A view is draggable if it
             includes the <O.Draggable> mixin.
     */
-    getNearestDragView( view ) {
+    getNearestDragView ( view ) {
         while ( view ) {
             if ( view.get( 'isDraggable' ) ) {
                 break;

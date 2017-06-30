@@ -37,7 +37,7 @@ const NestedStore = Class({
             store - {O.Store} The parent store (this may be another nested
                     store).
     */
-    init( store ) {
+    init ( store ) {
         // Own record store
         this._skToRecord = {};
         // Copy on write, shared data object store
@@ -96,7 +96,7 @@ const NestedStore = Class({
         Removes the connection to the parent store so this store may be garbage
         collected.
     */
-    destroy() {
+    destroy () {
         this._parentStore.removeNested( this );
     },
 
@@ -111,7 +111,7 @@ const NestedStore = Class({
         Returns:
             {O.NestedStore} Returns self.
     */
-    commitChanges() {
+    commitChanges () {
         this.fire( 'willCommit' );
         const { _created, _destroyed, _skToData, _skToChanged } = this;
         const parent = this._parentStore;
@@ -159,7 +159,7 @@ const NestedStore = Class({
         Returns:
             {O.NestedStore} Returns self.
     */
-    discardChanges() {
+    discardChanges () {
         NestedStore.parent.discardChanges.call( this );
 
         const parent = this._parentStore;
@@ -172,18 +172,18 @@ const NestedStore = Class({
 
     // === Low level (primarily internal) API: uses storeKey ===================
 
-    getStatus( storeKey ) {
+    getStatus ( storeKey ) {
         const status = this._skToStatus[ storeKey ] || EMPTY;
         return this._skToData.hasOwnProperty( storeKey ) ?
             status : status & ~(NEW|COMMITTING|DIRTY);
     },
 
-    fetchAll( storeKey ) {
+    fetchAll ( storeKey ) {
         this._parentStore.fetchAll( storeKey );
         return this;
     },
 
-    fetchData( storeKey ) {
+    fetchData ( storeKey ) {
         this._parentStore.fetchData( storeKey );
         return this;
     },
@@ -203,7 +203,7 @@ const NestedStore = Class({
             previous - {O.Status} The previous status value.
             status   - {O.Status} The new status value.
     */
-    parentDidChangeStatus( storeKey, previous, status ) {
+    parentDidChangeStatus ( storeKey, previous, status ) {
         const { _skToStatus } = this;
 
         previous = previous & ~(NEW|COMMITTING|DIRTY);
@@ -254,7 +254,7 @@ const NestedStore = Class({
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
     */
-    parentDidSetData( storeKey, changedKeys ) {
+    parentDidSetData ( storeKey, changedKeys ) {
         this._notifyRecordOfChanges( storeKey, changedKeys );
         this._nestedStores.forEach( function ( store ) {
             store.parentDidSetData( storeKey, changedKeys );
@@ -274,7 +274,7 @@ const NestedStore = Class({
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
     */
-    parentDidUpdateData( storeKey, changedKeys ) {
+    parentDidUpdateData ( storeKey, changedKeys ) {
         if ( this._skToData.hasOwnProperty( storeKey ) ) {
             const { _skToData, _skToChanged, _skToCommitted } = this;
             const parent = this._parentStore;

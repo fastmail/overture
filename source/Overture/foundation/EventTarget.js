@@ -70,7 +70,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    on( type, obj, method ) {
+    on ( type, obj, method ) {
         if ( !( obj instanceof Function ) ) {
             obj = { object: obj, method };
         }
@@ -99,7 +99,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    once( type, fn ) {
+    once ( type, fn ) {
         const once = function ( event ) {
             fn.call( this, event );
             this.off( type, once );
@@ -132,7 +132,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    fire( type, event ) {
+    fire ( type, event ) {
         let target = this;
         const typeKey = eventPrefix + type;
 
@@ -196,7 +196,7 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    off( type, obj, method ) {
+    off ( type, obj, method ) {
         type = eventPrefix + type;
 
         const observers = meta( this ).observers;

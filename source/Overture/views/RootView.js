@@ -35,7 +35,7 @@ const RootView = Class({
 
     layer: null,
 
-    init( node, mixin ) {
+    init ( node, mixin ) {
         RootView.parent.init.call( this, mixin );
 
         // Node.DOCUMENT_NODE => 9.
@@ -103,11 +103,11 @@ const RootView = Class({
         }
     }.on( 'touchmove' ) : null,
 
-    hideAddressBar() {
+    hideAddressBar () {
         window.scrollTo( 0, 0 );
     },
 
-    focus() {
+    focus () {
         const layer = this.get( 'layer' );
         const activeElement = layer.ownerDocument.activeElement;
         const view = ViewEventsController.getViewFromNode( activeElement );
