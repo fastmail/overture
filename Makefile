@@ -11,7 +11,7 @@ node_modules: package.json yarn.lock
 	touch -c node_modules
 
 build:
-	mkdir build
+	mkdir -p build
 
 clean:
 	rm -rf build
