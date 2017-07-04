@@ -75,6 +75,7 @@ const RichTextView = Class({
     isFocussed: false,
     isDisabled: false,
     tabIndex: undefined,
+    label: undefined,
 
     allowTextSelection: true,
 
@@ -203,6 +204,9 @@ const RichTextView = Class({
     draw ( layer, Element, el ) {
         const editorClassName = this.get( 'editorClassName' );
         const editingLayer = this._editingLayer = el( 'div', {
+            'role': 'textbox',
+            'aria-multiline': 'true',
+            'aria-label': this.get( 'label' ),
             tabIndex: this.get( 'tabIndex' ),
             className: 'v-RichText-input' +
                 ( editorClassName ? ' ' + editorClassName : '' ),
