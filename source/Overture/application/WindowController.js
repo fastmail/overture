@@ -3,7 +3,7 @@
 import { Class } from '../core/Core.js';
 import '../core/Date.js';  // For Date#format
 import '../core/String.js';  // For String#escapeHTML
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
 import UA from '../ua/UA.js';
@@ -33,7 +33,7 @@ import UA from '../ua/UA.js';
 */
 const WindowController = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.WindowController#broadcastKey
