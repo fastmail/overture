@@ -1,18 +1,13 @@
-// -------------------------------------------------------------------------- \\
-// File: FileButtonView.js                                                    \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, ButtonView.js                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global FormData */
 
-"use strict";
+import { Class } from '../../core/Core.js';
+import '../../foundation/EventTarget.js';  // For Function#on
+import Element from '../../dom/Element.js';
 
-( function ( NS, undefined ) {
+import ButtonView from './ButtonView.js';
+import AbstractControlView from './AbstractControlView.js';
 
-var canUseMultiple = FormData.isFake ? null : 'multiple';
+const canUseMultiple = FormData.isFake ? null : 'multiple';
 
 /**
     Class: O.FileButtonView
@@ -37,9 +32,9 @@ var canUseMultiple = FormData.isFake ? null : 'multiple';
         </label>
 
 */
-var FileButtonView = NS.Class({
+const FileButtonView = Class({
 
-    Extends: NS.ButtonView,
+    Extends: ButtonView,
 
     /**
         Property: O.FileButtonView#acceptMultiple
@@ -88,10 +83,10 @@ var FileButtonView = NS.Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.FileButtonView> notes.
     */
-    draw: function ( layer, Element, el ) {
-        var icon = this.get( 'icon' );
+    draw ( layer, Element, el ) {
+        let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
-            icon = NS.ButtonView.drawIcon( icon );
+            icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
             icon = document.createComment( 'icon' );
         }
@@ -100,11 +95,11 @@ var FileButtonView = NS.Class({
                 className: 'v-FileButton-input',
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                multiple: this.get( 'acceptMultiple' ) && canUseMultiple
+                multiple: this.get( 'acceptMultiple' ) && canUseMultiple,
             }),
             icon,
-            NS.AbstractControlView.prototype.draw
-                .call( this, layer, Element, el )
+            AbstractControlView.prototype.draw
+                .call( this, layer, Element, el ),
         ];
     },
 
@@ -119,7 +114,7 @@ var FileButtonView = NS.Class({
 
         Opens the OS file chooser dialog.
     */
-    activate: function () {
+    activate () {
         this._domControl.click();
     },
 
@@ -134,18 +129,18 @@ var FileButtonView = NS.Class({
         `files` property on the event object.
     */
     _fileWasChosen: function ( event ) {
-        var input = this._domControl,
-            files, filePath,
-            target, action;
+        const input = this._domControl;
+        let files, filePath;
+        let target, action;
         if ( event.target === input ) {
             input.parentNode.replaceChild(
-                this._domControl = NS.Element.create( 'input', {
+                this._domControl = Element.create( 'input', {
                     className: 'v-FileButton-input',
                     type: 'file',
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
                     accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                    multiple: this.get( 'acceptMultiple' ) && canUseMultiple
+                    multiple: this.get( 'acceptMultiple' ) && canUseMultiple,
                 }), input );
             if ( !FormData.isFake && input.files ) {
                 files = Array.prototype.slice.call( input.files );
@@ -155,7 +150,7 @@ var FileButtonView = NS.Class({
                     name: filePath.slice( filePath.lastIndexOf( '/' ) + 1 ),
                     size: 0,
                     type: '',
-                    file: input
+                    file: input,
                 }];
             }
             if ( !this.get( 'isDisabled' ) ) {
@@ -163,7 +158,7 @@ var FileButtonView = NS.Class({
                 if ( ( action = this.get( 'action' ) ) ) {
                     target.fire( action, {
                         originView: this,
-                        files: files
+                        files,
                     });
                 } else if ( ( action = this.get( 'method' ) ) ) {
                     target[ action ]( files, this );
@@ -171,9 +166,7 @@ var FileButtonView = NS.Class({
                 this.fire( 'button:activate' );
             }
         }
-    }.on( 'change' )
+    }.on( 'change' ),
 });
 
-NS.FileButtonView = FileButtonView;
-
-}( O ) );
+export default FileButtonView;

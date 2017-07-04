@@ -1,17 +1,9 @@
-// -------------------------------------------------------------------------- \\
-// File: Object.js                                                            \\
-// Module: Foundation                                                         \\
-// Requires: ComputedProps.js, BoundProps.js, ObservableProps.js, EventTarget.js \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import ComputedProps from './ComputedProps.js';
+import BoundProps from './BoundProps.js';
+import ObservableProps from './ObservableProps.js';
+import EventTarget from './EventTarget.js';
 
-"use strict";
-
-( function ( NS ) {
-
-var meta = NS.meta;
-var mixin = NS.mixin;
+import { Class, meta, mixin } from '../core/Core.js';
 
 /**
     Class: O.Object
@@ -22,10 +14,10 @@ var mixin = NS.mixin;
     It adds support for computed properties, bound properties, observable
     properties and subscribing/firing events.
 */
-NS.Object = NS.Class({
+export default Class({
 
     Mixin: [
-        NS.ComputedProps, NS.BoundProps, NS.ObservableProps, NS.EventTarget
+        ComputedProps, BoundProps, ObservableProps, EventTarget,
     ],
 
     /**
@@ -38,18 +30,16 @@ NS.Object = NS.Class({
                         you can pass it getter/setter functions or observing
                         methods).
     */
-    init: function (/* ...mixins */) {
-        var i, l, metadata, inits, method;
-
+    init (/* ...mixins */) {
         this.isDestroyed = false;
 
-        for ( i = 0, l = arguments.length; i < l; i += 1 ) {
+        for ( let i = 0, l = arguments.length; i < l; i += 1 ) {
             mixin( this, arguments[i] );
         }
 
-        metadata = meta( this );
-        inits = metadata.inits;
-        for ( method in inits ) {
+        const metadata = meta( this );
+        const inits = metadata.inits;
+        for ( const method in inits ) {
             if ( inits[ method ] ) {
                 this[ 'init' + method ]();
             }
@@ -63,17 +53,14 @@ NS.Object = NS.Class({
         Removes any connections to other objects (e.g. path observers and
         bindings) so the object will be available for garbage collection.
     */
-    destroy: function () {
-        var destructors = meta( this ).inits,
-            method;
-        for ( method in destructors ) {
+    destroy () {
+        const destructors = meta( this ).inits;
+        for ( const method in destructors ) {
             if ( destructors[ method ] ) {
                 this[ 'destroy' + method ]();
             }
         }
 
         this.isDestroyed = true;
-    }
+    },
 });
-
-}( O ) );

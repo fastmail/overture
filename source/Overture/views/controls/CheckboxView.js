@@ -1,14 +1,9 @@
-// -------------------------------------------------------------------------- \\
-// File: CheckboxView.js                                                      \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
 
-"use strict";
-
-( function ( NS ) {
+import AbstractControlView from './AbstractControlView.js';
 
 /**
     Class: O.CheckboxView
@@ -18,9 +13,9 @@
     A checkbox control view. The `value` property is two-way bindable,
     representing the state of the checkbox (`true` => checked).
 */
-var CheckboxView = NS.Class({
+const CheckboxView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     // --- Render ---
 
@@ -34,7 +29,7 @@ var CheckboxView = NS.Class({
         Overrides default in <O.View#className>.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Checkbox ' +
             ( this.get( 'value' ) ? 'is-checked' : 'is-unchecked' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
@@ -46,14 +41,14 @@ var CheckboxView = NS.Class({
 
         Overridden to draw checkbox in layer. See <O.View#draw>.
     */
-    draw: function ( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         return [
             this._domControl = el( 'input', {
                 className: 'v-Checkbox-input',
                 type: 'checkbox',
-                checked: this.get( 'value' )
+                checked: this.get( 'value' ),
             }),
-            CheckboxView.parent.draw.call( this, layer, Element, el )
+            CheckboxView.parent.draw.call( this, layer, Element, el ),
         ];
     },
 
@@ -75,7 +70,7 @@ var CheckboxView = NS.Class({
         Updates the checked status of the DOM `<input type="checkbox">` to match
         the value property of the view.
     */
-    redrawValue: function () {
+    redrawValue () {
         this._domControl.checked = this.get( 'value' );
     },
 
@@ -87,7 +82,7 @@ var CheckboxView = NS.Class({
         Overridden to toggle the checked status of the control. See
         <O.AbstractControlView#activate>.
     */
-    activate: function () {
+    activate () {
         if ( !this.get( 'isDisabled' ) ) {
             this.toggle( 'value' );
         }
@@ -102,22 +97,20 @@ var CheckboxView = NS.Class({
         when the user toggles the checkbox.
     */
     syncBackValue: function ( event ) {
-        var isTap = ( event.type === 'tap' );
+        const isTap = ( event.type === 'tap' );
         // Ignore simulated click events
         if ( ( isTap || !event.originalType ) &&
                 event.targetView === this &&
                 !this.get( 'isDisabled' ) ) {
-            var control = this._domControl,
-                value = control.checked;
+            const control = this._domControl;
+            let value = control.checked;
             if ( isTap || event.target !== control ) {
                 event.preventDefault();
                 value = !value;
             }
             this.set( 'value', value );
         }
-    }.on( 'click', 'tap' )
+    }.on( 'click', 'tap' ),
 });
 
-NS.CheckboxView = CheckboxView;
-
-}( O ) );
+export default CheckboxView;

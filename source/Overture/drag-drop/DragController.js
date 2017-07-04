@@ -1,40 +1,40 @@
-// -------------------------------------------------------------------------- \\
-// File: DragController.js                                                    \\
-// Module: DragDrop                                                           \\
-// Requires: View, DragEffect.js                                              \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
-"use strict";
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import DOMEvent from '../dom/DOMEvent.js';
+import ViewEventsController from '../views/ViewEventsController.js';
 
-( function ( NS ) {
+import Drag from './Drag.js';  // Circular but it's OK
+import * as DragEffect from './DragEffect.js';
 
-var isControl = {
+const isControl = {
     BUTTON: 1,
     INPUT: 1,
     OPTION: 1,
     SELECT: 1,
-    TEXTAREA: 1
+    TEXTAREA: 1,
 };
-var effectToString = NS.DragEffect.effectToString;
-var DEFAULT = NS.DragEffect.DEFAULT;
+const effectToString = DragEffect.effectToString;
+const DEFAULT = DragEffect.DEFAULT;
 
-function TouchDragEvent ( touch ) {
-    var clientX = touch.clientX,
-        clientY = touch.clientY,
-        target = document.elementFromPoint( clientX, clientY ) || touch.target;
-    this.touch = touch;
-    this.clientX = clientX;
-    this.clientY = clientY;
-    this.target = target;
-    this.targetView = NS.ViewEventsController.getViewFromNode( target );
+class TouchDragEvent {
+    constructor ( touch ) {
+        const clientX = touch.clientX;
+        const clientY = touch.clientY;
+        const target = document.elementFromPoint( clientX, clientY ) ||
+                touch.target;
+        this.touch = touch;
+        this.clientX = clientX;
+        this.clientY = clientY;
+        this.target = target;
+        this.targetView = ViewEventsController.getViewFromNode( target );
+    }
 }
 
-var getTouch = function ( touches, touchId ) {
-    var l = touches.length,
+const getTouch = function ( touches, touchId ) {
+    let l = touches.length,
         touch;
     // Touch id may be 0 on Android chrome; can't use a falsy check
     if ( touchId === null ) {
@@ -61,7 +61,7 @@ var getTouch = function ( touches, touchId ) {
     add the required properties to views, and an instance of <O.Drag> gives all
     the information about the drag.
 */
-var DragController = new NS.Object({
+const DragController = new Object({
     /**
         Property (private): O.DragController._x
         Type: Number
@@ -128,7 +128,7 @@ var DragController = new NS.Object({
         Parameters:
             drag - {O.Drag} The new drag instance.
     */
-    register: function ( drag ) {
+    register ( drag ) {
         if ( this._drag ) {
             this._drag.endDrag();
         }
@@ -144,7 +144,7 @@ var DragController = new NS.Object({
         Parameters:
             drag - {O.Drag} The finished drag instance.
     */
-    deregister: function ( drag ) {
+    deregister ( drag ) {
         if ( this._drag === drag ) {
             this._drag = null;
             this._touchId = null;
@@ -162,7 +162,7 @@ var DragController = new NS.Object({
             (going up the tree) which is draggable. A view is draggable if it
             includes the <O.Draggable> mixin.
     */
-    getNearestDragView: function ( view ) {
+    getNearestDragView ( view ) {
         while ( view ) {
             if ( view.get( 'isDraggable' ) ) {
                 break;
@@ -217,7 +217,7 @@ var DragController = new NS.Object({
             event - {Event} The mousemove event.
     */
     _onMousemove: function ( event ) {
-        var drag = this._drag;
+        const drag = this._drag;
         if ( drag && this._touchId === null ) {
             // Mousemove should only be fired if not native DnD, but sometimes
             // is fired even when there's a native drag
@@ -228,20 +228,19 @@ var DragController = new NS.Object({
             // consistency with native DnD).
             event.stopPropagation();
         } else if ( !this._ignore ) {
-            var x = event.clientX - this._x,
-                y = event.clientY - this._y,
-                view;
+            const x = event.clientX - this._x;
+            const y = event.clientY - this._y;
 
             if ( ( x*x + y*y ) > 25 ) {
-                view = this.getNearestDragView( this._targetView );
+                const view = this.getNearestDragView( this._targetView );
                 if ( view ) {
-                    new NS.Drag({
+                    new Drag({
                         dragSource: view,
-                        event: event,
+                        event,
                         startPosition: {
                             x: this._x,
-                            y: this._y
-                        }
+                            y: this._y,
+                        },
                     });
                 }
                 this._ignore = true;
@@ -261,7 +260,7 @@ var DragController = new NS.Object({
         this._ignore = true;
         this._targetView = null;
         // Mouseup will not fire if native DnD
-        var drag = this._drag;
+        const drag = this._drag;
         if ( drag && this._touchId === null ) {
             drag.drop( event ).endDrag();
         }
@@ -276,13 +275,13 @@ var DragController = new NS.Object({
             event - {Event} The hold event.
     */
     _onHold: function ( event ) {
-        var touch = event.touch,
-            touchEvent = new TouchDragEvent( touch ),
-            view = this.getNearestDragView( touchEvent.targetView );
+        const touch = event.touch;
+        const touchEvent = new TouchDragEvent( touch );
+        const view = this.getNearestDragView( touchEvent.targetView );
         if ( view && !isControl[ touchEvent.target.nodeName ] ) {
-            this._drag = new NS.Drag({
+            this._drag = new Drag({
                 dragSource: view,
-                event: touchEvent
+                event: touchEvent,
             });
             this._touchId = touch.identifier;
         }
@@ -298,7 +297,7 @@ var DragController = new NS.Object({
     _onTouchstart: function ( event ) {
         // Touch id may be 0 on Android chrome; can't use a falsy check
         if ( this._touchId !== null ) {
-            var touch = getTouch( event.touches, this._touchId );
+            const touch = getTouch( event.touches, this._touchId );
             if ( !touch ) {
                 this._drag.endDrag();
             }
@@ -312,7 +311,7 @@ var DragController = new NS.Object({
             event - {Event} The touchmove event.
     */
     _onTouchmove: function ( event ) {
-        var touch = getTouch( event.changedTouches, this._touchId );
+        const touch = getTouch( event.changedTouches, this._touchId );
         if ( touch ) {
             this._drag.move( new TouchDragEvent( touch ) );
             // Don't propagate to views and don't trigger scroll.
@@ -328,7 +327,7 @@ var DragController = new NS.Object({
             event - {Event} The touchend event.
     */
     _onTouchend: function ( event ) {
-        var touch = getTouch( event.changedTouches, this._touchId );
+        const touch = getTouch( event.changedTouches, this._touchId );
         if ( touch ) {
             this._drag.drop( new TouchDragEvent( touch ) ).endDrag();
         }
@@ -341,7 +340,7 @@ var DragController = new NS.Object({
             event - {Event} The touchcancel event.
     */
     _onTouchcancel: function ( event ) {
-        var touch = getTouch( event.changedTouches, this._touchId );
+        const touch = getTouch( event.changedTouches, this._touchId );
         if ( touch ) {
             this._drag.endDrag();
         }
@@ -361,13 +360,13 @@ var DragController = new NS.Object({
         // We'll do our own drag system for anything implementing O.Draggable
         // Only allow native drag events for anything else (e.g. links and
         // anything marked with a draggable="true" attribute).
-        var dragView = this.getNearestDragView( event.targetView );
+        const dragView = this.getNearestDragView( event.targetView );
         if ( dragView ) {
             event.preventDefault();
         } else {
-            new NS.Drag({
-                event: event,
-                isNative: true
+            new Drag({
+                event,
+                isNative: true,
             });
         }
     }.on( 'dragstart' ),
@@ -381,32 +380,32 @@ var DragController = new NS.Object({
             event - {Event} The dragover event.
     */
     _onDragover: function ( event ) {
-        var drag = this._drag,
-            dataTransfer = event.dataTransfer,
-            notify = true,
-            dropEffect, effectAllowed;
+        let drag = this._drag;
+        const dataTransfer = event.dataTransfer;
+        let notify = true;
         // Probably hasn't come via root view controller, so doesn't have target
         // view property
         if ( !event.targetView ) {
             event.targetView =
-                NS.ViewEventsController.getViewFromNode( event.target );
+                ViewEventsController.getViewFromNode( event.target );
         }
         if ( !drag ) {
+            let effectAllowed;
             // IE10 will throw an error when you try to access this property!
             try {
                 effectAllowed = dataTransfer.effectAllowed;
             } catch ( error ) {
-                effectAllowed = NS.DragEffect.ALL;
+                effectAllowed = DragEffect.ALL;
             }
             // Drag from external source
-            drag = new NS.Drag({
-                event: event,
+            drag = new Drag({
+                event,
                 isNative: true,
-                allowedEffects: effectToString.indexOf( effectAllowed )
+                allowedEffects: effectToString.indexOf( effectAllowed ),
             });
         } else {
-            var x = event.clientX,
-                y = event.clientY;
+            const x = event.clientX;
+            const y = event.clientY;
             if ( this._x === x && this._y === y ) {
                 notify = false;
             } else {
@@ -417,7 +416,7 @@ var DragController = new NS.Object({
         if ( notify ) {
             drag.move( event );
         }
-        dropEffect = drag.get( 'dropEffect' );
+        const dropEffect = drag.get( 'dropEffect' );
         if ( dropEffect !== DEFAULT ) {
             dataTransfer.dropEffect =
                 effectToString[ dropEffect & drag.get( 'allowedEffects' ) ];
@@ -465,7 +464,7 @@ var DragController = new NS.Object({
             event - {Event} The dragleave event.
     */
     _onDragleave: function (/* event */) {
-        var drag = this._drag;
+        const drag = this._drag;
         if ( !( this._nativeRefCount -= 1 ) && drag ) {
             drag.endDrag();
         }
@@ -480,7 +479,7 @@ var DragController = new NS.Object({
             event - {Event} The drop event.
     */
     _onDrop: function ( event ) {
-        var drag = this._drag;
+        const drag = this._drag;
         if ( drag ) {
             if ( drag.get( 'dropEffect' ) !== DEFAULT ) {
                 event.preventDefault();
@@ -500,7 +499,7 @@ var DragController = new NS.Object({
             event - {Event} The dragend event.
     */
     _onDragend: function (/* event */) {
-        var drag = this._drag;
+        const drag = this._drag;
         if ( drag ) {
             drag.endDrag();
         }
@@ -518,20 +517,17 @@ var DragController = new NS.Object({
             event - {Event} The keydown event.
     */
     _escCancel: function ( event ) {
-        var drag = this._drag;
-        if ( drag && NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+        const drag = this._drag;
+        if ( drag && DOMEvent.lookupKey( event ) === 'esc' ) {
             drag.endDrag();
         }
-    }.on( 'keydown' )
+    }.on( 'keydown' ),
 });
 
-[ 'dragover', 'dragenter', 'dragleave', 'drop', 'dragend' ]
-    .forEach( function ( type ) {
-        document.addEventListener( type, DragController, false );
-    });
+[ 'dragover', 'dragenter', 'dragleave', 'drop', 'dragend' ].forEach( type => {
+    document.addEventListener( type, DragController, false );
+});
 
-NS.ViewEventsController.addEventTarget( DragController, 20 );
+ViewEventsController.addEventTarget( DragController, 20 );
 
-NS.DragController = DragController;
-
-}( O ) );
+export default DragController;

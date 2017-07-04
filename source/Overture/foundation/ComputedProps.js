@@ -1,14 +1,7 @@
-// -------------------------------------------------------------------------- \\
-// File: ComputedProps.js                                                     \\
-// Module: Foundation                                                         \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { meta, clone } from '../core/Core.js';
+import '../core/Array.js';  // For Array#erase
 
-"use strict";
-
-( function ( NS, undefined ) {
+import getFromPath from './getFromPath.js';
 
 /**
     Module: Foundation
@@ -17,27 +10,26 @@
     coding and observation as well as bindings and a run loop.
 */
 
-var slice = Array.prototype.slice,
-    meta = NS.meta;
+const slice = Array.prototype.slice;
 
-var makeComputedDidChange = function ( key ) {
+const makeComputedDidChange = function ( key ) {
     return function () {
         this.computedPropertyDidChange( key );
     };
 };
 
-var setupComputed = function ( metadata, key, obj ) {
-    var dependencies = this.dependencies,
-        dependents = metadata.dependents,
-        l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
+const setupComputed = function ( metadata, key, obj ) {
+    const dependencies = this.dependencies;
+    let dependents = metadata.dependents;
+    let method, pathObservers, methodObservers;
 
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-        dependents = metadata.dependents = NS.clone( dependents );
+        dependents = metadata.dependents = clone( dependents );
         metadata.allDependents = {};
     }
-    l = dependencies.length;
+    let l = dependencies.length;
     while ( l-- ) {
-        valueThisKeyDependsOn = dependencies[l];
+        const valueThisKeyDependsOn = dependencies[l];
         if ( valueThisKeyDependsOn.indexOf( '.' ) === -1 ) {
             ( dependents[ valueThisKeyDependsOn ] ||
                 ( dependents[ valueThisKeyDependsOn ] = [] ) ).push( key );
@@ -69,18 +61,18 @@ var setupComputed = function ( metadata, key, obj ) {
     }
 };
 
-var teardownComputed = function ( metadata, key ) {
-    var dependencies = this.dependencies,
-        dependents = metadata.dependents,
-        l, valueThisKeyDependsOn, method, pathObservers, methodObservers;
+const teardownComputed = function ( metadata, key ) {
+    const dependencies = this.dependencies;
+    let dependents = metadata.dependents;
+    let method, pathObservers, methodObservers;
 
     if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-        dependents = metadata.dependents = NS.clone( dependents );
+        dependents = metadata.dependents = clone( dependents );
         metadata.allDependents = {};
     }
-    l = dependencies.length;
+    let l = dependencies.length;
     while ( l-- ) {
-        valueThisKeyDependsOn = dependencies[l];
+        const valueThisKeyDependsOn = dependencies[l];
         if ( valueThisKeyDependsOn.indexOf( '.' ) === -1 ) {
             dependents[ valueThisKeyDependsOn ].erase( key );
         } else {
@@ -105,7 +97,7 @@ var teardownComputed = function ( metadata, key ) {
     }
 };
 
-Function.implement({
+Object.assign( Function.prototype, {
     /**
         Method: Function#property
 
@@ -128,7 +120,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
     */
-    property: function () {
+    property () {
         this.isProperty = true;
         if ( arguments.length ) {
             this.dependencies = slice.call( arguments );
@@ -146,7 +138,7 @@ Function.implement({
         Returns:
             {Function} Returns self.
     */
-    nocache: function () {
+    nocache () {
         this.isVolatile = true;
         return this;
     },
@@ -160,50 +152,11 @@ Function.implement({
         Returns:
             {Function} Returns self.
     */
-    doNotNotify: function () {
+    doNotNotify () {
         this.isSilent = true;
         return this;
-    }
+    },
 });
-
-/**
-    Function: O.getFromPath
-
-    Follows a path string (e.g. 'mailbox.messages.howMany') to retrieve the
-    final object/value from a root object. At each stage of the path, if the current object supports a 'get' function, that will be used to retrieve the
-    next stage, otherwise it will just be read directly as a property.
-
-    If the full path cannot be followed, `undefined` will be returned.
-
-    Parameters:
-        root - {Object} The root object the path is relative to.
-        path - {String} The path to retrieve the value from.
-
-    Returns:
-        {*} Returns the value at the end of the path.
-*/
-var isNum = /^\d+$/;
-var getFromPath = NS.getFromPath = function ( root, path ) {
-    var currentPosition = 0,
-        pathLength = path.length,
-        nextDot,
-        key;
-    while ( currentPosition < pathLength ) {
-        if ( !root ) {
-            return undefined;
-        }
-        nextDot = path.indexOf( '.', currentPosition );
-        if ( nextDot === -1 ) { nextDot = pathLength; }
-        key = path.slice( currentPosition, nextDot );
-        root = root.getObjectAt && isNum.test( key ) ?
-            root.getObjectAt( +key ) :
-            root.get ?
-                root.get( key ) :
-                root[ key ];
-        currentPosition = nextDot + 1;
-    }
-    return root;
-};
 
 /**
     Mixin: O.ComputedProps
@@ -239,12 +192,12 @@ var getFromPath = NS.getFromPath = function ( root, path ) {
     Returns:
         {String[]} The results array.
 */
-var computeDependentKeys = function ( cache, key, results ) {
-    var dependents = cache[ key ];
+const computeDependentKeys = function ( cache, key, results ) {
+    const dependents = cache[ key ];
     if ( dependents ) {
-        var l = dependents.length;
+        let l = dependents.length;
         while ( l-- ) {
-            var dependentKey = dependents[l];
+            const dependentKey = dependents[l];
             // May be multiple ways to get to this dependency.
             if ( results.indexOf( dependentKey ) === -1 ) {
                 results.push( dependentKey );
@@ -255,7 +208,7 @@ var computeDependentKeys = function ( cache, key, results ) {
     return results;
 };
 
-NS.ComputedProps = {
+export default {
     /**
         Method: O.ComputedProps#propertiesDependentOnKey
 
@@ -268,8 +221,8 @@ NS.ComputedProps = {
         Returns:
             {Array} Returns the list of dependents (may be empty).
     */
-    propertiesDependentOnKey: function ( key ) {
-        var metadata = meta( this );
+    propertiesDependentOnKey ( key ) {
+        const metadata = meta( this );
         return metadata.allDependents[ key ] ||
             ( metadata.allDependents[ key ] =
                 computeDependentKeys( metadata.dependents, key, [] ) );
@@ -288,10 +241,10 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    propertyDidChange: function ( key/*, oldValue, newValue*/ ) {
-        var dependents = this.propertiesDependentOnKey( key ),
-            l = dependents.length,
-            cache = meta( this ).cache;
+    propertyDidChange ( key/*, oldValue, newValue*/ ) {
+        const dependents = this.propertiesDependentOnKey( key );
+        let l = dependents.length;
+        const cache = meta( this ).cache;
         while ( l-- ) {
             delete cache[ dependents[l] ];
         }
@@ -311,9 +264,9 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    computedPropertyDidChange: function ( key, newValue ) {
-        var cache = meta( this ).cache,
-            oldValue = cache[ key ];
+    computedPropertyDidChange ( key, newValue ) {
+        const cache = meta( this ).cache;
+        const oldValue = cache[ key ];
         delete cache[ key ];
         if ( newValue !== undefined ) {
             cache[ key ] = newValue;
@@ -332,7 +285,7 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    clearPropertyCache: function () {
+    clearPropertyCache () {
         meta( this ).cache = {};
         return this;
     },
@@ -354,8 +307,8 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    set: function ( key, value ) {
-        var oldValue = this[ key ],
+    set ( key, value ) {
+        let oldValue = this[ key ],
             silent, cache;
         if ( oldValue && oldValue.isProperty ) {
             silent = !!oldValue.isSilent;
@@ -390,14 +343,13 @@ NS.ComputedProps = {
         Returns:
             {*} The value of the property.
     */
-    get: function ( key ) {
-        var value = this[ key ],
-            cache;
+    get ( key ) {
+        const value = this[ key ];
         if ( value && value.isProperty ) {
             if ( value.isVolatile ) {
                 return value.call( this, undefined, key );
             }
-            cache = meta( this ).cache;
+            const cache = meta( this ).cache;
             return ( key in cache ) ? cache[ key ] :
                 ( cache[ key ] = value.call( this, undefined, key ) );
         }
@@ -416,7 +368,7 @@ NS.ComputedProps = {
         Returns:
             {*} The value at that path relative to this object.
     */
-    getFromPath: function ( path ) {
+    getFromPath ( path ) {
         return getFromPath( this, path );
     },
 
@@ -433,7 +385,7 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    increment: function ( key, delta ) {
+    increment ( key, delta ) {
         return this.set( key, this.get( key ) + delta );
     },
 
@@ -449,9 +401,10 @@ NS.ComputedProps = {
         Returns:
             {O.ComputedProps} Returns self.
     */
-    toggle: function ( key ) {
+    toggle ( key ) {
         return this.set( key, !this.get( key ) );
-    }
+    },
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Function#property,
+// Function#nocache, Function#doNotNotify

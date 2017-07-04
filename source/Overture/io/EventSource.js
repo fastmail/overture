@@ -1,20 +1,18 @@
-// -------------------------------------------------------------------------- \\
-// File: EventSource.js                                                       \\
-// Module: IO                                                                 \\
-// Requires: Core, Foundation, UA, XHR.js                                     \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global EventSource */
 
-"use strict";
+import { Class, meta } from '../core/Core.js';
+import '../core/Array.js';  // For Array#include
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
+import '../foundation/EventTarget.js';  // For Function#on
+import '../foundation/ObservableProps.js';  // For Function#observes
+import XHR from './XHR.js';
 
-( function ( NS, NativeEventSource ) {
+const NativeEventSource = window.EventSource;
 
-var CONNECTING = 0;
-var OPEN = 1;
-var CLOSED = 2;
+const CONNECTING = 0;
+const OPEN = 1;
+const CLOSED = 2;
 
 /**
     Class: O.EventSource
@@ -27,9 +25,9 @@ var CLOSED = 2;
     Events are sent using a text/event-stream content type; see the linked spec
     for details. The event source object will fire events as they arrive.
 */
-var EventSource = NativeEventSource ? NS.Class({
+const EventSource = NativeEventSource ? Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.EventSource#readyState
@@ -60,7 +58,7 @@ var EventSource = NativeEventSource ? NS.Class({
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._then = 0;
         this._tick = null;
 
@@ -68,10 +66,9 @@ var EventSource = NativeEventSource ? NS.Class({
 
         EventSource.parent.init.call( this, mixin );
 
-        var eventTypes = [ 'open', 'message', 'error' ],
-            observers = NS.meta( this ).observers,
-            type;
-        for ( type in observers ) {
+        const eventTypes = [ 'open', 'message', 'error' ];
+        const observers = meta( this ).observers;
+        for ( const type in observers ) {
             if ( /^__event__/.test( type ) ) {
                 eventTypes.include( type.slice( 9 ) );
             }
@@ -79,9 +76,9 @@ var EventSource = NativeEventSource ? NS.Class({
         this._eventTypes = eventTypes;
     },
 
-    on: function ( type ) {
-        var types = this._eventTypes,
-            eventSource = this._eventSource;
+    on ( type ) {
+        const types = this._eventTypes;
+        const eventSource = this._eventSource;
         if ( types.indexOf( type ) === -1 ) {
             types.push( type );
             if ( eventSource ) {
@@ -102,8 +99,8 @@ var EventSource = NativeEventSource ? NS.Class({
         Checks the computer hasn't been asleep. If it has, it restarts the
         connection.
     */
-    _check: function () {
-        var now = Date.now();
+    _check () {
+        const now = Date.now();
         if ( now - this._then > 67500 ) {
             this.fire( 'restart' )
                 .close()
@@ -111,7 +108,7 @@ var EventSource = NativeEventSource ? NS.Class({
         } else {
             this._then = now;
             this._tick =
-                NS.RunLoop.invokeAfterDelay( this._check, 60000, this );
+                RunLoop.invokeAfterDelay( this._check, 60000, this );
             // Chrome occasionally closes the event source without firing an
             // event. Resync readyState here to work around.
             this.set( 'readyState', this._eventSource.readyState );
@@ -123,7 +120,7 @@ var EventSource = NativeEventSource ? NS.Class({
         Sets up the timer to check if the computer has been asleep.
     */
     _startStopCheck: function () {
-        var tick = this._tick;
+        const tick = this._tick;
         if ( this.get( 'readyState' ) !== CLOSED ) {
             if ( !tick ) {
                 this._then = Date.now();
@@ -131,7 +128,7 @@ var EventSource = NativeEventSource ? NS.Class({
             }
         } else {
             if ( tick ) {
-                NS.RunLoop.cancel( tick );
+                RunLoop.cancel( tick );
                 this._tick = null;
             }
         }
@@ -146,14 +143,14 @@ var EventSource = NativeEventSource ? NS.Class({
         Returns:
             {O.EventSource} Returns self.
     */
-    open: function () {
+    open () {
         if ( this.get( 'readyState' ) === CLOSED ) {
-            var eventSource = this._eventSource =
+            const eventSource = this._eventSource =
                 new NativeEventSource( this.get( 'url' ) );
 
-            this._eventTypes.forEach( function ( type ) {
-                eventSource.addEventListener( type, this, false );
-            }, this );
+            this._eventTypes.forEach(
+                type => eventSource.addEventListener( type, this, false )
+            );
 
             this.set( 'readyState', eventSource.readyState );
         }
@@ -168,7 +165,7 @@ var EventSource = NativeEventSource ? NS.Class({
         Returns:
             {O.EventSource} Returns self.
     */
-    close: function () {
+    close () {
         return this.set( 'readyState', CLOSED );
     },
 
@@ -180,31 +177,31 @@ var EventSource = NativeEventSource ? NS.Class({
     */
     _sourceDidClose: function () {
         if ( this.get( 'readyState' ) === CLOSED ) {
-            var eventSource = this._eventSource,
-                types = this._eventTypes,
-                l = types.length;
+            const eventSource = this._eventSource;
+            const types = this._eventTypes;
+            let l = types.length;
             eventSource.close();
             while ( l-- ) {
                 eventSource.removeEventListener( types[l], this, false );
             }
             this._eventSource = null;
         }
-    }.observes( 'readyState' )
-}) : NS.Class({
+    }.observes( 'readyState' ),
+}) : Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     readyState: CONNECTING,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         EventSource.parent.init.call( this, mixin );
-        this._xhr = new NS.XHR( this );
+        this._xhr = new XHR( this );
     },
 
-    open: function () {
-        var headers = {
+    open () {
+        const headers = {
             'Accept': 'text/event-stream',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
         };
         if ( this._lastEventId ) {
             headers[ 'Last-Event-ID' ] = this._lastEventId;
@@ -219,7 +216,7 @@ var EventSource = NativeEventSource ? NS.Class({
         return this;
     },
 
-    close: function () {
+    close () {
         if ( this.get( 'readyState' ) !== CLOSED ) {
             this._xhr.abort();
             this.set( 'readyState', CLOSED );
@@ -233,12 +230,12 @@ var EventSource = NativeEventSource ? NS.Class({
     // ---
 
     _dataDidArrive: function () {
-        var xhr = this._xhr;
+        const xhr = this._xhr;
         // Must start with text/event-stream (i.e. indexOf must === 0)
         // If it doesn't, fail the connection.
         // IE doesn't let you read headers in the loading phase, so if we don't
         // know the response type, we'll just presume it's correct.
-        var contentType = xhr.getHeader( 'Content-type' );
+        const contentType = xhr.getHeader( 'Content-type' );
         if ( contentType && contentType.indexOf( 'text/event-stream' ) !== 0 ) {
             this._failConnection();
         } else {
@@ -259,28 +256,27 @@ var EventSource = NativeEventSource ? NS.Class({
 
     // ---
 
-    _openConnection: function () {
+    _openConnection () {
         if ( this.get( 'readyState' ) === CONNECTING ) {
             this.set( 'readyState', OPEN )
                 .fire( 'open' );
         }
     },
 
-    _failConnection: function () {
+    _failConnection () {
         this.close()
             .fire( 'error' );
     },
 
-    _reconnect: function () {
-        NS.RunLoop.invokeAfterDelay(
+    _reconnect () {
+        RunLoop.invokeAfterDelay(
             this.open, this._reconnectAfter, this );
     },
 
-    _processData: function ( text ) {
+    _processData ( text ) {
         // Look for a new line character since the last processed
-        var lastIndex = this._lastNewLineIndex,
-            newLine = /\u000d\u000a?|\u000a/g,
-            match;
+        let lastIndex = this._lastNewLineIndex;
+        const newLine = /\u000d\u000a?|\u000a/g;
 
         // One leading U+FEFF BYTE ORDER MARK character must be ignored if any
         // are present.
@@ -288,6 +284,7 @@ var EventSource = NativeEventSource ? NS.Class({
             lastIndex = 1;
         }
         newLine.lastIndex = this._processedIndex;
+        let match;
         while ( match = newLine.exec( text ) ) {
             this._processLine( text.slice( lastIndex, match.index ) );
             lastIndex = newLine.lastIndex;
@@ -296,18 +293,18 @@ var EventSource = NativeEventSource ? NS.Class({
         this._processedIndex = text.length;
     },
 
-    _processLine: function ( line ) {
+    _processLine ( line ) {
         // Blank line, dispatch event
         if ( /^\s*$/.test( line ) ) {
             this._dispatchEvent();
         } else {
-            var colon = line.indexOf( ':' ),
-                field = line,
-                value = '';
+            const colon = line.indexOf( ':' );
             // Line starts with colon -> ignore.
             if ( !colon ) {
                 return;
             }
+            let field = line;
+            let value = '';
             // Line contains colon:
             if ( colon > 0 ) {
                 field = line.slice( 0, colon );
@@ -333,22 +330,21 @@ var EventSource = NativeEventSource ? NS.Class({
         }
     },
 
-    _dispatchEvent: function () {
-        var data = this._data,
-            type = this._eventName;
+    _dispatchEvent () {
+        let data = this._data;
         if ( data ) {
             if ( data.slice( -1 ) === '\u000a' ) {
                 data = data.slice( 0, -1 );
             }
-            this.fire( type || 'message', {
-                data: data,
+            this.fire( this._eventName || 'message', {
+                data,
                 // origin: '',
-                lastEventId: this._lastEventId
+                lastEventId: this._lastEventId,
             });
         }
         this._data = '';
         this._eventName = '';
-    }
+    },
 });
 
 /**
@@ -370,12 +366,8 @@ var EventSource = NativeEventSource ? NS.Class({
     <O.EventSource#readyState> when there is no connection and it is not being
     reestablished.
 */
-EventSource.extend({
-    CONNECTING: CONNECTING,
-    OPEN: OPEN,
-    CLOSED: CLOSED
-});
+EventSource.CONNECTING = CONNECTING;
+EventSource.OPEN = OPEN;
+EventSource.CLOSED = CLOSED;
 
-NS.EventSource = EventSource;
-
-}( O, typeof EventSource !== 'undefined' ? EventSource : null ) );
+export default EventSource;

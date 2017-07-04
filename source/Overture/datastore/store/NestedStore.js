@@ -1,26 +1,20 @@
-// -------------------------------------------------------------------------- \\
-// File: NestedStore.js                                                       \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Store.js                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, isEqual, clone } from '../../core/Core.js';
+import RunLoop from '../../foundation/RunLoop.js';
 
-"use strict";
+import {
+    // Core states:
+    EMPTY,
+    READY,
+    DESTROYED,
+    // Properties
+    LOADING,     // Request made to source to fetch record or updates.
+    COMMITTING,  // Request been made to source to commit record.
+    NEW,         // Record has not been committed to source.
+    DIRTY,       // Record has local changes not commited to source
+    OBSOLETE,    // Source may have changes not yet loaded.
+} from '../record/Status.js';
 
-( function ( NS ) {
-
-// Same as O.Status, inlined here for efficiency:
-// Core states:
-var EMPTY      =   1;
-var READY      =   2;
-var DESTROYED  =   4;
-// Properties
-var LOADING    =  16; // Request made to source to fetch record or updates.
-var COMMITTING =  32; // Request been made to source to commit record.
-var NEW        =  64; // Record has not been committed to source.
-var DIRTY      = 128; // Record has local changes not commited to source
-var OBSOLETE   = 256; // Source may have changes not yet loaded.
+import Store from './Store.js';
 
 /**
     Class: O.NestedStore
@@ -29,9 +23,9 @@ var OBSOLETE   = 256; // Source may have changes not yet loaded.
     parent store. The changes may be discarded instead of committing without
     ever affecting the parent store.
 */
-var NestedStore = NS.Class({
+const NestedStore = Class({
 
-    Extends: NS.Store,
+    Extends: Store,
 
     autoCommit: false,
     isNested: true,
@@ -43,7 +37,7 @@ var NestedStore = NS.Class({
             store - {O.Store} The parent store (this may be another nested
                     store).
     */
-    init: function ( store ) {
+    init ( store ) {
         // Own record store
         this._skToRecord = {};
         // Copy on write, shared data object store
@@ -102,7 +96,7 @@ var NestedStore = NS.Class({
         Removes the connection to the parent store so this store may be garbage
         collected.
     */
-    destroy: function () {
+    destroy () {
         this._parentStore.removeNested( this );
     },
 
@@ -117,18 +111,14 @@ var NestedStore = NS.Class({
         Returns:
             {O.NestedStore} Returns self.
     */
-    commitChanges: function () {
+    commitChanges () {
         this.fire( 'willCommit' );
-        var _created = this._created,
-            _destroyed = this._destroyed,
-            _skToData = this._skToData,
-            _skToChanged = this._skToChanged,
-            parent = this._parentStore,
-            storeKey, status, data;
+        const { _created, _destroyed, _skToData, _skToChanged } = this;
+        const parent = this._parentStore;
 
-        for ( storeKey in _created ) {
-            status = parent.getStatus( storeKey );
-            data = _skToData[ storeKey ];
+        for ( const storeKey in _created ) {
+            const status = parent.getStatus( storeKey );
+            const data = _skToData[ storeKey ];
             if ( status === EMPTY || status === DESTROYED ) {
                 parent.createRecord( storeKey, data );
             } else if ( ( status & ~(OBSOLETE|LOADING) ) ===
@@ -142,11 +132,11 @@ var NestedStore = NS.Class({
                     ( status & ~(DESTROYED|DIRTY) ) | READY );
             }
         }
-        for ( storeKey in _skToChanged ) {
+        for ( const storeKey in _skToChanged ) {
             parent.updateData( storeKey, Object.filter(
                 _skToData[ storeKey ], _skToChanged[ storeKey ] ), true );
         }
-        for ( storeKey in _destroyed ) {
+        for ( const storeKey in _destroyed ) {
             parent.destroyRecord( storeKey );
         }
 
@@ -169,10 +159,10 @@ var NestedStore = NS.Class({
         Returns:
             {O.NestedStore} Returns self.
     */
-    discardChanges: function () {
+    discardChanges () {
         NestedStore.parent.discardChanges.call( this );
 
-        var parent = this._parentStore;
+        const parent = this._parentStore;
 
         this._skToData = Object.create( parent._skToData );
         this._skToStatus = Object.create( parent._skToStatus );
@@ -182,18 +172,18 @@ var NestedStore = NS.Class({
 
     // === Low level (primarily internal) API: uses storeKey ===================
 
-    getStatus: function ( storeKey ) {
-        var status = this._skToStatus[ storeKey ] || EMPTY;
+    getStatus ( storeKey ) {
+        const status = this._skToStatus[ storeKey ] || EMPTY;
         return this._skToData.hasOwnProperty( storeKey ) ?
             status : status & ~(NEW|COMMITTING|DIRTY);
     },
 
-    fetchAll: function ( storeKey ) {
+    fetchAll ( storeKey ) {
         this._parentStore.fetchAll( storeKey );
         return this;
     },
 
-    fetchData: function ( storeKey ) {
+    fetchData ( storeKey ) {
         this._parentStore.fetchData( storeKey );
         return this;
     },
@@ -213,8 +203,8 @@ var NestedStore = NS.Class({
             previous - {O.Status} The previous status value.
             status   - {O.Status} The new status value.
     */
-    parentDidChangeStatus: function ( storeKey, previous, status ) {
-        var _skToStatus = this._skToStatus;
+    parentDidChangeStatus ( storeKey, previous, status ) {
+        const { _skToStatus } = this;
 
         previous = previous & ~(NEW|COMMITTING|DIRTY);
         status = status & ~(NEW|COMMITTING|DIRTY);
@@ -242,7 +232,7 @@ var NestedStore = NS.Class({
             if ( ( previous ^ status ) & READY ) {
                 this._recordDidChange( storeKey );
             }
-            var record = this._skToRecord[ storeKey ];
+            const record = this._skToRecord[ storeKey ];
             if ( record ) {
                 record.propertyDidChange( 'status', previous, status );
             }
@@ -264,7 +254,7 @@ var NestedStore = NS.Class({
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
     */
-    parentDidSetData: function ( storeKey, changedKeys ) {
+    parentDidSetData ( storeKey, changedKeys ) {
         this._notifyRecordOfChanges( storeKey, changedKeys );
         this._nestedStores.forEach( function ( store ) {
             store.parentDidSetData( storeKey, changedKeys );
@@ -284,25 +274,23 @@ var NestedStore = NS.Class({
             storeKey    - {String} The store key for the record.
             changedKeys - {Object} A list of keys which have changed.
     */
-    parentDidUpdateData: function ( storeKey, changedKeys ) {
+    parentDidUpdateData ( storeKey, changedKeys ) {
         if ( this._skToData.hasOwnProperty( storeKey ) ) {
-            var _skToData = this._skToData,
-                _skToChanged = this._skToChanged,
-                _skToCommitted = this._skToCommitted,
-                parent = this._parentStore,
-                rebase = this.rebaseConflicts,
-                newBase = parent.getData( storeKey ),
-                oldData = _skToData[ storeKey ],
-                oldChanged = _skToChanged[ storeKey ],
-                newData = {},
-                newChanged = {},
-                clean = true,
-                isChanged, key;
+            const { _skToData, _skToChanged, _skToCommitted } = this;
+            const parent = this._parentStore;
+            const rebase = this.rebaseConflicts;
+            const newBase = parent.getData( storeKey );
+            const oldData = _skToData[ storeKey ];
+            const oldChanged = _skToChanged[ storeKey ];
+            const newData = {};
+            const newChanged = {};
+            let clean = true;
+            let isChanged, key;
 
             changedKeys = [];
 
             for ( key in oldData ) {
-                isChanged = !NS.isEqual( oldData[ key ], newBase[ key ] );
+                isChanged = !isEqual( oldData[ key ], newBase[ key ] );
                 if ( rebase && ( key in oldChanged ) ) {
                     if ( isChanged ) {
                         newChanged[ key ] = true;
@@ -318,7 +306,7 @@ var NestedStore = NS.Class({
             }
             if ( !clean ) {
                 _skToChanged[ storeKey ] = newChanged;
-                _skToCommitted[ storeKey ] = NS.clone( newBase );
+                _skToCommitted[ storeKey ] = clone( newBase );
                 this.setData( storeKey, newData );
                 return;
             }
@@ -334,7 +322,7 @@ var NestedStore = NS.Class({
             store.parentDidUpdateData( storeKey, changedKeys );
         });
         this._recordDidChange( storeKey );
-        NS.RunLoop.queueFn( 'before', this.checkForChanges, this );
+        RunLoop.queueFn( 'before', this.checkForChanges, this );
     },
 
     // === A nested store is not directly connected to a source ================
@@ -356,9 +344,7 @@ var NestedStore = NS.Class({
     sourceDidCommitUpdate: null,
     sourceDidNotUpdate: null,
     sourceDidCommitDestroy: null,
-    sourceDidNotDestroy: null
+    sourceDidNotDestroy: null,
 });
 
-NS.NestedStore = NestedStore;
-
-}( O ) );
+export default NestedStore;

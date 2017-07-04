@@ -1,27 +1,19 @@
-// -------------------------------------------------------------------------- \\
-// File: ModalEventHandler.js                                                 \\
-// Module: PanelViews                                                         \\
-// Requires: Core, Foundation, DOM, View                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import '../../foundation/EventTarget.js';  // For Function#on
 
-"use strict";
+const ModalEventHandler = Class({
 
-( function ( NS ) {
+    Extends: Object,
 
-var ModalEventHandler = NS.Class({
-
-    Extends: NS.Object,
-
-    init: function ( mixin ) {
+    init ( mixin ) {
         ModalEventHandler.parent.init.call( this, mixin );
         this._seenMouseDown = false;
     },
 
-    inView: function ( event ) {
-        var targetView = event.targetView,
-            view = this.get( 'view' );
+    inView ( event ) {
+        let targetView = event.targetView;
+        const view = this.get( 'view' );
         while ( targetView && targetView !== view ) {
             targetView = targetView.get( 'parentView' );
         }
@@ -45,8 +37,8 @@ var ModalEventHandler = NS.Class({
     // before hiding on click. On Android/iOS, we will not see a mousedown
     // event, so we also count a touchstart event.
     handleMouse: function ( event ) {
-        var type = event.type,
-            view;
+        const type = event.type;
+        let view;
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.stopPropagation();
             if ( type === 'mousedown' ) {
@@ -75,7 +67,7 @@ var ModalEventHandler = NS.Class({
         if ( !event.seenByModal && !this.inView( event ) ) {
             event.stopPropagation();
             // View may be interested in key events:
-            var view = this.get( 'view' );
+            const view = this.get( 'view' );
             if ( view.keyOutside ) {
                 view.keyOutside( event );
             }
@@ -91,9 +83,7 @@ var ModalEventHandler = NS.Class({
             this._seenMouseDown = true;
         }
         event.seenByModal = true;
-    }.on( 'touchstart' )
+    }.on( 'touchstart' ),
 });
 
-NS.ModalEventHandler = ModalEventHandler;
-
-}( O ) );
+export default ModalEventHandler;

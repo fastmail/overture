@@ -1,16 +1,9 @@
-// -------------------------------------------------------------------------- \\
-// File: ThemeManager.js                                                      \\
-// Module: Application                                                        \\
-// Requires: Core, Foundation, DOM                                            \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import Stylesheet from '../dom/Stylesheet.js';
+import { loc } from '../localisation/LocaleController.js';
 
 /**
     Class: O.ThemeManager
@@ -21,11 +14,11 @@
     consists of stylesheets and images. These can be loaded in stages and
     hotswapped if themes are changed.
 */
-var ThemeManager = NS.Class({
+const ThemeManager = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._images = { all: {} };
         this._styles = { all: {} };
         this._activeStylesheets = {};
@@ -52,10 +45,9 @@ var ThemeManager = NS.Class({
             oldTheme - {String} The name of the theme being deactivated.
             newTheme - {String} The name of the newly active theme.
     */
-    changeTheme: function ( oldTheme, newTheme ) {
-        var active = this._activeStylesheets,
-            id;
-        for ( id in active ) {
+    changeTheme ( oldTheme, newTheme ) {
+        const active = this._activeStylesheets;
+        for ( const id in active ) {
             if ( active[ id ] ) {
                 this.addStylesheet( id, newTheme );
                 this.removeStylesheet( id, oldTheme );
@@ -75,8 +67,8 @@ var ThemeManager = NS.Class({
             id    - {String} An id for the image.
             data  - {String} The base64 encoded data for the image.
     */
-    imageDidLoad: function ( theme, id, data ) {
-        var themeImages = this._images[ theme ] ||
+    imageDidLoad ( theme, id, data ) {
+        const themeImages = this._images[ theme ] ||
             ( this._images[ theme ] = {} );
         themeImages[ id ] = data;
         return this;
@@ -94,8 +86,8 @@ var ThemeManager = NS.Class({
             id    - {String} An id for the image.
             data  - {String} The base64 encoded data for the image.
     */
-    stylesheetDidLoad: function ( theme, id, data ) {
-        var themeStyles = this._styles[ theme ] ||
+    stylesheetDidLoad ( theme, id, data ) {
+        const themeStyles = this._styles[ theme ] ||
             ( this._styles[ theme ] = {} );
         themeStyles[ id ] = data;
         return this;
@@ -115,29 +107,29 @@ var ThemeManager = NS.Class({
         Returns:
             {O.ThemeManager} Returns self.
     */
-    addStylesheet: function ( id, theme ) {
+    addStylesheet ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
-        var styles = this._styles[ theme ],
-            data = styles[ id ] || this._styles.all[ id ],
-            images = this._images[ theme ] || {},
-            themeIndependentImages = this._images.all,
-            active = this._activeStylesheets;
+        const styles = this._styles[ theme ];
+        let data = styles[ id ] || this._styles.all[ id ];
+        const images = this._images[ theme ] || {};
+        const themeIndependentImages = this._images.all;
+        const active = this._activeStylesheets;
 
         if ( data ) {
             // Substitute in images.
-            data = data.replace( /url\(([^)]+)\)/g, function ( url, src ) {
-                var imageData =
+            data = data.replace( /url\(([^)]+)\)/g, ( url, src ) => {
+                let imageData =
                         images[ src ] ||
                         themeIndependentImages[ src ] ||
-                        NS.loc( src );
+                        loc( src );
                 if ( /\.svg$/.test( src ) ) {
                     imageData = 'data:image/svg+xml;charset=UTF-8,' +
                         encodeURIComponent( imageData );
                 }
                 return 'url(' + ( imageData || src ) + ')';
             });
-            NS.Stylesheet.create( theme + '-' + id, data );
+            Stylesheet.create( theme + '-' + id, data );
             active[ id ] = ( active[ id ] || 0 ) + 1;
         }
 
@@ -155,10 +147,10 @@ var ThemeManager = NS.Class({
         Returns:
             {O.ThemeManager} Returns self.
     */
-    removeStylesheet: function ( id, theme ) {
+    removeStylesheet ( id, theme ) {
         if ( !theme ) { theme = this.get( 'theme' ); }
 
-        var sheet = document.getElementById( theme + '-' + id );
+        const sheet = document.getElementById( theme + '-' + id );
         if ( sheet ) {
             sheet.parentNode.removeChild( sheet );
             this._activeStylesheets[ id ] -= 1;
@@ -179,14 +171,12 @@ var ThemeManager = NS.Class({
             {(String|null)} A data URI for the requested image if the data is
             available, otherwise null.
     */
-    getImageSrc: function ( id ) {
-        var _images = this._images,
-            themeImages = _images[ this.get( 'theme' ) ] || {},
-            themeIndependentImages = _images.all;
+    getImageSrc ( id ) {
+        const _images = this._images;
+        const themeImages = _images[ this.get( 'theme' ) ] || {};
+        const themeIndependentImages = _images.all;
         return themeImages[ id ] || themeIndependentImages[ id ] || null;
-    }
+    },
 });
 
-NS.ThemeManager = ThemeManager;
-
-}( O ) );
+export default ThemeManager;

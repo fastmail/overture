@@ -1,35 +1,27 @@
-// -------------------------------------------------------------------------- \\
-// File: GestureManager.js                                                    \\
-// Module: Touch                                                              \\
-// Requires: View                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global document */
 
-"use strict";
+import '../core/Array.js';  // For Array#erase
+import Object from '../foundation/Object.js';
+import ViewEventsController from '../views/ViewEventsController.js';
 
-( function ( NS ) {
-
-var GestureManager = new NS.Object({
+const GestureManager = new Object({
 
     _gestures: [],
 
-    register: function ( gesture ) {
+    register ( gesture ) {
         this._gestures.push( gesture );
     },
 
-    deregister: function ( gesture ) {
+    deregister ( gesture ) {
         this._gestures.erase( gesture );
     },
 
     isMouseDown: false,
 
-    fire: function ( type, event ) {
+    fire ( type, event ) {
         if ( /^touch/.test( type ) ) {
-            var gestures = this._gestures,
-                l = gestures.length;
+            const gestures = this._gestures;
+            let l = gestures.length;
             type = type.slice( 5 );
             while ( l-- ) {
                 gestures[l][ type ]( event );
@@ -44,11 +36,9 @@ var GestureManager = new NS.Object({
             }
         }
         event.propagationStopped = false;
-    }
+    },
 });
 
-NS.ViewEventsController.addEventTarget( GestureManager, 30 );
+ViewEventsController.addEventTarget( GestureManager, 30 );
 
-NS.GestureManager = GestureManager;
-
-}( O ) );
+export default GestureManager;

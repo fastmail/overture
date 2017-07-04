@@ -1,24 +1,21 @@
-// -------------------------------------------------------------------------- \\
-// File: ListKBFocusView.js                                                   \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../core/Number.js';  // For Number#limit
+import { bind } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
+import '../../foundation/RunLoop.js';  // For Function#queue
+import ScrollView from '../containers/ScrollView.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
 
-"use strict";
+const ListKBFocusView = Class({
 
-( function ( NS, undefined ) {
-
-var ListKBFocusView = NS.Class({
-
-    Extends: NS.View,
+    Extends: View,
 
     selection: null,
     singleSelection: null,
 
-    index: NS.bind( 'singleSelection*index' ),
-    record: NS.bind( 'singleSelection*record' ),
+    index: bind( 'singleSelection*index' ),
+    record: bind( 'singleSelection*record' ),
 
     itemHeight: 32,
 
@@ -29,7 +26,7 @@ var ListKBFocusView = NS.Class({
         'shift-x': 'select',
         o: 'trigger',
         enter: 'trigger',
-        s: 'star'
+        s: 'star',
     },
 
     className: 'v-ListKBFocus',
@@ -37,35 +34,33 @@ var ListKBFocusView = NS.Class({
     positioning: 'absolute',
 
     layout: function () {
-        var itemHeight = this.get( 'itemHeight' ),
-            index = this.get( 'index' ),
-            singleSelection = this.get( 'singleSelection' ),
-            list = singleSelection.get( 'content' );
+        const itemHeight = this.get( 'itemHeight' );
+        let index = this.get( 'index' );
+        const singleSelection = this.get( 'singleSelection' );
+        const list = singleSelection.get( 'content' );
         if ( index > -1 && list &&
                 list.getObjectAt( index ) !== this.get( 'record' ) ) {
             index = -1;
         }
         return {
             top: itemHeight * index,
-            height: index < 0 ? 0 : itemHeight
+            height: index < 0 ? 0 : itemHeight,
         };
     }.property( 'itemHeight', 'index', 'record' ),
 
-    didEnterDocument: function () {
-        var keys = this.get( 'keys' ),
-            shortcuts = NS.ViewEventsController.kbShortcuts,
-            key;
-        for ( key in keys ) {
+    didEnterDocument () {
+        const keys = this.get( 'keys' );
+        const shortcuts = ViewEventsController.kbShortcuts;
+        for ( const key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
         }
         this.checkInitialScroll();
         return ListKBFocusView.parent.didEnterDocument.call( this );
     },
-    willLeaveDocument: function () {
-        var keys = this.get( 'keys' ),
-            shortcuts = NS.ViewEventsController.kbShortcuts,
-            key;
-        for ( key in keys ) {
+    willLeaveDocument () {
+        const keys = this.get( 'keys' );
+        const shortcuts = ViewEventsController.kbShortcuts;
+        for ( const key in keys ) {
             shortcuts.deregister( key, this, keys[ key ] );
         }
         return ListKBFocusView.parent.willLeaveDocument.call( this );
@@ -79,36 +74,37 @@ var ListKBFocusView = NS.Class({
     }.queue( 'after' ),
 
     checkScroll: function () {
-        var distance = this.get( 'distanceFromVisRect' );
+        const distance = this.get( 'distanceFromVisRect' );
         if ( distance ) {
             this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
         }
     }.queue( 'after' ),
 
     distanceFromVisRect: function () {
-        var scrollView = this.getParent( NS.ScrollView );
+        const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
-            var scrollTop = scrollView.get( 'scrollTop' ),
-                position = this.getPositionRelativeTo( scrollView ),
-                top = position.top,
-                above = top - scrollTop;
+            const scrollTop = scrollView.get( 'scrollTop' );
+            const position = this.getPositionRelativeTo( scrollView );
+            const top = position.top;
+            const above = top - scrollTop;
 
             if ( above < 0 ) { return above; }
 
-            var scrollHeight = scrollView.get( 'pxHeight' ),
-                below = top + this.get( 'pxHeight' ) - scrollTop - scrollHeight;
+            const scrollHeight = scrollView.get( 'pxHeight' );
+            const below = top + this.get( 'pxHeight' ) -
+                scrollTop - scrollHeight;
 
             if ( below > 0 ) { return below; }
         }
         return 0;
     }.property().nocache(),
 
-    scrollIntoView: function ( offset, withAnimation ) {
-        var scrollView = this.getParent( NS.ScrollView );
+    scrollIntoView ( offset, withAnimation ) {
+        const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
-            var scrollHeight = scrollView.get( 'pxHeight' ),
-                itemHeight = this.get( 'pxHeight' ),
-                top = this.getPositionRelativeTo( scrollView ).top;
+            const scrollHeight = scrollView.get( 'pxHeight' );
+            const itemHeight = this.get( 'pxHeight' );
+            const top = this.getPositionRelativeTo( scrollView ).top;
 
             if ( offset && -1 <= offset && offset <= 1 ) {
                 offset = ( offset * ( scrollHeight - itemHeight ) ) >> 1;
@@ -124,11 +120,11 @@ var ListKBFocusView = NS.Class({
         }
     },
 
-    go: function ( delta ) {
-        var index = this.get( 'index' ),
-            singleSelection = this.get( 'singleSelection' ),
-            list = singleSelection.get( 'content' ),
-            length = list && list.get( 'length' ) || 0;
+    go ( delta ) {
+        const index = this.get( 'index' );
+        const singleSelection = this.get( 'singleSelection' );
+        const list = singleSelection.get( 'content' );
+        const length = list && list.get( 'length' ) || 0;
         if ( delta === 1 && index > -1 && list &&
                 list.getObjectAt( index ) !== this.get( 'record' ) ) {
             delta = 0;
@@ -143,16 +139,16 @@ var ListKBFocusView = NS.Class({
             this.checkScroll();
         }
     },
-    goNext: function () {
+    goNext () {
         this.go( 1 );
     },
-    goPrev: function () {
+    goPrev () {
         this.go( -1 );
     },
-    select: function ( event ) {
-        var index = this.get( 'index' ),
-            selection = this.get( 'selection' ),
-            record = this.get( 'record' );
+    select ( event ) {
+        const index = this.get( 'index' );
+        const selection = this.get( 'selection' );
+        const record = this.get( 'record' );
         // Check it's next to a loaded record.
         if ( selection && record ) {
             selection.selectIndex( index,
@@ -160,10 +156,8 @@ var ListKBFocusView = NS.Class({
                 event.shiftKey );
         }
     },
-    trigger: function () {},
-    star: function () {}
+    trigger () {},
+    star () {},
 });
 
-NS.ListKBFocusView = ListKBFocusView;
-
-}( O ) );
+export default ListKBFocusView;

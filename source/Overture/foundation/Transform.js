@@ -1,21 +1,10 @@
-// -------------------------------------------------------------------------- \\
-// File: Transform.js                                                         \\
-// Module: Foundation                                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS, undefined ) {
-
 /**
     Namespace: O.Transform
 
     Holds a number of useful functions for transforming values, for use with
     <O.Binding>.
 */
-NS.Transform = {
+export default {
     /**
         Function: O.Transform.toBoolean
 
@@ -27,7 +16,7 @@ NS.Transform = {
         Returns:
             {Boolean} The numerical value.
     */
-    toBoolean: function ( value ) {
+    toBoolean ( value ) {
         return !!value;
     },
 
@@ -42,7 +31,7 @@ NS.Transform = {
         Returns:
             {String} The string value.
     */
-    toString: function ( value ) {
+    toString ( value ) {
         return value != null ? value + '' : '';
     },
 
@@ -57,7 +46,7 @@ NS.Transform = {
         Returns:
             {Number} The integral numerical value.
     */
-    toInt: function ( value ) {
+    toInt ( value ) {
         return parseInt( value, 10 ) || 0;
     },
 
@@ -72,7 +61,7 @@ NS.Transform = {
         Returns:
             {Number} The numerical value.
     */
-    toFloat: function ( value ) {
+    toFloat ( value ) {
         return parseFloat( value );
     },
 
@@ -87,7 +76,7 @@ NS.Transform = {
         Returns:
             {Boolean} The inverse Boolean value.
     */
-    invert: function ( value ) {
+    invert ( value ) {
         return !value;
     },
 
@@ -100,7 +89,7 @@ NS.Transform = {
         Parameters:
             value - {*} The default value to use.
     */
-    defaultValue: function ( value ) {
+    defaultValue ( value ) {
         return function ( v ) {
             return v !== undefined ? v : value;
         };
@@ -117,7 +106,7 @@ NS.Transform = {
         Returns:
             {*} The value or null if the value is undefined.
     */
-    undefinedToNull: function ( value ) {
+    undefinedToNull ( value ) {
         return value === undefined ? null : value;
     },
 
@@ -135,13 +124,11 @@ NS.Transform = {
             Or, if the sync is in reverse, returns the given value if true or
             undefined if false.
     */
-    isEqualToValue: function ( value ) {
+    isEqualToValue ( value ) {
         return function ( syncValue, syncForward ) {
             return syncForward ?
                 syncValue === value :
                 syncValue ? value : undefined;
         };
-    }
+    },
 };
-
-}( O ) );

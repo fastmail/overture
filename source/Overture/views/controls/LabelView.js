@@ -1,14 +1,6 @@
-// -------------------------------------------------------------------------- \\
-// File: LabelView.js                                                         \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import View from '../View.js';
 
 /**
     Class: O.LabelView
@@ -22,9 +14,9 @@
 
     Although you may often want to change the layer tag (e.g. to an `h1` etc.)
 */
-var LabelView = NS.Class({
+const LabelView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     /**
         Property: O.LabelView#layerTag
@@ -58,7 +50,7 @@ var LabelView = NS.Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw: function ( layer/*, Element, el*/ ) {
+    draw ( layer/*, Element, el*/ ) {
         layer.title = this.get( 'tooltip' );
         layer.textContent = this.get( 'value' );
     },
@@ -82,7 +74,7 @@ var LabelView = NS.Class({
         Updates the title attribute on the DOM layer to match the tooltip
         property of the view.
     */
-    redrawTooltip: function ( layer ) {
+    redrawTooltip ( layer ) {
         layer.title = this.get( 'tooltip' );
     },
 
@@ -95,11 +87,9 @@ var LabelView = NS.Class({
         Updates the text content of the DOM layer to match the value property of
         the view.
     */
-    redrawValue: function ( layer ) {
+    redrawValue ( layer ) {
         layer.textContent = this.get( 'value' );
-    }
+    },
 });
 
-NS.LabelView = LabelView;
-
-}( O ) );
+export default LabelView;

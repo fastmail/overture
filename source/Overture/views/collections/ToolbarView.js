@@ -1,42 +1,42 @@
-// -------------------------------------------------------------------------- \\
-// File: ToolbarView.js                                                       \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View, ControlViews                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import DOMEvent from '../../dom/DOMEvent.js';
+import Element from '../../dom/Element.js';
+import { loc } from '../../localisation/LocaleController.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import PopOverView from '../panels/PopOverView.js';
+import MenuButtonView from '../controls/MenuButtonView.js';
+import MenuView from '../controls/MenuView.js';
 
-"use strict";
-
-( function ( NS ) {
-
-var toView = function ( name ) {
+const toView = function ( name ) {
     return ( name === '-' ) ?
-        NS.Element.create( 'span.v-Toolbar-divider' ) :
+        Element.create( 'span.v-Toolbar-divider' ) :
         this._views[ name ];
 };
 
-var OverflowMenuView = NS.Class({
+const OverflowMenuView = Class({
 
-    Extends: NS.MenuButtonView,
+    Extends: MenuButtonView,
 
-    didEnterDocument: function () {
+    didEnterDocument () {
         OverflowMenuView.parent.didEnterDocument.call( this );
         this.setShortcuts( null, '', {}, this.get( 'shortcuts' ) );
         return this;
     },
 
-    willLeaveDocument: function () {
+    willLeaveDocument () {
         this.setShortcuts( null, '', this.get( 'shortcuts' ), {} );
         return OverflowMenuView.parent.willLeaveDocument.call( this );
     },
 
     shortcuts: function () {
-        var views = this.getFromPath( 'menuView.options' );
-        return views ? views.reduce( function ( acc, view ) {
-            var shortcut = view.get( 'shortcut' );
+        const views = this.getFromPath( 'menuView.options' );
+        return views ? views.reduce( ( acc, view ) => {
+            const shortcut = view.get( 'shortcut' );
             if ( shortcut ) {
-                shortcut.split( ' ' ).forEach( function ( key ) {
+                shortcut.split( ' ' ).forEach( key => {
                     acc[ key ] = view;
                 });
             }
@@ -46,31 +46,30 @@ var OverflowMenuView = NS.Class({
 
     setShortcuts: function ( _, __, oldShortcuts, shortcuts ) {
         if ( this.get( 'isInDocument' ) ) {
-            var kbShortcuts = NS.ViewEventsController.kbShortcuts,
-                key;
+            const kbShortcuts = ViewEventsController.kbShortcuts;
             if ( !shortcuts ) { shortcuts = this.get( 'shortcuts' ); }
-            for ( key in oldShortcuts ) {
+            for ( const key in oldShortcuts ) {
                 kbShortcuts.deregister( key, this, 'activateButton' );
             }
-            for ( key in shortcuts ) {
+            for ( const key in shortcuts ) {
                 kbShortcuts.register( key, this, 'activateButton' );
             }
         }
     }.observes( 'shortcuts' ),
 
-    activateButton: function ( event ) {
-        var key = NS.DOMEvent.lookupKey( event ),
-            button = this.get( 'shortcuts' )[ key ];
-        if ( button instanceof NS.MenuButtonView ) {
+    activateButton ( event ) {
+        const key = DOMEvent.lookupKey( event );
+        const button = this.get( 'shortcuts' )[ key ];
+        if ( button instanceof MenuButtonView ) {
             this.activate();
         }
         button.activate();
-    }
+    },
 });
 
-var ToolbarView = NS.Class({
+const ToolbarView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     className: 'v-Toolbar',
 
@@ -78,25 +77,25 @@ var ToolbarView = NS.Class({
     minimumGap: 20,
     preventOverlap: false,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         ToolbarView.parent.init.call( this, mixin );
         this._views = {
             overflow: new OverflowMenuView({
-                label: NS.loc( 'More' ),
-                popOverView: mixin.popOverView || new NS.PopOverView()
-            })
+                label: loc( 'More' ),
+                popOverView: mixin.popOverView || new PopOverView(),
+            }),
         };
         this._configs = {
             standard: {
                 left: [],
-                right: []
-            }
+                right: [],
+            },
         };
         this._measureView = null;
         this._widths = {};
     },
 
-    registerView: function ( name, view, _dontMeasure ) {
+    registerView ( name, view, _dontMeasure ) {
         this._views[ name ] = view;
         if ( !_dontMeasure && this.get( 'isInDocument' ) &&
                 this.get( 'preventOverlap' ) ) {
@@ -105,8 +104,8 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    registerViews: function ( views ) {
-        for ( var name in views ) {
+    registerViews ( views ) {
+        for ( const name in views ) {
             this.registerView( name, views[ name ], true );
         }
         if ( this.get( 'isInDocument' ) && this.get( 'preventOverlap' ) ) {
@@ -115,7 +114,7 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    registerConfig: function ( name, config ) {
+    registerConfig ( name, config ) {
         this._configs[ name ] = config;
         if ( this.get( 'config' ) === name ) {
             this.computedPropertyDidChange( 'config' );
@@ -123,41 +122,41 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    registerConfigs: function ( configs ) {
-        for ( var name in configs ) {
+    registerConfigs ( configs ) {
+        for ( const name in configs ) {
             this.registerConfig( name, configs[ name ] );
         }
         return this;
     },
 
-    getView: function ( name ) {
+    getView ( name ) {
         return this._views[ name ];
     },
 
-    getConfig: function ( config ) {
+    getConfig ( config ) {
         return this._configs[ config ] || null;
     },
 
     // ---
 
     leftConfig: function () {
-        var configs = this._configs,
-            config = configs[ this.get( 'config' ) ];
+        const configs = this._configs;
+        const config = configs[ this.get( 'config' ) ];
         return ( config && config.left ) || configs.standard.left;
     }.property( 'config' ),
 
     rightConfig: function () {
-        var configs = this._configs,
-            config = configs[ this.get( 'config' ) ];
+        const configs = this._configs;
+        const config = configs[ this.get( 'config' ) ];
         return ( config && config.right ) || configs.standard.right;
     }.property( 'config' ),
 
     left: function () {
-        var leftConfig = this.get( 'leftConfig' ),
-            rightConfig = this.get( 'rightConfig' ),
-            pxWidth = this.get( 'pxWidth' ),
-            widths = this._widths,
-            i, l;
+        let leftConfig = this.get( 'leftConfig' );
+        const rightConfig = this.get( 'rightConfig' );
+        let pxWidth = this.get( 'pxWidth' );
+        const widths = this._widths;
+        let i, l;
 
         if ( widths && pxWidth && this.get( 'preventOverlap' ) ) {
             pxWidth -= this.get( 'minimumGap' );
@@ -176,13 +175,11 @@ var ToolbarView = NS.Class({
                 }
                 if ( l < 0 ) { l = 0; }
 
-                this._views.overflow.set( 'menuView', new NS.MenuView({
+                this._views.overflow.set( 'menuView', new MenuView({
                     showFilter: false,
                     options: leftConfig.slice( l )
                         .map( toView, this )
-                        .filter( function ( view ) {
-                            return view instanceof NS.View;
-                        })
+                        .filter( view => view instanceof View ),
                 }) );
 
                 if ( l > 0 ) {
@@ -205,21 +202,19 @@ var ToolbarView = NS.Class({
         return this.get( 'rightConfig' ).map( toView, this );
     }.property( 'rightConfig' ),
 
-    preMeasure: function () {
+    preMeasure () {
         this.insertView( this._measureView =
-            new NS.View({
+            new View({
                 className: 'v-Toolbar-section v-Toolbar-section--measure',
                 layerStyles: {},
                 childViews: Object.values( this._views )
-                                  .filter( function ( view ) {
-                    return !view.get( 'parentView' );
-                }),
-                draw: function ( layer, Element, el ) {
+                                  .filter( view => !view.get( 'parentView' ) ),
+                draw ( layer, Element, el ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),
-                        NS.View.prototype.draw.call( this, layer, Element, el )
+                        View.prototype.draw.call( this, layer, Element, el ),
                     ];
-                }
+                },
             }),
             this.get( 'layer' ).lastChild,
             'before'
@@ -227,17 +222,16 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    postMeasure: function () {
-        var widths = this._widths,
-            views = this._views,
-            measureView = this._measureView,
-            unused = measureView.get( 'childViews' ),
-            container = measureView.get( 'layer' ),
-            containerBoundingClientRect = container.getBoundingClientRect(),
-            firstButton = unused.length ? unused[0].get( 'layer' ) : null,
-            name, l;
+    postMeasure () {
+        const widths = this._widths;
+        const views = this._views;
+        const measureView = this._measureView;
+        const unused = measureView.get( 'childViews' );
+        const container = measureView.get( 'layer' );
+        const containerBoundingClientRect = container.getBoundingClientRect();
+        const firstButton = unused.length ? unused[0].get( 'layer' ) : null;
 
-        for ( name in views ) {
+        for ( const name in views ) {
             widths[ name ] = views[ name ].get( 'pxWidth' ) || widths[ name ];
         }
 
@@ -249,7 +243,7 @@ var ToolbarView = NS.Class({
         ) - containerBoundingClientRect.left;
 
         this.removeView( measureView );
-        l = unused.length;
+        let l = unused.length;
         while ( l-- ) {
             measureView.removeView( unused[l] );
         }
@@ -259,14 +253,14 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    willEnterDocument: function () {
+    willEnterDocument () {
         if ( this.get( 'preventOverlap' ) ) {
             this.preMeasure();
         }
         return ToolbarView.parent.willEnterDocument.call( this );
     },
 
-    didEnterDocument: function () {
+    didEnterDocument () {
         this.beginPropertyChanges();
         ToolbarView.parent.didEnterDocument.call( this );
         if ( this.get( 'preventOverlap' ) ) {
@@ -276,14 +270,14 @@ var ToolbarView = NS.Class({
         return this;
     },
 
-    draw: function ( layer, Element, el ) {
+    draw ( layer, Element, el ) {
         return [
             el( 'div.v-Toolbar-section.v-Toolbar-section--left',
                 this.get( 'left' )
             ),
             el( 'div.v-Toolbar-section.v-Toolbar-section--right',
                 this.get( 'right' )
-            )
+            ),
         ];
     },
 
@@ -293,16 +287,15 @@ var ToolbarView = NS.Class({
         }
     }.observes( 'left', 'right' ),
 
-    redrawLeft: function ( layer, oldViews ) {
+    redrawLeft ( layer, oldViews ) {
         this.redrawSide( layer.firstChild, oldViews, this.get( 'left' ) );
     },
-    redrawRight: function ( layer, oldViews ) {
+    redrawRight ( layer, oldViews ) {
         this.redrawSide( layer.lastChild, oldViews, this.get( 'right' ) );
     },
 
-    redrawSide: function ( container, oldViews, newViews ) {
-        var View = NS.View,
-            start = 0,
+    redrawSide ( container, oldViews, newViews ) {
+        let start = 0,
             isEqual = true,
             i, l, view, parent;
 
@@ -338,9 +331,7 @@ var ToolbarView = NS.Class({
                 container.appendChild( view );
             }
         }
-    }
+    },
 });
 
-NS.ToolbarView = ToolbarView;
-
-}( O ) );
+export default ToolbarView;

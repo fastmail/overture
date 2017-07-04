@@ -1,14 +1,4 @@
-// -------------------------------------------------------------------------- \\
-// File: Array.js                                                             \\
-// Module: Core                                                               \\
-// Requires: Core.js                                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-Array.implement({
+Object.assign( Array.prototype, {
     /**
         Method: Array#get
 
@@ -21,7 +11,7 @@ Array.implement({
         Returns:
             {*} The requested property of this array.
     */
-    get: function ( key ) {
+    get ( key ) {
         return this[ key ];
     },
 
@@ -37,7 +27,7 @@ Array.implement({
         Returns:
             {Array} Returns self.
     */
-    set: function ( key, value ) {
+    set ( key, value ) {
         this[ key ] = value;
         return this;
     },
@@ -53,7 +43,7 @@ Array.implement({
         Returns:
             {*} The value at the given index in this array.
     */
-    getObjectAt: function ( index ) {
+    getObjectAt ( index ) {
         return this[ index ];
     },
 
@@ -69,7 +59,7 @@ Array.implement({
         Returns:
             {Array} Returns self.
     */
-    setObjectAt: function ( index, value ) {
+    setObjectAt ( index, value ) {
         this[ index ] = value;
         return this;
     },
@@ -86,9 +76,9 @@ Array.implement({
         Returns:
             {Array} Returns self.
     */
-    include: function ( item ) {
-        var i = 0,
-            l = this.length;
+    include ( item ) {
+        let i = 0;
+        const l = this.length;
         while ( i < l && this[i] !== item ) {
             i += 1;
         }
@@ -108,13 +98,16 @@ Array.implement({
         Returns:
             {Array} Returns self.
     */
-    erase: function ( item ) {
-        var l = this.length;
+    erase ( item ) {
+        let l = this.length;
         while ( l-- ) {
             if ( this[l] === item ) {
                 this.splice( l, 1 );
             }
         }
         return this;
-    }
+    },
 });
+
+// TODO(cmorgan/modulify): do something about these exports: Array#get,
+// Array#set, Array#getObjectAt, Array#setObjectAt, Array#include, Array#erase

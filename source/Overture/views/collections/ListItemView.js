@@ -1,18 +1,12 @@
-// -------------------------------------------------------------------------- \\
-// File: ListItemView.js                                                      \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/RunLoop.js';  // For Function#nextFrame
+import UA from '../../ua/UA.js';
+import View from '../View.js';
 
-"use strict";
+const ListItemView = Class({
 
-( function ( NS ) {
-
-var ListItemView = NS.Class({
-
-    Extends: NS.View,
+    Extends: View,
 
     content: null,
 
@@ -24,9 +18,9 @@ var ListItemView = NS.Class({
 
     animateIn: false,
 
-    init: function ( mixin ) {
-        var selection = mixin.selection,
-            content = mixin.content;
+    init ( mixin ) {
+        const selection = mixin.selection;
+        const content = mixin.content;
         if ( selection && content ) {
             this.isSelected = selection.isStoreKeySelected(
                 content.get( 'storeKey' )
@@ -37,20 +31,20 @@ var ListItemView = NS.Class({
 
     positioning: 'absolute',
 
-    layout: ( NS.UA.cssProps.transform3d ? function () {
-        var index = this.get( 'index' ),
-            itemHeight = this.get( 'itemHeight' ),
-            isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' ),
-            y = ( index - ( isNew ? 1 : 0 ) ) * itemHeight;
+    layout: ( UA.cssProps.transform3d ? function () {
+        const index = this.get( 'index' );
+        const itemHeight = this.get( 'itemHeight' );
+        const isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' );
+        const y = ( index - ( isNew ? 1 : 0 ) ) * itemHeight;
         return {
             transform: 'translate3d(0,' + y + 'px,0)',
-            opacity: isNew ? 0 : 1
+            opacity: isNew ? 0 : 1,
         };
     } : function () {
-        var index = this.get( 'index' ),
-            itemHeight = this.get( 'itemHeight' );
+        const index = this.get( 'index' );
+        const itemHeight = this.get( 'itemHeight' );
         return {
-            top: index * itemHeight
+            top: index * itemHeight,
         };
     }).property( 'index', 'itemHeight' ),
 
@@ -58,9 +52,7 @@ var ListItemView = NS.Class({
         if ( this.get( 'animateIn' ) ) {
             this.computedPropertyDidChange( 'layout' );
         }
-    }.nextFrame().observes( 'isInDocument' )
+    }.nextFrame().observes( 'isInDocument' ),
 });
 
-NS.ListItemView = ListItemView;
-
-}( O ) );
+export default ListItemView;

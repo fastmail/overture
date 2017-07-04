@@ -1,19 +1,12 @@
-// -------------------------------------------------------------------------- \\
-// File: Record.js                                                            \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js, AttributeErrors.js                  \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, meta, clone } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-"use strict";
+import RecordAttribute from './RecordAttribute.js';
+import AttributeErrors from './AttributeErrors.js';
+import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status.js';
 
-( function ( NS, undefined ) {
-
-var meta = NS.meta;
-var Status = NS.Status;
-var READY_NEW_DIRTY = (Status.READY|Status.NEW|Status.DIRTY);
-var AttributeErrors = NS.AttributeErrors;
+const READY_NEW_DIRTY = (READY|NEW|DIRTY);
 
 /**
     Class: O.Record
@@ -23,9 +16,9 @@ var AttributeErrors = NS.AttributeErrors;
     All data object classes managed by the store must inherit from Record. This
     provides the basic status management for the attributes.
 */
-var Record = NS.Class({
+const Record = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Constructor: O.Record
@@ -37,7 +30,7 @@ var Record = NS.Class({
                        can then be committed to the store using the
                        <O.Record#saveToStore> method.
     */
-    init: function ( store, storeKey ) {
+    init ( store, storeKey ) {
         this._noSync = false;
         this._data = storeKey ? null : {};
         this.store = store;
@@ -58,12 +51,12 @@ var Record = NS.Class({
         Returns:
             {O.Record} The new record.
     */
-    clone: function ( store ) {
-        var Type = this.constructor;
-        var prototype = Type.prototype;
-        var clone = new Type( store );
-        var attrs = NS.meta( this ).attrs;
-        var attrKey, propKey, value;
+    clone ( store ) {
+        const Type = this.constructor;
+        const prototype = Type.prototype;
+        const clone = new Type( store );
+        const attrs = meta( this ).attrs;
+        let attrKey, propKey, value;
         for ( attrKey in attrs ) {
             propKey = attrs[ attrKey ];
             if ( prototype[ propKey ].noSync ) {
@@ -111,7 +104,7 @@ var Record = NS.Class({
         defined in <O.Status>.
     */
     status: function () {
-        var storeKey = this.get( 'storeKey' );
+        const storeKey = this.get( 'storeKey' );
         return storeKey ?
             this.get( 'store' ).getStatus( storeKey ) :
             READY_NEW_DIRTY;
@@ -131,7 +124,7 @@ var Record = NS.Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is: function ( state ) {
+    is ( state ) {
         return !!( this.get( 'status' ) & state );
     },
 
@@ -143,11 +136,11 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    setObsolete: function () {
-        var storeKey = this.get( 'storeKey' ),
-            status = this.get( 'status' );
+    setObsolete () {
+        const storeKey = this.get( 'storeKey' );
+        const status = this.get( 'status' );
         if ( storeKey ) {
-            this.get( 'store' ).setStatus( storeKey, status | Status.OBSOLETE );
+            this.get( 'store' ).setStatus( storeKey, status | OBSOLETE );
         }
         return this;
     },
@@ -160,11 +153,11 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    setLoading: function () {
-        var storeKey = this.get( 'storeKey' ),
-            status = this.get( 'status' );
+    setLoading () {
+        const storeKey = this.get( 'storeKey' );
+        const status = this.get( 'status' );
         if ( storeKey ) {
-            this.get( 'store' ).setStatus( storeKey, status | Status.LOADING );
+            this.get( 'store' ).setStatus( storeKey, status | LOADING );
         }
         return this;
     },
@@ -180,17 +173,17 @@ var Record = NS.Class({
         'id', you must not override this property.
     */
     id: function () {
-        var storeKey = this.get( 'storeKey' );
+        const storeKey = this.get( 'storeKey' );
         return storeKey ?
             this.get( 'store' ).getIdFromStoreKey( storeKey ) :
             this.get( this.constructor.primaryKey );
     }.property(),
 
-    toJSON: function () {
+    toJSON () {
         return this.get( 'storeKey' );
     },
 
-    toIdOrStoreKey: function () {
+    toIdOrStoreKey () {
         return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
     },
 
@@ -205,31 +198,30 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    saveToStore: function () {
+    saveToStore () {
         if ( this.get( 'storeKey' ) ) {
-            throw new Error( "Record already created in store." );
+            throw new Error( 'Record already created in store.' );
         }
-        var Type = this.constructor,
-            data = this._data,
-            store = this.get( 'store' ),
-            idPropKey = Type.primaryKey || 'id',
-            idAttrKey = this[ idPropKey ].key || idPropKey,
-            storeKey = store.getStoreKey( Type, data[ idAttrKey ] ),
-            attrs = NS.meta( this ).attrs,
-            attrKey, propKey, attribute, defaultValue;
+        const Type = this.constructor;
+        const data = this._data;
+        const store = this.get( 'store' );
+        const idPropKey = Type.primaryKey || 'id';
+        const idAttrKey = this[ idPropKey ].key || idPropKey;
+        const storeKey = store.getStoreKey( Type, data[ idAttrKey ] );
+        const attrs = meta( this ).attrs;
 
         this._data = null;
 
         // Fill in any missing defaults
-        for ( attrKey in attrs ) {
-            propKey = attrs[ attrKey ];
+        for ( const attrKey in attrs ) {
+            const propKey = attrs[ attrKey ];
             if ( propKey ) {
-                attribute = this[ propKey ];
+                const attribute = this[ propKey ];
                 if ( !( attrKey in data ) && !attribute.noSync ) {
-                    defaultValue = attribute.defaultValue;
+                    const defaultValue = attribute.defaultValue;
                     if ( defaultValue !== undefined && !attribute.noSync ) {
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
-                            defaultValue.toJSON() : NS.clone( defaultValue );
+                            defaultValue.toJSON() : clone( defaultValue );
                     }
                 }
             }
@@ -253,11 +245,11 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    discardChanges: function () {
+    discardChanges () {
         if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
             this.destroy();
         } else {
-            var storeKey = this.get( 'storeKey' );
+            const storeKey = this.get( 'storeKey' );
             if ( storeKey ) {
                 this.get( 'store' ).revertData( storeKey );
             }
@@ -274,8 +266,8 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    refresh: function () {
-        var storeKey = this.get( 'storeKey' );
+    refresh () {
+        const storeKey = this.get( 'storeKey' );
         if ( storeKey ) { this.get( 'store' ).fetchData( storeKey ); }
         return this;
     },
@@ -286,8 +278,8 @@ var Record = NS.Class({
         Destroy the record. This will inform the store, which will commit it to
         the source.
     */
-    destroy: function () {
-        var storeKey = this.get( 'storeKey' );
+    destroy () {
+        const storeKey = this.get( 'storeKey' );
         if ( storeKey && this.get( 'isEditable' ) ) {
             this.get( 'store' )
                 .fire( 'record:user:destroy', { record: this } )
@@ -305,7 +297,7 @@ var Record = NS.Class({
             {O.Record} Returns the record instance for the same record in the
             given store.
     */
-    getDoppelganger: function ( store ) {
+    getDoppelganger ( store ) {
         if ( this.get( 'store' ) === store ) {
             return this;
         }
@@ -319,7 +311,7 @@ var Record = NS.Class({
         This should only be called by the store, when it unloads the record's
         data to free up memory.
     */
-    storeWillUnload: function () {
+    storeWillUnload () {
         Record.parent.destroy.call( this );
     },
 
@@ -339,7 +331,7 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    stopSync: function () {
+    stopSync () {
         this._noSync = true;
         return this;
     },
@@ -353,7 +345,7 @@ var Record = NS.Class({
         Returns:
             {O.Record} Returns self.
     */
-    startSync: function () {
+    startSync () {
         this._noSync = false;
         return this;
     },
@@ -397,8 +389,8 @@ var Record = NS.Class({
             {O.ValidationError|null} The error, or null if the assignment would
             be valid.
     */
-    errorToSet: function ( key, value ) {
-        var attr = this[ key ];
+    errorToSet ( key, value ) {
+        const attr = this[ key ];
         return attr.validate ? attr.validate( value, key, this ) : null;
     },
 
@@ -412,41 +404,41 @@ var Record = NS.Class({
         properties on this object.
     */
     errorForAttribute: function () {
-        var AttributeErrorsType = this.get( 'AttributeErrorsType' );
+        const AttributeErrorsType = this.get( 'AttributeErrorsType' );
         return new AttributeErrorsType( this );
     }.property(),
 
     /**
         Method: O.Record#notifyAttributeErrors
     */
-    notifyAttributeErrors: function ( _, propKey ) {
-        var attributeErrors = meta( this ).cache.errorForAttribute;
+    notifyAttributeErrors ( _, propKey ) {
+        const attributeErrors = meta( this ).cache.errorForAttribute;
         if ( attributeErrors ) {
             attributeErrors.recordPropertyDidChange( this, propKey );
         }
-    }
-}).extend({
-    getClientSettableAttributes: function ( Type ) {
-        var clientSettableAttributes = Type.clientSettableAttributes;
-        var prototype, attrs, attrKey, propKey, attribute;
-        if ( !clientSettableAttributes ) {
-            prototype = Type.prototype;
-            attrs = NS.meta( prototype ).attrs;
-            clientSettableAttributes = {};
-            for ( attrKey in attrs ) {
-                propKey = attrs[ attrKey ];
-                if ( propKey ) {
-                    attribute = prototype[ propKey ];
-                    if ( !attribute.noSync ) {
-                        clientSettableAttributes[ attrKey ] = true;
-                    }
+    },
+});
+
+Record.getClientSettableAttributes = function ( Type ) {
+    let clientSettableAttributes = Type.clientSettableAttributes;
+    let prototype, attrs, attrKey, propKey, attribute;
+    if ( !clientSettableAttributes ) {
+        prototype = Type.prototype;
+        attrs = meta( prototype ).attrs;
+        clientSettableAttributes = {};
+        for ( attrKey in attrs ) {
+            propKey = attrs[ attrKey ];
+            if ( propKey ) {
+                attribute = prototype[ propKey ];
+                if ( !attribute.noSync ) {
+                    clientSettableAttributes[ attrKey ] = true;
                 }
             }
-            Type.clientSettableAttributes = clientSettableAttributes;
         }
-        return clientSettableAttributes;
+        Type.clientSettableAttributes = clientSettableAttributes;
     }
-});
+    return clientSettableAttributes;
+};
 
 /**
     Property: O.Record.primaryKey
@@ -457,6 +449,31 @@ var Record = NS.Class({
     that is the primary key.
 */
 
-NS.Record = Record;
+/**
+    Function: O.Record.attr
 
-}( O ) );
+    A factory function for creating a new <O.RecordAttribute> instance. This
+    will set an assert function to verify the correct type is being set whenever
+    the value is set, and that the correct type is used to serialise to/from
+    primitive types.
+
+    When subclassing O.Record, use this function to create a value for any
+    properties on the record which correspond to properties on the underlying
+    data object. This will automatically set things up so they are fetched from
+    the store and synced to the source.
+
+    Parameters:
+        Type    - {Constructor} The type of the property.
+        mixin - {Object} Properties to pass to the <O.RecordAttribute>
+                constructor.
+
+    Returns:
+        {O.RecordAttribute} Getter/setter for that record attribute.
+*/
+Record.attr = function ( Type, mixin ) {
+    if ( !mixin ) { mixin = {}; }
+    if ( Type && !mixin.Type ) { mixin.Type = Type; }
+    return new RecordAttribute( mixin );
+};
+
+export default Record;

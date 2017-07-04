@@ -1,95 +1,33 @@
-// -------------------------------------------------------------------------- \\
-// File: EventTarget.js                                                       \\
-// Module: Foundation                                                         \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { meta } from '../core/Core.js';
+import '../core/Array.js';  // For Array#erase
 
-"use strict";
+import Event from './Event.js';
+import RunLoop from './RunLoop.js';
 
-( function ( NS ) {
-
-var meta = NS.meta,
-    slice = Array.prototype.slice,
-    eventPrefix = '__event__';
-
-Function.implement({
-    /**
-        Method: Function#on
-
-        Defines the list of events this method is interested in. Whenever one of
-        these events is triggered on the object to which this method belongs,
-        the method will automatically be called.
-
-        Parameters:
-            var_args - {...String} All arguments are treated as the names of
-                       events this method should be triggered by.
-
-        Returns:
-            {Function} Returns self.
-     */
-    on: function () {
-        return this.observes.apply( this,
-            slice.call( arguments ).map( function ( type ) {
-                return eventPrefix + type;
-            })
-        );
-    }
-});
+const slice = Array.prototype.slice;
+const eventPrefix = '__event__';
 
 /**
-    Class: O.Event
+    Method: Function#on
 
-    Represents a synthetic event.
-*/
-var Event = NS.Class({
+    Defines the list of events this method is interested in. Whenever one of
+    these events is triggered on the object to which this method belongs,
+    the method will automatically be called.
 
-    /**
-        Constructor: O.Event
+    Parameters:
+        var_args - {...String} All arguments are treated as the names of
+                   events this method should be triggered by.
 
-        Parameters:
-            type   - {String} The event type.
-            target - {Object} The target on which the event is to fire.
-            mixin  - {Object} (optional) Any further properties to add to the
-                     event.
-    */
-    init: function ( type, target, mixin ) {
-        this.type = type;
-        this.target = target;
-        this.defaultPrevented = false;
-        this.propagationStopped = false;
-        NS.extend( this, mixin );
-    },
-
-    /**
-        Method: O.Event#preventDefault
-
-        Prevent the default action for this event (if any).
-
-        Returns:
-            {O.Event} Returns self.
-    */
-    preventDefault: function () {
-        this.defaultPrevented = true;
-        return this;
-    },
-
-    /**
-        Method: O.Event#stopPropagation
-
-        Stop bubbling the event up to the next target.
-
-        Returns:
-            {O.Event} Returns self.
-    */
-    stopPropagation: function () {
-        this.propagationStopped = true;
-        return this;
-    }
-});
-
-NS.Event = Event;
+    Returns:
+        {Function} Returns self.
+ */
+Function.prototype.on = function () {
+    return this.observes.apply( this,
+        slice.call( arguments ).map( function ( type ) {
+            return eventPrefix + type;
+        })
+    );
+};
 
 /**
     Mixin: O.EventTarget
@@ -102,7 +40,8 @@ NS.Event = Event;
     distinguish them from those of other classes, e.g. the IO class fires
     `io:eventName` events.
 */
-NS.EventTarget = {
+
+export default {
 
     /**
         Property: O.EventTarget#nextEventTarget
@@ -131,14 +70,14 @@ NS.EventTarget = {
         Returns:
             {O.EventTarget} Returns self.
     */
-    on: function ( type, obj, method ) {
+    on ( type, obj, method ) {
         if ( !( obj instanceof Function ) ) {
-            obj = { object: obj, method: method };
+            obj = { object: obj, method };
         }
         type = eventPrefix + type;
 
-        var observers = meta( this ).observers,
-            handlers = observers[ type ];
+        const observers = meta( this ).observers;
+        let handlers = observers[ type ];
         if ( !observers.hasOwnProperty( type ) ) {
             handlers = observers[ type ] = handlers ?
                 handlers.slice() : [];
@@ -160,8 +99,8 @@ NS.EventTarget = {
         Returns:
             {O.EventTarget} Returns self.
     */
-    once: function ( type, fn ) {
-        var once = function ( event ) {
+    once ( type, fn ) {
+        const once = function ( event ) {
             fn.call( this, event );
             this.off( type, once );
         };
@@ -193,10 +132,9 @@ NS.EventTarget = {
         Returns:
             {O.EventTarget} Returns self.
     */
-    fire: function ( type, event ) {
-        var target = this,
-            typeKey = eventPrefix + type,
-            handler, handlers, length;
+    fire ( type, event ) {
+        let target = this;
+        const typeKey = eventPrefix + type;
 
         if ( !event || !( event instanceof Event ) ) {
             if ( event && /Event\]$/.test( event.toString() ) ) {
@@ -211,18 +149,18 @@ NS.EventTarget = {
         event.propagationStopped = false;
 
         while ( target ) {
-            handlers = meta( target ).observers[ typeKey ];
-            length = handlers ? handlers.length : 0;
+            const handlers = meta( target ).observers[ typeKey ];
+            let length = handlers ? handlers.length : 0;
             while ( length-- ) {
                 try {
-                    handler = handlers[ length ];
+                    const handler = handlers[ length ];
                     if ( handler instanceof Function ) {
                         handler.call( target, event );
                     } else {
                         ( handler.object || target )[ handler.method ]( event );
                     }
                 } catch ( error ) {
-                    NS.RunLoop.didError( error );
+                    RunLoop.didError( error );
                 }
             }
             // Move up the hierarchy, unless stopPropagation was called
@@ -258,20 +196,20 @@ NS.EventTarget = {
         Returns:
             {O.EventTarget} Returns self.
     */
-    off: function ( type, obj, method ) {
+    off ( type, obj, method ) {
         type = eventPrefix + type;
 
-        var observers = meta( this ).observers,
-            handlers = observers[ type ];
+        const observers = meta( this ).observers;
+        let handlers = observers[ type ];
         if ( handlers ) {
             if ( !observers.hasOwnProperty( type ) ) {
                 handlers = observers[ type ] = handlers.slice();
             }
             if ( obj ) {
                 if ( !( obj instanceof Function ) ) {
-                    var l = handlers.length;
+                    let l = handlers.length;
                     while ( l-- ) {
-                        var handler = handlers[l];
+                        const handler = handlers[l];
                         if ( handler.object === obj &&
                                 handler.method === method ) {
                             handlers.splice( l, 1 );
@@ -285,7 +223,7 @@ NS.EventTarget = {
             }
         }
         return this;
-    }
+    },
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Function#on

@@ -1,16 +1,14 @@
-// -------------------------------------------------------------------------- \\
-// File: RootView.js                                                          \\
-// Module: View                                                               \\
-// Requires: View.js                                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
-
 /*global window */
+
+import { Class } from '../core/Core.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import UA from '../ua/UA.js';
+
+import View from './View.js';
+import ViewEventsController from './ViewEventsController.js';
+import ScrollView from './containers/ScrollView.js';
+import AbstractControlView from './controls/AbstractControlView.js';
 
 /**
     Class: O.RootView
@@ -29,22 +27,22 @@
     the full page, it can be initiated with any other node already in the
     document.
 */
-var RootView = NS.Class({
+const RootView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     syncOnlyInDocument: false,
 
     layer: null,
 
-    init: function ( node, mixin ) {
+    init ( node, mixin ) {
         RootView.parent.init.call( this, mixin );
 
         // Node.DOCUMENT_NODE => 9.
-        var nodeIsDocument = ( node.nodeType === 9 ),
-            doc = nodeIsDocument ? node : node.ownerDocument,
-            win = doc.defaultView,
-            events, l;
+        const nodeIsDocument = ( node.nodeType === 9 );
+        const doc = nodeIsDocument ? node : node.ownerDocument;
+        const win = doc.defaultView;
+        let events, l;
 
         events = [
             'click', 'mousedown', 'mouseup', 'dblclick',
@@ -52,7 +50,7 @@ var RootView = NS.Class({
             'dragstart',
             'touchstart', 'touchmove', 'touchend', 'touchcancel',
             'cut',
-            'submit'
+            'submit',
         ];
         for ( l = events.length; l--; ) {
             node.addEventListener( events[l], this, false );
@@ -77,12 +75,12 @@ var RootView = NS.Class({
     },
 
     _onScroll: function ( event ) {
-        var layer = this.get( 'layer' ),
-            isBody = ( layer.nodeName === 'BODY' ),
-            doc = layer.ownerDocument,
-            win = doc.defaultView,
-            left = isBody ? win.pageXOffset : layer.scrollLeft,
-            top = isBody ? win.pageYOffset : layer.scrollTop;
+        const layer = this.get( 'layer' );
+        const isBody = ( layer.nodeName === 'BODY' );
+        const doc = layer.ownerDocument;
+        const win = doc.defaultView;
+        const left = isBody ? win.pageXOffset : layer.scrollLeft;
+        const top = isBody ? win.pageYOffset : layer.scrollTop;
         this.beginPropertyChanges()
                 .set( 'scrollLeft', left )
                 .set( 'scrollTop', top )
@@ -90,10 +88,9 @@ var RootView = NS.Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
-    preventRootScroll: NS.UA.isIOS ? function ( event ) {
-        var view = event.targetView,
-            ScrollView = NS.ScrollView,
-            doc, win;
+    preventRootScroll: UA.isIOS ? function ( event ) {
+        const view = event.targetView;
+        let doc, win;
         if ( !( view instanceof ScrollView ) &&
                 !view.getParent( ScrollView ) ) {
             doc = this.layer.ownerDocument;
@@ -106,15 +103,15 @@ var RootView = NS.Class({
         }
     }.on( 'touchmove' ) : null,
 
-    hideAddressBar: function () {
+    hideAddressBar () {
         window.scrollTo( 0, 0 );
     },
 
-    focus: function () {
-        var layer = this.get( 'layer' ),
-            activeElement = layer.ownerDocument.activeElement,
-            view = NS.ViewEventsController.getViewFromNode( activeElement );
-        if ( view instanceof NS.AbstractControlView ) {
+    focus () {
+        const layer = this.get( 'layer' );
+        const activeElement = layer.ownerDocument.activeElement;
+        const view = ViewEventsController.getViewFromNode( activeElement );
+        if ( view instanceof AbstractControlView ) {
             view.blur();
         } else if ( activeElement.blur ) {
             activeElement.blur();
@@ -147,10 +144,8 @@ var RootView = NS.Class({
             this._onScroll( event );
             return;
         }
-        NS.ViewEventsController.handleEvent( event, null, this );
-    }.invokeInRunLoop()
+        ViewEventsController.handleEvent( event, null, this );
+    }.invokeInRunLoop(),
 });
 
-NS.RootView = RootView;
-
-}( O ) );
+export default RootView;

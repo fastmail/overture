@@ -1,18 +1,17 @@
-// -------------------------------------------------------------------------- \\
-// File: PopOverView.js                                                       \\
-// Module: PanelViews                                                         \\
-// Requires: Core, Foundation, DOM, View                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, meta } from '../../core/Core.js';
+import '../../foundation/EventTarget.js';  // For Function#on
+import DOMEvent from '../../dom/DOMEvent.js';
+import Element from '../../dom/Element.js';
+import RootView from '../RootView.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import ScrollView from '../containers/ScrollView.js';
 
-"use strict";
+import ModalEventHandler from './ModalEventHandler.js';
 
-( function ( NS ) {
+const PopOverView = Class({
 
-var PopOverView = NS.Class({
-
-    Extends: NS.View,
+    Extends: View,
 
     className: 'v-PopOver',
 
@@ -22,7 +21,7 @@ var PopOverView = NS.Class({
     parentPopOverView: null,
 
     ariaAttributes: {
-        modal: 'true'
+        modal: 'true',
     },
 
     /*
@@ -38,7 +37,7 @@ var PopOverView = NS.Class({
         - offsetTop
         - onHide: fn
     */
-    show: function ( options ) {
+    show ( options ) {
         if ( options.alignWithView === this ) {
             return this.get( 'subPopOverView' ).show( options );
         }
@@ -47,23 +46,19 @@ var PopOverView = NS.Class({
         this._options = options;
 
         // Set layout and insert in the right place
-        var eventHandler = this.get( 'eventHandler' ),
-            view = options.view,
-            alignWithView = options.alignWithView,
-            atNode = options.atNode || alignWithView.get( 'layer' ),
-            atNodeWidth = atNode.offsetWidth,
-            atNodeHeight = atNode.offsetHeight,
-            positionToThe = options.positionToThe || 'bottom',
-            alignEdge = options.alignEdge || 'left',
-            parent = options.inParent,
-            deltaLeft = 0,
-            deltaTop = 0,
-            layout, position, layer,
-            Element = NS.Element,
-            el = Element.create,
-            RootView = NS.RootView,
-            ScrollView = NS.ScrollView,
-            prop;
+        const eventHandler = this.get( 'eventHandler' );
+        const view = options.view;
+        const alignWithView = options.alignWithView;
+        const atNode = options.atNode || alignWithView.get( 'layer' );
+        let atNodeWidth = atNode.offsetWidth;
+        let atNodeHeight = atNode.offsetHeight;
+        const positionToThe = options.positionToThe || 'bottom';
+        const alignEdge = options.alignEdge || 'left';
+        let parent = options.inParent;
+        let deltaLeft = 0;
+        let deltaTop = 0;
+        const el = Element.create;
+        let prop;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
@@ -78,11 +73,11 @@ var PopOverView = NS.Class({
         }
 
         // Now find out our offsets;
-        position = Element.getPosition( atNode, parent instanceof ScrollView ?
-            parent.get( 'scrollLayer' ) : parent.get( 'layer' ) );
-        layout = {
+        const position = Element.getPosition( atNode, parent.get(
+            parent instanceof ScrollView ? 'scrollLayer' : 'layer' ) );
+        const layout = {
             top: position.top,
-            left: position.left
+            left: position.left,
         };
 
         switch ( positionToThe ) {
@@ -134,18 +129,18 @@ var PopOverView = NS.Class({
         this.render();
 
         // Callout
-        layer = this.get( 'layer' );
+        const layer = this.get( 'layer' );
         if ( options.showCallout ) {
             layer.appendChild(
                 el( 'b', {
                     className: 'v-PopOver-callout' +
                         ' v-PopOver-callout--' + positionToThe.charAt( 0 ) +
-                        ' v-PopOver-callout--' + alignEdge
+                        ' v-PopOver-callout--' + alignEdge,
                 }, [
                     this._callout = el( 'b', {
                         className: 'v-PopOver-triangle' +
-                            ' v-PopOver-triangle--' + positionToThe.charAt( 0 )
-                    })
+                            ' v-PopOver-triangle--' + positionToThe.charAt( 0 ),
+                    }),
                 ])
             );
         }
@@ -190,34 +185,33 @@ var PopOverView = NS.Class({
         this.adjustPosition( deltaLeft, deltaTop );
 
         if ( eventHandler ) {
-            NS.ViewEventsController.addEventTarget( eventHandler, 10 );
+            ViewEventsController.addEventTarget( eventHandler, 10 );
         }
         this.set( 'isVisible', true );
 
         return this;
     },
 
-    adjustPosition: function ( deltaLeft, deltaTop ) {
-        var Element = NS.Element,
-            parent = this.get( 'parentView' ),
-            layer = this.get( 'layer' ),
-            layout = this.get( 'layout' ),
-            positionToThe = this._options.positionToThe || 'bottom',
-            callout = this._callout,
-            calloutDelta = 0,
-            calloutIsAtTopOrBottom =
-                ( positionToThe === 'top' || positionToThe === 'bottom' ),
-            position, gap;
+    adjustPosition ( deltaLeft, deltaTop ) {
+        let parent = this.get( 'parentView' );
+        const layer = this.get( 'layer' );
+        const layout = this.get( 'layout' );
+        const positionToThe = this._options.positionToThe || 'bottom';
+        const callout = this._callout;
+        const calloutIsAtTopOrBottom =
+                ( positionToThe === 'top' || positionToThe === 'bottom' );
 
         if ( !deltaLeft ) { deltaLeft = 0; }
         if ( !deltaTop ) { deltaTop = 0; }
 
         // Check not run off screen.
         if ( parent instanceof PopOverView ) {
-            parent = parent.getParent( NS.ScrollView ) ||
-                parent.getParent( NS.RootView );
+            parent = parent.getParent( ScrollView ) ||
+                parent.getParent( RootView );
         }
-        position = Element.getPosition( layer, parent.get( 'layer' ) );
+        const position = Element.getPosition( layer, parent.get( 'layer' ) );
+        let gap;
+        let calloutDelta = 0;
 
         // Check right edge
         if ( !parent.get( 'showScrollbarX' ) ) {
@@ -274,7 +268,7 @@ var PopOverView = NS.Class({
             // Redraw immediately to prevent "flashing"
             this.set( 'layout', {
                 top: layout.top + deltaTop,
-                left: layout.left + deltaLeft
+                left: layout.left + deltaLeft,
             }).redraw();
         }
         if ( calloutDelta ) {
@@ -285,24 +279,24 @@ var PopOverView = NS.Class({
         }
     },
 
-    didLeaveDocument: function () {
+    didLeaveDocument () {
         PopOverView.parent.didLeaveDocument.call( this );
         this.hide();
         return this;
     },
 
-    hide: function () {
+    hide () {
         if ( this.get( 'isVisible' ) ) {
-            var subPopOverView = this.hasSubView() ?
-                    this.get( 'subPopOverView' ) : null,
-                eventHandler = this.get( 'eventHandler' ),
-                options = this._options,
-                onHide, view, layer;
+            const subPopOverView = this.hasSubView() ?
+                    this.get( 'subPopOverView' ) : null;
+            const eventHandler = this.get( 'eventHandler' );
+            const options = this._options;
+            let onHide, layer;
             if ( subPopOverView ) {
                 subPopOverView.hide();
             }
             this.set( 'isVisible', false );
-            view = this.get( 'childViews' )[0];
+            const view = this.get( 'childViews' )[0];
             this.detach();
             this.removeView( view );
             if ( options.showCallout ) {
@@ -311,7 +305,7 @@ var PopOverView = NS.Class({
                 this._callout = null;
             }
             if ( eventHandler ) {
-                NS.ViewEventsController.removeEventTarget( eventHandler );
+                ViewEventsController.removeEventTarget( eventHandler );
                 eventHandler._seenMouseDown = false;
             }
             this._options = null;
@@ -322,26 +316,26 @@ var PopOverView = NS.Class({
         return this;
     },
 
-    hasSubView: function () {
-        return !!NS.meta( this ).cache.subPopOverView &&
+    hasSubView () {
+        return !!meta( this ).cache.subPopOverView &&
             this.get( 'subPopOverView' ).get( 'isVisible' );
     },
 
     subPopOverView: function () {
-        return new NS.PopOverView({ parentPopOverView: this });
+        return new PopOverView({ parentPopOverView: this });
     }.property(),
 
     eventHandler: function () {
         return this.get( 'parentPopOverView' ) ?
-            null : new NS.ModalEventHandler({ view: this });
+            null : new ModalEventHandler({ view: this });
     }.property(),
 
-    clickedOutside: function () {
+    clickedOutside () {
         this.hide();
     },
 
-    keyOutside: function ( event ) {
-        var view = this;
+    keyOutside ( event ) {
+        let view = this;
         while ( view.hasSubView() ) {
             view = view.get( 'subPopOverView' );
         }
@@ -352,7 +346,7 @@ var PopOverView = NS.Class({
     },
 
     closeOnEsc: function ( event ) {
-        if ( NS.DOMEvent.lookupKey( event ) === 'esc' ) {
+        if ( DOMEvent.lookupKey( event ) === 'esc' ) {
             this.hide();
         }
     }.on( 'keydown' ),
@@ -360,9 +354,7 @@ var PopOverView = NS.Class({
     stopEvents: function ( event ) {
         event.stopPropagation();
     }.on( 'click', 'mousedown', 'mouseup',
-        'keypress', 'keydown', 'keyup', 'tap' )
+        'keypress', 'keydown', 'keyup', 'tap' ),
 });
 
-NS.PopOverView = PopOverView;
-
-}( O ) );
+export default PopOverView;

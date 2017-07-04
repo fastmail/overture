@@ -1,34 +1,28 @@
-// -------------------------------------------------------------------------- \\
-// File: ListView.js                                                          \\
-// Module: CollectionViews                                                    \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, guid } from '../../core/Core.js';
+import { bind } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import UA from '../../ua/UA.js';
+import View from '../View.js';
 
-"use strict";
-
-( function ( NS ) {
-
-var byIndex = function ( a, b ) {
+const byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );
 };
 
-var addToTable = function ( array, table ) {
-    var i, l;
-    for ( i = 0, l = array.length; i < l; i += 1 ) {
+const addToTable = function ( array, table ) {
+    for ( let i = 0, l = array.length; i < l; i += 1 ) {
         table[ array[i] ] = true;
     }
     return table;
 };
 
-var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
-    var length = childViews.length;
-    var view, item;
+const getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
+    const length = childViews.length;
+    let view, item;
     while ( fromIndex < length ) {
         view = childViews[ fromIndex ];
         item = view.get( 'content' );
-        if ( item && newRendered[ NS.guid( item ) ] ) {
+        if ( item && newRendered[ guid( item ) ] ) {
             break;
         }
         fromIndex += 1;
@@ -36,44 +30,44 @@ var getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
     return fromIndex;
 };
 
-var ListView = NS.Class({
+const ListView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     content: null,
-    contentLength: NS.bind( 'content.length' ),
+    contentLength: bind( 'content.length' ),
 
     ItemView: null,
     itemHeight: 0,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._added = null;
         this._removed = null;
         this._rendered = {};
         this._renderRange = {
             start: 0,
-            end: 0x7fffffff // Max positive signed 32bit int: 2^31 - 1
+            end: 0x7fffffff, // Max positive signed 32bit int: 2^31 - 1
         };
 
         this.selection = null;
 
         ListView.parent.init.call( this, mixin );
 
-        var selection = this.get( 'selection' );
+        const selection = this.get( 'selection' );
         if ( selection ) {
             selection.addObserverForKey(
                 'selectedStoreKeys', this, 'redrawSelection' );
         }
     },
 
-    destroy: function () {
-        var selection = this.get( 'selection' );
+    destroy () {
+        const selection = this.get( 'selection' );
         if ( selection ) {
             selection.removeObserverForKey(
                 'selectedStoreKeys', this, 'redrawSelection' );
         }
         if ( this.get( 'isRendered' ) ) {
-            var content = this.get( 'content' );
+            const content = this.get( 'content' );
             if ( content ) {
                 content.removeObserverForRange(
                     this._renderRange, this, 'viewNeedsRedraw' );
@@ -85,7 +79,7 @@ var ListView = NS.Class({
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
         if ( this.get( 'isRendered' ) ) {
-            var range = this._renderRange;
+            const range = this._renderRange;
             if ( oldVal ) {
                 oldVal.removeObserverForRange( range, this, 'viewNeedsRedraw' );
                 oldVal.off( 'query:updated', this, 'contentWasUpdated' );
@@ -98,7 +92,7 @@ var ListView = NS.Class({
         }
     }.observes( 'content' ),
 
-    contentWasUpdated: function ( event ) {
+    contentWasUpdated ( event ) {
         if ( this.get( 'isInDocument' ) ) {
             this._added = addToTable( event.added, this._added || {} );
             this._removed = addToTable( event.removed, this._removed || {} );
@@ -106,23 +100,21 @@ var ListView = NS.Class({
     },
 
     layout: function () {
-        var itemHeight = this.get( 'itemHeight' );
-        var height = itemHeight * ( this.get( 'contentLength' ) || 0 );
+        const itemHeight = this.get( 'itemHeight' );
+        let height = itemHeight * ( this.get( 'contentLength' ) || 0 );
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
-        if ( NS.UA.firefox && height > 16777216 ) {
+        if ( UA.firefox && height > 16777216 ) {
             height = 16777216;
         }
-        return itemHeight ? {
-            height: height
-        } : {};
+        return itemHeight ? { height } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
-    draw: function ( layer, Element/*, el*/ ) {
+    draw ( layer, Element/*, el*/ ) {
         // Render any unmanaged child views first.
-        var children = ListView.parent.draw.call( this, layer ),
-            content = this.get( 'content' );
+        const children = ListView.parent.draw.call( this, layer );
+        const content = this.get( 'content' );
         if ( children ) {
             Element.appendChildren( layer, children );
         }
@@ -134,56 +126,56 @@ var ListView = NS.Class({
         }
     },
 
-    viewNeedsRedraw: function () {
+    viewNeedsRedraw () {
         this.propertyNeedsRedraw( this, 'layer' );
     },
 
     // -----------------------------------------------------------------------
 
-    isCorrectItemView: function ( view, item ) {
+    isCorrectItemView ( view, item ) {
         return view.get( 'content' ) === item;
     },
 
-    createItemView: function ( content, index, list, isAdded ) {
-        var ItemView = this.get( 'ItemView' );
+    createItemView ( content, index, list, isAdded ) {
+        const ItemView = this.get( 'ItemView' );
         return new ItemView({
             parentView: this,
-            content: content,
-            index: index,
-            list: list,
-            isAdded: isAdded,
-            selection: this.get( 'selection' )
+            content,
+            index,
+            list,
+            isAdded,
+            selection: this.get( 'selection' ),
         });
     },
 
-    destroyItemView: function ( view ) {
+    destroyItemView ( view ) {
         view.destroy();
     },
 
-    redrawLayer: function ( layer ) {
-        var list = this.get( 'content' ) || [];
-        var childViews = this.get( 'childViews' );
-        var isInDocument = this.get( 'isInDocument' );
+    redrawLayer ( layer ) {
+        const list = this.get( 'content' ) || [];
+        const childViews = this.get( 'childViews' );
+        const isInDocument = this.get( 'isInDocument' );
         // Limit to this range in the content array.
-        var renderRange = this._renderRange;
-        var start = Math.max( 0, renderRange.start );
-        var end = Math.min( list.get( 'length' ), renderRange.end );
+        const renderRange = this._renderRange;
+        const start = Math.max( 0, renderRange.start );
+        const end = Math.min( list.get( 'length' ), renderRange.end );
         // Set of already rendered views.
-        var rendered = this._rendered;
-        var newRendered = this._rendered = {};
+        const rendered = this._rendered;
+        const newRendered = this._rendered = {};
         // Are they new or always been there?
-        var added = this._added;
-        var removed = this._removed;
+        const added = this._added;
+        const removed = this._removed;
         // Bookkeeping
-        var viewsDidEnterDoc = [];
-        var frag = null;
-        var currentViewIndex;
-        var viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
+        const viewsDidEnterDoc = [];
+        let frag = null;
+        let currentViewIndex;
+        let viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
 
         // Mark views we still need
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
-            id = item ? NS.guid( item ) : 'null:' + i;
+            id = item ? guid( item ) : 'null:' + i;
             view = rendered[ id ];
             if ( view && this.isCorrectItemView( view, item, i ) ) {
                 newRendered[ id ] = view;
@@ -207,7 +199,7 @@ var ListView = NS.Class({
         // Create/update views in render range
         for ( i = start, l = end; i < l; i += 1 ) {
             item = list.getObjectAt( i );
-            id = item ? NS.guid( item ) : 'null:' + i;
+            id = item ? guid( item ) : 'null:' + i;
             view = newRendered[ id ];
             // Was the view already in the list?
             if ( view ) {
@@ -274,14 +266,13 @@ var ListView = NS.Class({
         this.endPropertyChanges();
     },
 
-    redrawSelection: function () {
-        var selection = this.get( 'selection' ),
-            itemViews = this.get( 'childViews' ),
-            l = itemViews.length,
-            view, storeKey;
+    redrawSelection () {
+        const selection = this.get( 'selection' );
+        const itemViews = this.get( 'childViews' );
+        let l = itemViews.length;
         while ( l-- ) {
-            view = itemViews[l];
-            storeKey = view.getFromPath( 'content.storeKey' );
+            const view = itemViews[l];
+            const storeKey = view.getFromPath( 'content.storeKey' );
             if ( storeKey ) {
                 view.set( 'isSelected',
                     selection.isStoreKeySelected( storeKey ) );
@@ -292,9 +283,7 @@ var ListView = NS.Class({
     // --- Can't add views by hand; just bound to content ---
 
     insertView: null,
-    replaceView: null
+    replaceView: null,
 });
 
-NS.ListView = ListView;
-
-}( O ) );
+export default ListView;

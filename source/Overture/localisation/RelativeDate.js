@@ -1,13 +1,4 @@
-// -------------------------------------------------------------------------- \\
-// File: RelativeDate.js                                                      \\
-// Module: Localisation                                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { loc } from './LocaleController.js';
 
 /**
     Function: Date.formatDuration
@@ -22,18 +13,18 @@
     Returns:
         {String} The formatted duration.
 */
-var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
-    var durationInSeconds = Math.abs( Math.floor( durationInMS / 1000 ) ),
-        time, weeks, days, hours, minutes;
+const formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
+    const durationInSeconds = Math.abs( Math.floor( durationInMS / 1000 ) );
+    let time, weeks, days, hours, minutes;
 
     if ( durationInSeconds < 60 ) {
         if ( approx ) {
-            time = NS.loc( 'less than a minute' );
+            time = loc( 'less than a minute' );
         } else {
-            time = NS.loc( '[*2,_1,%n second,%n seconds]', durationInSeconds );
+            time = loc( '[*2,_1,%n second,%n seconds]', durationInSeconds );
         }
     } else if ( durationInSeconds < 60 * 60 ) {
-        time = NS.loc( '[*2,_1,%n minute,%n minutes]',
+        time = loc( '[*2,_1,%n minute,%n minutes]',
             ~~( durationInSeconds / 60 ) );
     } else if ( durationInSeconds < 60 * 60 * 24 ) {
         if ( approx ) {
@@ -43,7 +34,8 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             hours = ~~( durationInSeconds / ( 60 * 60 ) );
             minutes = ~~( ( durationInSeconds / 60 ) % 60 );
         }
-        time = NS.loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]', hours, minutes );
+        time = loc( '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
+            hours, minutes );
     } else if ( approx ? durationInSeconds < 60 * 60 * 24 * 21 :
             durationInSeconds < 60 * 60 * 24 * 7 ) {
         if ( approx ) {
@@ -53,7 +45,7 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             days = ~~( durationInSeconds / ( 60 * 60 * 24 ) );
             hours = ~~( ( durationInSeconds / ( 60 * 60 ) ) % 24 );
         }
-        time = NS.loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
+        time = loc( '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
             days, hours );
     } else {
         if ( approx ) {
@@ -63,78 +55,77 @@ var formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
             weeks = ~~( durationInSeconds / ( 60 * 60 * 24 * 7 ) );
             days = ~~( durationInSeconds / ( 60 * 60 * 24 ) ) % 7;
         }
-        time = NS.loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
+        time = loc( '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
             weeks, days );
     }
     return time.trim();
 };
 
-Date.implement({
-    /**
-        Method: Date#relativeTo
+/**
+    Method: Date#relativeTo
 
-        Returns the difference in time between the date given in the sole
-        argument (or now if not supplied) and this date, in a human friendly,
-        localised form. e.g. 5 hours 3 minutes ago.
+    Returns the difference in time between the date given in the sole
+    argument (or now if not supplied) and this date, in a human friendly,
+    localised form. e.g. 5 hours 3 minutes ago.
 
-        Parameters:
-            date   - {Date} Date to compare it to.
-            approx - {Boolean} (optional) If true, only return a string for the
-                     most significant part of the relative time (e.g. just "5
-                     hours ago" instead of "5 hours 34 mintues ago").
+    Parameters:
+        date   - {Date} Date to compare it to.
+        approx - {Boolean} (optional) If true, only return a string for the
+                 most significant part of the relative time (e.g. just "5
+                 hours ago" instead of "5 hours 34 mintues ago").
 
-        Returns:
-            {String} Relative date string.
-    */
-    relativeTo: function ( date, approx ) {
-        if ( !date ) { date = new Date(); }
+    Returns:
+        {String} Relative date string.
+*/
+Date.prototype.relativeTo = function ( date, approx ) {
+    if ( !date ) { date = new Date(); }
 
-        var duration = ( date - this ),
-            isFuture = ( duration < 0 ),
-            time, years, months;
+    let duration = ( date - this );
+    const isFuture = ( duration < 0 );
+    let time, years, months;
+
+    if ( isFuture ) {
+        duration = -duration;
+    }
+    // Less than a day
+    if ( duration < 1000 * 60 * 60 * 24 ) {
+        time = formatDuration( duration, approx );
+    }
+    // Less than 6 weeks
+    else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
+        if ( approx ) {
+            duration = new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            ) - new Date(
+                this.getFullYear(),
+                this.getMonth(),
+                this.getDate()
+            );
+        }
+        time = formatDuration( duration, approx );
+    }
+    else {
+        years = date.getFullYear() - this.getFullYear();
+        months = date.getMonth() - this.getMonth();
 
         if ( isFuture ) {
-            duration = -duration;
+            years = -years;
+            months = -months;
         }
-        // Less than a day
-        if ( duration < 1000 * 60 * 60 * 24 ) {
-            time = formatDuration( duration, approx );
+        if ( months < 0 ) {
+            years -= 1;
+            months += 12;
         }
-        // Less than 6 weeks
-        else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
-            if ( approx ) {
-                duration = new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate()
-                ) - new Date(
-                    this.getFullYear(),
-                    this.getMonth(),
-                    this.getDate()
-                );
-            }
-            time = formatDuration( duration, approx );
-        }
-        else {
-            years = date.getFullYear() - this.getFullYear();
-            months = date.getMonth() - this.getMonth();
-
-            if ( isFuture ) {
-                years = -years;
-                months = -months;
-            }
-            if ( months < 0 ) {
-                years -= 1;
-                months += 12;
-            }
-            time =
-                NS.loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
-                    years, months ).trim();
-        }
-
-        return isFuture ?
-            NS.loc( '[_1] from now', time ) : NS.loc( '[_1] ago', time );
+        time =
+            loc( '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
+                years, months ).trim();
     }
-});
 
-}( O ) );
+    return isFuture ?
+        loc( '[_1] from now', time ) : loc( '[_1] ago', time );
+};
+
+// TODO(cmorgan/modulify): do something about these exports: Date#relativeTo,
+// Date.formatDuration

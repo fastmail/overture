@@ -1,24 +1,14 @@
-// -------------------------------------------------------------------------- \\
-// File: Locale.js                                                            \\
-// Module: Localisation                                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, merge } from '../core/Core.js';
+import '../core/Date.js';  // For Date#format
 
-"use strict";
-
-( function ( NS ) {
-
-var compileTranslation = function ( translation ) {
-    var compiled = '',
-        start = 0,
-        searchIndex = 0,
-        length = translation.length,
-        end, parts, part, partLength,
-        i, j, l;
+const compileTranslation = function ( translation ) {
+    let compiled = '';
+    let start = 0;
+    let searchIndex = 0;
+    const length = translation.length;
 
     outer: while ( true ) {
-        end = translation.indexOf( '[', searchIndex ) ;
+        let end = translation.indexOf( '[', searchIndex );
         // If there are no more macros, just the last text section to
         // process.
         if ( end === -1 ) {
@@ -26,7 +16,7 @@ var compileTranslation = function ( translation ) {
         } else {
             // Check the '[' isn't escaped (preceded by an odd number of
             // '~' characters):
-            j = end;
+            let j = end;
             while ( j-- ) {
                 if ( translation[ j ] !== '~' ) {
                     break;
@@ -38,7 +28,7 @@ var compileTranslation = function ( translation ) {
             }
         }
         // Standard text section
-        part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
+        const part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
         if ( part ) {
             if ( compiled ) { compiled += '+'; }
             compiled += '"';
@@ -59,7 +49,7 @@ var compileTranslation = function ( translation ) {
                 break outer;
             }
             // Check the ']' character isn't escaped.
-            j = end;
+            let j = end;
             while ( j-- ) {
                 if ( translation[ j ] !== '~' ) {
                     break;
@@ -71,8 +61,8 @@ var compileTranslation = function ( translation ) {
             searchIndex = end + 1;
         }
         // Split into parts
-        parts = translation.slice( start, end ).split( ',' );
-        l = parts.length;
+        const parts = translation.slice( start, end ).split( ',' );
+        const l = parts.length;
 
         if ( compiled ) {
             compiled += '+';
@@ -80,7 +70,7 @@ var compileTranslation = function ( translation ) {
         if ( l > 1 ) {
             compiled += 'lang.macros["';
         }
-        for ( i = 0; i < l; i += 1 ) {
+        for ( let i = 0; i < l; i += 1 ) {
             // If not the first part, add a comma to separate the
             // arguments to the macro function call.
             if ( i > 1 ) {
@@ -88,8 +78,8 @@ var compileTranslation = function ( translation ) {
             }
             // If a comma was escaped, we split up an argument.
             // Rejoin these.
-            part = parts[i];
-            partLength = part.length;
+            let part = parts[i];
+            let partLength = part.length;
             while ( partLength && part[ partLength - 1 ] === '~' ) {
                 i += 1;
                 part += ',';
@@ -136,8 +126,8 @@ var compileTranslation = function ( translation ) {
     );
 };
 
-var formatInt = function ( number, locale ) {
-    var string = number + '';
+const formatInt = function ( number, locale ) {
+    let string = number + '';
     if ( string.length > 3 ) {
         string = string.replace(
             /(\d+?)(?=(?:\d{3})+$)/g,
@@ -153,7 +143,7 @@ var formatInt = function ( number, locale ) {
     Locale packs for use in localisation are created as instances of the
     O.Locale class.
 */
-var Locale = NS.Class({
+const Locale = Class({
 
     /**
         Constructor: O.Locale
@@ -176,12 +166,12 @@ var Locale = NS.Class({
         Parameters:
             mixin - {Object} Information for this locale.
     */
-    init: function ( mixin ) {
-        [ 'macros', 'dateFormats' ].forEach( function ( obj ) {
+    init ( mixin ) {
+        [ 'macros', 'dateFormats' ].forEach( obj => {
             this[ obj ] = Object.create( this[ obj ] );
-        }, this );
+        });
         this.compiled = {};
-        NS.merge( this, mixin );
+        merge( this, mixin );
     },
 
     /**
@@ -233,10 +223,10 @@ var Locale = NS.Class({
         Returns:
             {String} The localised number.
     */
-    getFormattedNumber: function ( number ) {
-        var integer = number + '',
-            fraction = '',
-            decimalPointIndex = integer.indexOf( '.' );
+    getFormattedNumber ( number ) {
+        let integer = number + '';
+        let fraction = '';
+        const decimalPointIndex = integer.indexOf( '.' );
         if ( decimalPointIndex > -1 ) {
             fraction = integer.slice( decimalPointIndex + 1 );
             integer = integer.slice( 0, decimalPointIndex );
@@ -257,7 +247,7 @@ var Locale = NS.Class({
         Returns:
             {String} The localised ordinal.
     */
-    getFormattedOrdinal: function ( number ) {
+    getFormattedOrdinal ( number ) {
         return number + '.';
     },
 
@@ -274,18 +264,17 @@ var Locale = NS.Class({
         Returns:
             {String} The localised, human-readable file size.
     */
-    getFormattedFileSize: function ( bytes, decimalPlaces ) {
-        var units = this.fileSizeUnits,
-            l = units.length - 1,
-            i = 0,
-            ORDER_MAGNITUDE = 1000,
-            number;
+    getFormattedFileSize ( bytes, decimalPlaces ) {
+        const units = this.fileSizeUnits;
+        const l = units.length - 1;
+        let i = 0;
+        const ORDER_MAGNITUDE = 1000;
         while ( i < l && bytes >= ORDER_MAGNITUDE ) {
             bytes /= ORDER_MAGNITUDE;
             i += 1;
         }
         // B/KB to nearest whole number, MB/GB to 1 decimal place.
-        number = ( i < 2 ) ?
+        const number = ( i < 2 ) ?
             Math.round( bytes ) + '' :
             bytes.toFixed( decimalPlaces || 0 );
         // Use a &nbsp; to join the number to the unit.
@@ -372,7 +361,7 @@ var Locale = NS.Class({
     */
     dateFormats: {
         date: '%d/%m/%Y',
-        time: function ( date, locale, utc ) {
+        time ( date, locale, utc ) {
             return date.format(
                 locale.use24hClock ? this.time24 : this.time12, utc );
         },
@@ -382,7 +371,7 @@ var Locale = NS.Class({
         fullDateAndTime: '%A, %-d %B %Y %H:%M',
         abbreviatedFullDate: '%a, %-d %b %Y',
         shortDayMonth: '%-d %b',
-        shortDayMonthYear: '%-d %b ’%y'
+        shortDayMonthYear: '%-d %b ’%y',
     },
 
     /**
@@ -408,9 +397,9 @@ var Locale = NS.Class({
         Returns:
             {String} The localised date.
     */
-    getFormattedDate: function ( date, type, utc ) {
-        var dateFormats = this.dateFormats,
-            format = dateFormats[ type ] || dateFormats.date;
+    getFormattedDate ( date, type, utc ) {
+        const dateFormats = this.dateFormats;
+        const format = dateFormats[ type ] || dateFormats.date;
         return format instanceof Function ?
             dateFormats[ type ]( date, this, utc ) : date.format( format, utc );
     },
@@ -428,7 +417,7 @@ var Locale = NS.Class({
         // Japanese, Vietnamese, Korean.
         // Case 1: everything.
         // Case 2: is 0 (optional; case 1 used if not supplied).
-        '*1': function ( n, singular, zero ) {
+        '*1' ( n, singular, zero ) {
             return ( !n && zero !== undefined ? zero : singular
             ).replace( '%n', formatInt( n, this ) );
         },
@@ -436,7 +425,7 @@ var Locale = NS.Class({
         // Case 1: is 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; plural used if not supplied).
-        '*2': function ( n, singular, plural, zero ) {
+        '*2' ( n, singular, plural, zero ) {
             return ( n === 1 ? singular :
                 !n && zero !== undefined ? zero : plural
             ).replace( '%n', formatInt( n, this ) );
@@ -445,7 +434,7 @@ var Locale = NS.Class({
         // Case 1: is 0 or 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; singular used if not supplied).
-        '*2a': function ( n, singular, plural, zero ) {
+        '*2a' ( n, singular, plural, zero ) {
             return ( n > 1 ? plural :
                 !n && zero !== undefined ? zero : singular
             ).replace( '%n', formatInt( n, this ) );
@@ -455,7 +444,7 @@ var Locale = NS.Class({
         // Case 2: everything else
         //        (*1,*2,*4,*5,*7,*9,*10,*40,*50,*70,*90,*000,*0000,*00000).
         // Case 3: is 0 (optional; case 1 used if not supplied)
-        '*2b': function ( n, form1, form2, zero ) {
+        '*2b' ( n, form1, form2, zero ) {
             return ( !n ? zero !== undefined ? zero : form1 :
                 ( /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test( n + '' ) ) ?
                 form1 : form2
@@ -465,7 +454,7 @@ var Locale = NS.Class({
         // Case 1: is 0.
         // Case 2: ends in 1, does not end in 11.
         // Case 3: everything else.
-        '*3a': function ( n, zero, plural1, plural2 ) {
+        '*3a' ( n, zero, plural1, plural2 ) {
             return (
                 !n ? zero :
                 n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
@@ -476,8 +465,8 @@ var Locale = NS.Class({
         // Case 2: is 0 or ends in 01-19.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3b': function ( n, singular, plural1, plural2, zero ) {
-            var mod100 = n % 100;
+        '*3b' ( n, singular, plural1, plural2, zero ) {
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -489,9 +478,9 @@ var Locale = NS.Class({
         // Case 2: ends in 0 or ends in 10-20.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3c': function ( n, form1, form2, form3, zero ) {
-            var mod10 = n % 10,
-                mod100 = n % 100;
+        '*3c' ( n, form1, form2, form3, zero ) {
+            const mod10 = n % 10;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 mod10 === 1 && mod100 !== 11 ? form1 :
@@ -503,9 +492,9 @@ var Locale = NS.Class({
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3d': function ( n, form1, form2, form3, zero ) {
-            var mod10 = n % 10,
-                mod100 = n % 100;
+        '*3d' ( n, form1, form2, form3, zero ) {
+            const mod10 = n % 10;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 mod10 === 1 && mod100 !== 11 ? form1 :
@@ -518,7 +507,7 @@ var Locale = NS.Class({
         // Case 2: is 2-4.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3e': function ( n, singular, plural1, plural2, zero ) {
+        '*3e' ( n, singular, plural1, plural2, zero ) {
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -530,9 +519,9 @@ var Locale = NS.Class({
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3f': function ( n, singular, plural1, plural2, zero ) {
-            var mod10 = n % 10,
-                mod100 = n % 100;
+        '*3f' ( n, singular, plural1, plural2, zero ) {
+            const mod10 = n % 10;
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -546,8 +535,8 @@ var Locale = NS.Class({
         // Case 3: ends in 03 or 04.
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4a': function ( n, end01, end02, end03or04, plural, zero ) {
-            var mod100 = n % 100;
+        '*4a' ( n, end01, end02, end03or04, plural, zero ) {
+            const mod100 = n % 100;
             return (
                 !n && zero !== undefined ? zero :
                 mod100 === 1 ? end01 :
@@ -561,7 +550,7 @@ var Locale = NS.Class({
         // Case 3: is 3-19.
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4b': function ( n, form1, form2, form3, form4, zero ) {
+        '*4b' ( n, form1, form2, form3, form4, zero ) {
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 || n === 11 ? form1 :
@@ -576,7 +565,7 @@ var Locale = NS.Class({
         // Case 4: is 7-10.
         // Case 5: everything else.
         // Case 6: is 0 (optional; case 5 used if not supplied)
-        '*5': function ( n, singular, doubular, form1, form2, form3, zero ) {
+        '*5' ( n, singular, doubular, form1, form2, form3, zero ) {
             return (
                 !n && zero !== undefined ? zero :
                 n === 1 ? singular :
@@ -592,8 +581,8 @@ var Locale = NS.Class({
         // Case 4: ends in 03-10.
         // Case 5: ends in 11-99.
         // Case 6: everything else.
-        '*6': function ( n, zero, singular, doubular, pl1, pl2, pl3 ) {
-            var mod100 = n % 100;
+        '*6' ( n, zero, singular, doubular, pl1, pl2, pl3 ) {
+            const mod100 = n % 100;
             return (
                 !n ? zero :
                 n === 1 ? singular :
@@ -602,26 +591,6 @@ var Locale = NS.Class({
                 11 <= mod100 && mod100 <= 99 ? pl2 : pl3
             ).replace( '%n', formatInt( n, this ) );
         },
-
-        // The following four are deprecated and will be removed.
-        quant: function ( n, singular, plural, zero ) {
-            return ( !n && zero !== undefined ) ? zero :
-                   ( n === 1 ) ? '1 ' + singular :
-                   ( n + ' ' ) + ( plural || ( singular + 's' ) );
-        },
-        numerate: function ( n, singular, plural ) {
-            return n !== 1 ? plural || ( singular + 's' ) : singular;
-        },
-        numf: function ( n ) {
-            var parts = ( n + '' ).split( '.' );
-            parts[0] = parts[0].replace( /(\d+?)(?=(?:\d{3})+$)/g,
-                '$1' + this.thousandsSeparator );
-            return parts.join( this.decimalPoint );
-        },
-        sprintf: function ( string ) {
-            return String.prototype.format.apply( string,
-                Array.prototype.slice.call( arguments, 1 ) );
-        }
     },
 
     /**
@@ -666,7 +635,9 @@ var Locale = NS.Class({
            numbers you need to interpolate, your source string should use the
            appropriate pluralisation macro for your language. e.g.
 
-               O.loc( "[*2,_1,1 file was,%n files were,No files were] found in [_2]", 11, "Documents" );
+               O.loc(
+                 "[*2,_1,1 file was,%n files were,No files were] found in [_2]",
+                 11, "Documents" );
                => "11 files were found in Documents"
 
         2. If at least one of the arguments is an object:
@@ -698,18 +669,18 @@ var Locale = NS.Class({
         Returns:
             {(String|Array)} The localised string or array of localised parts.
     */
-    translate: function ( string ) {
-        var translation = this.translations[ string ],
-            returnString = true,
-            args = [],
-            i, l, arg, compiled, parts;
+    translate ( string ) {
+        let translation = this.translations[ string ];
+        let returnString = true;
+        const args = [];
+        let i, l;
 
         if ( translation === undefined ) {
             translation = string;
         }
 
         for ( i = 1, l = arguments.length; i < l; i += 1 ) {
-            arg = arguments[i];
+            const arg = arguments[i];
             if ( typeof arg === 'object' ) {
                 returnString = false;
             }
@@ -717,19 +688,17 @@ var Locale = NS.Class({
         }
 
         if ( returnString ) {
-            compiled = this.compiled[ string ] ||
+            const compiled = this.compiled[ string ] ||
                 ( this.compiled[ string ] = compileTranslation( translation ) );
             return compiled( this, args );
         }
 
-        parts = translation.split( /\[_(\d)\]/ );
+        const parts = translation.split( /\[_(\d)\]/ );
         for ( i = 1, l = parts.length; i < l; i += 2 ) {
             parts[i] = args[ parts[i] - 1 ] || null;
         }
         return parts;
-    }
+    },
 });
 
-NS.Locale = Locale;
-
-}( O ) );
+export default Locale;

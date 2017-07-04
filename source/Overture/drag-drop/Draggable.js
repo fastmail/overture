@@ -1,21 +1,10 @@
-// -------------------------------------------------------------------------- \\
-// File: Draggable.js                                                         \\
-// Module: DragDrop                                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
-
 /**
     Mixin: O.Draggable
 
     The Draggable mixin should be applied to views you wish to make draggable.
     Override the methods to get the callbacks you're interested in.
 */
-NS.Draggable = {
+export default {
     /**
         Property: O.Draggable#isDraggable
         Type: Boolean
@@ -41,7 +30,7 @@ NS.Draggable = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragStarted: function (/* drag */) {},
+    dragStarted (/* drag */) {},
 
     /**
         Method: O.Draggable#dragMoved
@@ -51,7 +40,7 @@ NS.Draggable = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragMoved: function (/* drag */) {},
+    dragMoved (/* drag */) {},
 
     /**
         Method: O.Draggable#dragEnded
@@ -63,7 +52,5 @@ NS.Draggable = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragEnded: function (/* drag */) {}
+    dragEnded (/* drag */) {},
 };
-
-}( O ) );

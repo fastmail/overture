@@ -1,14 +1,7 @@
-// -------------------------------------------------------------------------- \\
-// File: RecordArray.js                                                       \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
 
 /**
     Class: O.RecordArray
@@ -19,13 +12,13 @@
 
     An immutable enumerable object representing a list of records.
  */
-var RecordArray = NS.Class({
+const RecordArray = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: NS.Enumerable,
+    Mixin: Enumerable,
 
-    init: function ( store, Type, storeKeys ) {
+    init ( store, Type, storeKeys ) {
         this.store = store;
         this.Type = Type;
         this.storeKeys = storeKeys;
@@ -54,17 +47,13 @@ var RecordArray = NS.Class({
         Returns:
             {O.Record} The record at index i in this array.
     */
-    getObjectAt: function ( index ) {
-        var storeKey = this.get( 'storeKeys' )[ index ],
-            record;
+    getObjectAt ( index ) {
+        const storeKey = this.get( 'storeKeys' )[ index ];
         if ( storeKey ) {
-            record = this.get( 'store' )
+            return this.get( 'store' )
                          .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
-        return record;
-    }
+    },
 });
 
-NS.RecordArray = RecordArray;
-
-}( O ) );
+export default RecordArray;

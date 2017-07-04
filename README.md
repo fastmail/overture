@@ -12,22 +12,20 @@ Overture is MIT licensed. No animals were harmed in the making of this code.
 Building from Source
 --------------------
 
-1) Clone the repository:
+Prerequisites: `node`, `yarn` and `make` must all be available and in the PATH.
 
-    git clone https://github.com/fastmail/overture.git
+1. Clone the repository:
 
-2) Go to the repository directory
+        git clone https://github.com/fastmail/overture.git
 
-    cd overture
+2. Go to the repository directory
 
-3) Install Node libraries
+        cd overture
 
-    npm install
+3. Run Make
 
-4) Run Make
+        make
 
-    make
+    Or if you only want to build only the code (not the documentation):
 
-If you only want to build only the code:
-
-    make build
+        make compile

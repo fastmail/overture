@@ -1,14 +1,13 @@
-// -------------------------------------------------------------------------- \\
-// File: AbstractControlView.js                                               \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS, undefined ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import { loc } from '../../localisation/LocaleController.js';
+import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
+import UA from '../../ua/UA.js';
+import Element from '../../dom/Element.js';
 
 /**
     Class: O.AbstractControlView
@@ -19,9 +18,9 @@
     and should not be instantiated directly; it is only intended to be
     subclassed.
 */
-var AbstractControlView = NS.Class({
+const AbstractControlView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
     /**
         Property: O.AbstractControlView#isDisabled
@@ -96,13 +95,13 @@ var AbstractControlView = NS.Class({
         informing the user of the keyboard shortcut for the control, if set.
     */
     tooltip: function () {
-        var shortcut = this.get( 'shortcut' );
+        const shortcut = this.get( 'shortcut' );
         return shortcut ?
-            NS.loc( 'Shortcut: [_1]',
+            loc( 'Shortcut: [_1]',
                 shortcut
                     .split( ' ' )
-                    .map( NS.formatKeyForPlatform )
-                    .join( ' ' + NS.loc( 'or' ) + ' ' )
+                    .map( formatKeyForPlatform )
+                    .join( ' ' + loc( 'or' ) + ' ' )
             ) : '';
     }.property( 'shortcut' ),
 
@@ -112,13 +111,13 @@ var AbstractControlView = NS.Class({
         Overridden to add keyboard shortcuts.
         See <O.View#didEnterDocument>.
     */
-    didEnterDocument: function () {
-        var shortcut = this.get( 'shortcut' );
+    didEnterDocument () {
+        const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
-            shortcut.split( ' ' ).forEach( function ( key ) {
-                NS.ViewEventsController.kbShortcuts
+            shortcut.split( ' ' ).forEach( key => {
+                ViewEventsController.kbShortcuts
                     .register( key, this, 'activate' );
-            }, this );
+            });
         }
         return AbstractControlView.parent.didEnterDocument.call( this );
     },
@@ -129,17 +128,17 @@ var AbstractControlView = NS.Class({
         Overridden to remove keyboard shortcuts.
         See <O.View#didEnterDocument>.
     */
-    willLeaveDocument: function () {
-        var shortcut = this.get( 'shortcut' );
+    willLeaveDocument () {
+        const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
-            shortcut.split( ' ' ).forEach( function ( key ) {
-                NS.ViewEventsController.kbShortcuts
+            shortcut.split( ' ' ).forEach( key => {
+                ViewEventsController.kbShortcuts
                     .deregister( key, this, 'activate' );
-            }, this );
+            });
         }
         // iOS is very buggy if you remove a focussed control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
-        if ( NS.UA.isIOS && this.get( 'isFocussed' ) ) {
+        if ( UA.isIOS && this.get( 'isFocussed' ) ) {
             this.blur();
         }
         return AbstractControlView.parent.willLeaveDocument.call(
@@ -176,11 +175,11 @@ var AbstractControlView = NS.Class({
 
         Overridden to set properties and add label. See <O.View#draw>.
     */
-    draw: function ( layer, Element, el ) {
-        var control = this._domControl,
-            name = this.get( 'name' ),
-            shortcut = this.get( 'shortcut' ),
-            tabIndex = this.get( 'tabIndex' );
+    draw ( layer, Element, el ) {
+        const control = this._domControl;
+        const name = this.get( 'name' );
+        const shortcut = this.get( 'shortcut' );
+        const tabIndex = this.get( 'tabIndex' );
 
         if ( !control.id ) {
             control.id = this.get( 'id' ) + '-input';
@@ -215,7 +214,7 @@ var AbstractControlView = NS.Class({
         Updates the disabled attribute on the DOM control to match the
         isDisabled property of the view.
     */
-    redrawIsDisabled: function () {
+    redrawIsDisabled () {
         this._domControl.disabled = this.get( 'isDisabled' );
     },
 
@@ -224,14 +223,14 @@ var AbstractControlView = NS.Class({
 
         Updates the DOM label to match the label property of the view.
     */
-    redrawLabel: function () {
-        var label = this._domLabel,
-            child;
+    redrawLabel () {
+        const label = this._domLabel;
+        let child;
         while ( child = label.firstChild ) {
             label.removeChild( child );
         }
-        NS.Element.appendChildren( label, [
-            this.get( 'label' )
+        Element.appendChildren( label, [
+            this.get( 'label' ),
         ]);
     },
 
@@ -241,7 +240,7 @@ var AbstractControlView = NS.Class({
         Updates the name attribute on the DOM control to match the name
         property of the view.
     */
-    redrawName: function () {
+    redrawName () {
         this._domControl.name = this.get( 'name' );
     },
 
@@ -254,7 +253,7 @@ var AbstractControlView = NS.Class({
         Updates the title attribute on the DOM layer to match the tooltip
         property of the view.
     */
-    redrawTooltip: function ( layer ) {
+    redrawTooltip ( layer ) {
         layer.title = this.get( 'tooltip' );
     },
 
@@ -264,7 +263,7 @@ var AbstractControlView = NS.Class({
         Updates the tabIndex attribute on the DOM control to match the tabIndex
         property of the view.
     */
-    redrawTabIndex: function () {
+    redrawTabIndex () {
         this._domControl.tabIndex = this.get( 'tabIndex' );
     },
 
@@ -278,7 +277,7 @@ var AbstractControlView = NS.Class({
         Returns:
             {O.AbstractControlView} Returns self.
     */
-    focus: function () {
+    focus () {
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.focus();
             // Fire event synchronously.
@@ -297,7 +296,7 @@ var AbstractControlView = NS.Class({
         Returns:
             {O.AbstractControlView} Returns self.
     */
-    blur: function () {
+    blur () {
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.blur();
             // Fire event synchronously.
@@ -329,10 +328,8 @@ var AbstractControlView = NS.Class({
         performed when the control is activated, either by being clicked on or
         via a keyboard shortcut.
     */
-    activate: function () {}
+    activate () {},
 
 });
 
-NS.AbstractControlView = AbstractControlView;
-
-}( O ) );
+export default AbstractControlView;

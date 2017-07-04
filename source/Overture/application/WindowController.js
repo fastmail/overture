@@ -1,16 +1,12 @@
-// -------------------------------------------------------------------------- \\
-// File: WindowController.js                                                  \\
-// Module: Application                                                        \\
-// Requires: Core, Foundation, UA                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global JSON, window, document, localStorage */
 
-"use strict";
-
-( function ( NS, window, document, localStorage ) {
+import { Class } from '../core/Core.js';
+import '../core/Date.js';  // For Date#format
+import '../core/String.js';  // For String#escapeHTML
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
+import UA from '../ua/UA.js';
 
 /**
     Class: O.WindowController
@@ -35,9 +31,9 @@
     this controller as well. It also monitors whether the window currently has
     focus or not.
 */
-var WindowController = NS.Class({
+const WindowController = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.WindowController#broadcastKey
@@ -76,7 +72,7 @@ var WindowController = NS.Class({
         other open window.
     */
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocussed = document.hasFocus ? document.hasFocus() : true;
@@ -91,24 +87,21 @@ var WindowController = NS.Class({
 
         this.broadcast( 'wc:hello' );
 
-        var RunLoop = NS.RunLoop;
-
-        var that = this;
-        var check = function check () {
-            that.checkMaster();
-            that._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
+        const check = () => {
+            this.checkMaster();
+            this._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
         };
-        var ping = function ping () {
-            that.sendPing();
-            that._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
+        const ping = () => {
+            this.sendPing();
+            this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
         };
         this._checkTimeout = RunLoop.invokeAfterDelay( check, 500 );
         this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
     },
 
-    destroy: function () {
-        NS.RunLoop.cancel( this._pingTimeout )
-                  .cancel( this._checkTimeout );
+    destroy () {
+        RunLoop.cancel( this._pingTimeout )
+               .cancel( this._checkTimeout );
 
         window.removeEventListener( 'storage', this, false );
         window.removeEventListener( 'unload', this, false );
@@ -133,7 +126,7 @@ var WindowController = NS.Class({
         case 'storage':
             if ( event.key === this.get( 'broadcastKey' ) ) {
                 try {
-                    var data = JSON.parse( event.newValue );
+                    const data = JSON.parse( event.newValue );
                     // IE fires events in the same window that set the
                     // property. Ignore these.
                     if ( data.wcId !== this.id ) {
@@ -161,7 +154,7 @@ var WindowController = NS.Class({
         Sends a ping to let other windows know about the existence of this one.
         Automatically called periodically.
     */
-    sendPing: function () {
+    sendPing () {
         this.broadcast( 'wc:ping' );
     },
 
@@ -214,13 +207,12 @@ var WindowController = NS.Class({
         Looks at the set of other windows it knows about and sets the isMaster
         property based on whether this window has the lowest ordered id.
     */
-    checkMaster: function () {
-        var now = Date.now(),
-            isMaster = true,
-            seenWCs = this._seenWCs,
-            ourId = this.id,
-            id;
-        for ( id in seenWCs ) {
+    checkMaster () {
+        const now = Date.now();
+        let isMaster = true;
+        const seenWCs = this._seenWCs;
+        const ourId = this.id;
+        for ( const id in seenWCs ) {
             if ( seenWCs[ id ] + 23000 < now ) {
                 delete seenWCs[ id ];
             } else if ( id < ourId ) {
@@ -239,44 +231,42 @@ var WindowController = NS.Class({
             type - {String} The name of the event being broadcast.
             data - {Object} (optional). The data to broadcast.
     */
-    broadcast: function ( type, data ) {
+    broadcast ( type, data ) {
         try {
             localStorage.setItem(
                 this.get( 'broadcastKey' ),
-                JSON.stringify( NS.extend({
+                JSON.stringify( Object.assign({
                     wcId: this.id,
-                    type: type
+                    type,
                 }, data ))
             );
         } catch ( error ) {}
-    }
-}).extend({
-    openExternal: function ( href ) {
-        var newWindow = window.open( '', '_blank' );
-        var htmlHref = href;
-        if ( newWindow ) {
-            // From goog.window.open; IE has trouble if there's a
-            // semi-colon in the URL apparently.
-            if ( NS.UA.msie && href.indexOf( ';' ) > -1 ) {
-                htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
-            }
-            htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
-            try {
-                newWindow.opener = null;
-                newWindow.document.write(
-                    '<META HTTP-EQUIV="refresh" content="0; url=' +
-                        htmlHref +
-                    '">'
-                );
-                newWindow.document.close();
-            } catch ( error ) {
-                newWindow.location.href = href;
-            }
-        }
-        return newWindow;
-    }
+    },
 });
 
-NS.WindowController = WindowController;
+WindowController.openExternal = function ( href ) {
+    const newWindow = window.open( '', '_blank' );
+    let htmlHref = href;
+    if ( newWindow ) {
+        // From goog.window.open; IE has trouble if there's a
+        // semi-colon in the URL apparently.
+        if ( UA.msie && href.indexOf( ';' ) > -1 ) {
+            htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
+        }
+        htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
+        try {
+            newWindow.opener = null;
+            newWindow.document.write(
+                '<META HTTP-EQUIV="refresh" content="0; url=' +
+                    htmlHref +
+                '">'
+            );
+            newWindow.document.close();
+        } catch ( error ) {
+            newWindow.location.href = href;
+        }
+    }
+    return newWindow;
+};
 
-}( O, window, document, localStorage ) );
+export default WindowController;

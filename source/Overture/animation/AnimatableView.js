@@ -1,14 +1,10 @@
-// -------------------------------------------------------------------------- \\
-// File: AnimatableView.js                                                    \\
-// Module: Animation                                                          \\
-// Requires: Core, UA, Animation.js                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import UA from '../ua/UA.js';
+import RunLoop from '../foundation/RunLoop.js';
+import '../foundation/ComputedProps.js';  // For Function#property
+import Element from '../dom/Element.js';
+import Easing from './Easing.js';
+import CSSStyleAnimation from './CSSStyleAnimation.js';
+import StyleAnimation from './StyleAnimation.js';
 
 /**
     Mixin: O.AnimatableView
@@ -16,7 +12,7 @@
     Mix this into an <O.View> class to automatically animate all changes to the
     view's <O.View#layerStyles> property.
 */
-NS.AnimatableView = {
+export default {
 
     /**
         Property: O.AnimatableView#animateLayer
@@ -45,7 +41,7 @@ NS.AnimatableView = {
 
         The easing function to use for the animation of the view's layer styles.
     */
-    animateLayerEasing: NS.Easing.ease,
+    animateLayerEasing: Easing.ease,
 
     /**
         Property: O.AnimatableView#animating
@@ -63,7 +59,7 @@ NS.AnimatableView = {
         animating a property on the object. Increments the <#animating>
         property.
     */
-    willAnimate: function () {
+    willAnimate () {
         this.increment( 'animating', 1 );
     },
 
@@ -74,7 +70,7 @@ NS.AnimatableView = {
         animating a property on the object. Decrements the <#animating>
         property.
     */
-    didAnimate: function () {
+    didAnimate () {
         this.increment( 'animating', -1 );
     },
 
@@ -86,11 +82,11 @@ NS.AnimatableView = {
         animate the layer styles. Automatically generated when first accessed.
     */
     layerAnimation: function () {
-        var Animation = NS.UA.cssProps.transition ?
-            NS.CSSStyleAnimation : NS.StyleAnimation;
+        const Animation = UA.cssProps.transition ?
+            CSSStyleAnimation : StyleAnimation;
         return new Animation({
             object: this,
-            element: this.get( 'layer' )
+            element: this.get( 'layer' ),
         });
     }.property(),
 
@@ -104,17 +100,16 @@ NS.AnimatableView = {
             layer     - {Element} The view's layer.
             oldStyles - {Object|null} The previous layer styles for the view.
     */
-    redrawLayerStyles: function ( layer, oldStyles ) {
-        var newStyles = this.get( 'layerStyles' ),
-            layerAnimation = this.get( 'layerAnimation' ),
-            setStyle = NS.Element.setStyle,
-            property, value;
+    redrawLayerStyles ( layer, oldStyles ) {
+        const newStyles = this.get( 'layerStyles' );
+        const layerAnimation = this.get( 'layerAnimation' );
+        const setStyle = Element.setStyle;
 
         // Animate
         if ( this.get( 'animateLayer' ) ) {
             // Must wait until in document to animate
             if ( !this.get( 'isInDocument' ) ) {
-                O.RunLoop.invokeInNextFrame(
+                RunLoop.invokeInNextFrame(
                     this.propertyNeedsRedraw.bind(
                         this, this, 'layerStyles', oldStyles ) );
                 return;
@@ -133,8 +128,8 @@ NS.AnimatableView = {
             layerAnimation.stop();
             layerAnimation.current = newStyles;
             setStyle( layer, 'transition-property', 'none' );
-            for ( property in newStyles ) {
-                value = newStyles[ property ];
+            for ( const property in newStyles ) {
+                const value = newStyles[ property ];
                 if ( value !== oldStyles[ property ] ) {
                     setStyle( layer, property, value );
                 }
@@ -142,12 +137,10 @@ NS.AnimatableView = {
         }
         // Just remove styles that are not specified in the new styles, but were
         // in the old styles
-        for ( property in oldStyles ) {
+        for ( const property in oldStyles ) {
             if ( !( property in newStyles ) ) {
                 setStyle( layer, property, null );
             }
         }
-    }
+    },
 };
-
-}( O ) );

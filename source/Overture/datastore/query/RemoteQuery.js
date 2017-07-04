@@ -1,25 +1,24 @@
-// -------------------------------------------------------------------------- \\
-// File: RemoteQuery.js                                                       \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js, Status.js                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, guid } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import ObservableRange from '../../foundation/ObservableRange.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import '../../foundation/RunLoop.js';  // For Function#queue
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-"use strict";
-
-( function ( NS, undefined ) {
-
-var Status = NS.Status,
-    EMPTY = Status.EMPTY,
-    READY = Status.READY,
-    DESTROYED = Status.DESTROYED,
-    NON_EXISTENT = Status.NON_EXISTENT,
+import Record from '../record/Record.js';
+import {
+    EMPTY,
+    READY,
+    DESTROYED,
+    NON_EXISTENT,
     // LOADING => The list is being fetched from the server.
-    LOADING = Status.LOADING,
+    LOADING,
     // OBSOLETE => The list may have changed on the server since the last fetch
     // was initiated.
-    OBSOLETE = Status.OBSOLETE;
+    OBSOLETE,
+} from '../record/Status.js';
 
 /**
     Class: O.RemoteQuery
@@ -32,7 +31,7 @@ var Status = NS.Status,
     the array is calculated by a server rather than the client. In its simplest
     form, you would use remote query like this:
 
-        var query = new O.RemoteQuery({
+        const query = new O.RemoteQuery({
             store: TodoApp.store
             Type: TodoApp.TodoItem,
             filter: 'done',
@@ -61,14 +60,14 @@ var Status = NS.Status,
     sending back unneccessary data.
 
 */
-var RemoteQuery = NS.Class({
+const RemoteQuery = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: [ NS.Enumerable, NS.ObservableRange ],
+    Mixin: [ Enumerable, ObservableRange ],
 
     id: function () {
-        return NS.guid( this );
+        return guid( this );
     }.property().nocache(),
 
     /**
@@ -101,7 +100,7 @@ var RemoteQuery = NS.Class({
 
         The type of records this query contains.
     */
-    Type: NS.Record,
+    Type: Record,
 
     /**
         Property: O.RemoteQuery#store
@@ -137,7 +136,7 @@ var RemoteQuery = NS.Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is: function ( status ) {
+    is ( status ) {
         return !!( this.get( 'status' ) & status );
     },
 
@@ -149,7 +148,7 @@ var RemoteQuery = NS.Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    setObsolete: function () {
+    setObsolete () {
         return this.set( 'status', this.get( 'status' ) | OBSOLETE );
     },
 
@@ -161,7 +160,7 @@ var RemoteQuery = NS.Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    setLoading: function () {
+    setLoading () {
         return this.set( 'status', this.get( 'status' ) | LOADING );
     },
 
@@ -174,7 +173,7 @@ var RemoteQuery = NS.Class({
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._list = [];
         this._awaitingIdFetch = [];
         this._refresh = false;
@@ -195,7 +194,7 @@ var RemoteQuery = NS.Class({
         removes bindings and path observers so the object may be garbage
         collected.
     */
-    destroy: function () {
+    destroy () {
         this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
         this.get( 'store' ).removeQuery( this );
         RemoteQuery.parent.destroy.call( this );
@@ -216,8 +215,8 @@ var RemoteQuery = NS.Class({
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    refresh: function ( force, callback ) {
-        var status = this.get( 'status' );
+    refresh ( force, callback ) {
+        const status = this.get( 'status' );
         if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
             if ( status & READY ) {
                 this._refresh = true;
@@ -240,7 +239,7 @@ var RemoteQuery = NS.Class({
             {O.RemoteQuery} Returns self.
     */
     reset: function ( _, _key ) {
-        var length = this.get( 'length' );
+        const length = this.get( 'length' );
 
         this._list.length = 0;
         this._refresh = false;
@@ -276,9 +275,8 @@ var RemoteQuery = NS.Class({
             past the end of the array, undefined will be returned. Otherwise the
             record will be returned, or null if the id is not yet loaded.
     */
-    getObjectAt: function ( index, doNotFetch ) {
-        var length = this.get( 'length' );
-        var storeKey;
+    getObjectAt ( index, doNotFetch ) {
+        const length = this.get( 'length' );
 
         if ( length === null || index < 0 || index >= length ) {
             return undefined;
@@ -288,7 +286,7 @@ var RemoteQuery = NS.Class({
             doNotFetch = this.fetchDataForObjectAt( index );
         }
 
-        storeKey = this._list[ index ];
+        const storeKey = this._list[ index ];
         return storeKey ?
             this.get( 'store' )
                 .getRecord( this.get( 'Type' ), '#' + storeKey, doNotFetch ) :
@@ -311,7 +309,7 @@ var RemoteQuery = NS.Class({
             store will be explicitly told not to fetch the data, as the fetching
             is being handled by the query.
     */
-    fetchDataForObjectAt: function (/* index */) {
+    fetchDataForObjectAt (/* index */) {
         return false;
     },
 
@@ -341,8 +339,8 @@ var RemoteQuery = NS.Class({
         Returns:
             {Number} The index of the store key, or -1 if not found.
     */
-    indexOfStoreKey: function ( storeKey, from, callback ) {
-        var index = this._list.indexOf( storeKey, from );
+    indexOfStoreKey ( storeKey, from, callback ) {
+        const index = this._list.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
                 this.get( 'source' ).fetchQuery( this, function () {
@@ -383,8 +381,8 @@ var RemoteQuery = NS.Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getStoreKeysForObjectsInRange: function ( start, end, callback ) {
-        var length = this.get( 'length' );
+    getStoreKeysForObjectsInRange ( start, end, callback ) {
+        const length = this.get( 'length' );
 
         if ( length === null ) {
             this._awaitingIdFetch.push([ start, end, callback ]);
@@ -392,7 +390,7 @@ var RemoteQuery = NS.Class({
             return true;
         }
 
-        if ( start < 0 ) { start = 0 ; }
+        if ( start < 0 ) { start = 0; }
         if ( end > length ) { end = length; }
         callback( this._list.slice( start, end ), start, end );
 
@@ -416,7 +414,7 @@ var RemoteQuery = NS.Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getStoreKeysForAllObjects: function ( callback ) {
+    getStoreKeysForAllObjects ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
         return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
     },
@@ -441,10 +439,10 @@ var RemoteQuery = NS.Class({
                        were addded.
     */
     _adjustIdFetches: function ( event ) {
-        var added = event.addedIndexes;
-        var removed = event.removedIndexes;
-        var awaitingIdFetch = this._awaitingIdFetch;
-        var i, l, call, start, end, j, ll, index;
+        const added = event.addedIndexes;
+        const removed = event.removedIndexes;
+        const awaitingIdFetch = this._awaitingIdFetch;
+        let i, l, call, start, end, j, ll, index;
         for ( i = 0, l = awaitingIdFetch.length; i < l; i += 1 ) {
             call = awaitingIdFetch[i];
             start = call[0];
@@ -477,7 +475,7 @@ var RemoteQuery = NS.Class({
         been delivered).
     */
     _idsWereFetched: function () {
-        var awaitingIdFetch = this._awaitingIdFetch;
+        const awaitingIdFetch = this._awaitingIdFetch;
         if ( awaitingIdFetch.length ) {
             this._awaitingIdFetch = [];
             awaitingIdFetch.forEach( function ( call ) {
@@ -500,8 +498,8 @@ var RemoteQuery = NS.Class({
             cases may be the same, but can be handled separately if the server
             has an efficient way of calculating changes from the state).
     */
-    sourceWillFetchQuery: function () {
-        var refresh = this._refresh;
+    sourceWillFetchQuery () {
+        const refresh = this._refresh;
         this._refresh = false;
         this.set( 'status',
             ( this.get( 'status' )|LOADING ) & ~OBSOLETE );
@@ -528,7 +526,7 @@ var RemoteQuery = NS.Class({
         Returns:
             {RemoteQuery} Returns self.
     */
-    sourceDidFetchQuery: function ( args ) {
+    sourceDidFetchQuery ( args ) {
         // User may have changed sort or filter in intervening time; presume the
         // value on the object is the right one, so if data doesn't match, just
         // ignore it.
@@ -541,21 +539,21 @@ var RemoteQuery = NS.Class({
 
         // Could use a proper diffing algorithm to calculate added/removed
         // arrays, but probably not worth it.
-        var store = this.get( 'store' );
-        var toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
-        var oldList = this._list;
-        var list = this._list = args.idList.map( toStoreKey );
-        var oldTotal = this.get( 'length' );
-        var total = list.length;
-        var removedIndexes = [];
-        var removedStoreKeys = [];
-        var addedIndexes = [];
-        var addedStoreKeys = [];
-        var firstChange = 0;
-        var lastChangeNew = total - 1;
-        var lastChangeOld = ( oldTotal || 0 ) - 1;
-        var l = Math.min( total, oldTotal || 0 );
-        var i;
+        const store = this.get( 'store' );
+        const toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
+        const oldList = this._list;
+        const list = this._list = args.idList.map( toStoreKey );
+        const oldTotal = this.get( 'length' );
+        const total = list.length;
+        const removedIndexes = [];
+        const removedStoreKeys = [];
+        const addedIndexes = [];
+        const addedStoreKeys = [];
+        let firstChange = 0;
+        let lastChangeNew = total - 1;
+        let lastChangeOld = ( oldTotal || 0 ) - 1;
+        const l = Math.min( total, oldTotal || 0 );
+        let i;
 
         // Initial fetch, oldTotal === null
         if ( oldTotal !== null ) {
@@ -596,15 +594,13 @@ var RemoteQuery = NS.Class({
             this.fire( 'query:updated', {
                 query: this,
                 removed: removedStoreKeys,
-                removedIndexes: removedIndexes,
+                removedIndexes,
                 added: addedStoreKeys,
-                addedIndexes: addedIndexes
+                addedIndexes,
             });
         }
         return this.fire( 'query:idsLoaded' );
-    }
+    },
 });
 
-NS.RemoteQuery = RemoteQuery;
-
-}( O ) );
+export default RemoteQuery;

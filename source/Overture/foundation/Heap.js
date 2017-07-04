@@ -1,32 +1,22 @@
-// -------------------------------------------------------------------------- \\
-// File: Heap.js                                                              \\
-// Module: Foundation                                                         \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../core/Core.js';
 
-"use strict";
+export default Class({
 
-( function ( NS ) {
-
-var Heap = NS.Class({
-
-    init: function ( comparator ) {
+    init ( comparator ) {
         this.data = [];
         this.length = 0;
         this.comparator = comparator;
     },
 
-    _up: function ( i ) {
-        var data = this.data,
-            comparator = this.comparator,
-            j, node, parentNode;
+    _up ( i ) {
+        const data = this.data;
+        const comparator = this.comparator;
+        let parentNode;
 
-        node = data[i];
+        const node = data[i];
         while ( i ) {
             // Get parent node
-            j = ( i - 1 ) >> 1;
+            const j = ( i - 1 ) >> 1;
             parentNode = data[j];
             // If node is bigger than or equal to parent, we're done
             if ( comparator( node, parentNode ) >= 0 ) {
@@ -40,22 +30,21 @@ var Heap = NS.Class({
         return i;
     },
 
-    _down: function ( i ) {
-        var data = this.data,
-            length = this.length,
-            comparator = this.comparator,
-            node, j, k, childNode;
+    _down ( i ) {
+        const data = this.data;
+        const length = this.length;
+        const comparator = this.comparator;
 
-        node = data[i];
+        const node = data[i];
         while ( true ) {
-            j = ( i << 1 ) + 1;
-            k = j + 1;
+            let j = ( i << 1 ) + 1;
+            const k = j + 1;
 
             // Does it have children?
             if ( j >= length ) {
                 break;
             }
-            childNode = data[j];
+            let childNode = data[j];
 
             // Get the smaller child
             if ( k < length && comparator( childNode, data[k] ) > 0 ) {
@@ -76,9 +65,9 @@ var Heap = NS.Class({
         return i;
     },
 
-    push: function ( node ) {
+    push ( node ) {
         if ( node != null ) {
-            var length = this.length;
+            const length = this.length;
             this.data[ length ] = node;
             this.length = length + 1;
             this._up( length );
@@ -86,16 +75,15 @@ var Heap = NS.Class({
         return this;
     },
 
-    pop: function () {
-        var data = this.data,
-            length = this.length,
-            nodeToReturn;
+    pop () {
+        const data = this.data;
+        let length = this.length;
 
         if ( !length ) {
             return null;
         }
 
-        nodeToReturn = data[0];
+        const nodeToReturn = data[0];
 
         length -= 1;
         data[0] = data[ length ];
@@ -107,14 +95,14 @@ var Heap = NS.Class({
         return nodeToReturn;
     },
 
-    peek: function () {
+    peek () {
         return this.data[0];
     },
 
-    remove: function ( node ) {
-        var data = this.data,
-            length = this.length,
-            i = node == null || !length ?
+    remove ( node ) {
+        const data = this.data;
+        let length = this.length;
+        const i = node == null || !length ?
                 -1 : data.lastIndexOf( node, length - 1 );
 
         // Not found
@@ -135,9 +123,5 @@ var Heap = NS.Class({
         }
 
         return this;
-    }
+    },
 });
-
-NS.Heap = Heap;
-
-}( O ) );

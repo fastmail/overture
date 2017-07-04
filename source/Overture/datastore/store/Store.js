@@ -1,14 +1,33 @@
-// -------------------------------------------------------------------------- \\
-// File: Store.js                                                             \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global JSON */
 
-"use strict";
+import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
+import '../../core/Array.js';  // For Array#erase
+import RunLoop from '../../foundation/RunLoop.js';
+import OObject from '../../foundation/Object.js';
+import Event from '../../foundation/Event.js';
+import EventTarget from '../../foundation/EventTarget.js';
+
+import LiveQuery from '../query/LiveQuery.js';
+import RemoteQuery from '../query/RemoteQuery.js';
+import Record from '../record/Record.js';
+import RecordArray from '../query/RecordArray.js';
+import {
+    // Core states:
+    EMPTY,
+    READY,
+    DESTROYED,
+    NON_EXISTENT,
+    // Properties:
+    LOADING,     // Request in progress to fetch record or updates
+    COMMITTING,  // Request in progress to commit record
+    NEW,         // Record is not created on source (has no source id)
+    DIRTY,       // Record has local changes not yet committing
+    OBSOLETE,    // Record may have changes not yet requested
+} from '../record/Status.js';
+// eslint-disable-next-line no-duplicate-imports
+import * as Status from '../record/Status.js';
+import ToOneAttribute from '../record/ToOneAttribute.js';
+import ToManyAttribute from '../record/ToManyAttribute.js';
 
 /**
     Module: DataStore
@@ -17,85 +36,63 @@
     data records.
 */
 
-( function ( NS ) {
-
-// Same as O.Status, inlined here for efficiency
-
-// Core states:
-var EMPTY        =   1;
-var READY        =   2;
-var DESTROYED    =   4;
-var NON_EXISTENT =   8;
-// Properties:
-var LOADING      =  16; // Request in progress to fetch record or updates
-var COMMITTING   =  32; // Request in progress to commit record
-var NEW          =  64; // Record is not created on source (has no source id)
-var DIRTY        = 128; // Record has local changes not yet committing
-var OBSOLETE     = 256; // Record may have changes not yet requested
-
 // ---
 
 // Error messages.
-var Status = NS.Status;
-var CANNOT_CREATE_EXISTING_RECORD_ERROR =
+const CANNOT_CREATE_EXISTING_RECORD_ERROR =
     'O.Store Error: Cannot create existing record';
-var CANNOT_WRITE_TO_UNREADY_RECORD_ERROR =
+const CANNOT_WRITE_TO_UNREADY_RECORD_ERROR =
     'O.Store Error: Cannot write to unready record';
-var SOURCE_COMMIT_CREATE_MISMATCH_ERROR =
+const SOURCE_COMMIT_CREATE_MISMATCH_ERROR =
     'O.Store Error: Source committed a create on a record not marked new';
-var SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
+const SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
     'O.Store Error: Source commited a destroy on a record not marked destroyed';
 
 // ---
 
-var sk = 1;
-var generateStoreKey = function () {
+let sk = 1;
+const generateStoreKey = function () {
     return 'k' + ( sk++ );
 };
 
 // ---
 
-var mayHaveChanges = function ( store ) {
-    NS.RunLoop.queueFn( 'before', store.checkForChanges, store );
+const mayHaveChanges = function ( store ) {
+    RunLoop.queueFn( 'before', store.checkForChanges, store );
     return store;
 };
 
 // ---
 
-var filter = function ( accept, storeKey ) {
+const filter = function ( accept, storeKey ) {
     return accept( this._skToData[ storeKey ], this, storeKey );
 };
 
-var sort = function ( compare, a, b ) {
-    var _skToData = this._skToData,
-        aIsFirst = compare( _skToData[ a ], _skToData[ b ], this );
+const sort = function ( compare, a, b ) {
+    const { _skToData } = this;
+    const aIsFirst = compare( _skToData[ a ], _skToData[ b ], this );
     return aIsFirst || ( ~~a.slice( 1 ) - ~~b.slice( 1 ) );
 };
 
 // ---
 
-var isEqual = NS.isEqual;
-var guid = NS.guid;
+const typeToForeignRefAttrs = {};
 
-// ---
-
-var typeToForeignRefAttrs = {};
-
-var getForeignRefAttrs = function ( Type ) {
-    var typeId = guid( Type );
-    var foreignRefAttrs = typeToForeignRefAttrs[ typeId ];
-    var proto, attrs, attrKey, propKey, attribute;
+const getForeignRefAttrs = function ( Type ) {
+    const typeId = guid( Type );
+    let foreignRefAttrs = typeToForeignRefAttrs[ typeId ];
+    let proto, attrs, attrKey, propKey, attribute;
     if ( !foreignRefAttrs ) {
         proto = Type.prototype;
-        attrs = NS.meta( proto ).attrs;
+        attrs = meta( proto ).attrs;
         foreignRefAttrs = [];
         for ( attrKey in attrs ) {
             propKey = attrs[ attrKey ];
             attribute = propKey && proto[ propKey ];
-            if ( attribute instanceof NS.ToOneAttribute ) {
+            if ( attribute instanceof ToOneAttribute ) {
                 foreignRefAttrs.push([ attrKey, 1, attribute.Type ]);
             }
-            if ( attribute instanceof NS.ToManyAttribute ) {
+            if ( attribute instanceof ToManyAttribute ) {
                 foreignRefAttrs.push([ attrKey, 0, attribute.recordType ]);
             }
         }
@@ -104,12 +101,12 @@ var getForeignRefAttrs = function ( Type ) {
     return foreignRefAttrs;
 };
 
-var toStoreKey = function ( store, Type, id ) {
+const toStoreKey = function ( store, Type, id ) {
     return store.getStoreKey( Type, id );
 };
 
-var convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
-    var i, l, foreignRef, attrKey, AttrType, value;
+const convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
+    let i, l, foreignRef, attrKey, AttrType, value;
     for ( i = 0, l = foreignRefAttrs.length; i < l; i += 1 ) {
         foreignRef = foreignRefAttrs[i];
         attrKey = foreignRef[0];
@@ -124,22 +121,22 @@ var convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
     }
 };
 
-var toId = function ( store, storeKey ) {
+const toId = function ( store, storeKey ) {
     return store.getIdFromStoreKey( storeKey ) || '#' + storeKey;
 };
 
-var convertForeignKeysToId = function ( store, Type, data ) {
-    var foreignRefAttrs = getForeignRefAttrs( Type ),
-        result = data,
-        i, l, foreignRef, attrKey, value;
-    for ( i = 0, l = foreignRefAttrs.length; i < l; i += 1 ) {
-        foreignRef = foreignRefAttrs[i];
-        attrKey = foreignRef[0];
+const convertForeignKeysToId = function ( store, Type, data ) {
+    const foreignRefAttrs = getForeignRefAttrs( Type );
+    let result = data;
+    const l = foreignRefAttrs.length;
+    for ( let i = 0; i < l; i += 1 ) {
+        const foreignRef = foreignRefAttrs[i];
+        const attrKey = foreignRef[0];
         if ( attrKey in data ) {
             if ( result === data ) {
-                result = NS.clone( data );
+                result = clone( data );
             }
-            value = data[ attrKey ];
+            const value = data[ attrKey ];
             result[ attrKey ] = value && ( foreignRef[1] === 1 ?
                 toId( store, value ) :
                 value.map( toId.bind( null, store ) )
@@ -180,9 +177,9 @@ var convertForeignKeysToId = function ( store, Type, data ) {
       - `DIRTY`: The record has local changes not yet committing.
       - `OBSOLETE`: The record may have changes on the server not yet requested.
 */
-var Store = NS.Class({
+const Store = Class({
 
-    Extends: NS.Object,
+    Extends: OObject,
 
     /**
         Property: O.Store#autoCommit
@@ -226,7 +223,7 @@ var Store = NS.Class({
         Parameters:
             source - {O.Source} The source for this store.
     */
-    init: function ( mixin ) {
+    init ( mixin ) {
         // Map store key -> record
         this._skToRecord = {};
         // Map store key -> data
@@ -303,7 +300,7 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    addNested: function ( store ) {
+    addNested ( store ) {
         this._nestedStores.push( store );
         return this;
     },
@@ -322,7 +319,7 @@ var Store = NS.Class({
             {O.Store} Returns self.
 
     */
-    removeNested: function ( store ) {
+    removeNested ( store ) {
         this._nestedStores.erase( store );
         return this;
     },
@@ -344,13 +341,13 @@ var Store = NS.Class({
         Returns:
             {String} Returns the store key for that record type and id.
     */
-    getStoreKey: function ( Type, id ) {
-        var typeId = guid( Type ),
-            idToSk = ( this._typeToIdToSk[ typeId ] ||
-                ( this._typeToIdToSk[ typeId ] = {} ) ),
-            skToId = ( this._typeToSkToId[ typeId ] ||
-                ( this._typeToSkToId[ typeId ] = {} ) ),
-            storeKey = id && idToSk[ id ];
+    getStoreKey ( Type, id ) {
+        const typeId = guid( Type );
+        const idToSk = ( this._typeToIdToSk[ typeId ] ||
+                ( this._typeToIdToSk[ typeId ] = {} ) );
+        const skToId = ( this._typeToSkToId[ typeId ] ||
+                ( this._typeToSkToId[ typeId ] = {} ) );
+        let storeKey = id && idToSk[ id ];
 
         if ( !storeKey ) {
             storeKey = generateStoreKey();
@@ -376,8 +373,8 @@ var Store = NS.Class({
             the store key was not found or does not have an id (normally because
             the server assigns ids and the record has not yet been committed).
     */
-    getIdFromStoreKey: function ( storeKey ) {
-        var Type = this._skToType[ storeKey ];
+    getIdFromStoreKey ( storeKey ) {
+        const Type = this._skToType[ storeKey ];
         return Type &&
             ( this._typeToSkToId[ guid( Type ) ] || {} )[ storeKey ];
     },
@@ -394,7 +391,7 @@ var Store = NS.Class({
             {(Type|null)} Returns the type for the record, or `null` if the
             store key is not found.
     */
-    getTypeFromStoreKey: function ( storeKey ) {
+    getTypeFromStoreKey ( storeKey ) {
         return this._skToType[ storeKey ] || null;
     },
 
@@ -412,8 +409,8 @@ var Store = NS.Class({
         Returns:
             {O.Status} The status in this store of the given record.
     */
-    getRecordStatus: function ( Type, id ) {
-        var _idToSk = this._typeToIdToSk[ guid( Type ) ];
+    getRecordStatus ( Type, id ) {
+        const _idToSk = this._typeToIdToSk[ guid( Type ) ];
         return _idToSk ? this.getStatus( _idToSk[ id ] ) : EMPTY;
     },
 
@@ -435,8 +432,8 @@ var Store = NS.Class({
             {O.Record|null} Returns the requested record, or null if no type or
             no id given.
     */
-    getRecord: function ( Type, id, doNotFetch ) {
-        var storeKey, record;
+    getRecord ( Type, id, doNotFetch ) {
+        let storeKey;
         if ( !Type || !id ) {
             return null;
         }
@@ -448,7 +445,7 @@ var Store = NS.Class({
         } else {
             storeKey = this.getStoreKey( Type, id );
         }
-        record = this.materialiseRecord( storeKey, Type );
+        const record = this.materialiseRecord( storeKey, Type );
 
         // If the caller is already handling the fetching, they can
         // set doNotFetch to true.
@@ -475,8 +472,8 @@ var Store = NS.Class({
         Returns:
             {(O.Record|null)} The matching record, or null if none found.
     */
-    getOne: function ( Type, filter ) {
-        var storeKey = this.findOne( Type, filter );
+    getOne ( Type, filter ) {
+        const storeKey = this.findOne( Type, filter );
         return storeKey ? this.materialiseRecord( storeKey, Type ) : null;
     },
 
@@ -502,13 +499,13 @@ var Store = NS.Class({
         Returns:
             {O.RecordArray} A record array of results.
     */
-    getAll: function ( Type, filter, sort ) {
-        var storeKeys = this.findAll( Type, filter, sort );
-        return new NS.RecordArray( this, Type, storeKeys );
+    getAll ( Type, filter, sort ) {
+        const storeKeys = this.findAll( Type, filter, sort );
+        return new RecordArray( this, Type, storeKeys );
     },
 
-    checkForChanges: function () {
-        var storeKey;
+    checkForChanges () {
+        let storeKey;
         for ( storeKey in this._created ) {
             return this.set( 'hasChanges', true );
         }
@@ -544,28 +541,22 @@ var Store = NS.Class({
         this.isCommitting = true;
 
         this.fire( 'willCommit' );
-        var _created = this._created,
-            _destroyed = this._destroyed,
-            _skToData = this._skToData,
-            _skToStatus = this._skToStatus,
-            _skToType = this._skToType,
-            _typeToSkToId = this._typeToSkToId,
-            _skToChanged = this._skToChanged,
-            _skToCommitted = this._skToCommitted,
-            _skToRollback = this._skToRollback,
-            _typeToClientState = this._typeToClientState,
-            _typeToStatus = this._typeToStatus,
-            storeKey, data, Type, changed, id, status, create, update, destroy,
-            newSkToChanged = {},
-            newDestroyed = {},
-            changes = {},
-            types = {},
-            hasChanges = false;
+        const {
+            _created, _destroyed, _skToData, _skToStatus, _skToType,
+            _typeToSkToId, _skToChanged, _skToCommitted, _skToRollback,
+            _typeToClientState, _typeToStatus,
+        } = this;
 
-        var getEntry = function ( Type ) {
-            var typeId = guid( Type ),
-                idPropKey, idAttrKey,
-                entry = changes[ typeId ];
+        const newSkToChanged = {};
+        const newDestroyed = {};
+        const changes = {};
+        const types = {};
+        let hasChanges = false;
+
+        const getEntry = function ( Type ) {
+            const typeId = guid( Type );
+            let idPropKey, idAttrKey;
+            let entry = changes[ typeId ];
             if ( !entry ) {
                 idPropKey = Type.primaryKey || 'id';
                 idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
@@ -574,7 +565,7 @@ var Store = NS.Class({
                     create: { storeKeys: [], records: [] },
                     update: { storeKeys: [], records: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
-                    state: _typeToClientState[ typeId ]
+                    state: _typeToClientState[ typeId ],
                 };
                 _typeToStatus[ typeId ] |= COMMITTING;
                 types[ typeId ] = Type;
@@ -583,24 +574,24 @@ var Store = NS.Class({
             return entry;
         };
 
-        for ( storeKey in _created ) {
-            status = _skToStatus[ storeKey ];
-            Type = _skToType[ storeKey ];
-            data = _skToData[ storeKey ];
+        for ( const storeKey in _created ) {
+            const status = _skToStatus[ storeKey ];
+            const Type = _skToType[ storeKey ];
+            let data = _skToData[ storeKey ];
 
             data = convertForeignKeysToId( this, Type, data );
 
-            create = getEntry( Type ).create;
+            const create = getEntry( Type ).create;
             create.storeKeys.push( storeKey );
             create.records.push( data );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
-        for ( storeKey in _skToChanged ) {
-            status = _skToStatus[ storeKey ];
-            Type = _skToType[ storeKey ];
-            data = _skToData[ storeKey ];
+        for ( const storeKey in _skToChanged ) {
+            const status = _skToStatus[ storeKey ];
+            const Type = _skToType[ storeKey ];
+            let data = _skToData[ storeKey ];
 
-            changed = _skToChanged[ storeKey ];
+            const changed = _skToChanged[ storeKey ];
             if ( status & COMMITTING ) {
                 newSkToChanged[ storeKey ] = changed;
                 continue;
@@ -609,16 +600,16 @@ var Store = NS.Class({
             delete _skToCommitted[ storeKey ];
             data = convertForeignKeysToId( this, Type, data );
 
-            update = getEntry( Type ).update;
+            const update = getEntry( Type ).update;
             update.storeKeys.push( storeKey );
             update.records.push( data );
             update.changes.push( changed );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
-        for ( storeKey in _destroyed ) {
-            status = _skToStatus[ storeKey ];
-            Type = _skToType[ storeKey ];
-            id = _typeToSkToId[ guid( Type ) ][ storeKey ];
+        for ( const storeKey in _destroyed ) {
+            const status = _skToStatus[ storeKey ];
+            const Type = _skToType[ storeKey ];
+            const id = _typeToSkToId[ guid( Type ) ][ storeKey ];
 
             // This means it's new and committing, so wait for commit to finish
             // first.
@@ -627,7 +618,7 @@ var Store = NS.Class({
                 continue;
             }
 
-            destroy = getEntry( Type ).destroy;
+            const destroy = getEntry( Type ).destroy;
             destroy.storeKeys.push( storeKey );
             destroy.ids.push( id );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
@@ -639,7 +630,7 @@ var Store = NS.Class({
 
         if ( hasChanges ) {
             this.source.commitChanges( changes, function () {
-                for ( var typeId in types ) {
+                for ( const typeId in types ) {
                     _typeToStatus[ typeId ] &= ~COMMITTING;
                     this._checkServerStatus( types[ typeId ] );
                 }
@@ -666,22 +657,19 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    discardChanges: function () {
-        var _created = this._created,
-            _destroyed = this._destroyed,
-            _skToChanged = this._skToChanged,
-            _skToCommitted = this._skToCommitted,
-            _skToType = this._skToType,
-            _skToData = this._skToData,
-            storeKey;
+    discardChanges () {
+        const {
+            _created, _destroyed, _skToChanged, _skToCommitted, _skToType,
+            _skToData,
+        } = this;
 
-        for ( storeKey in _created ) {
+        for ( const storeKey in _created ) {
             this.destroyRecord( storeKey );
         }
-        for ( storeKey in _skToChanged ) {
+        for ( const storeKey in _skToChanged ) {
             this.updateData( storeKey, _skToCommitted[ storeKey ], true );
         }
-        for ( storeKey in _destroyed ) {
+        for ( const storeKey in _destroyed ) {
             this.undestroyRecord(
                 storeKey, _skToType[ storeKey ], _skToData[ storeKey ] );
         }
@@ -692,69 +680,63 @@ var Store = NS.Class({
         return this.set( 'hasChanges', false );
     },
 
-    getInverseChanges: function () {
-        var _created = this._created,
-            _destroyed = this._destroyed,
-            _skToType = this._skToType,
-            _skToData = this._skToData,
-            _skToChanged = this._skToChanged,
-            _skToCommitted = this._skToCommitted,
-            inverse = {
-                create: [],
-                update: [],
-                destroy: []
-            },
-            storeKey, Type;
+    getInverseChanges () {
+        const {
+            _created, _destroyed, _skToType, _skToData, _skToChanged,
+            _skToCommitted,
+        } = this;
+        const inverse = {
+            create: [],
+            update: [],
+            destroy: [],
+        };
 
-        for ( storeKey in _created ) {
+        for ( const storeKey in _created ) {
             inverse.destroy.push( storeKey );
         }
-        for ( storeKey in _skToChanged ) {
-            Type = _skToType[ storeKey ];
+        for ( const storeKey in _skToChanged ) {
             inverse.update.push([
                 storeKey,
                 Object.filter(
                     _skToCommitted[ storeKey ], _skToChanged[ storeKey ]
-                )
+                ),
             ]);
         }
-        for ( storeKey in _destroyed ) {
-            Type = _skToType[ storeKey ];
+        for ( const storeKey in _destroyed ) {
+            const Type = _skToType[ storeKey ];
             inverse.create.push([
                 storeKey,
                 Type,
                 Object.filter(
-                    NS.clone( _skToData[ storeKey ] ),
-                    NS.Record.getClientSettableAttributes( Type )
-                )
+                    clone( _skToData[ storeKey ] ),
+                    Record.getClientSettableAttributes( Type )
+                ),
             ]);
         }
 
         return inverse;
     },
 
-    applyChanges: function ( changes ) {
-        var create = changes.create,
-            update = changes.update,
-            destroy = changes.destroy,
-            createObj, updateObj,
-            i, l, storeKey, Type, data;
+    applyChanges ( changes ) {
+        const create = changes.create;
+        const update = changes.update;
+        const destroy = changes.destroy;
 
-        for ( i = 0, l = create.length; i < l; i += 1 ) {
-            createObj = create[i];
-            storeKey = createObj[0];
-            Type = createObj[1];
-            data = createObj[2];
+        for ( let i = 0, l = create.length; i < l; i += 1 ) {
+            const createObj = create[i];
+            const storeKey = createObj[0];
+            const Type = createObj[1];
+            const data = createObj[2];
             this.undestroyRecord( storeKey, Type, data );
         }
-        for ( i = 0, l = update.length; i < l; i += 1 ) {
-            updateObj = update[i];
-            storeKey = updateObj[0];
-            data = updateObj[1];
+        for ( let i = 0, l = update.length; i < l; i += 1 ) {
+            const updateObj = update[i];
+            const storeKey = updateObj[0];
+            const data = updateObj[1];
             this.updateData( storeKey, data, true );
         }
-        for ( i = 0, l = destroy.length; i < l; i += 1 ) {
-            storeKey = destroy[i];
+        for ( let i = 0, l = destroy.length; i < l; i += 1 ) {
+            const storeKey = destroy[i];
             this.destroyRecord( storeKey );
         }
     },
@@ -772,7 +754,7 @@ var Store = NS.Class({
         Returns:
             {O.Status} The status of the type in the store.
     */
-    getTypeStatus: function ( Type ) {
+    getTypeStatus ( Type ) {
         return this._typeToStatus[ guid( Type ) ] || EMPTY;
     },
 
@@ -787,7 +769,7 @@ var Store = NS.Class({
         Returns:
             {String|null} The client's current state token for the type.
     */
-    getTypeState: function ( Type ) {
+    getTypeState ( Type ) {
         return this._typeToClientState[ guid( Type ) ] || null;
     },
 
@@ -802,7 +784,7 @@ var Store = NS.Class({
         Returns:
             {O.Status} The status of the record with that store key.
     */
-    getStatus: function ( storeKey ) {
+    getStatus ( storeKey ) {
         return this._skToStatus[ storeKey ] || EMPTY;
     },
 
@@ -818,9 +800,9 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    setStatus: function ( storeKey, status ) {
-        var previousStatus = this.getStatus( storeKey ),
-            record = this._skToRecord[ storeKey ];
+    setStatus ( storeKey, status ) {
+        const previousStatus = this.getStatus( storeKey );
+        const record = this._skToRecord[ storeKey ];
         if ( previousStatus !== status ) {
             this._skToStatus[ storeKey ] = status;
             // wasReady !== isReady
@@ -849,7 +831,7 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    setRecordForStoreKey: function ( storeKey, record ) {
+    setRecordForStoreKey ( storeKey, record ) {
         this._skToRecord[ storeKey ] = record;
         return this;
     },
@@ -867,7 +849,7 @@ var Store = NS.Class({
         Returns:
             {O.Record} Returns the requested record.
     */
-    materialiseRecord: function ( storeKey, Type ) {
+    materialiseRecord ( storeKey, Type ) {
         return this._skToRecord[ storeKey ] ||
             ( this._skToRecord[ storeKey ] = new Type( this, storeKey ) );
     },
@@ -885,9 +867,9 @@ var Store = NS.Class({
         Returns:
             {Boolean} True if the store may unload the record.
     */
-    mayUnloadRecord: function ( storeKey ) {
-        var record = this._skToRecord[ storeKey ],
-            status = this.getStatus( storeKey );
+    mayUnloadRecord ( storeKey ) {
+        const record = this._skToRecord[ storeKey ];
+        const status = this.getStatus( storeKey );
         // Only unload unwatched clean, non-committing records.
         if ( ( status & (COMMITTING|NEW|DIRTY) ) ||
                 ( ( status & READY ) && record && record.hasObservers() ) ) {
@@ -911,8 +893,8 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    willUnloadRecord: function ( storeKey ) {
-        var record = this._skToRecord[ storeKey ];
+    willUnloadRecord ( storeKey ) {
+        const record = this._skToRecord[ storeKey ];
         if ( record ) {
             record.storeWillUnload();
         }
@@ -935,7 +917,7 @@ var Store = NS.Class({
         Returns:
             {Boolean} Was the record unloaded?
     */
-    unloadRecord: function ( storeKey ) {
+    unloadRecord ( storeKey ) {
         if ( !this.mayUnloadRecord( storeKey ) ) {
             return false;
         }
@@ -950,8 +932,8 @@ var Store = NS.Class({
         // Can't delete id/sk mapping without checking if we have any other
         // references to this key elsewhere (as either a foreign key or in a
         // remote query). For now just always keep.
-        // var typeId = guid( this._skToType[ storeKey ] );
-        // var id = this._typeToSkToId[ typeId ][ storeKey ];
+        // const typeId = guid( this._skToType[ storeKey ] );
+        // const id = this._typeToSkToId[ typeId ][ storeKey ];
         // delete this._skToType[ storeKey ];
         // delete this._typeToSkToId[ typeId ][ storeKey ];
         // if ( id ) {
@@ -979,15 +961,15 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    createRecord: function ( storeKey, data ) {
-        var status = this.getStatus( storeKey );
+    createRecord ( storeKey, data ) {
+        const status = this.getStatus( storeKey );
         if ( status !== EMPTY && status !== DESTROYED ) {
-            NS.RunLoop.didError({
+            RunLoop.didError({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
                         ( Object.keyOf( Status, status ) || status ) +
-                    '\nData: ' + JSON.stringify( data )
+                    '\nData: ' + JSON.stringify( data ),
             });
             return this;
         }
@@ -1021,8 +1003,8 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    destroyRecord: function ( storeKey ) {
-        var status = this.getStatus( storeKey );
+    destroyRecord ( storeKey ) {
+        const status = this.getStatus( storeKey );
         // If created -> just remove from created.
         if ( status === (READY|NEW|DIRTY) ) {
             delete this._created[ storeKey ];
@@ -1053,12 +1035,11 @@ var Store = NS.Class({
         return mayHaveChanges( this );
     },
 
-    undestroyRecord: function ( storeKey, Type, data ) {
-        var status = this.getStatus( storeKey ),
-            idPropKey, idAttrKey;
+    undestroyRecord ( storeKey, Type, data ) {
+        const status = this.getStatus( storeKey );
         if ( status === EMPTY || status === DESTROYED ) {
-            idPropKey = Type.primaryKey || 'id';
-            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+            const idPropKey = Type.primaryKey || 'id';
+            const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
             delete data[ idAttrKey ];
             this._skToType[ storeKey ] = Type;
             this.createRecord( storeKey, data );
@@ -1089,17 +1070,16 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceStateDidChange: function ( Type, newState ) {
-        var typeId = guid( Type ),
-            clientState = this._typeToClientState[ typeId ],
-            _remoteQueries = this._remoteQueries,
-            l = _remoteQueries.length,
-            remoteQuery;
+    sourceStateDidChange ( Type, newState ) {
+        const typeId = guid( Type );
+        const clientState = this._typeToClientState[ typeId ];
+        const { _remoteQueries } = this;
+        let l = _remoteQueries.length;
 
         if ( clientState && newState !== clientState ) {
             if ( !( this._typeToStatus[ typeId ] & (LOADING|COMMITTING) ) ) {
                 while ( l-- ) {
-                    remoteQuery = _remoteQueries[l];
+                    const remoteQuery = _remoteQueries[l];
                     if ( remoteQuery.get( 'Type' ) === Type ) {
                         remoteQuery.setObsolete();
                     }
@@ -1122,9 +1102,9 @@ var Store = NS.Class({
         Parameters:
             Type - {O.Class} The record type.
     */
-    _checkServerStatus: function ( Type ) {
-        var typeId = guid( Type ),
-            serverState = this._typeToServerState[ typeId ];
+    _checkServerStatus ( Type ) {
+        const typeId = guid( Type );
+        const serverState = this._typeToServerState[ typeId ];
         if ( serverState ) {
             delete this._typeToServerState[ typeId ];
             this.sourceStateDidChange( Type, serverState );
@@ -1144,10 +1124,10 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    fetchAll: function ( Type, force ) {
-        var typeId = guid( Type ),
-            status = this._typeToStatus[ typeId ],
-            state = this._typeToClientState[ typeId ];
+    fetchAll ( Type, force ) {
+        const typeId = guid( Type );
+        const status = this._typeToStatus[ typeId ];
+        const state = this._typeToClientState[ typeId ];
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
             this.source.fetchAllRecords( Type, state, function () {
@@ -1172,19 +1152,18 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    fetchData: function ( storeKey ) {
-        var status = this.getStatus( storeKey );
-        var Type, typeId, id;
+    fetchData ( storeKey ) {
+        const status = this.getStatus( storeKey );
         // Nothing to do if already loading or new, destroyed or non-existent.
         if ( status & (LOADING|NEW|DESTROYED|NON_EXISTENT) ) {
             return this;
         }
-        Type = this._skToType[ storeKey ];
+        const Type = this._skToType[ storeKey ];
         if ( !Type ) {
             return this;
         }
-        typeId = guid( Type );
-        id = this._typeToSkToId[ typeId ][ storeKey ];
+        const typeId = guid( Type );
+        const id = this._typeToSkToId[ typeId ][ storeKey ];
         if ( status & EMPTY ) {
             this.source.fetchRecord( Type, id );
             this.setStatus( storeKey, (EMPTY|LOADING) );
@@ -1206,7 +1185,7 @@ var Store = NS.Class({
         Returns:
             {Object|undefined} The record data, if loaded.
     */
-    getData: function ( storeKey ) {
+    getData ( storeKey ) {
         return this._skToData[ storeKey ];
     },
 
@@ -1222,11 +1201,11 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    setData: function ( storeKey, data ) {
+    setData ( storeKey, data ) {
         if ( this.getStatus( storeKey ) & READY ) {
             this.updateData( storeKey, data, false );
         } else {
-            var changedKeys = Object.keys( data );
+            const changedKeys = Object.keys( data );
             this._skToData[ storeKey ] = data;
             this._notifyRecordOfChanges( storeKey, changedKeys );
             this._nestedStores.forEach( function ( store ) {
@@ -1253,42 +1232,38 @@ var Store = NS.Class({
             changeIsDirty flag is set but the current data is not yet loaded
             into memory.
     */
-    updateData: function ( storeKey, data, changeIsDirty ) {
-        var status = this.getStatus( storeKey ),
-            _skToData = this._skToData,
-            _skToCommitted = this._skToCommitted,
-            _skToChanged = this._skToChanged,
-            current = _skToData[ storeKey ],
-            changedKeys = [],
-            seenChange = false,
-            Type, key, value, oldValue, committed, changed;
+    updateData ( storeKey, data, changeIsDirty ) {
+        const status = this.getStatus( storeKey );
+        const { _skToData, _skToCommitted, _skToChanged } = this;
+        let current = _skToData[ storeKey ];
+        const changedKeys = [];
+        let seenChange = false;
 
         if ( !current || ( changeIsDirty && !( status & READY ) ) ) {
-            Type = this._skToType[ storeKey ];
-            NS.RunLoop.didError({
+            RunLoop.didError({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
                         ( Object.keyOf( Status, status ) || status ) +
-                    '\nData: ' + JSON.stringify( data )
+                    '\nData: ' + JSON.stringify( data ),
             });
             return false;
         }
 
         // Copy-on-write for nested stores.
         if ( this.isNested && !_skToData.hasOwnProperty( storeKey ) ) {
-            _skToData[ storeKey ] = current = NS.clone( current );
+            _skToData[ storeKey ] = current = clone( current );
         }
 
         if ( changeIsDirty && status !== (READY|NEW|DIRTY) ) {
-            committed = _skToCommitted[ storeKey ] ||
-                ( _skToCommitted[ storeKey ] = NS.clone( current ) );
-            changed = _skToChanged[ storeKey ] ||
+            const committed = _skToCommitted[ storeKey ] ||
+                ( _skToCommitted[ storeKey ] = clone( current ) );
+            const changed = _skToChanged[ storeKey ] ||
                 ( _skToChanged[ storeKey ] = {} );
 
-            for ( key in data ) {
-                value = data[ key ];
-                oldValue = current[ key ];
+            for ( const key in data ) {
+                const value = data[ key ];
+                const oldValue = current[ key ];
                 if ( !isEqual( value, oldValue ) ) {
                     current[ key ] = value;
                     changedKeys.push( key );
@@ -1299,7 +1274,7 @@ var Store = NS.Class({
             // If we just reset properties to their committed values, we should
             // check to see if there are any changes remaining.
             if ( !seenChange ) {
-                for ( key in changed ) {
+                for ( const key in changed ) {
                     if ( changed[ key ] ) {
                         seenChange = true;
                         break;
@@ -1323,9 +1298,9 @@ var Store = NS.Class({
             }
             mayHaveChanges( this );
         } else {
-            for ( key in data ) {
-                value = data[ key ];
-                oldValue = current[ key ];
+            for ( const key in data ) {
+                const value = data[ key ];
+                const oldValue = current[ key ];
                 if ( !isEqual( value, oldValue ) ) {
                     current[ key ] = value;
                     changedKeys.push( key );
@@ -1352,8 +1327,8 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    revertData: function ( storeKey ) {
-        var committed = this._skToCommitted[ storeKey ];
+    revertData ( storeKey ) {
+        const committed = this._skToCommitted[ storeKey ];
         if ( committed ) {
             this.updateData( storeKey, committed, true );
         }
@@ -1373,16 +1348,16 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    _notifyRecordOfChanges: function ( storeKey, changedKeys ) {
-        var record = this._skToRecord[ storeKey ],
-            l = changedKeys.length,
-            attrs, attrKey, propKey, attribute, errorForAttribute;
+    _notifyRecordOfChanges ( storeKey, changedKeys ) {
+        const record = this._skToRecord[ storeKey ];
         if ( record ) {
-            attrs = NS.meta( record ).attrs;
+            let errorForAttribute;
+            const attrs = meta( record ).attrs;
             record.beginPropertyChanges();
+            let l = changedKeys.length;
             while ( l-- ) {
-                attrKey = changedKeys[l];
-                propKey = attrs[ attrKey ];
+                const attrKey = changedKeys[l];
+                let propKey = attrs[ attrKey ];
                 // Server may return more data than is defined in the record;
                 // ignore the rest.
                 if ( !propKey ) {
@@ -1393,7 +1368,7 @@ var Store = NS.Class({
                         continue;
                     }
                 }
-                attribute = record[ propKey ];
+                const attribute = record[ propKey ];
                 record.computedPropertyDidChange( propKey );
                 if ( attribute.validate ) {
                     if ( !errorForAttribute ) {
@@ -1428,25 +1403,23 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchRecords: function ( Type, records, state, isAll ) {
-        var typeId = guid( Type ),
-            _typeToClientState = this._typeToClientState,
-            oldState,
-            l = records.length,
-            idPropKey = Type.primaryKey || 'id',
-            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
-            now = Date.now(),
-            seen = {},
-            updates = {},
-            foreignRefAttrs = getForeignRefAttrs( Type ),
-            data, id, storeKey, status;
+    sourceDidFetchRecords ( Type, records, state, isAll ) {
+        const typeId = guid( Type );
+        const { _typeToClientState } = this;
+        let l = records.length;
+        const idPropKey = Type.primaryKey || 'id';
+        const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+        const now = Date.now();
+        const seen = {};
+        const updates = {};
+        const foreignRefAttrs = getForeignRefAttrs( Type );
 
         while ( l-- ) {
-            data = records[l];
-            id = data[ idAttrKey ];
+            const data = records[l];
+            const id = data[ idAttrKey ];
             seen[ id ] = true;
-            storeKey = this.getStoreKey( Type, id );
-            status = this.getStatus( storeKey );
+            const storeKey = this.getStoreKey( Type, id );
+            const status = this.getStatus( storeKey );
 
             if ( foreignRefAttrs.length ) {
                 convertForeignKeysToSK( this, foreignRefAttrs, data );
@@ -1478,9 +1451,9 @@ var Store = NS.Class({
         }
 
         if ( isAll ) {
-            var _idToSk = this._typeToIdToSk[ guid( Type ) ],
-                destroyed = [];
-            for ( id in _idToSk ) {
+            const _idToSk = this._typeToIdToSk[ guid( Type ) ];
+            const destroyed = [];
+            for ( const id in _idToSk ) {
                 if ( !seen[ id ] &&
                         ( this.getStatus( _idToSk[ id ] ) & READY ) ) {
                     destroyed.push( id );
@@ -1494,7 +1467,7 @@ var Store = NS.Class({
         this.sourceDidFetchPartialRecords( Type, updates, true );
 
         if ( state ) {
-            oldState = _typeToClientState[ typeId ];
+            const oldState = _typeToClientState[ typeId ];
             // If the state has changed, we need to fetch updates, but we can
             // still load these records
             if ( !isAll && oldState && oldState !== state ) {
@@ -1505,7 +1478,7 @@ var Store = NS.Class({
         }
         this._typeToStatus[ typeId ] |= READY;
 
-        NS.RunLoop.queueFn( 'middle',
+        RunLoop.queueFn( 'middle',
             this.liveQueriesAreReady.bind( this, Type ) );
 
         return this;
@@ -1528,23 +1501,19 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchPartialRecords: function ( Type, updates, _idsAreSKs ) {
-        var typeId = guid( Type ),
-            _skToData = this._skToData,
-            _skToStatus = this._skToStatus,
-            _idToSk = this._typeToIdToSk[ typeId ] || {},
-            _skToId = this._typeToSkToId[ typeId ] || {},
-            _skToChanged = this._skToChanged,
-            _skToCommitted = this._skToCommitted,
-            idPropKey = Type.primaryKey || 'id',
-            idAttrKey = Type.prototype[ idPropKey ].key || idPropKey,
-            foreignRefAttrs = _idsAreSKs ? [] : getForeignRefAttrs( Type ),
-            id, storeKey, status, update, newId;
+    sourceDidFetchPartialRecords ( Type, updates, _idsAreSKs ) {
+        const typeId = guid( Type );
+        const { _skToData, _skToStatus, _skToChanged, _skToCommitted } = this;
+        const _idToSk = this._typeToIdToSk[ typeId ] || {};
+        const _skToId = this._typeToSkToId[ typeId ] || {};
+        const idPropKey = Type.primaryKey || 'id';
+        const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+        const foreignRefAttrs = _idsAreSKs ? [] : getForeignRefAttrs( Type );
 
-        for ( id in updates ) {
-            storeKey = _idToSk[ id ];
-            status = _skToStatus[ storeKey ];
-            update = updates[ id ];
+        for ( const id in updates ) {
+            const storeKey = _idToSk[ id ];
+            const status = _skToStatus[ storeKey ];
+            let update = updates[ id ];
 
             // Skip if no update to process
             // Also can't update an empty or destroyed record.
@@ -1571,18 +1540,17 @@ var Store = NS.Class({
             if ( status & DIRTY ) {
                 // If we have a conflict we can either rebase on top, or discard
                 // our local changes.
-                update = NS.extend( _skToCommitted[ storeKey ], update );
+                update = Object.assign( _skToCommitted[ storeKey ], update );
                 if ( this.rebaseConflicts ) {
-                    var oldData = _skToData[ storeKey ],
-                        oldChanged = _skToChanged[ storeKey ],
-                        newData = {},
-                        newChanged = {},
-                        clean = true,
-                        key;
+                    const oldData = _skToData[ storeKey ];
+                    const oldChanged = _skToChanged[ storeKey ];
+                    const newData = {};
+                    const newChanged = {};
+                    let clean = true;
                     // Every key in here must be reapplied on top, even if
                     // changed[key] === false, as this means it's been
                     // changed then changed back.
-                    for ( key in oldData ) {
+                    for ( const key in oldData ) {
                         if ( key in oldChanged ) {
                             if ( !isEqual( oldData[ key ], update[ key ] ) ) {
                                 newChanged[ key ] = true;
@@ -1605,7 +1573,7 @@ var Store = NS.Class({
                 delete _skToCommitted[ storeKey ];
             }
 
-            newId = update[ idAttrKey ];
+            const newId = update[ idAttrKey ];
             if ( newId && newId !== id ) {
                 _skToId[ storeKey ] = newId;
                 delete _idToSk[ id ];
@@ -1633,15 +1601,13 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceCouldNotFindRecords: function ( Type, idList ) {
-        var l = idList.length,
-            _skToCommitted = this._skToCommitted,
-            _skToChanged = this._skToChanged,
-            storeKey, status;
+    sourceCouldNotFindRecords ( Type, idList ) {
+        let l = idList.length;
+        const { _skToCommitted, _skToChanged } = this;
 
         while ( l-- ) {
-            storeKey = this.getStoreKey( Type, idList[l] );
-            status = this.getStatus( storeKey );
+            const storeKey = this.getStoreKey( Type, idList[l] );
+            const status = this.getStatus( storeKey );
             if ( status & EMPTY ) {
                 this.setStatus( storeKey, NON_EXISTENT );
             } else {
@@ -1678,8 +1644,9 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchUpdates: function ( Type, changed, removed, oldState, newState ) {
-        var typeId = guid( Type );
+    sourceDidFetchUpdates ( Type, changed, removed, oldState,
+            newState ) {
+        const typeId = guid( Type );
         if ( this._typeToClientState[ typeId ] === oldState ) {
             if ( changed ) {
                 this.sourceDidModifyRecords( Type, changed );
@@ -1708,15 +1675,14 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidModifyRecords: function ( Type, idList ) {
-        var _skToStatus = this._skToStatus,
-            _idToSk = this._typeToIdToSk[ guid( Type ) ] || {},
-            l = idList.length,
-            storeKey, status;
+    sourceDidModifyRecords ( Type, idList ) {
+        const { _skToStatus } = this;
+        const _idToSk = this._typeToIdToSk[ guid( Type ) ] || {};
+        let l = idList.length;
 
         while ( l-- ) {
-            storeKey = _idToSk[ idList[l] ];
-            status = _skToStatus[ storeKey ];
+            const storeKey = _idToSk[ idList[l] ];
+            const status = _skToStatus[ storeKey ];
             if ( status & READY ) {
                 this.setStatus( storeKey, status | OBSOLETE );
             }
@@ -1739,8 +1705,8 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidDestroyRecords: function ( Type, idList ) {
-        var l = idList.length,
+    sourceDidDestroyRecords ( Type, idList ) {
+        let l = idList.length,
             storeKey;
 
         while ( l-- ) {
@@ -1768,9 +1734,9 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceCommitDidChangeState: function ( Type, oldState, newState ) {
-        var typeId = guid( Type ),
-            _typeToClientState = this._typeToClientState;
+    sourceCommitDidChangeState ( Type, oldState, newState ) {
+        const typeId = guid( Type );
+        const { _typeToClientState } = this;
 
         if ( _typeToClientState[ typeId ] === oldState ) {
             _typeToClientState[ typeId ] = newState;
@@ -1799,28 +1765,24 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitCreate: function ( skToPartialData ) {
-        var _skToType = this._skToType,
-            _typeToSkToId = this._typeToSkToId,
-            _typeToIdToSk = this._typeToIdToSk,
-            storeKey, status, data, Type, typeId, idPropKey, idAttrKey, id,
-            foreignRefAttrs;
-        for ( storeKey in skToPartialData ) {
-            status = this.getStatus( storeKey );
+    sourceDidCommitCreate ( skToPartialData ) {
+        const { _skToType, _typeToSkToId, _typeToIdToSk } = this;
+        for ( const storeKey in skToPartialData ) {
+            const status = this.getStatus( storeKey );
             if ( status & NEW ) {
-                data = skToPartialData[ storeKey ];
+                const data = skToPartialData[ storeKey ];
 
-                Type = _skToType[ storeKey ];
-                typeId = guid( Type );
-                idPropKey = Type.primaryKey || 'id';
-                idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
-                id = data[ idAttrKey ];
+                const Type = _skToType[ storeKey ];
+                const typeId = guid( Type );
+                const idPropKey = Type.primaryKey || 'id';
+                const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+                const id = data[ idAttrKey ];
 
                 // Set id internally
                 _typeToSkToId[ typeId ][ storeKey ] = id;
                 _typeToIdToSk[ typeId ][ id ] = storeKey;
 
-                foreignRefAttrs = getForeignRefAttrs( Type );
+                const foreignRefAttrs = getForeignRefAttrs( Type );
                 if ( foreignRefAttrs.length ) {
                     convertForeignKeysToSK( this, foreignRefAttrs, data );
                 }
@@ -1829,8 +1791,8 @@ var Store = NS.Class({
                 this.updateData( storeKey, data, false );
                 this.setStatus( storeKey, status & ~(COMMITTING|NEW) );
             } else {
-                NS.RunLoop.didError({
-                    name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR
+                RunLoop.didError({
+                    name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR,
                 });
             }
         }
@@ -1858,7 +1820,7 @@ var Store = NS.Class({
         i.e. it will destroy the new record. If an `errors` array is passed,
         the store will first fire a `record:commit:error` event on the
         record (including in nested stores), if already instantiated. If
-        <NS.Event#preventDefault> is called on the event object, the record
+        <O.Event#preventDefault> is called on the event object, the record
         will **not** be reverted; it is up to the handler to then fix the record
         before it is recommitted.
 
@@ -1875,16 +1837,13 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotCreate: function ( storeKeys, isPermanent, errors ) {
-        var l = storeKeys.length,
-            _skToCommitted = this._skToCommitted,
-            _skToChanged = this._skToChanged,
-            _created = this._created,
-            storeKey, status;
+    sourceDidNotCreate ( storeKeys, isPermanent, errors ) {
+        let l = storeKeys.length;
+        const { _skToCommitted, _skToChanged, _created } = this;
 
         while ( l-- ) {
-            storeKey = storeKeys[l];
-            status = this.getStatus( storeKey );
+            const storeKey = storeKeys[l];
+            const status = this.getStatus( storeKey );
             if ( status & DESTROYED ) {
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
@@ -1922,14 +1881,13 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitUpdate: function ( storeKeys ) {
-        var l = storeKeys.length,
-            _skToRollback = this._skToRollback,
-            storeKey, status;
+    sourceDidCommitUpdate ( storeKeys ) {
+        let l = storeKeys.length;
+        const { _skToRollback } = this;
 
         while ( l-- ) {
-            storeKey = storeKeys[l];
-            status = this.getStatus( storeKey );
+            const storeKey = storeKeys[l];
+            const status = this.getStatus( storeKey );
             delete _skToRollback[ storeKey ];
             if ( status !== EMPTY ) {
                 this.setStatus( storeKey, status & ~COMMITTING );
@@ -1958,7 +1916,7 @@ var Store = NS.Class({
         argument), the store will revert to the last known committed state.
         If an `errors` array is passed, the store will first fire a
         `record:commit:error` event on the record (including in nested stores),
-        if already instantiated. If <NS.Event#preventDefault> is called on the
+        if already instantiated. If <O.Event#preventDefault> is called on the
         event object, the record will **not** be reverted; it is up to the
         handler to then fix the record before it is recommitted.
 
@@ -1975,17 +1933,13 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotUpdate: function ( storeKeys, isPermanent, errors ) {
-        var l = storeKeys.length,
-            _skToData = this._skToData,
-            _skToChanged = this._skToChanged,
-            _skToCommitted = this._skToCommitted,
-            _skToRollback = this._skToRollback,
-            storeKey, status, committed, current, key, changed;
+    sourceDidNotUpdate ( storeKeys, isPermanent, errors ) {
+        let l = storeKeys.length;
+        const { _skToData, _skToChanged, _skToCommitted, _skToRollback } = this;
 
         while ( l-- ) {
-            storeKey = storeKeys[l];
-            status = this.getStatus( storeKey );
+            const storeKey = storeKeys[l];
+            const status = this.getStatus( storeKey );
             // If destroyed now, but still in memory, revert the data so
             // that if the destroy fails we still have the right data.
             if ( ( status & DESTROYED ) && _skToRollback[ storeKey ] ) {
@@ -2000,12 +1954,13 @@ var Store = NS.Class({
                 }
                 continue;
             }
-            committed = _skToCommitted[ storeKey ] = _skToRollback[ storeKey ];
+            const committed = _skToCommitted[ storeKey ] =
+                _skToRollback[ storeKey ];
             delete _skToRollback[ storeKey ];
-            changed = {};
-            current = _skToData[ storeKey ];
+            const changed = {};
+            const current = _skToData[ storeKey ];
             delete _skToChanged[ storeKey ];
-            for ( key in current ) {
+            for ( const key in current ) {
                 if ( !isEqual( current[ key ], committed[ key ] ) ) {
                     changed[ key ] = true;
                     _skToChanged[ storeKey ] = changed;
@@ -2041,8 +1996,8 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidCommitDestroy: function ( storeKeys ) {
-        var l = storeKeys.length,
+    sourceDidCommitDestroy ( storeKeys ) {
+        let l = storeKeys.length,
             storeKey, status;
         while ( l-- ) {
             storeKey = storeKeys[l];
@@ -2061,8 +2016,8 @@ var Store = NS.Class({
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
             } else {
-                NS.RunLoop.didError({
-                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
+                RunLoop.didError({
+                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR,
                 });
             }
         }
@@ -2091,7 +2046,8 @@ var Store = NS.Class({
         (i.e. the record will be revived). If an `errors` array is passed, the
         store will first fire a `record:commit:error` event on the record
         (including in nested stores), if already instantiated. If
-        <NS.Event#preventDefault> is called on the event object, the record will **not** be revived; it is up to the handler to then fix the record
+        <O.Event#preventDefault> is called on the event object, the record will
+        **not** be revived; it is up to the handler to then fix the record
         before it is recommitted.
 
         Parameters:
@@ -2107,14 +2063,13 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidNotDestroy: function ( storeKeys, isPermanent, errors ) {
-        var l = storeKeys.length,
-            _destroyed = this._destroyed,
-            storeKey, status;
+    sourceDidNotDestroy ( storeKeys, isPermanent, errors ) {
+        let l = storeKeys.length;
+        const { _destroyed } = this;
 
         while ( l-- ) {
-            storeKey = storeKeys[l];
-            status = this.getStatus( storeKey );
+            const storeKey = storeKeys[l];
+            const status = this.getStatus( storeKey );
             if ( ( status & ~DIRTY ) === (READY|NEW|COMMITTING) ) {
                 this.setStatus( storeKey, status & ~(COMMITTING|NEW) );
             } else if ( status & DESTROYED ) {
@@ -2125,8 +2080,8 @@ var Store = NS.Class({
                     this.undestroyRecord( storeKey );
                 }
             } else {
-                NS.RunLoop.didError({
-                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR
+                RunLoop.didError({
+                    name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR,
                 });
             }
         }
@@ -2136,12 +2091,11 @@ var Store = NS.Class({
         return mayHaveChanges( this );
     },
 
-    _notifyRecordOfError: function ( storeKey, error ) {
-        var record = this._skToRecord[ storeKey ],
-            isDefaultPrevented = false,
-            event;
+    _notifyRecordOfError ( storeKey, error ) {
+        const record = this._skToRecord[ storeKey ];
+        let isDefaultPrevented = false;
         if ( record ) {
-            event = new NS.Event( error.type || 'error', record, error );
+            const event = new Event( error.type || 'error', record, error );
             record.fire( 'record:commit:error', event );
             isDefaultPrevented = event.defaultPrevented;
         }
@@ -2177,26 +2131,25 @@ var Store = NS.Class({
         Returns:
             {String[]} An array of store keys.
     */
-    findAll: function ( Type, accept, compare ) {
-        var _skToId = this._typeToSkToId[ guid( Type ) ] || {},
-            _skToStatus = this._skToStatus,
-            results = [],
-            storeKey, filterFn, sortFn;
+    findAll ( Type, accept, compare ) {
+        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
+        const { _skToStatus } = this;
+        let results = [];
 
-        for ( storeKey in _skToId ) {
+        for ( const storeKey in _skToId ) {
             if ( _skToStatus[ storeKey ] & READY ) {
                 results.push( storeKey );
             }
         }
 
         if ( accept ) {
-            filterFn = filter.bind( this, accept );
+            const filterFn = filter.bind( this, accept );
             results = results.filter( filterFn );
             results.filterFn = filterFn;
         }
 
         if ( compare ) {
-            sortFn = sort.bind( this, compare );
+            const sortFn = sort.bind( this, compare );
             results.sort( sortFn );
             results.sortFn = sortFn;
         }
@@ -2221,13 +2174,12 @@ var Store = NS.Class({
             {(String|null)} The store key for a matching record, or null if none
             found.
     */
-    findOne: function ( Type, accept ) {
-        var _skToId = this._typeToSkToId[ guid( Type ) ] || {},
-            _skToStatus = this._skToStatus,
-            filterFn = accept && filter.bind( this, accept ),
-            storeKey;
+    findOne ( Type, accept ) {
+        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
+        const { _skToStatus } = this;
+        const filterFn = accept && filter.bind( this, accept );
 
-        for ( storeKey in _skToId ) {
+        for ( const storeKey in _skToId ) {
             if ( ( _skToStatus[ storeKey ] & READY ) &&
                     ( !filterFn || filterFn( storeKey ) ) ) {
                 return storeKey;
@@ -2251,16 +2203,16 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    addQuery: function ( query ) {
-        var source = this.source;
+    addQuery ( query ) {
+        const { source } = this;
         this._idToQuery[ query.get( 'id' ) ] = query;
-        if ( query instanceof NS.LiveQuery ) {
-            var Type = query.get( 'Type' ),
-                typeId = guid( Type );
+        if ( query instanceof LiveQuery ) {
+            const Type = query.get( 'Type' );
+            const typeId = guid( Type );
             this.fetchAll( Type );
             ( this._liveQueries[ typeId ] ||
                 ( this._liveQueries[ typeId ] = [] ) ).push( query );
-        } else if ( query instanceof NS.RemoteQuery ) {
+        } else if ( query instanceof RemoteQuery ) {
             source.fetchQuery( query );
             this._remoteQueries.push( query );
         }
@@ -2281,18 +2233,18 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    removeQuery: function ( query ) {
+    removeQuery ( query ) {
         delete this._idToQuery[ query.get( 'id' ) ];
-        if ( query instanceof NS.LiveQuery ) {
-            var _liveQueries = this._liveQueries,
-                typeId = guid( query.get( 'Type' ) ),
-                typeQueries = _liveQueries[ typeId ];
+        if ( query instanceof LiveQuery ) {
+            const { _liveQueries } = this;
+            const typeId = guid( query.get( 'Type' ) );
+            const typeQueries = _liveQueries[ typeId ];
             if ( typeQueries.length > 1 ) {
                 typeQueries.erase( query );
             } else {
                 delete _liveQueries[ typeId ];
             }
-        } else if ( query instanceof NS.RemoteQuery ) {
+        } else if ( query instanceof RemoteQuery ) {
             this._remoteQueries.erase( query );
         }
         return this;
@@ -2318,13 +2270,13 @@ var Store = NS.Class({
         Returns:
             {(O.LiveQuery|O.RemoteQuery|null)} The requested query.
     */
-    getQuery: function ( id, QueryClass, mixin ) {
-        var query = ( id && this._idToQuery[ id ] ) || null;
+    getQuery ( id, QueryClass, mixin ) {
+        let query = ( id && this._idToQuery[ id ] ) || null;
         if ( !query && QueryClass ) {
-            query = new QueryClass( NS.extend( mixin || {}, {
-                id: id,
+            query = new QueryClass( Object.assign( mixin || {}, {
+                id,
                 store: this,
-                source: this.source
+                source: this.source,
             }) );
         }
         if ( query ) {
@@ -2342,7 +2294,7 @@ var Store = NS.Class({
             {O.RemoteQuery[]} A list of all registered instances of
             <O.RemoteQuery>.
     */
-    getAllRemoteQueries: function () {
+    getAllRemoteQueries () {
         return this._remoteQueries;
     },
 
@@ -2355,13 +2307,13 @@ var Store = NS.Class({
         Parameters:
             storeKey - {String} The store key of the record.
     */
-    _recordDidChange: function ( storeKey ) {
-        var typeId = guid( this._skToType[ storeKey ] ),
-            _typeToChangedSks = this._typeToChangedSks,
-            changedSks = _typeToChangedSks[ typeId ] ||
+    _recordDidChange ( storeKey ) {
+        const typeId = guid( this._skToType[ storeKey ] );
+        const { _typeToChangedSks } = this;
+        const changedSks = _typeToChangedSks[ typeId ] ||
                 ( _typeToChangedSks[ typeId ] = {} );
         changedSks[ storeKey ] = true;
-        NS.RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
+        RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
     },
 
     /**
@@ -2374,37 +2326,34 @@ var Store = NS.Class({
         Returns:
             {O.Store} Returns self.
     */
-    refreshLiveQueries: function () {
-        var _typeToChangedSks = this._typeToChangedSks,
-            _liveQueries = this._liveQueries,
-            typeId, typeChanges, typeQueries,
-            l;
+    refreshLiveQueries () {
+        const { _typeToChangedSks, _liveQueries } = this;
 
         this._typeToChangedSks = {};
 
-        for ( typeId in _typeToChangedSks ) {
-            typeChanges = Object.keys( _typeToChangedSks[ typeId ] );
-            typeQueries = _liveQueries[ typeId ];
-            l = typeQueries ? typeQueries.length : 0;
+        for ( const typeId in _typeToChangedSks ) {
+            const typeChanges = Object.keys( _typeToChangedSks[ typeId ] );
+            const typeQueries = _liveQueries[ typeId ];
+            let l = typeQueries ? typeQueries.length : 0;
 
             while ( l-- ) {
                 typeQueries[l].storeDidChangeRecords( typeChanges );
             }
             this.fire( typeId, {
-                storeKeys: typeChanges
+                storeKeys: typeChanges,
             });
         }
 
         return this;
     },
 
-    liveQueriesAreReady: function ( Type ) {
-        var _liveQueries = this._liveQueries[ guid( Type ) ],
-            l = _liveQueries ? _liveQueries.length : 0;
+    liveQueriesAreReady ( Type ) {
+        const _liveQueries = this._liveQueries[ guid( Type ) ];
+        let l = _liveQueries ? _liveQueries.length : 0;
         while ( l-- ) {
             _liveQueries[l].set( 'status', READY );
         }
-    }
+    },
 });
 
 [ 'on', 'once', 'off' ].forEach( function ( property ) {
@@ -2412,10 +2361,8 @@ var Store = NS.Class({
         if ( typeof type !== 'string' ) {
             type = guid( type );
         }
-        return NS.EventTarget[ property ].call( this, type, obj, method );
+        return EventTarget[ property ].call( this, type, obj, method );
     };
 });
 
-NS.Store = Store;
-
-}( O ) );
+export default Store;

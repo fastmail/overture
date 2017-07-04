@@ -1,14 +1,8 @@
-// -------------------------------------------------------------------------- \\
-// File: AttributeErrors.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, meta } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import '../../foundation/ObservableProps.js';  // For Function#observes
 
-"use strict";
-
-( function ( NS ) {
+import RecordAttribute from './RecordAttribute.js';
 
 /**
     Class: O.AttributeErrors
@@ -17,9 +11,9 @@
 
     Maintains the state of the validity of each attribute on a record.
 */
-var AttributeErrors = NS.Class({
+const AttributeErrors = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.AttributeErrors#errorCount
@@ -34,12 +28,12 @@ var AttributeErrors = NS.Class({
         Parameters:
             record - {O.Record} The record to manage attribute errors for.
     */
-    init: function ( record ) {
+    init ( record ) {
         AttributeErrors.parent.init.call( this );
 
-        var attrs = NS.meta( record ).attrs;
-        var errorCount = 0;
-        var attrKey, propKey, attribute, error;
+        const attrs = meta( record ).attrs;
+        let errorCount = 0;
+        let attrKey, propKey, attribute, error;
 
         for ( attrKey in attrs ) {
             // Check if attribute has been removed (e.g. in a subclass).
@@ -72,13 +66,13 @@ var AttributeErrors = NS.Class({
             _    - {*} Unused.
             property - {String} The name of the property which has changed.
     */
-    recordPropertyDidChange: function ( _, property ) {
-        var metadata = NS.meta( this );
-        var changed = metadata.changed = {};
-        var dependents = metadata.dependents[ property ];
-        var l = dependents ? dependents.length : 0;
-        var record = this._record;
-        var i, propKey, attribute;
+    recordPropertyDidChange ( _, property ) {
+        const metadata = meta( this );
+        const changed = metadata.changed = {};
+        const dependents = metadata.dependents[ property ];
+        const l = dependents ? dependents.length : 0;
+        const record = this._record;
+        let i, propKey, attribute;
 
         this.beginPropertyChanges();
         for ( i = 0; i <= l; i += 1 ) {
@@ -89,14 +83,14 @@ var AttributeErrors = NS.Class({
             }
             attribute = record[ propKey ];
             if ( changed[ propKey ] ||
-                    !( attribute instanceof NS.RecordAttribute ) ) {
+                    !( attribute instanceof RecordAttribute ) ) {
                 continue;
             }
             changed[ propKey ] = {
                 oldValue: this[ propKey ],
                 newValue: this[ propKey ] = ( attribute.validate ?
                   attribute.validate( record.get( propKey ), propKey, record ) :
-                  null )
+                  null ),
             };
         }
         this.endPropertyChanges();
@@ -114,7 +108,7 @@ var AttributeErrors = NS.Class({
             changed - {Object} A map of validity string changes.
     */
     setRecordValidity: function ( _, changed ) {
-        var errorCount = this.get( 'errorCount' ),
+        let errorCount = this.get( 'errorCount' ),
             key, vals, wasValid, isValid;
         for ( key in changed ) {
             if ( key !== 'errorCount' ) {
@@ -131,9 +125,7 @@ var AttributeErrors = NS.Class({
         }
         this.set( 'errorCount', errorCount )
             ._record.set( 'isValid', !errorCount );
-    }.observes( '*' )
+    }.observes( '*' ),
 });
 
-NS.AttributeErrors = AttributeErrors;
-
-}( O ) );
+export default AttributeErrors;

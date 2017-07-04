@@ -1,24 +1,16 @@
-// -------------------------------------------------------------------------- \\
-// File: SingleSelectionController.js                                         \\
-// Module: Selection                                                          \\
-// Requires: Core, Foundation, DataStore                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, meta } from '../core/Core.js';
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
+import '../foundation/ObservableProps.js';  // For Function#observes
+import { READY } from '../datastore/record/Status.js';
 
-"use strict";
+const SingleSelectionController = Class({
 
-( function ( NS ) {
-
-var READY = NS.Status.READY;
-
-var SingleSelectionController = NS.Class({
-
-    Extends: NS.Object,
+    Extends: Object,
 
     allowNoSelection: true,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._ignore = false;
         this._range = { start: -1, end: 0 };
 
@@ -29,8 +21,8 @@ var SingleSelectionController = NS.Class({
 
         SingleSelectionController.parent.init.call( this, mixin );
 
-        var content = this.get( 'content' );
-        var record = this.get( 'record' );
+        const content = this.get( 'content' );
+        const record = this.get( 'record' );
         if ( content ) {
             this.contentDidChange( null, '', null, content );
         }
@@ -41,8 +33,8 @@ var SingleSelectionController = NS.Class({
         }
     },
 
-    destroy: function () {
-        var content = this.get( 'content' );
+    destroy () {
+        const content = this.get( 'content' );
         if ( content ) {
             content.off( 'query:reset', this, 'contentWasReset' )
                    .off( 'query:updated', this, 'contentWasUpdated' );
@@ -54,7 +46,7 @@ var SingleSelectionController = NS.Class({
 
     recordAtIndexDidChange: function () {
         if ( !this.get( 'record' ) ) {
-            var content = this.get( 'content' );
+            const content = this.get( 'content' );
             this.set( 'record', content &&
                 content.getObjectAt( this.get( 'index' ) ) ||
                 null
@@ -63,11 +55,10 @@ var SingleSelectionController = NS.Class({
     }.queue( 'before' ),
 
     _indexDidChange: function () {
-        var list = this.get( 'content' ),
-            length = list ? list.get( 'length' ) : 0,
-            index = this.get( 'index' ),
-            range = this._range,
-            record;
+        const list = this.get( 'content' );
+        const length = list ? list.get( 'length' ) : 0;
+        const index = this.get( 'index' );
+        const range = this._range;
         range.start = index;
         range.end = index + 1;
         if ( !this._ignore ) {
@@ -77,6 +68,7 @@ var SingleSelectionController = NS.Class({
             } else if ( length > 0 && index >= length ) {
                 this.set( 'index', length - 1 );
             } else {
+                let record;
                 if ( length && index > -1 ) {
                     record = list.getObjectAt( index );
                 }
@@ -89,13 +81,13 @@ var SingleSelectionController = NS.Class({
 
     _recordDidChange: function () {
         if ( !this._ignore ) {
-            var record = this.get( 'record' ),
-                list = this.get( 'content' );
+            const record = this.get( 'record' );
+            const list = this.get( 'content' );
             // If both content and record are bound, content *must* be synced
             // first in order to look for the new record in the new list.
             // If changed, return as the new record will be handled by the
             // setRecordInNewContent fn.
-            var binding = NS.meta( this ).bindings.content;
+            const binding = meta( this ).bindings.content;
             if ( binding ) {
                 this._ignore = true;
                 binding.sync();
@@ -106,7 +98,7 @@ var SingleSelectionController = NS.Class({
                 list.indexOfStoreKey(
                     record.get( 'storeKey' ),
                     0,
-                    function ( index ) {
+                    index => {
                         if ( this.get( 'record' ) === record &&
                                 this.get( 'content' ) === list ) {
                             this._ignore = true;
@@ -114,7 +106,7 @@ var SingleSelectionController = NS.Class({
                             this._ignore = false;
                             this.set( 'isFetchingIndex', false );
                         }
-                    }.bind( this )
+                    }
                 );
             } else if ( record || this.get( 'allowNoSelection' ) ) {
                 this._ignore = true;
@@ -124,21 +116,21 @@ var SingleSelectionController = NS.Class({
         }
     }.observes( 'record' ),
 
-    setRecordInNewContent: function ( list ) {
+    setRecordInNewContent ( list ) {
         // If fetching an explicit index, we've already set the explicit
         // record we want; don't change it.
         if ( this.get( 'isFetchingIndex' ) ) {
             return;
         }
         // If we're about to sync a new record, nothing to do
-        var binding = NS.meta( this ).bindings.record;
+        const binding = meta( this ).bindings.record;
         if ( binding && binding.isNotInSync && binding.willSyncForward ) {
             return;
         }
 
-        var allowNoSelection = this.get( 'allowNoSelection' ),
-            record = this.get( 'record' ),
-            index = allowNoSelection ? -1 : 0;
+        const allowNoSelection = this.get( 'allowNoSelection' );
+        let record = this.get( 'record' );
+        let index = allowNoSelection ? -1 : 0;
 
         // Race condition check: has the content property changed since the
         // SingleSelectionController#contentBecameReady call?
@@ -164,7 +156,7 @@ var SingleSelectionController = NS.Class({
     },
 
     contentDidChange: function ( _, __, oldVal, newVal ) {
-        var range = this._range;
+        const range = this._range;
         if ( oldVal ) {
             oldVal.off( 'query:reset', this, 'contentWasReset' )
                   .off( 'query:updated', this, 'contentWasUpdated' );
@@ -189,25 +181,23 @@ var SingleSelectionController = NS.Class({
         }
     }.observes( 'content' ),
 
-    contentBecameReady: function ( list, key ) {
+    contentBecameReady ( list, key ) {
         if ( list.is( READY ) ) {
             list.removeObserverForKey( key, this, 'contentBecameReady' );
             // Queue so that all data from the server will have been loaded
             // into the list.
-            NS.RunLoop.queueFn( 'before',
+            RunLoop.queueFn( 'before',
                 this.setRecordInNewContent.bind( this, list ) );
         }
     },
 
-    contentWasUpdated: function ( updates ) {
-        var record = this.get( 'record' ),
-            index = record ?
-                updates.added.indexOf( record.get( 'storeKey' ) ) : -1,
-            removedIndexes = updates.removedIndexes,
-            addedIndexes = updates.addedIndexes,
-            content = this.get( 'content' ),
-            change = 0,
-            i, l;
+    contentWasUpdated ( updates ) {
+        let record = this.get( 'record' );
+        let index = record ?
+                updates.added.indexOf( record.get( 'storeKey' ) ) : -1;
+        const removedIndexes = updates.removedIndexes;
+        const addedIndexes = updates.addedIndexes;
+        const content = this.get( 'content' );
 
         // No current record, no update of position required.
         if ( !record ) {
@@ -222,13 +212,16 @@ var SingleSelectionController = NS.Class({
             if ( index === -1 ) {
                 return;
             }
-            for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
+            let l = removedIndexes.length;
+            let change = 0;
+            for ( let i = 0; i < l; i += 1 ) {
                 if ( removedIndexes[i] < index ) { change += 1; }
                 // Guaranteed in ascending order.
                 else { break; }
             }
             index -= change;
-            for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
+            l = addedIndexes.length;
+            for ( let i = 0; i < l; i += 1 ) {
                 if ( addedIndexes[i] <= index ) { index += 1; }
                 // Guaranteed in ascending order.
                 else { break; }
@@ -244,11 +237,9 @@ var SingleSelectionController = NS.Class({
         }
     },
 
-    contentWasReset: function () {
+    contentWasReset () {
         this._recordDidChange();
-    }
+    },
 });
 
-NS.SingleSelectionController = SingleSelectionController;
-
-}( O ) );
+export default SingleSelectionController;

@@ -1,16 +1,6 @@
-// -------------------------------------------------------------------------- \\
-// File: RecordAttribute.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Record.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, meta, clone, isEqual } from '../../core/Core.js';
 
-"use strict";
-
-( function ( NS, undefined ) {
-
-var instanceOf = function ( value, Type ) {
+const instanceOf = function ( value, Type ) {
     switch ( typeof value ) {
         case 'string':
             return Type === String;
@@ -22,12 +12,12 @@ var instanceOf = function ( value, Type ) {
     return value instanceof Type;
 };
 
-var attributeErrorsObserver = {
+const attributeErrorsObserver = {
     object: null,
-    method: 'notifyAttributeErrors'
+    method: 'notifyAttributeErrors',
 };
-var addValidityObserver = function ( observers, propKey ) {
-    var keyObservers = observers[ propKey ];
+const addValidityObserver = function ( observers, propKey ) {
+    let keyObservers = observers[ propKey ];
     if ( keyObservers && keyObservers.contains( attributeErrorsObserver ) ) {
         return;
     }
@@ -43,10 +33,10 @@ var addValidityObserver = function ( observers, propKey ) {
 
     Represents an attribute on a record.
 */
-var RecordAttribute = NS.Class({
+const RecordAttribute = Class({
 
-    __setupProperty__: function ( metadata, propKey, object ) {
-        var attrs = metadata.attrs,
+    __setupProperty__ ( metadata, propKey, object ) {
+        let attrs = metadata.attrs,
             dependents, observers, dependencies, l, key,
             RecordType, AttributeErrorsType;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
@@ -57,7 +47,7 @@ var RecordAttribute = NS.Class({
             // Make the `id` property depend on the primary key.
             dependents = metadata.dependents;
             if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-                dependents = metadata.dependents = NS.clone( dependents );
+                dependents = metadata.dependents = clone( dependents );
                 metadata.allDependents = {};
             }
             ( dependents[ propKey ] ||
@@ -76,16 +66,15 @@ var RecordAttribute = NS.Class({
                 AttributeErrorsType = object.AttributeErrorsType;
                 if ( AttributeErrorsType.forRecordType !== RecordType ) {
                     AttributeErrorsType = object.AttributeErrorsType =
-                        NS.Class({
-                            Extends: AttributeErrorsType
-                        }).extend({
-                            forRecordType: RecordType
+                        Class({
+                            Extends: AttributeErrorsType,
                         });
-                    metadata = NS.meta( AttributeErrorsType );
+                    AttributeErrorsType.forRecordType = RecordType;
+                    metadata = meta( AttributeErrorsType );
                     dependents = metadata.dependents =
-                        NS.clone( metadata.dependents );
+                        clone( metadata.dependents );
                 } else {
-                    metadata = NS.meta( AttributeErrorsType );
+                    metadata = meta( AttributeErrorsType );
                     dependents = metadata.dependents;
                 }
                 l = dependencies.length;
@@ -101,8 +90,8 @@ var RecordAttribute = NS.Class({
         }
     },
 
-    __teardownProperty__: function ( metadata, propKey, object ) {
-        var attrs = metadata.attrs;
+    __teardownProperty__ ( metadata, propKey, object ) {
+        let attrs = metadata.attrs;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = Object.create( attrs );
         }
@@ -116,8 +105,8 @@ var RecordAttribute = NS.Class({
         Parameters:
             mixin - {Object} (optional) Override the default properties.
     */
-    init: function ( mixin ) {
-        NS.extend( this, mixin );
+    init ( mixin ) {
+        Object.assign( this, mixin );
     },
 
     /**
@@ -212,7 +201,7 @@ var RecordAttribute = NS.Class({
         Returns:
             {Boolean} May the value be set?
     */
-    willSet: function ( propValue, propKey, record ) {
+    willSet ( propValue, propKey, record ) {
         if ( !record.get( 'isEditable' ) ) {
             return false;
         }
@@ -309,11 +298,11 @@ var RecordAttribute = NS.Class({
         Returns:
             {*} The attribute.
     */
-    call: function ( record, propValue, propKey ) {
-        var store = record.get( 'store' );
-        var storeKey = record.get( 'storeKey' );
-        var data = storeKey ? store.getData( storeKey ) : record._data;
-        var attrKey, attrValue, currentAttrValue, update, Type;
+    call ( record, propValue, propKey ) {
+        const store = record.get( 'store' );
+        const storeKey = record.get( 'storeKey' );
+        const data = storeKey ? store.getData( storeKey ) : record._data;
+        let attrKey, attrValue, currentAttrValue, update, Type;
         if ( data ) {
             attrKey = this.key || propKey;
             currentAttrValue = data[ attrKey ];
@@ -326,7 +315,7 @@ var RecordAttribute = NS.Class({
                 } else {
                     attrValue = propValue;
                 }
-                if ( !NS.isEqual( attrValue, currentAttrValue ) ) {
+                if ( !isEqual( attrValue, currentAttrValue ) ) {
                     if ( storeKey ) {
                         update = {};
                         update[ attrKey ] = attrValue;
@@ -346,36 +335,7 @@ var RecordAttribute = NS.Class({
             currentAttrValue !== null && Type && Type.fromJSON ?
                 Type.fromJSON( currentAttrValue ) : currentAttrValue :
             this.defaultValue;
-    }
+    },
 });
 
-NS.RecordAttribute = RecordAttribute;
-
-/**
-    Function: O.Record.attr
-
-    A factory function for creating a new <O.RecordAttribute> instance. This
-    will set an assert function to verify the correct type is being set whenever
-    the value is set, and that the correct type is used to serialise to/from
-    primitive types.
-
-    When subclassing O.Record, use this function to create a value for any
-    properties on the record which correspond to properties on the underlying
-    data object. This will automatically set things up so they are fetched from
-    the store and synced to the source.
-
-    Parameters:
-        Type    - {Constructor} The type of the property.
-        mixin - {Object} Properties to pass to the <O.RecordAttribute>
-                constructor.
-
-    Returns:
-        {O.RecordAttribute} Getter/setter for that record attribute.
-*/
-NS.Record.attr = function ( Type, mixin ) {
-    if ( !mixin ) { mixin = {}; }
-    if ( Type && !mixin.Type ) { mixin.Type = Type; }
-    return new RecordAttribute( mixin );
-};
-
-}( O ) );
+export default RecordAttribute;

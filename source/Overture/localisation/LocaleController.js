@@ -1,16 +1,7 @@
-// -------------------------------------------------------------------------- \\
-// File: LocaleController.js                                                  \\
-// Module: Localisation                                                       \\
-// Requires: Core, Locale.js                                                  \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global Intl */
 
-"use strict";
-
-( function ( NS, undefined ) {
+import '../core/String.js';  // For String#escapeRegExp
+import Locale from './Locale.js';
 
 /**
     Module: Localisation
@@ -33,11 +24,12 @@
 
     Stores the loaded <O.Locale> instances.
 */
-var locales = {
-    xx: new NS.Locale({ code: 'xx' })
+const locales = {
+    xx: new Locale({ code: 'xx' }),
 };
 
-var alternatives = {
+/* eslint-disable max-len */
+const alternatives = {
     'A': '[Aa\xaa\xc0-\xc5\xe0-\xe5\u0100-\u0105\u01cd\u01ce\u0200-\u0203\u0226\u0227\u1d2c\u1d43\u1e00\u1e01\u1e9a\u1ea0-\u1ea3\u2090\u2100\u2101\u213b\u249c\u24b6\u24d0\u3371-\u3374\u3380-\u3384\u3388\u3389\u33a9-\u33af\u33c2\u33ca\u33df\u33ff\uff21\uff41]',
     'B': '[Bb\u1d2e\u1d47\u1e02-\u1e07\u212c\u249d\u24b7\u24d1\u3374\u3385-\u3387\u33c3\u33c8\u33d4\u33dd\uff22\uff42]',
     'C': '[Cc\xc7\xe7\u0106-\u010d\u1d9c\u2100\u2102\u2103\u2105\u2106\u212d\u216d\u217d\u249e\u24b8\u24d2\u3376\u3388\u3389\u339d\u33a0\u33a4\u33c4-\u33c7\uff23\uff43]',
@@ -63,8 +55,9 @@ var alternatives = {
     'W': '[Ww\u0174\u0175\u02b7\u1d42\u1e80-\u1e89\u1e98\u24b2\u24cc\u24e6\u33ba-\u33bf\u33dd\uff37\uff57]',
     'X': '[Xx\u02e3\u1e8a-\u1e8d\u2093\u213b\u2168-\u216b\u2178-\u217b\u24b3\u24cd\u24e7\u33d3\uff38\uff58]',
     'Y': '[Yy\xdd\xfd\xff\u0176-\u0178\u0232\u0233\u02b8\u1e8e\u1e8f\u1e99\u1ef2-\u1ef9\u24b4\u24ce\u24e8\u33c9\uff39\uff59]',
-    'Z': '[Zz\u0179-\u017e\u01f1-\u01f3\u1dbb\u1e90-\u1e95\u2124\u2128\u24b5\u24cf\u24e9\u3390-\u3394\uff3a\uff5a]'
+    'Z': '[Zz\u0179-\u017e\u01f1-\u01f3\u1dbb\u1e90-\u1e95\u2124\u2128\u24b5\u24cf\u24e9\u3390-\u3394\uff3a\uff5a]',
 };
+/* eslint-enable max-len */
 
 /**
     Property (private): O.LocaleController-active
@@ -72,9 +65,9 @@ var alternatives = {
 
     The active locale.
 */
-var active = locales.xx;
+let active = locales.xx;
 
-var LocaleController = {
+const LocaleController = {
     /**
         Property: O.LocaleController.activeLocaleCode
         Type: String
@@ -95,7 +88,7 @@ var LocaleController = {
         Returns:
             {O.LocaleController} Returns self.
     */
-    addLocale: function ( locale ) {
+    addLocale ( locale ) {
         locales[ locale.code ] = locale;
         return this;
     },
@@ -114,13 +107,13 @@ var LocaleController = {
         Returns:
             {O.LocaleController} Returns self.
     */
-    setLocale: function ( localeCode ) {
+    setLocale ( localeCode ) {
         if ( locales[ localeCode ] ) {
             active = locales[ localeCode ];
             this.activeLocaleCode = localeCode;
             if ( typeof Intl !== 'undefined' ) {
                 this.compare = new Intl.Collator( localeCode, {
-                    sensitivity: 'base'
+                    sensitivity: 'base',
                 }).compare;
             }
         }
@@ -140,7 +133,7 @@ var LocaleController = {
         Returns:
             {Locale|null} Returns the locale object (null if not present).
     */
-    getLocale: function ( localeCode ) {
+    getLocale ( localeCode ) {
         return localeCode ? locales[ localeCode ] || null : active;
     },
 
@@ -155,7 +148,7 @@ var LocaleController = {
         Returns:
             {*} The value for that key.
     */
-    get: function ( key ) {
+    get ( key ) {
         return active[ key ];
     },
 
@@ -173,9 +166,9 @@ var LocaleController = {
         Returns:
             {String} The localised string.
     */
-    localise: function ( text ) {
+    localise ( text ) {
         if ( arguments.length === 1 ) {
-            var translation = active.translations[ text ];
+            const translation = active.translations[ text ];
             return translation !== undefined ? translation : text;
         } else {
             return active.translate.apply( active, arguments );
@@ -197,7 +190,7 @@ var LocaleController = {
         Returns:
             {String} The localised date.
     */
-    date: function ( date, type, utc ) {
+    date ( date, type, utc ) {
         return active.getFormattedDate( date, type, utc );
     },
 
@@ -214,7 +207,7 @@ var LocaleController = {
         Returns:
             {String} The localised number.
     */
-    number: function ( n ) {
+    number ( n ) {
         return active.getFormattedNumber( n );
     },
 
@@ -230,7 +223,7 @@ var LocaleController = {
         Returns:
             {String} The localised ordinal.
     */
-    ordinal: function ( n ) {
+    ordinal ( n ) {
         return active.getFormattedOrdinal( n );
     },
 
@@ -247,7 +240,7 @@ var LocaleController = {
         Returns:
             {String} The localised, human-readable file size.
     */
-    fileSize: function ( bytes, decimalPlaces ) {
+    fileSize ( bytes, decimalPlaces ) {
         return active.getFormattedFileSize( bytes, decimalPlaces );
     },
 
@@ -267,7 +260,7 @@ var LocaleController = {
             `1`  => a is after b,
             `0`  => they are the same as far as this fn is concerned.
     */
-    compare: function ( a, b ) {
+    compare ( a, b ) {
         return a.toLowerCase().localeCompare( b.toLowerCase() );
     },
 
@@ -284,12 +277,11 @@ var LocaleController = {
 
         Returns: {RegExp} A regular expression that will search for the string.
     */
-    makeSearchRegExp: function ( string ) {
+    makeSearchRegExp ( string ) {
         return new RegExp(
             '(?:^|\\W)' +
-            string.escapeRegExp().replace( /[A-Z]/gi, function ( letter ) {
-                return alternatives[ letter.toUpperCase() ];
-            }),
+            string.escapeRegExp().replace( /[A-Z]/gi,
+                letter => alternatives[ letter.toUpperCase() ] ),
             'i'
         );
     },
@@ -301,10 +293,15 @@ var LocaleController = {
         Maps upper-case A-Z to a character class string containing all unicode
         alternatives that resemble that letter.
     */
-    letterAlternatives: alternatives
+    letterAlternatives: alternatives,
 };
 
-NS.LocaleController = NS.i18n = LocaleController;
-NS.loc = LocaleController.localise;
+const loc = LocaleController.localise;
 
-}( O ) );
+export default LocaleController;
+// TODO(cmorgan/modulify): change these in some way
+export {
+    LocaleController,
+    LocaleController as i18n,
+    loc,
+};

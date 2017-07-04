@@ -1,17 +1,8 @@
-// -------------------------------------------------------------------------- \\
-// File: ViewEventsController.js                                              \\
-// Module: View                                                               \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import '../foundation/Enumerable.js';  // For Array#binarySearch
 
-"use strict";
-
-( function ( NS ) {
-
-var etSearch = function ( candidate, b ) {
-    var a = candidate[0];
+const etSearch = function ( candidate, b ) {
+    const a = candidate[0];
     return a < b ? -1 : a > b ? 1 : 0;
 };
 
@@ -39,7 +30,7 @@ var etSearch = function ( candidate, b ) {
     -10 - GlobalKeyboardShortcuts
 
 */
-var ViewEventsController = {
+const ViewEventsController = {
 
     /**
         Property (private): O.ViewEventsController._activeViews
@@ -61,7 +52,7 @@ var ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    registerActiveView: function ( view ) {
+    registerActiveView ( view ) {
         this._activeViews[ view.get( 'id' ) ] = view;
         return this;
     },
@@ -78,7 +69,7 @@ var ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    deregisterActiveView: function ( view ) {
+    deregisterActiveView ( view ) {
         delete this._activeViews[ view.get( 'id' ) ];
         return this;
     },
@@ -94,10 +85,10 @@ var ViewEventsController = {
         Returns:
             {O.View|null} The view which owns the node.
     */
-    getViewFromNode: function ( node ) {
-        var activeViews = this._activeViews,
-            doc = node.ownerDocument,
-            view = null;
+    getViewFromNode ( node ) {
+        const activeViews = this._activeViews;
+        const doc = node.ownerDocument;
+        let view = null;
         while ( !view && node && node !== doc ) {
             view = activeViews[ node.id ];
             node = node.parentNode;
@@ -132,11 +123,11 @@ var ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    addEventTarget: function ( eventTarget, priority ) {
+    addEventTarget ( eventTarget, priority ) {
         if ( !priority ) { priority = 0; }
-        var eventTargets = this._eventTargets.slice(),
-            index = eventTargets.binarySearch( priority, etSearch ),
-            length = eventTargets.length;
+        const eventTargets = this._eventTargets.slice();
+        let index = eventTargets.binarySearch( priority, etSearch );
+        const length = eventTargets.length;
 
         while ( index < length && eventTargets[ index ][0] === priority ) {
             index += 1;
@@ -161,10 +152,10 @@ var ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    removeEventTarget: function ( eventTarget ) {
-        this._eventTargets = this._eventTargets.filter( function ( target ) {
-            return target[1] !== eventTarget;
-        });
+    removeEventTarget ( eventTarget ) {
+        this._eventTargets = this._eventTargets.filter(
+            target => target[1] !== eventTarget
+        );
         return this;
     },
 
@@ -184,9 +175,8 @@ var ViewEventsController = {
                     `event.target` property.
     */
     handleEvent: function ( event, view, _rootView ) {
-        var eventTargets = this._eventTargets,
-            l = eventTargets.length,
-            eventTarget;
+        const eventTargets = this._eventTargets;
+        let l = eventTargets.length;
 
         if ( !view ) {
             view = this.getViewFromNode( event.target ) || _rootView;
@@ -194,7 +184,7 @@ var ViewEventsController = {
         event.targetView = view;
 
         while ( l-- ) {
-            eventTarget = eventTargets[l][1];
+            let eventTarget = eventTargets[l][1];
             if ( eventTarget === this ) {
                 eventTarget = view;
             }
@@ -205,10 +195,8 @@ var ViewEventsController = {
                 }
             }
         }
-    }.invokeInRunLoop()
+    }.invokeInRunLoop(),
 };
 ViewEventsController.addEventTarget( ViewEventsController, 0 );
 
-NS.ViewEventsController = ViewEventsController;
-
-}( O ) );
+export default ViewEventsController;

@@ -3,6 +3,9 @@
   "author": "Neil Jenkins <neil@nmjenkins.com>",
   "version": "1.0.0",
   "description": "Overture is a powerful basis for building fast web applications with performance at or surpassing native apps. It is borne from the general-purpose frontend code that powers FastMail.",
+  "scripts": {
+    "lint": "eslint source"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -12,7 +15,9 @@
     "url": "https://github.com/fastmail/overture/issues"
   },
   "devDependencies": {
-    "less": "^2.1.2",
-    "uglify-js": "^2.4.16"
+    "eslint": "^4.1.0",
+    "rollup": "^0.43.0",
+    "rollup-plugin-buble": "^0.15.0",
+    "uglify-js": "^3"
   }
 }

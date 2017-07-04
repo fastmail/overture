@@ -1,17 +1,14 @@
-// -------------------------------------------------------------------------- \\
-// File: SplitViewDivider.js                                                  \\
-// Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View, DragDrop, SplitViewController.js         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../core/Number.js';  // For Number#limit
+import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import View from '../View.js';
+import Draggable from '../../drag-drop/Draggable.js';
 
-"use strict";
+import SplitViewController from './SplitViewController.js';
 
-( function ( NS ) {
-
-var VERTICAL = NS.SplitViewController.VERTICAL;
-var TOP_LEFT = NS.SplitViewController.TOP_LEFT;
+const VERTICAL = SplitViewController.VERTICAL;
+const TOP_LEFT = SplitViewController.TOP_LEFT;
 
 /**
     Class: O.SplitDividerView
@@ -24,11 +21,11 @@ var TOP_LEFT = NS.SplitViewController.TOP_LEFT;
     controllered by an <O.SplitViewController> instance. It can be dragged to
     resize the static pane in the split view.
 */
-var SplitDividerView = NS.Class({
+const SplitDividerView = Class({
 
-    Extends: NS.View,
+    Extends: View,
 
-    Mixin: NS.Draggable,
+    Mixin: Draggable,
 
     /**
         Property: O.SplitDividerView#className
@@ -65,7 +62,7 @@ var SplitDividerView = NS.Class({
         the distance from the edge of the split view that the split divider
         view should be positioned.
     */
-    offset: NS.bindTwoWay( 'controller.staticPaneLength' ),
+    offset: bindTwoWay( 'controller.staticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#min
@@ -73,7 +70,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#minStaticPaneLength>.
     */
-    min: NS.bind( 'controller.minStaticPaneLength' ),
+    min: bind( 'controller.minStaticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#max
@@ -81,7 +78,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#maxStaticPaneLength>.
     */
-    max: NS.bind( 'controller.maxStaticPaneLength' ),
+    max: bind( 'controller.maxStaticPaneLength' ),
 
     /**
         Property: O.SplitDividerView#direction
@@ -89,7 +86,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#direction>.
     */
-    direction: NS.bind( 'controller.direction' ),
+    direction: bind( 'controller.direction' ),
 
     /**
         Property: O.SplitDividerView#flex
@@ -97,7 +94,7 @@ var SplitDividerView = NS.Class({
 
         Bound to the <O.SplitViewController#flex>.
     */
-    flex: NS.bind( 'controller.flex' ),
+    flex: bind( 'controller.flex' ),
 
     /**
         Property: O.SplitDividerView#anchor
@@ -107,8 +104,8 @@ var SplitDividerView = NS.Class({
         (top/left/bottom/right).
     */
     anchor: function () {
-        var flexTL = this.get( 'flex' ) === TOP_LEFT,
-            isVertical = this.get( 'direction' ) === VERTICAL;
+        const flexTL = this.get( 'flex' ) === TOP_LEFT;
+        const isVertical = this.get( 'direction' ) === VERTICAL;
         return isVertical ?
             ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
     }.property( 'flex', 'direction' ),
@@ -130,19 +127,19 @@ var SplitDividerView = NS.Class({
         direction, anchor, thickness and offset properties.
     */
     layout: function () {
-        var thickness = this.get( 'thickness' ),
-            styles;
+        const thickness = this.get( 'thickness' );
+        let styles;
         if ( this.get( 'direction' ) === VERTICAL ) {
             styles = {
                 top: 0,
                 bottom: 0,
-                width: thickness
+                width: thickness,
             };
         } else {
             styles = {
                 left: 0,
                 right: 0,
-                height: thickness
+                height: thickness,
             };
         }
         styles[ this.get( 'anchor' ) ] =
@@ -155,7 +152,7 @@ var SplitDividerView = NS.Class({
 
         Records the offset at the time the drag starts.
     */
-    dragStarted: function () {
+    dragStarted () {
         this._offset = this.get( 'offset' );
         this._dir = ( this.get( 'direction' ) === VERTICAL ) ? 'x' : 'y';
     },
@@ -169,19 +166,17 @@ var SplitDividerView = NS.Class({
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragMoved: function ( drag ) {
-        var dir = this._dir,
-            delta = drag.get( 'cursorPosition' )[ dir ] -
-                drag.get( 'startPosition' )[ dir ],
-            sign = this.get( 'flex' ) === TOP_LEFT ? -1 : 1;
+    dragMoved ( drag ) {
+        const dir = this._dir;
+        const delta = drag.get( 'cursorPosition' )[ dir ] -
+            drag.get( 'startPosition' )[ dir ];
+        const sign = this.get( 'flex' ) === TOP_LEFT ? -1 : 1;
 
         this.set( 'offset',
             ( this._offset + ( sign * delta ) )
                 .limit( this.get( 'min' ), this.get( 'max' ) )
         );
-    }
+    },
 });
 
-NS.SplitDividerView = SplitDividerView;
-
-}( O ) );
+export default SplitDividerView;

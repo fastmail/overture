@@ -1,14 +1,3 @@
-// -------------------------------------------------------------------------- \\
-// File: Core.js                                                              \\
-// Module: Core                                                               \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-/*global window, O */
-
-"use strict";
-
 /**
     Module: Core
 
@@ -16,18 +5,6 @@
     and augments it with a few helper methods. It also contains extensions to
     the default types and class creation functionality.
 */
-/**
-    Namespace: O
-
-    The only new global variable introduced by the library. All Classes and
-    Functions are stored under this namespace.
-*/
-if ( typeof O === 'undefined' ) {
-    window.O = {};
-}
-
-( function ( NS ) {
-
 
 /**
     Method: O.meta
@@ -66,7 +43,8 @@ if ( typeof O === 'undefined' ) {
                     the old and possibly the new value.
     depth         - The number of calls to
                     <O.ObservableProps#beginPropertyChanges> without a
-                    corresponding call to <O.ObservableProps#endPropertyChanges>.
+                    corresponding call to
+                    <O.ObservableProps#endPropertyChanges>.
     pathObservers - A mapping of keys to a list of paths they observe.
     bindings      - A mapping of keys to Binding objects.
     inits         - A mapping of mixin names to a reference count of the number
@@ -126,7 +104,7 @@ if ( typeof O === 'undefined' ) {
         {Object} The metadata for the object.
 */
 
-var Metadata = function ( object ) {
+const Metadata = function ( object ) {
     this.object = object;
     this.dependents = {};
     this.allDependents = {};
@@ -142,8 +120,8 @@ var Metadata = function ( object ) {
     object.__meta__ = this;
 };
 
-var meta = NS.meta = function ( object ) {
-    var data = object.__meta__;
+const meta = function ( object ) {
+    let data = object.__meta__;
     if ( !data ) {
         data = new Metadata( object );
     } else if ( data.object !== object ) {
@@ -190,8 +168,9 @@ var meta = NS.meta = function ( object ) {
     Returns:
         {String} The id for the item.
 */
-var guid = 0;
-NS.guid = function ( item ) {
+const guids = new WeakMap();
+let nextGuid = 0;
+const guid = function ( item ) {
     if ( item === null ) {
         return 'null';
     }
@@ -208,9 +187,14 @@ NS.guid = function ( item ) {
     if ( item instanceof Date ) {
         return 'date:' + (+item);
     }
-    return item.__guid__ || ( item.__guid__ =
-        'id:' + ( guid += 1 ).toString( 36 )
-    );
+
+    let guid = guids.get( item );
+    if ( !guid ) {
+        guid = 'id:' + nextGuid.toString(36);
+        nextGuid += 1;
+        guids.set( item, guid );
+    }
+    return guid;
 };
 
 /**
@@ -230,16 +214,16 @@ NS.guid = function ( item ) {
     Returns:
         {Object} Returns the object parameter.
 */
-var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
+const mixin = function ( object, extras, doNotOverwrite ) {
     if ( extras ) {
-        var force = !doNotOverwrite,
-            key, old, value, metadata;
+        const force = !doNotOverwrite;
+        let metadata;
 
-        for ( key in extras ) {
+        for ( const key in extras ) {
             if ( key !== '__meta__' &&
                     ( force || !object.hasOwnProperty( key ) ) ) {
-                old = object[ key ];
-                value = extras[ key ];
+                const old = object[ key ];
+                const value = extras[ key ];
                 if ( old && old.__teardownProperty__ ) {
                     if ( !metadata ) { metadata = meta( object ); }
                     old.__teardownProperty__( metadata, key, object );
@@ -263,6 +247,10 @@ var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
     Only adds properties actually on the object, not any properties on the
     prototype chain.
 
+    DEPRECATED. Use {Object.assign( base, extras )} instead. Caution: there is
+    a difference in semantics: `Object.assign` essentially has `doNotOverride`
+    turned off. But frankly, this is what you need in most cases.
+
     Parameters:
         base           - {Object} The object to be extended.
         extras         - {Object} The object whose properties are to be added to
@@ -274,8 +262,11 @@ var mix = NS.mixin = function ( object, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-var extend = NS.extend = function ( base, extras, doNotOverwrite ) {
-    for ( var key in extras ) {
+const extend = function ( base, extras, doNotOverwrite ) {
+    if ( window.console && console.warn ) {
+        console.warn( 'O.extend is deprecated' );
+    }
+    for ( const key in extras ) {
         if ( extras.hasOwnProperty( key ) &&
                 ( !doNotOverwrite || !base.hasOwnProperty( key ) ) ) {
             base[ key ] = extras[ key ];
@@ -300,8 +291,8 @@ var extend = NS.extend = function ( base, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-var merge = NS.merge = function ( base, extras ) {
-    for ( var key in extras ) {
+const merge = function ( base, extras ) {
+    for ( const key in extras ) {
         if ( extras.hasOwnProperty( key ) ) {
             if ( base.hasOwnProperty( key ) &&
                     base[ key ] && extras[ key ] &&
@@ -328,13 +319,12 @@ var merge = NS.merge = function ( base, extras ) {
     Returns:
         {*} The clone of the value.
 */
-var clone = NS.clone = function ( value ) {
-    var cloned = value,
-        l, key;
+const clone = function ( value ) {
+    let cloned = value;
     if ( value && typeof value === 'object' ) {
         if ( value instanceof Array ) {
             cloned = [];
-            l = value.length;
+            let l = value.length;
             while ( l-- ) {
                 cloned[l] = clone( value[l] );
             }
@@ -342,7 +332,7 @@ var clone = NS.clone = function ( value ) {
             cloned = new Date( value );
         } else {
             cloned = {};
-            for ( key in value ) {
+            for ( const key in value ) {
                 cloned[ key ] = clone( value[ key ] );
             }
         }
@@ -364,8 +354,8 @@ var clone = NS.clone = function ( value ) {
         {Boolean} Are the values equal, i.e. are they identical primitives, or
         are the both arrays or objects with equal members?
 */
-var isEqual = NS.isEqual = function ( a, b ) {
-    var i, l, key, constructor;
+const isEqual = function ( a, b ) {
+    let i, l, key, constructor;
     if ( a === b ) {
         return true;
     }
@@ -420,8 +410,8 @@ var isEqual = NS.isEqual = function ( a, b ) {
 
     For example:
 
-        > var MyClass = O.Class({ sayBoo: function (){ alert( 'boo' ); } });
-        > var instance = new MyClass();
+        > const MyClass = O.Class({ sayBoo: function (){ alert( 'boo' ); } });
+        > let instance = new MyClass();
         > instance.sayBoo(); // Alerts 'boo'.
 
     Parameters:
@@ -431,16 +421,15 @@ var isEqual = NS.isEqual = function ( a, b ) {
     Returns:
         {Constructor} The constructor function for the new class.
 */
-NS.Class = function ( params ) {
-    var parent = params.Extends,
-        mixins = params.Mixin,
-        init = params.init || ( parent ?
+const Class = function ( params ) {
+    const parent = params.Extends;
+    let mixins = params.Mixin;
+    const init = params.init || ( parent ?
             function () { parent.apply( this, arguments ); } :
-            function () {} ),
-        proto, i, l;
+            function () {} );
 
     if ( parent ) {
-        proto = parent.prototype;
+        const proto = parent.prototype;
         init.parent = proto;
         init.prototype = Object.create( proto );
         init.prototype.constructor = init;
@@ -451,75 +440,15 @@ NS.Class = function ( params ) {
         if ( !( mixins instanceof Array ) ) {
             mixins = [ mixins ];
         }
-        for ( i = 0, l = mixins.length; i < l; i += 1 ) {
-            init.implement( mixins[i], true );
+        for ( let i = 0, l = mixins.length; i < l; i += 1 ) {
+            mixin( init.prototype, mixins[i], false );
         }
         delete params.Mixin;
     }
 
-    init.implement( params, true );
+    mixin( init.prototype, params, false );
 
     return init;
-};
-
-/**
-    Function: O.sortByProperties
-
-    Creates a comparison function which takes two objects and returns -1/0/1 to
-    indicate whether the first object is before or after the other. Comparison
-    is made by considering each of the properties in the array in turn on the
-    two objects until the objects have non-equal values for a property. If the
-    property values are integer like strings, they will first be converted to
-    numbers for comparison. Other strings will be compared case-insensitively.
-
-    Parameters:
-        properties - {String[]} The properties to sort the objects by, in
-                     order of precedence. Can also supply just a String for one
-                     property.
-
-    Returns:
-        {Function} This function may be passed to the Array#sort method to
-        sort the array of objects by the properties specified.
-*/
-var isNumber = /^\d+$/;
-NS.sortByProperties = function ( properties ) {
-    if ( !( properties instanceof Array ) ) {
-        properties = [ properties ];
-    }
-    var l = properties.length;
-
-    return function ( a, b ) {
-        var hasGet = !!a.get,
-            i, prop, aVal, bVal, type;
-        for ( i = 0; i < l; i += 1 ) {
-            prop = properties[i];
-            aVal = hasGet ? a.get( prop ) : a[ prop ];
-            bVal = hasGet ? b.get( prop ) : b[ prop ];
-            type = typeof aVal;
-
-            // Must be the same type
-            if ( type === typeof bVal ) {
-                if ( type === 'boolean' && aVal !== bVal ) {
-                    return aVal ? -1 : 1;
-                }
-                if ( type === 'string' ) {
-                    if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
-                        aVal = +aVal;
-                        bVal = +bVal;
-                    } else if ( NS.i18n ) {
-                        return NS.i18n.compare( aVal, bVal );
-                    }
-                }
-                if ( aVal < bVal ) {
-                    return -1;
-                }
-                if ( aVal > bVal ) {
-                    return 1;
-                }
-            }
-        }
-        return 0;
-    };
 };
 
 /**
@@ -527,6 +456,13 @@ NS.sortByProperties = function ( properties ) {
 
     Adds a set of methods or other properties to the prototype of a function, so
     all instances will have access to them.
+
+    DEPRECATED. Use {Object.assign( this.prototype, methods )} instead.
+    Caution: there is a difference in semantics: `Object.assign` essentially
+    has `force` turned on. But frankly, this is what you need in most cases.
+    Also, if you were using this method to add anything but functions,
+    (a) why were you doing that? and
+    (b) you’ll need to use {mixin( this.prototype, methods, !force )} instead.
 
     Parameters:
         methods - {Object} The methods or properties to add to the prototype.
@@ -537,7 +473,10 @@ NS.sortByProperties = function ( properties ) {
         {Function} Returns self.
 */
 Function.prototype.implement = function ( methods, force ) {
-    mix( this.prototype, methods, !force );
+    if ( window.console && console.warn ) {
+        console.warn( 'Function#implement is deprecated' );
+    }
+    mixin( this.prototype, methods, !force );
     return this;
 };
 
@@ -545,6 +484,10 @@ Function.prototype.implement = function ( methods, force ) {
     Method: Function#extend
 
     Adds a set of static methods/properties to the function.
+
+    DEPRECATED. Use {Object.assign( this, methods )} instead.
+    Caution: there is a difference in semantics: `Object.assign` essentially
+    has `force` turned on. But frankly, this is what you need in most cases.
 
     Parameters:
         methods - {Object} The methods/properties to add.
@@ -555,8 +498,14 @@ Function.prototype.implement = function ( methods, force ) {
         {Function} Returns self.
 */
 Function.prototype.extend = function ( methods, force ) {
+    if ( window.console && console.warn ) {
+        console.warn( 'Function#extend is deprecated' );
+    }
     extend( this, methods, !force );
     return this;
 };
 
-}( O ) );
+export { meta, guid, mixin, extend, merge, clone, isEqual, Class };
+
+// TODO(cmorgan/modulify): do something about these exports: Function#implement,
+// Function#extend

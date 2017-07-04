@@ -1,29 +1,23 @@
-// -------------------------------------------------------------------------- \\
-// File: Date.js                                                              \\
-// Module: Core                                                               \\
-// Requires: Core.js                                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import './Number.js';  // For Number#mod
 
-"use strict";
+// See the note in Core.js for a phony explanation of why this is OK.
+import { i18n } from '../localisation/LocaleController.js';
 
-( function ( NS ) {
-
-var isLeapYear = function ( year ) {
+const isLeapYear = function ( year ) {
     return (
         ( ( year % 4 === 0 ) && ( year % 100 !== 0 ) ) || ( year % 400 === 0 )
     );
 };
-var daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+const daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 
-var dateFormat = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+\-])(\d{2})(?::(\d{2}))?)?)?)?$/;
+// eslint-disable-next-line max-len
+const dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
-Date.extend({
-    fromJSON: function ( value ) {
+Object.assign( Date, {
+    fromJSON ( value ) {
         /*
             /^
-            (\d{4}|[+\-]\d{6})      // 1. Year
+            (\d{4}|[+-]\d{6})       // 1. Year
             (?:
                 -(\d{2})            // 2. Month
                 (?:
@@ -41,7 +35,7 @@ Date.extend({
                 (?:
                     Z|              // (UTC time)
                     (?:
-                        ([+\-])     // 8. +/-
+                        ([+-])      // 8. +/-
                         (\d{2})     // 9. Hours offset
                         (?:
                             :(\d{2}) // 10. Minutes offset
@@ -50,7 +44,7 @@ Date.extend({
                 )?
             )?$/;
         */
-        var results = value ? dateFormat.exec( value ) : null;
+        const results = value ? dateFormat.exec( value ) : null;
         return results ?
             new Date( Date.UTC(
                 +results[1] || 0,            // Year
@@ -71,31 +65,31 @@ Date.extend({
             null;
     },
 
-    getDaysInMonth: function ( month, year ) {
+    getDaysInMonth ( month, year ) {
         return ( month === 1 && isLeapYear( year ) ) ?
             29 : daysInMonths[ month ];
     },
-    getDaysInYear: function ( year ) {
+    getDaysInYear ( year ) {
         return isLeapYear( year ) ? 366 : 365;
     },
-    isLeapYear: isLeapYear
+    isLeapYear,
 });
 
-var pad = function ( num, nopad, character ) {
+const pad = function ( num, nopad, character ) {
     return ( nopad || num > 9 ) ? num : ( character || '0' ) + num;
 };
 
-var aDay = 86400000; // milliseconds in a day
+const aDay = 86400000; // milliseconds in a day
 
-var duration = {
+const duration = {
     second: 1000,
     minute: 60000,
     hour: 3600000,
     day: aDay,
-    week: 604800000
+    week: 604800000,
 };
 
-Date.implement({
+Object.assign( Date.prototype, {
     /**
         Method: Date#isToday
 
@@ -105,11 +99,11 @@ Date.implement({
         Returns:
             {Boolean} Is the date today?
     */
-    isToday: function ( utc ) {
-        var now = new Date(),
-            date = now.getDate(),
-            month = now.getMonth(),
-            year = now.getFullYear();
+    isToday ( utc ) {
+        const now = new Date();
+        const date = now.getDate();
+        const month = now.getMonth();
+        const year = now.getFullYear();
         return utc ?
             this.getUTCFullYear() === year &&
             this.getUTCMonth() === month &&
@@ -133,7 +127,7 @@ Date.implement({
         Returns:
             {Boolean} Are the dates on the same day?
     */
-    isOnSameDayAs: function ( date, utc ) {
+    isOnSameDayAs ( date, utc ) {
         return utc ?
             date.getUTCFullYear() === this.getUTCFullYear() &&
             date.getUTCMonth() === this.getUTCMonth() &&
@@ -159,10 +153,10 @@ Date.implement({
         Returns:
             {String} Localised day name.
     */
-    getDayName: function ( abbreviate, utc ) {
-        var names = NS.i18n && NS.i18n.get(
-                ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' ),
-            day = utc ? this.getUTCDay() : this.getDay();
+    getDayName ( abbreviate, utc ) {
+        const names = i18n && i18n.get(
+                ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' );
+        const day = utc ? this.getUTCDay() : this.getDay();
         return names ? names[ day ] : day;
     },
 
@@ -182,10 +176,10 @@ Date.implement({
         Returns:
             {String} Localised month name.
     */
-    getMonthName: function ( abbreviate, utc ) {
-        var names = NS.i18n && NS.i18n.get(
-                ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' ),
-            day = utc ? this.getUTCMonth() : this.getMonth();
+    getMonthName ( abbreviate, utc ) {
+        const names = i18n && i18n.get(
+                ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' );
+        const day = utc ? this.getUTCMonth() : this.getMonth();
         return names ? names[ day ] : day;
     },
 
@@ -201,8 +195,8 @@ Date.implement({
         Returns:
             {Number} The day of the year (1--366).
     */
-    getDayOfYear: function ( utc ) {
-        var beginningOfYear = utc ?
+    getDayOfYear ( utc ) {
+        const beginningOfYear = utc ?
             Date.UTC( this.getUTCFullYear(), 0, 1 ) :
             +new Date( this.getFullYear(), 0, 1 );
         return ~~( ( this.getTime() - beginningOfYear ) / aDay ) + 1;
@@ -226,10 +220,10 @@ Date.implement({
         Returns:
             {Number} The week of the year (0--53).
     */
-    getWeekNumber: function ( firstDayOfWeek, utc ) {
-        var day = utc ? this.getUTCDay() : this.getDay(),
-            dayOfYear = this.getDayOfYear( utc ) - 1, // Day of the year 0-index
-            daysToNext = ( ( firstDayOfWeek || 0 ) - day ).mod( 7 ) || 7;
+    getWeekNumber ( firstDayOfWeek, utc ) {
+        const day = utc ? this.getUTCDay() : this.getDay();
+        const dayOfYear = this.getDayOfYear( utc ) - 1; // 0-indexed
+        const daysToNext = ( ( firstDayOfWeek || 0 ) - day ).mod( 7 ) || 7;
         return Math.floor( ( dayOfYear + daysToNext ) / 7 );
     },
 
@@ -256,7 +250,7 @@ Date.implement({
         Returns:
             {Number} The week of the year (1--53).
     */
-    getISOWeekNumber: function ( firstDayOfWeek, utc ) {
+    getISOWeekNumber ( firstDayOfWeek, utc ) {
         // The week number of the year (Monday as the first day of
         // the week) as a decimal number [01,53]. If the week containing
         // 1 January has four or more days in the new year, then it is
@@ -265,18 +259,18 @@ Date.implement({
         if ( firstDayOfWeek == null ) { firstDayOfWeek = 1; }
 
         // 4th January is always in week 1.
-        var jan4 = utc ?
+        const jan4 = utc ?
                 new Date( Date.UTC( this.getUTCFullYear(), 0, 4 ) ) :
-                new Date( this.getFullYear(), 0, 4 ),
-            jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay(),
-            // Find Monday before 4th Jan
-            wk1Start = jan4 - ( jan4WeekDay - firstDayOfWeek ).mod( 7 ) * aDay,
-            // Week No == How many weeks have past since then, + 1.
-            week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1,
-            date, day;
+                new Date( this.getFullYear(), 0, 4 );
+        const jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay();
+        // Find Monday before 4th Jan
+        const wk1Start = jan4 - ( jan4WeekDay - firstDayOfWeek )
+                .mod( 7 ) * aDay;
+        // Week No == How many weeks have past since then, + 1.
+        let week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1;
         if ( week === 53 ) {
-            date = utc ? this.getUTCDate() : this.getDate();
-            day = utc ? this.getUTCDay() : this.getDay();
+            const date = utc ? this.getUTCDate() : this.getDate();
+            const day = utc ? this.getUTCDay() : this.getDay();
             // First day of week must be no greater than 28th December
             if ( date - ( day - firstDayOfWeek ).mod( 7 ) > 28 ) {
                 week = 1;
@@ -301,7 +295,7 @@ Date.implement({
         Returns:
             {Date} Returns self.
     */
-    add: function ( number, unit ) {
+    add ( number, unit ) {
         if ( unit === 'year' ) {
             this.setFullYear( this.getFullYear() + number );
         } else if ( unit === 'month' ) {
@@ -327,7 +321,7 @@ Date.implement({
         Returns:
             {Date} Returns self.
     */
-    subtract: function ( number, unit ) {
+    subtract ( number, unit ) {
         return this.add( -number, unit );
     },
 
@@ -390,12 +384,12 @@ Date.implement({
         Returns:
             {String} The formatted date string.
     */
-    format: function ( format, utc ) {
-        var date = this;
+    format ( format, utc ) {
+        const date = this;
         return format ?
-            format.replace(/%(\-)?([%A-Za-z])/g,
+            format.replace(/%(-)?([%A-Za-z])/g,
                 function ( string, nopad, character ) {
-            var num, str;
+            let num, str;
             switch ( character ) {
             case 'a':
                 // Abbreviated day of the week, e.g. 'Mon'.
@@ -411,8 +405,8 @@ Date.implement({
                 return date.getMonthName( false, utc );
             case 'c':
                 // The locale's appropriate date and time representation.
-                return NS.i18n ?
-                    NS.i18n.date( date, 'fullDateAndTime' ) :
+                return i18n ?
+                    i18n.date( date, 'fullDateAndTime' ) :
                     date.toLocaleString();
             case 'C':
                 // Century number (00-99).
@@ -459,8 +453,8 @@ Date.implement({
                 // Localised equivalent of AM or PM.
                 str = ( utc ? date.getUTCHours() : date.getHours() ) < 12 ?
                     'am' : 'pm';
-                return NS.i18n ?
-                    NS.i18n.get( str + 'Designator' ) : str.toUpperCase();
+                return i18n ?
+                    i18n.get( str + 'Designator' ) : str.toUpperCase();
             case 'r':
                 // The time in AM/PM notation: '%I:%M:%S %p'.
                 return date.format( '%I:%M:%S %p', utc );
@@ -502,13 +496,13 @@ Date.implement({
                 return pad( this.getWeekNumber( 1, utc ), nopad );
             case 'x':
                 // The locale's appropriate date representation.
-                return NS.i18n ?
-                    NS.i18n.date( date, 'date' ) :
+                return i18n ?
+                    i18n.date( date, 'date' ) :
                     date.format( '%d/%m/%y', utc );
             case 'X':
                 // The locale's appropriate time representation.
-                return NS.i18n ?
-                    NS.i18n.date( date, 'time' ) : date.format( '%H:%M', utc );
+                return i18n ?
+                    i18n.date( date, 'time' ) : date.format( '%H:%M', utc );
             case 'y':
                 // Year without century (00-99).
                 return ( utc ?
@@ -527,7 +521,11 @@ Date.implement({
                 return string;
             }
         }) : this.toString();
-    }
+    },
 });
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Date#fromJSON,
+// Date#getDaysInMonth, Date#getDaysInYear, Date#isLeapYear, Date#isToday,
+// Date#isOnSameDayAs, Date#getDayName, Date#getMonthName, Date#getDayOfYear,
+// Date#getWeekNumber, Date#getISOWeekNumber, Date#add, Date#subtract,
+// Date#format

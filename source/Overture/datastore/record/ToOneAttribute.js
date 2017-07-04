@@ -1,20 +1,13 @@
-// -------------------------------------------------------------------------- \\
-// File: ToOneAttribute.js                                                    \\
-// Module: DataStore                                                          \\
-// Requires: RecordAttribute.js                                               \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
 
-"use strict";
+import RecordAttribute from './RecordAttribute.js';
+import Record from './Record.js';
 
-( function ( NS, undefined ) {
+const ToOneAttribute = Class({
 
-var ToOneAttribute = NS.Class({
+    Extends: RecordAttribute,
 
-    Extends: NS.RecordAttribute,
-
-    willSet: function ( propValue, propKey, record ) {
+    willSet ( propValue, propKey, record ) {
         if ( ToOneAttribute.parent.willSet.call(
                 this, propValue, propKey, record ) ) {
             if ( propValue && !propValue.get( 'storeKey' ) ) {
@@ -26,20 +19,18 @@ var ToOneAttribute = NS.Class({
         return false;
     },
 
-    call: function ( record, propValue, propKey ) {
-        var result = ToOneAttribute.parent.call.call(
+    call ( record, propValue, propKey ) {
+        let result = ToOneAttribute.parent.call.call(
             this, record, propValue, propKey );
         if ( result && typeof result === 'string' ) {
             result = record.get( 'store' ).getRecord( this.Type, '#' + result );
         }
         return result || null;
-    }
+    },
 });
 
-NS.ToOneAttribute = ToOneAttribute;
+export default ToOneAttribute;
 
-NS.Record.toOne = function ( mixin ) {
+Record.toOne = function ( mixin ) {
     return new ToOneAttribute( mixin );
 };
-
-}( O ) );

@@ -1,24 +1,16 @@
-// -------------------------------------------------------------------------- \\
-// File: TimeZone.js                                                          \\
-// Module: TimeZones                                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../core/Core.js';
+import '../core/Date.js';  // For Date#add
+import '../core/String.js';  // For String#format
 
 // Periods format:
 // until posix time, offset (secs), rules name, suffix
 // e.g. [ +new Date(), -3600, 'EU', 'CE%sT' ]
 
-var getPeriod = function ( periods, date, isUTC ) {
-    var l = periods.length - 1,
-        period, candidate;
-    period = periods[l];
+const getPeriod = function ( periods, date, isUTC ) {
+    let l = periods.length - 1;
+    let period = periods[l];
     while ( l-- ) {
-        candidate = periods[l];
+        const candidate = periods[l];
         if ( candidate[0] < date - ( isUTC ? 0 : candidate[1] ) ) {
             break;
         }
@@ -32,14 +24,12 @@ var getPeriod = function ( periods, date, isUTC ) {
 //      utc=0/local=1/wall=2, offset (secs), suffix ]
 // e.g. [ 1987, 2006, 4, 3, 0, 0, 2, 0, 2, 3600, 'BST' ]
 
-var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
-    var l = rules.length,
-        year = datetime.getUTCFullYear(),
-        ruleInEffect = null,
-        rule, ruleDate, ruleIsUTC, prevRule, dateInEffect,
-        month, date, day, difference;
+const getRule = function ( rules, offset, datetime, isUTC, recurse ) {
+    let l = rules.length;
+    const year = datetime.getUTCFullYear();
+    let ruleInEffect = null;
     while ( l-- ) {
-        rule = rules[l];
+        const rule = rules[l];
         // Sorted by end year. So if ends before this date, no further rules
         // can apply.
         if ( rule[1] < year ) {
@@ -47,17 +37,19 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
         }
         // If starts on or before this date, the rule applies.
         if ( rule[0] <= year ) {
+            let prevRule, dateInEffect;
             // Create the date object representing the transition point.
-            month = rule[2];
+            const month = rule[2];
             // 0 => last day of the month
-            date = rule[3] || Date.getDaysInMonth( month, year );
-            ruleDate = new Date(Date.UTC( year, month, date ));
+            const date = rule[3] || Date.getDaysInMonth( month, year );
+            const ruleDate = new Date(Date.UTC( year, month, date ));
 
             // Adjust to nearest +/- day of the week if specified
-            if ( day = rule[4] ) {
+            const day = rule[4];
+            if ( day ) {
                 // +/- => (on or after/on or before) current date.
                 // abs( value ) => 1=SUN,2=MON,... etc.
-                difference =
+                const difference =
                     ( Math.abs( day ) - ruleDate.getUTCDay() + 6 ) % 7;
                 if ( difference ) {
                     ruleDate.add(
@@ -72,7 +64,7 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
             ruleDate.setUTCSeconds( rule[7] );
 
             // Now match up timezones
-            ruleIsUTC = !rule[8];
+            const ruleIsUTC = !rule[8];
             if ( ruleIsUTC !== isUTC ) {
                 ruleDate.add(
                     ( ruleIsUTC ? 1 : -1 ) * offset, 'second'
@@ -132,15 +124,13 @@ var getRule = function ( rules, offset, datetime, isUTC, recurse ) {
     return ruleInEffect;
 };
 
-var switchSign = function ( string ) {
-    return string.replace( /[+-]/, function ( sign ) {
-        return sign === '+' ? '-' : '+';
-    });
+const switchSign = function ( string ) {
+    return string.replace( /[+-]/, sign => ( sign === '+' ? '-' : '+' ) );
 };
 
-var TimeZone = NS.Class({
-    init: function ( id, periods ) {
-        var name = id.replace( /_/g, ' ' );
+const TimeZone = Class({
+    init ( id, periods ) {
+        let name = id.replace( /_/g, ' ' );
         // The IANA ids have the +/- the wrong way round for historical reasons.
         // Display correctly for the user.
         if ( /GMT[+-]/.test( name ) ) {
@@ -152,11 +142,11 @@ var TimeZone = NS.Class({
         this.periods = periods;
     },
 
-    convert: function ( date, toTimeZone ) {
-        var period = getPeriod( this.periods, date ),
-            offset = period[1],
-            rule = getRule( TimeZone.rules[ period[2] ] || [],
-                offset, date, toTimeZone, true );
+    convert ( date, toTimeZone ) {
+        const period = getPeriod( this.periods, date );
+        let offset = period[1];
+        const rule = getRule( TimeZone.rules[ period[2] ] || [],
+            offset, date, toTimeZone, true );
         if ( rule ) {
             offset += rule[9];
         }
@@ -165,19 +155,19 @@ var TimeZone = NS.Class({
         }
         return new Date( +date + offset * 1000 );
     },
-    convertDateToUTC: function ( date ) {
+    convertDateToUTC ( date ) {
         return this.convert( date, false );
     },
-    convertDateToTimeZone: function ( date ) {
+    convertDateToTimeZone ( date ) {
         return this.convert( date, true );
     },
-    getSuffix: function ( date ) {
-        var period = getPeriod( this.periods, date, false ),
-            offset = period[1],
-            rule = getRule( TimeZone.rules[ period[2] ],
-                offset, date, false, true ),
-            suffix = period[3],
-            slashIndex = suffix.indexOf( '/' );
+    getSuffix ( date ) {
+        const period = getPeriod( this.periods, date, false );
+        const offset = period[1];
+        let rule = getRule( TimeZone.rules[ period[2] ],
+                offset, date, false, true );
+        let suffix = period[3];
+        const slashIndex = suffix.indexOf( '/' );
         // If there's a slash, e.g. "GMT/BST", presume first if no time offset,
         // second if time offset.
         if ( rule && slashIndex > - 1 ) {
@@ -187,9 +177,9 @@ var TimeZone = NS.Class({
         }
         return suffix.format( rule ? rule[10] : '' );
     },
-    toJSON: function () {
+    toJSON () {
         return this.id;
-    }
+    },
 });
 
 TimeZone.fromJSON = function ( id ) {
@@ -200,11 +190,11 @@ TimeZone.isEqual = function ( a, b ) {
     return a.id === b.id;
 };
 
-var addTimeZone = function ( timeZone ) {
-    var area = TimeZone.areas;
-    var parts = timeZone.name.split( '/' );
-    var l = parts.length - 1;
-    var i;
+const addTimeZone = function ( timeZone ) {
+    let area = TimeZone.areas;
+    const parts = timeZone.name.split( '/' );
+    const l = parts.length - 1;
+    let i;
     for ( i = 0; i < l; i += 1 ) {
         area = area[ parts[i] ] || ( area[ parts[i] ] = {} );
     }
@@ -214,30 +204,27 @@ var addTimeZone = function ( timeZone ) {
 };
 
 TimeZone.rules = {
-    '-': []
+    '-': [],
 };
 TimeZone.areas = {};
 
 TimeZone.load = function ( json ) {
-    var zones = json.zones,
-        link = json.link,
-        alias = json.alias,
-        id;
+    const zones = json.zones;
+    const link = json.link;
+    const alias = json.alias;
 
-    for ( id in zones ) {
+    for ( const id in zones ) {
         addTimeZone( new TimeZone( id, zones[ id ] ) );
     }
-    for ( id in link ) {
+    for ( const id in link ) {
         addTimeZone( new TimeZone( id, zones[ link[ id ] ] ) );
     }
-    for ( id in alias ) {
+    for ( const id in alias ) {
         if ( !TimeZone[ id ] ) {
             TimeZone[ id ] = TimeZone[ alias[ id ] ];
         }
     }
-    NS.extend( TimeZone.rules, json.rules );
+    Object.assign( TimeZone.rules, json.rules );
 };
 
-NS.TimeZone = TimeZone;
-
-}( O ) );
+export default TimeZone;

@@ -1,20 +1,13 @@
-// -------------------------------------------------------------------------- \\
-// File: LiveQuery.js                                                         \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, guid } from '../../core/Core.js';
+import sortByProperties from '../../core/sortByProperties.js';
+import Object from '../../foundation/Object.js';
+import ObservableRange from '../../foundation/ObservableRange.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
-"use strict";
+import { READY, DESTROYED } from '../record/Status.js';
 
-( function ( NS ) {
-
-var Status = NS.Status,
-    READY = Status.READY,
-    DESTROYED = Status.DESTROYED;
-
-var numerically = function ( a, b ) {
+const numerically = function ( a, b ) {
     return a - b;
 };
 
@@ -31,11 +24,11 @@ var numerically = function ( a, b ) {
     Normally you will not create a LiveQuery instance yourself but get it by
     retrieving the query from the store.
  */
-var LiveQuery = NS.Class({
+const LiveQuery = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: [ NS.ObservableRange, NS.Enumerable ],
+    Mixin: [ ObservableRange, Enumerable ],
 
     /**
         Property: O.LiveQuery#id
@@ -44,7 +37,7 @@ var LiveQuery = NS.Class({
         A unique identifier for this query.
     */
     id: function () {
-        return NS.guid( this );
+        return guid( this );
     }.property().nocache(),
 
     /**
@@ -105,16 +98,15 @@ var LiveQuery = NS.Class({
         Parameters:
             mixin - {Object} The properties for the query.
     */
-    init: function ( mixin ) {
-        var Type = mixin.Type,
-            sort = mixin.sort,
-            store = mixin.store || this.store,
-            results;
+    init ( mixin ) {
+        const Type = mixin.Type;
+        let sort = mixin.sort;
+        const store = mixin.store || this.store;
 
         if ( sort && !( sort instanceof Function ) ) {
-            sort = mixin.sort = NS.sortByProperties( sort );
+            sort = mixin.sort = sortByProperties( sort );
         }
-        results = store.findAll( Type, mixin.filter, sort );
+        const results = store.findAll( Type, mixin.filter, sort );
 
         this._storeKeys = results;
         this._sort = results.sortFn;
@@ -136,7 +128,7 @@ var LiveQuery = NS.Class({
         does not continue monitoring the store for changes and can be garbage
         collected.
     */
-    destroy: function () {
+    destroy () {
         this.set( 'status', DESTROYED );
         this.get( 'store' ).removeQuery( this );
         LiveQuery.parent.destroy.call( this );
@@ -153,7 +145,7 @@ var LiveQuery = NS.Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is: function ( status ) {
+    is ( status ) {
         return !!( this.get( 'status' ) & status );
     },
 
@@ -164,8 +156,8 @@ var LiveQuery = NS.Class({
         A standard array of record objects for the records in this query.
     */
     '[]': function () {
-        var store = this.get( 'store' ),
-            Type = this.get( 'Type' );
+        const store = this.get( 'store' );
+        const Type = this.get( 'Type' );
         return this._storeKeys.map( function ( storeKey ) {
             return store.materialiseRecord( storeKey, Type );
         });
@@ -194,8 +186,8 @@ var LiveQuery = NS.Class({
         Returns:
             {Number} The index of the store key, or -1 if not found.
     */
-    indexOfStoreKey: function ( storeKey, from, callback ) {
-        var index = this._storeKeys.indexOf( storeKey, from );
+    indexOfStoreKey ( storeKey, from, callback ) {
+        const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             callback( index );
         }
@@ -213,14 +205,12 @@ var LiveQuery = NS.Class({
         Returns:
             {O.Record} The record at index i in this array.
     */
-    getObjectAt: function ( index ) {
-        var storeKey = this._storeKeys[ index ],
-            record;
+    getObjectAt ( index ) {
+        const storeKey = this._storeKeys[ index ];
         if ( storeKey ) {
-            record = this.get( 'store' )
+            return this.get( 'store' )
                          .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
-        return record;
     },
 
     /**
@@ -235,7 +225,7 @@ var LiveQuery = NS.Class({
         Returns:
             {O.LiveQuery} Returns self.
     */
-    refresh: function ( force ) {
+    refresh ( force ) {
         this.get( 'store' ).fetchAll( this.get( 'Type' ), force );
         return this;
     },
@@ -248,11 +238,11 @@ var LiveQuery = NS.Class({
         Returns:
             {O.LiveQuery} Returns self.
     */
-    reset: function () {
-        var oldStoreKeys = this._storeKeys,
-            storeKeys = this.get( 'store' ).findAll(
-                this.get( 'Type' ), this.filter, this.sort ),
-            maxLength = Math.max( storeKeys.length, oldStoreKeys.length );
+    reset () {
+        const oldStoreKeys = this._storeKeys;
+        const storeKeys = this.get( 'store' ).findAll(
+                this.get( 'Type' ), this.filter, this.sort );
+        const maxLength = Math.max( storeKeys.length, oldStoreKeys.length );
 
         this._storeKeys = storeKeys;
 
@@ -278,25 +268,22 @@ var LiveQuery = NS.Class({
         Returns:
             {Boolean} Was there a change in the query results?
     */
-    storeDidChangeRecords: function ( storeKeysOfChanged ) {
-        var filter = this._filter,
-            sort = this._sort,
-            storeKeys = this._storeKeys,
-            added = [], addedIndexes = [],
-            removed = [], removedIndexes = [],
-            oldLength = this.get( 'length' ),
-            store = this.get( 'store' ),
-            i, l, storeKey, index, shouldBeInQuery,
-            newStoreKeys, oi, ri, ai, a, b,
-            addedLength, removedLength, newLength, maxLength;
+    storeDidChangeRecords ( storeKeysOfChanged ) {
+        const filter = this._filter;
+        const sort = this._sort;
+        const storeKeys = this._storeKeys;
+        const added = [], addedIndexes = [];
+        const removed = [], removedIndexes = [];
+        const oldLength = this.get( 'length' );
+        const store = this.get( 'store' );
 
         // 1. Find indexes of removed and ids of added
         // If it's changed, it's added to both.
-        l = storeKeysOfChanged.length;
+        let l = storeKeysOfChanged.length;
         while ( l-- ) {
-            storeKey = storeKeysOfChanged[l];
-            index = storeKeys.indexOf( storeKey );
-            shouldBeInQuery = ( store.getStatus( storeKey ) & READY ) &&
+            const storeKey = storeKeysOfChanged[l];
+            const index = storeKeys.indexOf( storeKey );
+            const shouldBeInQuery = ( store.getStatus( storeKey ) & READY ) &&
                 ( !filter || filter( storeKey ) );
             // If in query
             if ( index > -1 ) {
@@ -322,13 +309,14 @@ var LiveQuery = NS.Class({
             }
         }
 
-        removedLength = removedIndexes.length;
-        addedLength = added.length;
+        let newStoreKeys, newLength, maxLength;
+        let removedLength = removedIndexes.length;
+        let addedLength = added.length;
 
         // 2. Sort removed indexes and find removed ids.
         if ( removedLength ) {
             removedIndexes.sort( numerically );
-            for ( i = 0; i < removedLength; i += 1 ) {
+            for ( let i = 0; i < removedLength; i += 1 ) {
                 removed[i] = storeKeys[ removedIndexes[i] ];
             }
         }
@@ -340,14 +328,14 @@ var LiveQuery = NS.Class({
             }
             newLength = oldLength - removedLength + addedLength;
             newStoreKeys = new Array( newLength );
-            for ( i = 0, oi = 0, ri = 0, ai = 0; i < newLength; i += 1 ) {
+            for ( let i = 0, oi = 0, ri = 0, ai = 0; i < newLength; i += 1 ) {
                 while ( ri < removedLength && oi === removedIndexes[ ri ] ) {
                     ri += 1;
                     oi += 1;
                 }
                 if ( sort && oi < oldLength && ai < addedLength ) {
-                    a = storeKeys[ oi ];
-                    b = added[ ai ];
+                    const a = storeKeys[ oi ];
+                    const b = added[ ai ];
                     if ( sort( a, b ) < 0 ) {
                         newStoreKeys[i] = a;
                         oi += 1;
@@ -370,7 +358,7 @@ var LiveQuery = NS.Class({
         // 4. Sort added/addedIndexes arrays by index
         if ( addedLength ) {
             addedIndexes.sort( numerically );
-            for ( i = 0; i < addedLength; i += 1 ) {
+            for ( let i = 0; i < addedLength; i += 1 ) {
                 added[i] = newStoreKeys[ addedIndexes[i] ];
             }
         }
@@ -413,10 +401,10 @@ var LiveQuery = NS.Class({
                 .endPropertyChanges()
                 .fire( 'query:updated', {
                     query: this,
-                    removed: removed,
-                    removedIndexes: removedIndexes,
-                    added: added,
-                    addedIndexes: addedIndexes
+                    removed,
+                    removedIndexes,
+                    added,
+                    addedIndexes,
                 });
             return true;
         }
@@ -443,7 +431,7 @@ var LiveQuery = NS.Class({
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
     */
-    getStoreKeysForObjectsInRange: function ( start, end, callback ) {
+    getStoreKeysForObjectsInRange ( start, end, callback ) {
         start = Math.max( 0, start );
         end = Math.min( this.get( 'length' ), end );
         callback( this._storeKeys.slice( start, end ), start, end );
@@ -466,12 +454,10 @@ var LiveQuery = NS.Class({
             {Boolean} Always false. Represents whether the data is still loading
             (i.e. whether the callback has yet to be fired).
     */
-    getStoreKeysForAllObjects: function ( callback ) {
+    getStoreKeysForAllObjects ( callback ) {
         // 0x7fffffff is the largest positive signed 32-bit number.
         return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
-    }
+    },
 });
 
-NS.LiveQuery = LiveQuery;
-
-}( O ) );
+export default LiveQuery;

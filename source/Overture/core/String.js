@@ -1,19 +1,7 @@
-// -------------------------------------------------------------------------- \\
-// File: String.js                                                            \\
-// Module: Core                                                               \\
-// Requires: Core.js                                                          \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( undefined ) {
-
-var splitter =
+const splitter =
     /%(\+)?(?:'(.))?(-)?(\d+)?(?:\.(\d+))?(?:\$(\d+))?([%sn@])/g;
 
-String.implement({
+Object.assign( String.prototype, {
     /**
         Method: String#format
 
@@ -50,14 +38,14 @@ String.implement({
         Returns:
             {String} The formatted string.
     */
-    format: function () {
+    format () {
         // Reset RegExp.
         splitter.lastIndex = 0;
 
-        var output = '',
-            i = 0,
-            argIndex = 1,
-            part, data, toInsert, padLength, padChar, padding;
+        let output = '';
+        let i = 0;
+        let argIndex = 1;
+        let part, toInsert;
 
         while ( ( part = splitter.exec( this ) ) ) {
             // Add everything between last placeholder and this placeholder
@@ -67,7 +55,8 @@ String.implement({
 
             // Find argument to subsitute in; either the one specified in
             // (6) or the index of this placeholder.
-            data = arguments[ ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
+            const data = arguments[
+                ( parseInt( part[6], 10 ) || argIndex ) - 1 ];
 
             // Generate the string form of the data from the type specified
             // in (7).
@@ -92,11 +81,11 @@ String.implement({
             }
 
             // (4) Check minimum width
-            padLength = ( part[4] || 0 ) - toInsert.length;
+            let padLength = ( part[4] || 0 ) - toInsert.length;
             if ( padLength > 0 ) {
                 // Padding character is (2) or a space
-                padChar = part[2] || ' ';
-                padding = padChar;
+                const padChar = part[2] || ' ';
+                let padding = padChar;
                 while ( ( padLength -= 1 ) ) {
                     padding += padChar;
                 }
@@ -121,33 +110,6 @@ String.implement({
     },
 
     /**
-        Method: String#repeat
-
-        ES6 method. Repeats the string n times.
-
-        Parameters
-            n - {Number} The number of times to repeat the string.
-                Must be an integer >= 0.
-
-        Returns:
-            {String} The repeated string.
-    */
-    repeat: function ( n ) {
-        var string = this,
-            output = '';
-        while ( n ) {
-            if ( n % 2 === 1 ) {
-                output += string;
-            }
-            if ( n > 1 ) {
-                string += string;
-            }
-            n = n >> 1;
-        }
-        return output;
-    },
-
-    /**
         Method: String#escapeHTML
 
         Returns the string with the characters <,>,& replaced by HTML entities.
@@ -155,7 +117,7 @@ String.implement({
         Returns:
             {String} The escaped string.
     */
-    escapeHTML: function () {
+    escapeHTML () {
         return this.split( '&' ).join( '&amp;' )
                    .split( '<' ).join( '&lt;'  )
                    .split( '>' ).join( '&gt;'  );
@@ -170,8 +132,8 @@ String.implement({
         Returns:
             {String} The escaped string.
     */
-    escapeRegExp: function () {
-        return this.replace( /([\-.*+?\^${}()|\[\]\/\\])/g, '\\$1' );
+    escapeRegExp () {
+        return this.replace( /([-.*+?^${}()|[\]/\\])/g, '\\$1' );
     },
 
     /**
@@ -182,7 +144,7 @@ String.implement({
         Returns:
             {String} The capitalised string.
     */
-    capitalise: function () {
+    capitalise () {
         return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
     },
 
@@ -195,8 +157,8 @@ String.implement({
         Returns:
             {String} The camel-cased string.
     */
-    camelCase: function () {
-        return this.replace( /\-([a-z])/g, function ( _, letter ) {
+    camelCase () {
+        return this.replace( /-([a-z])/g, function ( _, letter ) {
             return letter.toUpperCase();
         });
     },
@@ -210,7 +172,7 @@ String.implement({
         Returns:
             {String} The hyphenated string.
     */
-    hyphenate: function () {
+    hyphenate () {
         return this.replace( /[A-Z]/g, function ( letter ) {
             return ( '-' + letter.toLowerCase() );
         });
@@ -230,7 +192,7 @@ String.implement({
         Returns:
             {Boolean} Does this string contain the given string?
     */
-    contains: function ( string, separator ) {
+    contains ( string, separator ) {
         return ( separator ?
             ( separator + this + separator ).indexOf(
                 separator + string + separator ) :
@@ -249,12 +211,12 @@ String.implement({
         Returns:
             {Number} The hash. This is a *signed* 32-bit int.
     */
-    hash: function () {
-        var hash = this.length,
-            remainder = hash & 1,
-            l = hash - remainder;
+    hash () {
+        let hash = this.length;
+        const remainder = hash & 1;
+        const l = hash - remainder;
 
-        for ( var i = 0; i < l; i += 2 ) {
+        for ( let i = 0; i < l; i += 2 ) {
             hash += this.charCodeAt( i );
             hash = ( hash << 16 ) ^
                 ( ( this.charCodeAt( i + 1 ) << 11 ) ^ hash );
@@ -288,14 +250,14 @@ String.implement({
             {String} The 128 bit hash in the form of a hexadecimal string.
     */
     md5: ( function () {
-        var r = [
+        const r = [
             7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
             5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
             4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-            6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
+            6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
         ];
 
-        var k = [
+        const k = [
             0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
             0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
             0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
@@ -311,14 +273,13 @@ String.implement({
             0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
             0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
             0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
-            0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
+            0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
         ];
 
-        var utf16To8 = function ( string ) {
-            var utf8 = '',
-                i, l, c;
-            for ( i = 0, l = string.length; i < l; i += 1 ) {
-                c = string.charCodeAt( i );
+        const utf16To8 = function ( string ) {
+            let utf8 = '';
+            for ( let i = 0, l = string.length; i < l; i += 1 ) {
+                const c = string.charCodeAt( i );
                 if ( c < 128 ) {
                     utf8 += string.charAt( i );
                 } else if ( c < 2048 ) {
@@ -333,15 +294,15 @@ String.implement({
             return utf8;
         };
 
-        var stringToWords = function ( string ) {
+        const stringToWords = function ( string ) {
             // Each character is 8 bits. Pack into an array of 32 bit numbers
             // then pad the end as specified by the MD5 standard: a single one
             // bit followed by as many zeros as need to make the length in bits
             // === 448 mod 512, then finally the length of the input, in bits,
             // as a 64 bit little-endian long int.
-            var length = string.length,
-                blocks = [ 0 ],
-                i, j, k, padding;
+            const length = string.length;
+            const blocks = [ 0 ];
+            let i, j, k;
             for ( i = 0, j = 0, k = 0; j < length; j += 1 ) {
                 blocks[i] |= string.charCodeAt( j ) << k;
                 k += 8;
@@ -353,8 +314,8 @@ String.implement({
             blocks[i] |= 0x80 << k;
             i += 1;
 
-            padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
-            for ( ; i < padding ; i += 1 ) {
+            const padding = i + 16 - ( ( ( i + 2 ) % 16 ) || 16 );
+            for ( ; i < padding; i += 1 ) {
                 blocks[i] = 0;
             }
 
@@ -366,21 +327,20 @@ String.implement({
         };
 
         // Add unsigned 32 bit ints with overflow.
-        var add = function ( a, b ) {
-            var lsw = ( a & 0xffff ) + ( b & 0xffff ),
-                msw = ( a >> 16 ) + ( b >> 16 ) + ( lsw >> 16 );
+        const add = function ( a, b ) {
+            const lsw = ( a & 0xffff ) + ( b & 0xffff );
+            const msw = ( a >> 16 ) + ( b >> 16 ) + ( lsw >> 16 );
             return ( msw << 16 ) | ( lsw & 0xffff );
         };
 
-        var leftRotate = function ( a, b ) {
+        const leftRotate = function ( a, b ) {
             return ( a << b ) | ( a >>> ( 32 - b ) );
         };
 
-        var hexCharacters = '0123456789abcdef';
-        var hex = function ( number ) {
-            var string = '',
-                i;
-            for ( i = 0; i < 32; i += 8 ) {
+        const hexCharacters = '0123456789abcdef';
+        const hex = function ( number ) {
+            let string = '';
+            for ( let i = 0; i < 32; i += 8 ) {
                 string += hexCharacters[ ( number >> i + 4 ) & 0xf ];
                 string += hexCharacters[ ( number >> i ) & 0xf ];
             }
@@ -388,20 +348,20 @@ String.implement({
         };
 
         return function () {
-            var words = stringToWords( utf16To8( this ) ),
-                h0 = 0x67452301,
-                h1 = 0xEFCDAB89,
-                h2 = 0x98BADCFE,
-                h3 = 0x10325476,
-                i, j, l, a, b, c, d, f, g, temp;
+            const words = stringToWords( utf16To8( this ) );
+            let h0 = 0x67452301;
+            let h1 = 0xEFCDAB89;
+            let h2 = 0x98BADCFE;
+            let h3 = 0x10325476;
 
-            for ( j = 0, l = words.length; j < l; j += 16 ) {
-                a = h0;
-                b = h1;
-                c = h2;
-                d = h3;
+            for ( let j = 0, l = words.length; j < l; j += 16 ) {
+                let a = h0;
+                let b = h1;
+                let c = h2;
+                let d = h3;
+                let f, g, temp;
 
-                for ( i = 0; i < 64; i += 1 ) {
+                for ( let i = 0; i < 64; i += 1 ) {
                     if ( i < 16 ) {
                         f = ( b & c ) | ( (~b) & d );
                         g = i;
@@ -442,7 +402,9 @@ String.implement({
 
             return hex( h0 ) + hex( h1 ) + hex( h2 ) + hex( h3 );
         };
-    }() )
+    }() ),
 });
 
-}() );
+// TODO(cmorgan/modulify): do something about these exports: String#format,
+// String#repeat, String#escapeHTML, String#escapeRegExp, String#capitalise,
+// String#camelCase, String#hyphenate, String#contains, String#hash, String#md5

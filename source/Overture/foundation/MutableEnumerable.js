@@ -1,16 +1,4 @@
-// -------------------------------------------------------------------------- \\
-// File: MutableEnumerable.js                                                 \\
-// Module: Foundation                                                         \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS, undefined ) {
-
-var slice = Array.prototype.slice;
+const slice = Array.prototype.slice;
 
 /**
     Mixin: O.MutableEnumerable
@@ -19,7 +7,7 @@ var slice = Array.prototype.slice;
     with a 'replaceObjectsAt' method and a 'get' method that supports 'length'.
     The API mirrors that of the native Array type.
 */
-NS.MutableEnumerable = {
+export default {
 
     // :: Mutation methods =====================================================
 
@@ -34,8 +22,8 @@ NS.MutableEnumerable = {
         Returns:
             {Number} The new length of the array.
     */
-    push: function () {
-        var newItems = slice.call( arguments );
+    push () {
+        const newItems = slice.call( arguments );
         this.replaceObjectsAt( this.get( 'length' ), 0, newItems );
         return this.get( 'length' );
     },
@@ -48,8 +36,8 @@ NS.MutableEnumerable = {
         Returns:
             {*} The removed last value from the array.
     */
-    pop: function () {
-        var length = this.get( 'length' );
+    pop () {
+        const length = this.get( 'length' );
         return length === 0 ?
             undefined : this.replaceObjectsAt( length - 1, 1 )[0];
     },
@@ -65,8 +53,8 @@ NS.MutableEnumerable = {
         Returns:
             {Number} The new length of the array.
     */
-    unshift: function () {
-        var newItems = slice.call( arguments );
+    unshift () {
+        const newItems = slice.call( arguments );
         this.replaceObjectsAt( 0, 0, newItems );
         return this.get( 'length' );
     },
@@ -79,7 +67,7 @@ NS.MutableEnumerable = {
         Returns:
             {*} The removed first value from the array.
     */
-    shift: function () {
+    shift () {
         return this.get( 'length' ) === 0 ?
             undefined : this.replaceObjectsAt( 0, 1 )[0];
     },
@@ -99,10 +87,8 @@ NS.MutableEnumerable = {
         Returns:
             {Array} The items removed from the array.
     */
-    splice: function ( index, numberRemoved ) {
-        var newItems = slice.call( arguments, 2 );
+    splice ( index, numberRemoved ) {
+        const newItems = slice.call( arguments, 2 );
         return this.replaceObjectsAt( index, numberRemoved, newItems );
-    }
+    },
 };
-
-}( O ) );

@@ -1,48 +1,40 @@
-// -------------------------------------------------------------------------- \\
-// File: Animation.js                                                         \\
-// Module: Animation                                                          \\
-// Requires: Core, Foundation, Easing.js                                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class, meta } from '../core/Core.js';
+import '../core/Array.js';  // For Array#erase
+import RunLoop from '../foundation/RunLoop.js';
+import Easing from './Easing.js';
 
 // List of currently active animations
-var animations = [];
+const animations = [];
 
 // Draw the next frame in all currently active animations.
-var nextFrame = function () {
+const nextFrame = function () {
     // Cache to local variable for speed
-    var anims = animations,
-        l = anims.length,
-        time = NS.RunLoop.frameStartTime,
-        objAnimations, i,
-        hasMultiple, animation, object, animTime, duration;
+    const anims = animations;
+    let l = anims.length;
+    const time = RunLoop.frameStartTime;
 
     if ( l ) {
         // Request first to get in shortest time.
-        NS.RunLoop.invokeInNextFrame( nextFrame );
+        RunLoop.invokeInNextFrame( nextFrame );
 
         while ( l-- ) {
-            objAnimations = anims[l];
-            i = objAnimations.length;
-            hasMultiple = i > 1;
+            const objAnimations = anims[l];
+            let i = objAnimations.length;
+            const hasMultiple = i > 1;
+            let object;
             if ( hasMultiple ) {
                 object = objAnimations[0].object;
                 object.beginPropertyChanges();
             }
             while ( i-- ) {
-                animation = objAnimations[i];
-                animTime = time - animation.startTime;
+                const animation = objAnimations[i];
+                let animTime = time - animation.startTime;
                 // For Safari 7, sigh.
                 if ( animTime === time ) {
                     animation.startTime = time;
                     animTime = 0;
                 }
-                duration = animation.duration;
+                const duration = animation.duration;
                 if ( animTime < duration ) {
                     animation.drawFrame(
                         // Normalised position along timeline [0..1].
@@ -63,8 +55,6 @@ var nextFrame = function () {
     }
 };
 
-var meta = NS.meta;
-
 /**
     Class: O.Animation
 
@@ -81,9 +71,9 @@ var meta = NS.meta;
     For animating something other than a numeric property, override
     <O.Animation#prepare> and <O.Animation#drawFrame> methods.
 */
-NS.Animation = NS.Class({
+export default Class({
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this.duration = this.duration;
         this.ease = this.ease;
         this.isRunning = false;
@@ -93,7 +83,7 @@ NS.Animation = NS.Class({
         this.endValue = null;
         this.deltaValue = null;
 
-        NS.extend( this, mixin );
+        Object.assign( this, mixin );
     },
 
     /**
@@ -112,7 +102,7 @@ NS.Animation = NS.Class({
 
         The easing function to use for the animation.
     */
-    ease: NS.Easing.ease,
+    ease: Easing.ease,
 
     /**
         Property: O.Animation#isRunning
@@ -157,7 +147,7 @@ NS.Animation = NS.Class({
         Returns:
             {O.Animation} Returns self.
     */
-    animate: function ( value, duration, ease ) {
+    animate ( value, duration, ease ) {
         if ( this.isRunning ) {
             this.stop();
         }
@@ -173,15 +163,16 @@ NS.Animation = NS.Class({
             return this;
         }
 
-        var object = this.object,
-            metadata = meta( object ),
-            objAnimations = metadata.animations || ( metadata.animations = [] );
+        const object = this.object;
+        const metadata = meta( object );
+        const objAnimations = metadata.animations ||
+            ( metadata.animations = [] );
 
         this.startTime = 0;
 
         // Start loop if no current animations
         if ( !animations.length ) {
-            NS.RunLoop.invokeInNextFrame( nextFrame );
+            RunLoop.invokeInNextFrame( nextFrame );
         }
 
         // And add objectAnimations to animation queue
@@ -212,7 +203,7 @@ NS.Animation = NS.Class({
             {Boolean} Is there anything to actually animate. Returns false if
             the value is already at the desired end point.
     */
-    prepare: function ( value ) {
+    prepare ( value ) {
         if ( typeof value === 'object' ) {
             this.startValue = value.startValue;
             this.endValue = value.endValue;
@@ -241,9 +232,9 @@ NS.Animation = NS.Class({
                        function (the easing function may cause the number to go
                        beyond 0 and 1).
     */
-    drawFrame: function ( position, time, isLastFrame ) {
+    drawFrame ( position, time, isLastFrame ) {
         // And interpolate to find new value.
-        var value = isLastFrame ?
+        const value = isLastFrame ?
             this.endValue :
             this.startValue + ( position * this.deltaValue );
 
@@ -258,11 +249,11 @@ NS.Animation = NS.Class({
         Returns:
             {O.Animation} Returns self.
     */
-    stop: function () {
+    stop () {
         if ( this.isRunning ) {
             // Remove from animation lists.
-            var object = this.object,
-                objAnimations = meta( object ).animations;
+            const object = this.object;
+            const objAnimations = meta( object ).animations;
             objAnimations.erase( this );
 
             if ( !objAnimations.length ) {
@@ -277,7 +268,5 @@ NS.Animation = NS.Class({
         }
 
         return this;
-    }
+    },
 });
-
-}( O ) );

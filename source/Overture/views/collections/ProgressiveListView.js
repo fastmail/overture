@@ -1,42 +1,37 @@
-// -------------------------------------------------------------------------- \\
-// File: ProgressiveListView.js                                               \\
-// Module: CollectionViews                                                    \\
-// Requires: View, ListView.js, TrueVisibleRect.js                            \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
+import ScrollView from '../containers/ScrollView.js';
+import ListView from './ListView.js';
+import TrueVisibleRect from './TrueVisibleRect.js';
 
-"use strict";
+const ProgressiveListView = Class({
 
-( function ( NS ) {
+    Extends: ListView,
 
-var ProgressiveListView = NS.Class({
-
-    Extends: NS.ListView,
-
-    Mixin: NS.TrueVisibleRect,
+    Mixin: TrueVisibleRect,
 
     batchSize: 10,
     triggerInPx: 200,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         ProgressiveListView.parent.init.call( this, mixin );
         this._renderRange.end = 0;
     },
 
-    contentWasUpdated: function ( event ) {
-        var scrollView = this.getParent( NS.ScrollView );
+    contentWasUpdated ( event ) {
+        const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             // Update scroll view correctly.
-            var itemHeight = this.get( 'itemHeight' ),
-                y = Math.max( this.get( 'visibleRect' ).y, 0 ),
-                // Index of first item rendered
-                top = ~~( y / itemHeight ),
-                removedIndexes = event.removedIndexes,
-                addedIndexes = event.addedIndexes,
-                rendered = this._rendered,
-                change = 0,
-                i, l, id, view;
+            const itemHeight = this.get( 'itemHeight' );
+            const y = Math.max( this.get( 'visibleRect' ).y, 0 );
+            // Index of first item rendered
+            let top = ~~( y / itemHeight );
+            const removedIndexes = event.removedIndexes;
+            const addedIndexes = event.addedIndexes;
+            const rendered = this._rendered;
+            let change = 0;
+            let i, l, id, view;
 
             // If we are within 3 items of the top, don't change anything.
             // The new items will push down the old so you will see the change.
@@ -79,7 +74,7 @@ var ProgressiveListView = NS.Class({
         // to the new maximum scrollTop, no scroll event is fired. Therefore we
         // have to simulate this firing in the next event loop.
         if ( length < oldLength ) {
-            NS.RunLoop.invokeInNextEventLoop(
+            RunLoop.invokeInNextEventLoop(
                 this.fire.bind( this, 'scroll', null, null )
             );
         }
@@ -88,18 +83,18 @@ var ProgressiveListView = NS.Class({
     visibleRectDidChange: function () {
         // We only care about changes when we're visible.
         if ( this.get( 'isInDocument' ) ) {
-            var visible = this.get( 'visibleRect' ),
-                extension = this.get( 'triggerInPx' ),
-                batchSize = this.get( 'batchSize' ),
-                height = this.get( 'itemHeight' ) * batchSize,
-                y = visible.y,
-                // Index of first item we want rendered
-                start = Math.max( 0,
-                    ~~( ( y - extension ) / height ) * batchSize ),
-                // Index of last item we want rendered
-                end = ~~( ( y + visible.height + extension ) / height ) *
-                    batchSize + batchSize,
-                _renderRange = this._renderRange;
+            const visible = this.get( 'visibleRect' );
+            const extension = this.get( 'triggerInPx' );
+            const batchSize = this.get( 'batchSize' );
+            const height = this.get( 'itemHeight' ) * batchSize;
+            const y = visible.y;
+            // Index of first item we want rendered
+            const start = Math.max( 0,
+                    ~~( ( y - extension ) / height ) * batchSize );
+            // Index of last item we want rendered
+            const end = ~~( ( y + visible.height + extension ) / height ) *
+                    batchSize + batchSize;
+            const _renderRange = this._renderRange;
 
             if ( start !== _renderRange.start || end !== _renderRange.end ) {
                 _renderRange.start = start;
@@ -107,9 +102,7 @@ var ProgressiveListView = NS.Class({
                 this.viewNeedsRedraw();
             }
         }
-    }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' )
+    }.queue( 'middle' ).observes( 'visibleRect', 'itemHeight' ),
 });
 
-NS.ProgressiveListView = ProgressiveListView;
-
-}( O ) );
+export default ProgressiveListView;

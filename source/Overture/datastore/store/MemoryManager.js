@@ -1,14 +1,8 @@
-// -------------------------------------------------------------------------- \\
-// File: MemoryManager.js                                                     \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Store.js                                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, guid } from '../../core/Core.js';
+import RunLoop from '../../foundation/RunLoop.js';
 
-"use strict";
-
-( function ( NS ) {
+import Record from '../record/Record.js';
+import RemoteQuery from '../query/RemoteQuery.js';
 
 /**
     Class: O.MemoryManager
@@ -19,7 +13,7 @@
     breached.
 */
 
-var MemoryManager = NS.Class({
+const MemoryManager = Class({
 
     /**
         Property (private): O.MemoryManager#_index
@@ -73,7 +67,7 @@ var MemoryManager = NS.Class({
                            function is called in milliseconds. Default is 30000,
                            i.e. every 30 seconds.
     */
-    init: function ( store, restrictions, frequency ) {
+    init ( store, restrictions, frequency ) {
         this._index = 0;
         this._store = store;
         this._restrictions = restrictions;
@@ -81,7 +75,7 @@ var MemoryManager = NS.Class({
         this.isPaused = false;
         this.frequency = frequency || 30000;
 
-        NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+        RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
     },
 
     /**
@@ -96,7 +90,7 @@ var MemoryManager = NS.Class({
         Returns:
             {O.MemoryManager} Returns self.
     */
-    addRestriction: function ( restriction ) {
+    addRestriction ( restriction ) {
         this._restrictions.push( restriction );
         return this;
     },
@@ -109,25 +103,25 @@ var MemoryManager = NS.Class({
         until the number is under the set limit for that type. This is
         automatically called periodically by the memory manager.
     */
-    cleanup: function () {
-        var index = this._index,
-            restrictions = this._restrictions[ index ],
-            Type = restrictions.Type,
-            ParentType = Type,
-            max = restrictions.max,
-            afterFn = restrictions.afterCleanup,
-            deleted;
+    cleanup () {
+        let index = this._index;
+        const restrictions = this._restrictions[ index ];
+        const Type = restrictions.Type;
+        let ParentType = Type;
+        const max = restrictions.max;
+        const afterFn = restrictions.afterCleanup;
+        let deleted;
 
         if ( this.isPaused ) {
-            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+            RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
             return;
         }
 
         do {
-            if ( ParentType === NS.Record ) {
+            if ( ParentType === Record ) {
                 deleted = this.cleanupRecordType( Type, max );
                 break;
-            } else if ( ParentType === NS.RemoteQuery ) {
+            } else if ( ParentType === RemoteQuery ) {
                 deleted = this.cleanupQueryType( Type, max );
                 break;
             }
@@ -139,9 +133,9 @@ var MemoryManager = NS.Class({
 
         // Yield between examining types so we don't hog the event queue.
         if ( index ) {
-            NS.RunLoop.invokeInNextEventLoop( this.cleanup, this );
+            RunLoop.invokeInNextEventLoop( this.cleanup, this );
         } else {
-            NS.RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+            RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
         }
     },
 
@@ -154,24 +148,23 @@ var MemoryManager = NS.Class({
 
         Removes excess records from the store.
     */
-    cleanupRecordType: function ( Type, max ) {
-        var store = this._store,
-            _skToLastAccess = store._skToLastAccess,
-            _skToData = store._skToData,
-            storeKeys =
-                Object.keys( store._typeToSkToId[ NS.guid( Type ) ] || {} ),
-            l = storeKeys.length,
-            numberToDelete = l - max,
-            deleted = [],
-            data, storeKey;
+    cleanupRecordType ( Type, max ) {
+        const store = this._store;
+        const _skToLastAccess = store._skToLastAccess;
+        const _skToData = store._skToData;
+        const storeKeys =
+            Object.keys( store._typeToSkToId[ guid( Type ) ] || {} );
+        let l = storeKeys.length;
+        let numberToDelete = l - max;
+        const deleted = [];
 
         storeKeys.sort( function ( a, b ) {
             return _skToLastAccess[b] - _skToLastAccess[a];
         });
 
         while ( numberToDelete > 0 && l-- ) {
-            storeKey = storeKeys[l];
-            data = _skToData[ storeKey ];
+            const storeKey = storeKeys[l];
+            const data = _skToData[ storeKey ];
             if ( store.unloadRecord( storeKey ) ) {
                 numberToDelete -= 1;
                 if ( data ) { deleted.push( data ); }
@@ -189,21 +182,20 @@ var MemoryManager = NS.Class({
 
         Removes excess remote queries from the store.
     */
-    cleanupQueryType: function ( Type, max ) {
-        var queries = this._store.getAllRemoteQueries()
+    cleanupQueryType ( Type, max ) {
+        const queries = this._store.getAllRemoteQueries()
                           .filter( function ( query ) {
                 return query instanceof Type;
-            }),
-            l = queries.length,
-            numberToDelete = l - max,
-            deleted = [],
-            query;
+            });
+        let l = queries.length;
+        let numberToDelete = l - max;
+        const deleted = [];
 
         queries.sort( function ( a, b ) {
             return b.lastAccess - a.lastAccess;
         });
         while ( numberToDelete > 0 && l-- ) {
-            query = queries[l];
+            const query = queries[l];
             if ( !query.hasObservers() ) {
                 query.destroy();
                 deleted.push( query );
@@ -211,9 +203,7 @@ var MemoryManager = NS.Class({
             }
         }
         return deleted;
-    }
+    },
 });
 
-NS.MemoryManager = MemoryManager;
-
-}( O ) );
+export default MemoryManager;

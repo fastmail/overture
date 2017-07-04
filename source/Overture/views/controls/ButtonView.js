@@ -1,14 +1,13 @@
-// -------------------------------------------------------------------------- \\
-// File: ButtonView.js                                                        \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, AbstractControlView.js              \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import '../../foundation/EventTarget.js';  // For Function#on
+import RunLoop from '../../foundation/RunLoop.js';
+import DOMEvent from '../../dom/DOMEvent.js';
+import Element from '../../dom/Element.js';
 
-"use strict";
-
-( function ( NS ) {
+import AbstractControlView from './AbstractControlView.js';
+import MenuView from './MenuView.js';
 
 /**
     Class: O.ButtonView
@@ -26,7 +25,7 @@
     The most common way to use O.ButtonView is to create an instance as part of
     the <O.View#draw method of your view class. For example:
 
-        var Element = O.Element,
+        const Element = O.Element,
             el = Element.create;
 
         Element.appendChildren( layer, [
@@ -66,9 +65,9 @@
     If there is no icon property set, a comment node will be inserted in its
     position.
 */
-var ButtonView = NS.Class({
+const ButtonView = Class({
 
-    Extends: NS.AbstractControlView,
+    Extends: AbstractControlView,
 
     /**
         Property: O.ButtonView#isActive
@@ -141,7 +140,7 @@ var ButtonView = NS.Class({
         disabled    - If the view's isDisabled property is true.
     */
     className: function () {
-        var type = this.get( 'type' );
+        const type = this.get( 'type' );
         return 'v-Button' +
             ( type ? ' ' + type : '' ) +
             ( this.get( 'icon' ) ? ' v-Button--hasIcon' : '' ) +
@@ -149,7 +148,8 @@ var ButtonView = NS.Class({
             ( this.get( 'isActive' ) ? ' is-active' : '' ) +
             ( this.get( 'isWaiting' ) ? ' is-waiting' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' );
-    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isWaiting', 'isDisabled' ),
+    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isWaiting',
+                'isDisabled' ),
 
     /**
         Method: O.ButtonView#draw
@@ -157,8 +157,8 @@ var ButtonView = NS.Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.ButtonView> notes.
     */
-    draw: function ( layer, Element, el ) {
-        var icon = this.get( 'icon' );
+    draw ( layer, Element, el ) {
+        let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
@@ -167,7 +167,7 @@ var ButtonView = NS.Class({
         this._domControl = layer;
         return [
             icon,
-            ButtonView.parent.draw.call( this, layer, Element, el )
+            ButtonView.parent.draw.call( this, layer, Element, el ),
         ];
     },
 
@@ -184,8 +184,8 @@ var ButtonView = NS.Class({
        return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'icon', 'isWaiting' ),
 
-    redrawIcon: function ( layer ) {
-        var icon = this.get( 'icon' );
+    redrawIcon ( layer ) {
+        let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
         } else if ( !icon ) {
@@ -194,7 +194,7 @@ var ButtonView = NS.Class({
         layer.replaceChild( icon, layer.firstChild );
     },
 
-    redrawIsDisabled: function () {
+    redrawIsDisabled () {
         this._domControl.disabled =
             this.get( 'isDisabled' ) || this.get( 'isWaiting' );
     },
@@ -251,10 +251,10 @@ var ButtonView = NS.Class({
 
         It also fires an event called `button:activate` on itself.
     */
-    activate: function () {
+    activate () {
         if ( !this.get( 'isDisabled' ) && !this.get( 'isWaiting' ) ) {
-            var target = this.get( 'target' ) || this;
-            var action;
+            const target = this.get( 'target' ) || this;
+            let action;
             if ( ( action = this.get( 'action' ) ) ) {
                 target.fire( action, { originView: this } );
             } else if ( ( action = this.get( 'method' ) ) ) {
@@ -291,7 +291,7 @@ var ButtonView = NS.Class({
     /**
         Method (private): O.ButtonView#_setIgnoreUntil
     */
-    _setIgnoreUntil: function () {
+    _setIgnoreUntil () {
         this._ignoreUntil = Date.now() + 200;
     },
 
@@ -308,9 +308,9 @@ var ButtonView = NS.Class({
                 event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
-        if ( event.type !== 'mouseup' || this.getParent( NS.MenuView ) ) {
+        if ( event.type !== 'mouseup' || this.getParent( MenuView ) ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
-            NS.RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
+            RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
             this.activate();
             event.preventDefault();
             // Firefox keeps focus on the button after clicking. If the user
@@ -329,20 +329,18 @@ var ButtonView = NS.Class({
             event - {Event} The keypress event.
     */
     _activateOnEnter: function ( event ) {
-        if ( NS.DOMEvent.lookupKey( event ) === 'enter' ) {
+        if ( DOMEvent.lookupKey( event ) === 'enter' ) {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-    }.on( 'keypress' )
+    }.on( 'keypress' ),
 }).extend({
-    drawIcon: function ( icon ) {
-        return NS.Element.create( 'i', {
-            className: 'icon ' + icon
+    drawIcon ( icon ) {
+        return Element.create( 'i', {
+            className: 'icon ' + icon,
         });
-    }
+    },
 });
 
-NS.ButtonView = ButtonView;
-
-}( O ) );
+export default ButtonView;

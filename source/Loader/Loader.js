@@ -1,15 +1,4 @@
-// -------------------------------------------------------------------------- \\
-// File: Loader.js                                                            \\
-// Module: Loader                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage */
-
-"use strict";
-
-( function ( NS, XMLHttpRequest ) {
+/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage, O*/
 
 /*
     Object: O.Loader
@@ -17,30 +6,33 @@
     The Loader class handles loading in modules as and when they're
     needed.
 */
-var UNREQUESTED = 0,
-    LOADING = 1,
-    LOADED = 2,
-    WILL_EXECUTE = 4,
-    EXECUTED = 8;
+const UNREQUESTED = 0;
+const LOADING = 1;
+const LOADED = 2;
+const WILL_EXECUTE = 4;
+const EXECUTED = 8;
 
-var ls = localStorage;
-var LS_PREFIX = 'OResource-';
-var LS_V_PREFIX = 'OResource-v-';
+const LS_PREFIX = 'OResource-';
+const LS_V_PREFIX = 'OResource-v-';
 
-var moduleInfo = {};
-var require;
+const moduleInfo = {};
+// We get the choice of whether we offend no-use-before-define or prefer-const.
+// Frankly no-use-before-define would probably be better, but this way we only
+// have to twiddle the switch once…
+let require;  // eslint-disable-line prefer-const
+let loader;  // eslint-disable-line prefer-const
 
-var CORSRequest =
+const CORSRequest =
     ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
     ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
 
-var getFile = function ( src, callback ) {
-    var xhr = new CORSRequest(),
-        send = function () {
-            xhr.open( 'GET', src );
-            xhr.send();
-        },
-        wait = 1000;
+const getFile = function ( src, callback ) {
+    const xhr = new CORSRequest();
+    const send = function () {
+        xhr.open( 'GET', src );
+        xhr.send();
+    };
+    let wait = 1000;
     xhr.onload = function () {
         xhr.onload = xhr.onerror = null;
         callback( this.responseText );
@@ -56,28 +48,26 @@ var getFile = function ( src, callback ) {
 
 // Will the browser execute the scripts in the order they are injected into the
 // page?
-var inOrderScripts = ( CORSRequest === XMLHttpRequest );
+const inOrderScripts = ( CORSRequest === XMLHttpRequest );
 
-var afterModuleExecute = function ( name ) {
-    var info = moduleInfo[ name ],
-        callbacks = info.callbacks,
-        loader = NS.loader,
-        i, l, callback, fn, bind;
+let afterModuleExecute = function ( name ) {
+    const info = moduleInfo[ name ];
+    const callbacks = info.callbacks;
 
     if ( loader.fire ) {
-        NS.loader.fire( 'loader:didLoadModule', { module: name } );
-    } else if ( NS.meta ) {
-        NS.extend( loader, NS.EventTarget );
+        loader.fire( 'loader:didLoadModule', { module: name } );
+    } else if ( O.meta ) {
+        Object.assign( loader, O.EventTarget );
         afterModuleExecute = afterModuleExecute.invokeInRunLoop();
     }
     info.status = EXECUTED;
 
     if ( callbacks ) {
-        for ( i = 0, l = callbacks.length; i < l; i += 1 ) {
-            callback = callbacks[i];
+        for ( let i = 0, l = callbacks.length; i < l; i += 1 ) {
+            const callback = callbacks[i];
             if ( !( callback.refCount -= 1 ) ) {
-                fn = callback.fn;
-                bind = callback.bind;
+                const fn = callback.fn;
+                const bind = callback.bind;
                 if ( bind ) {
                     fn.call( bind );
                 } else {
@@ -89,22 +79,24 @@ var afterModuleExecute = function ( name ) {
     info.callbacks = null;
 };
 
-var executeModule = function ( name ) {
+const executeModule = function ( name ) {
     // If inside an event handler from a different context (i.e. an
     // iframe), Opera will sometimes get into a weird internal state
     // if you execute the code immediately, so delay to the next
     // event loop.
-    var info = moduleInfo[ name ],
-        data = info.data;
+    const info = moduleInfo[ name ];
+    const data = info.data;
     setTimeout( function () {
-        NS.execute( data );
+        // `eval` would execute in the local scope. `( 1, eval )` is global.
+        // eslint-disable-next-line no-eval
+        ( 1, eval )( data );
         afterModuleExecute( name, info );
     }, 0 );
     info.data = null;
 };
 
-var checkAndExecuteModule = function ( name ) {
-    var info = moduleInfo[ name ];
+const checkAndExecuteModule = function ( name ) {
+    const info = moduleInfo[ name ];
     if ( info.status === LOADED ) {
         info.status = (LOADED|WILL_EXECUTE);
         if ( info.dependencies ) {
@@ -117,9 +109,9 @@ var checkAndExecuteModule = function ( name ) {
     }
 };
 
-var moduleDidLoad = function ( name, data ) {
-    var info = moduleInfo[ name ],
-        currentStatus = info.status;
+const moduleDidLoad = function ( name, data ) {
+    const info = moduleInfo[ name ];
+    const currentStatus = info.status;
 
     info.data = data;
     info.status = LOADED;
@@ -130,20 +122,19 @@ var moduleDidLoad = function ( name, data ) {
 };
 
 // Loads text, but does not parse/execute unless executeOnLoad is set.
-var load = function ( name, executeOnLoad, force ) {
-    var info = moduleInfo[ name ],
-        src = info.src,
-        status = info.status,
-        loader = NS.loader,
-        useScriptTag = !CORSRequest || loader.debug,
-        dependencies, data, doc, script;
+const load = function ( name, executeOnLoad, force ) {
+    const info = moduleInfo[ name ];
+    const src = info.src;
+    const status = info.status;
+    const useScriptTag = !CORSRequest || loader.debug;
 
     if ( useScriptTag ) {
         if ( !executeOnLoad ) {
             return;
         }
+        const dependencies = info.dependencies;
         if ( !inOrderScripts && !force &&
-                ( dependencies = info.dependencies ) ) {
+                dependencies ) {
             require( dependencies, function () {
                 load( name, executeOnLoad, true );
             });
@@ -161,14 +152,14 @@ var load = function ( name, executeOnLoad, force ) {
         // Check local storage for module data
         if ( loader.cacheModules ) {
             try {
-                data = ls.getItem( LS_PREFIX + name );
+                const data = localStorage.getItem( LS_PREFIX + name );
                 if ( data ) {
-                    if ( ls.getItem( LS_V_PREFIX + name ) === src ) {
+                    if ( localStorage.getItem( LS_V_PREFIX + name ) === src ) {
                         moduleDidLoad( name, data );
                         return;
                     } else {
-                        ls.removeItem( LS_PREFIX + name );
-                        ls.removeItem( LS_V_PREFIX + name );
+                        localStorage.removeItem( LS_PREFIX + name );
+                        localStorage.removeItem( LS_V_PREFIX + name );
                     }
                 }
             } catch ( error ) {}
@@ -176,13 +167,13 @@ var load = function ( name, executeOnLoad, force ) {
 
         // If not found, request.
         if ( useScriptTag ) {
-            doc = document;
-            script = doc.createElement( 'script' );
+            const doc = document;
+            const script = doc.createElement( 'script' );
             script.type = 'text/javascript';
             script.charset = 'utf-8';
             script.async = false;
             script.onload = script.onreadystatechange = function () {
-                var readyState = script.readyState;
+                const readyState = script.readyState;
                 if ( readyState &&
                         readyState !== 'loaded' && readyState !== 'complete' ) {
                     return;
@@ -195,11 +186,11 @@ var load = function ( name, executeOnLoad, force ) {
             doc.documentElement.firstChild.appendChild( script );
         } else {
             getFile( src, function ( response ) {
-                var data = response + '\n//# sourceURL=' + src;
+                const data = response + '\n//# sourceURL=' + src;
                 if ( loader.cacheModules ) {
                     try {
-                        ls.setItem( LS_V_PREFIX + name, src );
-                        ls.setItem( LS_PREFIX + name, data );
+                        localStorage.setItem( LS_V_PREFIX + name, src );
+                        localStorage.setItem( LS_PREFIX + name, data );
                     } catch ( error ) {}
                 }
                 moduleDidLoad( name, data );
@@ -222,13 +213,13 @@ require = function ( modules, fn, bind ) {
          modules = [ modules ];
     }
 
-    var allLoaded = true,
-        l = modules.length,
-        module, info, dependencies, waitObj;
+    let allLoaded = true;
+    let l = modules.length;
+    let waitObj;
 
     while ( l-- ) {
-        module = modules[l];
-        info = moduleInfo[ module ];
+        const module = modules[l];
+        const info = moduleInfo[ module ];
 
         if ( info.status !== EXECUTED ) {
             allLoaded = false;
@@ -237,9 +228,9 @@ require = function ( modules, fn, bind ) {
             if ( fn ) {
                 if ( !waitObj ) {
                     waitObj = {
-                        fn: fn,
-                        bind: bind,
-                        refCount: 0
+                        fn,
+                        bind,
+                        refCount: 0,
                     };
                 }
                 waitObj.refCount += 1;
@@ -250,7 +241,8 @@ require = function ( modules, fn, bind ) {
             }
 
             // Load module dependencies
-            if ( ( dependencies = info.dependencies ) ) {
+            const dependencies = info.dependencies;
+            if ( dependencies ) {
                 require( dependencies );
             }
 
@@ -284,15 +276,15 @@ require = function ( modules, fn, bind ) {
     This event is fired immediately after a new module finishes
     loading, before any waiting require() functions are called.
 */
-NS.loader = {
+loader = {
     debug: false,
     cacheModules: false,
     modules: moduleInfo,
     baseHref: '',
 
-    getFile: getFile,
+    getFile,
 
-    register: function ( name, info ) {
+    register ( name, info ) {
         if ( !info.status ) {
             info.status = info.src ? UNREQUESTED : LOADED;
         }
@@ -301,10 +293,10 @@ NS.loader = {
         return this;
     },
 
-    prefetch: function ( name ) {
-        var info = moduleInfo[ name ],
-            dependencies = info.dependencies,
-            l = dependencies ? dependencies.length : 0;
+    prefetch ( name ) {
+        const info = moduleInfo[ name ];
+        const dependencies = info.dependencies;
+        let l = dependencies ? dependencies.length : 0;
         while ( l-- ) {
             load( dependencies[l] );
         }
@@ -314,63 +306,7 @@ NS.loader = {
     // Requires all modules listed.
     // Returns whether loaded.
     // Presuming all dependency chains resolved.
-    require: require
+    require,
 };
-NS.require = require;
 
-}( this.O || ( this.O = {} ), XMLHttpRequest ) );
-
-/**
-    Function: O.execute
-
-    Execute a string as JavaScript code in the global context (an always-global
-    `eval`).
-
-    Parameters:
-        code - {String} The code to evaluate.
-
-*/
-/* eslint-disable */
-O.execute = ( function ( global ) {
-    var isGlobal = function ( original, Object ) {
-        try {
-            // Indirect eval is our preferred method for execution in the global
-            // scope. But we need to check it works correctly in the current
-            // engine:
-            // 1. Does `Object` resolve to a local variable, or to the global,
-            //    built-in `Object` reference?
-            // 2. Is the this parameter bound correctly to the global object
-            //    when the eval code is strict (Opera bug)?
-            return ( ( 1, eval )( 'Object' ) === original ) &&
-                ( ( 1, eval )( '"use strict";this' ) === global );
-        }
-        catch ( error ) {
-            // If indirect eval errors out (as allowed per ES3), then just bail
-            // out with `false`
-            return false;
-        }
-    }( Object, 1 );
-
-    // Due to a bug in FF3, we can't just make this the O.execute method, as
-    // it will incorrectly bind `this` to the `O` object. But if we call it as a
-    // function instead of a method, `this` is set to the global object.
-    var evaluate = function ( code ) {
-        ( 1, eval )( code );
-    };
-
-    return isGlobal ? function ( code ) {
-        evaluate( code );
-    } : window.execScript ? function ( code ) {
-        window.execScript( code );
-    } : function ( code ) {
-        var doc = document,
-            head = doc.documentElement.firstChild,
-            script = doc.createElement( 'script' );
-        script.type = 'text/javascript';
-        script.charset = 'utf-8';
-        script.text = code;
-        head.appendChild( script );
-        head.removeChild( script );
-    };
-}( this ) );
-/* eslint-enable */
+export { loader, require };

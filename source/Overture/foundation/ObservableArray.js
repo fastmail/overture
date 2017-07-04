@@ -1,17 +1,12 @@
-// -------------------------------------------------------------------------- \\
-// File: ObservableArray.js                                                   \\
-// Module: Foundation                                                         \\
-// Requires: Object.js,ObservableRange.js,Enumerable.js,MutableEnumerable.js  \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../core/Core.js';
+import Object from './Object.js';
+import ObservableRange from './ObservableRange.js';
+import Enumerable from './Enumerable.js';
+import MutableEnumerable from './MutableEnumerable.js';
+import './ComputedProps.js';  // For Function#property
 
-"use strict";
-
-( function ( NS, undefined ) {
-
-var splice = Array.prototype.splice;
-var slice = Array.prototype.slice;
+const splice = Array.prototype.splice;
+const slice = Array.prototype.slice;
 
 /**
     Class: O.ObservableArray
@@ -25,11 +20,11 @@ var slice = Array.prototype.slice;
     observed. Note, all access must be via getObjectAt/setObjectAt, not direct
     array[i].
 */
-var ObservableArray = NS.Class({
+const ObservableArray = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    Mixin: [ NS.ObservableRange, NS.Enumerable, NS.MutableEnumerable ],
+    Mixin: [ ObservableRange, Enumerable, MutableEnumerable ],
 
     /**
         Constructor: O.ObservableArray
@@ -38,7 +33,7 @@ var ObservableArray = NS.Class({
             array   - {Array} (optional) The initial contents of the array.
             mixin - {Object} (optional)
     */
-    init: function ( array, mixin ) {
+    init ( array, mixin ) {
         this._array = array || [];
         this._length = this._array.length;
 
@@ -57,11 +52,11 @@ var ObservableArray = NS.Class({
     */
     '[]': function ( array ) {
         if ( array ) {
-            var oldArray = this._array,
-                oldLength = this._length,
-                newLength = array.length,
-                start = 0,
-                end = newLength;
+            const oldArray = this._array;
+            const oldLength = this._length;
+            const newLength = array.length;
+            let start = 0;
+            let end = newLength;
 
             this._array = array;
             this._length = newLength;
@@ -71,7 +66,7 @@ var ObservableArray = NS.Class({
                 start += 1;
             }
             if ( newLength === oldLength ) {
-                var last = end - 1;
+                let last = end - 1;
                 while ( ( end > start ) &&
                         ( array[ last ] === oldArray[ last ] ) ) {
                     end = last;
@@ -100,7 +95,7 @@ var ObservableArray = NS.Class({
         Returns:
             {*} The value at index i in this array.
     */
-    getObjectAt: function ( index ) {
+    getObjectAt ( index ) {
         return this._array[ index ];
     },
 
@@ -111,7 +106,7 @@ var ObservableArray = NS.Class({
         The length of the array.
     */
     length: function ( value ) {
-        var length = this._length;
+        let length = this._length;
         if ( typeof value === 'number' && value !== length ) {
             this._array.length = value;
             this._length = value;
@@ -135,9 +130,9 @@ var ObservableArray = NS.Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    setObjectAt: function ( index, value ) {
+    setObjectAt ( index, value ) {
         this._array[ index ] = value;
-        var length = this._length;
+        const length = this._length;
         if ( length <= index ) {
             this._length = index + 1;
             this.propertyDidChange( 'length', length, index + 1 );
@@ -160,22 +155,23 @@ var ObservableArray = NS.Class({
         Returns:
             {Array} Returns an array of the removed objects.
     */
-    replaceObjectsAt: function ( index, numberRemoved, newItems ) {
-        var oldLength = this._length,
-            array = this._array,
-            removed, newLength, i, l;
+    replaceObjectsAt ( index, numberRemoved, newItems ) {
+        const oldLength = this._length;
+        const array = this._array;
+        let removed;
 
         newItems = newItems ? slice.call( newItems ) : [];
 
         if ( oldLength <= index ) {
-            for ( i = 0, l = newItems.length; i < l; i += 1 ) {
+            const l = newItems.length;
+            for ( let i = 0; i < l; i += 1 ) {
                 array[ index + i ] = newItems[i];
             }
         } else {
             newItems.unshift( index, numberRemoved );
             removed = splice.apply( array, newItems );
         }
-        newLength = array.length;
+        const newLength = array.length;
         if ( oldLength !== newLength ) {
             this._length = newLength;
             this.propertyDidChange( 'length', oldLength, newLength );
@@ -200,7 +196,7 @@ var ObservableArray = NS.Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    sort: function ( comparefn ) {
+    sort ( comparefn ) {
         this._array.sort( comparefn );
         this.rangeDidChange( 0, this._length );
         return this;
@@ -214,7 +210,7 @@ var ObservableArray = NS.Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    reverse: function () {
+    reverse () {
         this._array.reverse();
         this.rangeDidChange( 0, this._length );
         return this;
@@ -233,11 +229,11 @@ var ObservableArray = NS.Class({
         Returns:
             {Array} Returns new concatenated array.
     */
-    concat: function () {
-        var args = [],
-            i, l, item;
-        for ( i = 0, l = arguments.length; i < l; i += 1 ) {
-            item = arguments[i];
+    concat () {
+        const args = [];
+        const l = arguments.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const item = arguments[i];
             args[i] = item instanceof ObservableArray ? item._array : item;
         }
         return Array.prototype.concat.apply( this._array, args );
@@ -256,7 +252,7 @@ var ObservableArray = NS.Class({
             {String} Concatenated string of all items joined by separator
             string.
     */
-    join: function ( separator ) {
+    join ( separator ) {
         return this._array.join( separator );
     },
 
@@ -274,11 +270,9 @@ var ObservableArray = NS.Class({
             {Array} Shallow copy of the underlying array between the given
             indexes.
     */
-    slice: function ( start, end ) {
+    slice ( start, end ) {
         return this._array.slice( start, end );
-    }
+    },
 });
 
-NS.ObservableArray = ObservableArray;
-
-}( O ) );
+export default ObservableArray;

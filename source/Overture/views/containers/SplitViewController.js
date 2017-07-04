@@ -1,30 +1,22 @@
-// -------------------------------------------------------------------------- \\
-// File: SplitViewController.js                                               \\
-// Module: ContainerViews                                                     \\
-// Requires: Core, Foundation, View                                           \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
 
-"use strict";
+const VERTICAL = 1;
+const HORIZONTAL = 2;
+const TOP_LEFT = 4;
+const BOTTOM_RIGHT = 8;
 
-( function ( NS ) {
-
-var VERTICAL = 1;
-var HORIZONTAL = 2;
-var TOP_LEFT = 4;
-var BOTTOM_RIGHT = 8;
-
-var auto = 'auto';
+const auto = 'auto';
 
 /**
     Class: O.SplitViewController
 
     Extends: O.Object
 */
-var SplitViewController = NS.Class({
+const SplitViewController = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.SplitViewController#direction
@@ -86,9 +78,9 @@ var SplitViewController = NS.Class({
         The layout properties to use to position the top/left pane.
     */
     topLeftLayout: function ( layout ) {
-        var flexDir = this.get( 'direction' ),
-            flexPane = this.get( 'flex' ),
-            staticLength = this.get( 'staticPaneLength' );
+        const flexDir = this.get( 'direction' );
+        const flexPane = this.get( 'flex' );
+        const staticLength = this.get( 'staticPaneLength' );
         return layout || {
             top: 0,
             left: 0,
@@ -99,7 +91,7 @@ var SplitViewController = NS.Class({
             bottom: ( flexDir === HORIZONTAL &&
                 flexPane === TOP_LEFT ) ? staticLength : auto,
             height: flexDir === VERTICAL ? '100%' :
-                flexPane === TOP_LEFT ? auto : staticLength
+                flexPane === TOP_LEFT ? auto : staticLength,
         };
     }.property( 'flex', 'direction', 'staticPaneLength' ),
 
@@ -110,9 +102,9 @@ var SplitViewController = NS.Class({
         The layout properties to use to position the bottom/right pane.
     */
     bottomRightLayout: function ( layout ) {
-        var flexDir = this.get( 'direction' ),
-            flexPane = this.get( 'flex' ),
-            staticLength = this.get( 'staticPaneLength' );
+        const flexDir = this.get( 'direction' );
+        const flexPane = this.get( 'flex' );
+        const staticLength = this.get( 'staticPaneLength' );
         return layout || {
             bottom: 0,
             right: 0,
@@ -123,18 +115,14 @@ var SplitViewController = NS.Class({
             top: ( flexDir === HORIZONTAL &&
                 flexPane === BOTTOM_RIGHT ) ? staticLength : auto,
             height: flexDir === VERTICAL ? '100%' :
-                flexPane === BOTTOM_RIGHT ? auto : staticLength
+                flexPane === BOTTOM_RIGHT ? auto : staticLength,
         };
-    }.property( 'flex', 'direction', 'staticPaneLength' )
+    }.property( 'flex', 'direction', 'staticPaneLength' ),
 });
 
-SplitViewController.extend({
-    VERTICAL: VERTICAL,
-    HORIZONTAL: HORIZONTAL,
-    TOP_LEFT: TOP_LEFT,
-    BOTTOM_RIGHT: BOTTOM_RIGHT
-});
+SplitViewController.VERTICAL = VERTICAL;
+SplitViewController.HORIZONTAL = HORIZONTAL;
+SplitViewController.TOP_LEFT = TOP_LEFT;
+SplitViewController.BOTTOM_RIGHT = BOTTOM_RIGHT;
 
-NS.SplitViewController = SplitViewController;
-
-}( O ) );
+export default SplitViewController;

@@ -1,23 +1,49 @@
-// -------------------------------------------------------------------------- \\
-// File: Easing.js                                                            \\
-// Module: Animation                                                          \\
-// Requires: Core                                                             \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+const cubicBezier = function ( p1x, p1y, p2x, p2y ) {
+    // Calculate constants in parametric bezier formular
+    // http://www.moshplant.com/direct-or/bezier/math.html
+    const cX = 3 * p1x;
+    const bX = 3 * ( p2x - p1x ) - cX;
+    const aX = 1 - cX - bX;
 
-"use strict";
+    const cY = 3 * p1y;
+    const bY = 3 * ( p2y - p1y ) - cY;
+    const aY = 1 - cY - bY;
 
-( function ( NS ) {
+    // Functions for calculating x, x', y for t
+    const bezierX = t => t * ( cX + t * ( bX + t * aX ) );
+    const bezierXDerivative = t => cX + t * ( 2 * bX + 3 * aX * t );
 
-var cubicBezier;
+    // Use Newton-Raphson method to find t for a given x.
+    // Since x = a*t^3 + b*t^2 + c*t, we find the root for
+    // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
+    const newtonRaphson = x => {
+        let prev;
+        // Initial estimation is linear
+        let t = x;
+        do {
+            prev = t;
+            t = t - ( ( bezierX( t ) - x ) / bezierXDerivative( t ) );
+        } while ( Math.abs( t - prev ) > 1e-4 );
+
+        return t;
+    };
+
+    const output = x => {
+        const t = newtonRaphson( x );
+        // This is y given t on the bezier curve.
+        return t * ( cY + t * ( bY + t * aY ) );
+    };
+    output.cssName = 'cubic-bezier(' + p1x + ',' + p1y + ',' +
+            p2x + ',' + p2y + ')';
+    return output;
+};
 
 /**
     Object: O.Easing
 
     Holds functions emulating the standard CSS easing functions.
 */
-NS.Easing = {
+const Easing = {
     /**
         Function: O.Easing.cubicBezier
 
@@ -35,66 +61,7 @@ NS.Easing = {
             {Function} A function representing the cubic bezier with the points
             given.
     */
-
-    cubicBezier: cubicBezier = function ( p1x, p1y, p2x, p2y ) {
-        // Calculate constants in parametric bezier formular
-        // http://www.moshplant.com/direct-or/bezier/math.html
-        var cX = 3 * p1x,
-            bX = 3 * ( p2x - p1x ) - cX,
-            aX = 1 - cX - bX,
-
-            cY = 3 * p1y,
-            bY = 3 * ( p2y - p1y ) - cY,
-            aY = 1 - cY - bY;
-
-        // Functions for calculating x, x', y for t
-        var bezierX = function ( t ) {
-            return t * ( cX + t * ( bX + t * aX ) );
-        };
-        var bezierXDerivative = function ( t ) {
-            return cX + t * ( 2 * bX + 3 * aX * t );
-        };
-
-        // Use Newton-Raphson method to find t for a given x.
-        // Since x = a*t^3 + b*t^2 + c*t, we find the root for
-        // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
-        var newtonRaphson = function ( x ) {
-            var prev,
-                // Initial estimation is linear
-                t = x;
-            do {
-                prev = t;
-                t = t - ( ( bezierX( t ) - x ) / bezierXDerivative( t ) );
-            } while ( Math.abs( t - prev ) > 1e-4 );
-
-            return t;
-        };
-
-        return function ( x ) {
-            var t = newtonRaphson( x );
-            // This is y given t on the bezier curve.
-            return t * ( cY + t * ( bY + t * aY ) );
-        }.extend({
-            cssName: 'cubic-bezier(' + p1x + ',' + p1y + ',' +
-                p2x + ',' + p2y + ')'
-        });
-    },
-
-    /**
-        Function: O.Easing#linear
-
-        Linear easing.
-
-        Parameters:
-            n - {Number} A number between 0 and 1 representing the current
-                position in the animation.
-
-        Returns:
-            {Number} The position along the animation path (between 0 and 1).
-    */
-    linear: function ( n ) {
-        return n;
-    }.extend({ cssName: 'linear' }),
+    cubicBezier,
 
     /**
         Function: O.Easing#ease
@@ -154,7 +121,25 @@ NS.Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    easeInOut: cubicBezier( 0.42, 0, 0.58, 1 )
+    easeInOut: cubicBezier( 0.42, 0, 0.58, 1 ),
+
+    /**
+        Function: O.Easing#linear
+
+        Linear easing.
+
+        Parameters:
+            n - {Number} A number between 0 and 1 representing the current
+                position in the animation.
+
+        Returns:
+            {Number} The position along the animation path (between 0 and 1).
+    */
+    linear ( n ) {
+        return n;
+    },
 };
 
-}( O ) );
+Easing.linear.cssName = 'linear';
+
+export default Easing;

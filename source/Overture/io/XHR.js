@@ -1,37 +1,27 @@
-// -------------------------------------------------------------------------- \\
-// File: XHR.js                                                               \\
-// Module: IO                                                                 \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global XMLHttpRequest, FormData, location */
 
-"use strict";
+import { Class } from '../core/Core.js';
+import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 
-( function ( NS ) {
+const isLocal = location.protocol === 'file:';
 
-var isLocal = location.protocol === 'file:';
-
-var parseHeaders = function ( allHeaders ) {
-    var headers = {};
-    var start = 0;
-    var end, name;
+const parseHeaders = function ( allHeaders ) {
+    const headers = {};
+    let start = 0;
     while ( true ) {
         // Ignore any leading white space
         while ( /\s/.test( allHeaders.charAt( start ) ) ) {
             start += 1;
         }
         // Look for ":"
-        end = allHeaders.indexOf( ':', start );
+        let end = allHeaders.indexOf( ':', start );
         if ( end < 0 ) {
             break;
         }
         // Slice out the header name.
         // Convert to lower-case: HTTP2 will always be lower case, but HTTP1
         // may be mixed case, which causes bugs!
-        name = allHeaders.slice( start, end ).toLowerCase();
+        const name = allHeaders.slice( start, end ).toLowerCase();
         // Trim off any spaces after the colon.
         start = end + 1;
         while ( allHeaders.charAt( start ) === ' ' ) {
@@ -61,7 +51,7 @@ var parseHeaders = function ( allHeaders ) {
     into the more fully featured <O.HttpRequest> class; you should use that
     class for most things.
 */
-var XHR = NS.Class({
+const XHR = Class({
     /**
         Property: O.XHR#io
         Type: (O.Object|null)
@@ -94,14 +84,14 @@ var XHR = NS.Class({
         Parameters:
             io - {O.Object} (optional).
     */
-    init: function ( io ) {
+    init ( io ) {
         this._isRunning = false;
         this._status = 0;
         this.io = io || null;
         this.xhr = null;
     },
 
-    destroy: function () {
+    destroy () {
         this.abort();
     },
 
@@ -113,7 +103,7 @@ var XHR = NS.Class({
         Returns:
             {Boolean} Is there a request still in progress?
     */
-    isRunning: function () {
+    isRunning () {
         return !!this._isRunning;
     },
 
@@ -129,12 +119,12 @@ var XHR = NS.Class({
         Returns:
             {String} The text of the header or the empty string if not found.
     */
-    getHeader: function ( name ) {
-        var header;
+    getHeader ( name ) {
         try {
-            header = this.xhr.getResponseHeader( name );
-        } catch ( error ) {}
-        return header || '';
+            return this.xhr.getResponseHeader( name ) || '';
+        } catch ( error ) {
+            return '';
+        }
     },
 
     /**
@@ -146,7 +136,7 @@ var XHR = NS.Class({
             {String|ArrayBuffer|Blob|Document|Object} The response.
             (The type is determined by the responseType parameter to #send.)
     */
-    getResponse: function () {
+    getResponse () {
         return this.xhr.response;
     },
 
@@ -159,7 +149,7 @@ var XHR = NS.Class({
         Returns:
             {Number} The HTTP status code
     */
-    getStatus: function () {
+    getStatus () {
         return this._status;
     },
 
@@ -190,17 +180,15 @@ var XHR = NS.Class({
         Returns:
             {O.XHR} Returns self.
     */
-    send: function ( method, url, data, headers, withCredentials,
-            responseType ) {
+    send ( method, url, data, headers, withCredentials, responseType ) {
         if ( this._isRunning ) {
             this.abort();
         }
         this._isRunning = true;
 
-        var xhr = this.xhr = new XMLHttpRequest();
-        var io = this.io;
-        var that = this;
-        var name;
+        const xhr = this.xhr = new XMLHttpRequest();
+        const io = this.io;
+        const that = this;
 
         xhr.open( method, url, this.makeAsyncRequests );
         xhr.withCredentials = !!withCredentials;
@@ -213,7 +201,7 @@ var XHR = NS.Class({
             // check. We assume all the other values will work fine.)
             this._actualResponseType = responseType;
         }
-        for ( name in headers || {} ) {
+        for ( const name in headers || {} ) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
             if ( name !== 'Content-type' || !( data instanceof FormData ) ) {
@@ -254,10 +242,8 @@ var XHR = NS.Class({
             xhr - {XMLHttpRequest} The object whose state has changed.
     */
     _xhrStateDidChange: function ( xhr ) {
-        var state = xhr.readyState;
-        var io = this.io;
-        var status, allHeaders, isSuccess;
-        var responseHeaders, response;
+        const state = xhr.readyState;
+        const io = this.io;
 
         if ( state < 3 || !this._isRunning ) {
             return;
@@ -278,16 +264,16 @@ var XHR = NS.Class({
             xhr.removeEventListener( 'progress', this, false );
         }
 
-        status = xhr.status;
+        let status = xhr.status;
         this._status = status =
             // Local requests will have a 0 response
             ( !status && isLocal ) ? 200 :
             status;
 
         if ( io ) {
-            allHeaders = xhr.getAllResponseHeaders();
-            responseHeaders = parseHeaders( allHeaders );
-            response = this.getResponse();
+            const allHeaders = xhr.getAllResponseHeaders();
+            const responseHeaders = parseHeaders( allHeaders );
+            let response = this.getResponse();
             if ( this._actualResponseType === 'json' ) {
                 try {
                     response = JSON.parse( response );
@@ -299,7 +285,7 @@ var XHR = NS.Class({
             // real connection there must have been at least one header, so
             // check that's not empty. Except for cross-domain requests no
             // headers may be returned, so also check for a body
-            isSuccess = ( status >= 200 && status < 300 ) &&
+            const isSuccess = ( status >= 200 && status < 300 ) &&
                 ( !!allHeaders || !!response );
             io.set( 'uploadProgress', 100 )
               .set( 'progress', 100 )
@@ -307,19 +293,19 @@ var XHR = NS.Class({
               .set( 'responseHeaders', responseHeaders )
               .set( 'response', response )
               .fire( isSuccess ? 'io:success' : 'io:failure', {
-                status: status,
+                status,
                 headers: responseHeaders,
-                data: response
+                data: response,
               })
               .fire( 'io:end' );
         }
     }.invokeInRunLoop(),
 
     handleEvent: function ( event ) {
-        var io = this.io;
-        var type;
+        const io = this.io;
         if ( io && event.type === 'progress' ) {
-            type = event.target === this.xhr ? 'progress' : 'uploadProgress';
+            const type = event.target === this.xhr ? 'progress' :
+                                                     'uploadProgress';
             // CORE-47058. Limit to 99% on progress events, as Opera can report
             // event.loaded > event.total! Will be set to 100 in onSuccess
             // handler.
@@ -339,11 +325,11 @@ var XHR = NS.Class({
         Returns:
             {O.XHR} Returns self.
     */
-    abort: function () {
+    abort () {
         if ( this._isRunning ) {
             this._isRunning = false;
-            var xhr = this.xhr;
-            var io = this.io;
+            const xhr = this.xhr;
+            const io = this.io;
             xhr.abort();
             xhr.onreadystatechange = function () {};
             if ( xhr.upload ) {
@@ -356,9 +342,7 @@ var XHR = NS.Class({
             }
         }
         return this;
-    }
+    },
 });
 
-NS.XHR = XHR;
-
-}( O ) );
+export default XHR;

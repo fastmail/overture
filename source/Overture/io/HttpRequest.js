@@ -1,22 +1,17 @@
-// -------------------------------------------------------------------------- \\
-// File: HttpRequest.js                                                       \\
-// Module: IO                                                                 \\
-// Requires: Core, Foundation, XHR.js                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global location */
 
-"use strict";
+import { Class } from '../core/Core.js';
+import '../core/String.js';  // For String#contains
+import Object from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';
+import '../foundation/EventTarget.js';  // For Function#on
+import XHR from './XHR.js';
 
-( function ( NS ) {
-
-var xhrPool = [];
-var getXhr = function () {
-    return xhrPool.pop() || new NS.XHR();
+const xhrPool = [];
+const getXhr = function () {
+    return xhrPool.pop() || new XHR();
 };
-var releaseXhr = function ( xhr ) {
+const releaseXhr = function ( xhr ) {
     xhrPool.push( xhr );
 };
 
@@ -30,9 +25,9 @@ var releaseXhr = function ( xhr ) {
     depending on browser support.
 */
 
-var HttpRequest = NS.Class({
+const HttpRequest = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property: O.HttpRequest#timeout
@@ -83,7 +78,7 @@ var HttpRequest = NS.Class({
         `{headerName: headerValue}`.
     */
     headers: {
-        'Accept': 'application/json, */*'
+        'Accept': 'application/json, */*',
     },
 
     /**
@@ -107,7 +102,7 @@ var HttpRequest = NS.Class({
 
     // ---
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._transport = null;
         this._timer = null;
         this._lastActivity = 0;
@@ -125,10 +120,10 @@ var HttpRequest = NS.Class({
     // ---
 
     setTimeout: function () {
-        var timeout = this.get( 'timeout' );
+        const timeout = this.get( 'timeout' );
         if ( timeout ) {
             this._lastActivity = Date.now();
-            this._timer = NS.RunLoop.invokeAfterDelay(
+            this._timer = RunLoop.invokeAfterDelay(
                 this.didTimeout, timeout, this );
         }
     }.on( 'io:begin' ),
@@ -138,44 +133,43 @@ var HttpRequest = NS.Class({
     }.on( 'io:uploadProgress', 'io:loading', 'io:progress' ),
 
     clearTimeout: function () {
-        var timer = this._timer;
+        const timer = this._timer;
         if ( timer ) {
-            NS.RunLoop.cancel( timer );
+            RunLoop.cancel( timer );
         }
     }.on( 'io:end' ),
 
-    didTimeout: function () {
+    didTimeout () {
         this._timer = null;
-        var timeout = this.get( 'timeout' ),
-            timeSinceLastReset = Date.now() - this._lastActivity,
-            timeToTimeout = timeout - timeSinceLastReset;
+        const timeout = this.get( 'timeout' );
+        const timeSinceLastReset = Date.now() - this._lastActivity;
+        const timeToTimeout = timeout - timeSinceLastReset;
         // Allow for 10ms jitter
         if ( timeToTimeout < 10 ) {
             this.fire( 'io:timeout' )
                 .abort();
         } else {
-            this._timer = NS.RunLoop.invokeAfterDelay(
+            this._timer = RunLoop.invokeAfterDelay(
                 this.didTimeout, timeToTimeout, this );
         }
     },
 
     // ---
 
-    send: function () {
-        var method = this.get( 'method' ).toUpperCase();
-        var url = this.get( 'url' );
-        var data = this.get( 'data' ) || null;
-        var headers = this.get( 'headers' );
-        var withCredentials = this.get( 'withCredentials' );
-        var responseType = this.get( 'responseType' );
-        var transport = getXhr();
-        var contentType;
+    send () {
+        const method = this.get( 'method' ).toUpperCase();
+        let url = this.get( 'url' );
+        let data = this.get( 'data' ) || null;
+        const headers = this.get( 'headers' );
+        const withCredentials = this.get( 'withCredentials' );
+        const responseType = this.get( 'responseType' );
+        const transport = getXhr();
 
         if ( data && method === 'GET' ) {
             url += ( url.contains( '?' ) ? '&' : '?' ) + data;
             data = null;
         }
-        contentType = headers[ 'Content-type' ];
+        const contentType = headers[ 'Content-type' ];
         if ( contentType && method === 'POST' && typeof data === 'string' &&
                 contentType.indexOf( ';' ) === -1 ) {
             // All string data is sent as UTF-8 by the browser.
@@ -192,21 +186,21 @@ var HttpRequest = NS.Class({
         return this;
     },
 
-    abort: function () {
-        var transport = this._transport;
+    abort () {
+        const transport = this._transport;
         if ( transport && transport.io === this ) {
             transport.abort();
         }
     },
 
     _releaseXhr: function () {
-        var transport = this._transport;
-        if ( transport instanceof NS.XHR ) {
+        const transport = this._transport;
+        if ( transport instanceof XHR ) {
             releaseXhr( transport );
             transport.io = null;
             this._transport = null;
         }
-    }.on( 'io:success', 'io:failure', 'io:abort' )
+    }.on( 'io:success', 'io:failure', 'io:abort' ),
 
     // ---
 
@@ -279,6 +273,4 @@ var HttpRequest = NS.Class({
     */
 });
 
-NS.HttpRequest = HttpRequest;
-
-}( O ) );
+export default HttpRequest;

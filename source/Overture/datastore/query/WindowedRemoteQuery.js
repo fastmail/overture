@@ -1,27 +1,21 @@
-// -------------------------------------------------------------------------- \\
-// File: WindowedRemoteQuery.js                                               \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation, Status.js, RemoteQuery.js                      \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS, undefined ) {
-
-var Status = NS.Status;
-var EMPTY = Status.EMPTY;
-var READY = Status.READY;
-// DIRTY => A preemptive update has been applied since the last fetch of
-// updates from the server was *initiated*. Therefore, any update we receive
-// may not cover all of the preemptives.
-var DIRTY = Status.DIRTY;
-// LOADING => An *update* is being fetched from the server
-var LOADING = Status.LOADING;
-// OBSOLETE => The data on the server may have changed since the last update
-// was requested.
-var OBSOLETE = Status.OBSOLETE;
+import { Class, meta, isEqual } from '../../core/Core.js';
+import '../../foundation/Enumerable.js';  // For Array#binarySearch
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
+import {
+    EMPTY,
+    READY,
+    // DIRTY => A preemptive update has been applied since the last fetch of
+    // updates from the server was *initiated*. Therefore, any update we receive
+    // may not cover all of the preemptives.
+    DIRTY,
+    // LOADING => An *update* is being fetched from the server
+    LOADING,
+    // OBSOLETE => The data on the server may have changed since the last update
+    // was requested.
+    OBSOLETE,
+} from '../record/Status.js';
+import RemoteQuery from './RemoteQuery.js';
 
 /**
     Enum: O.WindowedRemoteQuery-WindowState
@@ -38,13 +32,13 @@ var OBSOLETE = Status.OBSOLETE;
     WINDOW_RECORDS_LOADING   - The records in the window are loading.
     WINDOW_RECORDS_READY     - The records in the window are ready.
 */
-var WINDOW_EMPTY = 0;
-var WINDOW_REQUESTED = 1;
-var WINDOW_LOADING = 2;
-var WINDOW_READY = 4;
-var WINDOW_RECORDS_REQUESTED = 8;
-var WINDOW_RECORDS_LOADING = 16;
-var WINDOW_RECORDS_READY = 32;
+const WINDOW_EMPTY = 0;
+const WINDOW_REQUESTED = 1;
+const WINDOW_LOADING = 2;
+const WINDOW_READY = 4;
+const WINDOW_RECORDS_REQUESTED = 8;
+const WINDOW_RECORDS_LOADING = 16;
+const WINDOW_RECORDS_READY = 32;
 
 /**
     Method: O.WindowedRemoteQuery-sortLinkedArrays
@@ -60,8 +54,8 @@ var WINDOW_RECORDS_READY = 32;
         a1 - {Array} The array to sort.
         a2 - {Array} The array to perform the same swaps on.
 */
-var sortLinkedArrays = function ( a1, a2 ) {
-    var zipped = a1.map( function ( item, i ) {
+const sortLinkedArrays = function ( a1, a2 ) {
+    const zipped = a1.map( function ( item, i ) {
         return [ item, a2[i] ];
     });
     zipped.sort( function ( a, b ) {
@@ -73,12 +67,11 @@ var sortLinkedArrays = function ( a1, a2 ) {
     });
 };
 
-var mapIndexes = function ( list, storeKeys ) {
-    var indexOf = {},
-        indexes = [],
-        listLength = list.length,
-        storeKeysLength = storeKeys.length,
-        id, index, i;
+const mapIndexes = function ( list, storeKeys ) {
+    const indexOf = {};
+    const indexes = [];
+    const listLength = list.length;
+    const storeKeysLength = storeKeys.length;
     // Since building the map will be O(n log n), only bother if we're trying to
     // find the index for more than log(n) store keys.
     // The +1 ensures it is always at least 1, so that in the degenerative case
@@ -86,18 +79,18 @@ var mapIndexes = function ( list, storeKeys ) {
     // When listLength == 0, Math.log( 0 ) == -Infinity, which is converted to 0
     // by ~~ integer conversion.
     if ( storeKeysLength < ~~Math.log( listLength ) + 1 ) {
-        for ( i = 0; i < storeKeysLength; i += 1 ) {
+        for ( let i = 0; i < storeKeysLength; i += 1 ) {
             indexes.push( list.indexOf( storeKeys[i] ) );
         }
     } else {
-        for ( i = 0; i < listLength; i += 1 ) {
-            id = list[i];
+        for ( let i = 0; i < listLength; i += 1 ) {
+            const id = list[i];
             if ( id ) {
                 indexOf[ id ] = i;
             }
         }
-        for ( i = 0; i < storeKeysLength; i += 1 ) {
-            index = indexOf[ storeKeys[i] ];
+        for ( let i = 0; i < storeKeysLength; i += 1 ) {
+            const index = indexOf[ storeKeys[i] ];
             indexes.push( index === undefined ? -1 : index );
         }
     }
@@ -116,13 +109,13 @@ var mapIndexes = function ( list, storeKeys ) {
     Returns:
         {[Array,Array]} A tuple of two arrays.
 */
-var mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
-    var rA = [],
-        rB = [],
-        i = 0,
-        j = 0,
-        l1 = a1.length,
-        l2 = a2.length;
+const mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
+    const rA = [];
+    const rB = [];
+    let i = 0;
+    let j = 0;
+    const l1 = a1.length;
+    const l2 = a2.length;
 
     // Take the smallest head element each time.
     while ( i < l1 || j < l2 ) {
@@ -139,16 +132,16 @@ var mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
     return [ rA, rB ];
 };
 
-var adjustIndexes = function ( removed, added, removedBefore, storeKeys, removedBeforeStoreKeys ) {
-    var resultIndexes = [],
-        resultStoreKeys = [],
-        i, l, index, position, j, ll;
-    for ( i = 0, l = removed.length; i < l; i += 1 ) {
+const adjustIndexes = function ( removed, added, removedBefore, storeKeys,
+        removedBeforeStoreKeys ) {
+    const resultIndexes = [];
+    const resultStoreKeys = [];
+    for ( let i = 0, l = removed.length; i < l; i += 1 ) {
         // Take the item removed in the second update
-        index = removed[i];
+        let index = removed[i];
         // And see how many items were added in the first update
         // before it
-        position = added.binarySearch( index );
+        const position = added.binarySearch( index );
         // If there was an item added in the first update at the exact same
         // position, we don't need to do anything as they cancel each other out.
         // Since update 2 is from the state left by update 1, the storeKeys
@@ -162,7 +155,7 @@ var adjustIndexes = function ( removed, added, removedBefore, storeKeys, removed
         // Now consider the indexes that were removed in the first
         // update. We need to increment the index for all indexes
         // before or equal to the index we're considering.
-        for ( j = 0, ll = removedBefore.length;
+        for ( let j = 0, ll = removedBefore.length;
                 j < ll && index >= removedBefore[j]; j += 1 ) {
             index += 1;
         }
@@ -174,11 +167,11 @@ var adjustIndexes = function ( removed, added, removedBefore, storeKeys, removed
         removedBefore, resultIndexes, removedBeforeStoreKeys, resultStoreKeys );
 };
 
-var composeUpdates = function ( u1, u2 ) {
-    var removed = adjustIndexes(
+const composeUpdates = function ( u1, u2 ) {
+    const removed = adjustIndexes(
             u2.removedIndexes, u1.addedIndexes,  u1.removedIndexes,
-            u2.removedStoreKeys, u1.removedStoreKeys ),
-        added = adjustIndexes(
+            u2.removedStoreKeys, u1.removedStoreKeys );
+    const added = adjustIndexes(
             u1.addedIndexes, u2.removedIndexes, u2.addedIndexes,
             u1.addedStoreKeys, u2.addedStoreKeys );
 
@@ -190,12 +183,12 @@ var composeUpdates = function ( u1, u2 ) {
         truncateAtFirstGap:
             u1.truncateAtFirstGap || u2.truncateAtFirstGap,
         total: u2.total,
-        upto: u2.upto
+        upto: u2.upto,
     };
 };
 
-var invertUpdate = function ( u ) {
-    var array = u.removedIndexes;
+const invertUpdate = function ( u ) {
+    let array = u.removedIndexes;
     u.removedIndexes = u.addedIndexes;
     u.addedIndexes = array;
 
@@ -210,26 +203,25 @@ var invertUpdate = function ( u ) {
 
 // Where (a,b) and (c,d) are ranges.
 // and a < b and c < d.
-var intersect = function ( a, b, c, d ) {
+const intersect = function ( a, b, c, d ) {
     return a < c ? c < b : a < d;
 };
 
 // A window is determined to be still required if there is a range observer that
 // intersects with any part of the window. The prefetch distance is added to the
 // observer range.
-var windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
-    var start = index * windowSize,
-        margin = prefetch * windowSize,
-        j = ranges.length,
-        range, rangeStart, rangeEnd, rangeIntersectsWindow;
+const windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
+    const start = index * windowSize;
+    const margin = prefetch * windowSize;
+    let j = ranges.length;
     while ( j-- ) {
-        range = ranges[j];
-        rangeStart = range.start || 0;
+        const range = ranges[j];
+        const rangeStart = range.start || 0;
         if ( !( 'end' in range ) ) {
             break;
         }
-        rangeEnd = range.end;
-        rangeIntersectsWindow = intersect(
+        const rangeEnd = range.end;
+        const rangeIntersectsWindow = intersect(
             start,
             start + windowSize,
             rangeStart - margin,
@@ -257,9 +249,9 @@ var windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
     calculating, transfering and applying delta updates as the results of the
     query changes.
 */
-var WindowedRemoteQuery = NS.Class({
+const WindowedRemoteQuery = Class({
 
-    Extends: NS.RemoteQuery,
+    Extends: RemoteQuery,
 
     /**
         Property: O.WindowedRemoteQuery#windowSize
@@ -270,7 +262,7 @@ var WindowedRemoteQuery = NS.Class({
     windowSize: 30,
 
     windowCount: function () {
-        var length = this.get( 'length' );
+        const length = this.get( 'length' );
         return ( length === null ) ? length :
             Math.floor( ( length - 1 ) / this.get( 'windowSize' ) ) + 1;
     }.property( 'length' ),
@@ -332,8 +324,8 @@ var WindowedRemoteQuery = NS.Class({
         This is *not* currently observable.
     */
     allIdsAreLoaded: function () {
-        var l = this.get( 'windowCount' );
-        var windows = this._windows;
+        let l = this.get( 'windowCount' );
+        const windows = this._windows;
         if ( l === null ) {
             return false;
         }
@@ -345,7 +337,7 @@ var WindowedRemoteQuery = NS.Class({
         return ( l < 0 );
     }.property().nocache(),
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];
@@ -371,18 +363,18 @@ var WindowedRemoteQuery = NS.Class({
     // There may be old ids in the "removed" array, which need to alias to the
     // current store key.
     _toStoreKey: function () {
-        var store = this.get( 'store' );
-        var Type = this.get( 'Type' );
-        var cache = {};
+        const store = this.get( 'store' );
+        const Type = this.get( 'Type' );
+        const cache = {};
         return function ( id ) {
             return cache[ id ] ||
                 ( cache[ id ] = store.getStoreKey( Type, id ) );
         };
     }.property(),
 
-    indexOfStoreKey: function ( storeKey, from, callback ) {
-        var index = this._list.indexOf( storeKey, from );
-        var id;
+    indexOfStoreKey ( storeKey, from, callback ) {
+        const index = this._list.indexOf( storeKey, from );
+        let id;
         if ( callback ) {
             // If we have a callback and haven't found it yet, we need to keep
             // searching.
@@ -401,7 +393,7 @@ var WindowedRemoteQuery = NS.Class({
                     id,
                     function () {
                         callback( this._list.indexOf( storeKey, from ) );
-                    }.bind( this )
+                    }.bind( this ),
                 ]);
                 this.get( 'source' ).fetchQuery( this );
             } else {
@@ -411,10 +403,10 @@ var WindowedRemoteQuery = NS.Class({
         return index;
     },
 
-    getStoreKeysForObjectsInRange: function ( start, end, callback ) {
-        var length = this.get( 'length' );
-        var isComplete = true;
-        var windows, windowSize, i, l;
+    getStoreKeysForObjectsInRange ( start, end, callback ) {
+        const length = this.get( 'length' );
+        let isComplete = true;
+        let windows, windowSize;
 
         if ( length !== null ) {
             if ( start < 0 ) { start = 0; }
@@ -422,8 +414,8 @@ var WindowedRemoteQuery = NS.Class({
 
             windows = this._windows;
             windowSize = this.get( 'windowSize' );
-            i = Math.floor( start / windowSize );
-            l = Math.floor( ( end - 1 ) / windowSize ) + 1;
+            let i = Math.floor( start / windowSize );
+            const l = Math.floor( ( end - 1 ) / windowSize ) + 1;
 
             for ( ; i < l; i += 1 ) {
                 if ( !( windows[i] & WINDOW_READY ) ) {
@@ -448,12 +440,12 @@ var WindowedRemoteQuery = NS.Class({
     // Fetches all ids and records in window.
     // If within trigger distance of window edge, fetches adjacent window as
     // well.
-    fetchDataForObjectAt: function ( index ) {
+    fetchDataForObjectAt ( index ) {
         // Load all headers in window containing index.
-        var windowSize = this.get( 'windowSize' );
-        var trigger = this.get( 'triggerPoint' );
-        var windowIndex = Math.floor( index / windowSize );
-        var withinWindowIndex = index % windowSize;
+        const windowSize = this.get( 'windowSize' );
+        const trigger = this.get( 'triggerPoint' );
+        const windowIndex = Math.floor( index / windowSize );
+        const withinWindowIndex = index % windowSize;
 
         this.fetchWindow( windowIndex, true );
 
@@ -485,11 +477,10 @@ var WindowedRemoteQuery = NS.Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    fetchWindow: function ( index, fetchRecords, prefetch ) {
-        var status = this.get( 'status' );
-        var windows = this._windows;
-        var doFetch = false;
-        var i, l;
+    fetchWindow ( index, fetchRecords, prefetch ) {
+        let status = this.get( 'status' );
+        const windows = this._windows;
+        let doFetch = false;
 
         if ( status & OBSOLETE ) {
             this.refresh();
@@ -499,8 +490,9 @@ var WindowedRemoteQuery = NS.Class({
             prefetch = this.get( 'prefetch' );
         }
 
-        i = Math.max( 0, index - prefetch );
-        l = Math.min( index + prefetch + 1, this.get( 'windowCount' ) || 0 );
+        let i = Math.max( 0, index - prefetch );
+        const l = Math.min( index + prefetch + 1,
+            this.get( 'windowCount' ) || 0 );
 
         for ( ; i < l; i += 1 ) {
             status = windows[i] || 0;
@@ -527,12 +519,12 @@ var WindowedRemoteQuery = NS.Class({
     },
 
     // Precondition: all ids are known
-    checkIfWindowIsFetched: function ( index ) {
-        var store = this.get( 'store' );
-        var windowSize = this.get( 'windowSize' );
-        var list = this._list;
-        var i = index * windowSize;
-        var l = Math.min( i + windowSize, this.get( 'length' ) );
+    checkIfWindowIsFetched ( index ) {
+        const store = this.get( 'store' );
+        const windowSize = this.get( 'windowSize' );
+        const list = this._list;
+        let i = index * windowSize;
+        const l = Math.min( i + windowSize, this.get( 'length' ) );
         for ( ; i < l; i += 1 ) {
             if ( store.getStatus( list[i] ) & (EMPTY|OBSOLETE) ) {
                 return false;
@@ -558,18 +550,18 @@ var WindowedRemoteQuery = NS.Class({
                     containing this index).
             length - {Number} The new length of the list.
     */
-    recalculateFetchedWindows: function ( start, length ) {
+    recalculateFetchedWindows ( start, length ) {
         if ( !start ) { start = 0; }
         if ( length === undefined ) { length = this.get( 'length' ); }
 
-        var windowSize = this.get( 'windowSize' );
-        var windows = this._windows;
-        var list = this._list;
+        const windowSize = this.get( 'windowSize' );
+        const windows = this._windows;
+        const list = this._list;
         // Start at last window index
-        var windowIndex = Math.floor( ( length - 1 ) / windowSize );
+        let windowIndex = Math.floor( ( length - 1 ) / windowSize );
         // And last list index
-        var listIndex = length - 1;
-        var target, status;
+        let listIndex = length - 1;
+        let target, status;
 
         // Convert start from list index to window index.
         start = Math.floor( start / windowSize );
@@ -606,14 +598,14 @@ var WindowedRemoteQuery = NS.Class({
 
     // ---- Updates ---
 
-    _normaliseUpdate: function ( update ) {
-        var list = this._list;
-        var removedStoreKeys = update.removed || [];
-        var removedIndexes = mapIndexes( list, removedStoreKeys );
-        var addedStoreKeys = [];
-        var addedIndexes = [];
-        var added = update.added || [];
-        var i, j, l, item, index, storeKey;
+    _normaliseUpdate ( update ) {
+        const list = this._list;
+        let removedStoreKeys = update.removed || [];
+        let removedIndexes = mapIndexes( list, removedStoreKeys );
+        const addedStoreKeys = [];
+        const addedIndexes = [];
+        const added = update.added || [];
+        let i, j, l, item, index, storeKey;
 
         sortLinkedArrays( removedIndexes, removedStoreKeys );
         for ( i = 0; removedIndexes[i] === -1; i += 1 ) {
@@ -657,23 +649,23 @@ var WindowedRemoteQuery = NS.Class({
         return update;
     },
 
-    _applyUpdate: function ( args ) {
-        var removedIndexes = args.removedIndexes;
-        var removedStoreKeys = args.removedStoreKeys;
-        var removedLength = removedStoreKeys.length;
-        var addedIndexes = args.addedIndexes;
-        var addedStoreKeys = args.addedStoreKeys;
-        var addedLength = addedStoreKeys.length;
-        var list = this._list;
-        var recalculateFetchedWindows = !!( addedLength || removedLength );
-        var oldLength = this.get( 'length' );
-        var newLength = args.total;
-        var firstChange = oldLength;
-        var i, l, index, storeKey, listLength;
+    _applyUpdate ( args ) {
+        const removedIndexes = args.removedIndexes;
+        const removedStoreKeys = args.removedStoreKeys;
+        const removedLength = removedStoreKeys.length;
+        const addedIndexes = args.addedIndexes;
+        const addedStoreKeys = args.addedStoreKeys;
+        const addedLength = addedStoreKeys.length;
+        const list = this._list;
+        let recalculateFetchedWindows = !!( addedLength || removedLength );
+        const oldLength = this.get( 'length' );
+        const newLength = args.total;
+        let firstChange = oldLength;
+        let index, storeKey, listLength;
 
         // --- Remove items from list ---
 
-        l = removedLength;
+        let l = removedLength;
         while ( l-- ) {
             index = removedIndexes[l];
             list.splice( index, 1 );
@@ -684,7 +676,7 @@ var WindowedRemoteQuery = NS.Class({
             // Truncate the list so it does not contain any gaps; anything after
             // the first gap may be incorrect as a record may have been removed
             // from that gap.
-            i = 0;
+            let i = 0;
             while ( list[i] ) { i += 1; }
             list.length = i;
             if ( i < firstChange ) { firstChange = i; }
@@ -696,7 +688,7 @@ var WindowedRemoteQuery = NS.Class({
         // (unless you set the length of the array first), so use standard
         // assignment.
         listLength = list.length;
-        for ( i = 0, l = addedLength; i < l; i += 1 ) {
+        for ( let i = 0, l = addedLength; i < l; i += 1 ) {
             index = addedIndexes[i];
             storeKey = addedStoreKeys[i];
             if ( index >= listLength ) {
@@ -750,9 +742,9 @@ var WindowedRemoteQuery = NS.Class({
         this.fire( 'query:updated', {
             query: this,
             removed: removedStoreKeys,
-            removedIndexes: removedIndexes,
+            removedIndexes,
             added: addedStoreKeys,
-            addedIndexes: addedIndexes
+            addedIndexes,
         });
 
         // --- And process any waiting data packets ---
@@ -762,12 +754,12 @@ var WindowedRemoteQuery = NS.Class({
         return this;
     },
 
-    _applyWaitingPackets: function () {
-        var didDropPackets = false;
-        var waitingPackets = this._waitingPackets;
-        var l = waitingPackets.length;
-        var state = this.get( 'state' );
-        var packet;
+    _applyWaitingPackets () {
+        let didDropPackets = false;
+        const waitingPackets = this._waitingPackets;
+        let l = waitingPackets.length;
+        const state = this.get( 'state' );
+        let packet;
 
         while ( l-- ) {
             packet = waitingPackets.shift();
@@ -786,11 +778,11 @@ var WindowedRemoteQuery = NS.Class({
         }
     },
 
-    _fetchObservedWindows: function () {
-        var ranges = NS.meta( this ).rangeObservers;
-        var length = this.get( 'length' );
-        var windowSize = this.get( 'windowSize' );
-        var observerStart, observerEnd, firstWindow, lastWindow, range, l;
+    _fetchObservedWindows () {
+        const ranges = meta( this ).rangeObservers;
+        const length = this.get( 'length' );
+        const windowSize = this.get( 'windowSize' );
+        let observerStart, observerEnd, firstWindow, lastWindow, range, l;
         if ( ranges ) {
             l = ranges.length;
             while ( l-- ) {
@@ -828,7 +820,7 @@ var WindowedRemoteQuery = NS.Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    clientDidGenerateUpdate: function ( update ) {
+    clientDidGenerateUpdate ( update ) {
         this._normaliseUpdate( update );
         // Ignore completely any ids we don't have.
         update.truncateAtFirstGap = false;
@@ -868,8 +860,8 @@ var WindowedRemoteQuery = NS.Class({
             {O.WindowedRemoteQuery} Returns self.
     */
     sourceDidFetchUpdate: ( function () {
-        var equalArrays = function ( a1, a2 ) {
-            var l = a1.length;
+        const equalArrays = function ( a1, a2 ) {
+            let l = a1.length;
             if ( a2.length !== l ) { return false; }
             while ( l-- ) {
                 if ( a1[l] !== a2[l] ) { return false; }
@@ -877,7 +869,7 @@ var WindowedRemoteQuery = NS.Class({
             return true;
         };
 
-        var updateIsEqual = function ( u1, u2 ) {
+        const updateIsEqual = function ( u1, u2 ) {
             return u1.total === u2.total &&
                 equalArrays( u1.addedIndexes, u2.addedIndexes ) &&
                 equalArrays( u1.addedStoreKeys, u2.addedStoreKeys ) &&
@@ -886,19 +878,18 @@ var WindowedRemoteQuery = NS.Class({
         };
 
         return function ( update ) {
-            var state = this.get( 'state' );
-            var status = this.get( 'status' );
-            var preemptives = this._preemptiveUpdates;
-            var l = preemptives.length;
-            var store, toStoreKey;
-            var allPreemptives, composed, i;
+            const state = this.get( 'state' );
+            const status = this.get( 'status' );
+            const preemptives = this._preemptiveUpdates;
+            const preemptivesLength = preemptives.length;
+            let allPreemptives, composed;
 
             // We've got an update, so we're no longer in the LOADING state.
             this.set( 'status', status & ~LOADING );
 
             // Check we've not already got this update.
             if ( state === update.newState ) {
-                if ( l && !( status & DIRTY ) ) {
+                if ( preemptivesLength && !( status & DIRTY ) ) {
                     allPreemptives = preemptives.reduce( composeUpdates );
                     this._applyUpdate( invertUpdate( allPreemptives ) );
                     preemptives.length = 0;
@@ -910,29 +901,28 @@ var WindowedRemoteQuery = NS.Class({
                 return this.setObsolete();
             }
             // Check the sort and filter is still the same
-            if ( !NS.isEqual( update.sort, this.get( 'sort' ) ) ||
-                    !NS.isEqual( update.filter, this.get( 'filter' ) ) ) {
+            if ( !isEqual( update.sort, this.get( 'sort' ) ) ||
+                    !isEqual( update.filter, this.get( 'filter' ) ) ) {
                 return this;
             }
             // Set new state
             this.set( 'state', update.newState );
 
             // Map ids to store keys
-            store = this.get( 'store' );
-            toStoreKey = this.get( '_toStoreKey' );
+            const toStoreKey = this.get( '_toStoreKey' );
             update.removed = update.removed.map( toStoreKey );
             update.added.forEach( function ( tuple ) {
                 tuple[1] = toStoreKey( tuple[1] );
             });
             update.upto = update.upto && toStoreKey( update.upto );
 
-            if ( !l ) {
+            if ( !preemptivesLength ) {
                 this._applyUpdate( this._normaliseUpdate( update ) );
             } else {
                 // 1. Compose all preemptives:
                 // [p1, p2, p3] -> [p1, p1 + p2, p1 + p2 + p3 ]
                 composed = [ preemptives[0] ];
-                for ( i = 1; i < l; i += 1 ) {
+                for ( let i = 1; i < preemptivesLength; i += 1 ) {
                     composed[i] = composeUpdates(
                         composed[ i - 1 ], preemptives[i] );
                 }
@@ -940,10 +930,10 @@ var WindowedRemoteQuery = NS.Class({
                 // 2. Normalise the update from the server. This is trickier
                 // than normal, as we need to determine what the indexes of the
                 // removed store keys were in the previous state.
-                var normalisedUpdate = this._normaliseUpdate({
+                const normalisedUpdate = this._normaliseUpdate({
                     added: update.added,
                     total: update.total,
-                    upto: update.upto
+                    upto: update.upto,
                 });
 
                 // Find the removedIndexes for our update. If they were removed
@@ -951,18 +941,17 @@ var WindowedRemoteQuery = NS.Class({
                 // need to search for the store key in the current list then
                 // compose the result with the preemptive in order to get the
                 // original index.
-                var removed = update.removed;
-                var _indexes = [];
-                var _storeKeys = [];
-                var removedIndexes = [];
-                var removedStoreKeys = [];
-                var addedIndexes, addedStoreKeys;
-                var list = this._list;
-                var wasSuccessfulPreemptive = false;
-                var storeKey, index;
+                const removed = update.removed;
+                let _indexes = [];
+                const _storeKeys = [];
+                const removedIndexes = [];
+                const removedStoreKeys = [];
+                const list = this._list;
+                let wasSuccessfulPreemptive = false;
+                let storeKey, index;
 
-                allPreemptives = composed[ l - 1 ];
-                for ( i = 0, l = removed.length; i < l; i += 1 ) {
+                allPreemptives = composed[ preemptivesLength - 1 ];
+                for ( let i = 0, l = removed.length; i < l; i += 1 ) {
                     storeKey = removed[i];
                     index = allPreemptives.removedStoreKeys.indexOf( storeKey );
                     if ( index > -1 ) {
@@ -980,24 +969,24 @@ var WindowedRemoteQuery = NS.Class({
                     }
                 }
                 if ( _indexes.length ) {
-                    var x = composeUpdates( allPreemptives, {
+                    const x = composeUpdates( allPreemptives, {
                         removedIndexes: _indexes,
                         removedStoreKeys: _storeKeys,
                         addedIndexes: [],
-                        addedStoreKeys: []
-                    }), ll;
+                        addedStoreKeys: [],
+                    });
                     _indexes = _storeKeys.reduce(
                     function ( indexes, storeKey ) {
                         // If the id was added in a preemptive add it won't be
                         // in the list of removed ids.
-                        var i = x.removedStoreKeys.indexOf( storeKey );
+                        const i = x.removedStoreKeys.indexOf( storeKey );
                         if ( i > -1 ) {
                             indexes.push( x.removedIndexes[i] );
                         }
                         return indexes;
                     }, [] );
-                    ll = removedIndexes.length;
-                    for ( i = 0, l = _indexes.length; i < l; i += 1 ) {
+                    let ll = removedIndexes.length;
+                    for ( let i = 0, l = _indexes.length; i < l; i += 1 ) {
                         removedIndexes[ ll ] = _indexes[i];
                         removedStoreKeys[ ll ] = _storeKeys[i];
                         ll += 1;
@@ -1010,13 +999,13 @@ var WindowedRemoteQuery = NS.Class({
                 normalisedUpdate.removedStoreKeys = removedStoreKeys;
 
                 // Now remove any idempotent operations
-                addedIndexes = normalisedUpdate.addedIndexes;
-                addedStoreKeys = normalisedUpdate.addedStoreKeys;
-                l = addedIndexes.length;
+                const addedIndexes = normalisedUpdate.addedIndexes;
+                const addedStoreKeys = normalisedUpdate.addedStoreKeys;
+                let l = addedIndexes.length;
 
                 while ( l-- ) {
                     storeKey = addedStoreKeys[l];
-                    i = removedStoreKeys.indexOf( storeKey );
+                    const i = removedStoreKeys.indexOf( storeKey );
                     if ( i > -1 &&
                             removedIndexes[i] - i + l === addedIndexes[l] ) {
                         removedIndexes.splice( i, 1 );
@@ -1040,7 +1029,7 @@ var WindowedRemoteQuery = NS.Class({
                 if ( !removedStoreKeys.length && !addedStoreKeys.length ) {
                     wasSuccessfulPreemptive = true;
                 } else {
-                    l = composed.length;
+                    let l = composed.length;
                     while ( l-- ) {
                         if ( updateIsEqual(
                                 normalisedUpdate, composed[l] ) ) {
@@ -1055,7 +1044,7 @@ var WindowedRemoteQuery = NS.Class({
                 if ( wasSuccessfulPreemptive ) {
                     // Truncate if needed
                     if ( normalisedUpdate.truncateAtFirstGap ) {
-                        i = 0;
+                        let i = 0;
                         while ( list[i] ) {
                             i += 1;
                         }
@@ -1109,30 +1098,28 @@ var WindowedRemoteQuery = NS.Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    sourceDidFetchIdList: function ( args ) {
+    sourceDidFetchIdList ( args ) {
         // User may have changed sort or filter in intervening time; presume the
         // value on the object is the right one, so if data doesn't match, just
         // ignore it.
-        if ( !NS.isEqual( args.sort, this.get( 'sort' ) ) ||
-                !NS.isEqual( args.filter, this.get( 'filter' ) ) ) {
+        if ( !isEqual( args.sort, this.get( 'sort' ) ) ||
+                !isEqual( args.filter, this.get( 'filter' ) ) ) {
             return this;
         }
 
-        var state = this.get( 'state' );
-        var status = this.get( 'status' );
-        var oldLength = this.get( 'length' ) || 0;
-        var canGetDeltaUpdates = this.get( 'canGetDeltaUpdates' );
-        var position = args.position;
-        var total = args.total;
-        var ids = args.idList;
-        var length = ids.length;
-        var list = this._list;
-        var windows = this._windows;
-        var preemptives = this._preemptiveUpdates;
-        var informAllRangeObservers = false;
-        var beginningOfWindowIsFetched = true;
-        var storeKeys, toStoreKey;
-        var end, i, l, windowSize, windowIndex, withinWindowIndex;
+        const state = this.get( 'state' );
+        const status = this.get( 'status' );
+        const oldLength = this.get( 'length' ) || 0;
+        const canGetDeltaUpdates = this.get( 'canGetDeltaUpdates' );
+        let position = args.position;
+        let total = args.total;
+        const ids = args.idList;
+        let length = ids.length;
+        const list = this._list;
+        const windows = this._windows;
+        const preemptives = this._preemptiveUpdates;
+        let informAllRangeObservers = false;
+        let beginningOfWindowIsFetched = true;
 
         // If the state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
@@ -1148,22 +1135,21 @@ var WindowedRemoteQuery = NS.Class({
         this.set( 'state', args.state );
 
         // Map ids to store keys
-        toStoreKey = this.get( '_toStoreKey' );
-        storeKeys = ids.map( toStoreKey );
+        const toStoreKey = this.get( '_toStoreKey' );
+        const storeKeys = ids.map( toStoreKey );
 
         // Need to adjust for preemptive updates
         if ( preemptives.length ) {
             // Adjust store keys, position, length
-            var allPreemptives = preemptives.reduce( composeUpdates ),
-                addedIndexes = allPreemptives.addedIndexes,
-                addedStoreKeys = allPreemptives.addedStoreKeys,
-                removedIndexes = allPreemptives.removedIndexes,
-                index;
+            const allPreemptives = preemptives.reduce( composeUpdates );
+            const addedIndexes = allPreemptives.addedIndexes;
+            const addedStoreKeys = allPreemptives.addedStoreKeys;
+            const removedIndexes = allPreemptives.removedIndexes;
 
             if ( canGetDeltaUpdates ) {
-                l = removedIndexes.length;
+                let l = removedIndexes.length;
                 while ( l-- ) {
-                    index = removedIndexes[l] - position;
+                    const index = removedIndexes[l] - position;
                     if ( index < length ) {
                         if ( index >= 0 ) {
                             storeKeys.splice( index, 1 );
@@ -1173,8 +1159,8 @@ var WindowedRemoteQuery = NS.Class({
                         }
                     }
                 }
-                for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
-                    index = addedIndexes[i] - position;
+                for ( let i = 0, l = addedIndexes.length; i < l; i += 1 ) {
+                    const index = addedIndexes[i] - position;
                     if ( index <= 0 ) {
                         position += 1;
                     } else if ( index < length ) {
@@ -1194,19 +1180,19 @@ var WindowedRemoteQuery = NS.Class({
         }
 
         // Calculate end index, as length will be destroyed later
-        end = position + length;
+        const end = position + length;
 
         // Insert store keys into list
-        for ( i = 0; i < length; i += 1 ) {
+        for ( let i = 0; i < length; i += 1 ) {
             list[ position + i ] = storeKeys[i];
         }
 
         // Have we fetched any windows?
-        windowSize = this.get( 'windowSize' );
-        windowIndex = Math.floor( position / windowSize );
-        withinWindowIndex = position % windowSize;
+        const windowSize = this.get( 'windowSize' );
+        let windowIndex = Math.floor( position / windowSize );
+        const withinWindowIndex = position % windowSize;
         if ( withinWindowIndex ) {
-            for ( i = windowIndex * windowSize, l = i + withinWindowIndex;
+            for ( let i = windowIndex * windowSize, l = i + withinWindowIndex;
                     i < l; i += 1  ) {
                 if ( !list[i] ) {
                     beginningOfWindowIsFetched = false;
@@ -1245,31 +1231,31 @@ var WindowedRemoteQuery = NS.Class({
             .fire( 'query:idsLoaded' );
     },
 
-    sourceWillFetchQuery: function () {
+    sourceWillFetchQuery () {
         // If optimise and no longer observed -> remove request
         // Move from requested -> loading
-        var windowSize = this.get( 'windowSize' );
-        var windows = this._windows;
-        var isAnExplicitIdFetch = this._isAnExplicitIdFetch;
-        var indexOfRequested = this._indexOfRequested;
-        var refreshRequested = this._refresh;
-        var recordRequests = [];
-        var idRequests = [];
-        var optimiseFetching = this.get( 'optimiseFetching' );
-        var ranges =  ( NS.meta( this ).rangeObservers || [] ).map(
+        const windowSize = this.get( 'windowSize' );
+        const windows = this._windows;
+        const isAnExplicitIdFetch = this._isAnExplicitIdFetch;
+        const indexOfRequested = this._indexOfRequested;
+        const refreshRequested = this._refresh;
+        const recordRequests = [];
+        const idRequests = [];
+        const optimiseFetching = this.get( 'optimiseFetching' );
+        const ranges =  ( meta( this ).rangeObservers || [] ).map(
             function ( observer ) {
                 return observer.range;
             });
-        var fetchAllObservedIds = refreshRequested &&
+        const fetchAllObservedIds = refreshRequested &&
                 !this.get( 'canGetDeltaUpdates' );
-        var prefetch = this.get( 'prefetch' );
-        var i, l, status, inUse, rPrev, iPrev, start;
+        const prefetch = this.get( 'prefetch' );
+        let status, inUse, rPrev, iPrev, start;
 
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];
         this._refresh = false;
 
-        for ( i = 0, l = windows.length; i < l; i += 1 ) {
+        for ( let i = 0, l = windows.length; i < l; i += 1 ) {
             status = windows[i];
             if ( status & (WINDOW_REQUESTED|WINDOW_RECORDS_REQUESTED) ) {
                 inUse = !optimiseFetching ||
@@ -1283,8 +1269,8 @@ var WindowedRemoteQuery = NS.Class({
                             rPrev.count += windowSize;
                         } else {
                             recordRequests.push( rPrev = {
-                                start: start,
-                                count: windowSize
+                                start,
+                                count: windowSize,
                             });
                         }
                         status |= WINDOW_LOADING;
@@ -1305,8 +1291,8 @@ var WindowedRemoteQuery = NS.Class({
                             iPrev.count += windowSize;
                         } else {
                             idRequests.push( iPrev = {
-                                start: start,
-                                count: windowSize
+                                start,
+                                count: windowSize,
                             });
                         }
                         status |= WINDOW_LOADING;
@@ -1321,8 +1307,8 @@ var WindowedRemoteQuery = NS.Class({
                         iPrev.count += windowSize;
                     } else {
                         idRequests.push( iPrev = {
-                            start: start,
-                            count: windowSize
+                            start,
+                            count: windowSize,
                         });
                     }
                 }
@@ -1345,11 +1331,9 @@ var WindowedRemoteQuery = NS.Class({
                     return status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING);
                 });
                 this.set( 'status', this.get( 'status' ) & ~LOADING );
-            }.bind( this )
+            }.bind( this ),
         };
-    }
+    },
 });
 
-NS.WindowedRemoteQuery = WindowedRemoteQuery;
-
-}( O ) );
+export default WindowedRemoteQuery;

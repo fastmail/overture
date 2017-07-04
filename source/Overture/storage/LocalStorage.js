@@ -1,16 +1,7 @@
-// -------------------------------------------------------------------------- \\
-// File: LocalStorage.js                                                      \\
-// Module: Storage                                                            \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global location, sessionStorage, localStorage */
 
-"use strict";
-
-( function ( NS, undefined ) {
+import { Class } from '../core/Core.js';
+import Object from '../foundation/Object.js';
 
 /**
     Module: Storage
@@ -18,9 +9,9 @@
     The Storage module provides classes for persistant storage in the client.
 */
 
-var dummyStorage = {
-    setItem: function () {},
-    getItem: function () {}
+const dummyStorage = {
+    setItem () {},
+    getItem () {},
 };
 
 /**
@@ -36,9 +27,9 @@ var dummyStorage = {
     Since data is serialised to a string for storage, only native JS types
     should be stored; class instances will not be restored correctly.
 */
-var LocalStorage = NS.Class({
+const LocalStorage = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Constructor: O.LocalStorage
@@ -49,7 +40,7 @@ var LocalStorage = NS.Class({
             sessionOnly - {Boolean} (optional) Should the values only be
                           persisted for the session?
     */
-    init: function ( name, sessionOnly ) {
+    init ( name, sessionOnly ) {
         this._name = name + '.';
         this._store = location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? sessionStorage : localStorage;
@@ -57,9 +48,9 @@ var LocalStorage = NS.Class({
         LocalStorage.parent.init.call( this );
     },
 
-    get: function ( key ) {
+    get ( key ) {
         if ( !( key in this ) ) {
-            var item;
+            let item;
             // Firefox sometimes throws and error
             try {
                 item = this._store.getItem( this._name + key );
@@ -69,15 +60,13 @@ var LocalStorage = NS.Class({
         return LocalStorage.parent.get.call( this, key );
     },
 
-    set: function ( key, value ) {
+    set ( key, value ) {
         // If we exceed the storage quota, an error will be thrown.
         try {
             this._store.setItem( this._name + key, JSON.stringify( value ) );
         } catch ( error ) {}
         return LocalStorage.parent.set.call( this, key, value );
-    }
+    },
 });
 
-NS.LocalStorage = LocalStorage;
-
-}( O ) );
+export default LocalStorage;

@@ -1,20 +1,13 @@
-// -------------------------------------------------------------------------- \\
-// File: IOQueue.js                                                           \\
-// Module: IO                                                                 \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
+import { Class } from '../core/Core.js';
+import '../core/Array.js';  // For Array#erase
+import Object from '../foundation/Object.js';
+import '../foundation/EventTarget.js';  // For Function#on
 
 /**
     Module: IO
 
     The IO module provides classes for two-way communication with a server.
 */
-
-( function ( NS ) {
 
 /**
     Class: O.IOQueue
@@ -24,13 +17,13 @@
     Manage concurrent HTTP requests.
 */
 
-var QUEUE = 1,
-    IGNORE = 2,
-    ABORT = 3;
+const QUEUE = 1;
+const IGNORE = 2;
+const ABORT = 3;
 
-var IOQueue = NS.Class({
+const IOQueue = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     /**
         Property (private): O.IOQueue#_queue
@@ -92,7 +85,7 @@ var IOQueue = NS.Class({
                     methods to override the normal methods to create an
                     anonymous subclass.
     */
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._queue = [];
         this._recent = null;
         this.activeConnections = 0;
@@ -114,7 +107,7 @@ var IOQueue = NS.Class({
         Returns:
             {O.IOQueue} Returns self.
     */
-    send: function ( request ) {
+    send ( request ) {
         if ( this.get( 'activeConnections' ) >= this.get( 'maxConnections' ) ) {
             switch ( this.get( 'link' ) ) {
                 case QUEUE:
@@ -155,7 +148,7 @@ var IOQueue = NS.Class({
         Returns:
             {O.IOQueue} Returns self.
     */
-    abort: function ( request ) {
+    abort ( request ) {
         this._queue.erase( request );
         request.abort();
         return this;
@@ -171,7 +164,7 @@ var IOQueue = NS.Class({
             transport - {Transport} The transport object.
     */
     _complete: function ( event ) {
-        var request = event.target;
+        const request = event.target;
         if ( this._recent === request ) {
             this._recent = null;
         }
@@ -183,13 +176,11 @@ var IOQueue = NS.Class({
         if ( this._queue.length ) {
             this.send( this._queue.shift() );
         }
-    }.on( 'io:end' )
+    }.on( 'io:end' ),
 });
 
 IOQueue.QUEUE = 1;
 IOQueue.IGNORE = 2;
 IOQueue.ABORT = 3;
 
-NS.IOQueue = IOQueue;
-
-}( O ) );
+export default IOQueue;

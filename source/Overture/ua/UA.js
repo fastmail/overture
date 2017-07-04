@@ -1,14 +1,7 @@
-// -------------------------------------------------------------------------- \\
-// File: UA.js                                                                \\
-// Module: UA                                                                 \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global navigator, document, window */
 
-"use strict";
+import '../foundation/Enumerable.js';  // For Array#forEach on ES3 browsers?
+// TODO(cmorgan/modulify) remove this alleged dependency, we use a ES5 baseline.
 
 /**
     Module: UA
@@ -16,72 +9,70 @@
     The UA module contains information about the platform on which the
     application is running.
 */
-( function ( NS ) {
 
-var ua = navigator.userAgent.toLowerCase(),
-    other = [ 'other', '0' ],
-    platform = /windows phone/.test( ua ) ? 'winphone' :
-        /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
-        /android|webos/.exec( ua ) ||
-        /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
-        other
-    )[0],
-    browser = (
-        /firefox|edge|msie|iemobile|opr\//.exec( ua ) ||
-        /chrome|safari|opera/.exec( ua ) ||
-        other
-    )[0],
-    version = parseFloat((
-        /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/.exec( ua ) ||
-        /chrome\/(\d+\.\d+)/.exec( ua ) ||
-        other
-    )[1].replace( '_', '.' ) ),
-    prefix = {
-        firefox: '-moz-',
-        msie: '-ms-',
-        opera: '-o-'
-    }[ browser ] || '-webkit-',
-    cssProps = {};
+const ua = navigator.userAgent.toLowerCase();
+const other = [ 'other', '0' ];
+const platform = /windows phone/.test( ua ) ? 'winphone' :
+    /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
+    /android|webos/.exec( ua ) ||
+    /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
+    other
+)[0];
+let browser = (
+    /firefox|edge|msie|iemobile|opr\//.exec( ua ) ||
+    /chrome|safari|opera/.exec( ua ) ||
+    other
+)[0];
+const version = parseFloat((
+    /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/
+        .exec( ua ) ||
+    /chrome\/(\d+\.\d+)/.exec( ua ) ||
+    other
+)[1].replace( '_', '.' ) );
+const prefix = {
+    firefox: '-moz-',
+    msie: '-ms-',
+    opera: '-o-',
+}[ browser ] || '-webkit-';
+const cssProps = {};
 
 if ( browser === 'opr/' ) {
     browser = 'opera';
 }
 
 ( function () {
-    var el = document.createElement( 'div' ),
-        style = el.style,
-        props = {
-            'box-shadow': {
-                name: 'box-shadow',
-                value: '0 0 0 #000'
-            },
-            transform: {
-                name: 'transform',
-                value: 'translateX(0)'
-            },
-            transform3d: {
-                name: 'transform',
-                value: 'translateZ(0)'
-            },
-            transition: {
-                name: 'transition',
-                value: 'all .3s'
-            },
-            perspective: {
-                name: 'perspective',
-                value: '1px'
-            },
-            'user-select': {
-                name: 'user-select',
-                value: 'none'
-            }
+    const props = {
+        'box-shadow': {
+            name: 'box-shadow',
+            value: '0 0 0 #000',
         },
-        prop, test, css;
+        transform: {
+            name: 'transform',
+            value: 'translateX(0)',
+        },
+        transform3d: {
+            name: 'transform',
+            value: 'translateZ(0)',
+        },
+        transition: {
+            name: 'transition',
+            value: 'all .3s',
+        },
+        perspective: {
+            name: 'perspective',
+            value: '1px',
+        },
+        'user-select': {
+            name: 'user-select',
+            value: 'none',
+        },
+    };
+    const el = document.createElement( 'div' );
+    const style = el.style;
 
-    for ( prop in props ) {
-        test = props[ prop ];
-        css = test.name + ':' + test.value;
-        style.cssText = css;
+    for ( const prop in props ) {
+        const test = props[ prop ];
+        const css = style.cssText = test.name + ':' + test.value;
         if ( style.length ) {
             cssProps[ prop ] = test.name;
         } else {
@@ -94,14 +85,12 @@ if ( browser === 'opr/' ) {
         cssProps.flexbox = 'flex';
     } else {
         style.cssText = 'display:' + prefix + 'flex';
-        cssProps.flexbox = el.style.length ? prefix + 'flex' : null;
+        cssProps.flexbox = style.length ? prefix + 'flex' : null;
     }
-    css = cssProps.transition;
-    [ 'delay', 'timing', 'duration', 'property' ].forEach( function ( prop ) {
+    const css = cssProps.transition;
+    [ 'delay', 'timing', 'duration', 'property' ].forEach( prop => {
         cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
     });
-    el = null;
-    style = null;
 
     // Browser bugs:
     // 1. iOS5 Sometimes fails to transform stuff.
@@ -119,7 +108,7 @@ if ( browser === 'opr/' ) {
     The O.UA namespace contains information about which browser and platform the
     application is currently running on, and which CSS properties are supported.
 */
-NS.UA = {
+export default {
     /**
         Property: O.UA.platform
         Type: String
@@ -127,7 +116,7 @@ NS.UA = {
         The operating system being run: "mac", "win", "linux", "android",
         "ios", "webos" or "other.
     */
-    platform: platform,
+    platform,
 
     /**
         Property: O.UA.isMac
@@ -186,7 +175,7 @@ NS.UA = {
         The browser being run. "chrome", "firefox", "msie", "edge", "opera",
         "safari" or "iemobile".
     */
-    browser: browser,
+    browser,
     /**
         Property: O.UA.version
         Type: Number
@@ -195,7 +184,7 @@ NS.UA = {
         minor revision as well as the major revision. For example, if the user
         is running Opera 12.5, this will be `12.5`, not just `12`.
     */
-    version: version,
+    version,
 
     /**
         Property: O.UA.chrome
@@ -266,7 +255,7 @@ NS.UA = {
         If running Opera Mini, this will be the version number running.
         Otherwise 0.
     */
-    operaMini: !!window.operamini ? version : 0,
+    operaMini: window.operamini ? version : 0,
 
     /**
         Property: O.UA.cssProps
@@ -279,7 +268,7 @@ NS.UA = {
         transform3d, transition, transition-delay, transition-duration,
         transition-property and transition-timing.
     */
-    cssProps: cssProps,
+    cssProps,
     /**
         Property: O.UA.cssPrefix
         Type: String
@@ -304,7 +293,5 @@ NS.UA = {
     */
     // TODO: Find a way of detecting this rather than hardcoding
     // For now, referencing http://caniuse.com/#feat=u2f
-    canU2F: browser === 'chrome' && version >= 41
+    canU2F: browser === 'chrome' && version >= 41,
 };
-
-}( O ) );

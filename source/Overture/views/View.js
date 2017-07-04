@@ -1,26 +1,25 @@
-// -------------------------------------------------------------------------- \\
-// File: View.js                                                              \\
-// Module: View                                                               \\
-// Requires: Core, Foundation, DOM, UA                                        \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../core/Core.js';
+import '../core/String.js';  // For String#capitalise
+import OObject from '../foundation/Object.js';
+import RunLoop from '../foundation/RunLoop.js';
+import '../foundation/ObservableProps.js';  // For Function#observes
+import '../foundation/ComputedProps.js';  // For Function#property
+import Element from '../dom/Element.js';  // Circular but it's OK
+import UA from '../ua/UA.js';
 
-"use strict";
+import ViewEventsController from './ViewEventsController.js';
 
-( function ( NS, undefined ) {
+let UID = 0;
 
-var UID = 0;
+const POSITION_SAME = 0x00;
+const POSITION_DISCONNECTED = 0x01;
+const POSITION_PRECEDING = 0x02;
+const POSITION_FOLLOWING = 0x04;
+const POSITION_CONTAINS = 0x08;
+const POSITION_CONTAINED_BY = 0x10;
 
-var POSITION_SAME = 0x00,
-    POSITION_DISCONNECTED = 0x01,
-    POSITION_PRECEDING = 0x02,
-    POSITION_FOLLOWING = 0x04,
-    POSITION_CONTAINS = 0x08,
-    POSITION_CONTAINED_BY = 0x10;
-
-var userSelectNone =
-        ( NS.UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
+const userSelectNone =
+        ( UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
             '-moz-none' : 'none';
 
 /**
@@ -51,7 +50,7 @@ var userSelectNone =
                 return 'v-Message' +
                     ( this.get( 'isImportant' ) ? ' is-important' : '' );
             }.property( 'isImportant' ),
-            draw: function ( layer, Element, el ) {
+            draw( layer, Element, el ) {
                 return [
                     el( 'h1#title', {
                         text: O.bind( this, 'title' )
@@ -66,7 +65,7 @@ var userSelectNone =
                         ])
                     ])
                 ];
-            }
+            },
         });
 
     If the view type is going to be reused, you should create a subclass
@@ -114,14 +113,12 @@ var userSelectNone =
     O.CheckboxView etc. For example:
 
         new O.View({
-            draw: function ( layer, Element, el ) {
-                var content = this.get( 'content' );
+            draw( layer, Element, el ) {
+                const content = this.get( 'content' );
                 return [
                     el( 'h1#title', {
                         className: O.bind( content, 'isDone',
-                        function ( isDone ) {
-                            return isDone ? 'done' : 'todo';
-                        }),
+                            isDone => isDone ? 'done' : 'todo' ),
                         text: O.bind( content, 'title' )
                     }),
                     el( 'p', [
@@ -166,13 +163,13 @@ var userSelectNone =
     state of the view.
 */
 
-var renderView = function ( view ) {
+const renderView = function ( view ) {
     return view.render().get( 'layer' );
 };
 
-var View = NS.Class({
+const View = Class({
 
-    Extends: NS.Object,
+    Extends: OObject,
 
     /**
         Property: O.View#parentView
@@ -199,7 +196,7 @@ var View = NS.Class({
     */
     syncOnlyInDocument: true,
 
-    init: function () {
+    init () {
         this._needsRedraw = null;
 
         this.id = 'v' + UID++;
@@ -209,8 +206,8 @@ var View = NS.Class({
 
         View.parent.init.apply( this, arguments );
 
-        var children = this.get( 'childViews' ) || ( this.childViews = [] ),
-            l = children.length;
+        const children = this.get( 'childViews' ) || ( this.childViews = [] );
+        let l = children.length;
         while ( l-- ) {
             children[l].set( 'parentView', this );
         }
@@ -219,13 +216,13 @@ var View = NS.Class({
         }
     },
 
-    destroy: function () {
+    destroy () {
         if ( this.get( 'isInDocument' ) ) {
             throw new Error( 'Cannot destroy a view in the document' );
         }
 
-        var children = this.get( 'childViews' ),
-            l = children.length;
+        const children = this.get( 'childViews' );
+        let l = children.length;
         while ( l-- ) {
             children[l].destroy();
         }
@@ -310,11 +307,11 @@ var View = NS.Class({
         The underlying DOM node for this layer.
     */
     layer: function () {
-        var layer = NS.Element.create( this.get( 'layerTag' ), {
+        const layer = Element.create( this.get( 'layerTag' ), {
             id: this.get( 'id' ),
             className: this.get( 'className' ),
             style: Object.toCSSString( this.get( 'layerStyles' ) ),
-            unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on'
+            unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on',
         });
         this.didCreateLayer( layer );
         this.redrawAriaAttributes( layer );
@@ -329,7 +326,7 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The DOM node.
     */
-    didCreateLayer: function (/* layer */) {},
+    didCreateLayer (/* layer */) {},
 
     /**
         Method: O.View#willDestroyLayer
@@ -339,7 +336,7 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The DOM node.
     */
-    willDestroyLayer: function (/* layer */) {
+    willDestroyLayer (/* layer */) {
         this.set( 'isRendered', false );
     },
 
@@ -351,7 +348,7 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    willEnterDocument: function () {
+    willEnterDocument () {
         if ( this.get( 'syncOnlyInDocument' ) ) {
             this.resumeBindings();
         }
@@ -362,9 +359,8 @@ var View = NS.Class({
 
         // Must iterate forward and not cache childViews or length.
         // Switch views may append extra child views when they are rendered.
-        var childViews = this.get( 'childViews' ),
-            i;
-        for ( i = 0; i < childViews.length; i += 1 ) {
+        const childViews = this.get( 'childViews' );
+        for ( let i = 0; i < childViews.length; i += 1 ) {
             childViews[i].willEnterDocument();
         }
 
@@ -379,21 +375,20 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    didEnterDocument: function () {
+    didEnterDocument () {
         // If change was made since willEnterDocument, will not be
         // flushed, so add redraw to render queue.
         if ( this._needsRedraw ) {
-            NS.RunLoop.queueFn( 'render', this.redraw, this );
+            RunLoop.queueFn( 'render', this.redraw, this );
         }
         this.set( 'isInDocument', true );
 
-        NS.ViewEventsController.registerActiveView( this );
+        ViewEventsController.registerActiveView( this );
 
         this.computedPropertyDidChange( 'pxLayout' );
 
-        var childViews = this.get( 'childViews' ),
-            i;
-        for ( i = 0; i < childViews.length; i += 1 ) {
+        const childViews = this.get( 'childViews' );
+        for ( let i = 0; i < childViews.length; i += 1 ) {
             childViews[i].didEnterDocument();
         }
 
@@ -408,13 +403,13 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    willLeaveDocument: function () {
+    willLeaveDocument () {
         this.set( 'isInDocument', false );
 
-        NS.ViewEventsController.deregisterActiveView( this );
+        ViewEventsController.deregisterActiveView( this );
 
-        var children = this.get( 'childViews' ),
-            l = children.length;
+        const children = this.get( 'childViews' );
+        let l = children.length;
         while ( l-- ) {
             children[l].willLeaveDocument();
         }
@@ -430,9 +425,9 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    didLeaveDocument: function () {
-        var children = this.get( 'childViews' ),
-            l = children.length;
+    didLeaveDocument () {
+        const children = this.get( 'childViews' );
+        let l = children.length;
         while ( l-- ) {
             children[l].didLeaveDocument();
         }
@@ -472,8 +467,8 @@ var View = NS.Class({
         Parameters:
             event - {Event} The DOM event object.
     */
-    handleEvent: function ( event ) {
-        NS.ViewEventsController.handleEvent( event );
+    handleEvent ( event ) {
+        ViewEventsController.handleEvent( event );
     },
 
     // --- Behaviour ---
@@ -532,10 +527,10 @@ var View = NS.Class({
         properties change.
     */
     layerStyles: function () {
-        var allowTextSelection = this.get( 'allowTextSelection' );
-        return NS.extend({
+        const allowTextSelection = this.get( 'allowTextSelection' );
+        return Object.assign({
             position: this.get( 'positioning' ),
-            userSelect: allowTextSelection ? 'text' : userSelectNone
+            userSelect: allowTextSelection ? 'text' : userSelectNone,
         }, this.get( 'layout' ) );
     }.property( 'layout', 'allowTextSelection', 'positioning' ),
 
@@ -548,7 +543,7 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    render: function () {
+    render () {
         if ( !this.get( 'isRendered' ) ) {
             // render() called just before inserting in doc, so should
             // resume bindings early to ensure initial render is correct.
@@ -556,10 +551,9 @@ var View = NS.Class({
                 this.resumeBindings();
             }
             this.set( 'isRendered', true );
-            var Element = NS.Element,
-                prevView = Element.forView( this ),
-                layer = this.get( 'layer' ),
-                children = this.draw( layer, Element, Element.create );
+            const prevView = Element.forView( this );
+            const layer = this.get( 'layer' );
+            const children = this.draw( layer, Element, Element.create );
             if ( children ) {
                 Element.appendChildren( layer, children );
             }
@@ -580,7 +574,7 @@ var View = NS.Class({
             Element - {Object} A reference to the O.Element object.
             el      - {Function} A reference to the O.Element.create function.
     */
-    draw: function (/* layer, Element, el */) {
+    draw (/* layer, Element, el */) {
         return this.get( 'childViews' ).map( renderView );
     },
 
@@ -609,8 +603,8 @@ var View = NS.Class({
     */
     propertyNeedsRedraw: function ( _, layerProperty, oldProp ) {
         if ( this.get( 'isRendered' ) ) {
-            var needsRedraw = this._needsRedraw || ( this._needsRedraw = [] ),
-                i, l;
+            const needsRedraw = this._needsRedraw || ( this._needsRedraw = [] );
+            let i, l;
             for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
                 if ( needsRedraw[i][0] === layerProperty ) {
                     return this;
@@ -618,10 +612,10 @@ var View = NS.Class({
             }
             needsRedraw[l] = [
                 layerProperty,
-                oldProp
+                oldProp,
             ];
             if ( this.get( 'isInDocument' ) ) {
-                NS.RunLoop.queueFn( 'render', this.redraw, this );
+                RunLoop.queueFn( 'render', this.redraw, this );
             }
         }
         return this;
@@ -638,9 +632,9 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    redraw: function () {
-        var needsRedraw = this._needsRedraw,
-            layer, i, l, prop;
+    redraw () {
+        const needsRedraw = this._needsRedraw;
+        let layer, i, l, prop;
         if ( needsRedraw && !this.isDestroyed && this.get( 'isRendered' ) ) {
             layer = this.get( 'layer' );
             this._needsRedraw = null;
@@ -663,12 +657,11 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The view's layer.
     */
-    redrawLayer: function ( layer ) {
-        var Element = NS.Element,
-            prevView = Element.forView( this ),
-            childViews = this.get( 'childViews' ),
-            l = childViews.length,
-            node, view;
+    redrawLayer ( layer ) {
+        const prevView = Element.forView( this );
+        const childViews = this.get( 'childViews' );
+        let l = childViews.length;
+        let node, view;
 
         while ( l-- ) {
             view = childViews[l];
@@ -693,7 +686,7 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The view's layer.
     */
-    redrawClassName: function ( layer ) {
+    redrawClassName ( layer ) {
         layer.className = this.get( 'className' );
     },
 
@@ -706,7 +699,7 @@ var View = NS.Class({
         Parameters:
             layer - {Element} The view's layer.
     */
-    redrawLayerStyles: function ( layer ) {
+    redrawLayerStyles ( layer ) {
         layer.style.cssText = Object.toCSSString( this.get( 'layerStyles' ) );
         this.didResize();
     },
@@ -722,11 +715,10 @@ var View = NS.Class({
             layer - {Element} The view's layer.
             oldAriaAttributes - {undefined|null|Object} The previous value.
     */
-    redrawAriaAttributes: function ( layer, oldAriaAttributes ) {
-        var ariaAttributes = this.get( 'ariaAttributes' );
-        var attribute, value;
+    redrawAriaAttributes ( layer, oldAriaAttributes ) {
+        const ariaAttributes = this.get( 'ariaAttributes' );
         // Step one: remove any now-excluded ARIA attributes from the layer.
-        for ( attribute in oldAriaAttributes ) {
+        for ( let attribute in oldAriaAttributes ) {
             if ( !ariaAttributes || !( attribute in ariaAttributes ) ) {
                 if ( attribute !== 'role' ) {
                     attribute = 'aria-' + attribute;
@@ -735,8 +727,8 @@ var View = NS.Class({
             }
         }
         // Step two: now set (adding or replacing) the attributes we want.
-        for ( attribute in ariaAttributes ) {
-            value = ariaAttributes[ attribute ];
+        for ( let attribute in ariaAttributes ) {
+            const value = ariaAttributes[ attribute ];
             if ( attribute !== 'role' ) {
                 attribute = 'aria-' + attribute;
             }
@@ -753,7 +745,7 @@ var View = NS.Class({
         override this method, you should normally observe the <O.View#pxLayout>
         property if you're interested in changes to the view size.
     */
-    parentViewDidResize: function () {
+    parentViewDidResize () {
         // px dimensions only have a defined value when part of the document,
         // so if we're not visible, let's just ignore the change.
         if ( this.get( 'isInDocument' ) ) {
@@ -767,10 +759,10 @@ var View = NS.Class({
         Called when the view may have resized. This will invalidate the pxLayout
         properties and inform child views.
     */
-    didResize: function () {
+    didResize () {
         this.computedPropertyDidChange( 'pxLayout' );
-        var children = this.get( 'childViews' ),
-            l = children.length;
+        const children = this.get( 'childViews' );
+        let l = children.length;
         while ( l-- ) {
             children[l].parentViewDidResize();
         }
@@ -809,7 +801,7 @@ var View = NS.Class({
             top: this.get( 'pxTop' ),
             left: this.get( 'pxLeft' ),
             width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' )
+            height: this.get( 'pxHeight' ),
         };
     }.property(),
 
@@ -824,10 +816,10 @@ var View = NS.Class({
         if ( !this.get( 'isInDocument' ) ) {
             return 0;
         }
-        var parent = this.get( 'parentView' ).get( 'layer' ),
-            parentOffsetParent = parent.offsetParent,
-            layer = this.get( 'layer' ),
-            offset = 0;
+        const parent = this.get( 'parentView' ).get( 'layer' );
+        const parentOffsetParent = parent.offsetParent;
+        let layer = this.get( 'layer' );
+        let offset = 0;
         do {
             if ( layer === parentOffsetParent ) {
                 offset -= parent.offsetTop;
@@ -849,10 +841,10 @@ var View = NS.Class({
         if ( !this.get( 'isInDocument' ) ) {
             return 0;
         }
-        var parent = this.get( 'parentView' ).get( 'layer' ),
-            parentOffsetParent = parent.offsetParent,
-            layer = this.get( 'layer' ),
-            offset = 0;
+        const parent = this.get( 'parentView' ).get( 'layer' );
+        const parentOffsetParent = parent.offsetParent;
+        let layer = this.get( 'layer' );
+        let offset = 0;
         do {
             if ( layer === parentOffsetParent ) {
                 offset -= parent.offsetLeft;
@@ -902,7 +894,7 @@ var View = NS.Class({
             x: this.get( 'scrollLeft' ),
             y: this.get( 'scrollTop' ),
             width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' )
+            height: this.get( 'pxHeight' ),
         };
     }.property( 'scrollLeft', 'scrollTop', 'pxLayout' ),
 
@@ -920,15 +912,15 @@ var View = NS.Class({
             number of pixels this view is offset from the given view, and
             'width' and 'height' properties for the dimensions of this view.
     */
-    getPositionRelativeTo: function ( view ) {
+    getPositionRelativeTo ( view ) {
         // If it's a scroll view, it may not have synced the current scroll
         // positions yet. Force this.
         if ( view.syncBackScroll ) {
             view.syncBackScroll();
         }
-        var getPosition = NS.Element.getPosition,
-            selfPosition = getPosition( this.get( 'layer' ) ),
-            viewPosition = getPosition( view.get( 'layer' ) );
+        const getPosition = Element.getPosition;
+        const selfPosition = getPosition( this.get( 'layer' ) );
+        const viewPosition = getPosition( view.get( 'layer' ) );
         selfPosition.top -= viewPosition.top - view.get( 'scrollTop' );
         selfPosition.left -= viewPosition.left - view.get( 'scrollLeft' );
         return selfPosition;
@@ -956,10 +948,10 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    insertView: function ( view, relativeTo, where ) {
-        var oldParent = view.get( 'parentView' ),
-            childViews = this.get( 'childViews' ),
-            index, isInDocument, layer, parent, before;
+    insertView ( view, relativeTo, where ) {
+        const oldParent = view.get( 'parentView' );
+        const childViews = this.get( 'childViews' );
+        let index, isInDocument, layer, parent, before;
 
         if ( oldParent === this ) {
             return this;
@@ -1038,11 +1030,11 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    replaceView: function ( view, oldView ) {
+    replaceView ( view, oldView ) {
         if ( view === oldView ) { return this; }
-        var children = this.get( 'childViews' ),
-            i = children.indexOf( oldView ),
-            oldParent = view.get( 'parentView' );
+        const children = this.get( 'childViews' );
+        const i = children.indexOf( oldView );
+        const oldParent = view.get( 'parentView' );
         if ( i === -1 ) { return this; }
 
         if ( oldParent ) { oldParent.removeView( view ); }
@@ -1050,8 +1042,8 @@ var View = NS.Class({
         children.setObjectAt( i, view );
 
         if ( this.get( 'isRendered' ) ) {
-            var isInDocument = this.get( 'isInDocument' ),
-                oldLayer = oldView.get( 'layer' );
+            const isInDocument = this.get( 'isInDocument' );
+            const oldLayer = oldView.get( 'layer' );
             view.render();
             if ( isInDocument ) {
                 oldView.willLeaveDocument();
@@ -1081,10 +1073,10 @@ var View = NS.Class({
         Returns:
             {O.View} Returns self.
     */
-    removeView: function ( view ) {
-        var children = this.get( 'childViews' ),
-            i = children.lastIndexOf( view ),
-            isInDocument, layer;
+    removeView ( view ) {
+        const children = this.get( 'childViews' );
+        const i = children.lastIndexOf( view );
+        let isInDocument, layer;
 
         if ( i === -1 ) {
             return this;
@@ -1107,8 +1099,8 @@ var View = NS.Class({
         return this;
     },
 
-    detach: function () {
-        var parentView = this.get( 'parentView' );
+    detach () {
+        const parentView = this.get( 'parentView' );
         if ( parentView ) {
             parentView.removeView( this );
         }
@@ -1141,16 +1133,16 @@ var View = NS.Class({
         Returns:
             {Number} Relative position.
     */
-    compareViewTreePosition: function ( b ) {
+    compareViewTreePosition ( b ) {
         if ( this === b ) {
             return POSITION_SAME;
         }
 
-        var a = this,
-            aParents = [a],
-            bParents = [b],
-            parent = a,
-            al, bl, children, l, view;
+        let a = this;
+        const aParents = [a];
+        const bParents = [b];
+        let parent = a;
+        let al, bl, children, l, view;
 
         while ( ( parent = parent.get( 'parentView' ) ) ) {
             if ( parent === b ) {
@@ -1206,13 +1198,13 @@ var View = NS.Class({
             {(O.View|null)} Returns the nearest parent view of the given type or
             null if none of the view's ancestors are of the required type.
     */
-    getParent: function ( Type ) {
-        var parent = this;
+    getParent ( Type ) {
+        let parent = this;
         do {
             parent = parent.get( 'parentView' );
         } while ( parent && !( parent instanceof Type ) );
         return parent || null;
-    }
+    },
 });
 
 // Expose Globals:
@@ -1221,7 +1213,7 @@ View.LAYOUT_FILL_PARENT = {
     top: 0,
     left: 0,
     bottom: 0,
-    right: 0
+    right: 0,
 };
 
 View.POSITION_SAME = POSITION_SAME;
@@ -1235,6 +1227,4 @@ View.peekId = function () {
     return 'v' + UID;
 };
 
-NS.View = View;
-
-}( O ) );
+export default View;

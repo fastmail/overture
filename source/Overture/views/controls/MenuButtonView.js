@@ -1,14 +1,11 @@
-// -------------------------------------------------------------------------- \\
-// File: MenuButtonView.js                                                    \\
-// Module: ControlViews                                                       \\
-// Requires: Core, Foundation, DOM, View, ButtonView.js                       \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js';  // For Function#property
+import '../../foundation/EventTarget.js';  // For Function#on
+import '../../foundation/ObservableProps.js';  // For Function#observes
+import PopOverView from '../panels/PopOverView.js';
+import RootView from '../RootView.js';
+import ButtonView from './ButtonView.js';
+import MenuOptionView from './MenuOptionView.js';
 
 /**
     Class: O.MenuButtonView
@@ -39,9 +36,9 @@
             })
         });
 */
-var MenuButtonView = NS.Class({
+const MenuButtonView = Class({
 
-    Extends: NS.ButtonView,
+    Extends: ButtonView,
 
     /**
         Property: O.MenuButtonView#type
@@ -93,12 +90,12 @@ var MenuButtonView = NS.Class({
         Is this a child view of an <O.MenuOptionView>?
     */
     isInMenu: function () {
-        return this.get( 'parentView' ) instanceof NS.MenuOptionView;
+        return this.get( 'parentView' ) instanceof MenuOptionView;
     }.property( 'parentView' ),
 
     // --- Accessibility ---
 
-    didCreateLayer: function ( layer ) {
+    didCreateLayer ( layer ) {
         layer.setAttribute( 'aria-expanded', 'false' );
     },
 
@@ -106,7 +103,7 @@ var MenuButtonView = NS.Class({
        return this.propertyNeedsRedraw( self, 'aria', oldValue );
     }.observes( 'isActive' ),
 
-    redrawAria: function ( layer ) {
+    redrawAria ( layer ) {
         // Set ARIA attribute to link the menu DOM element to this
         // button, so screen readers know what has opened.
         layer.setAttribute( 'aria-controls',
@@ -123,27 +120,27 @@ var MenuButtonView = NS.Class({
         Overridden to show menu associated with button, if not already visible.
         Ignores target/method/action properties.
     */
-    activate: function () {
+    activate () {
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
-            var buttonView = this,
-                popOverOptions = NS.extend({
+            const buttonView = this;
+            let popOverView, menuOptionView, rootView;
+            const popOverOptions = Object.assign({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
                     alignEdge: this.get( 'alignMenu' ),
-                    onHide: function () {
+                    onHide () {
                         buttonView.set( 'isActive', false );
                         if ( menuOptionView ) {
                             menuOptionView.removeObserverForKey(
                                 'isFocussed', popOverView, 'hide' );
                         }
-                    }
-                }, this.get( 'popOverOptions' ) ),
-                popOverView, menuOptionView, rootView;
+                    },
+                }, this.get( 'popOverOptions' ) );
             if ( this.get( 'isInMenu' ) ) {
-                popOverView = this.getParent( NS.PopOverView );
+                popOverView = this.getParent( PopOverView );
                 menuOptionView = this.get( 'parentView' );
-                rootView = buttonView.getParent( NS.RootView );
+                rootView = buttonView.getParent( RootView );
 
                 popOverOptions.alignWithView = popOverView;
                 popOverOptions.atNode = this.get( 'layer' );
@@ -182,9 +179,7 @@ var MenuButtonView = NS.Class({
             return;
         }
         this.activate();
-    }.on( 'mousedown' )
+    }.on( 'mousedown' ),
 });
 
-NS.MenuButtonView = MenuButtonView;
-
-}( O ) );
+export default MenuButtonView;

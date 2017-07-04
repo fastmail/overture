@@ -1,14 +1,8 @@
-// -------------------------------------------------------------------------- \\
-// File: AggregateSource.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Source.js                                                        \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../../core/Core.js';
+import '../../core/Array.js';  // For Array#erase
+import '../../foundation/ObservableProps.js';  // For Function#observes
 
-"use strict";
-
-( function ( NS ) {
+import Source from './Source.js';
 
 /**
     Class: O.AggregateSource
@@ -18,11 +12,11 @@
     on an aggregate source is passed around the sources it is managing until it
     finds one that can handle it.
 */
-var AggregateSource = NS.Class({
+const AggregateSource = Class({
 
-    Extends: NS.Source,
+    Extends: Source,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this.sources = [];
         AggregateSource.parent.init.call( this, mixin );
     },
@@ -44,7 +38,7 @@ var AggregateSource = NS.Class({
         Returns:
             {O.AggregateSource} Returns self.
     */
-    addSource: function ( source ) {
+    addSource ( source ) {
         source.set( 'store', this.get( 'store' ) );
         this.get( 'sources' ).push( source );
         return this;
@@ -60,38 +54,38 @@ var AggregateSource = NS.Class({
         Returns:
             {O.AggregateSource} Returns self.
     */
-    removeSource: function ( source ) {
+    removeSource ( source ) {
         this.get( 'sources' ).erase( source );
         return this;
     },
 
     storeWasSet: function () {
-        var store = this.get( 'store' );
+        const store = this.get( 'store' );
         this.sources.forEach( function ( source ) {
             source.set( 'store', store );
         });
     }.observes( 'store' ),
 
-    fetchRecord: function ( Type, id, callback ) {
+    fetchRecord ( Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchRecord( Type, id, callback );
         });
     },
 
-    fetchAllRecords: function ( Type, state, callback ) {
+    fetchAllRecords ( Type, state, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchAllRecords( Type, state, callback );
         });
     },
 
-    refreshRecord: function ( Type, id, callback ) {
+    refreshRecord ( Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.refreshRecord( Type, id, callback );
         });
     },
 
-    commitChanges: function ( changes, callback ) {
-        var waiting = 0,
+    commitChanges ( changes, callback ) {
+        let waiting = 0,
             callbackAfterAll;
         if ( callback ) {
             callbackAfterAll = function () {
@@ -108,13 +102,11 @@ var AggregateSource = NS.Class({
         return this;
     },
 
-    fetchQuery: function ( query, callback ) {
+    fetchQuery ( query, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
             return source.fetchQuery( query, callback );
         });
-    }
+    },
 });
 
-NS.AggregateSource = AggregateSource;
-
-}( O ) );
+export default AggregateSource;

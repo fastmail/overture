@@ -1,24 +1,15 @@
-// -------------------------------------------------------------------------- \\
-// File: UndoManager.js                                                       \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
 
 /**
     Class: O.UndoManager
 */
 
-var UndoManager = NS.Class({
+const UndoManager = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
-    init: function ( mixin ) {
+    init ( mixin ) {
         this._undoStack = [];
         this._redoStack = [];
 
@@ -32,7 +23,7 @@ var UndoManager = NS.Class({
         UndoManager.parent.init.call( this, mixin );
     },
 
-    _pushState: function ( stack, data ) {
+    _pushState ( stack, data ) {
         stack.push( data );
         while ( stack.length > this.maxUndoCount ) {
             stack.shift();
@@ -40,7 +31,7 @@ var UndoManager = NS.Class({
         this._isInUndoState = true;
     },
 
-    dataDidChange: function () {
+    dataDidChange () {
         this._isInUndoState = false;
         this._redoStack.length = 0;
         return this
@@ -49,9 +40,9 @@ var UndoManager = NS.Class({
             .fire( 'input' );
     },
 
-    saveUndoCheckpoint: function () {
+    saveUndoCheckpoint () {
         if ( !this._isInUndoState ) {
-            var data = this.getUndoData();
+            const data = this.getUndoData();
             if ( data !== null ) {
                 this._pushState( this._undoStack, data );
             } else {
@@ -62,13 +53,14 @@ var UndoManager = NS.Class({
         return this;
     },
 
-    undo: function () {
+    undo () {
         if ( this.get( 'canUndo' ) ) {
             if ( !this._isInUndoState ) {
                 this.saveUndoCheckpoint();
                 this.undo();
             } else {
-                var redoData = this.applyChange( this._undoStack.pop(), false );
+                const redoData = this.applyChange(
+                    this._undoStack.pop(), false );
                 if ( redoData ) {
                     this._pushState( this._redoStack, redoData );
                 }
@@ -80,7 +72,7 @@ var UndoManager = NS.Class({
         return this;
     },
 
-    redo: function () {
+    redo () {
         if ( this.get( 'canRedo' ) ) {
             this._pushState( this._undoStack,
                 this.applyChange( this._redoStack.pop(), true )
@@ -92,57 +84,9 @@ var UndoManager = NS.Class({
         return this;
     },
 
-    getUndoData: function () {},
+    getUndoData () {},
 
-    applyChange: function (/* data, isRedo */) {}
+    applyChange (/* data, isRedo */) {},
 });
 
-var StoreUndoManager = NS.Class({
-
-    Extends: UndoManager,
-
-    init: function ( mixin ) {
-        StoreUndoManager.parent.init.call( this, mixin );
-        this.get( 'store' )
-            .on( 'willCommit', this, 'saveUndoCheckpoint' )
-            .on( 'record:user:create', this, 'dataDidChange' )
-            .on( 'record:user:update', this, 'dataDidChange' )
-            .on( 'record:user:destroy', this, 'dataDidChange' );
-    },
-
-    destroy: function () {
-        this.get( 'store' )
-            .off( 'willCommit', this, 'saveUndoCheckpoint' )
-            .off( 'record:user:create', this, 'dataDidChange' )
-            .off( 'record:user:update', this, 'dataDidChange' )
-            .off( 'record:user:destroy', this, 'dataDidChange' );
-        StoreUndoManager.parent.destroy.call( this );
-    },
-
-    getUndoData: function () {
-        var store = this.get( 'store' );
-        return store.checkForChanges().get( 'hasChanges' ) ?
-            store.getInverseChanges() : null;
-    },
-
-    applyChange: function ( data ) {
-        var store = this.get( 'store' ),
-            inverse;
-        store.applyChanges( data );
-        inverse = store.getInverseChanges();
-        store.commitChanges();
-        return inverse;
-    },
-
-    undo: function () {
-        if ( this._isInUndoState || !this.get( 'store' ).get( 'hasChanges' ) ) {
-            StoreUndoManager.parent.undo.call( this );
-        }
-        return this;
-    }
-});
-
-NS.UndoManager = UndoManager;
-NS.StoreUndoManager = StoreUndoManager;
-
-}( O ) );
+export default UndoManager;

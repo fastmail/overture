@@ -51,14 +51,14 @@ INSERT_ENGLISH := $(TOOLS)/localise.js insertEnglish
 CONCATENATE := $(TOOLS)/jstools.js concatenate
 
 # Args:
-# Input files
-# Output file
-MINIFY_JS := $(TOOLS)/jstools.js compress
-
-# Args:
-# Input files
+# Input files (LESS/CSS)
 # Output file
 MINIFY_CSS := $(TOOLS)/csstools.js minify
+
+# Args:
+# Input files (CSS only)
+# Output file
+MINIFY_CSS_ONLY := $(TOOLS)/csstools.js minifyCSSOnly
 
 # Converts any LESS files to CSS and concatenates.
 # Args:
@@ -112,9 +112,9 @@ TYPE=`echo $@ | cut -d . -f 2-`; \
 HASH=`$(HASH_FILE) $@ | cut -c 1-8`; \
 COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
 if [ $$TYPE = js ]; then \
-$(UGLIFY_JS) $@ -c warnings=false -m > $$COMPRESSEDNAME || exit 1; \
+$(UGLIFY_JS) $@ -m > $$COMPRESSEDNAME || exit 1; \
 elif [ $$TYPE = css ]; then \
-$(MINIFY_CSS) $@ $$COMPRESSEDNAME || exit 1; \
+$(MINIFY_CSS_ONLY) $@ $$COMPRESSEDNAME || exit 1; \
 else \
 cp $@ $$COMPRESSEDNAME; \
 fi; \

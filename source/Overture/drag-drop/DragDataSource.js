@@ -1,14 +1,4 @@
-// -------------------------------------------------------------------------- \\
-// File: DragDataSource.js                                                    \\
-// Module: DragDrop                                                           \\
-// Requires: DragEffect.js                                                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import * as DragEffect from './DragEffect.js';
 
 /**
     Class: O.DragDataSource
@@ -16,14 +6,14 @@
     Represents a set of data for a drag operation. This can either be
     instantiated like so:
 
-        var ddsource = new O.DragDataSource({
+        const ddsource = new O.DragDataSource({
             'text/plain': 'My *data*',
             'text/html': 'My <strong>data</strong>'
         });
 
     or used as a mixin in another class.
 */
-NS.DragDataSource = {
+export default {
     /**
         Constructor: O.DragDataSource
 
@@ -31,7 +21,7 @@ NS.DragDataSource = {
             dragData - {Object} An object with data types as keys and the data
                        itself as the values.
     */
-    init: function ( dragData ) {
+    init ( dragData ) {
         if ( !dragData ) { dragData = {}; }
         this._dragData = dragData;
         this.dragDataTypes = Object.keys( dragData );
@@ -56,7 +46,7 @@ NS.DragDataSource = {
 
         The effects allowed on the data.
     */
-    allowedDragEffects: NS.DragEffect.ALL,
+    allowedDragEffects: DragEffect.ALL,
 
     /**
         Property: O.DragDataSource#dragDataTypes
@@ -76,9 +66,7 @@ NS.DragDataSource = {
         Returns:
             {*} The data of the requested type, if available.
     */
-    getDragDataOfType: function ( type/*, drag*/ ) {
+    getDragDataOfType ( type/*, drag*/ ) {
         return this._dragData[ type ];
-    }
+    },
 };
-
-}( O ) );

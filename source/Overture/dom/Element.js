@@ -1,14 +1,11 @@
-// -------------------------------------------------------------------------- \\
-// File: Element.js                                                           \\
-// Module: DOM                                                                \\
-// Requires: Core, UA                                                         \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
 /*global Element, document */
 
-"use strict";
+import '../core/String.js';  // For String#camelCase, #contains, #hyphenate
+import UA from '../ua/UA.js';
+import Binding from '../foundation/Binding.js';
+import RunLoop from '../foundation/RunLoop.js';
+import ViewEventsController from '../views/ViewEventsController.js';
+import View from '../views/View.js';  // Circular but it's OK
 
 /**
     Module: DOM
@@ -16,8 +13,6 @@
     The DOM module provides helper functions and classes for dealing with the
     DOM.
 */
-
-( function ( NS, undefined ) {
 
 /**
     Namespace: O.Element
@@ -27,7 +22,7 @@
 */
 
 // Vars used to store references to fns so they can call each other.
-var create, setStyle, setStyles, setAttributes, appendChildren, getPosition;
+let setStyle, setStyles, setAttributes, appendChildren, getPosition;
 
 /**
     Property (private): Element-directProperties
@@ -36,7 +31,7 @@ var create, setStyle, setStyles, setAttributes, appendChildren, getPosition;
     Any names that match keys in this map will be set as direct properties
     rather than as attributes on the element.
 */
-var directProperties = {
+const directProperties = {
     'class': 'className',
     className: 'className',
     defaultValue: 'defaultValue',
@@ -44,7 +39,7 @@ var directProperties = {
     html: 'innerHTML',
     text: 'textContent',
     unselectable: 'unselectable',
-    value: 'value'
+    value: 'value',
 };
 
 /**
@@ -54,7 +49,7 @@ var directProperties = {
     Any names that match keys in this map will be set as direct properties and
     have their value converted to a boolean.
 */
-var booleanProperties = {
+const booleanProperties = {
     autofocus: 1,
     checked: 1,
     defaultChecked: 1,
@@ -63,7 +58,7 @@ var booleanProperties = {
     multiple: 1,
     readOnly: 1,
     required: 1,
-    selected: 1
+    selected: 1,
 };
 
 /**
@@ -78,7 +73,7 @@ var booleanProperties = {
         {String|Boolean} The attribute or property.
 */
 Element.prototype.get = function ( key ) {
-    var prop = directProperties[ key ];
+    const prop = directProperties[ key ];
     return prop ?
         this[ prop ] :
     booleanProperties[ key ] ?
@@ -99,8 +94,7 @@ Element.prototype.get = function ( key ) {
         {Element} Returns self.
 */
 Element.prototype.set = function ( key, value ) {
-    var prop = directProperties[ key ],
-        child;
+    const prop = directProperties[ key ];
     if ( prop ) {
         this[ prop ] = ( value == null ? '' : '' + value );
     } else if ( booleanProperties[ key ] ) {
@@ -108,6 +102,7 @@ Element.prototype.set = function ( key, value ) {
     } else if ( key === 'styles' ) {
         setStyles( this, value );
     } else if ( key === 'children' ) {
+        let child;
         while ( child = this.lastChild ) {
             this.removeChild( child );
         }
@@ -126,9 +121,9 @@ Element.prototype.set = function ( key, value ) {
 
     Keys for CSS properties that take raw numbers as a value.
 */
-var cssNoPx = {
+const cssNoPx = {
     opacity: 1,
-    zIndex: 1
+    zIndex: 1,
 };
 
 /**
@@ -137,26 +132,22 @@ var cssNoPx = {
 
     Map of normal CSS names to the name used on the style object.
 */
-var styleNames = ( function () {
-    var styles = NS.UA.cssProps,
-        styleNames = {
-            'float': document.body.style.cssFloat !== undefined ?
-                'cssFloat' : 'styleFloat'
-        },
-        property, style;
-    for ( property in styles ) {
-        style = styles[ property ];
-        if ( style ) {
-            style = style.camelCase();
-            // Stupid MS, don't follow convention.
-            if ( style.slice( 0, 2 ) === 'Ms' ) {
-                style = 'm' + style.slice( 1 );
-            }
-            styleNames[ property.camelCase() ] = style;
+const styleNames = {
+    'float': document.body.style.cssFloat !== undefined ?
+        'cssFloat' : 'styleFloat',
+};
+const styles = UA.cssProps;
+for ( const property in styles ) {
+    let style = styles[ property ];
+    if ( style ) {
+        style = style.camelCase();
+        // Stupid MS, don't follow convention.
+        if ( style.slice( 0, 2 ) === 'Ms' ) {
+            style = 'm' + style.slice( 1 );
         }
+        styleNames[ property.camelCase() ] = style;
     }
-    return styleNames;
-}() );
+}
 
 /**
     Property (private): O.Element-doc
@@ -164,7 +155,7 @@ var styleNames = ( function () {
 
     A reference to the document object.
 */
-var doc = document;
+const doc = document;
 
 /**
     Property (private): O.Element-ieEventModel
@@ -172,13 +163,14 @@ var doc = document;
 
     Does the browser only support the IE event model?
 */
-var ieEventModel = !!doc.addEventListener.isFake;
+const ieEventModel = !!doc.addEventListener.isFake;
 
-var DOCUMENT_POSITION_CONTAINED_BY = 16; // Node.DOCUMENT_POSITION_CONTAINED_BY;
+// = Node.DOCUMENT_POSITION_CONTAINED_BY
+const DOCUMENT_POSITION_CONTAINED_BY = 16;
 
-var view = null;
+let view = null;
 
-NS.Element = {
+export default {
     /**
         Function: O.Element.forView
 
@@ -196,8 +188,8 @@ NS.Element = {
         Returns:
             {(O.View|null)} The previous view DOM elements were associated with.
     */
-    forView: function ( newView ) {
-        var oldView = view;
+    forView ( newView ) {
+        const oldView = view;
         view = newView;
         return oldView;
     },
@@ -228,9 +220,7 @@ NS.Element = {
         Returns:
             {Element} The new element.
     */
-    create: create = function ( tag, props, children ) {
-        var i, l, parts, name, el;
-
+    create ( tag, props, children ) {
         if ( props instanceof Array ) {
             children = props;
             props = null;
@@ -238,11 +228,12 @@ NS.Element = {
 
         // Parse id/class names out of tag.
         if ( /[#.]/.test( tag ) ) {
-            parts = tag.split( /([#.])/ );
+            const parts = tag.split( /([#.])/ );
             tag = parts[0];
             if ( !props ) { props = {}; }
-            for ( i = 1, l = parts.length; i + 1 < l; i += 2 ) {
-                name = parts[ i + 1 ];
+            const l = parts.length;
+            for ( let i = 1; i + 1 < l; i += 2 ) {
+                const name = parts[ i + 1 ];
                 if ( parts[i] === '#' ) {
                     props.id = name;
                 } else {
@@ -253,12 +244,12 @@ NS.Element = {
         }
 
         // Create element, set props and add children
-        el = doc.createElement( tag );
+        const el = doc.createElement( tag );
 
         if ( ieEventModel && ( tag === 'input' ||
                 tag === 'select' || tag === 'textarea' ) ) {
             el.addEventListener( tag === 'select' ?
-                'change' : 'propertychange', NS.ViewEventsController, false );
+                'change' : 'propertychange', ViewEventsController, false );
         }
         if ( props ) {
             setAttributes( el, props );
@@ -285,11 +276,10 @@ NS.Element = {
             {Element} The element.
     */
     setAttributes: setAttributes = function ( el, props ) {
-        var prop, value;
-        for ( prop in props ) {
-            value = props[ prop ];
+        for ( const prop in props ) {
+            const value = props[ prop ];
             if ( value !== undefined ) {
-                if ( value instanceof NS.Binding ) {
+                if ( value instanceof Binding ) {
                     value.to( prop, el ).connect();
                     if ( view ) { view.registerBinding( value ); }
                 } else {
@@ -314,14 +304,13 @@ NS.Element = {
     */
     appendChildren: appendChildren = function ( el, children ) {
         if ( !( children instanceof Array ) ) { children = [ children ]; }
-        var i, l, node;
-        for ( i = 0, l = children.length; i < l; i += 1 ) {
-            node = children[i];
+        for ( let i = 0, l = children.length; i < l; i += 1 ) {
+            let node = children[i];
             if ( node ) {
                 if ( node instanceof Array ) {
                     appendChildren( el, node );
                 }
-                else if ( node instanceof NS.View ) {
+                else if ( node instanceof View ) {
                     view.insertView( node, el );
                 } else {
                     if ( typeof node !== 'object' ) {
@@ -346,7 +335,7 @@ NS.Element = {
         Returns:
             {Boolean} Does the element have the class?
     */
-    hasClass: function ( el, className ) {
+    hasClass ( el, className ) {
         return el.className.contains( className, ' ' );
     },
 
@@ -362,8 +351,8 @@ NS.Element = {
         Returns:
             {O.Element} Returns self.
     */
-    addClass: function ( el, className ){
-        var current = el.className;
+    addClass ( el, className ){
+        const current = el.className;
         if ( !current.contains( className, ' ' ) ) {
             el.className = ( current ? current + ' ' : '' ) + className;
         }
@@ -382,9 +371,9 @@ NS.Element = {
         Returns:
             {O.Element} Returns self.
     */
-    removeClass: function ( el, className ) {
-        var current = el.className,
-            index = (' ' + current + ' ' ).indexOf( ' ' + className + ' ' );
+    removeClass ( el, className ) {
+        const current = el.className;
+        const index = (' ' + current + ' ' ).indexOf( ' ' + className + ' ' );
         if ( index > -1 ) {
             el.className = current.slice( 0, index && index - 1 ) +
                            current.slice( index + className.length );
@@ -417,14 +406,14 @@ NS.Element = {
             try {
                 el.style[ style ] = value;
             } catch ( error ) {
-                NS.RunLoop.didError({
+                RunLoop.didError({
                     name: 'Element#setStyle',
                     message: 'Invalid value set',
                     details:
                         'Style: ' + style +
                       '\nValue: ' + value +
                       '\nEl id: ' + el.id +
-                      '\nEl class: ' + el.className
+                      '\nEl class: ' + el.className,
                 });
             }
         }
@@ -444,7 +433,7 @@ NS.Element = {
             {O.Element} Returns self.
     */
     setStyles: setStyles = function ( el, styles ) {
-        for ( var prop in styles ) {
+        for ( const prop in styles ) {
             setStyle( el, prop, styles[ prop ] );
         }
         return this;
@@ -466,8 +455,8 @@ NS.Element = {
             {Boolean} Is the second element equal to or a descendent of the
             first element?
     */
-    contains: function ( el, potentialChild ) {
-        var relation = el.compareDocumentPosition( potentialChild );
+    contains ( el, potentialChild ) {
+        const relation = el.compareDocumentPosition( potentialChild );
         return !relation || !!( relation & DOCUMENT_POSITION_CONTAINED_BY );
     },
 
@@ -493,13 +482,11 @@ NS.Element = {
             {(Element|null)} The nearest matching element, or null if none
             matched.
     */
-    nearest: function ( el, test, limit ) {
+    nearest ( el, test, limit ) {
         if ( !limit ) { limit = el.ownerDocument.documentElement; }
         if ( typeof test === 'string' ) {
-            var nodeName = test.toUpperCase();
-            test = function ( el ) {
-                return ( el.nodeName === nodeName );
-            };
+            const nodeName = test.toUpperCase();
+            test = el => el.nodeName === nodeName;
         }
         while ( el && !test( el ) ) {
             if ( !el || el === limit ) {
@@ -534,13 +521,13 @@ NS.Element = {
             - height: `Number`
     */
     getPosition: getPosition = function ( el, ancestor ) {
-        var rect = el.getBoundingClientRect(),
-            position = {
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height
-            };
+        let rect = el.getBoundingClientRect();
+        const position = {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+        };
         if ( ancestor ) {
             rect = getPosition( ancestor );
             if ( ancestor.nodeName === 'BODY' ) {
@@ -552,7 +539,7 @@ NS.Element = {
             position.left -= rect.left - ancestor.scrollLeft;
         }
         return position;
-    }
+    },
 };
 
 /**
@@ -569,16 +556,15 @@ NS.Element = {
         {String} The CSS string.
 */
 Object.toCSSString = function ( object ) {
-    var result = '',
-        key, value;
-    for ( key in object ) {
-        value = object[ key ];
+    let result = '';
+    for ( let key in object ) {
+        let value = object[ key ];
         if ( value !== undefined ) {
             if ( typeof value === 'number' && !cssNoPx[ key ] ) {
                 value += 'px';
             }
             key = key.hyphenate();
-            key = NS.UA.cssProps[ key ] || key;
+            key = UA.cssProps[ key ] || key;
             result += key;
             result += ':';
             result += value;
@@ -588,4 +574,5 @@ Object.toCSSString = function ( object ) {
     return result;
 };
 
-}( O ) );
+// TODO(cmorgan/modulify): do something about these exports: Object.toCSSString
+// Element#get, Element#set

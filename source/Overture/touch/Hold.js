@@ -1,40 +1,35 @@
-// -------------------------------------------------------------------------- \\
-// File: Hold.js                                                              \\
-// Module: Touch                                                              \\
-// Requires: Gesture.js, Tap.js                                               \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class } from '../core/Core.js';
+import Event from '../foundation/Event.js';
+import RunLoop from '../foundation/RunLoop.js';
+import ViewEventsController from '../views/ViewEventsController.js';
+import Tap from './Tap.js';
+import Gesture from './Gesture.js';
 
-"use strict";
+const HoldEvent = Class({
 
-( function ( NS ) {
+    Extends: Event,
 
-var HoldEvent = NS.Class({
-
-    Extends: NS.Event,
-
-    init: function ( touch ) {
+    init ( touch ) {
         HoldEvent.parent.init.call( this, 'hold', touch.target );
         this.touch = touch;
-    }
+    },
 });
 
-var fireHoldEvent = function () {
+const fireHoldEvent = function () {
     if ( !this._ignore ) {
-        NS.ViewEventsController.handleEvent(
+        ViewEventsController.handleEvent(
             new HoldEvent( this.touch )
         );
     }
 };
 
-var TrackedTouch = function ( touch ) {
+const TrackedTouch = function ( touch ) {
     this.touch = touch;
     this.x = touch.screenX;
     this.y = touch.screenY;
     this.target = touch.target;
     this._ignore = false;
-    NS.RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
+    RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
 };
 
 TrackedTouch.prototype.done = function () {
@@ -46,42 +41,39 @@ TrackedTouch.prototype.done = function () {
     * Lasts at least 750ms.
     * Moves less than 5px from the initial touch point.
 */
-NS.Hold = new NS.Gesture({
+export default new Gesture({
 
     _tracking: {},
 
-    cancel: NS.Tap.cancel,
+    cancel: Tap.cancel,
 
-    start: function ( event ) {
-        var touches = event.changedTouches,
-            tracking = this._tracking,
-            i, l, touch, id;
-        for ( i = 0, l = touches.length; i < l; i += 1 ) {
-            touch = touches[i];
-            id = touch.identifier;
+    start ( event ) {
+        const touches = event.changedTouches;
+        const tracking = this._tracking;
+        const l = touches.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const touch = touches[i];
+            const id = touch.identifier;
             if ( !tracking[ id ] ) {
                 tracking[ id ] = new TrackedTouch( touch );
             }
         }
     },
 
-    move: NS.Tap.move,
+    move: Tap.move,
 
-    end: function ( event ) {
-        var touches = event.changedTouches,
-            tracking = this._tracking,
-            i, l, touch, id, trackedTouch;
-        for ( i = 0, l = touches.length; i < l; i += 1 ) {
-            touch = touches[i];
-            id = touch.identifier;
-            trackedTouch = tracking[ id ];
+    end ( event ) {
+        const touches = event.changedTouches;
+        const tracking = this._tracking;
+        const l = touches.length;
+        for ( let i = 0; i < l; i += 1 ) {
+            const touch = touches[i];
+            const id = touch.identifier;
+            const trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
                 trackedTouch.done();
                 delete tracking[ id ];
             }
         }
-    }
+    },
 });
-
-}( O ) );
-

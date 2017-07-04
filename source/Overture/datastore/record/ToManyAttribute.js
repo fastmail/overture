@@ -1,49 +1,40 @@
-// -------------------------------------------------------------------------- \\
-// File: ToManyAttribute.js                                                   \\
-// Module: DataStore                                                          \\
-// Requires: Record.js, RecordAttribute.js                                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+import { Class, meta } from '../../core/Core.js';
+import '../../core/Array.js';  // For Array#erase
+import ObservableArray from '../../foundation/ObservableArray.js';
 
-"use strict";
+import RecordAttribute from './RecordAttribute.js';
+import Record from './Record.js';
 
-( function ( NS ) {
-
-var slice = Array.prototype.slice;
-var meta = NS.meta;
-var Record = NS.Record;
+const slice = Array.prototype.slice;
 
 // ---
 
-Record.implement({
-    /**
-        Method: O.Record#notifyRecordArray
+/**
+    Method: O.Record#notifyRecordArray
 
-        Parameters:
-            _       - Unused
-            propKey - The propKey that changed on the
+    Parameters:
+        _       - Unused
+        propKey - The propKey that changed on the
 
-        If true, any changes to the record will not be committed to the source.
-    */
-    notifyRecordArray: function ( _, propKey ) {
-        var recordArray = this[ '_' + propKey + 'RecordArray' ];
-        var isInCache = propKey in meta( this ).cache;
-        // If it's already been updated due to a fetch to the property,
-        // the array will be in the cache. Don't waste time calling again.
-        if ( recordArray && !isInCache ) {
-            recordArray.updateListFromRecord();
-        }
+    If true, any changes to the record will not be committed to the source.
+*/
+Record.prototype.notifyRecordArray = function ( _, propKey ) {
+    const recordArray = this[ '_' + propKey + 'RecordArray' ];
+    const isInCache = propKey in meta( this ).cache;
+    // If it's already been updated due to a fetch to the property,
+    // the array will be in the cache. Don't waste time calling again.
+    if ( recordArray && !isInCache ) {
+        recordArray.updateListFromRecord();
     }
-});
+};
 
 // ---
 
-var RecordArray = NS.Class({
+const RecordArray = Class({
 
-    Extends: NS.ObservableArray,
+    Extends: ObservableArray,
 
-    init: function ( record, propKey, value, Type ) {
+    init ( record, propKey, value, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;
@@ -54,41 +45,41 @@ var RecordArray = NS.Class({
         RecordArray.parent.init.call( this, value && value.slice() );
     },
 
-    toJSON: function () {
+    toJSON () {
         return this._array.slice();
     },
 
-    updateListFromRecord: function () {
+    updateListFromRecord () {
         if ( !this._updatingStore ) {
-            var record = this.get( 'record' ),
-                propKey = this.get( 'propKey' ),
-                list = record[ propKey ].getRaw( record, propKey );
+            const record = this.get( 'record' );
+            const propKey = this.get( 'propKey' );
+            const list = record[ propKey ].getRaw( record, propKey );
 
             this.set( '[]', list ? list.slice() : [] );
         }
     },
 
-    getObjectAt: function ( index ) {
-        var storeKey = RecordArray.parent.getObjectAt.call( this, index );
+    getObjectAt ( index ) {
+        const storeKey = RecordArray.parent.getObjectAt.call( this, index );
         return storeKey ?
             this.get( 'store' )
                 .getRecord( this.get( 'Type' ), '#' + storeKey ) :
             null;
     },
 
-    setObjectAt: function ( index, value ) {
+    setObjectAt ( index, value ) {
         this.replaceObjectsAt( index, 1, [ value ] );
         return this;
     },
 
-    replaceObjectsAt: function ( index, numberRemoved, newItems ) {
+    replaceObjectsAt ( index, numberRemoved, newItems ) {
         newItems = newItems ? slice.call( newItems ) : [];
 
-        var record = this.get( 'record' ),
-            propKey = this.get( 'propKey' ),
-            Type = this.get( 'Type' ),
-            store = this.get( 'store' ),
-            oldItems = RecordArray.parent.replaceObjectsAt.call(
+        const record = this.get( 'record' );
+        const propKey = this.get( 'propKey' );
+        const Type = this.get( 'Type' );
+        const store = this.get( 'store' );
+        const oldItems = RecordArray.parent.replaceObjectsAt.call(
                 this, index, numberRemoved, newItems.map( function ( record ) {
                     return record.get( 'storeKey' );
                 })
@@ -103,8 +94,8 @@ var RecordArray = NS.Class({
         return oldItems;
     },
 
-    add: function ( record ) {
-        var index = this._array.indexOf( record.get( 'storeKey' ) );
+    add ( record ) {
+        const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index === -1 ) {
             this.replaceObjectsAt(
                 this.get( 'length' ), 0, [ record ] );
@@ -112,32 +103,32 @@ var RecordArray = NS.Class({
         return this;
     },
 
-    remove: function ( record ) {
-        var index = this._array.indexOf( record.get( 'storeKey' ) );
+    remove ( record ) {
+        const index = this._array.indexOf( record.get( 'storeKey' ) );
         if ( index > -1 ) {
             this.replaceObjectsAt( index, 1 );
         }
         return this;
-    }
+    },
 });
 
 // ---
 
 
-var notifyRecordArrayObserver = {
+const notifyRecordArrayObserver = {
     object: null,
-    method: 'notifyRecordArray'
+    method: 'notifyRecordArray',
 };
 
-var ToManyAttribute = NS.Class({
+const ToManyAttribute = Class({
 
-    Extends: NS.RecordAttribute,
+    Extends: RecordAttribute,
 
-    __setupProperty__: function ( metadata, propKey, object ) {
+    __setupProperty__ ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__setupProperty__.call( this, metadata, propKey, object );
-        var observers = metadata.observers;
-        var keyObservers = observers[ propKey ];
+        const observers = metadata.observers;
+        let keyObservers = observers[ propKey ];
         if ( !observers.hasOwnProperty( propKey ) ) {
             keyObservers = observers[ propKey ] = keyObservers ?
                 keyObservers.slice() : [];
@@ -145,11 +136,11 @@ var ToManyAttribute = NS.Class({
         keyObservers.push( notifyRecordArrayObserver );
     },
 
-    __teardownProperty__: function ( metadata, propKey, object ) {
+    __teardownProperty__ ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__teardownProperty__.call( this, metadata, propKey, object );
-        var observers = metadata.observers;
-        var keyObservers = observers[ propKey ];
+        const observers = metadata.observers;
+        let keyObservers = observers[ propKey ];
         if ( !observers.hasOwnProperty( propKey ) ) {
             keyObservers = observers[ propKey ] = keyObservers.slice();
         }
@@ -159,9 +150,9 @@ var ToManyAttribute = NS.Class({
     Type: Array,
     recordType: null,
 
-    call: function ( record, _, propKey ) {
-        var arrayKey = '_' + propKey + 'RecordArray';
-        var recordArray = record[ arrayKey ];
+    call ( record, _, propKey ) {
+        const arrayKey = '_' + propKey + 'RecordArray';
+        let recordArray = record[ arrayKey ];
         // Race condition: another observer may fetch this before
         // our notifyRecordArray method has been called.
         if ( recordArray ) {
@@ -179,21 +170,19 @@ var ToManyAttribute = NS.Class({
         return recordArray;
     },
 
-    getRaw: function ( record, propKey ) {
+    getRaw ( record, propKey ) {
         return ToManyAttribute.parent.call.call(
             this, record, undefined, propKey );
     },
 
-    setRaw: function ( record, propKey, data ) {
+    setRaw ( record, propKey, data ) {
         return ToManyAttribute.parent.call.call(
             this, record, data, propKey );
-    }
+    },
 });
 
-NS.ToManyAttribute = ToManyAttribute;
+export default ToManyAttribute;
 
-NS.Record.toMany = function ( mixin ) {
+Record.toMany = function ( mixin ) {
     return new ToManyAttribute( mixin );
 };
-
-}( O ) );

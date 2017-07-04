@@ -1,36 +1,32 @@
-// -------------------------------------------------------------------------- \\
-// File: RunLoop.js                                                           \\
-// Module: Foundation                                                         \\
-// Requires: Core, Heap.js                                                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
+/*global setTimeout, clearTimeout, console */
 
-/*global setTimeout, clearTimeout, setImmediate, console */
+import Heap from './Heap.js';
 
-"use strict";
+const win = window;
 
-( function ( NS, win, setImmediate ) {
+const setImmediate = window.setImmediate || function ( fn ) {
+        return setTimeout( fn, 0 );
+    };
 
-var requestAnimFrame =
+const requestAnimFrame =
     win.requestAnimationFrame       ||
     win.oRequestAnimationFrame      ||
     win.webkitRequestAnimationFrame ||
     win.mozRequestAnimationFrame    ||
     win.msRequestAnimationFrame     ||
     ( function () {
-        var lastTime = 0;
+        let lastTime = 0;
         return function ( callback ) {
-            var time = Date.now(),
-                timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
-                lastTime = time;
+            const time = Date.now();
+            const timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
+            lastTime = time;
             win.setTimeout( function () {
                 callback( time + timeToNextCall );
             }, timeToNextCall );
         };
     }() );
 
-var Timeout = function ( time, period, fn, bind ) {
+const Timeout = function ( time, period, fn, bind ) {
     this.time = time;
     this.period = period;
     this.fn = fn;
@@ -45,12 +41,16 @@ var Timeout = function ( time, period, fn, bind ) {
     To use, wrap the entry point functions in a call to <O.RunLoop.invoke>.
 */
 
-var RunLoop = {
+// eslint-disable-next-line prefer-const
+let nextLoop, processTimeouts, nextFrame;
+// (Because of a false positive. TODO(cmorgan): report this as a bug in eslint.)
+
+const RunLoop = {
 
     mayRedraw: false,
 
     /**
-        Property (private): NS.RunLoop._queueOrder
+        Property (private): O.RunLoop._queueOrder
         Type: String[]
 
         The order in which to flush the queues.
@@ -58,7 +58,7 @@ var RunLoop = {
     _queueOrder: [ 'before', 'bindings', 'middle', 'render', 'after' ],
 
     /**
-        Property (private): NS.RunLoop._queues
+        Property (private): O.RunLoop._queues
         Type: Object
 
         Collection of queues. Each queue contains [fn, bind] tuples to call at
@@ -71,21 +71,21 @@ var RunLoop = {
         render: [],
         after: [],
         nextLoop: [],
-        nextFrame: []
+        nextFrame: [],
     },
 
     /**
-        Property (private): NS.RunLoop._timeouts
+        Property (private): O.RunLoop._timeouts
         Type: O.Heap
 
         A priority queue of timeouts.
     */
-    _timeouts: new NS.Heap( function ( a, b ) {
+    _timeouts: new Heap( function ( a, b ) {
         return a.time - b.time;
     }),
 
     /**
-        Property (private): NS.RunLoop._nextTimeout
+        Property (private): O.RunLoop._nextTimeout
         Type: Number
 
         Epoch time that the next browser timeout is scheduled for.
@@ -93,7 +93,7 @@ var RunLoop = {
     _nextTimeout: 0,
 
     /**
-        Property (private): NS.RunLoop._timer
+        Property (private): O.RunLoop._timer
         Type: Number
 
         The browser timer id (response from setTimeout), which you need if
@@ -102,7 +102,7 @@ var RunLoop = {
     _timer: null,
 
     /**
-        Property (private): NS.RunLoop._depth
+        Property (private): O.RunLoop._depth
         Type: Number
 
         Number of calls to <O.RunLoop.invoke> currently in stack.
@@ -121,18 +121,17 @@ var RunLoop = {
         Returns:
             {Boolean} Were any functions actually invoked?
     */
-    flushQueue: function ( queue ) {
-        var toInvoke = this._queues[ queue ],
-            l = toInvoke.length,
-            i, tuple, fn, bind;
+    flushQueue ( queue ) {
+        const toInvoke = this._queues[ queue ];
+        const l = toInvoke.length;
 
         if ( l ) {
             this._queues[ queue ] = [];
 
-            for ( i = 0; i < l; i += 1 ) {
-                tuple = toInvoke[i];
-                fn = tuple[0];
-                bind = tuple[1];
+            for ( let i = 0; i < l; i += 1 ) {
+                const tuple = toInvoke[i];
+                const fn = tuple[0];
+                const bind = tuple[1];
                 try {
                     if ( bind ) {
                         fn.call( bind );
@@ -162,9 +161,10 @@ var RunLoop = {
         Returns:
             {Boolean} Were any functions actually invoked?
     */
-    flushAllQueues: function () {
-        var order = this._queueOrder,
-            i = 0, l = order.length;
+    flushAllQueues () {
+        const order = this._queueOrder;
+        const l = order.length;
+        let i = 0;
         while ( i < l ) {
             // Render waits for next frame, except if in bg, since
             // animation frames don't fire while in the background
@@ -195,10 +195,9 @@ var RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    queueFn: function ( queue, fn, bind, allowDups ) {
-        var toInvoke = this._queues[ queue ],
-            l = toInvoke.length,
-            i, tuple;
+    queueFn ( queue, fn, bind, allowDups ) {
+        const toInvoke = this._queues[ queue ];
+        const l = toInvoke.length;
         // Log error here, as the stack trace is useless inside flushQueue.
         if ( !fn ) {
             try {
@@ -208,8 +207,8 @@ var RunLoop = {
             }
         } else {
             if ( !allowDups ) {
-                for ( i = 0; i < l; i += 1 ) {
-                    tuple = toInvoke[i];
+                for ( let i = 0; i < l; i += 1 ) {
+                    const tuple = toInvoke[i];
                     if ( tuple[0] === fn && tuple[1] === bind ) {
                         return this;
                     }
@@ -235,7 +234,7 @@ var RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    invoke: function ( fn, bind, args ) {
+    invoke ( fn, bind, args ) {
         this._depth += 1;
         try {
             // Avoiding apply/call when not needed is faster
@@ -273,8 +272,8 @@ var RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    invokeInNextEventLoop: function ( fn, bind ) {
-        var nextLoopQueue = this._queues.nextLoop;
+    invokeInNextEventLoop ( fn, bind ) {
+        const nextLoopQueue = this._queues.nextLoop;
         if ( !nextLoopQueue.length ) {
             setImmediate( nextLoop );
         }
@@ -295,8 +294,8 @@ var RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    invokeInNextFrame: function ( fn, bind ) {
-        var nextFrameQueue = this._queues.nextFrame;
+    invokeInNextFrame ( fn, bind ) {
+        const nextFrameQueue = this._queues.nextFrame;
         if ( !nextFrameQueue.length ) {
             requestAnimFrame( nextFrame );
         }
@@ -322,8 +321,8 @@ var RunLoop = {
             <O.RunLoop.cancel> method before the function is invoked, in order
             to cancel the scheduled invocation.
     */
-    invokeAfterDelay: function ( fn, delay, bind ) {
-        var timeout = new Timeout( Date.now() + delay, 0, fn, bind );
+    invokeAfterDelay ( fn, delay, bind ) {
+        const timeout = new Timeout( Date.now() + delay, 0, fn, bind );
         this._timeouts.push( timeout );
         this._scheduleTimeout();
         return timeout;
@@ -346,26 +345,25 @@ var RunLoop = {
             <O.RunLoop.cancel> method to cancel all future invocations scheduled
             by this call.
     */
-    invokePeriodically: function ( fn, period, bind ) {
-        var timeout = new Timeout( Date.now() + period, period, fn, bind );
+    invokePeriodically ( fn, period, bind ) {
+        const timeout = new Timeout( Date.now() + period, period, fn, bind );
         this._timeouts.push( timeout );
         this._scheduleTimeout();
         return timeout;
     },
 
     /**
-        Method (private): NS.RunLoop._scheduleTimeout
+        Method (private): O.RunLoop._scheduleTimeout
 
         Sets the browser timer if necessary to trigger at the time of the next
         timeout in the priority queue.
     */
-    _scheduleTimeout: function () {
-        var timeout = this._timeouts.peek(),
-            time = timeout ? timeout.time : 0,
-            delay;
+    _scheduleTimeout () {
+        const timeout = this._timeouts.peek();
+        const time = timeout ? timeout.time : 0;
         if ( time && time !== this._nextTimeout ) {
             clearTimeout( this._timer );
-            delay = time - Date.now();
+            const delay = time - Date.now();
             if ( delay > 0 ) {
                 this._timer = setTimeout( processTimeouts, time - Date.now() );
                 this._nextTimeout = time;
@@ -376,7 +374,7 @@ var RunLoop = {
     },
 
     /**
-        Method: NS.RunLoop.processTimeouts
+        Method: O.RunLoop.processTimeouts
 
         Invokes all functions in the timeout queue that were scheduled to
         trigger on or before "now".
@@ -384,11 +382,11 @@ var RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    processTimeouts: function () {
-        var timeouts = this._timeouts,
-            timeout, period;
+    processTimeouts () {
+        const timeouts = this._timeouts;
         while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
-            timeout = timeouts.pop();
+            const timeout = timeouts.pop();
+            let period;
             if ( period = timeout.period ) {
                 timeout.time = Date.now() + period;
                 timeouts.push( timeout );
@@ -414,7 +412,7 @@ var RunLoop = {
         Returns:
             {O.RunLoop} Returns self.
     */
-    cancel: function ( token ) {
+    cancel ( token ) {
         this._timeouts.remove( token );
         return this;
     },
@@ -429,14 +427,16 @@ var RunLoop = {
         Parameters:
             error - {Error} The error object.
     */
-    didError: function ( error ) {
-        console.log( error.name, error.message, error.stack );
-    }
+    didError ( error ) {
+        if ( window.console ) {
+            console.log( error.name, error.message, error.stack );
+        }
+    },
 };
 
-NS.RunLoop = RunLoop;
+export default RunLoop;
 
-Function.implement({
+Object.assign( Function.prototype, {
     /**
         Method: Function#queue
 
@@ -448,8 +448,8 @@ Function.implement({
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.queueFn>.
     */
-    queue: function ( queue ) {
-        var fn = this;
+    queue ( queue ) {
+        const fn = this;
         return function () {
             RunLoop.queueFn( queue, fn, this );
             return this;
@@ -463,8 +463,8 @@ Function.implement({
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextEventLoop>.
     */
-    nextLoop: function () {
-        var fn = this;
+    nextLoop () {
+        const fn = this;
         return function () {
             RunLoop.invokeInNextEventLoop( fn, this );
             return this;
@@ -478,8 +478,8 @@ Function.implement({
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextFrame>.
     */
-    nextFrame: function () {
-        var fn = this;
+    nextFrame () {
+        const fn = this;
         return function () {
             RunLoop.invokeInNextFrame( fn, this );
             return this;
@@ -494,29 +494,25 @@ Function.implement({
         Returns:
             {Function} Returns wrapped function.
     */
-    invokeInRunLoop: function () {
-        var fn = this;
+    invokeInRunLoop () {
+        const fn = this;
         return function () {
             RunLoop.invoke( fn, this, arguments );
         };
-    }
+    },
 });
 
-var nextLoop = RunLoop.invoke.bind( RunLoop,
+nextLoop = RunLoop.invoke.bind( RunLoop,
     RunLoop.flushQueue, RunLoop, [ 'nextLoop' ]
 );
-var processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
+processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
 
-var nextFrame = function ( time ) {
+nextFrame = function ( time ) {
     RunLoop.frameStartTime = time;
     RunLoop.mayRedraw = true;
     RunLoop.invoke( RunLoop.flushQueue, RunLoop, [ 'nextFrame' ] );
     RunLoop.mayRedraw = false;
 };
 
-}( O, window, typeof setImmediate !== 'undefined' ?
-    setImmediate :
-    function ( fn ) {
-        return setTimeout( fn, 0 );
-    }
-) );
+// TODO(cmorgan/modulify): do something about these exports: Function#queue,
+// Function#nextLoop, Function#nextFrame, Function#invokeInRunLoop

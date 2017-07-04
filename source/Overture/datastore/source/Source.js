@@ -1,14 +1,5 @@
-// -------------------------------------------------------------------------- \\
-// File: Source.js                                                            \\
-// Module: DataStore                                                          \\
-// Requires: Core, Foundation                                                 \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import { Class } from '../../core/Core.js';
+import Object from '../../foundation/Object.js';
 
 /**
     Class: O.Source
@@ -18,9 +9,9 @@
     A source provides persistent storage for a set of records. Data is fetched
     and commited back to here by an instance of <O.Store>.
 */
-var Source = NS.Class({
+const Source = Class({
 
-    Extends: NS.Object,
+    Extends: Object,
 
     // ---
 
@@ -38,7 +29,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchRecord: function (/* Type, id, callback */) {
+    fetchRecord (/* Type, id, callback */) {
         return false;
     },
 
@@ -58,7 +49,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords: function (/* Type, state, callback */) {
+    fetchAllRecords (/* Type, state, callback */) {
         return false;
     },
 
@@ -77,7 +68,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
-    refreshRecord: function ( Type, id, callback ) {
+    refreshRecord ( Type, id, callback ) {
         return this.fetchRecord( Type, id, callback );
     },
 
@@ -92,7 +83,7 @@ var Source = NS.Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchQuery: function (/* query, callback */) {
+    fetchQuery (/* query, callback */) {
         return false;
     },
 
@@ -147,11 +138,9 @@ var Source = NS.Class({
             callback will only be called if the source is handling at least one
             of the types being committed.
     */
-    commitChanges: function (/* changes, callback */) {
+    commitChanges (/* changes, callback */) {
         return false;
-    }
+    },
 });
 
-NS.Source = Source;
-
-}( O ) );
+export default Source;

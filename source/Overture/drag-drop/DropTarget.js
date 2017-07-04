@@ -1,14 +1,4 @@
-// -------------------------------------------------------------------------- \\
-// File: DropTarget.js                                                        \\
-// Module: DragDrop                                                           \\
-// Requires: DragEffect.js                                                    \\
-// Author: Neil Jenkins                                                       \\
-// License: © 2010-2015 FastMail Pty Ltd. MIT Licensed.                       \\
-// -------------------------------------------------------------------------- \\
-
-"use strict";
-
-( function ( NS ) {
+import * as DragEffect from './DragEffect.js';
 
 /**
     Mixin: O.DropTarget
@@ -16,7 +6,7 @@
     The DropTarget mixin should be applied to views you wish to make drop
     targets.
 */
-NS.DropTarget = {
+export default {
     /**
         Property: O.DropTarget#isDropTarget
         Type: Boolean
@@ -41,7 +31,7 @@ NS.DropTarget = {
 
         The effect that will be applied to the data if dropped.
     */
-    dropEffect: NS.DragEffect.MOVE,
+    dropEffect: DragEffect.MOVE,
 
     /**
         Property: O.DropTarget#dropAcceptedDataTypes
@@ -71,10 +61,10 @@ NS.DropTarget = {
         Returns:
             {Boolean} Can the drag be dropped here?
     */
-    willAcceptDrag: function ( drag ) {
-        var acceptedTypes = this.get( 'dropAcceptedDataTypes' ),
-            availableTypes = drag.get( 'dataTypes' ),
-            l = availableTypes.length;
+    willAcceptDrag ( drag ) {
+        const acceptedTypes = this.get( 'dropAcceptedDataTypes' );
+        const availableTypes = drag.get( 'dataTypes' );
+        let l = availableTypes.length;
         while ( l-- ) {
             if ( acceptedTypes[ availableTypes[l] ] ) {
                 return true;
@@ -95,7 +85,7 @@ NS.DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropEntered: function ( drag ) {
+    dropEntered ( drag ) {
         drag.set( 'dropEffect', this.get( 'dropEffect' ) );
         this.set( 'hasDragOver', true );
     },
@@ -109,7 +99,7 @@ NS.DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropMoved: function (/* drag */) {},
+    dropMoved (/* drag */) {},
 
     /**
         Method: O.DropTarget#dropExited
@@ -122,8 +112,8 @@ NS.DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropExited: function ( drag ) {
-        drag.set( 'dropEffect', NS.DragEffect.DEFAULT );
+    dropExited ( drag ) {
+        drag.set( 'dropEffect', DragEffect.DEFAULT );
         this.set( 'hasDragOver', false );
     },
 
@@ -135,7 +125,5 @@ NS.DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    drop: function (/* drag */) {}
+    drop (/* drag */) {},
 };
-
-}( O ) );
