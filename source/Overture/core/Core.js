@@ -7,7 +7,7 @@
 */
 
 /**
-    Method: O.meta
+    Function: O.meta
 
     Returns an object representing the metadata for the given object. This has
     the following properties:
@@ -157,7 +157,7 @@ const meta = function ( object ) {
 };
 
 /**
-    Method: O.guid
+    Function: O.guid
 
     Returns a unique ID (within the scope of this instance of the application)
     for the item passed in.
@@ -198,7 +198,7 @@ const guid = function ( item ) {
 };
 
 /**
-    Method: O.mixin
+    Function: O.mixin
 
     Add properties to an object, doing the necessary setup and teardown to
     ensure special properties (computed, bound, observed etc.), are registered
