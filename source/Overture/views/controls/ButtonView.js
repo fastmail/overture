@@ -296,14 +296,14 @@ const ButtonView = Class({
     },
 
     /**
-        Method (private): O.ButtonView#_activateOnClick
+        Method: O.ButtonView#mouseActivate
 
         Activates the button on normal clicks.
 
         Parameters:
             event - {Event} The click or mouseup event.
     */
-    _activateOnClick: function ( event ) {
+    mouseActivate: function ( event ) {
         if ( this._ignoreUntil > Date.now() ||
                 event.button || event.metaKey || event.ctrlKey ) {
             return;
@@ -320,21 +320,26 @@ const ButtonView = Class({
     }.on( 'mouseup', 'click' ),
 
     /**
-        Method (private): O.ButtonView#_activateOnEnter
+        Method: O.ButtonView#keyboardActivate
 
-        Activates the button when it has keyboard focus and the `enter` key is
-        pressed.
+        Activates the button when it has keyboard focus and the `enter` or
+        `space` key is pressed.
 
         Parameters:
             event - {Event} The keypress event.
     */
-    _activateOnEnter: function ( event ) {
-        if ( lookupKey( event ) === 'enter' ) {
+    keyboardActivate: function ( event ) {
+        var key = lookupKey( event );
+        if ( key === 'enter' || key === 'space' ) {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-    }.on( 'keypress' ),
+        if ( key === 'esc' ) {
+            this.blur();
+            event.stopPropagation();
+        }
+    }.on( 'keydown' ),
 }).extend({
     drawIcon ( icon ) {
         return Element.create( 'i', {
