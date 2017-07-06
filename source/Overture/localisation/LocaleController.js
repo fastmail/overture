@@ -1,7 +1,7 @@
 /*global Intl */
 
 import '../core/String.js';  // For String#escapeRegExp
-import Locale from './Locale.js';
+import Locale from './Locale.js'; // FIXME(circular-imports)
 
 /**
     Module: Localisation

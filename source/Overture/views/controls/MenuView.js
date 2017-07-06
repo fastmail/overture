@@ -11,8 +11,8 @@ import ViewEventsController from '../ViewEventsController.js';
 import ScrollView from '../containers/ScrollView.js';
 import PopOverView from '../panels/PopOverView.js';
 import SearchTextView from './SearchTextView.js';
-import MenuController from './MenuController.js';
-import MenuOptionView from './MenuOptionView.js';
+import MenuController from './MenuController.js';  // Circular but it's OK
+import MenuOptionView from './MenuOptionView.js';  // FIXME(circular-imports)
 
 const MenuView = Class({
 

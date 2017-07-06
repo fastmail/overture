@@ -1,5 +1,5 @@
 import { Class, merge } from '../core/Core.js';
-import '../core/Date.js';  // For Date#format
+import '../core/Date.js';  // For Date#format. Circular but it's OK.
 
 const compileTranslation = function ( translation ) {
     let compiled = '';

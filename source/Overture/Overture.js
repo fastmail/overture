@@ -1,4 +1,47 @@
 /* eslint-disable max-len */
+
+/*
+    NOTE(circular-imports): there are several circular imports in the Overture
+    codebase still. Provided the circular references don’t get hit immediately
+    (that is, provided the circularly-referenced names are only used inside
+    functions which are not invoked until after all of the loop has been
+    loaded), this is very mildly undesirable, but OK. (Such imports should be
+    marked by a comment as circular but OK.)
+
+    HOWEVER, in places where the name is used in the code executed immediately
+    (e.g. as a superclass for a class constructed in the module root), we have a
+    problem. The referred-to name must *not* be imported first: something else
+    from the circular import loop must be instead. For now, we can work around
+    this by ordering our imports carefully in this file, but it’s not good
+    enough; we desire to be able to import anything from Overture directly, thus
+    enabling further dead-code removal.
+
+    To list circular imports, install madge (from npm) and run this command:
+
+        madge source/Overture --circular
+
+    If it does not list exactly the five below, we’re in trouble and you’ll have
+    to assess it all over again.
+
+    Safe cycles that exist:
+
+    - drag-drop/{Drag ↔ DragController}: not used in the global scope
+
+    - dom/Element ↔ views/View: not used in the global scope
+
+    - views/controls/{MenuButtonView → MenuOptionView → MenuView →
+      MenuController → MenuButtonView}: not used in the global scope
+
+    Bad cycles that exist and are dependent on import order (marked elsewhere in
+    this file by FIXME notes):
+
+    - core/Date → localisation/LocaleController → localisation/Locale →
+      core/Date: LocaleController uses Locale in the global scope
+
+    - views/controls/{MenuOptionView ↔ MenuView}:
+      MenuView uses MenuOptionView in the global scope
+*/
+
 export * from './core/Core.js';
 export { default as sortByProperties } from './core/sortByProperties.js';
 import './core/Array.js';
@@ -75,6 +118,16 @@ export { default as HttpRequest } from './io/HttpRequest.js';
 export { default as IOQueue } from './io/IOQueue.js';
 export { default as XHR } from './io/XHR.js';
 
+// FIXME(circular-imports): core/Date → localisation/LocaleController →
+// localisation/Locale → core/Date, but LocaleController uses Locale
+// immediately, so Locale must not be the first one imported. For now, core/Date
+// is imported first and the crisis averted. Chris’s proposal to resolve this:
+//
+// 1. Do *something* with localisation/RelativeDate.js
+//    (which is all side-effects on the global Date object, ick);
+// 2. Merge localisation/{Locale, LocaleController}.js to just i18n.js;
+// 3. Abolish the LocaleController export for good measure (O.i18n is nice,
+//    singletons with a capital first letter aren’t).
 export { default as Locale } from './localisation/Locale.js';
 export * from './localisation/LocaleController.js';
 import './localisation/RelativeDate.js';
@@ -95,6 +148,11 @@ export { default as Hold } from './touch/Hold.js';
 export { default as Tap } from './touch/Tap.js';
 
 export { default as UA } from './ua/UA.js';
+
+// FIXME(circular-imports): MenuView ↔ MenuOptionView, but MenuView uses
+// MenuOptionView immediately so MenuView must be imported before MenuOptionView
+// (Hence this import appearing out of order.)
+export { default as MenuView } from './views/controls/MenuView.js';
 
 export { default as RootView } from './views/RootView.js';
 export { default as View } from './views/View.js';
@@ -118,7 +176,6 @@ export { default as LabelView } from './views/controls/LabelView.js';
 export { default as MenuButtonView } from './views/controls/MenuButtonView.js';
 export { default as MenuController } from './views/controls/MenuController.js';
 export { default as MenuOptionView } from './views/controls/MenuOptionView.js';
-export { default as MenuView } from './views/controls/MenuView.js';
 export { default as RadioView } from './views/controls/RadioView.js';
 export { default as RichTextView } from './views/controls/RichTextView.js';
 export { default as SearchTextView } from './views/controls/SearchTextView.js';

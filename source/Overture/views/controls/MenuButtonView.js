@@ -5,7 +5,7 @@ import '../../foundation/ObservableProps.js';  // For Function#observes
 import PopOverView from '../panels/PopOverView.js';
 import RootView from '../RootView.js';
 import ButtonView from './ButtonView.js';
-import MenuOptionView from './MenuOptionView.js';
+import MenuOptionView from './MenuOptionView.js';  // Circular but it's OK
 
 /**
     Class: O.MenuButtonView

@@ -6,7 +6,7 @@ import RunLoop from '../../foundation/RunLoop.js';
 import View from '../View.js';
 import ScrollView from '../containers/ScrollView.js';
 import PopOverView from '../panels/PopOverView.js';
-import MenuView from './MenuView.js';
+import MenuView from './MenuView.js';  // Circular but it's OK
 
 const MenuOptionView = Class({
 

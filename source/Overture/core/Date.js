@@ -1,6 +1,6 @@
 import './Number.js';  // For Number#mod
 
-// See the note in Core.js for a phony explanation of why this is OK.
+// Circular but it's… mostly OK. See Overture.js for explanation.
 import { i18n } from '../localisation/LocaleController.js';
 
 const isLeapYear = function ( year ) {

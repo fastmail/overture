@@ -5,7 +5,7 @@ import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import { i18n } from '../../localisation/LocaleController.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import MenuButtonView from './MenuButtonView.js';
+import MenuButtonView from './MenuButtonView.js';  // Circular but it's OK
 import PopOverView from '../panels/PopOverView.js';
 
 // A menu option must have:
