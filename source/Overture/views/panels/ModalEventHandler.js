@@ -1,10 +1,10 @@
 import { Class } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import '../../foundation/EventTarget.js';  // For Function#on
 
 const ModalEventHandler = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     init ( mixin ) {
         ModalEventHandler.parent.init.call( this, mixin );

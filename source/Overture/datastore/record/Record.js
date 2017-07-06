@@ -1,5 +1,5 @@
 import { Class, meta, clone } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 
 import RecordAttribute from './RecordAttribute.js';
@@ -18,7 +18,7 @@ const READY_NEW_DIRTY = (READY|NEW|DIRTY);
 */
 const Record = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Constructor: O.Record

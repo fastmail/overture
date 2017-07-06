@@ -1,5 +1,5 @@
 import { Class } from '../core/Core.js';
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import UA from '../ua/UA.js';
 import { lookupKey } from '../dom/DOMEvent.js';
@@ -29,7 +29,7 @@ const handleOnDown = {};
 */
 const GlobalKeyboardShortcuts = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.GlobalKeyboardShortcuts#isEnabled

@@ -1,7 +1,7 @@
 /*global document */
 
 import { Class } from '../core/Core.js';
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import Stylesheet from '../dom/Stylesheet.js';
 import { loc } from '../localisation/LocaleController.js';
 
@@ -16,7 +16,7 @@ import { loc } from '../localisation/LocaleController.js';
 */
 const ThemeManager = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     init ( mixin ) {
         this._images = { all: {} };

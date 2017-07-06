@@ -1,7 +1,7 @@
 /*global location, sessionStorage, localStorage */
 
 import { Class } from '../core/Core.js';
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 
 /**
     Module: Storage
@@ -29,7 +29,7 @@ const dummyStorage = {
 */
 const LocalStorage = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Constructor: O.LocalStorage

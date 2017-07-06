@@ -1,6 +1,6 @@
 import { Class, guid } from '../../core/Core.js';
 import sortByProperties from '../../core/sortByProperties.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import ObservableRange from '../../foundation/ObservableRange.js';
 import Enumerable from '../../foundation/Enumerable.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
@@ -26,7 +26,7 @@ const numerically = function ( a, b ) {
  */
 const LiveQuery = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     Mixin: [ ObservableRange, Enumerable ],
 

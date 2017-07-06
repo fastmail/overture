@@ -1,6 +1,6 @@
 /*global document */
 
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 import { lookupKey } from '../dom/DOMEvent.js';
@@ -61,7 +61,7 @@ const getTouch = function ( touches, touchId ) {
     add the required properties to views, and an instance of <O.Drag> gives all
     the information about the drag.
 */
-const DragController = new Object({
+const DragController = new Obj({
     /**
         Property (private): O.DragController._x
         Type: Number

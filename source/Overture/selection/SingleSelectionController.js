@@ -1,12 +1,12 @@
 import { Class, meta } from '../core/Core.js';
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
 import '../foundation/ObservableProps.js';  // For Function#observes
 import { READY } from '../datastore/record/Status.js';
 
 const SingleSelectionController = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     allowNoSelection: true,
 

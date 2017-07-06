@@ -1,5 +1,5 @@
 import { Class, meta } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import '../../foundation/ObservableProps.js';  // For Function#observes
 
 import RecordAttribute from './RecordAttribute.js';
@@ -13,7 +13,7 @@ import RecordAttribute from './RecordAttribute.js';
 */
 const AttributeErrors = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.AttributeErrors#errorCount

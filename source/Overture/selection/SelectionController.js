@@ -1,11 +1,11 @@
 import { Class } from '../core/Core.js';
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import '../foundation/ObservableProps.js';  // For Function#observes
 import '../foundation/ComputedProps.js';  // For Function#property, #nocache
 
 const SelectionController = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     content: null,
 

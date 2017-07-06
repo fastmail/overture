@@ -1,7 +1,7 @@
 /*global document, window, history, location */
 
 import { Class } from '../core/Core.js';
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import '../foundation/ObservableProps.js';  // For Function#observes
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop, #queue
 
@@ -29,7 +29,7 @@ const getUrl = function ( location, base ) {
 */
 const Router = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.Router#title

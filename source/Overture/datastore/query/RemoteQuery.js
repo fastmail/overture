@@ -1,5 +1,5 @@
 import { Class, guid } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import ObservableRange from '../../foundation/ObservableRange.js';
 import Enumerable from '../../foundation/Enumerable.js';
 import '../../foundation/EventTarget.js';  // For Function#on
@@ -62,7 +62,7 @@ import {
 */
 const RemoteQuery = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     Mixin: [ Enumerable, ObservableRange ],
 

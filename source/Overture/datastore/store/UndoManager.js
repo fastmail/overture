@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 
 /**
     Class: O.UndoManager
@@ -7,7 +7,7 @@ import Object from '../../foundation/Object.js';
 
 const UndoManager = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     init ( mixin ) {
         this._undoStack = [];

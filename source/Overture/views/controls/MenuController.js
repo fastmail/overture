@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import '../../core/Number.js';  // For Number#mod
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import { i18n } from '../../localisation/LocaleController.js';
@@ -16,7 +16,7 @@ import PopOverView from '../panels/PopOverView.js';
 
 const MenuController = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     options: [],
 

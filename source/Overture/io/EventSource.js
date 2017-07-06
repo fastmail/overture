@@ -2,7 +2,7 @@
 
 import { Class, meta } from '../core/Core.js';
 import '../core/Array.js';  // For Array#include
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';  // + Function#invokeInRunLoop
 import '../foundation/EventTarget.js';  // For Function#on
 import '../foundation/ObservableProps.js';  // For Function#observes
@@ -27,7 +27,7 @@ const CLOSED = 2;
 */
 const EventSource = NativeEventSource ? Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.EventSource#readyState
@@ -189,7 +189,7 @@ const EventSource = NativeEventSource ? Class({
     }.observes( 'readyState' ),
 }) : Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     readyState: CONNECTING,
 

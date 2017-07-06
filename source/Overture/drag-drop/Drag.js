@@ -3,7 +3,7 @@
 import { Class } from '../core/Core.js';
 import '../core/Array.js';  // For Array#include
 import '../core/String.js';  // For String#contains
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
 import '../foundation/ComputedProps.js';  // For Function#property
 import Element from '../dom/Element.js';
@@ -53,7 +53,7 @@ show-stopping bugs here, so this is handled as normal.
 */
 const Drag = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Constructor: O.Drag

@@ -1,6 +1,6 @@
 import { Class } from '../core/Core.js';
 import '../core/Array.js';  // For Array#erase
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on
 
 /**
@@ -23,7 +23,7 @@ const ABORT = 3;
 
 const IOQueue = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property (private): O.IOQueue#_queue

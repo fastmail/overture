@@ -1,5 +1,5 @@
 import { Class } from '../core/Core.js';
-import Object from './Object.js';
+import Obj from './Object.js';
 import ObservableRange from './ObservableRange.js';
 import Enumerable from './Enumerable.js';
 import MutableEnumerable from './MutableEnumerable.js';
@@ -22,7 +22,7 @@ const slice = Array.prototype.slice;
 */
 const ObservableArray = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     Mixin: [ ObservableRange, Enumerable, MutableEnumerable ],
 

@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 
 const VERTICAL = 1;
@@ -16,7 +16,7 @@ const auto = 'auto';
 */
 const SplitViewController = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.SplitViewController#direction

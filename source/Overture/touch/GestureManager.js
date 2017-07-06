@@ -1,10 +1,10 @@
 /*global document */
 
 import '../core/Array.js';  // For Array#erase
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 
-const GestureManager = new Object({
+const GestureManager = new Obj({
 
     _gestures: [],
 

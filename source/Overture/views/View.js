@@ -1,6 +1,6 @@
 import { Class } from '../core/Core.js';
 import '../core/String.js';  // For String#capitalise
-import OObject from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';
 import '../foundation/ObservableProps.js';  // For Function#observes
 import '../foundation/ComputedProps.js';  // For Function#property
@@ -169,7 +169,7 @@ const renderView = function ( view ) {
 
 const View = Class({
 
-    Extends: OObject,
+    Extends: Obj,
 
     /**
         Property: O.View#parentView

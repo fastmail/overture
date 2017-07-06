@@ -2,7 +2,7 @@
 
 import { Class } from '../core/Core.js';
 import '../core/String.js';  // For String#contains
-import Object from '../foundation/Object.js';
+import Obj from '../foundation/Object.js';
 import RunLoop from '../foundation/RunLoop.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import XHR from './XHR.js';
@@ -27,7 +27,7 @@ const releaseXhr = function ( xhr ) {
 
 const HttpRequest = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     /**
         Property: O.HttpRequest#timeout

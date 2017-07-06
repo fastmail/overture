@@ -3,7 +3,7 @@
 import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
 import '../../core/Array.js';  // For Array#erase
 import RunLoop from '../../foundation/RunLoop.js';
-import OObject from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import Event from '../../foundation/Event.js';
 import EventTarget from '../../foundation/EventTarget.js';
 
@@ -179,7 +179,7 @@ const convertForeignKeysToId = function ( store, Type, data ) {
 */
 const Store = Class({
 
-    Extends: OObject,
+    Extends: Obj,
 
     /**
         Property: O.Store#autoCommit

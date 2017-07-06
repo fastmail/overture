@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 
 /**
     Class: O.Source
@@ -11,7 +11,7 @@ import Object from '../../foundation/Object.js';
 */
 const Source = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     // ---
 

@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Object from '../../foundation/Object.js';
+import Obj from '../../foundation/Object.js';
 import Enumerable from '../../foundation/Enumerable.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 
@@ -14,7 +14,7 @@ import '../../foundation/ComputedProps.js';  // For Function#property
  */
 const RecordArray = Class({
 
-    Extends: Object,
+    Extends: Obj,
 
     Mixin: Enumerable,
 
