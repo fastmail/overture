@@ -423,6 +423,9 @@ const isEqual = function ( a, b ) {
 */
 const Class = function ( params ) {
     const parent = params.Extends;
+    if ( 'Extends' in params && typeof parent !== 'function' ) {
+        throw new Error( 'Bad O.Class definition: Extends is ' + parent );
+    }
     let mixins = params.Mixin;
     const init = params.init || ( parent ?
             function () { parent.apply( this, arguments ); } :
