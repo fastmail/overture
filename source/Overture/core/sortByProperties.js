@@ -1,11 +1,6 @@
-// I know this looks bad, but the defined ES6 module semantics actually make
-// this OK. (The short version is that circular references are just fine and
-// tend to work roughly as you’d expect if you didn’t think about them at all.
-// (If you *do* stop to think about such things you may well run off screaming
-// into the sunset. You're quite at liberty to do this, only don't blame me.))
-// The alternative is attempting a run-time import with `System.import`, but
-// plenty of tools won't give that method the time of day; it's safer to just
-// rock back on your heels, muttering that everything will be OK.
+// Yeah, core is importing something from localisation. Boundaries like “core”
+// and “localisation” aren’t solid boundaries these days, anyway. Deal with it.
+// It’s not a circular import. Everyone’s happy.
 import { i18n } from '../localisation/LocaleController.js';
 
 /**
@@ -51,7 +46,7 @@ export default function sortByProperties ( properties ) {
                     if ( isNumber.test( aVal ) && isNumber.test( bVal ) ) {
                         aVal = +aVal;
                         bVal = +bVal;
-                    } else if ( i18n ) {
+                    } else {
                         return i18n.compare( aVal, bVal );
                     }
                 }
