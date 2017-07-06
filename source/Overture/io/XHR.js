@@ -194,13 +194,12 @@ const XHR = Class({
         xhr.withCredentials = !!withCredentials;
         responseType = responseType || '';
         xhr.responseType = responseType;
-        if ( xhr.responseType !== responseType ) {
-            // Browser doesn't support that particular value. At the time of
-            // writing, that should just be 'json' in IE 11. (IE<10 miss
-            // responseType altogether but we don't support them so no feature
-            // check. We assume all the other values will work fine.)
-            this._actualResponseType = responseType;
-        }
+        // If a browser doesn’t support a particular value (IE 11 with 'json'),
+        // xhr.responseType becomes an empty string, and we will need to
+        // simulate it ourselves later. (We don’t support IE≤9 which don’t do
+        // responseType at all. We assume all the other values will work fine.)
+        this._actualResponseType = xhr.responseType !== responseType ?
+            responseType : '';
         for ( const name in headers || {} ) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
