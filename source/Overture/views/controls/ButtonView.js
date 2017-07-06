@@ -329,7 +329,7 @@ const ButtonView = Class({
             event - {Event} The keypress event.
     */
     keyboardActivate: function ( event ) {
-        var key = lookupKey( event );
+        const key = lookupKey( event );
         if ( key === 'enter' || key === 'space' ) {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
