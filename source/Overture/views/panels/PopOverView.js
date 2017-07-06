@@ -1,6 +1,6 @@
 import { Class, meta } from '../../core/Core.js';
 import '../../foundation/EventTarget.js';  // For Function#on
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import Element from '../../dom/Element.js';
 import RootView from '../RootView.js';
 import View from '../View.js';
@@ -346,7 +346,7 @@ const PopOverView = Class({
     },
 
     closeOnEsc: function ( event ) {
-        if ( DOMEvent.lookupKey( event ) === 'esc' ) {
+        if ( lookupKey( event ) === 'esc' ) {
             this.hide();
         }
     }.on( 'keydown' ),

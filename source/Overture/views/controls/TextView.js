@@ -5,7 +5,7 @@ import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import Element from '../../dom/Element.js';
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import ScrollView from '../containers/ScrollView.js';
 import AbstractControlView from './AbstractControlView.js';
 
@@ -514,7 +514,7 @@ const TextView = Class({
         // (presumably as though it were submitting the form). Stop this
         // unless we're actually in a form.
         if ( !this.get( 'isMultiline' ) &&
-                DOMEvent.lookupKey( event, true ) === 'enter' &&
+                lookupKey( event, true ) === 'enter' &&
                 !Element.nearest( this.get( 'layer' ), 'FORM' ) ) {
             event.preventDefault();
         }
@@ -530,7 +530,7 @@ const TextView = Class({
             event - {Event} The keydown event.
     */
     _blurOnEsc: function ( event ) {
-        const key = DOMEvent.lookupKey( event, true );
+        const key = lookupKey( event, true );
         // If key == esc, we want to blur. Not all browsers do this
         // automatically.
         if ( key === 'esc' && this.get( 'blurOnEscape' ) ) {

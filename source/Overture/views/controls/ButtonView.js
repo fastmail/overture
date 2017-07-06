@@ -3,7 +3,7 @@ import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import '../../foundation/EventTarget.js';  // For Function#on
 import RunLoop from '../../foundation/RunLoop.js';
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import Element from '../../dom/Element.js';
 
 import AbstractControlView from './AbstractControlView.js';
@@ -329,7 +329,7 @@ const ButtonView = Class({
             event - {Event} The keypress event.
     */
     _activateOnEnter: function ( event ) {
-        if ( DOMEvent.lookupKey( event ) === 'enter' ) {
+        if ( lookupKey( event ) === 'enter' ) {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();

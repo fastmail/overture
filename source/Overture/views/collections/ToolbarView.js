@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property
 import '../../foundation/ObservableProps.js';  // For Function#observes
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import Element from '../../dom/Element.js';
 import { loc } from '../../localisation/LocaleController.js';
 import View from '../View.js';
@@ -58,7 +58,7 @@ const OverflowMenuView = Class({
     }.observes( 'shortcuts' ),
 
     activateButton ( event ) {
-        const key = DOMEvent.lookupKey( event );
+        const key = lookupKey( event );
         const button = this.get( 'shortcuts' )[ key ];
         if ( button instanceof MenuButtonView ) {
             this.activate();

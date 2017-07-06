@@ -3,7 +3,7 @@
 import Object from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
-import DOMEvent from '../dom/DOMEvent.js';
+import { lookupKey } from '../dom/DOMEvent.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 
 import Drag from './Drag.js';  // Circular but it's OK
@@ -518,7 +518,7 @@ const DragController = new Object({
     */
     _escCancel: function ( event ) {
         const drag = this._drag;
-        if ( drag && DOMEvent.lookupKey( event ) === 'esc' ) {
+        if ( drag && lookupKey( event ) === 'esc' ) {
             drag.endDrag();
         }
     }.on( 'keydown' ),

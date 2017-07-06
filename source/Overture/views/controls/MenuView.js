@@ -4,7 +4,7 @@ import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
 import { bindTwoWay } from '../../foundation/Binding.js';
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import View from '../View.js';
 import RootView from '../RootView.js';
 import ViewEventsController from '../ViewEventsController.js';
@@ -142,7 +142,7 @@ const MenuView = Class({
 
     fireShortcut: function ( event ) {
         if ( !this.get( 'showFilter' ) ) {
-            const key = DOMEvent.lookupKey( event );
+            const key = lookupKey( event );
             const handler = ViewEventsController
                 .kbShortcuts.getHandlerForKey( key );
             let parent, object, method;

@@ -57,7 +57,8 @@ export { default as Store } from './datastore/store/Store.js';
 export { default as StoreUndoManager } from './datastore/store/StoreUndoManager.js';
 export { default as UndoManager } from './datastore/store/UndoManager.js';
 
-export { default as DOMEvent } from './dom/DOMEvent.js';
+import * as DOMEvent from './dom/DOMEvent.js';
+export { DOMEvent };
 export { default as Element } from './dom/Element.js';
 export { default as Stylesheet } from './dom/Stylesheet.js';
 

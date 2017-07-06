@@ -2,7 +2,7 @@ import { Class } from '../core/Core.js';
 import Object from '../foundation/Object.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import UA from '../ua/UA.js';
-import DOMEvent from '../dom/DOMEvent.js';
+import { lookupKey } from '../dom/DOMEvent.js';
 import RichTextView from '../views/controls/RichTextView.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 
@@ -182,7 +182,7 @@ const GlobalKeyboardShortcuts = Class({
             ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
             ( event.targetView instanceof RichTextView )
         );
-        const key = DOMEvent.lookupKey( event );
+        const key = lookupKey( event );
         if ( event.type === 'keydown' ) {
             handleOnDown[ key ] = true;
         } else if ( handleOnDown[ key ] ) {

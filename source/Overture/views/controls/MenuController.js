@@ -4,7 +4,7 @@ import Object from '../../foundation/Object.js';
 import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
 import { i18n } from '../../localisation/LocaleController.js';
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import MenuButtonView from './MenuButtonView.js';
 import PopOverView from '../panels/PopOverView.js';
 
@@ -121,7 +121,7 @@ const MenuController = Class({
     },
 
     triggerKeyBinding: function ( event ) {
-        const key = DOMEvent.lookupKey( event );
+        const key = lookupKey( event );
         const bindings = this.get( 'keyBindings' );
         if ( bindings[ key ] ) {
             event.stopPropagation();

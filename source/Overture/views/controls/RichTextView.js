@@ -10,7 +10,7 @@ import RunLoop from '../../foundation/RunLoop.js';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
 import Element from '../../dom/Element.js';
-import DOMEvent from '../../dom/DOMEvent.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
 import DropTarget from '../../drag-drop/DropTarget.js';
 import * as DragEffect from '../../drag-drop/DragEffect.js';
 import { loc } from '../../localisation/LocaleController.js';
@@ -858,7 +858,7 @@ const RichTextView = Class({
             }.nextFrame().observes( 'isInDocument' ),
             addLinkOnEnter: function ( event ) {
                 event.stopPropagation();
-                if ( DOMEvent.lookupKey( event ) === 'enter' ) {
+                if ( lookupKey( event ) === 'enter' ) {
                     this.addLink();
                 }
             }.on( 'keyup' ),
@@ -987,7 +987,7 @@ const RichTextView = Class({
 
     kbShortcuts: function ( event ) {
         const isMac = UA.isMac;
-        switch ( DOMEvent.lookupKey( event ) ) {
+        switch ( lookupKey( event ) ) {
         case isMac ? 'meta-k' : 'ctrl-k':
             event.preventDefault();
             this.showLinkOverlay(
