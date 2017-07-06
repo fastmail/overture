@@ -99,11 +99,16 @@ const generateLocalisedDateParser = function ( locale, mode ) {
         ]);
     const searchMethod = anyInLocale( 'searchMethod', 'past future' );
 
-    const dateDelimiter = define( 'dateDelimiter',
-            ( /^(?:[\s\-.,'/]|of)+/ ) );
+    const dateDelimiter = define( 'dateDelimiter', /^(?:[\s\-.,'/]|of)+/ );
 
     const relativeDate = anyInLocale( 'relativeDate',
             'yesterday tomorrow today now' );
+
+    const adjustSign = define( 'adjustSign', /^[+-]/ );
+    const adjustUnit = define( 'adjustUnit',
+            /^[dwmy]|(?:day|week|month|year)/i );
+    const adjustNumber = define( 'adjustNumber', /^\d+/ );
+    const adjust = sequence([ adjustSign, adjustNumber, adjustUnit ]);
 
     const standardDate = sequence(
             locale.dateFormats.date.split( /%-?([dmbY])/ ).map(
@@ -213,6 +218,7 @@ const generateLocalisedDateParser = function ( locale, mode ) {
             monthname,
             day,
             relativeDate,
+            adjust,
             searchMethod,
             whitespace,
         ]);
@@ -226,6 +232,7 @@ const generateLocalisedDateParser = function ( locale, mode ) {
         monthname,
         day,
         relativeDate,
+        adjust,
         searchMethod,
         whitespace,
     ]);
@@ -256,6 +263,13 @@ const dayNameToIndex = {
     thu: 4,
     fri: 5,
     sat: 6,
+};
+
+const letterToUnit = {
+    d: 'day',
+    w: 'week',
+    m: 'month',
+    y: 'year',
 };
 
 const isLeapYear = Date.isLeapYear;
@@ -302,6 +316,7 @@ const interpreter = {
         let month = constraints.month;
         let year = constraints.year;
         const weekday = constraints.weekday;
+        const adjust = constraints.adjust;
 
         const hasMonth = !!( month || month === 0 );
         const hasWeekday = !!( weekday || weekday === 0 );
@@ -446,6 +461,14 @@ const interpreter = {
                 date.setTime( date.getTime() +
                     ( dayInMs * ( weekday - date.getDay() ).mod( 7 ) ) );
             }
+        } else /* Default to today */ {
+            date.setDate( currentDay );
+        }
+
+        if ( adjust ) {
+            for ( let i = 0, l = adjust.length; i < l; i += 1 ) {
+                date.add( adjust[i][0], adjust[i][1] );
+            }
         }
 
         return date;
@@ -517,6 +540,20 @@ const interpreter = {
         date.day = now.getDate();
         date.month = now.getMonth();
         date.year = now.getFullYear();
+    },
+    adjustSign ( date, sign ) {
+        if ( !date.adjust ) {
+            date.adjust = [];
+        }
+        date.adjust.push([ sign === '+' ? 1 : -1, 'day' ]);
+    },
+    adjustNumber ( date, number ) {
+        date.adjust.last()[0] *= number;
+    },
+    adjustUnit ( date, unit ) {
+        unit = unit.toLowerCase();
+        unit = letterToUnit[ unit ] || unit;
+        date.adjust.last()[1] = unit;
     },
 };
 
