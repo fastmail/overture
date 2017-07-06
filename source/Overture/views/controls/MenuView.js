@@ -20,6 +20,8 @@ const MenuView = Class({
 
     className: 'v-Menu',
 
+    isMenuView: true,
+
     showFilter: false,
     closeOnActivate: true,
 

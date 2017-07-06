@@ -1205,6 +1205,30 @@ const View = Class({
         } while ( parent && !( parent instanceof Type ) );
         return parent || null;
     },
+
+    /**
+        Method: O.View#getParentWhere
+
+        Finds the nearest ancestor in the view hierarchy which satisfies the
+        given condition function.
+
+        Parameters:
+            condition - {function( View ) -> boolean} The function to check
+                        against each ancestor view; if this function returns
+                        true, that view will be returned.
+
+        Returns:
+            {(O.View|null)} Returns the nearest parent view for which the
+            condition function returns true, or null if the condition function
+            never returns true.
+    */
+    getParentWhere ( condition ) {
+        let parent = this;
+        do {
+            parent = parent.get( 'parentView' );
+        } while ( parent && !condition( parent ) );
+        return parent || null;
+    },
 });
 
 // Expose Globals:

@@ -7,7 +7,6 @@ import { lookupKey } from '../../dom/DOMEvent.js';
 import Element from '../../dom/Element.js';
 
 import AbstractControlView from './AbstractControlView.js';
-import MenuView from './MenuView.js';
 
 /**
     Class: O.ButtonView
@@ -308,7 +307,8 @@ const ButtonView = Class({
                 event.button || event.metaKey || event.ctrlKey ) {
             return;
         }
-        if ( event.type !== 'mouseup' || this.getParent( MenuView ) ) {
+        if ( event.type !== 'mouseup' ||
+                this.getParentWhere( x => x.isMenuView ) ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
             RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
             this.activate();
