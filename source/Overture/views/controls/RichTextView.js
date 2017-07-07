@@ -266,12 +266,21 @@ const RichTextView = Class({
     }.nextFrame(),
 
     scrollIntoView: function () {
-        const scrollView = this.getParent( ScrollView );
-        const editor = this.get( 'editor' );
-        const cursorPosition = editor && editor.getCursorPosition();
-        if ( !scrollView || !cursorPosition || !this.get( 'isFocussed' ) ) {
+        if ( !this.get( 'isFocussed' ) ) {
             return;
         }
+
+        const scrollView = this.getParent( NS.ScrollView );
+        if ( !scrollView ) {
+            return;
+        }
+
+        const editor = this.get( 'editor' );
+        const cursorPosition = editor && editor.getCursorPosition();
+        if ( !cursorPosition ) {
+            return;
+        }
+
         const scrollViewOffsetTop =
             scrollView.get( 'layer' ).getBoundingClientRect().top;
         const offsetTop = cursorPosition.top - scrollViewOffsetTop;
