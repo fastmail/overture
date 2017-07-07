@@ -270,7 +270,7 @@ const RichTextView = Class({
             return;
         }
 
-        const scrollView = this.getParent( NS.ScrollView );
+        const scrollView = this.getParent( ScrollView );
         if ( !scrollView ) {
             return;
         }
