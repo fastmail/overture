@@ -74,6 +74,12 @@ export { default as CSSStyleAnimationController } from './animation/CSSStyleAnim
 export { default as Easing } from './animation/Easing.js';
 export { default as StyleAnimation } from './animation/StyleAnimation.js';
 
+// FIXME(circular-imports): MenuView ↔ MenuOptionView, but MenuView uses
+// MenuOptionView immediately so MenuView must be imported before MenuOptionView
+// which is indirectly imported by GlobalKeyboardShortcuts, so this import must
+// appear before GlobalKeyboardShortcuts in this list.
+export { default as MenuView } from './views/controls/MenuView.js';
+
 export { default as formatKeyForPlatform } from './application/formatKeyForPlatform.js';
 export { default as GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts.js';
 export { default as Router } from './application/Router.js';
@@ -148,11 +154,6 @@ export { default as Hold } from './touch/Hold.js';
 export { default as Tap } from './touch/Tap.js';
 
 export { default as UA } from './ua/UA.js';
-
-// FIXME(circular-imports): MenuView ↔ MenuOptionView, but MenuView uses
-// MenuOptionView immediately so MenuView must be imported before MenuOptionView
-// (Hence this import appearing out of order.)
-export { default as MenuView } from './views/controls/MenuView.js';
 
 export { default as RootView } from './views/RootView.js';
 export { default as View } from './views/View.js';
