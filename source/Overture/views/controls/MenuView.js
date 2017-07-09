@@ -108,7 +108,7 @@ const MenuView = Class({
         return [
             this.get( 'showFilter' ) ? el( 'div.v-Menu-filter', [
                 this._input = new SearchTextView({
-                    blurOnEscape: false,
+                    blurOnKeys: {},
                     value: bindTwoWay( 'filter', this.get( 'controller' ) ),
                 }),
             ]) : null,

@@ -172,14 +172,14 @@ const TextView = Class({
     }.property().nocache(),
 
     /**
-        Property: O.TextView#blurOnEscape
-        Type: Boolean
-        Default: true
+        Property: O.TextView#blurOnKeys
+        Type: Object
+        Default: { esc: true }
 
-        If true, if the user is focussed in the text view and hits the escape
-        key, the focus will be removed.
+        For each truthy value in the object, if the user is focussed in the
+        text view and hits the key, the focus will be removed.
     */
-    blurOnEscape: true,
+    blurOnKeys: { esc: true },
 
     // --- Render ---
 
@@ -521,22 +521,20 @@ const TextView = Class({
     }.on( 'keypress' ),
 
     /**
-        Method (private): O.TextView#_blurOnEsc
+        Method (private): O.TextView#_blurOnKey
 
-        Blur the text area when the user hits escape, provided the
-        <#blurOnEscape> property is set to `true`.
+        Blur the text area when the user hits certain keys, provided by the
+        <#blurOnKeys> property.
 
         Parameters:
-            event - {Event} The keydown event.
+            event - {Event} The keyup event.
     */
-    _blurOnEsc: function ( event ) {
+    _blurOnKey: function ( event ) {
         const key = lookupKey( event, true );
-        // If key == esc, we want to blur. Not all browsers do this
-        // automatically.
-        if ( key === 'esc' && this.get( 'blurOnEscape' ) ) {
+        if ( this.get( 'blurOnKeys' )[ key ] ) {
             this.blur();
         }
-    }.on( 'keydown' ),
+    }.on( 'keyup' ),
 });
 
 export default TextView;
