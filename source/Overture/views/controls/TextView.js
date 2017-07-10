@@ -4,12 +4,14 @@ import { Class } from '../../core/Core.js';
 import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
 import '../../foundation/EventTarget.js';  // For Function#on
 import '../../foundation/ObservableProps.js';  // For Function#observes
+import UA from '../../ua/UA.js';
 import Element from '../../dom/Element.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import ScrollView from '../containers/ScrollView.js';
 import AbstractControlView from './AbstractControlView.js';
 
 const nativePlaceholder = 'placeholder' in document.createElement( 'input' );
+const isFirefox = !!UA.firefox;
 
 /**
     Class: O.TextView
@@ -47,8 +49,6 @@ const TextView = Class({
         If <#isMultiline> is set to true, setting <#isExpanding> to true will
         make it automatically expand vertically to fit its contents, rather than
         show a scrollbar.
-
-        This property *must not* be changed after the view has been rendered.
     */
     isExpanding: false,
 
@@ -218,6 +218,7 @@ const TextView = Class({
     className: function () {
         const type = this.get( 'type' );
         return 'v-Text' +
+            ( this.get( 'isExpanding' ) ? ' v-Text--expanding' : '' ) +
             ( this.get( 'isHighlighted' ) ? ' is-highlighted' : '' ) +
             ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
             ( this.get( 'isValid' ) ? '' : ' is-invalid' ) +
@@ -291,7 +292,7 @@ const TextView = Class({
         if ( isValue && this.get( 'isExpanding' ) ) {
             this.propertyNeedsRedraw( self, 'textHeight', oldValue );
         }
-    }.observes( 'value', 'placeholder', 'inputAttributes' ),
+    }.observes( 'isExpanding', 'value', 'placeholder', 'inputAttributes' ),
 
     /**
         Method: O.TextView#redrawValue
@@ -338,6 +339,14 @@ const TextView = Class({
     },
 
     redrawTextHeight () {
+        // Firefox gets pathologically slow when resizing really large text
+        // areas, so automatically turn this off in such a case.
+        // 2^13 chars is an arbitrary cut off point that seems to be reasonable
+        // in practice
+        if ( isFirefox && this.get( 'value' ).length > 8192 ) {
+            this.set( 'isExpanding', false );
+            return;
+        }
         const control = this._domControl;
         const style = control.style;
         const scrollView = this.getParent( ScrollView );
@@ -353,6 +362,18 @@ const TextView = Class({
         // reset the scroll position back to what it was.
         if ( scrollView ) {
             scrollView.redrawScroll();
+        }
+    },
+
+    redrawIsExpanding () {
+        if ( this.get( 'isExpanding' ) ) {
+            this.redrawTextHeight();
+        } else {
+            this._domControl.style.height = 'auto';
+            // Scroll to cursor
+            if ( this.get( 'isFocussed' ) ) {
+                this.blur().focus();
+            }
         }
     },
 
@@ -381,11 +402,11 @@ const TextView = Class({
     */
     didEnterDocument () {
         TextView.parent.didEnterDocument.call( this );
-        if ( this.get( 'isExpanding' ) ) {
-            this.redrawTextHeight();
-        }
-        // Restore scroll positions:
         if ( this.get( 'isMultiline' ) ) {
+            if ( this.get( 'isExpanding' ) ) {
+                this.redrawTextHeight();
+            }
+            // Restore scroll positions:
             const control = this._domControl;
             const left = this.get( 'scrollLeft' );
             const top = this.get( 'scrollTop' );
