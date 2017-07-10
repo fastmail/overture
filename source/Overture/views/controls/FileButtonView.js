@@ -105,10 +105,6 @@ const FileButtonView = Class({
 
     // --- Activate ---
 
-    // Remove these methods. Must be handled by the browser.
-    _activateOnClick: null,
-    _activateOnEnter: null,
-
     /**
         Method: O.FileButtonView#activate
 
