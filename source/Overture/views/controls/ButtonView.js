@@ -340,12 +340,12 @@ const ButtonView = Class({
             event.stopPropagation();
         }
     }.on( 'keydown' ),
-}).extend({
-    drawIcon ( icon ) {
-        return Element.create( 'i', {
-            className: 'icon ' + icon,
-        });
-    },
 });
+
+ButtonView.drawIcon = function ( icon ) {
+    return Element.create( 'i', {
+        className: 'icon ' + icon,
+    });
+};
 
 export default ButtonView;
