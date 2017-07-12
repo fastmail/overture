@@ -8,10 +8,12 @@
         explanation - {String} A description of the error (normally used to
                       present to the user).
 */
-const ValidationError = function ( type, explanation ) {
-    this.type = type;
-    this.explanation = explanation;
-};
+class ValidationError {
+    constructor ( type, explanation ) {
+        this.type = type;
+        this.explanation = explanation;
+    }
+}
 
 ValidationError.REQUIRED = 1;
 ValidationError.TOO_SHORT = 2;
