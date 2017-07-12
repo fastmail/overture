@@ -18,14 +18,14 @@ const ThemeManager = Class({
 
     Extends: Obj,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._images = { all: {} };
         this._styles = { all: {} };
         this._activeStylesheets = {};
 
         this.theme = '';
 
-        ThemeManager.parent.init.call( this, mixin );
+        ThemeManager.parent.init.apply( this, arguments );
     },
 
     /**

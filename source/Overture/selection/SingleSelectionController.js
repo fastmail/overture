@@ -10,7 +10,7 @@ const SingleSelectionController = Class({
 
     allowNoSelection: true,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._ignore = false;
         this._range = { start: -1, end: 0 };
 
@@ -19,7 +19,7 @@ const SingleSelectionController = Class({
         this.index = -1;
         this.isFetchingIndex = false;
 
-        SingleSelectionController.parent.init.call( this, mixin );
+        SingleSelectionController.parent.init.apply( this, arguments );
 
         const content = this.get( 'content' );
         const record = this.get( 'record' );

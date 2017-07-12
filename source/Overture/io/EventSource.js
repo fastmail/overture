@@ -53,18 +53,18 @@ const EventSource = NativeEventSource ? Class({
         Constructor: O.EventSource
 
         Parameters:
-            mixin - {Object} (optional) Any properties in this object will be
-                    added to the new O.EventSource instance before
-                    initialisation (so you can pass it getter/setter functions
-                    or observing methods).
+            ...mixins - {Object} (optional) Any properties in this object will
+                        be added to the new O.EventSource instance before
+                        initialisation (so you can pass it getter/setter
+                        functions or observing methods).
     */
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._then = 0;
         this._tick = null;
 
         this.readyState = CLOSED;
 
-        EventSource.parent.init.call( this, mixin );
+        EventSource.parent.init.apply( this, arguments );
 
         const eventTypes = [ 'open', 'message', 'error' ];
         const observers = meta( this ).observers;
@@ -193,8 +193,8 @@ const EventSource = NativeEventSource ? Class({
 
     readyState: CONNECTING,
 
-    init ( mixin ) {
-        EventSource.parent.init.call( this, mixin );
+    init (/* ...mixins */) {
+        EventSource.parent.init.apply( this, arguments );
         this._xhr = new XHR( this );
     },
 

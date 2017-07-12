@@ -102,7 +102,7 @@ const HttpRequest = Class({
 
     // ---
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._transport = null;
         this._timer = null;
         this._lastActivity = 0;
@@ -114,7 +114,7 @@ const HttpRequest = Class({
         this.responseHeaders = {};
         this.response = '';
 
-        HttpRequest.parent.init.call( this, mixin );
+        HttpRequest.parent.init.apply( this, arguments );
     },
 
     // ---

@@ -50,11 +50,11 @@ const GlobalKeyboardShortcuts = Class({
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this.isEnabled = true;
         this._shortcuts = {};
 
-        GlobalKeyboardShortcuts.parent.init.call( this, mixin );
+        GlobalKeyboardShortcuts.parent.init.apply( this, arguments );
 
         ViewEventsController.kbShortcuts = this;
         ViewEventsController.addEventTarget( this, -10 );

@@ -36,7 +36,7 @@ const SwitchView = Class({
 
     Extends: View,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._oldView = null;
         // -1 => Not added views to parent
         // Otherwise => Index of view(s) currently in parent
@@ -47,7 +47,7 @@ const SwitchView = Class({
         this.views = [];
         this.subViews = [];
 
-        SwitchView.parent.init.call( this, mixin );
+        SwitchView.parent.init.apply( this, arguments );
 
         this.isRendered = true;
 

@@ -6,8 +6,8 @@ const StoreUndoManager = Class({
 
     Extends: UndoManager,
 
-    init ( mixin ) {
-        StoreUndoManager.parent.init.call( this, mixin );
+    init (/* ...mixins */) {
+        StoreUndoManager.parent.init.apply( this, arguments );
         this.get( 'store' )
             .on( 'willCommit', this, 'saveUndoCheckpoint' )
             .on( 'record:user:create', this, 'dataDidChange' )

@@ -77,12 +77,12 @@ const ToolbarView = Class({
     minimumGap: 20,
     preventOverlap: false,
 
-    init ( mixin ) {
-        ToolbarView.parent.init.call( this, mixin );
+    init (/* ...mixins */) {
+        ToolbarView.parent.init.apply( this, arguments );
         this._views = {
             overflow: new OverflowMenuView({
                 label: loc( 'More' ),
-                popOverView: mixin.popOverView || new PopOverView(),
+                popOverView: this.popOverView || new PopOverView(),
             }),
         };
         this._configs = {

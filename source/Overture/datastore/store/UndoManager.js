@@ -9,7 +9,7 @@ const UndoManager = Class({
 
     Extends: Obj,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._undoStack = [];
         this._redoStack = [];
 
@@ -20,7 +20,7 @@ const UndoManager = Class({
 
         this.maxUndoCount = 1;
 
-        UndoManager.parent.init.call( this, mixin );
+        UndoManager.parent.init.apply( this, arguments );
     },
 
     _pushState ( stack, data ) {

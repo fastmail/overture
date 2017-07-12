@@ -196,7 +196,7 @@ const View = Class({
     */
     syncOnlyInDocument: true,
 
-    init () {
+    init (/* ...mixins */) {
         this._needsRedraw = null;
 
         this.id = 'v' + UID++;

@@ -72,13 +72,13 @@ const WindowController = Class({
         other open window.
     */
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocussed = document.hasFocus ? document.hasFocus() : true;
         this._seenWCs = {};
 
-        WindowController.parent.init.call( this, mixin );
+        WindowController.parent.init.apply( this, arguments );
 
         window.addEventListener( 'storage', this, false );
         window.addEventListener( 'unload', this, false );

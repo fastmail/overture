@@ -16,9 +16,9 @@ const AggregateSource = Class({
 
     Extends: Source,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this.sources = [];
-        AggregateSource.parent.init.call( this, mixin );
+        AggregateSource.parent.init.apply( this, arguments );
     },
 
     /**

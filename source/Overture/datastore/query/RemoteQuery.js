@@ -173,7 +173,7 @@ const RemoteQuery = Class({
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._list = [];
         this._awaitingIdFetch = [];
         this._refresh = false;
@@ -182,7 +182,7 @@ const RemoteQuery = Class({
         this.status = EMPTY;
         this.length = null;
 
-        RemoteQuery.parent.init.call( this, mixin );
+        RemoteQuery.parent.init.apply( this, arguments );
 
         this.get( 'store' ).addQuery( this );
     },

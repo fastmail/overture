@@ -40,7 +40,7 @@ const ListView = Class({
     ItemView: null,
     itemHeight: 0,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._added = null;
         this._removed = null;
         this._rendered = {};
@@ -51,7 +51,7 @@ const ListView = Class({
 
         this.selection = null;
 
-        ListView.parent.init.call( this, mixin );
+        ListView.parent.init.apply( this, arguments );
 
         const selection = this.get( 'selection' );
         if ( selection ) {

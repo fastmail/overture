@@ -9,7 +9,7 @@ const SelectionController = Class({
 
     content: null,
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._selectionId = 0;
         this._lastSelectedIndex = 0;
         this._selectedStoreKeys = {};
@@ -17,7 +17,7 @@ const SelectionController = Class({
         this.isLoadingSelection = false;
         this.length = 0;
 
-        SelectionController.parent.init.call( this, mixin );
+        SelectionController.parent.init.apply( this, arguments );
 
         const content = this.get( 'content' );
         if ( content ) {

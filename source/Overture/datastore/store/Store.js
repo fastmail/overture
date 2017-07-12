@@ -221,9 +221,11 @@ const Store = Class({
         Constructor: O.Store
 
         Parameters:
-            source - {O.Source} The source for this store.
+            ...mixins - {Object} Objects to mix in, which must include a
+                        parameter named `source` of type {O.Source}, the source
+                        for this store.
     */
-    init ( mixin ) {
+    init (/* ...mixins */) {
         // Map store key -> record
         this._skToRecord = {};
         // Map store key -> data
@@ -281,9 +283,9 @@ const Store = Class({
         // If committing or loading type, wait until finish to check
         this._typeToServerState = {};
 
-        Store.parent.init.call( this, mixin );
+        Store.parent.init.apply( this, arguments );
 
-        mixin.source.set( 'store', this );
+        this.source.set( 'store', this );
     },
 
     // === Nested Stores =======================================================

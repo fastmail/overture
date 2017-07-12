@@ -25,8 +25,8 @@ const TextView = Class({
 
     Extends: AbstractControlView,
 
-    init ( mixin ) {
-        TextView.parent.init.call( this, mixin );
+    init (/* ...mixins */) {
+        TextView.parent.init.apply( this, arguments );
         this._settingFromInput = false;
     },
 

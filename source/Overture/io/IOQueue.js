@@ -80,17 +80,17 @@ const IOQueue = Class({
         Constructor: O.IOQueue
 
         Parameters:
-            mixin - {Object} An object containing new defaults for any of the
-                    public properties defined on the object. Can also contain
-                    methods to override the normal methods to create an
-                    anonymous subclass.
+            ...mixins - {Object} An object containing new defaults for any of
+                        the public properties defined on the object. Can also
+                        contain methods to override the normal methods to create
+                        an anonymous subclass.
     */
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._queue = [];
         this._recent = null;
         this.activeConnections = 0;
 
-        IOQueue.parent.init.call( this, mixin );
+        IOQueue.parent.init.apply( this, arguments );
     },
 
     /**

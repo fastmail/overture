@@ -337,7 +337,7 @@ const WindowedRemoteQuery = Class({
         return ( l < 0 );
     }.property().nocache(),
 
-    init ( mixin ) {
+    init (/* ...mixins */) {
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];
@@ -345,7 +345,7 @@ const WindowedRemoteQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedRemoteQuery.parent.init.call( this, mixin );
+        WindowedRemoteQuery.parent.init.apply( this, arguments );
     },
 
     reset: function ( _, _key ) {

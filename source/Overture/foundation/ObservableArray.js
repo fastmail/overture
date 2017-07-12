@@ -31,13 +31,14 @@ const ObservableArray = Class({
 
         Parameters:
             array   - {Array} (optional) The initial contents of the array.
-            mixin - {Object} (optional)
+            ...mixins - {Object} (optional)
     */
-    init ( array, mixin ) {
+    init ( array /*, ...mixins */) {
         this._array = array || [];
         this._length = this._array.length;
 
-        ObservableArray.parent.init.call( this, mixin );
+        ObservableArray.parent.init.apply( this,
+            Array.prototype.slice.call( arguments, 1 ) );
     },
 
     /**

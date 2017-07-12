@@ -35,8 +35,9 @@ const RootView = Class({
 
     layer: null,
 
-    init ( node, mixin ) {
-        RootView.parent.init.call( this, mixin );
+    init ( node /*, ...mixins */) {
+        RootView.parent.init.apply( this,
+            Array.prototype.slice.call( arguments, 1 ) );
 
         // Node.DOCUMENT_NODE => 9.
         const nodeIsDocument = ( node.nodeType === 9 );
