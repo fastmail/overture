@@ -835,9 +835,7 @@ var TodoView = O.Class({
     }
 });
 
-O.ClearSearchButtonView.implement({
-    icon: 'icon-clear'
-}, true );
+O.ClearSearchButtonView.prototype.icon = 'icon-clear';
 
 var appView = new O.View({
     className: 'v-App',
