@@ -132,17 +132,15 @@ const SwitchView = Class({
             this._remove( oldParent );
         }
         if ( newParent ) {
-            if ( newParent.get( 'isRendered' ) &&
-                    !this.get( 'layer' ).parentNode ) {
-                // We need to wait until we've been inserted to know where our
-                // DOM marker has been place, and so where to insert the real
-                // view(s).
-                newParent.addObserverForKey( 'childViews', this, '_add' );
-            } else {
-                // If not rendered, just add our views in the right place in the
-                // parent's childView list. They'll be rendered in the right
-                // spot.
+            if ( newParent.get( 'childViews' ).contains( this ) ) {
+                // If we already know where we are in the parent view, we can
+                // add our real views immediately.
                 this._add();
+            } else {
+                // Otherwise, we need to wait until we've been inserted to know
+                // where our DOM marker has been placed, and where the view is
+                // in the list of child views.
+                newParent.addObserverForKey( 'childViews', this, '_add' );
             }
         }
     }.observes( 'parentView' ),
