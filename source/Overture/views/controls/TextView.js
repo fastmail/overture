@@ -343,7 +343,7 @@ const TextView = Class({
         // areas, so automatically turn this off in such a case.
         // 2^13 chars is an arbitrary cut off point that seems to be reasonable
         // in practice
-        if ( isFirefox && this.get( 'value' ).length > 8192 ) {
+        if ( isFirefox && ( this.get( 'value' ) || '' ).length > 8192 ) {
             this.set( 'isExpanding', false );
             return;
         }
