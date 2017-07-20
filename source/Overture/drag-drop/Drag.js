@@ -298,7 +298,7 @@ const Drag = Class({
         if ( this.isNative ) {
             const dataTransfer = this.event.dataTransfer;
             // Current HTML5 DnD interface
-            const items = dataTransfer.items;
+            const items = dataTransfer && dataTransfer.items;
             const types = [];
             let hasFiles = false;
             if ( items ) {
@@ -319,7 +319,7 @@ const Drag = Class({
                 return types;
             }
             // Deprecated HTML5 DnD interface
-            if ( dataTransfer.types ) {
+            if ( dataTransfer && dataTransfer.types ) {
                 return Array.prototype.slice.call( dataTransfer.types );
             }
         }
