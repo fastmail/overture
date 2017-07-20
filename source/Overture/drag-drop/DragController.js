@@ -181,7 +181,16 @@ const DragController = new Obj({
             event - {Event}
     */
     handleEvent: function ( event ) {
-        this.fire( event.type, event );
+        var type;
+        try {
+            // Firefox sometimes throws a "permission denied" error trying
+            // to read any property on the event! Nothing useful we can do
+            // with an event like that, so just ignore it.
+            type = event.type;
+        } catch ( error ) {}
+        if ( type ) {
+            this.fire( type, event );
+        }
     }.invokeInRunLoop(),
 
     // === Non-native mouse API version ===
