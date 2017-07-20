@@ -263,7 +263,8 @@ WindowController.openExternal = function ( href ) {
             );
             newWindow.document.close();
         } catch ( error ) {
-            newWindow.location.href = href;
+            const location = newWindow.location || window.location;
+            location.href = href;
         }
     }
     return newWindow;
