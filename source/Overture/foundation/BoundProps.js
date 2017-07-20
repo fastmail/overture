@@ -1,4 +1,5 @@
 import { meta, guid } from '../core/Core.js';
+import '../core/Object.js';  // For Object.keyOf
 
 const bindingKey = '__binding__';
 

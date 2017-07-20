@@ -1,6 +1,7 @@
 /*global JSON */
 
 import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
+import '../../core/Object.js';  // For Object.filter and Object.keyOf
 import '../../core/Array.js';  // For Array#erase
 import RunLoop from '../../foundation/RunLoop.js';
 import Obj from '../../foundation/Object.js';

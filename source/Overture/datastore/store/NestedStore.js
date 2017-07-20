@@ -1,4 +1,5 @@
 import { Class, isEqual, clone } from '../../core/Core.js';
+import '../../core/Object.js';  // For Object.filter
 import RunLoop from '../../foundation/RunLoop.js';
 
 import {

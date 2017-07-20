@@ -1,4 +1,5 @@
 import { guid } from '../core/Core.js';
+import '../core/Object.js';  // For Object.keyOf
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 import UA from '../ua/UA.js';
 
