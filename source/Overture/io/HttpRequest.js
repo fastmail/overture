@@ -7,14 +7,6 @@ import RunLoop from '../foundation/RunLoop.js';
 import '../foundation/EventTarget.js';  // For Function#on
 import XHR from './XHR.js';
 
-const xhrPool = [];
-const getXhr = function () {
-    return xhrPool.pop() || new XHR();
-};
-const releaseXhr = function ( xhr ) {
-    xhrPool.push( xhr );
-};
-
 /**
     Class: O.HttpRequest
 
@@ -163,7 +155,7 @@ const HttpRequest = Class({
         const headers = this.get( 'headers' );
         const withCredentials = this.get( 'withCredentials' );
         const responseType = this.get( 'responseType' );
-        const transport = getXhr();
+        const transport = new XHR();
 
         if ( data && method === 'GET' ) {
             url += ( url.contains( '?' ) ? '&' : '?' ) + data;
@@ -196,7 +188,6 @@ const HttpRequest = Class({
     _releaseXhr: function () {
         const transport = this._transport;
         if ( transport instanceof XHR ) {
-            releaseXhr( transport );
             transport.io = null;
             this._transport = null;
         }
