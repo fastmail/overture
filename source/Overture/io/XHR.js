@@ -190,6 +190,10 @@ const XHR = Class({
         const io = this.io;
         const that = this;
 
+        if ( io ) {
+            io.fire( 'io:begin' );
+        }
+
         xhr.open( method, url, this.makeAsyncRequests );
         xhr.withCredentials = !!withCredentials;
         responseType = responseType || '';
@@ -210,6 +214,7 @@ const XHR = Class({
         xhr.onreadystatechange = function () {
             that._xhrStateDidChange( this );
         };
+
         if ( xhr.upload ) {
             // FF will force a preflight on simple cross-origin requests if
             // there is an upload handler set. This follows the spec, but the
@@ -222,10 +227,14 @@ const XHR = Class({
             }
             xhr.addEventListener( 'progress', this, false );
         }
-        xhr.send( data );
 
-        if ( io ) {
-            io.fire( 'io:begin' );
+        try {
+            xhr.send( data );
+        } catch ( error ) {
+            // Some browsers can throw a NetworkError under certain conditions
+            // for example if this is a synchronous request and there's no
+            // network. Treat as an abort.
+            this.abort();
         }
 
         return this;
