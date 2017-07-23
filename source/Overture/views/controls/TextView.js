@@ -224,7 +224,7 @@ const TextView = Class({
             ( this.get( 'isValid' ) ? '' : ' is-invalid' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
             ( type ? ' ' + type : '' );
-    }.property( 'type', 'isHighlighted',
+    }.property( 'type', 'isExpanding', 'isHighlighted',
         'isFocussed', 'isValid', 'isDisabled' ),
 
     layerStyles: function () {
