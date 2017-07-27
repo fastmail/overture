@@ -181,7 +181,7 @@ const DragController = new Obj({
             event - {Event}
     */
     handleEvent: function ( event ) {
-        var type;
+        let type;
         try {
             // Firefox sometimes throws a "permission denied" error trying
             // to read any property on the event! Nothing useful we can do
