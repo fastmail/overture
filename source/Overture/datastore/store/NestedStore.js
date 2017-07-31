@@ -39,8 +39,8 @@ const NestedStore = Class({
                     store).
     */
     init ( store ) {
-        // Own record store
-        this._skToRecord = {};
+        NestedStore.parent.init.call( this );
+
         // Copy on write, shared data object store
         this._skToData = Object.create( store._skToData );
         // Copy on write, shared status store.
@@ -53,41 +53,13 @@ const NestedStore = Class({
         // Share Type -> id -> store key
         this._typeToIdToSk = store._typeToIdToSk;
 
-        // Own changed map
-        this._skToChanged = {};
-        // Own previous attributes.
-        this._skToCommitted = {};
-        // Not used, but needs to be present to stop error on unload
-        this._skToRollback = {};
-
         // Share last access timestamp for
         this._skToLastAccess = store._skToLastAccess;
-
-        this._created = {};
-        this._destroyed = {};
-        this.hasChanges = false;
-
-        // Own queries
-        // Map id -> query
-        this._idToQuery = {};
-        // Map Type -> list of local queries
-        this._liveQueries = {};
-        // Set of remove queries.
-        this._remoteQueries = [];
-        // List of types needing a refresh.
-        this._queryTypesNeedRefresh = [];
-
-        // List of nested stores
-        this._nestedStores = [];
-
-        // Type -> [ store key ] of changed records.
-        this._typeToChangedSks = {};
 
         this._typeToStatus = store._typeToStatus;
 
         store.addNested( this );
 
-        this._source = store._source;
         this._parentStore = store;
     },
 

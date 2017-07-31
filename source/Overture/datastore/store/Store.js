@@ -286,7 +286,9 @@ const Store = Class({
 
         Store.parent.init.apply( this, arguments );
 
-        this.source.set( 'store', this );
+        if ( !this.get( 'isNested' ) ) {
+            this.source.set( 'store', this );
+        }
     },
 
     // === Nested Stores =======================================================
