@@ -540,10 +540,10 @@ const Store = Class({
         // to a particular type to make sure we don't miss any changes.
         // We'll automatically commit again if there are any changes when the
         // current commit finishes.
-        if ( this.isCommitting ) {
+        if ( this.get( 'isCommitting' ) ) {
             return;
         }
-        this.isCommitting = true;
+        this.set( 'isCommitting', true );
 
         this.fire( 'willCommit' );
         const {
@@ -639,14 +639,14 @@ const Store = Class({
                     _typeToStatus[ typeId ] &= ~COMMITTING;
                     this._checkServerStatus( types[ typeId ] );
                 }
-                this.isCommitting = false;
+                this.set( 'isCommitting', false );
                 if ( this.autoCommit &&
                         this.checkForChanges().get( 'hasChanges' ) ) {
                     this.commitChanges();
                 }
             }.bind( this ) );
         } else {
-            this.isCommitting = false;
+            this.set( 'isCommitting', false );
         }
 
         mayHaveChanges( this );
