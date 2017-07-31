@@ -340,7 +340,19 @@ const Binding = Class({
             return this;
         }
 
-        fromObject.addObserverForPath( this.fromPath, this, 'fromDidChange' );
+        // This is a debugging aid; TypeErrors with messages like “x is null” or
+        // “cannot read property 'addObserverForPath' of undefined” aren’t very
+        // useful. The source line where the binding was defined is lost in the
+        // mists of time (in debug mode I guess we *could* store a stack trace
+        // in the constructor, but that’s a desperate measure), but the fromPath
+        // is commonly useful in determining what went wrong.
+        const fromPath = this.fromPath;
+        if ( !fromObject ) {
+            throw new TypeError( 'Binding#connect: fromObject is not set' +
+                ' (fromPath = ' + fromPath + ')'
+            );
+        }
+        fromObject.addObserverForPath( fromPath, this, 'fromDidChange' );
 
         // Grab initial value:
         this.sync();
