@@ -34,6 +34,15 @@ const getFile = function ( src, callback ) {
     };
     let wait = 1000;
     xhr.onload = function () {
+        const status = xhr.status;
+        if ( status !== 200 ) {
+            // (onLoadFailed is accessed as a property so it can be overridden.)
+            const action = loader.onLoadFailed( status, xhr.statusText );
+            if ( action === 'retry' ) {
+                xhr.onerror();
+            }
+            return;
+        }
         xhr.onload = xhr.onerror = null;
         callback( this.responseText );
     };
@@ -281,6 +290,44 @@ loader = {
     cacheModules: false,
     modules: moduleInfo,
     baseHref: '',
+
+    /*
+        Function: O.loader.onLoadFailed
+
+        This method is called when loading a code module produces an
+        unsuccessful HTTP response (that is, the request is successful, but the
+        status code is something other than 200 OK—for example, it might be 404
+        Not Found because the code was removed from the server, or 503 Service
+        Unavailable because the server is down for maintenance). Note that if
+        the actual request fails (e.g. network failure) it will retry
+        automatically without invoking this function.
+
+        Users of Overture are at liberty ot replace this function with one of
+        their own to change the behaviour.
+
+        Arguments:
+
+            status     - {integer} The HTTP status of the unsuccessful request.
+                         It will be something other than 200.
+            statusText - {String} The statusText from the XMLHttpRequest.
+
+        Returns:
+
+            {undefined | 'retry'} If you want to try the request again (possibly
+                                  useful for 502, 503 or 504), return 'retry'.
+    */
+    onLoadFailed ( status, statusText ) {
+        if ( status === 502 || status === 503 || status === 504 ) {
+            return 'retry';
+        }
+        const reloadPage = confirm(  // eslint-disable-line no-alert
+            'Loading code failed (reason: ' + status + ' ' + statusText +
+            '). Reloading the page is probably necessary. Shall we try that?' );
+        if ( reloadPage ) {
+            // forceReload = true, to help make sure we get a fresh bootstrap.
+            location.reload( true );
+        }
+    },
 
     getFile,
 
