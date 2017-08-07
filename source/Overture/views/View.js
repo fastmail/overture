@@ -915,9 +915,13 @@ const View = Class({
     getPositionRelativeTo ( view ) {
         // If it's a scroll view, it may not have synced the current scroll
         // positions yet. Force this.
+        // We also need to force a redraw in case the reverse is true:
+        // scroll(Top|Left) properties have changed but DOM not yet updated.
         if ( view.syncBackScroll ) {
             view.syncBackScroll();
+            view.redraw();
         }
+        this.redraw();
         const getPosition = Element.getPosition;
         const selfPosition = getPosition( this.get( 'layer' ) );
         const viewPosition = getPosition( view.get( 'layer' ) );
