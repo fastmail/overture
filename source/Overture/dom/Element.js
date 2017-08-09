@@ -32,6 +32,7 @@ let setStyle, setStyles, setAttributes, appendChildren, getPosition;
     rather than as attributes on the element.
 */
 const directProperties = {
+    // Note: SVGElement#className is an SVGAnimatedString.
     'class': 'className',
     className: 'className',
     defaultValue: 'defaultValue',
@@ -41,6 +42,45 @@ const directProperties = {
     unselectable: 'unselectable',
     value: 'value',
 };
+
+/**
+    Property (private): Element-svgTagNames
+    Type: Set
+
+    When creating inline SVG elements the SVG namespace must be used. This list
+    allows `Element.create` to handle SVG tag names transparently.
+
+    Note that `title` is included in this, because we don’t expect Overture to
+    ever be creating HTML `<title>` elements.
+
+    Note that SVG attributes don’t use a namespace; only the element needs it.
+    That simplifies things a bit.
+*/
+// I took this list from html.vim; it probably covers SVG 1.1 completely.
+const svgTagNames = new Set([
+    'svg', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor',
+    'animateMotion', 'animateTransform', 'circle', 'ellipse', 'rect', 'line',
+    'polyline', 'polygon', 'image', 'path', 'clipPath', 'color-profile',
+    'cursor', 'defs', 'desc', 'g', 'symbol', 'view', 'use', 'switch',
+    'foreignObject', 'filter', 'feBlend', 'feColorMatrix',
+    'feComponentTransfer', 'feComposite', 'feConvolveMatrix',
+    'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feFlood',
+    'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage',
+    'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight',
+    'feSpecularLighting', 'feSpotLight', 'feTile', 'feTurbulence', 'font',
+    'font-face', 'font-face-format', 'font-face-name', 'font-face-src',
+    'font-face-uri', 'glyph', 'glyphRef', 'hkern', 'linearGradient', 'marker',
+    'mask', 'pattern', 'radialGradient', 'set', 'stop', 'missing-glyph',
+    'mpath', 'text', 'textPath', 'tref', 'tspan', 'vkern', 'metadata', 'title',
+]);
+
+/**
+    Property (private): Element-svgNS
+    Type: String
+
+    The URL for the SVG XML namespace.
+*/
+const svgNS = 'http://www.w3.org/2000/svg';
 
 /**
     Property (private): Element-booleanProperties
@@ -74,9 +114,11 @@ const booleanProperties = {
 */
 Element.prototype.get = function ( key ) {
     const prop = directProperties[ key ];
-    return prop ?
-        this[ prop ] :
-    booleanProperties[ key ] ?
+    if ( prop ) {
+        const value = this[ prop ];
+        return ( value instanceof SVGAnimatedString ) ? value.animVal : value;
+    }
+    return booleanProperties[ key ] ?
         !!this[ key ] :
         this.getAttribute( key );
 };
@@ -96,7 +138,13 @@ Element.prototype.get = function ( key ) {
 Element.prototype.set = function ( key, value ) {
     const prop = directProperties[ key ];
     if ( prop ) {
-        this[ prop ] = ( value == null ? '' : '' + value );
+        const currentValue = this[ prop ];
+        value = value == null ? '' : '' + value;
+        if ( currentValue instanceof SVGAnimatedString ) {
+            currentValue.baseVal = value;
+        } else {
+            this[ prop ] = value;
+        }
     } else if ( booleanProperties[ key ] ) {
         this[ key ] = !!value;
     } else if ( key === 'styles' ) {
@@ -243,8 +291,10 @@ export default {
             }
         }
 
-        // Create element, set props and add children
-        const el = doc.createElement( tag );
+        // Create element with default or SVG namespace, as appropriate.
+        const el = svgTagNames.has( tag ) ?
+            doc.createElementNS( svgNS, tag ) :
+            doc.createElement( tag );
 
         if ( ieEventModel && ( tag === 'input' ||
                 tag === 'select' || tag === 'textarea' ) ) {
