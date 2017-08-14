@@ -17,6 +17,18 @@ const PopOverView = Class({
 
     positioning: 'absolute',
 
+    /**
+        Property: O.PopOverView#calloutSize
+        Type: Number
+        Default: 10
+
+        The pixel offset to apply for the callout when shown, in whichever
+        direction is necessary. This is a matter of theming; any alterations to
+        this property will need to be paired with matching CSS changes on the
+        `.v-PopOver-callout` and `.v-PopOver-triangle`.
+    */
+    calloutSize: 10,
+
     isVisible: false,
     parentPopOverView: null,
 
@@ -198,6 +210,7 @@ const PopOverView = Class({
         const layout = this.get( 'layout' );
         const positionToThe = this._options.positionToThe || 'bottom';
         const callout = this._callout;
+        const calloutSize = this.get( 'calloutSize' );
         const calloutIsAtTopOrBottom =
                 ( positionToThe === 'top' || positionToThe === 'bottom' );
 
@@ -220,10 +233,10 @@ const PopOverView = Class({
             // If gap is negative, move the view.
             if ( gap < 0 ) {
                 deltaLeft += gap;
-                deltaLeft -= 10;
+                deltaLeft -= calloutSize;
                 if ( callout && calloutIsAtTopOrBottom ) {
                     calloutDelta += gap;
-                    calloutDelta -= 10;
+                    calloutDelta -= calloutSize;
                 }
             }
         }
@@ -232,10 +245,10 @@ const PopOverView = Class({
         gap = position.left + deltaLeft;
         if ( gap < 0 ) {
             deltaLeft -= gap;
-            deltaLeft += 10;
+            deltaLeft += calloutSize;
             if ( callout && calloutIsAtTopOrBottom ) {
                 calloutDelta -= gap;
-                calloutDelta += 10;
+                calloutDelta += calloutSize;
             }
         }
 
@@ -245,10 +258,10 @@ const PopOverView = Class({
                 layer.offsetHeight;
             if ( gap < 0 ) {
                 deltaTop += gap;
-                deltaTop -= 10;
+                deltaTop -= calloutSize;
                 if ( callout && !calloutIsAtTopOrBottom ) {
                     calloutDelta += gap;
-                    calloutDelta -= 10;
+                    calloutDelta -= calloutSize;
                 }
             }
         }
@@ -257,10 +270,10 @@ const PopOverView = Class({
         gap = position.top + deltaTop;
         if ( gap < 0 ) {
             deltaTop -= gap;
-            deltaTop += 10;
+            deltaTop += calloutSize;
             if ( callout && !calloutIsAtTopOrBottom ) {
                 calloutDelta -= gap;
-                calloutDelta += 10;
+                calloutDelta += calloutSize;
             }
         }
 
