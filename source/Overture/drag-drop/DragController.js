@@ -5,6 +5,7 @@ import '../foundation/EventTarget.js';  // For Function#on
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 import { lookupKey } from '../dom/DOMEvent.js';
 import ViewEventsController from '../views/ViewEventsController.js';
+import { getViewFromNode } from '../views/activeViews.js';
 
 import Drag from './Drag.js';  // Circular but it's OK
 import * as DragEffect from './DragEffect.js';
@@ -29,7 +30,7 @@ class TouchDragEvent {
         this.clientX = clientX;
         this.clientY = clientY;
         this.target = target;
-        this.targetView = ViewEventsController.getViewFromNode( target );
+        this.targetView = getViewFromNode( target );
     }
 }
 

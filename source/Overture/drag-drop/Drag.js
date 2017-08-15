@@ -9,7 +9,7 @@ import '../foundation/ComputedProps.js';  // For Function#property
 import Element from '../dom/Element.js';
 import Stylesheet from '../dom/Stylesheet.js';
 import ScrollView from '../views/containers/ScrollView.js';
-import ViewEventsController from '../views/ViewEventsController.js';
+import { getViewFromNode } from '../views/activeViews.js';
 
 import DragController from './DragController.js';  // Circular but it's OK
 import * as DragEffect from './DragEffect.js';
@@ -705,7 +705,7 @@ const Drag = Class({
             const cursor = this.get( 'cursorPosition' );
             const target = document.elementFromPoint( cursor.x, cursor.y );
             if ( target ) {
-                this._update( ViewEventsController.getViewFromNode( target ) );
+                this._update( getViewFromNode( target ) );
             }
         }
     },

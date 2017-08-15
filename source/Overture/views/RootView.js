@@ -7,6 +7,7 @@ import UA from '../ua/UA.js';
 
 import View from './View.js';
 import ViewEventsController from './ViewEventsController.js';
+import { getViewFromNode } from './activeViews.js';
 import ScrollView from './containers/ScrollView.js';
 import AbstractControlView from './controls/AbstractControlView.js';
 
@@ -111,7 +112,7 @@ const RootView = Class({
     focus () {
         const layer = this.get( 'layer' );
         const activeElement = layer.ownerDocument.activeElement;
-        const view = ViewEventsController.getViewFromNode( activeElement );
+        const view = getViewFromNode( activeElement );
         if ( view instanceof AbstractControlView ) {
             view.blur();
         } else if ( activeElement.blur ) {

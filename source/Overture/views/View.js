@@ -8,6 +8,7 @@ import Element from '../dom/Element.js';  // Circular but it's OK
 import UA from '../ua/UA.js';
 
 import ViewEventsController from './ViewEventsController.js';
+import activeViews from './activeViews.js';
 
 let UID = 0;
 
@@ -199,14 +200,15 @@ const View = Class({
     init (/* ...mixins */) {
         this._needsRedraw = null;
 
-        if ( !this.get( 'id' ) ) {
-            this.set( 'id', 'v' + UID++ );
-        }
         this.parentView = null;
         this.isRendered = false;
         this.isInDocument = false;
 
         View.parent.init.apply( this, arguments );
+
+        if ( ( this._autoID = !this.get( 'id' ) ) ) {
+            this.set( 'id', 'v' + UID++ );
+        }
 
         const children = this.get( 'childViews' ) || ( this.childViews = [] );
         let l = children.length;
@@ -385,7 +387,13 @@ const View = Class({
         }
         this.set( 'isInDocument', true );
 
-        ViewEventsController.registerActiveView( this );
+        const id = this.get( 'id' );
+        if ( this._autoID ) {
+            // Automatically-generated ID: bypass `set` for performance.
+            activeViews[ id ] = this;
+        } else {
+            activeViews.set( id, this );
+        }
 
         this.computedPropertyDidChange( 'pxLayout' );
 
@@ -408,7 +416,13 @@ const View = Class({
     willLeaveDocument () {
         this.set( 'isInDocument', false );
 
-        ViewEventsController.deregisterActiveView( this );
+        const id = this.get( 'id' );
+        if ( this._autoID ) {
+            // Automatically-generated ID: bypass `set` for performance.
+            delete activeViews[ id ];
+        } else {
+            activeViews.set( id, null );
+        }
 
         const children = this.get( 'childViews' );
         let l = children.length;

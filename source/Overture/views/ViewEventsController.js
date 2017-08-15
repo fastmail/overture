@@ -1,5 +1,6 @@
 import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
 import '../foundation/Enumerable.js';  // For Array#binarySearch
+import { getViewFromNode } from './activeViews.js';
 
 const etSearch = function ( candidate, b ) {
     const a = candidate[0];
@@ -31,70 +32,6 @@ const etSearch = function ( candidate, b ) {
 
 */
 const ViewEventsController = {
-
-    /**
-        Property (private): O.ViewEventsController._activeViews
-        Type: Object
-
-        Maps from id to the view object for all views currently in a document.
-    */
-    _activeViews: {},
-
-    /**
-        Method: O.ViewEventsController.registerActiveView
-
-        Automatically called when a view is inserted into a document. Adds an
-        internal id -> <O.View> mapping.
-
-        Parameters:
-            view - {O.View} The view object that has entered the document.
-
-        Returns:
-            {O.ViewEventsController} Returns self.
-    */
-    registerActiveView ( view ) {
-        this._activeViews[ view.get( 'id' ) ] = view;
-        return this;
-    },
-
-    /**
-        Method: O.ViewEventsController.deregisterActiveView
-
-        Automatically called when a view is removed from a document. Removes an
-        internal id -> <O.View> mapping.
-
-        Parameters:
-            view - {O.View} The view object that has left the document.
-
-        Returns:
-            {O.ViewEventsController} Returns self.
-    */
-    deregisterActiveView ( view ) {
-        delete this._activeViews[ view.get( 'id' ) ];
-        return this;
-    },
-
-    /**
-        Method: O.ViewEventsController.getViewFromNode
-
-        Returns the view object that the given DOM node is a part of.
-
-        Parameters:
-            node - {Element} a DOM node.
-
-        Returns:
-            {O.View|null} The view which owns the node.
-    */
-    getViewFromNode ( node ) {
-        const activeViews = this._activeViews;
-        const doc = node.ownerDocument;
-        let view = null;
-        while ( !view && node && node !== doc ) {
-            view = activeViews[ node.id ];
-            node = node.parentNode;
-        }
-        return view;
-    },
 
     /**
         Property (private): O.ViewEventsController._eventTargets
@@ -179,7 +116,7 @@ const ViewEventsController = {
         let l = eventTargets.length;
 
         if ( !view ) {
-            view = this.getViewFromNode( event.target ) || _rootView;
+            view = getViewFromNode( event.target ) || _rootView;
         }
         event.targetView = view;
 

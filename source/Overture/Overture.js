@@ -157,6 +157,7 @@ export { default as UA } from './ua/UA.js';
 
 export { default as RootView } from './views/RootView.js';
 export { default as View } from './views/View.js';
+export { default as activeViews, getViewFromNode } from './views/activeViews.js';
 export { default as ViewEventsController } from './views/ViewEventsController.js';
 export { default as ListItemView } from './views/collections/ListItemView.js';
 export { default as ListKBFocusView } from './views/collections/ListKBFocusView.js';
