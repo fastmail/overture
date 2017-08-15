@@ -199,7 +199,9 @@ const View = Class({
     init (/* ...mixins */) {
         this._needsRedraw = null;
 
-        this.id = 'v' + UID++;
+        if ( !this.get( 'id' ) ) {
+            this.set( 'id', 'v' + UID++ );
+        }
         this.parentView = null;
         this.isRendered = false;
         this.isInDocument = false;
