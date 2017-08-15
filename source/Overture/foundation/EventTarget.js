@@ -124,8 +124,12 @@ export default {
         firing if supplied, and a stopPropagation function, which prevents the
         event bubbling any further.
 
+        Both parameters are optional, but at least one must be specified. If the
+        `type` parameter is omitted, the `event` parameter must be an `Event` or
+        `O.Event` instance, and its `type` property will be used.
+
         Parameters:
-            type  - {String} The name of the event being fired.
+            type  - {String} (optional) The name of the event being fired.
             event - {Event|O.Event|Object} (optional) An event object or object
                     of values to be added to the event object.
 
@@ -134,6 +138,10 @@ export default {
     */
     fire ( type, event ) {
         let target = this;
+        if ( typeof type !== 'string' && !event ) {
+            event = type;
+            type = event.type;
+        }
         const typeKey = eventPrefix + type;
 
         if ( !event || !( event instanceof Event ) ) {
