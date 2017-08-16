@@ -87,14 +87,12 @@ const PopOverView = Class({
         // Now find out our offsets;
         const position = Element.getPosition( atNode, parent.get(
             parent instanceof ScrollView ? 'scrollLayer' : 'layer' ) );
-        const layout = {
-            top: position.top,
-            left: position.left,
-        };
+        let top = position.top;
+        let left = position.left;
 
         switch ( positionToThe ) {
         case 'right':
-            layout.left += atNodeWidth;
+            left += atNodeWidth;
             /* falls through */
         case 'left':
             switch ( alignEdge ) {
@@ -104,12 +102,12 @@ const PopOverView = Class({
                 atNodeHeight = atNodeHeight >> 1;
                 /* falls through */
             case 'bottom':
-                layout.top += atNodeHeight;
+                top += atNodeHeight;
                 break;
             }
             break;
         case 'bottom':
-            layout.top += atNodeHeight;
+            top += atNodeHeight;
             /* falls through */
         case 'top':
             switch ( alignEdge ) {
@@ -119,22 +117,28 @@ const PopOverView = Class({
                 atNodeWidth = atNodeWidth >> 1;
                 /* falls through */
             case 'right':
-                layout.left += atNodeWidth;
+                left += atNodeWidth;
                 break;
             }
             break;
         }
 
-        layout.top += options.offsetTop || 0;
-        layout.left += options.offsetLeft || 0;
+        top += options.offsetTop || 0;
+        left += options.offsetLeft || 0;
 
         // Round values to prevent buggy callout rendering.
-        for ( prop in layout ) {
-            layout[ prop ] = Math.round( layout[prop] );
-        }
+        top = Math.round( top );
+        left = Math.round( left );
 
         // Set layout
-        this.set( 'layout', layout );
+        this.set( 'layout', {
+            top: 0,
+            left: 0,
+            transform: 'translate(' +
+                ( left + deltaLeft ) + 'px,' +
+                ( top + deltaTop ) + 'px' +
+            ')',
+        });
 
         // Insert view
         this.insertView( view );
@@ -207,7 +211,6 @@ const PopOverView = Class({
     adjustPosition ( deltaLeft, deltaTop ) {
         let parent = this.get( 'parentView' );
         const layer = this.get( 'layer' );
-        const layout = this.get( 'layout' );
         const positionToThe = this._options.positionToThe || 'bottom';
         const callout = this._callout;
         const calloutSize = this.get( 'calloutSize' );
@@ -278,10 +281,19 @@ const PopOverView = Class({
         }
 
         if ( deltaLeft || deltaTop ) {
+            const transform = this.get( 'layout' ).transform
+                    .slice( 10, -1 )
+                    .split( ',' );
+            let left = parseInt( transform[0], 10 );
+            let top = parseInt( transform[1], 10 );
             // Redraw immediately to prevent "flashing"
             this.set( 'layout', {
-                top: layout.top + deltaTop,
-                left: layout.left + deltaLeft,
+                top: 0,
+                left: 0,
+                transform: 'translate(' +
+                    ( left + deltaLeft ) + 'px,' +
+                    ( top + deltaTop ) + 'px' +
+                ')',
             }).redraw();
         }
         if ( calloutDelta ) {
