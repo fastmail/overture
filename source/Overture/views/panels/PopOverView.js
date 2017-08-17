@@ -70,7 +70,6 @@ const PopOverView = Class({
         let deltaLeft = 0;
         let deltaTop = 0;
         const el = Element.create;
-        let prop;
 
         // Want nearest parent scroll view (or root view if none).
         // Special case parent == parent pop-over view.
@@ -284,8 +283,8 @@ const PopOverView = Class({
             const transform = this.get( 'layout' ).transform
                     .slice( 10, -1 )
                     .split( ',' );
-            let left = parseInt( transform[0], 10 );
-            let top = parseInt( transform[1], 10 );
+            const left = parseInt( transform[0], 10 );
+            const top = parseInt( transform[1], 10 );
             // Redraw immediately to prevent "flashing"
             this.set( 'layout', {
                 top: 0,
