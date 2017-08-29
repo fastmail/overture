@@ -36,14 +36,14 @@ const addValidityObserver = function ( observers, propKey ) {
 const RecordAttribute = Class({
 
     __setupProperty__ ( metadata, propKey, object ) {
-        let attrs = metadata.attrs,
-            dependents, observers, dependencies, l, key,
-            RecordType, AttributeErrorsType;
+        const constructor = object.constructor;
+        let attrs = metadata.attrs;
+        let dependents, observers, dependencies, l, key, AttributeErrorsType;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
         }
         if ( this.isPrimaryKey ) {
-            object.constructor.primaryKey = propKey;
+            constructor.primaryKey = propKey;
             // Make the `id` property depend on the primary key.
             dependents = metadata.dependents;
             if ( !metadata.hasOwnProperty( 'dependents' ) ) {
@@ -54,7 +54,7 @@ const RecordAttribute = Class({
                 ( dependents[ propKey ] = [] ) ).push( 'id' );
         }
         attrs[ this.key || propKey ] = propKey;
-        object.constructor.clientSettableAttributes = null;
+        constructor.clientSettableAttributes = null;
 
         if ( this.validate ) {
             observers = metadata.observers;
@@ -62,19 +62,18 @@ const RecordAttribute = Class({
 
             dependencies = this.validityDependencies;
             if ( dependencies ) {
-                RecordType = object.constructor;
                 AttributeErrorsType = object.AttributeErrorsType;
-                if ( AttributeErrorsType.forRecordType !== RecordType ) {
+                if ( AttributeErrorsType.forRecordType !== constructor ) {
                     AttributeErrorsType = object.AttributeErrorsType =
                         Class({
                             Extends: AttributeErrorsType,
                         });
-                    AttributeErrorsType.forRecordType = RecordType;
-                    metadata = meta( AttributeErrorsType );
+                    AttributeErrorsType.forRecordType = constructor;
+                    metadata = meta( AttributeErrorsType.prototype );
                     dependents = metadata.dependents =
                         clone( metadata.dependents );
                 } else {
-                    metadata = meta( AttributeErrorsType );
+                    metadata = meta( AttributeErrorsType.prototype );
                     dependents = metadata.dependents;
                 }
                 l = dependencies.length;
