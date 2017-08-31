@@ -8,6 +8,7 @@ const SelectionController = Class({
     Extends: Obj,
 
     content: null,
+    visible: null,
 
     init (/* ...mixins */) {
         this._selectionId = 0;
@@ -34,6 +35,10 @@ const SelectionController = Class({
         }
         this.selectNone();
     }.observes( 'content' ),
+
+    visibleDidChange: function () {
+        this._lastSelectedIndex = 0;
+    }.observes( 'visible' ),
 
     contentWasUpdated ( event ) {
         // If an id has been removed, it may no
@@ -118,10 +123,10 @@ const SelectionController = Class({
     },
 
     selectRange ( start, end, isSelected ) {
-        const content = this.get( 'content' );
+        const query = this.get( 'visible' ) || this.get( 'content' );
         const selectionId = ( this._selectionId += 1 );
-        const loading = content.getStoreKeysForObjectsInRange(
-            start, end = Math.min( end, content.get( 'length' ) || 0 ),
+        const loading = query.getStoreKeysForObjectsInRange(
+            start, end = Math.min( end, query.get( 'length' ) || 0 ),
             ( storeKeys, start, end ) => {
                 this.selectStoreKeys( storeKeys,
                     isSelected, selectionId, start, end );
@@ -136,9 +141,9 @@ const SelectionController = Class({
     },
 
     selectAll () {
-        const content = this.get( 'content' );
+        const query = this.get( 'visible' ) || this.get( 'content' );
         const selectionId = ( this._selectionId += 1 );
-        const loading = content.getStoreKeysForAllObjects(
+        const loading = query.getStoreKeysForAllObjects(
             ( storeKeys, start, end ) => {
                 this.selectStoreKeys( storeKeys,
                     true, selectionId, start, end );
