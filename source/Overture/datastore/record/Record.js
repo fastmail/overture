@@ -39,6 +39,10 @@ const Record = Class({
         Record.parent.init.call( this );
     },
 
+    nextEventTarget: function () {
+        return this.get( 'store' );
+    }.property().nocache(),
+
     /**
         Method: O.Record#clone
 
