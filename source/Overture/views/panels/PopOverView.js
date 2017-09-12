@@ -9,10 +9,6 @@ import ScrollView from '../containers/ScrollView.js';
 
 import ModalEventHandler from './ModalEventHandler.js';
 
-// The popover will ensure that there are at least this many pixels between the
-// popover and the edge of the parent view.
-const PARENT_MARGIN = 10;
-
 const PopOverView = Class({
 
     Extends: View,
@@ -199,6 +195,20 @@ const PopOverView = Class({
         return this;
     },
 
+    /**
+        Property: O.PopOverView#parentMargin
+        Type: {top: number, left: number, right: number, bottom: number}
+
+        The popover will ensure that it is at least N pixels away from each edge
+        of the parent view.
+    */
+    parentMargin: {
+        top: 10,
+        left: 10,
+        right: 10,
+        bottom: 10,
+    },
+
     adjustPosition ( deltaLeft, deltaTop ) {
         let parent = this.get( 'parentView' );
         const layer = this.get( 'layer' );
@@ -206,6 +216,7 @@ const PopOverView = Class({
         const callout = this._callout;
         const calloutIsAtTopOrBottom =
                 ( positionToThe === 'top' || positionToThe === 'bottom' );
+        const parentMargin = this.get( 'parentMargin' );
 
         if ( !deltaLeft ) { deltaLeft = 0; }
         if ( !deltaTop ) { deltaTop = 0; }
@@ -226,10 +237,10 @@ const PopOverView = Class({
             // If gap is negative, move the view.
             if ( gap < 0 ) {
                 deltaLeft += gap;
-                deltaLeft -= PARENT_MARGIN;
+                deltaLeft -= parentMargin.right;
                 if ( callout && calloutIsAtTopOrBottom ) {
                     calloutDelta += gap;
-                    calloutDelta -= PARENT_MARGIN;
+                    calloutDelta -= parentMargin.right;
                 }
             }
         }
@@ -238,10 +249,10 @@ const PopOverView = Class({
         gap = position.left + deltaLeft;
         if ( gap < 0 ) {
             deltaLeft -= gap;
-            deltaLeft += PARENT_MARGIN;
+            deltaLeft += parentMargin.left;
             if ( callout && calloutIsAtTopOrBottom ) {
                 calloutDelta -= gap;
-                calloutDelta += PARENT_MARGIN;
+                calloutDelta += parentMargin.left;
             }
         }
 
@@ -251,10 +262,10 @@ const PopOverView = Class({
                 layer.offsetHeight;
             if ( gap < 0 ) {
                 deltaTop += gap;
-                deltaTop -= PARENT_MARGIN;
+                deltaTop -= parentMargin.bottom;
                 if ( callout && !calloutIsAtTopOrBottom ) {
                     calloutDelta += gap;
-                    calloutDelta -= PARENT_MARGIN;
+                    calloutDelta -= parentMargin.bottom;
                 }
             }
         }
@@ -263,10 +274,10 @@ const PopOverView = Class({
         gap = position.top + deltaTop;
         if ( gap < 0 ) {
             deltaTop -= gap;
-            deltaTop += PARENT_MARGIN;
+            deltaTop += parentMargin.top;
             if ( callout && !calloutIsAtTopOrBottom ) {
                 calloutDelta -= gap;
-                calloutDelta += PARENT_MARGIN;
+                calloutDelta += parentMargin.top;
             }
         }
 
