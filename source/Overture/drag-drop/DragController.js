@@ -396,8 +396,7 @@ const DragController = new Obj({
         // Probably hasn't come via root view controller, so doesn't have target
         // view property
         if ( !event.targetView ) {
-            event.targetView =
-                ViewEventsController.getViewFromNode( event.target );
+            event.targetView = getViewFromNode( event.target );
         }
         if ( !drag ) {
             let effectAllowed;
