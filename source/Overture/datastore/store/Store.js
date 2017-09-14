@@ -1061,6 +1061,35 @@ const Store = Class({
     // ---
 
     /**
+        Method: O.Store#setRemoteQueriesObsolete
+
+        Call this method to notify the store of a change in the state of a
+        particular record type in the source. The store will wait for any
+        loading or committing of this type to finish, then check its state. If
+        it doesn't match, it will then request updates.
+
+        Parameters:
+            Type - {O.Class} The record type for which queries should be marked
+                   obsolete.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    setRemoteQueriesObsolete ( Type ) {
+        const { _remoteQueries } = this;
+        let l = _remoteQueries.length;
+
+        while ( l-- ) {
+            const remoteQuery = _remoteQueries[l];
+            if ( remoteQuery.get( 'Type' ) === Type ) {
+                remoteQuery.setObsolete();
+            }
+        }
+
+        return this;
+    },
+
+    /**
         Method: O.Store#sourceStateDidChange
 
         Call this method to notify the store of a change in the state of a
@@ -1078,21 +1107,19 @@ const Store = Class({
     sourceStateDidChange ( Type, newState ) {
         const typeId = guid( Type );
         const clientState = this._typeToClientState[ typeId ];
-        const { _remoteQueries } = this;
-        let l = _remoteQueries.length;
 
         if ( clientState && newState !== clientState ) {
             if ( !( this._typeToStatus[ typeId ] & (LOADING|COMMITTING) ) ) {
-                while ( l-- ) {
-                    const remoteQuery = _remoteQueries[l];
-                    if ( remoteQuery.get( 'Type' ) === Type ) {
-                        remoteQuery.setObsolete();
-                    }
-                }
+                this.setRemoteQueriesObsolete( Type );
                 this.fetchAll( Type, true );
             } else {
                 this._typeToServerState[ typeId ] = newState;
             }
+        }
+        // We could have a query but not matches yet; we still need to refresh
+        // the queries incase there are now matches.
+        else if ( !clientState ) {
+            this.setRemoteQueriesObsolete( Type );
         }
 
         return this;
