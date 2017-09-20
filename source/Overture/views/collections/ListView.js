@@ -49,6 +49,7 @@ const ListView = Class({
             end: 0x7fffffff, // Max positive signed 32bit int: 2^31 - 1
         };
 
+        this.controller = null;
         this.selection = null;
 
         ListView.parent.init.apply( this, arguments );
@@ -139,12 +140,13 @@ const ListView = Class({
     createItemView ( content, index, list, isAdded ) {
         const ItemView = this.get( 'ItemView' );
         return new ItemView({
+            controller: this.get( 'controller' ),
+            selection: this.get( 'selection' ),
             parentView: this,
             content,
             index,
             list,
             isAdded,
-            selection: this.get( 'selection' ),
         });
     },
 
