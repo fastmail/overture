@@ -145,7 +145,7 @@ XMLHttpRequest.prototype._returnResultForData = function ( data ) {
     }
     this.readyState = 4;
     this.status = 200;
-    this.responseText = JSON.stringify( result );
+    this.response = result;
     this.onreadystatechange();
 };
 
