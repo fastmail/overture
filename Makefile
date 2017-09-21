@@ -39,5 +39,5 @@ MODULE = $(patsubst build/%-raw.js,%,$@)
 
 build/%-raw.js: $$(shell find source/% -name "*.js") node_modules | build
 	$(REMOVE_OLD)
-	yarn run -- rollup source/$(MODULE)/$(MODULE).js -o $@ -c
+	yarn run rollup source/$(MODULE)/$(MODULE).js -o $@ -c
 	$(GZIP_AND_COMPRESS)
