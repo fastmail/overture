@@ -116,7 +116,7 @@ const LiveQuery = Class({
 
         this.length = results.length;
 
-        LiveQuery.parent.init.call( this, mixin );
+        LiveQuery.parent.constructor.call( this, mixin );
 
         store.addQuery( this );
     },

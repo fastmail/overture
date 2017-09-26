@@ -23,7 +23,7 @@ const RecordArray = Class({
         this.Type = Type;
         this.storeKeys = storeKeys;
 
-        RecordArray.parent.init.call( this );
+        RecordArray.parent.constructor.call( this );
     },
 
     /**

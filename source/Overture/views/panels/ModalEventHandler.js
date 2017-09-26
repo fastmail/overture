@@ -7,7 +7,7 @@ const ModalEventHandler = Class({
     Extends: Obj,
 
     init (/* ...mixins */) {
-        ModalEventHandler.parent.init.apply( this, arguments );
+        ModalEventHandler.parent.constructor.apply( this, arguments );
         this._seenMouseDown = false;
     },
 

@@ -26,7 +26,7 @@ const ListItemView = Class({
                 content.get( 'storeKey' )
             );
         }
-        ListItemView.parent.init.call( this, mixin );
+        ListItemView.parent.constructor.call( this, mixin );
     },
 
     positioning: 'absolute',

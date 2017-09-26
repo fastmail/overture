@@ -37,7 +37,7 @@ const ObservableArray = Class({
         this._array = array || [];
         this._length = this._array.length;
 
-        ObservableArray.parent.init.apply( this,
+        ObservableArray.parent.constructor.apply( this,
             Array.prototype.slice.call( arguments, 1 ) );
     },
 

@@ -90,7 +90,7 @@ const IOQueue = Class({
         this._recent = null;
         this.activeConnections = 0;
 
-        IOQueue.parent.init.apply( this, arguments );
+        IOQueue.parent.constructor.apply( this, arguments );
     },
 
     /**

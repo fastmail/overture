@@ -182,7 +182,7 @@ const RemoteQuery = Class({
         this.status = EMPTY;
         this.length = null;
 
-        RemoteQuery.parent.init.apply( this, arguments );
+        RemoteQuery.parent.constructor.apply( this, arguments );
 
         this.get( 'store' ).addQuery( this );
     },

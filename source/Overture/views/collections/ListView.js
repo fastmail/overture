@@ -52,7 +52,7 @@ const ListView = Class({
         this.controller = null;
         this.selection = null;
 
-        ListView.parent.init.apply( this, arguments );
+        ListView.parent.constructor.apply( this, arguments );
 
         const selection = this.get( 'selection' );
         if ( selection ) {

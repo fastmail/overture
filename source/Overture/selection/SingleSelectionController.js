@@ -19,7 +19,7 @@ const SingleSelectionController = Class({
         this.index = -1;
         this.isFetchingIndex = false;
 
-        SingleSelectionController.parent.init.apply( this, arguments );
+        SingleSelectionController.parent.constructor.apply( this, arguments );
 
         const content = this.get( 'content' );
         const record = this.get( 'record' );

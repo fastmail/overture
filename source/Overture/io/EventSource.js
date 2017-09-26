@@ -64,7 +64,7 @@ const EventSource = NativeEventSource ? Class({
 
         this.readyState = CLOSED;
 
-        EventSource.parent.init.apply( this, arguments );
+        EventSource.parent.constructor.apply( this, arguments );
 
         const eventTypes = [ 'open', 'message', 'error' ];
         const observers = meta( this ).observers;
@@ -194,7 +194,7 @@ const EventSource = NativeEventSource ? Class({
     readyState: CONNECTING,
 
     init (/* ...mixins */) {
-        EventSource.parent.init.apply( this, arguments );
+        EventSource.parent.constructor.apply( this, arguments );
         this._xhr = new XHR( this );
     },
 

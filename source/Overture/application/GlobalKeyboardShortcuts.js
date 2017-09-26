@@ -54,7 +54,7 @@ const GlobalKeyboardShortcuts = Class({
         this.isEnabled = true;
         this._shortcuts = {};
 
-        GlobalKeyboardShortcuts.parent.init.apply( this, arguments );
+        GlobalKeyboardShortcuts.parent.constructor.apply( this, arguments );
 
         ViewEventsController.kbShortcuts = this;
         ViewEventsController.addEventTarget( this, -10 );

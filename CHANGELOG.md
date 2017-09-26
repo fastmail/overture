@@ -1,5 +1,13 @@
 # Changelog
 
+## 2017-10-06
+
+### Changed
+
+- Recommendation: in constructor super calls such as
+  `Foo.parent.init.call( this, … )`, change `init` to `constructor` for
+  easy forwards compatibility with ES6 classes.
+
 ## 2017-09-12
 
 ### Changed

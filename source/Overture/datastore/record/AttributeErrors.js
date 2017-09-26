@@ -29,7 +29,7 @@ const AttributeErrors = Class({
             record - {O.Record} The record to manage attribute errors for.
     */
     init ( record ) {
-        AttributeErrors.parent.init.call( this );
+        AttributeErrors.parent.constructor.call( this );
 
         const attrs = meta( record ).attrs;
         let errorCount = 0;

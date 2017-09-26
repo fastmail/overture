@@ -78,7 +78,7 @@ const WindowController = Class({
         this.isFocussed = document.hasFocus ? document.hasFocus() : true;
         this._seenWCs = {};
 
-        WindowController.parent.init.apply( this, arguments );
+        WindowController.parent.constructor.apply( this, arguments );
 
         window.addEventListener( 'storage', this, false );
         window.addEventListener( 'unload', this, false );

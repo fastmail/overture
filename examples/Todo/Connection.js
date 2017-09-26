@@ -94,7 +94,7 @@ var Connection = O.Class({
 
         this.inFlightRequest = null;
 
-        Connection.parent.init.call( this, mixin );
+        Connection.parent.constructor.call( this, mixin );
     },
 
     prettyPrint: false,

@@ -284,7 +284,7 @@ const Store = Class({
         // If committing or loading type, wait until finish to check
         this._typeToServerState = {};
 
-        Store.parent.init.apply( this, arguments );
+        Store.parent.constructor.apply( this, arguments );
 
         if ( !this.get( 'isNested' ) ) {
             this.source.set( 'store', this );

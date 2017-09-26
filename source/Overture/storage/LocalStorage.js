@@ -45,7 +45,7 @@ const LocalStorage = Class({
         this._store = location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? sessionStorage : localStorage;
 
-        LocalStorage.parent.init.call( this );
+        LocalStorage.parent.constructor.call( this );
     },
 
     get ( key ) {

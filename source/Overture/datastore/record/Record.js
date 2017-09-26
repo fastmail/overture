@@ -36,7 +36,7 @@ const Record = Class({
         this.store = store;
         this.storeKey = storeKey;
 
-        Record.parent.init.call( this );
+        Record.parent.constructor.call( this );
     },
 
     nextEventTarget: function () {

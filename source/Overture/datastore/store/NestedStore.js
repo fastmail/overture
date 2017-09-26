@@ -39,7 +39,7 @@ const NestedStore = Class({
                     store).
     */
     init ( store ) {
-        NestedStore.parent.init.call( this );
+        NestedStore.parent.constructor.call( this );
 
         // Copy on write, shared data object store
         this._skToData = Object.create( store._skToData );

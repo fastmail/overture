@@ -345,7 +345,7 @@ const WindowedRemoteQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedRemoteQuery.parent.init.apply( this, arguments );
+        WindowedRemoteQuery.parent.constructor.apply( this, arguments );
     },
 
     reset: function ( _, _key ) {

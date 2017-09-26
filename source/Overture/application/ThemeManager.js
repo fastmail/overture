@@ -25,7 +25,7 @@ const ThemeManager = Class({
 
         this.theme = '';
 
-        ThemeManager.parent.init.apply( this, arguments );
+        ThemeManager.parent.constructor.apply( this, arguments );
     },
 
     /**

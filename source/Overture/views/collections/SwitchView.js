@@ -47,7 +47,7 @@ const SwitchView = Class({
         this.views = [];
         this.subViews = [];
 
-        SwitchView.parent.init.apply( this, arguments );
+        SwitchView.parent.constructor.apply( this, arguments );
 
         this.isRendered = true;
 

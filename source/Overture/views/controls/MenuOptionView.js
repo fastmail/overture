@@ -33,7 +33,7 @@ const MenuOptionView = Class({
         this.childViews = [ view ];
         this.button = view;
         this.controller = controller;
-        MenuOptionView.parent.init.call( this );
+        MenuOptionView.parent.constructor.call( this );
     },
 
     scrollIntoView: function () {

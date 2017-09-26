@@ -78,7 +78,7 @@ const ToolbarView = Class({
     preventOverlap: false,
 
     init (/* ...mixins */) {
-        ToolbarView.parent.init.apply( this, arguments );
+        ToolbarView.parent.constructor.apply( this, arguments );
         this._views = {
             overflow: new OverflowMenuView({
                 label: loc( 'More' ),

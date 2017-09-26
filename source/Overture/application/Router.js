@@ -120,7 +120,7 @@ const Router = Class({
     routes: [],
 
     init ( mixin, win ) {
-        Router.parent.init.call( this, mixin );
+        Router.parent.constructor.call( this, mixin );
         if ( !win ) { win = window; }
         const location = win.location;
         const path = ( this.useHash && getHash( location ) ) ||

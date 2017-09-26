@@ -15,7 +15,7 @@ const ProgressiveListView = Class({
     triggerInPx: 200,
 
     init (/* ...mixins */) {
-        ProgressiveListView.parent.init.apply( this, arguments );
+        ProgressiveListView.parent.constructor.apply( this, arguments );
         this._renderRange.end = 0;
     },
 

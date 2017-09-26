@@ -18,7 +18,7 @@ const SelectionController = Class({
         this.isLoadingSelection = false;
         this.length = 0;
 
-        SelectionController.parent.init.apply( this, arguments );
+        SelectionController.parent.constructor.apply( this, arguments );
 
         const content = this.get( 'content' );
         if ( content ) {

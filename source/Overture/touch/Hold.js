@@ -10,7 +10,7 @@ const HoldEvent = Class({
     Extends: Event,
 
     init ( touch ) {
-        HoldEvent.parent.init.call( this, 'hold', touch.target );
+        HoldEvent.parent.constructor.call( this, 'hold', touch.target );
         this.touch = touch;
     },
 });

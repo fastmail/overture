@@ -20,7 +20,7 @@ const UndoManager = Class({
 
         this.maxUndoCount = 1;
 
-        UndoManager.parent.init.apply( this, arguments );
+        UndoManager.parent.constructor.apply( this, arguments );
     },
 
     _pushState ( stack, data ) {

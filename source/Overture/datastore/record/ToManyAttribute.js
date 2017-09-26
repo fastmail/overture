@@ -42,7 +42,7 @@ const RecordArray = Class({
 
         this._updatingStore = false;
 
-        RecordArray.parent.init.call( this, value && value.slice() );
+        RecordArray.parent.constructor.call( this, value && value.slice() );
     },
 
     toJSON () {

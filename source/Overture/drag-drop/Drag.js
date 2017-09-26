@@ -87,7 +87,7 @@ const Drag = Class({
         this.defaultCursor = 'default';
         this.dragImage = null;
 
-        Drag.parent.init.call( this, mixin );
+        Drag.parent.constructor.call( this, mixin );
 
         this._setCursor( true );
         this.startDrag();

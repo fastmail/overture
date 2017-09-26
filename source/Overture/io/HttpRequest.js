@@ -106,7 +106,7 @@ const HttpRequest = Class({
         this.responseHeaders = {};
         this.response = '';
 
-        HttpRequest.parent.init.apply( this, arguments );
+        HttpRequest.parent.constructor.apply( this, arguments );
     },
 
     // ---

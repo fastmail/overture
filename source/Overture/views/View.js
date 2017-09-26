@@ -204,7 +204,7 @@ const View = Class({
         this.isRendered = false;
         this.isInDocument = false;
 
-        View.parent.init.apply( this, arguments );
+        View.parent.constructor.apply( this, arguments );
 
         if ( ( this._autoID = !this.get( 'id' ) ) ) {
             this.set( 'id', 'v' + UID++ );
