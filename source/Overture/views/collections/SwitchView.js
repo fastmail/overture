@@ -89,10 +89,11 @@ const SwitchView = Class({
     },
 
     didEnterDocument () {
+        this.set( 'isInDocument', true );
         if ( this.get( 'index' ) !== this._index ) {
             this.switchNeedsRedraw();
         }
-        return this.set( 'isInDocument', true );
+        return this;
     },
 
     willLeaveDocument () {
