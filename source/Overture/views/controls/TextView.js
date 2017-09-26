@@ -10,7 +10,6 @@ import { lookupKey } from '../../dom/DOMEvent';
 import ScrollView from '../containers/ScrollView';
 import AbstractControlView from './AbstractControlView';
 
-const nativePlaceholder = 'placeholder' in document.createElement( 'input' );
 const isFirefox = !!UA.firefox;
 
 /**
@@ -242,8 +241,6 @@ const TextView = Class({
         Overridden to draw view. See <O.View#draw>.
     */
     draw ( layer, Element, el ) {
-        const value = this.get( 'value' );
-        const placeholder = this.get( 'placeholder' );
         const isMultiline = this.get( 'isMultiline' );
         const control = this._domControl = el(
                 isMultiline ? 'textarea' : 'input', {
@@ -254,20 +251,11 @@ const TextView = Class({
                     type: this.get( 'inputType' ),
                     disabled: this.get( 'isDisabled' ),
                     tabIndex: this.get( 'tabIndex' ),
-                    value,
+                    placeholder: this.get( 'placeholder' ) || undefined,
+                    value: this.get( 'value' ),
                 });
 
         this.redrawInputAttributes();
-
-        if ( placeholder ) {
-            if ( nativePlaceholder ) {
-                control.placeholder = placeholder;
-            } else if ( !value ) {
-                this._placeholderShowing = true;
-                Element.addClass( control, 'v-Text-input--placeholder' );
-                control.value = placeholder;
-            }
-        }
 
         layer.title = this.get( 'tooltip' );
 
@@ -301,12 +289,7 @@ const TextView = Class({
         <#value> property.
     */
     redrawValue () {
-        const value = this.get( 'value' );
-        this._domControl.value = value;
-        // Ensure placeholder is updated.
-        if ( !nativePlaceholder && !this.get( 'isFocussed' ) ) {
-            this._setPlaceholder();
-        }
+        this._domControl.value = this.get( 'value' );
     },
 
     /**
@@ -316,13 +299,7 @@ const TextView = Class({
         changes.
     */
     redrawPlaceholder () {
-        const placeholder = this.get( 'placeholder' );
-        const control = this._domControl;
-        if ( nativePlaceholder ) {
-            control.placeholder = placeholder;
-        } else if ( this._placeholderShowing ) {
-            control.value = placeholder;
-        }
+        this._domControl.placeholder = this.get( 'placeholder' );
     },
 
     /**
@@ -475,36 +452,9 @@ const TextView = Class({
     */
     syncBackValue: function () {
         this._settingFromInput = true;
-        if ( nativePlaceholder || !this._placeholderShowing ) {
-            this.set( 'value', this._domControl.value );
-        }
+        this.set( 'value', this._domControl.value );
         this._settingFromInput = false;
     }.on( 'input' ),
-
-    /**
-        Method (private): O.TextView#_setPlaceholder
-
-        Sets/removes the placholder text for browsers that don't support this
-        natively.
-    */
-    _setPlaceholder: nativePlaceholder ? null :
-    function ( _, __, ___, isFocussed ) {
-        const control = this._domControl;
-        if ( isFocussed ) {
-            if ( this._placeholderShowing ) {
-                this._placeholderShowing = false;
-                Element.removeClass( control, 'v-Text-input--placeholder' );
-                control.value = '';
-            }
-        } else {
-            const placeholder = this.get( 'placeholder' );
-            if ( placeholder && !this.get( 'value' ) ) {
-                this._placeholderShowing = true;
-                Element.addClass( control, 'v-Text-input--placeholder' );
-                control.value = placeholder;
-            }
-        }
-    }.observes( 'isFocussed' ),
 
     /**
         Method (private): O.TextView#_onClick
