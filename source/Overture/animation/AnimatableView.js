@@ -1,5 +1,4 @@
 import UA from '../ua/UA.js';
-import RunLoop from '../foundation/RunLoop.js';
 import '../foundation/ComputedProps.js';  // For Function#property
 import Element from '../dom/Element.js';
 import Easing from './Easing.js';
@@ -106,14 +105,7 @@ export default {
         const setStyle = Element.setStyle;
 
         // Animate
-        if ( this.get( 'animateLayer' ) ) {
-            // Must wait until in document to animate
-            if ( !this.get( 'isInDocument' ) ) {
-                RunLoop.invokeInNextFrame(
-                    this.propertyNeedsRedraw.bind(
-                        this, this, 'layerStyles', oldStyles ) );
-                return;
-            }
+        if ( this.get( 'animateLayer' ) && this.get( 'isInDocument' ) ) {
             if ( !layerAnimation.current ) {
                 layerAnimation.current = oldStyles || newStyles;
             }
