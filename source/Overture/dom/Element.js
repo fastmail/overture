@@ -378,6 +378,8 @@ export default {
 
         Determines if an element has a particular class name.
 
+        DEPRECATED. Use `el.classList.contains( className )` directly.
+
         Parameters:
             el        - {Element} The element to test.
             className - {String} The class name to check.
@@ -386,13 +388,19 @@ export default {
             {Boolean} Does the element have the class?
     */
     hasClass ( el, className ) {
-        return el.className.contains( className, ' ' );
+        if ( window.console && console.warn ) {
+            console.warn( 'O.Element.hasClass is deprecated' );
+        }
+        return el.classList.contains( className );
     },
 
     /**
         Function: O.Element.addClass
 
         Adds a class to the element if not already there.
+
+        DEPRECATED. Use `el.classList.add( className )` directly (remembering
+        however that it doesn’t return `this`).
 
         Parameters:
             el        - {Element} The element to add the class to.
@@ -401,11 +409,11 @@ export default {
         Returns:
             {O.Element} Returns self.
     */
-    addClass ( el, className ){
-        const current = el.className;
-        if ( !current.contains( className, ' ' ) ) {
-            el.className = ( current ? current + ' ' : '' ) + className;
+    addClass ( el, className ) {
+        if ( window.console && console.warn ) {
+            console.warn( 'O.Element.addClass is deprecated' );
         }
+        el.classList.add( className );
         return this;
     },
 
@@ -413,6 +421,9 @@ export default {
         Function: O.Element.removeClass
 
         Removes a class from the element if present.
+
+        DEPRECATED. Use `el.classList.remove( className )` directly (remembering
+        however that it doesn’t return `this`).
 
         Parameters:
             el        - {Element} The element to remove the class from.
@@ -422,12 +433,10 @@ export default {
             {O.Element} Returns self.
     */
     removeClass ( el, className ) {
-        const current = el.className;
-        const index = (' ' + current + ' ' ).indexOf( ' ' + className + ' ' );
-        if ( index > -1 ) {
-            el.className = current.slice( 0, index && index - 1 ) +
-                           current.slice( index + className.length );
+        if ( window.console && console.warn ) {
+            console.warn( 'O.Element.removeClass is deprecated' );
         }
+        el.classList.remove( className );
         return this;
     },
 

@@ -8,6 +8,29 @@
   `Foo.parent.init.call( this, … )`, change `init` to `constructor` for
   easy forwards compatibility with ES6 classes.
 
+### Deprecated
+
+- Deprecated `O.Element.addClass`, `O.Element.removeClass` and
+  `O.Element.hasClass`, in favour of the now well-supported†
+  `Element.classList` API:
+
+  - `addClass( el, className )` → `el.classList.add( className )`
+  - `removeClass( el, className )` → `el.classList.remove( className )`
+  - `hasClass( el, className )` → `el.classList.contains( className )`
+
+  Element.classList is a read-only property, so it’s OK to store the
+  classList in your object instead of always writing `el.classList.add`.
+
+  Note that the `classList` API will throw exceptions if you pass class
+  name containing spaces, whereas the old `O.Element.*Class` API would
+  either work or fail silently. The deprecated methods have actually
+  changed to use classList directly, so they will now fail in such
+  cases.
+
+  († I say “well supported”, but IE 11 actually doesn’t implement
+  classList on SVG elements. If this matters to you, get a polyfill like
+  https://github.com/eligrey/classList.js.)
+
 ## 2017-09-12
 
 ### Changed

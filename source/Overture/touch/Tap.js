@@ -1,6 +1,5 @@
 import { Class } from '../core/Core';
 import Event from '../foundation/Event';
-import Element from '../dom/Element';
 import ViewEventsController from '../views/ViewEventsController';
 import Gesture from './Gesture';
 
@@ -46,7 +45,7 @@ class TrackedTouch {
         do {
             if ( /^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
                 activeEls.push( target );
-                Element.addClass( target, 'tap-active' );
+                target.classList.add( 'tap-active' );
             }
         } while ( target = target.parentNode );
     }
@@ -55,7 +54,7 @@ class TrackedTouch {
         const activeEls = this.activeEls;
         const l = activeEls.length;
         for ( let i = 0; i < l; i += 1 ) {
-            Element.removeClass( activeEls[i], 'tap-active' );
+            activeEls[i].classList.remove( 'tap-active' );
         }
     }
 }
