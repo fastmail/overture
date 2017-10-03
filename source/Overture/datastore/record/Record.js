@@ -221,9 +221,9 @@ const Record = Class({
             const propKey = attrs[ attrKey ];
             if ( propKey ) {
                 const attribute = this[ propKey ];
-                if ( !( attrKey in data ) && !attribute.noSync ) {
+                if ( !( attrKey in data ) ) {
                     const defaultValue = attribute.defaultValue;
-                    if ( defaultValue !== undefined && !attribute.noSync ) {
+                    if ( defaultValue !== undefined ) {
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
                             defaultValue.toJSON() : clone( defaultValue );
                     }

@@ -584,7 +584,10 @@ const Store = Class({
             const Type = _skToType[ storeKey ];
             let data = _skToData[ storeKey ];
 
-            data = convertForeignKeysToId( this, Type, data );
+            data = Object.filter(
+                convertForeignKeysToId( this, Type, data ),
+                Record.getClientSettableAttributes( Type )
+            );
 
             const create = getEntry( Type ).create;
             create.storeKeys.push( storeKey );
