@@ -323,7 +323,7 @@ const RecordAttribute = Class({
                         store.fire( 'record:user:update', { record: this } );
                     } else {
                         data[ attrKey ] = attrValue;
-                        record.computedPropertyDidChange( propKey, propValue );
+                        record.computedPropertyDidChange( propKey );
                     }
                 }
                 return propValue;
