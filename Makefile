@@ -27,7 +27,7 @@ include $(PATH_TO_TOOLS)/Makefile
 # === Documentation ===
 
 PATH_TO_DOC := tools/docbuilder
-PATH_TO_DOC_SOURCES := source/Overture
+PATH_TO_DOC_SOURCES := source
 PATH_TO_DOC_OUTPUT := build/docs
 include $(PATH_TO_DOC)/Makefile
 
@@ -37,7 +37,7 @@ include $(PATH_TO_DOC)/Makefile
 
 MODULE = $(patsubst build/%-raw.js,%,$@)
 
-build/%-raw.js: $$(shell find source/% -name "*.js") node_modules | build
+build/%-raw.js: $$(shell find source -name "*.js") node_modules | build
 	$(REMOVE_OLD)
-	yarn run rollup source/$(MODULE)/$(MODULE).js -o $@ -c
+	yarn run rollup source/$(MODULE).js -o $@ -c
 	$(GZIP_AND_COMPRESS)
