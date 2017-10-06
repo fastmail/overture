@@ -2,6 +2,19 @@
 
 ## 2017-10-06
 
+### Added
+
+- Support for building via npm. Now, `npm install` or `yarn` will make
+  `build/Overture.js`, which is the main entry point for the Node
+  module, and `build/Loader.js`.
+
+  The makefile is still around, but frankly it’s not very useful,
+  because doc building is progressively becoming more broken and the
+  minification isn’t what we need any more. It’ll disappear eventually.
+  (Note also the difference in filenames: the makefile produces
+  Overture-raw.js and Overture-‹HASH›.js, the node package produces
+  just Overture.js.)
+
 ### Changed
 
 - Recommendation: in constructor super calls such as
