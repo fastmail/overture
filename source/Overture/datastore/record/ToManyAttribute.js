@@ -24,7 +24,7 @@ Record.prototype.notifyRecordArray = function ( _, propKey ) {
     // If it's already been updated due to a fetch to the property,
     // the array will be in the cache. Don't waste time calling again.
     if ( recordArray && !isInCache ) {
-        recordArray.updateListFromRecord();
+        recordArray.updateFromRecord();
     }
 };
 
@@ -49,7 +49,7 @@ const RecordArray = Class({
         return this._array.slice();
     },
 
-    updateListFromRecord () {
+    updateFromRecord () {
         if ( !this._updatingStore ) {
             const record = this.get( 'record' );
             const propKey = this.get( 'propKey' );
@@ -150,13 +150,13 @@ const ToManyAttribute = Class({
     Type: Array,
     recordType: null,
 
-    call ( record, _, propKey ) {
+    call ( record, propValue, propKey ) {
         const arrayKey = '_' + propKey + 'RecordArray';
         let recordArray = record[ arrayKey ];
         // Race condition: another observer may fetch this before
         // our notifyRecordArray method has been called.
         if ( recordArray ) {
-            recordArray.updateListFromRecord();
+            recordArray.updateFromRecord();
         } else {
             recordArray = record[ arrayKey ] =
             new RecordArray(
@@ -166,6 +166,13 @@ const ToManyAttribute = Class({
                     this, record, undefined, propKey ),
                 this.recordType
             );
+        }
+        if ( propValue !== undefined ) {
+            recordArray
+                .replaceObjectsAt( 0,
+                    recordArray.get( 'length' ),
+                    propValue.map( function ( x ) { return x; } )
+                );
         }
         return recordArray;
     },
