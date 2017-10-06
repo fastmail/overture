@@ -1,14 +1,14 @@
 /*global document */
 
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import UA from '../../ua/UA.js';
-import Element from '../../dom/Element.js';
-import { lookupKey } from '../../dom/DOMEvent.js';
-import ScrollView from '../containers/ScrollView.js';
-import AbstractControlView from './AbstractControlView.js';
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property, #nocache
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import UA from '../../ua/UA';
+import Element from '../../dom/Element';
+import { lookupKey } from '../../dom/DOMEvent';
+import ScrollView from '../containers/ScrollView';
+import AbstractControlView from './AbstractControlView';
 
 const nativePlaceholder = 'placeholder' in document.createElement( 'input' );
 const isFirefox = !!UA.firefox;

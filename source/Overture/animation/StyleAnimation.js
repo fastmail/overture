@@ -1,6 +1,6 @@
-import Animation from './Animation.js';
-import { Class, clone } from '../core/Core.js';
-import Element from '../dom/Element.js';
+import Animation from './Animation';
+import { Class, clone } from '../core/Core';
+import Element from '../dom/Element';
 
 const splitTransform = function ( transform ) {
     const result = [];

@@ -1,4 +1,4 @@
-import { Class } from '../core/Core.js';
+import { Class } from '../core/Core';
 
 const Parse = Class({
     init ( string, tokens ) {

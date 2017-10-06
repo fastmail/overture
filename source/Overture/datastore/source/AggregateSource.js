@@ -1,8 +1,8 @@
-import { Class } from '../../core/Core.js';
-import '../../core/Array.js';  // For Array#erase
-import '../../foundation/ObservableProps.js';  // For Function#observes
+import { Class } from '../../core/Core';
+import '../../core/Array';  // For Array#erase
+import '../../foundation/ObservableProps';  // For Function#observes
 
-import Source from './Source.js';
+import Source from './Source';
 
 /**
     Class: O.AggregateSource

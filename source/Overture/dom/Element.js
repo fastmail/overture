@@ -1,11 +1,11 @@
 /*global Element, document */
 
-import '../core/String.js';  // For String#camelCase, #contains, #hyphenate
-import UA from '../ua/UA.js';
-import Binding from '../foundation/Binding.js';
-import RunLoop from '../foundation/RunLoop.js';
-import ViewEventsController from '../views/ViewEventsController.js';
-import View from '../views/View.js';  // Circular but it's OK
+import '../core/String';  // For String#camelCase, #contains, #hyphenate
+import UA from '../ua/UA';
+import Binding from '../foundation/Binding';
+import RunLoop from '../foundation/RunLoop';
+import ViewEventsController from '../views/ViewEventsController';
+import View from '../views/View';  // Circular but it's OK
 
 /**
     Module: DOM

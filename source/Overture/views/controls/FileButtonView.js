@@ -1,11 +1,11 @@
 /*global FormData */
 
-import { Class } from '../../core/Core.js';
-import '../../foundation/EventTarget.js';  // For Function#on
-import Element from '../../dom/Element.js';
+import { Class } from '../../core/Core';
+import '../../foundation/EventTarget';  // For Function#on
+import Element from '../../dom/Element';
 
-import ButtonView from './ButtonView.js';
-import AbstractControlView from './AbstractControlView.js';
+import ButtonView from './ButtonView';
+import AbstractControlView from './AbstractControlView';
 
 const canUseMultiple = FormData.isFake ? null : 'multiple';
 

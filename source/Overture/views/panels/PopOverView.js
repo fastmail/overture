@@ -1,13 +1,13 @@
-import { Class, meta } from '../../core/Core.js';
-import '../../foundation/EventTarget.js';  // For Function#on
-import { lookupKey } from '../../dom/DOMEvent.js';
-import Element from '../../dom/Element.js';
-import RootView from '../RootView.js';
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
-import ScrollView from '../containers/ScrollView.js';
+import { Class, meta } from '../../core/Core';
+import '../../foundation/EventTarget';  // For Function#on
+import { lookupKey } from '../../dom/DOMEvent';
+import Element from '../../dom/Element';
+import RootView from '../RootView';
+import View from '../View';
+import ViewEventsController from '../ViewEventsController';
+import ScrollView from '../containers/ScrollView';
 
-import ModalEventHandler from './ModalEventHandler.js';
+import ModalEventHandler from './ModalEventHandler';
 
 const PopOverView = Class({
 

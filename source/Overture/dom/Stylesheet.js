@@ -1,6 +1,6 @@
 /*global document */
 
-import Element from './Element.js';
+import Element from './Element';
 
 /**
     Namespace: O.Stylesheet

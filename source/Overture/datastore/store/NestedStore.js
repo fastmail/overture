@@ -1,6 +1,6 @@
-import { Class, isEqual, clone } from '../../core/Core.js';
-import '../../core/Object.js';  // For Object.filter
-import RunLoop from '../../foundation/RunLoop.js';
+import { Class, isEqual, clone } from '../../core/Core';
+import '../../core/Object';  // For Object.filter
+import RunLoop from '../../foundation/RunLoop';
 
 import {
     // Core states:
@@ -13,9 +13,9 @@ import {
     NEW,         // Record has not been committed to source.
     DIRTY,       // Record has local changes not commited to source
     OBSOLETE,    // Source may have changes not yet loaded.
-} from '../record/Status.js';
+} from '../record/Status';
 
-import Store from './Store.js';
+import Store from './Store';
 
 /**
     Class: O.NestedStore

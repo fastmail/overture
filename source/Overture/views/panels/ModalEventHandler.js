@@ -1,6 +1,6 @@
-import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
-import '../../foundation/EventTarget.js';  // For Function#on
+import { Class } from '../../core/Core';
+import Obj from '../../foundation/Object';
+import '../../foundation/EventTarget';  // For Function#on
 
 const ModalEventHandler = Class({
 

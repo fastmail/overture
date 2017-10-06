@@ -1,7 +1,7 @@
 /*global XMLHttpRequest, FormData, location */
 
-import { Class } from '../core/Core.js';
-import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
+import { Class } from '../core/Core';
+import '../foundation/RunLoop';  // For Function#invokeInRunLoop
 
 const isLocal = location.protocol === 'file:';
 

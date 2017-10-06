@@ -1,14 +1,14 @@
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import { lookupKey } from '../../dom/DOMEvent.js';
-import Element from '../../dom/Element.js';
-import { loc } from '../../localisation/LocaleController.js';
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
-import PopOverView from '../panels/PopOverView.js';
-import MenuButtonView from '../controls/MenuButtonView.js';
-import MenuView from '../controls/MenuView.js';
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ObservableProps';  // For Function#observes
+import { lookupKey } from '../../dom/DOMEvent';
+import Element from '../../dom/Element';
+import { loc } from '../../localisation/LocaleController';
+import View from '../View';
+import ViewEventsController from '../ViewEventsController';
+import PopOverView from '../panels/PopOverView';
+import MenuButtonView from '../controls/MenuButtonView';
+import MenuView from '../controls/MenuView';
 
 const toView = function ( name ) {
     return ( name === '-' ) ?

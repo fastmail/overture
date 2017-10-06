@@ -1,8 +1,8 @@
-import { Class, guid } from '../../core/Core.js';
-import RunLoop from '../../foundation/RunLoop.js';
+import { Class, guid } from '../../core/Core';
+import RunLoop from '../../foundation/RunLoop';
 
-import Record from '../record/Record.js';
-import RemoteQuery from '../query/RemoteQuery.js';
+import Record from '../record/Record';
+import RemoteQuery from '../query/RemoteQuery';
 
 /**
     Class: O.MemoryManager

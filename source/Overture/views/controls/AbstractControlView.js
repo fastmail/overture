@@ -1,13 +1,13 @@
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
-import { loc } from '../../localisation/LocaleController.js';
-import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
-import UA from '../../ua/UA.js';
-import Element from '../../dom/Element.js';
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import View from '../View';
+import ViewEventsController from '../ViewEventsController';
+import { loc } from '../../localisation/LocaleController';
+import formatKeyForPlatform from '../../application/formatKeyForPlatform';
+import UA from '../../ua/UA';
+import Element from '../../dom/Element';
 
 /**
     Class: O.AbstractControlView

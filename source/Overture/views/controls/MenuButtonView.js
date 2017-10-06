@@ -1,11 +1,11 @@
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import PopOverView from '../panels/PopOverView.js';
-import RootView from '../RootView.js';
-import ButtonView from './ButtonView.js';
-import MenuOptionView from './MenuOptionView.js';  // Circular but it's OK
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import PopOverView from '../panels/PopOverView';
+import RootView from '../RootView';
+import ButtonView from './ButtonView';
+import MenuOptionView from './MenuOptionView';  // Circular but it's OK
 
 /**
     Class: O.MenuButtonView

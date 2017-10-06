@@ -1,29 +1,29 @@
 /*global window, document, FileReader, Squire */
 
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import Transform from '../../foundation/Transform.js';
-import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import RunLoop from '../../foundation/RunLoop.js';  // Also Function#nextFrame
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property, #nocache
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import Transform from '../../foundation/Transform';
+import { bind, bindTwoWay } from '../../foundation/Binding';
+import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
-import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
-import Element from '../../dom/Element.js';
-import { lookupKey } from '../../dom/DOMEvent.js';
-import DropTarget from '../../drag-drop/DropTarget.js';
-import * as DragEffect from '../../drag-drop/DragEffect.js';
-import { loc } from '../../localisation/LocaleController.js';
-import UA from '../../ua/UA.js';
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
-import ScrollView from '../containers/ScrollView.js';
-import ToolbarView from '../collections/ToolbarView.js';
-import PopOverView from '../panels/PopOverView.js';
-import ButtonView from './ButtonView.js';
-import FileButtonView from './FileButtonView.js';
-import MenuView from './MenuView.js';
-import TextView from './TextView.js';
+import formatKeyForPlatform from '../../application/formatKeyForPlatform';
+import Element from '../../dom/Element';
+import { lookupKey } from '../../dom/DOMEvent';
+import DropTarget from '../../drag-drop/DropTarget';
+import * as DragEffect from '../../drag-drop/DragEffect';
+import { loc } from '../../localisation/LocaleController';
+import UA from '../../ua/UA';
+import View from '../View';
+import ViewEventsController from '../ViewEventsController';
+import ScrollView from '../containers/ScrollView';
+import ToolbarView from '../collections/ToolbarView';
+import PopOverView from '../panels/PopOverView';
+import ButtonView from './ButtonView';
+import FileButtonView from './FileButtonView';
+import MenuView from './MenuView';
+import TextView from './TextView';
 
 const execCommand = function ( command ) {
     return function ( arg ) {

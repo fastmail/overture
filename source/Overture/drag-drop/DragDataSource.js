@@ -1,4 +1,4 @@
-import * as DragEffect from './DragEffect.js';
+import * as DragEffect from './DragEffect';
 
 /**
     Class: O.DragDataSource

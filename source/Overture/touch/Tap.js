@@ -1,8 +1,8 @@
-import { Class } from '../core/Core.js';
-import Event from '../foundation/Event.js';
-import Element from '../dom/Element.js';
-import ViewEventsController from '../views/ViewEventsController.js';
-import Gesture from './Gesture.js';
+import { Class } from '../core/Core';
+import Event from '../foundation/Event';
+import Element from '../dom/Element';
+import ViewEventsController from '../views/ViewEventsController';
+import Gesture from './Gesture';
 
 /*  We can't just call preventDefault on touch(start|move), as this would
     prevent scrolling and also prevent links we want to act as normal from

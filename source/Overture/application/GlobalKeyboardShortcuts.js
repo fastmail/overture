@@ -1,10 +1,10 @@
-import { Class } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
-import '../foundation/EventTarget.js';  // For Function#on
-import UA from '../ua/UA.js';
-import { lookupKey } from '../dom/DOMEvent.js';
-import RichTextView from '../views/controls/RichTextView.js';
-import ViewEventsController from '../views/ViewEventsController.js';
+import { Class } from '../core/Core';
+import Obj from '../foundation/Object';
+import '../foundation/EventTarget';  // For Function#on
+import UA from '../ua/UA';
+import { lookupKey } from '../dom/DOMEvent';
+import RichTextView from '../views/controls/RichTextView';
+import ViewEventsController from '../views/ViewEventsController';
 
 const isMac = UA.isMac;
 const allowedInputs = {

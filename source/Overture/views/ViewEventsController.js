@@ -1,6 +1,6 @@
-import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
-import '../foundation/Enumerable.js';  // For Array#binarySearch
-import { getViewFromNode } from './activeViews.js';
+import '../foundation/RunLoop';  // For Function#invokeInRunLoop
+import '../foundation/Enumerable';  // For Array#binarySearch
+import { getViewFromNode } from './activeViews';
 
 const etSearch = function ( candidate, b ) {
     const a = candidate[0];

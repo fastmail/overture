@@ -1,5 +1,5 @@
-import { Class } from '../../core/Core.js';
-import ButtonView from './ButtonView.js';
+import { Class } from '../../core/Core';
+import ButtonView from './ButtonView';
 
 const ClearSearchButtonView = Class({
 

@@ -1,7 +1,7 @@
-import { Class } from '../../core/Core.js';
-import { loc } from '../../localisation/LocaleController.js';
-import TextView from './TextView.js';
-import ClearSearchButtonView from './ClearSearchButtonView.js';
+import { Class } from '../../core/Core';
+import { loc } from '../../localisation/LocaleController';
+import TextView from './TextView';
+import ClearSearchButtonView from './ClearSearchButtonView';
 
 const SearchTextView = Class({
 

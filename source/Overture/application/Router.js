@@ -1,9 +1,9 @@
 /*global document, window, history, location */
 
-import { Class } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
-import '../foundation/ObservableProps.js';  // For Function#observes
-import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop, #queue
+import { Class } from '../core/Core';
+import Obj from '../foundation/Object';
+import '../foundation/ObservableProps';  // For Function#observes
+import '../foundation/RunLoop';  // For Function#invokeInRunLoop, #queue
 
 /**
     Module: Application

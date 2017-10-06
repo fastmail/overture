@@ -1,11 +1,11 @@
 /*global location */
 
-import { Class } from '../core/Core.js';
-import '../core/String.js';  // For String#contains
-import Obj from '../foundation/Object.js';
-import RunLoop from '../foundation/RunLoop.js';
-import '../foundation/EventTarget.js';  // For Function#on
-import XHR from './XHR.js';
+import { Class } from '../core/Core';
+import '../core/String';  // For String#contains
+import Obj from '../foundation/Object';
+import RunLoop from '../foundation/RunLoop';
+import '../foundation/EventTarget';  // For Function#on
+import XHR from './XHR';
 
 /**
     Class: O.HttpRequest

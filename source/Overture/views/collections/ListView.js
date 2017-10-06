@@ -1,9 +1,9 @@
-import { Class, guid } from '../../core/Core.js';
-import { bind } from '../../foundation/Binding.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import UA from '../../ua/UA.js';
-import View from '../View.js';
+import { Class, guid } from '../../core/Core';
+import { bind } from '../../foundation/Binding';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ObservableProps';  // For Function#observes
+import UA from '../../ua/UA';
+import View from '../View';
 
 const byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );

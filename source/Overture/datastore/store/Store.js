@@ -1,17 +1,17 @@
 /*global JSON */
 
-import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
-import '../../core/Object.js';  // For Object.filter and Object.keyOf
-import '../../core/Array.js';  // For Array#erase
-import RunLoop from '../../foundation/RunLoop.js';
-import Obj from '../../foundation/Object.js';
-import Event from '../../foundation/Event.js';
-import EventTarget from '../../foundation/EventTarget.js';
+import { Class, meta, isEqual, guid, clone } from '../../core/Core';
+import '../../core/Object';  // For Object.filter and Object.keyOf
+import '../../core/Array';  // For Array#erase
+import RunLoop from '../../foundation/RunLoop';
+import Obj from '../../foundation/Object';
+import Event from '../../foundation/Event';
+import EventTarget from '../../foundation/EventTarget';
 
-import LiveQuery from '../query/LiveQuery.js';
-import RemoteQuery from '../query/RemoteQuery.js';
-import Record from '../record/Record.js';
-import RecordArray from '../query/RecordArray.js';
+import LiveQuery from '../query/LiveQuery';
+import RemoteQuery from '../query/RemoteQuery';
+import Record from '../record/Record';
+import RecordArray from '../query/RecordArray';
 import {
     // Core states:
     EMPTY,
@@ -24,11 +24,11 @@ import {
     NEW,         // Record is not created on source (has no source id)
     DIRTY,       // Record has local changes not yet committing
     OBSOLETE,    // Record may have changes not yet requested
-} from '../record/Status.js';
+} from '../record/Status';
 // eslint-disable-next-line no-duplicate-imports
-import * as Status from '../record/Status.js';
-import ToOneAttribute from '../record/ToOneAttribute.js';
-import ToManyAttribute from '../record/ToManyAttribute.js';
+import * as Status from '../record/Status';
+import ToOneAttribute from '../record/ToOneAttribute';
+import ToManyAttribute from '../record/ToManyAttribute';
 
 /**
     Module: DataStore

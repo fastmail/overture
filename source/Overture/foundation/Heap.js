@@ -1,4 +1,4 @@
-import { Class } from '../core/Core.js';
+import { Class } from '../core/Core';
 
 export default Class({
 

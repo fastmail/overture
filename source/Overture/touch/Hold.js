@@ -1,9 +1,9 @@
-import { Class } from '../core/Core.js';
-import Event from '../foundation/Event.js';
-import RunLoop from '../foundation/RunLoop.js';
-import ViewEventsController from '../views/ViewEventsController.js';
-import Tap from './Tap.js';
-import Gesture from './Gesture.js';
+import { Class } from '../core/Core';
+import Event from '../foundation/Event';
+import RunLoop from '../foundation/RunLoop';
+import ViewEventsController from '../views/ViewEventsController';
+import Tap from './Tap';
+import Gesture from './Gesture';
 
 const HoldEvent = Class({
 

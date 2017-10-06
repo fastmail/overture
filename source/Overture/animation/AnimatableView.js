@@ -1,9 +1,9 @@
-import UA from '../ua/UA.js';
-import '../foundation/ComputedProps.js';  // For Function#property
-import Element from '../dom/Element.js';
-import Easing from './Easing.js';
-import CSSStyleAnimation from './CSSStyleAnimation.js';
-import StyleAnimation from './StyleAnimation.js';
+import UA from '../ua/UA';
+import '../foundation/ComputedProps';  // For Function#property
+import Element from '../dom/Element';
+import Easing from './Easing';
+import CSSStyleAnimation from './CSSStyleAnimation';
+import StyleAnimation from './StyleAnimation';
 
 /**
     Mixin: O.AnimatableView

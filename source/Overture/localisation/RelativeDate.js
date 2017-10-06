@@ -1,4 +1,4 @@
-import { loc } from './LocaleController.js';
+import { loc } from './LocaleController';
 
 /**
     Function: Date.formatDuration

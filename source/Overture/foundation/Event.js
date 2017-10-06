@@ -1,4 +1,4 @@
-import { Class } from '../core/Core.js';
+import { Class } from '../core/Core';
 
 /**
     Class: O.Event

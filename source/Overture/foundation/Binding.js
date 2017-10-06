@@ -1,9 +1,9 @@
 /*global Element */
 
-import getFromPath from './getFromPath.js';
-import { Class } from '../core/Core.js';
+import getFromPath from './getFromPath';
+import { Class } from '../core/Core';
 
-import RunLoop from './RunLoop.js';
+import RunLoop from './RunLoop';
 
 /**
     Class: O.Binding

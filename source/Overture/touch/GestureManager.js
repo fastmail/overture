@@ -1,8 +1,8 @@
 /*global document */
 
-import '../core/Array.js';  // For Array#erase
-import Obj from '../foundation/Object.js';
-import ViewEventsController from '../views/ViewEventsController.js';
+import '../core/Array';  // For Array#erase
+import Obj from '../foundation/Object';
+import ViewEventsController from '../views/ViewEventsController';
 
 const GestureManager = new Obj({
 

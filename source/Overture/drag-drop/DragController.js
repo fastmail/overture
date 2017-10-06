@@ -1,14 +1,14 @@
 /*global document */
 
-import Obj from '../foundation/Object.js';
-import '../foundation/EventTarget.js';  // For Function#on
-import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
-import { lookupKey } from '../dom/DOMEvent.js';
-import ViewEventsController from '../views/ViewEventsController.js';
-import { getViewFromNode } from '../views/activeViews.js';
+import Obj from '../foundation/Object';
+import '../foundation/EventTarget';  // For Function#on
+import '../foundation/RunLoop';  // For Function#invokeInRunLoop
+import { lookupKey } from '../dom/DOMEvent';
+import ViewEventsController from '../views/ViewEventsController';
+import { getViewFromNode } from '../views/activeViews';
 
-import Drag from './Drag.js';  // Circular but it's OK
-import * as DragEffect from './DragEffect.js';
+import Drag from './Drag';  // Circular but it's OK
+import * as DragEffect from './DragEffect';
 
 const isControl = {
     BUTTON: 1,

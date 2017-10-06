@@ -1,5 +1,5 @@
-import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Class } from '../../core/Core';
+import Obj from '../../foundation/Object';
 
 /**
     Class: O.UndoManager

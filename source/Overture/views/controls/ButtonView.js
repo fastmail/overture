@@ -1,12 +1,12 @@
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import '../../foundation/EventTarget.js';  // For Function#on
-import RunLoop from '../../foundation/RunLoop.js';
-import { lookupKey } from '../../dom/DOMEvent.js';
-import Element from '../../dom/Element.js';
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/EventTarget';  // For Function#on
+import RunLoop from '../../foundation/RunLoop';
+import { lookupKey } from '../../dom/DOMEvent';
+import Element from '../../dom/Element';
 
-import AbstractControlView from './AbstractControlView.js';
+import AbstractControlView from './AbstractControlView';
 
 /**
     Class: O.ButtonView

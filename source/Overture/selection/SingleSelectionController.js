@@ -1,8 +1,8 @@
-import { Class, meta } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
-import RunLoop from '../foundation/RunLoop.js';  // Also Function#queue
-import '../foundation/ObservableProps.js';  // For Function#observes
-import { READY } from '../datastore/record/Status.js';
+import { Class, meta } from '../core/Core';
+import Obj from '../foundation/Object';
+import RunLoop from '../foundation/RunLoop';  // Also Function#queue
+import '../foundation/ObservableProps';  // For Function#observes
+import { READY } from '../datastore/record/Status';
 
 const SingleSelectionController = Class({
 

@@ -1,7 +1,7 @@
-import { Class, meta } from '../core/Core.js';
-import '../core/Array.js';  // For Array#erase
-import RunLoop from '../foundation/RunLoop.js';
-import Easing from './Easing.js';
+import { Class, meta } from '../core/Core';
+import '../core/Array';  // For Array#erase
+import RunLoop from '../foundation/RunLoop';
+import Easing from './Easing';
 
 // List of currently active animations
 const animations = [];

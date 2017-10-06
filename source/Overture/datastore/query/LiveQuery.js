@@ -1,11 +1,11 @@
-import { Class, guid } from '../../core/Core.js';
-import sortByProperties from '../../core/sortByProperties.js';
-import Obj from '../../foundation/Object.js';
-import ObservableRange from '../../foundation/ObservableRange.js';
-import Enumerable from '../../foundation/Enumerable.js';
-import '../../foundation/ComputedProps.js';  // For Function#property, #nocache
+import { Class, guid } from '../../core/Core';
+import sortByProperties from '../../core/sortByProperties';
+import Obj from '../../foundation/Object';
+import ObservableRange from '../../foundation/ObservableRange';
+import Enumerable from '../../foundation/Enumerable';
+import '../../foundation/ComputedProps';  // For Function#property, #nocache
 
-import { READY, DESTROYED } from '../record/Status.js';
+import { READY, DESTROYED } from '../record/Status';
 
 const numerically = function ( a, b ) {
     return a - b;

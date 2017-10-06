@@ -1,12 +1,12 @@
 /*global document */
 
-import { Class } from '../../core/Core.js';
-import { bind } from '../../foundation/Binding.js';
-import RunLoop from '../../foundation/RunLoop.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import View from '../View.js';
-import Element from '../../dom/Element.js';
+import { Class } from '../../core/Core';
+import { bind } from '../../foundation/Binding';
+import RunLoop from '../../foundation/RunLoop';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ObservableProps';  // For Function#observes
+import View from '../View';
+import Element from '../../dom/Element';
 
 const forEachView = function ( views, method, args ) {
     let l = views ? views.length : 0,

@@ -1,13 +1,13 @@
-import { Class } from '../../core/Core.js';
-import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import Animation from '../../animation/Animation.js';
-import Tap from '../../touch/Tap.js';
-import UA from '../../ua/UA.js';
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
+import { Class } from '../../core/Core';
+import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import Animation from '../../animation/Animation';
+import Tap from '../../touch/Tap';
+import UA from '../../ua/UA';
+import View from '../View';
+import ViewEventsController from '../ViewEventsController';
 
 const ScrollAnimation = Class({
 

@@ -1,6 +1,6 @@
-import { Class } from '../../core/Core.js';
+import { Class } from '../../core/Core';
 
-import UndoManager from './UndoManager.js';
+import UndoManager from './UndoManager';
 
 const StoreUndoManager = Class({
 

@@ -1,12 +1,12 @@
-import { Class } from '../../core/Core.js';
-import '../../core/Number.js';  // For Number#mod
-import Obj from '../../foundation/Object.js';
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import { i18n } from '../../localisation/LocaleController.js';
-import { lookupKey } from '../../dom/DOMEvent.js';
-import MenuButtonView from './MenuButtonView.js';  // Circular but it's OK
-import PopOverView from '../panels/PopOverView.js';
+import { Class } from '../../core/Core';
+import '../../core/Number';  // For Number#mod
+import Obj from '../../foundation/Object';
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import { i18n } from '../../localisation/LocaleController';
+import { lookupKey } from '../../dom/DOMEvent';
+import MenuButtonView from './MenuButtonView';  // Circular but it's OK
+import PopOverView from '../panels/PopOverView';
 
 // A menu option must have:
 // filter( pattern ): RegExp -> Boolean

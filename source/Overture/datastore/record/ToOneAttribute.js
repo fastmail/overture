@@ -1,7 +1,7 @@
-import { Class } from '../../core/Core.js';
+import { Class } from '../../core/Core';
 
-import RecordAttribute from './RecordAttribute.js';
-import Record from './Record.js';
+import RecordAttribute from './RecordAttribute';
+import Record from './Record';
 
 const ToOneAttribute = Class({
 

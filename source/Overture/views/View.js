@@ -1,14 +1,14 @@
-import { Class } from '../core/Core.js';
-import '../core/String.js';  // For String#capitalise
-import Obj from '../foundation/Object.js';
-import RunLoop from '../foundation/RunLoop.js';
-import '../foundation/ObservableProps.js';  // For Function#observes
-import '../foundation/ComputedProps.js';  // For Function#property
-import Element from '../dom/Element.js';  // Circular but it's OK
-import UA from '../ua/UA.js';
+import { Class } from '../core/Core';
+import '../core/String';  // For String#capitalise
+import Obj from '../foundation/Object';
+import RunLoop from '../foundation/RunLoop';
+import '../foundation/ObservableProps';  // For Function#observes
+import '../foundation/ComputedProps';  // For Function#property
+import Element from '../dom/Element';  // Circular but it's OK
+import UA from '../ua/UA';
 
-import ViewEventsController from './ViewEventsController.js';
-import activeViews from './activeViews.js';
+import ViewEventsController from './ViewEventsController';
+import activeViews from './activeViews';
 
 let UID = 0;
 

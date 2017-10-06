@@ -1,18 +1,18 @@
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import RunLoop from '../../foundation/RunLoop.js';  // Also Function#queue
-import { bindTwoWay } from '../../foundation/Binding.js';
-import { lookupKey } from '../../dom/DOMEvent.js';
-import View from '../View.js';
-import RootView from '../RootView.js';
-import ViewEventsController from '../ViewEventsController.js';
-import ScrollView from '../containers/ScrollView.js';
-import PopOverView from '../panels/PopOverView.js';
-import SearchTextView from './SearchTextView.js';
-import MenuController from './MenuController.js';  // Circular but it's OK
-import MenuOptionView from './MenuOptionView.js';  // FIXME(circular-imports)
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
+import { bindTwoWay } from '../../foundation/Binding';
+import { lookupKey } from '../../dom/DOMEvent';
+import View from '../View';
+import RootView from '../RootView';
+import ViewEventsController from '../ViewEventsController';
+import ScrollView from '../containers/ScrollView';
+import PopOverView from '../panels/PopOverView';
+import SearchTextView from './SearchTextView';
+import MenuController from './MenuController';  // Circular but it's OK
+import MenuOptionView from './MenuOptionView';  // FIXME(circular-imports)
 
 const MenuView = Class({
 

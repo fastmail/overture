@@ -1,9 +1,9 @@
-import { Class } from '../core/Core.js';
-import Obj from './Object.js';
-import ObservableRange from './ObservableRange.js';
-import Enumerable from './Enumerable.js';
-import MutableEnumerable from './MutableEnumerable.js';
-import './ComputedProps.js';  // For Function#property
+import { Class } from '../core/Core';
+import Obj from './Object';
+import ObservableRange from './ObservableRange';
+import Enumerable from './Enumerable';
+import MutableEnumerable from './MutableEnumerable';
+import './ComputedProps';  // For Function#property
 
 const splice = Array.prototype.splice;
 const slice = Array.prototype.slice;

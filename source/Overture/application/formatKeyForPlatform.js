@@ -1,5 +1,5 @@
-import '../core/String.js';  // For String#capitalise
-import UA from '../ua/UA.js';
+import '../core/String';  // For String#capitalise
+import UA from '../ua/UA';
 
 const isMac = UA.isMac;
 const platformKeys = {

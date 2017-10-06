@@ -1,6 +1,6 @@
-import { Class } from '../core/Core.js';
-import '../core/Date.js';  // For Date#add
-import '../core/String.js';  // For String#format
+import { Class } from '../core/Core';
+import '../core/Date';  // For Date#add
+import '../core/String';  // For String#format
 
 // Periods format:
 // until posix time, offset (secs), rules name, suffix

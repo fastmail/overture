@@ -1,12 +1,12 @@
-import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js';  // For Function#property
-import '../../foundation/EventTarget.js';  // For Function#on
-import '../../foundation/ObservableProps.js';  // For Function#observes
-import RunLoop from '../../foundation/RunLoop.js';
-import View from '../View.js';
-import ScrollView from '../containers/ScrollView.js';
-import PopOverView from '../panels/PopOverView.js';
-import MenuView from './MenuView.js';  // Circular but it's OK
+import { Class } from '../../core/Core';
+import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ObservableProps';  // For Function#observes
+import RunLoop from '../../foundation/RunLoop';
+import View from '../View';
+import ScrollView from '../containers/ScrollView';
+import PopOverView from '../panels/PopOverView';
+import MenuView from './MenuView';  // Circular but it's OK
 
 const MenuOptionView = Class({
 

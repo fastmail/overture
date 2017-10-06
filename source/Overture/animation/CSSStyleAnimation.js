@@ -1,10 +1,10 @@
 /*global document */
 
-import { Class } from '../core/Core.js';
-import RunLoop from '../foundation/RunLoop.js';
-import Element from '../dom/Element.js';
-import Easing from './Easing.js';
-import CSSStyleAnimationController from './CSSStyleAnimationController.js';
+import { Class } from '../core/Core';
+import RunLoop from '../foundation/RunLoop';
+import Element from '../dom/Element';
+import Easing from './Easing';
+import CSSStyleAnimationController from './CSSStyleAnimationController';
 
 /*
     Usage

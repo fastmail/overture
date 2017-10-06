@@ -42,87 +42,87 @@
       MenuView uses MenuOptionView in the global scope
 */
 
-export * from './core/Core.js';
-export { default as sortByProperties } from './core/sortByProperties.js';
-import './core/Array.js';
-import './core/Date.js';
-import './core/Number.js';
-import './core/Object.js';
-import './core/RegExp.js';
-import './core/String.js';
+export * from './core/Core';
+export { default as sortByProperties } from './core/sortByProperties';
+import './core/Array';
+import './core/Date';
+import './core/Number';
+import './core/Object';
+import './core/RegExp';
+import './core/String';
 
-export * from './foundation/Binding.js';
-export { default as BoundProps } from './foundation/BoundProps.js';
-export { default as ComputedProps } from './foundation/ComputedProps.js';
-export { default as Enumerable } from './foundation/Enumerable.js';
-export { default as Event } from './foundation/Event.js';
-export { default as EventTarget } from './foundation/EventTarget.js';
-export { default as getFromPath } from './foundation/getFromPath.js';
-export { default as Heap } from './foundation/Heap.js';
-export { default as MutableEnumerable } from './foundation/MutableEnumerable.js';
-export { default as Object } from './foundation/Object.js';
-export { default as ObservableArray } from './foundation/ObservableArray.js';
-export { default as ObservableProps } from './foundation/ObservableProps.js';
-export { default as ObservableRange } from './foundation/ObservableRange.js';
-export { default as RunLoop } from './foundation/RunLoop.js';
-export { default as Transform } from './foundation/Transform.js';
+export * from './foundation/Binding';
+export { default as BoundProps } from './foundation/BoundProps';
+export { default as ComputedProps } from './foundation/ComputedProps';
+export { default as Enumerable } from './foundation/Enumerable';
+export { default as Event } from './foundation/Event';
+export { default as EventTarget } from './foundation/EventTarget';
+export { default as getFromPath } from './foundation/getFromPath';
+export { default as Heap } from './foundation/Heap';
+export { default as MutableEnumerable } from './foundation/MutableEnumerable';
+export { default as Object } from './foundation/Object';
+export { default as ObservableArray } from './foundation/ObservableArray';
+export { default as ObservableProps } from './foundation/ObservableProps';
+export { default as ObservableRange } from './foundation/ObservableRange';
+export { default as RunLoop } from './foundation/RunLoop';
+export { default as Transform } from './foundation/Transform';
 
-export { default as AnimatableView } from './animation/AnimatableView.js';
-export { default as Animation } from './animation/Animation.js';
-export { default as CSSStyleAnimation } from './animation/CSSStyleAnimation.js';
-export { default as CSSStyleAnimationController } from './animation/CSSStyleAnimationController.js';
-export { default as Easing } from './animation/Easing.js';
-export { default as StyleAnimation } from './animation/StyleAnimation.js';
+export { default as AnimatableView } from './animation/AnimatableView';
+export { default as Animation } from './animation/Animation';
+export { default as CSSStyleAnimation } from './animation/CSSStyleAnimation';
+export { default as CSSStyleAnimationController } from './animation/CSSStyleAnimationController';
+export { default as Easing } from './animation/Easing';
+export { default as StyleAnimation } from './animation/StyleAnimation';
 
 // FIXME(circular-imports): MenuView ↔ MenuOptionView, but MenuView uses
 // MenuOptionView immediately so MenuView must be imported before MenuOptionView
 // which is indirectly imported by GlobalKeyboardShortcuts, so this import must
 // appear before GlobalKeyboardShortcuts in this list.
-export { default as MenuView } from './views/controls/MenuView.js';
+export { default as MenuView } from './views/controls/MenuView';
 
-export { default as formatKeyForPlatform } from './application/formatKeyForPlatform.js';
-export { default as GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts.js';
-export { default as Router } from './application/Router.js';
-export { default as ThemeManager } from './application/ThemeManager.js';
-export { default as WindowController } from './application/WindowController.js';
+export { default as formatKeyForPlatform } from './application/formatKeyForPlatform';
+export { default as GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts';
+export { default as Router } from './application/Router';
+export { default as ThemeManager } from './application/ThemeManager';
+export { default as WindowController } from './application/WindowController';
 
-export { default as LiveQuery } from './datastore/query/LiveQuery.js';
-export { default as RecordArray } from './datastore/query/RecordArray.js';
-export { default as RemoteQuery } from './datastore/query/RemoteQuery.js';
-export { default as WindowedRemoteQuery } from './datastore/query/WindowedRemoteQuery.js';
-export { default as AttributeErrors } from './datastore/record/AttributeErrors.js';
-export { default as Record } from './datastore/record/Record.js';
-export { default as RecordAttribute } from './datastore/record/RecordAttribute.js';
-import * as Status from './datastore/record/Status.js';
+export { default as LiveQuery } from './datastore/query/LiveQuery';
+export { default as RecordArray } from './datastore/query/RecordArray';
+export { default as RemoteQuery } from './datastore/query/RemoteQuery';
+export { default as WindowedRemoteQuery } from './datastore/query/WindowedRemoteQuery';
+export { default as AttributeErrors } from './datastore/record/AttributeErrors';
+export { default as Record } from './datastore/record/Record';
+export { default as RecordAttribute } from './datastore/record/RecordAttribute';
+import * as Status from './datastore/record/Status';
 export { Status };
-export { default as ToManyAttribute } from './datastore/record/ToManyAttribute.js';
-export { default as ToOneAttribute } from './datastore/record/ToOneAttribute.js';
-export { default as ValidationError } from './datastore/record/ValidationError.js';
-export { default as AggregateSource } from './datastore/source/AggregateSource.js';
-export { default as Source } from './datastore/source/Source.js';
-export { default as MemoryManager } from './datastore/store/MemoryManager.js';
-export { default as NestedStore } from './datastore/store/NestedStore.js';
-export { default as Store } from './datastore/store/Store.js';
-export { default as StoreUndoManager } from './datastore/store/StoreUndoManager.js';
-export { default as UndoManager } from './datastore/store/UndoManager.js';
+export { default as ToManyAttribute } from './datastore/record/ToManyAttribute';
+export { default as ToOneAttribute } from './datastore/record/ToOneAttribute';
+export { default as ValidationError } from './datastore/record/ValidationError';
+export { default as AggregateSource } from './datastore/source/AggregateSource';
+export { default as Source } from './datastore/source/Source';
+export { default as MemoryManager } from './datastore/store/MemoryManager';
+export { default as NestedStore } from './datastore/store/NestedStore';
+export { default as Store } from './datastore/store/Store';
+export { default as StoreUndoManager } from './datastore/store/StoreUndoManager';
+export { default as UndoManager } from './datastore/store/UndoManager';
 
-import * as DOMEvent from './dom/DOMEvent.js';
+import * as DOMEvent from './dom/DOMEvent';
 export { DOMEvent };
-export { default as Element } from './dom/Element.js';
-export { default as Stylesheet } from './dom/Stylesheet.js';
+export { default as Element } from './dom/Element';
+export { default as Stylesheet } from './dom/Stylesheet';
 
-export { default as Drag } from './drag-drop/Drag.js';
-export { default as DragController } from './drag-drop/DragController.js';
-export { default as DragDataSource } from './drag-drop/DragDataSource.js';
-import * as DragEffect from './drag-drop/DragEffect.js';
+export { default as Drag } from './drag-drop/Drag';
+export { default as DragController } from './drag-drop/DragController';
+export { default as DragDataSource } from './drag-drop/DragDataSource';
+import * as DragEffect from './drag-drop/DragEffect';
 export { DragEffect };
-export { default as Draggable } from './drag-drop/Draggable.js';
-export { default as DropTarget } from './drag-drop/DropTarget.js';
+export { default as Draggable } from './drag-drop/Draggable';
+export { default as DropTarget } from './drag-drop/DropTarget';
 
-export { default as EventSource } from './io/EventSource.js';
-export { default as HttpRequest } from './io/HttpRequest.js';
-export { default as IOQueue } from './io/IOQueue.js';
-export { default as XHR } from './io/XHR.js';
+export { default as EventSource } from './io/EventSource';
+export { default as HttpRequest } from './io/HttpRequest';
+export { default as IOQueue } from './io/IOQueue';
+export { default as XHR } from './io/XHR';
 
 // FIXME(circular-imports): core/Date → localisation/LocaleController →
 // localisation/Locale → core/Date, but LocaleController uses Locale
@@ -134,54 +134,54 @@ export { default as XHR } from './io/XHR.js';
 // 2. Merge localisation/{Locale, LocaleController}.js to just i18n.js;
 // 3. Abolish the LocaleController export for good measure (O.i18n is nice,
 //    singletons with a capital first letter aren’t).
-export { default as Locale } from './localisation/Locale.js';
-export * from './localisation/LocaleController.js';
-import './localisation/RelativeDate.js';
+export { default as Locale } from './localisation/Locale';
+export * from './localisation/LocaleController';
+import './localisation/RelativeDate';
 
-export { default as parse } from './parser/DateParser.js';
-export { default as Parse } from './parser/Parse.js';
+export { default as parse } from './parser/DateParser';
+export { default as Parse } from './parser/Parse';
 
-export { default as SelectionController } from './selection/SelectionController.js';
-export { default as SingleSelectionController } from './selection/SingleSelectionController.js';
+export { default as SelectionController } from './selection/SelectionController';
+export { default as SingleSelectionController } from './selection/SingleSelectionController';
 
-export { default as LocalStorage } from './storage/LocalStorage.js';
+export { default as LocalStorage } from './storage/LocalStorage';
 
-export { default as TimeZone } from './timezones/TimeZone.js';
+export { default as TimeZone } from './timezones/TimeZone';
 
-export { default as Gesture } from './touch/Gesture.js';
-export { default as GestureManager } from './touch/GestureManager.js';
-export { default as Hold } from './touch/Hold.js';
-export { default as Tap } from './touch/Tap.js';
+export { default as Gesture } from './touch/Gesture';
+export { default as GestureManager } from './touch/GestureManager';
+export { default as Hold } from './touch/Hold';
+export { default as Tap } from './touch/Tap';
 
-export { default as UA } from './ua/UA.js';
+export { default as UA } from './ua/UA';
 
-export { default as RootView } from './views/RootView.js';
-export { default as View } from './views/View.js';
-export { default as activeViews, getViewFromNode } from './views/activeViews.js';
-export { default as ViewEventsController } from './views/ViewEventsController.js';
-export { default as ListItemView } from './views/collections/ListItemView.js';
-export { default as ListKBFocusView } from './views/collections/ListKBFocusView.js';
-export { default as ListView } from './views/collections/ListView.js';
-export { default as ProgressiveListView } from './views/collections/ProgressiveListView.js';
-export { default as SwitchView } from './views/collections/SwitchView.js';
-export { default as ToolbarView } from './views/collections/ToolbarView.js';
-export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect.js';
-export { default as ScrollView } from './views/containers/ScrollView.js';
-export { default as SplitDividerView } from './views/containers/SplitDividerView.js';
-export { default as SplitViewController } from './views/containers/SplitViewController.js';
-export { default as AbstractControlView } from './views/controls/AbstractControlView.js';
-export { default as ButtonView } from './views/controls/ButtonView.js';
-export { default as CheckboxView } from './views/controls/CheckboxView.js';
-export { default as ClearSearchButtonView } from './views/controls/ClearSearchButtonView.js';
-export { default as FileButtonView } from './views/controls/FileButtonView.js';
-export { default as LabelView } from './views/controls/LabelView.js';
-export { default as MenuButtonView } from './views/controls/MenuButtonView.js';
-export { default as MenuController } from './views/controls/MenuController.js';
-export { default as MenuOptionView } from './views/controls/MenuOptionView.js';
-export { default as RadioView } from './views/controls/RadioView.js';
-export { default as RichTextView } from './views/controls/RichTextView.js';
-export { default as SearchTextView } from './views/controls/SearchTextView.js';
-export { default as SelectView } from './views/controls/SelectView.js';
-export { default as TextView } from './views/controls/TextView.js';
-export { default as ModalEventHandler } from './views/panels/ModalEventHandler.js';
-export { default as PopOverView } from './views/panels/PopOverView.js';
+export { default as RootView } from './views/RootView';
+export { default as View } from './views/View';
+export { default as activeViews, getViewFromNode } from './views/activeViews';
+export { default as ViewEventsController } from './views/ViewEventsController';
+export { default as ListItemView } from './views/collections/ListItemView';
+export { default as ListKBFocusView } from './views/collections/ListKBFocusView';
+export { default as ListView } from './views/collections/ListView';
+export { default as ProgressiveListView } from './views/collections/ProgressiveListView';
+export { default as SwitchView } from './views/collections/SwitchView';
+export { default as ToolbarView } from './views/collections/ToolbarView';
+export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect';
+export { default as ScrollView } from './views/containers/ScrollView';
+export { default as SplitDividerView } from './views/containers/SplitDividerView';
+export { default as SplitViewController } from './views/containers/SplitViewController';
+export { default as AbstractControlView } from './views/controls/AbstractControlView';
+export { default as ButtonView } from './views/controls/ButtonView';
+export { default as CheckboxView } from './views/controls/CheckboxView';
+export { default as ClearSearchButtonView } from './views/controls/ClearSearchButtonView';
+export { default as FileButtonView } from './views/controls/FileButtonView';
+export { default as LabelView } from './views/controls/LabelView';
+export { default as MenuButtonView } from './views/controls/MenuButtonView';
+export { default as MenuController } from './views/controls/MenuController';
+export { default as MenuOptionView } from './views/controls/MenuOptionView';
+export { default as RadioView } from './views/controls/RadioView';
+export { default as RichTextView } from './views/controls/RichTextView';
+export { default as SearchTextView } from './views/controls/SearchTextView';
+export { default as SelectView } from './views/controls/SelectView';
+export { default as TextView } from './views/controls/TextView';
+export { default as ModalEventHandler } from './views/panels/ModalEventHandler';
+export { default as PopOverView } from './views/panels/PopOverView';

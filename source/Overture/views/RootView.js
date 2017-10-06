@@ -1,15 +1,15 @@
 /*global window */
 
-import { Class } from '../core/Core.js';
-import '../foundation/EventTarget.js';  // For Function#on
-import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
-import UA from '../ua/UA.js';
+import { Class } from '../core/Core';
+import '../foundation/EventTarget';  // For Function#on
+import '../foundation/RunLoop';  // For Function#invokeInRunLoop
+import UA from '../ua/UA';
 
-import View from './View.js';
-import ViewEventsController from './ViewEventsController.js';
-import { getViewFromNode } from './activeViews.js';
-import ScrollView from './containers/ScrollView.js';
-import AbstractControlView from './controls/AbstractControlView.js';
+import View from './View';
+import ViewEventsController from './ViewEventsController';
+import { getViewFromNode } from './activeViews';
+import ScrollView from './containers/ScrollView';
+import AbstractControlView from './controls/AbstractControlView';
 
 /**
     Class: O.RootView

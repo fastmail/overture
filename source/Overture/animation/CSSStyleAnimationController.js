@@ -1,7 +1,7 @@
-import { guid } from '../core/Core.js';
-import '../core/Object.js';  // For Object.keyOf
-import '../foundation/RunLoop.js';  // For Function#invokeInRunLoop
-import UA from '../ua/UA.js';
+import { guid } from '../core/Core';
+import '../core/Object';  // For Object.keyOf
+import '../foundation/RunLoop';  // For Function#invokeInRunLoop
+import UA from '../ua/UA';
 
 /**
     Object: O.CSSStyleAnimationController

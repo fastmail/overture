@@ -1,9 +1,9 @@
 /*global document */
 
-import { Class } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
-import Stylesheet from '../dom/Stylesheet.js';
-import { loc } from '../localisation/LocaleController.js';
+import { Class } from '../core/Core';
+import Obj from '../foundation/Object';
+import Stylesheet from '../dom/Stylesheet';
+import { loc } from '../localisation/LocaleController';
 
 /**
     Class: O.ThemeManager

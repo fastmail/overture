@@ -1,4 +1,4 @@
-import { Class, meta, clone, isEqual } from '../../core/Core.js';
+import { Class, meta, clone, isEqual } from '../../core/Core';
 
 const instanceOf = function ( value, Type ) {
     switch ( typeof value ) {

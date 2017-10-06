@@ -1,6 +1,6 @@
 /*global navigator, document, window */
 
-import '../foundation/Enumerable.js';  // For Array#forEach on ES3 browsers?
+import '../foundation/Enumerable';  // For Array#forEach on ES3 browsers?
 // TODO(cmorgan/modulify) remove this alleged dependency, we use a ES5 baseline.
 
 /**

@@ -1,9 +1,9 @@
-import { Class, meta } from '../../core/Core.js';
-import '../../core/Array.js';  // For Array#erase
-import ObservableArray from '../../foundation/ObservableArray.js';
+import { Class, meta } from '../../core/Core';
+import '../../core/Array';  // For Array#erase
+import ObservableArray from '../../foundation/ObservableArray';
 
-import RecordAttribute from './RecordAttribute.js';
-import Record from './Record.js';
+import RecordAttribute from './RecordAttribute';
+import Record from './Record';
 
 const slice = Array.prototype.slice;
 

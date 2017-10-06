@@ -1,7 +1,7 @@
-import '../core/Number.js';  // For Number#mod
-import '../core/String.js';  // For String#escapeRegExp
-import i18n from '../localisation/LocaleController.js';
-import Parse from './Parse.js';
+import '../core/Number';  // For Number#mod
+import '../core/String';  // For String#escapeRegExp
+import i18n from '../localisation/LocaleController';
+import Parse from './Parse';
 
 // --- Date Grammar ---
 
