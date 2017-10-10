@@ -133,6 +133,7 @@ const ScrollView = Class({
     keys: {},
 
     didCreateLayer ( layer ) {
+        layer.tabIndex = -1;
         this.scrollLayer = layer;
     },
 
@@ -407,6 +408,22 @@ const ScrollView = Class({
             }
         }
     }.on( 'scroll' ),
+
+    // ---
+
+    /**
+        Method: O.ScrollView#focus
+
+        Focuses the scrollable element. This will mean default browser shortcuts
+        will work for scrolling (e.g. up/down/space etc.).
+
+        Returns:
+            {O.ScrollView} Returns self.
+    */
+    focus () {
+        this.scrollLayer.focus();
+        return this;
+    },
 });
 
 if ( UA.isIOS ) {
@@ -435,6 +452,7 @@ if ( UA.isIOS ) {
             // scrolling of the window.
             if ( 0 < safariVersion && safariVersion < 8 ) {
                 wrapper = this.scrollLayer = el( 'div', {
+                    tabIndex: -1,
                     style: 'position:relative;height:100%;' +
                         '-webkit-overflow-scrolling:touch;' +
                         'overflow-x:' +
