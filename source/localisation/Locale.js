@@ -31,10 +31,7 @@ const compileTranslation = function ( translation ) {
         const part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
         if ( part ) {
             if ( compiled ) { compiled += '+'; }
-            compiled += '"';
-            compiled += part.replace( /\\/g, '\\' )
-                            .replace( /"/g, '\\"' );
-            compiled += '"';
+            compiled += JSON.stringify( part );
         }
         // Check if we've reached the end of the string
         if ( end === length ) { break; }
@@ -106,10 +103,7 @@ const compileTranslation = function ( translation ) {
                 }
                 // Anything else is a plain string argument
                 else {
-                    compiled += '"';
-                    compiled += part.replace( /\\/g, '\\' )
-                                    .replace( /"/g, '\\"' );
-                    compiled += '"';
+                    compiled += JSON.stringify( part );
                 }
             }
         }
