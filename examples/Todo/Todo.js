@@ -387,12 +387,10 @@ App.state = new O.Router({
             listId = App.store.getStoreKey( TodoList, listId );
         }
 
-        /*jshint evil:true */
         filter = new Function( 'data', 'return' +
             '(data.listId==="' + listId.replace( /"/g, '\\"') + '")' +
             ( searchTree ? '&&' + searchTree.toFunctionString() : '' )
         );
-        /*jshint evil:false */
 
         return new O.LiveQuery({
             store: App.store,

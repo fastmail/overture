@@ -113,9 +113,7 @@ const compileTranslation = function ( translation ) {
         start = searchIndex = end + 1;
     }
 
-    /*jshint evil: true */
     return new Function( 'lang', 'args',
-    /*jshint evil: false */
         'return ' + ( compiled || '""' ) + ';'
     );
 };

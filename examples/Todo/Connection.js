@@ -314,11 +314,9 @@ var Connection = O.Class({
                 callback = tuple[1];
                 if ( id ) {
                     request = remoteCalls[+id];
-                    /* jshint ignore:start */
                     response = data.filter( function ( call ) {
                         return call[2] === id;
                     });
-                    /* jshint ignore:end */
                     callback = callback.bind( null, response, request );
                 }
                 O.RunLoop.queueFn( 'middle', callback );
