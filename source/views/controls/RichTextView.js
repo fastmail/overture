@@ -163,6 +163,7 @@ const RichTextView = Class({
                     'scrollTop', this, 'redrawIOSCursor' );
             }
         }
+        this.get( 'editor' ).moveCursorToStart();
         return RichTextView.parent.didEnterDocument.call( this );
     },
 
