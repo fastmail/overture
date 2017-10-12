@@ -66,6 +66,11 @@ export { default as ObservableProps } from './foundation/ObservableProps';
 export { default as ObservableRange } from './foundation/ObservableRange';
 export { default as RunLoop } from './foundation/RunLoop';
 export { default as Transform } from './foundation/Transform';
+import Promise from './foundation/Promise';
+// Replace the global Promise with our RunLoop-enabled Promise
+self.Promise = Promise;
+// … as well as as `O.Promise`.
+export { Promise };
 
 export { default as AnimatableView } from './animation/AnimatableView';
 export { default as Animation } from './animation/Animation';
