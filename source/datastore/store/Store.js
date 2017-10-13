@@ -450,16 +450,7 @@ const Store = Class({
         } else {
             storeKey = this.getStoreKey( Type, id );
         }
-        const record = this.materialiseRecord( storeKey, Type );
-
-        // If the caller is already handling the fetching, they can
-        // set doNotFetch to true.
-        if ( !doNotFetch && this.getStatus( storeKey ) === EMPTY ) {
-            this.fetchData( storeKey );
-        }
-        // Add timestamp for memory manager.
-        this._skToLastAccess[ storeKey ] = Date.now();
-        return record;
+        return this.getRecordFromStoreKey( storeKey, doNotFetch );
     },
 
     /**
@@ -825,6 +816,34 @@ const Store = Class({
             });
         }
         return this;
+    },
+
+    /**
+        Method: O.Store#getRecordFromStoreKey
+
+        Returns a record object for a particular store key, creating it if it
+        does not already exist and fetching its value if not already loaded in
+        memory, unless the doNotFetch parameter is set.
+
+        Parameters:
+            storeKey   - {String} The record store key.
+            doNotFetch - {Boolean} (optional) If true, the record data will not
+                         be fetched from the server if it is not already loaded.
+
+        Returns:
+            {O.Record} Returns the requested record.
+    */
+    getRecordFromStoreKey ( storeKey, doNotFetch ) {
+        const Type = this.getTypeFromStoreKey( storeKey );
+        const record = this.materialiseRecord( storeKey, Type );
+        // If the caller is already handling the fetching, they can
+        // set doNotFetch to true.
+        if ( !doNotFetch && this.getStatus( storeKey ) === EMPTY ) {
+            this.fetchData( storeKey );
+        }
+        // Add timestamp for memory manager.
+        this._skToLastAccess[ storeKey ] = Date.now();
+        return record;
     },
 
     /**

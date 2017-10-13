@@ -62,8 +62,7 @@ const RecordArray = Class({
     getObjectAt ( index ) {
         const storeKey = RecordArray.parent.getObjectAt.call( this, index );
         return storeKey ?
-            this.get( 'store' )
-                .getRecord( this.get( 'Type' ), '#' + storeKey ) :
+            this.get( 'store' ).getRecordFromStoreKey( storeKey ) :
             null;
     },
 
@@ -84,7 +83,7 @@ const RecordArray = Class({
                     return record.get( 'storeKey' );
                 })
             ).map( function ( storeKey ) {
-                return store.getRecord( Type, '#' + storeKey );
+                return store.getRecordFromStoreKey( storeKey );
             });
 
         this._updatingStore = true;

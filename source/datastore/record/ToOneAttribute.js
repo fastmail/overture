@@ -23,7 +23,7 @@ const ToOneAttribute = Class({
         let result = ToOneAttribute.parent.call.call(
             this, record, propValue, propKey );
         if ( result && typeof result === 'string' ) {
-            result = record.get( 'store' ).getRecord( this.Type, '#' + result );
+            result = record.get( 'store' ).getRecordFromStoreKey( result );
         }
         return result || null;
     },
