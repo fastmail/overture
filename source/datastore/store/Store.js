@@ -277,7 +277,7 @@ const Store = Class({
         // READY      -> Some records of type loaded
         // LOADING    -> Loading or refreshing ALL records of type
         // COMMITTING -> Committing some records of type
-        this._typeToStatus = {};
+        this.typeToStatus = new Obj();
         // Type -> state string for type in client
         this._typeToClientState = {};
         // Type -> latest known state string for type on server
@@ -540,7 +540,7 @@ const Store = Class({
         const {
             _created, _destroyed, _skToData, _skToStatus, _skToType,
             _typeToSkToId, _skToChanged, _skToCommitted, _skToRollback,
-            _typeToClientState, _typeToStatus,
+            _typeToClientState, typeToStatus,
         } = this;
 
         const newSkToChanged = {};
@@ -563,7 +563,8 @@ const Store = Class({
                     destroy: { storeKeys: [], ids: [] },
                     state: _typeToClientState[ typeId ],
                 };
-                _typeToStatus[ typeId ] |= COMMITTING;
+                typeToStatus.set( typeId,
+                    typeToStatus.get( typeId ) | COMMITTING );
                 types[ typeId ] = Type;
                 hasChanges = true;
             }
@@ -630,7 +631,8 @@ const Store = Class({
         if ( hasChanges ) {
             this.source.commitChanges( changes, function () {
                 for ( const typeId in types ) {
-                    _typeToStatus[ typeId ] &= ~COMMITTING;
+                    typeToStatus.set( typeId,
+                        typeToStatus.get( typeId ) & ~COMMITTING );
                     this._checkServerStatus( types[ typeId ] );
                 }
                 this.set( 'isCommitting', false );
@@ -754,7 +756,7 @@ const Store = Class({
             {O.Status} The status of the type in the store.
     */
     getTypeStatus ( Type ) {
-        return this._typeToStatus[ guid( Type ) ] || EMPTY;
+        return this.typeToStatus.get( guid( Type ) ) || EMPTY;
     },
 
     /**
@@ -1131,7 +1133,7 @@ const Store = Class({
         const clientState = this._typeToClientState[ typeId ];
 
         if ( clientState && newState !== clientState ) {
-            if ( !( this._typeToStatus[ typeId ] & (LOADING|COMMITTING) ) ) {
+            if ( !( this.typeToStatus.get( typeId ) & (LOADING|COMMITTING) ) ) {
                 this.setRemoteQueriesObsolete( Type );
                 this.fetchAll( Type, true );
             } else {
@@ -1179,16 +1181,18 @@ const Store = Class({
             {O.Store} Returns self.
     */
     fetchAll ( Type, force ) {
+        const { typeToStatus } = this;
         const typeId = guid( Type );
-        const status = this._typeToStatus[ typeId ];
+        const status = typeToStatus.get( typeId );
         const state = this._typeToClientState[ typeId ];
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
             this.source.fetchAllRecords( Type, state, function () {
-                this._typeToStatus[ typeId ] &= ~LOADING;
+                typeToStatus.set( typeId,
+                    typeToStatus.get( typeId ) & ~LOADING );
                 this._checkServerStatus( Type );
             }.bind( this ));
-            this._typeToStatus[ typeId ] = ( status | LOADING );
+            typeToStatus.set( typeId, status | LOADING );
         }
         return this;
     },
@@ -1459,7 +1463,7 @@ const Store = Class({
     */
     sourceDidFetchRecords ( Type, records, state, isAll ) {
         const typeId = guid( Type );
-        const { _typeToClientState } = this;
+        const { _typeToClientState, typeToStatus } = this;
         let l = records.length;
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
@@ -1530,10 +1534,10 @@ const Store = Class({
                 _typeToClientState[ typeId ] = state;
             }
         }
-        this._typeToStatus[ typeId ] |= READY;
 
         RunLoop.queueFn( 'middle',
             this.liveQueriesAreReady.bind( this, Type ) );
+        typeToStatus.set( typeId, typeToStatus.get( typeId ) | READY );
 
         return this;
     },

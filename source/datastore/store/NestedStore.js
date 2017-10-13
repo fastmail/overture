@@ -56,7 +56,7 @@ const NestedStore = Class({
         // Share last access timestamp for
         this._skToLastAccess = store._skToLastAccess;
 
-        this._typeToStatus = store._typeToStatus;
+        this.typeToStatus = store.typeToStatus;
 
         store.addNested( this );
 
