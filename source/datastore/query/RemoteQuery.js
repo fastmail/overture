@@ -1,4 +1,4 @@
-import { Class, guid } from '../../core/Core';
+import { Class, guid, meta } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import ObservableRange from '../../foundation/ObservableRange';
 import Enumerable from '../../foundation/Enumerable';
@@ -7,7 +7,6 @@ import '../../foundation/ObservableProps';  // For Function#observes
 import '../../foundation/RunLoop';  // For Function#queue
 import '../../foundation/ComputedProps';  // For Function#property, #nocache
 
-import Record from '../record/Record';
 import {
     EMPTY,
     READY,
@@ -19,6 +18,10 @@ import {
     // was initiated.
     OBSOLETE,
 } from '../record/Status';
+
+const AUTO_REFRESH_NEVER = 0;
+const AUTO_REFRESH_IF_OBSERVED = 1;
+const AUTO_REFRESH_ALWAYS = 2;
 
 /**
     Class: O.RemoteQuery
@@ -34,7 +37,7 @@ import {
         const query = new O.RemoteQuery({
             store: TodoApp.store
             Type: TodoApp.TodoItem,
-            filter: 'done',
+            where: 'done',
             sort: 'dateAscending'
         });
 
@@ -48,9 +51,9 @@ import {
     will in turn get them from the store, which will request any unloaded
     records from the source as normal.
 
-    The sort and filter properties may have arbitrary value and type. They are
+    The sort and where properties may have arbitrary value and type. They are
     there so your fetchQuery handler in source knows what to fetch. If they are
-    changed, the query is refetched. The sort and filter properties in the
+    changed, the query is refetched. The sort and where properties in the
     object passed to the sourceDidFetchQuery callback must be identical to the
     current values in the query for the data to be accepted.
 
@@ -66,32 +69,9 @@ const RemoteQuery = Class({
 
     Mixin: [ Enumerable, ObservableRange ],
 
-    id: function () {
-        return guid( this );
-    }.property().nocache(),
-
     /**
-        Property: O.RemoteQuery#sort
-        Type: *
-
-        The sort order to use for this query.
-    */
-    sort: '',
-
-    /**
-        Property: O.RemoteQuery#filter
-        Type: *
-
-        Any filter to apply to the query.
-    */
-    filter: '',
-
-    /**
-        Property: O.RemoteQuery#state
-        Type: String
-
-        A state string from the server to allow the query to fetch updates and
-        to determine if its list is invalid.
+        Property: O.RemoteQuery#store
+        Type: O.Store
     */
 
     /**
@@ -100,16 +80,27 @@ const RemoteQuery = Class({
 
         The type of records this query contains.
     */
-    Type: Record,
 
     /**
-        Property: O.RemoteQuery#store
-        Type: O.Store
+        Property: O.RemoteQuery#where
+        Type: *
+
+        Any filter to apply to the query. This MUST NOT change after init.
     */
 
     /**
-        Property: O.RemoteQuery#source
-        Type: O.Source
+        Property: O.RemoteQuery#sort
+        Type: *
+
+        The sort order to use for this query. This MUST NOT change after init.
+    */
+
+    /**
+        Property: O.RemoteQuery#state
+        Type: String
+
+        A state string from the server to allow the query to fetch updates and
+        to determine if its list is invalid.
     */
 
     /**
@@ -121,6 +112,73 @@ const RemoteQuery = Class({
         finished with the query and called <O.RemoteQuery#destroy>. It may also
         have OBSOLETE and LOADING bits set as appropriate.
     */
+
+    /**
+        Property: O.RemoteQuery#length
+        Type: (Number|null)
+
+        The length of the list of records matching the query, or null if
+        unknown.
+    */
+
+    autoRefresh: AUTO_REFRESH_NEVER,
+
+    /**
+        Constructor: O.RemoteQuery
+
+        Parameters:
+            mixin - {Object} (optional) Any properties in this object will be
+                    added to the new O.RemoteQuery instance before
+                    initialisation (so you can pass it getter/setter functions
+                    or observing methods).
+    */
+    init (/* ...mixins */) {
+        this._storeKeys = [];
+        this._awaitingIdFetch = [];
+        this._refresh = false;
+
+        this.id = guid( this );
+        this.source = null;
+        this.store = null;
+        this.where = null;
+        this.sort = null;
+        this.state = '';
+        this.status = EMPTY;
+        this.length = null;
+        this.lastAccess = Date.now();
+
+        RemoteQuery.parent.constructor.apply( this, arguments );
+
+        this.get( 'store' ).addQuery( this );
+        this.monitorForChanges();
+        this.refresh();
+    },
+
+    /**
+        Method: O.RemoteQuery#destroy
+
+        Sets the status to DESTROYED, deregisters the query with the store and
+        removes bindings and path observers so the object may be garbage
+        collected.
+    */
+    destroy () {
+        this.unmonitorForChanges();
+        this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
+        this.get( 'store' ).removeQuery( this );
+        RemoteQuery.parent.destroy.call( this );
+    },
+
+    monitorForChanges () {
+        this.get( 'store' )
+            .on( guid( this.get( 'Type' ) ) + ':server', this, 'setObsolete' );
+    },
+
+    unmonitorForChanges () {
+        this.get( 'store' )
+            .off( guid( this.get( 'Type' ) ) + ':server', this, 'setObsolete' );
+    },
+
+    // ---
 
     /**
         Method: O.RemoteQuery#is
@@ -149,7 +207,22 @@ const RemoteQuery = Class({
             {O.RemoteQuery} Returns self.
     */
     setObsolete () {
-        return this.set( 'status', this.get( 'status' ) | OBSOLETE );
+        this.set( 'status', this.get( 'status' ) | OBSOLETE );
+        switch ( this.get( 'autoRefresh' ) ) {
+        case AUTO_REFRESH_IF_OBSERVED: {
+            const metadata = meta( this );
+            const observers = metadata.observers;
+            const rangeObservers = metadata.rangeObservers;
+            if ( !observers.length && !observers[ '[]' ] &&
+                    !( rangeObservers && rangeObservers.length ) ) {
+                break;
+            }
+        }
+        /* falls through */
+        case AUTO_REFRESH_ALWAYS:
+            this.refresh();
+        }
+        return this;
     },
 
     /**
@@ -164,53 +237,19 @@ const RemoteQuery = Class({
         return this.set( 'status', this.get( 'status' ) | LOADING );
     },
 
-    /**
-        Constructor: O.RemoteQuery
-
-        Parameters:
-            mixin - {Object} (optional) Any properties in this object will be
-                    added to the new O.RemoteQuery instance before
-                    initialisation (so you can pass it getter/setter functions
-                    or observing methods).
-    */
-    init (/* ...mixins */) {
-        this._list = [];
-        this._awaitingIdFetch = [];
-        this._refresh = false;
-
-        this.state = '';
-        this.status = EMPTY;
-        this.length = null;
-
-        RemoteQuery.parent.constructor.apply( this, arguments );
-
-        this.get( 'store' ).addQuery( this );
-    },
-
-    /**
-        Method: O.RemoteQuery#destroy
-
-        Sets the status to DESTROYED, deregisters the query with the store and
-        removes bindings and path observers so the object may be garbage
-        collected.
-    */
-    destroy () {
-        this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
-        this.get( 'store' ).removeQuery( this );
-        RemoteQuery.parent.destroy.call( this );
-    },
+    // ---
 
     /**
         Method: O.RemoteQuery#refresh
 
-        Update the query with any changes on the server.
+        Fetcj the query or refresh if needed.
 
         Parameters:
             force        - {Boolean} (optional) Unless this is true, the remote
                            query will only ask the source to fetch updates if it
                            is marked EMPTY or OBSOLETE.
             callback     - {Function} (optional) A callback to be made
-                           when the refresh finishes.
+                           when the fetch finishes.
 
         Returns:
             {O.RemoteQuery} Returns self.
@@ -232,29 +271,49 @@ const RemoteQuery = Class({
         Method: O.RemoteQuery#reset
 
         Resets the list, throwing away the id list, resetting the state string
-        and setting the status to EMPTY. This is automatically triggered if the
-        sort or filter properties change.
+        and setting the status to EMPTY.
 
         Returns:
             {O.RemoteQuery} Returns self.
     */
-    reset: function ( _, _key ) {
+    reset () {
         const length = this.get( 'length' );
 
-        this._list.length = 0;
+        this._storeKeys.length = 0;
         this._refresh = false;
 
-        this.set( 'state', '' )
+        return this
+            .set( 'state', '' )
             .set( 'status', EMPTY )
             .set( 'length', null )
-            .rangeDidChange( 0, length );
+            .rangeDidChange( 0, length )
+            .fire( 'query:reset' );
+    },
 
-        if ( _key ) {
-            this.get( 'source' ).fetchQuery( this );
-        }
+    // ---
 
-        return this.fire( 'query:reset' );
-    }.observes( 'sort', 'filter' ),
+    /**
+        Property: O.RemoteQuery#[]
+        Type: Array
+
+        A standard array of record objects for the records in this query.
+    */
+    '[]': function () {
+        const store = this.get( 'store' );
+        return this._storeKeys.map( function ( storeKey ) {
+            return storeKey ? store.getRecordFromStoreKey( storeKey ) : null;
+        });
+    }.property(),
+
+    /**
+        Method: O.RemoteQuery#getStoreKeys
+
+        Returns:
+            {String[]} The store keys. You MUST NOT modify this.
+    */
+    getStoreKeys: function () {
+        return this._storeKeys;
+    },
 
     /**
         Method: O.RemoteQuery#getObjectAt
@@ -286,10 +345,9 @@ const RemoteQuery = Class({
             doNotFetch = this.fetchDataForObjectAt( index );
         }
 
-        const storeKey = this._list[ index ];
+        const storeKey = this._storeKeys[ index ];
         return storeKey ?
-            this.get( 'store' )
-                .getRecord( this.get( 'Type' ), '#' + storeKey, doNotFetch ) :
+            this.get( 'store' ).getRecordFromStoreKey( storeKey, doNotFetch ) :
             null;
     },
 
@@ -314,14 +372,6 @@ const RemoteQuery = Class({
     },
 
     /**
-        Property: O.RemoteQuery#length
-        Type: (Number|null)
-
-        The length of the list of records matching the query, or null if
-        unknown.
-    */
-
-    /**
         Method: O.RemoteQuery#indexOfStoreKey
 
         Finds the index of a store key in the query. Since the entire list may
@@ -340,11 +390,11 @@ const RemoteQuery = Class({
             {Number} The index of the store key, or -1 if not found.
     */
     indexOfStoreKey ( storeKey, from, callback ) {
-        const index = this._list.indexOf( storeKey, from );
+        const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
-                this.get( 'source' ).fetchQuery( this, function () {
-                    callback( this._list.indexOf( storeKey, from ) );
+                this.refresh( false, function () {
+                    callback( this._storeKeys.indexOf( storeKey, from ) );
                 }.bind( this ) );
             } else {
                 callback( index );
@@ -392,7 +442,7 @@ const RemoteQuery = Class({
 
         if ( start < 0 ) { start = 0; }
         if ( end > length ) { end = length; }
-        callback( this._list.slice( start, end ), start, end );
+        callback( this._storeKeys.slice( start, end ), start, end );
 
         return false;
     },
@@ -418,6 +468,8 @@ const RemoteQuery = Class({
         // 0x7fffffff is the largest positive signed 32-bit number.
         return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
     },
+
+    // ---
 
     /**
         Method (private): O.RemoteQuery#_adjustIdFetches
@@ -484,6 +536,8 @@ const RemoteQuery = Class({
         }
     }.queue( 'before' ).on( 'query:idsLoaded' ),
 
+    // ---
+
     /**
         Method: O.RemoteQuery#sourceWillFetchQuery
 
@@ -510,41 +564,25 @@ const RemoteQuery = Class({
         Method: O.RemoteQuery#sourceDidFetchQuery
 
         The source should call this method with the data returned from fetching
-        the query. The single argument is an object which should contain the
-        following properties:
-
-        sort   - {String} The sort used for the query.
-        filter - {String} The filter used for the query.
-        idList - {String[]} The ids of the records represented by this
-                 query.
-        state  - {String} (optional) A string representing the state of the
-                 query on the server at the time of the fetch.
+        the query.
 
         Parameters:
-            args - {Object} See description above.
+            storeKeys - {String[]} The store keys of the records represented by
+                        this query.
+            state     - {String} (optional) A string representing the state of
+                        the query on the server at the time of the fetch.
 
         Returns:
             {RemoteQuery} Returns self.
     */
-    sourceDidFetchQuery ( args ) {
-        // User may have changed sort or filter in intervening time; presume the
-        // value on the object is the right one, so if data doesn't match, just
-        // ignore it.
-        if ( this.get( 'sort' ) !== args.sort ||
-                this.get( 'filter' ) !== args.filter ) {
-            return;
-        }
-
-        this.set( 'state', args.state );
-
+    sourceDidFetchQuery ( storeKeys, state ) {
         // Could use a proper diffing algorithm to calculate added/removed
         // arrays, but probably not worth it.
-        const store = this.get( 'store' );
-        const toStoreKey = store.getStoreKey.bind( store, this.get( 'Type' ) );
-        const oldList = this._list;
-        const list = this._list = args.idList.map( toStoreKey );
+        const oldStoreKeys = this._storeKeys;
         const oldTotal = this.get( 'length' );
-        const total = list.length;
+        const total = storeKeys.length;
+        const minTotal = Math.min( total, oldTotal || 0 );
+        const index = {};
         const removedIndexes = [];
         const removedStoreKeys = [];
         const addedIndexes = [];
@@ -552,37 +590,52 @@ const RemoteQuery = Class({
         let firstChange = 0;
         let lastChangeNew = total - 1;
         let lastChangeOld = ( oldTotal || 0 ) - 1;
-        const l = Math.min( total, oldTotal || 0 );
-        let i;
+        let i, storeKey;
 
         // Initial fetch, oldTotal === null
         if ( oldTotal !== null ) {
-            while ( firstChange < l &&
-                    list[ firstChange ] === oldList[ firstChange ] ) {
+            while ( firstChange < minTotal &&
+                    storeKeys[ firstChange ] === oldStoreKeys[ firstChange ] ) {
                 firstChange += 1;
             }
 
             while ( lastChangeNew >= 0 && lastChangeOld >= 0 &&
-                    ( list[ lastChangeNew ] === oldList[ lastChangeOld ] ) ) {
+                    ( storeKeys[ lastChangeNew ] ===
+                        oldStoreKeys[ lastChangeOld ] ) ) {
                 lastChangeNew -= 1;
                 lastChangeOld -= 1;
             }
 
             for ( i = firstChange; i <= lastChangeOld; i += 1 ) {
-                removedIndexes.push( i );
-                removedStoreKeys.push( oldList[i] );
+                storeKey = oldStoreKeys[i];
+                index[ storeKey ] = i;
             }
 
             for ( i = firstChange; i <= lastChangeNew; i += 1 ) {
-                addedIndexes.push( i );
-                addedStoreKeys.push( list[i] );
+                storeKey = storeKeys[i];
+                if ( index[ storeKey ] === i ) {
+                    index[ storeKey ] = -1;
+                } else {
+                    addedIndexes.push( i );
+                    addedStoreKeys.push( storeKey );
+                }
+            }
+
+            for ( i = firstChange; i <= lastChangeOld; i += 1 ) {
+                storeKey = oldStoreKeys[i];
+                if ( index[ storeKey ] !== -1 ) {
+                    removedIndexes.push( i );
+                    removedStoreKeys.push( storeKey );
+                }
             }
         }
 
         lastChangeNew = ( total === oldTotal ) ?
             lastChangeNew + 1 : Math.max( oldTotal || 0, total );
 
+        this._storeKeys = storeKeys;
         this.beginPropertyChanges()
+            .set( 'state', state || '' )
             .set( 'status', READY|( this.is( OBSOLETE ) ? OBSOLETE : 0 ) )
             .set( 'length', total );
         if ( firstChange < lastChangeNew ) {
@@ -602,5 +655,9 @@ const RemoteQuery = Class({
         return this.fire( 'query:idsLoaded' );
     },
 });
+
+RemoteQuery.AUTO_REFRESH_NEVER = AUTO_REFRESH_NEVER;
+RemoteQuery.AUTO_REFRESH_IF_OBSERVED = AUTO_REFRESH_IF_OBSERVED;
+RemoteQuery.AUTO_REFRESH_ALWAYS = AUTO_REFRESH_ALWAYS;
 
 export default RemoteQuery;

@@ -183,10 +183,9 @@ const MemoryManager = Class({
         Removes excess remote queries from the store.
     */
     cleanupQueryType ( Type, max ) {
-        const queries = this._store.getAllRemoteQueries()
-                          .filter( function ( query ) {
-                return query instanceof Type;
-            });
+        const queries = this._store.getAllQueries().filter( function ( query ) {
+            return query instanceof Type;
+        });
         let l = queries.length;
         let numberToDelete = l - max;
         const deleted = [];

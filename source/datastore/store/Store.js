@@ -7,9 +7,6 @@ import RunLoop from '../../foundation/RunLoop';
 import Obj from '../../foundation/Object';
 import Event from '../../foundation/Event';
 import EventTarget from '../../foundation/EventTarget';
-
-import LiveQuery from '../query/LiveQuery';
-import RemoteQuery from '../query/RemoteQuery';
 import Record from '../record/Record';
 import RecordArray from '../query/RecordArray';
 import {
@@ -258,21 +255,11 @@ const Store = Class({
         // Any changes waiting to be committed?
         this.hasChanges = false;
 
-        // Queries
         // Map id -> query
         this._idToQuery = {};
-        // Map Type -> list of local queries
-        this._liveQueries = {};
-        // Set of remote queries.
-        this._remoteQueries = [];
-        // List of types needing a refresh.
-        this._queryTypesNeedRefresh = [];
 
         // List of nested stores
         this._nestedStores = [];
-
-        // Type -> [ store key ] of changed records.
-        this._typeToChangedSks = {};
 
         // READY      -> Some records of type loaded
         // LOADING    -> Loading or refreshing ALL records of type
@@ -283,6 +270,8 @@ const Store = Class({
         // Type -> latest known state string for type on server
         // If committing or loading type, wait until finish to check
         this._typeToServerState = {};
+        // Type -> [ store key ] of changed records.
+        this._typeToChangedSks = {};
 
         Store.parent.constructor.apply( this, arguments );
 
@@ -883,6 +872,8 @@ const Store = Class({
             ( this._skToRecord[ storeKey ] = new Type( this, storeKey ) );
     },
 
+    // ---
+
     /**
         Method: O.Store#mayUnloadRecord
 
@@ -971,6 +962,8 @@ const Store = Class({
 
         return true;
     },
+
+    // ---
 
     /**
         Method: O.Store#createRecord
@@ -1083,71 +1076,6 @@ const Store = Class({
     },
 
     // ---
-
-    /**
-        Method: O.Store#setRemoteQueriesObsolete
-
-        Call this method to notify the store of a change in the state of a
-        particular record type in the source. The store will wait for any
-        loading or committing of this type to finish, then check its state. If
-        it doesn't match, it will then request updates.
-
-        Parameters:
-            Type - {O.Class} The record type for which queries should be marked
-                   obsolete.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    setRemoteQueriesObsolete ( Type ) {
-        const { _remoteQueries } = this;
-        let l = _remoteQueries.length;
-
-        while ( l-- ) {
-            const remoteQuery = _remoteQueries[l];
-            if ( remoteQuery.get( 'Type' ) === Type ) {
-                remoteQuery.setObsolete();
-            }
-        }
-
-        return this;
-    },
-
-    /**
-        Method: O.Store#sourceStateDidChange
-
-        Call this method to notify the store of a change in the state of a
-        particular record type in the source. The store will wait for any
-        loading or committing of this type to finish, then check its state. If
-        it doesn't match, it will then request updates.
-
-        Parameters:
-            Type     - {O.Class} The record type.
-            newState - {String} The new state on the server.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    sourceStateDidChange ( Type, newState ) {
-        const typeId = guid( Type );
-        const clientState = this._typeToClientState[ typeId ];
-
-        if ( clientState && newState !== clientState ) {
-            if ( !( this.typeToStatus.get( typeId ) & (LOADING|COMMITTING) ) ) {
-                this.setRemoteQueriesObsolete( Type );
-                this.fetchAll( Type, true );
-            } else {
-                this._typeToServerState[ typeId ] = newState;
-            }
-        }
-        // We could have a query but not matches yet; we still need to refresh
-        // the queries incase there are now matches.
-        else if ( !clientState ) {
-            this.setRemoteQueriesObsolete( Type );
-        }
-
-        return this;
-    },
 
     /**
         Method (private): O.Store#_checkServerStatus
@@ -1442,7 +1370,244 @@ const Store = Class({
         return this;
     },
 
+    /**
+        Method: O.Store#_recordDidChange
+
+        Called when the status and/or data for a record changes.
+
+        Parameters:
+            storeKey - {String} The store key of the record.
+    */
+    _recordDidChange ( storeKey ) {
+        const typeId = guid( this._skToType[ storeKey ] );
+        const { _typeToChangedSks } = this;
+        const changedSks = _typeToChangedSks[ typeId ] ||
+                ( _typeToChangedSks[ typeId ] = {} );
+        changedSks[ storeKey ] = true;
+        RunLoop.queueFn( 'middle', this._fireTypeChanges, this );
+    },
+
+    /**
+        Method: O.Store#_fireTypeChanges
+    */
+    _fireTypeChanges () {
+        const { _typeToChangedSks } = this;
+        this._typeToChangedSks = {};
+
+        for ( const typeId in _typeToChangedSks ) {
+            const typeChanges = Object.keys( _typeToChangedSks[ typeId ] );
+            this.fire( typeId, {
+                storeKeys: typeChanges,
+            });
+        }
+
+        return this;
+    },
+
+    // === Queries =============================================================
+
+    /**
+        Method: O.Store#findAll
+
+        Returns the list of store keys with data loaded for a particular type,
+        optionally filtered and/or sorted.
+
+        Parameters:
+            Type   - {O.Class} The constructor for the record type being
+                     queried.
+            filter - {Function} (optional) An acceptance function. This will be
+                     passed the raw data object (*not* a record instance) and
+                     should return true if the record should be included, or
+                     false otherwise.
+            sort   - {Function} (optional) A comparator function. This will be
+                     passed the raw data objects (*not* record instances) for
+                     two records. It should return -1 if the first record should
+                     come before the second, 1 if the inverse is true, or 0 if
+                     they should have the same position.
+
+        Returns:
+            {String[]} An array of store keys.
+    */
+    findAll ( Type, accept, compare ) {
+        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
+        const { _skToStatus } = this;
+        let results = [];
+
+        for ( const storeKey in _skToId ) {
+            if ( _skToStatus[ storeKey ] & READY ) {
+                results.push( storeKey );
+            }
+        }
+
+        if ( accept ) {
+            const filterFn = filter.bind( this, accept );
+            results = results.filter( filterFn );
+            results.filterFn = filterFn;
+        }
+
+        if ( compare ) {
+            const sortFn = sort.bind( this, compare );
+            results.sort( sortFn );
+            results.sortFn = sortFn;
+        }
+
+        return results;
+    },
+
+    /**
+        Method: O.Store#findOne
+
+        Returns the store key of the first loaded record that matches an
+        acceptance function.
+
+        Parameters:
+            Type   - {O.Class} The constructor for the record type to find.
+            filter - {Function} (optional) An acceptance function. This will be
+                     passed the raw data object (*not* a record instance) and
+                     should return true if the record is the desired one, or
+                     false otherwise.
+
+        Returns:
+            {(String|null)} The store key for a matching record, or null if none
+            found.
+    */
+    findOne ( Type, accept ) {
+        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
+        const { _skToStatus } = this;
+        const filterFn = accept && filter.bind( this, accept );
+
+        for ( const storeKey in _skToId ) {
+            if ( ( _skToStatus[ storeKey ] & READY ) &&
+                    ( !filterFn || filterFn( storeKey ) ) ) {
+                return storeKey;
+            }
+        }
+
+        return null;
+    },
+
+    /**
+        Method: O.Store#addQuery
+
+        Registers a query with the store. This is automatically called by the
+        query constructor function. You should never need to call this
+        manually.
+
+        Parameters:
+            query - {O.Query} The query object.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    addQuery ( query ) {
+        this._idToQuery[ query.get( 'id' ) ] = query;
+        return this;
+    },
+
+    /**
+        Method: O.Store#removeQuery
+
+        Deregisters a query with the store. This is automatically called when
+        you call destroy() on a query. You should never need to call this
+        manually.
+
+        Parameters:
+            query - {O.Query} The query object.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    removeQuery ( query ) {
+        delete this._idToQuery[ query.get( 'id' ) ];
+        return this;
+    },
+
+    /**
+        Method: O.Store#getQuery
+
+        Get a named query. When the same query is used in different places in
+        the code, use this method to get the query rather than directly calling
+        new Query(...). If the query is already created it will be returned,
+        otherwise it will be created and returned. If no QueryClass is supplied
+        and the id does not correspond to an existing query then `null` will be
+        returned.
+
+        Parameters:
+            id         - {String} The id of the requested query.
+            QueryClass - {O.Class} (optional) The query class to use if the
+                         query is not already created.
+            mixin      - {(Object|null)} (optional) Properties to pass to the
+                         QueryClass constructor.
+
+        Returns:
+            {(O.Query|null)} The requested query.
+    */
+    getQuery ( id, QueryClass, mixin ) {
+        let query = ( id && this._idToQuery[ id ] ) || null;
+        if ( !query && QueryClass ) {
+            query = new QueryClass( Object.assign( mixin || {}, {
+                id,
+                store: this,
+                source: this.get( 'source' ),
+            }));
+        }
+        if ( query ) {
+            query.lastAccess = Date.now();
+        }
+        return query;
+    },
+
+    /**
+        Method: O.Store#getAllQueries
+
+        Returns a list of all remote queries registered with the store.
+
+        Returns:
+            {O.Query[]} A list of all registered queries.
+    */
+    getAllQueries () {
+        return Object.values( this._idToQuery );
+    },
+
     // === Source callbacks ====================================================
+
+    /**
+        Method: O.Store#sourceStateDidChange
+
+        Call this method to notify the store of a change in the state of a
+        particular record type in the source. The store will wait for any
+        loading or committing of this type to finish, then check its state. If
+        it doesn't match, it will then request updates.
+
+        Parameters:
+            Type     - {O.Class} The record type.
+            newState - {String} The new state on the server.
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceStateDidChange ( Type, newState ) {
+        const typeId = guid( Type );
+        const clientState = this._typeToClientState[ typeId ];
+
+        if ( clientState && newState !== clientState ) {
+            if ( !( this.typeToStatus.get( typeId ) & (LOADING|COMMITTING) ) ) {
+                this.fire( typeId + ':server' );
+                this.fetchAll( Type, true );
+            } else {
+                this._typeToServerState[ typeId ] = newState;
+            }
+        }
+        // We could have a query but not matches yet; we still need to refresh
+        // the queries incase there are now matches.
+        else if ( !clientState ) {
+            this.fire( typeId + ':server' );
+        }
+
+        return this;
+    },
+
+    // ---
 
     /**
         Method: O.Store#sourceDidFetchRecords
@@ -1534,9 +1699,6 @@ const Store = Class({
                 _typeToClientState[ typeId ] = state;
             }
         }
-
-        RunLoop.queueFn( 'middle',
-            this.liveQueriesAreReady.bind( this, Type ) );
         typeToStatus.set( typeId, typeToStatus.get( typeId ) | READY );
 
         return this;
@@ -2163,254 +2325,6 @@ const Store = Class({
                 isDefaultPrevented;
         });
         return isDefaultPrevented;
-    },
-
-    // === Queries =============================================================
-
-    /**
-        Method: O.Store#findAll
-
-        Returns the list of store keys with data loaded for a particular type,
-        optionally filtered and/or sorted.
-
-        Parameters:
-            Type   - {O.Class} The constructor for the record type being
-                     queried.
-            filter - {Function} (optional) An acceptance function. This will be
-                     passed the raw data object (*not* a record instance) and
-                     should return true if the record should be included, or
-                     false otherwise.
-            sort   - {Function} (optional) A comparator function. This will be
-                     passed the raw data objects (*not* record instances) for
-                     two records. It should return -1 if the first record should
-                     come before the second, 1 if the inverse is true, or 0 if
-                     they should have the same position.
-
-        Returns:
-            {String[]} An array of store keys.
-    */
-    findAll ( Type, accept, compare ) {
-        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
-        const { _skToStatus } = this;
-        let results = [];
-
-        for ( const storeKey in _skToId ) {
-            if ( _skToStatus[ storeKey ] & READY ) {
-                results.push( storeKey );
-            }
-        }
-
-        if ( accept ) {
-            const filterFn = filter.bind( this, accept );
-            results = results.filter( filterFn );
-            results.filterFn = filterFn;
-        }
-
-        if ( compare ) {
-            const sortFn = sort.bind( this, compare );
-            results.sort( sortFn );
-            results.sortFn = sortFn;
-        }
-
-        return results;
-    },
-
-    /**
-        Method: O.Store#findOne
-
-        Returns the store key of the first loaded record that matches an
-        acceptance function.
-
-        Parameters:
-            Type   - {O.Class} The constructor for the record type to find.
-            filter - {Function} (optional) An acceptance function. This will be
-                     passed the raw data object (*not* a record instance) and
-                     should return true if the record is the desired one, or
-                     false otherwise.
-
-        Returns:
-            {(String|null)} The store key for a matching record, or null if none
-            found.
-    */
-    findOne ( Type, accept ) {
-        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
-        const { _skToStatus } = this;
-        const filterFn = accept && filter.bind( this, accept );
-
-        for ( const storeKey in _skToId ) {
-            if ( ( _skToStatus[ storeKey ] & READY ) &&
-                    ( !filterFn || filterFn( storeKey ) ) ) {
-                return storeKey;
-            }
-        }
-
-        return null;
-    },
-
-    /**
-        Method: O.Store#addQuery
-
-        Registers a query with the store. This is automatically called by the
-        query constructor function. You should never need to call this
-        manually.
-
-        Parameters:
-            query - {(O.LiveQuery|O.RemoteQuery)}
-                    The query object.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    addQuery ( query ) {
-        const { source } = this;
-        this._idToQuery[ query.get( 'id' ) ] = query;
-        if ( query instanceof LiveQuery ) {
-            const Type = query.get( 'Type' );
-            const typeId = guid( Type );
-            this.fetchAll( Type );
-            ( this._liveQueries[ typeId ] ||
-                ( this._liveQueries[ typeId ] = [] ) ).push( query );
-        } else if ( query instanceof RemoteQuery ) {
-            source.fetchQuery( query );
-            this._remoteQueries.push( query );
-        }
-        return this;
-    },
-
-    /**
-        Method: O.Store#removeQuery
-
-        Deregisters a query with the store. This is automatically called when
-        you call destroy() on a query. You should never need to call this
-        manually.
-
-        Parameters:
-            query - {(O.LiveQuery|O.RemoteQuery)}
-                    The query object.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    removeQuery ( query ) {
-        delete this._idToQuery[ query.get( 'id' ) ];
-        if ( query instanceof LiveQuery ) {
-            const { _liveQueries } = this;
-            const typeId = guid( query.get( 'Type' ) );
-            const typeQueries = _liveQueries[ typeId ];
-            if ( typeQueries.length > 1 ) {
-                typeQueries.erase( query );
-            } else {
-                delete _liveQueries[ typeId ];
-            }
-        } else if ( query instanceof RemoteQuery ) {
-            this._remoteQueries.erase( query );
-        }
-        return this;
-    },
-
-    /**
-        Method: O.Store#getQuery
-
-        Get a named query. When the same query is used in different places in
-        the code, use this method to get the query rather than directly calling
-        new Query(...). If the query is already created it will be returned,
-        otherwise it will be created and returned. If no QueryClass is supplied
-        and the id does not correspond to an existing query then `null` will be
-        returned.
-
-        Parameters:
-            id         - {String} The id of the requested query.
-            QueryClass - {O.Class} (optional) The query class to use if the
-                         query is not already created.
-            mixin    - {(Object|null)} (optional) Properties to pass to the
-                         QueryClass constructor.
-
-        Returns:
-            {(O.LiveQuery|O.RemoteQuery|null)} The requested query.
-    */
-    getQuery ( id, QueryClass, mixin ) {
-        let query = ( id && this._idToQuery[ id ] ) || null;
-        if ( !query && QueryClass ) {
-            query = new QueryClass( Object.assign( mixin || {}, {
-                id,
-                store: this,
-                source: this.source,
-            }) );
-        }
-        if ( query ) {
-            query.lastAccess = Date.now();
-        }
-        return query;
-    },
-
-    /**
-        Method: O.Store#getAllRemoteQueries
-
-        Returns a list of all remote queries registered with the store.
-
-        Returns:
-            {O.RemoteQuery[]} A list of all registered instances of
-            <O.RemoteQuery>.
-    */
-    getAllRemoteQueries () {
-        return this._remoteQueries;
-    },
-
-    /**
-        Method (protected): O.Store#_recordDidChange
-
-        Registers a record has changed in a way that might affect any live
-        queries on that type.
-
-        Parameters:
-            storeKey - {String} The store key of the record.
-    */
-    _recordDidChange ( storeKey ) {
-        const typeId = guid( this._skToType[ storeKey ] );
-        const { _typeToChangedSks } = this;
-        const changedSks = _typeToChangedSks[ typeId ] ||
-                ( _typeToChangedSks[ typeId ] = {} );
-        changedSks[ storeKey ] = true;
-        RunLoop.queueFn( 'middle', this.refreshLiveQueries, this );
-    },
-
-    /**
-        Method: O.Store#refreshLiveQueries
-
-        Refreshes the contents of all registered instances of <O.LiveQuery>
-        which may have changes. This is automatically called when necessary by
-        the store; you should rarely need to call this manually.
-
-        Returns:
-            {O.Store} Returns self.
-    */
-    refreshLiveQueries () {
-        const { _typeToChangedSks, _liveQueries } = this;
-
-        this._typeToChangedSks = {};
-
-        for ( const typeId in _typeToChangedSks ) {
-            const typeChanges = Object.keys( _typeToChangedSks[ typeId ] );
-            const typeQueries = _liveQueries[ typeId ];
-            let l = typeQueries ? typeQueries.length : 0;
-
-            while ( l-- ) {
-                typeQueries[l].storeDidChangeRecords( typeChanges );
-            }
-            this.fire( typeId, {
-                storeKeys: typeChanges,
-            });
-        }
-
-        return this;
-    },
-
-    liveQueriesAreReady ( Type ) {
-        const _liveQueries = this._liveQueries[ guid( Type ) ];
-        let l = _liveQueries ? _liveQueries.length : 0;
-        while ( l-- ) {
-            _liveQueries[l].set( 'status', READY );
-        }
     },
 });
 

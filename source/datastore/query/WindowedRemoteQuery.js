@@ -207,6 +207,14 @@ const intersect = function ( a, b, c, d ) {
     return a < c ? c < b : a < d;
 };
 
+const updateIsEqual = function ( u1, u2 ) {
+    return u1.total === u2.total &&
+        isEqual( u1.addedIndexes, u2.addedIndexes ) &&
+        isEqual( u1.addedStoreKeys, u2.addedStoreKeys ) &&
+        isEqual( u1.removedIndexes, u2.removedIndexes ) &&
+        isEqual( u1.removedStoreKeys, u2.removedStoreKeys );
+};
+
 // A window is determined to be still required if there is a range observer that
 // intersects with any part of the window. The prefetch distance is added to the
 // observer range.
@@ -348,7 +356,7 @@ const WindowedRemoteQuery = Class({
         WindowedRemoteQuery.parent.constructor.apply( this, arguments );
     },
 
-    reset: function ( _, _key ) {
+    reset () {
         this._windows.length =
         this._indexOfRequested.length =
         this._waitingPackets.length =
@@ -356,8 +364,8 @@ const WindowedRemoteQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedRemoteQuery.parent.reset.call( this, _, _key );
-    }.observes( 'sort', 'filter' ),
+        WindowedRemoteQuery.parent.reset.call( this );
+    },
 
     // We keep a local cache so that we can handle records changing ids.
     // There may be old ids in the "removed" array, which need to alias to the
@@ -373,8 +381,7 @@ const WindowedRemoteQuery = Class({
     }.property(),
 
     indexOfStoreKey ( storeKey, from, callback ) {
-        const index = this._list.indexOf( storeKey, from );
-        let id;
+        const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             // If we have a callback and haven't found it yet, we need to keep
             // searching.
@@ -388,11 +395,12 @@ const WindowedRemoteQuery = Class({
                 }
                 // We're missing part of the list, so it may be in the missing
                 // bit.
-                id = this.get( 'store' ).getIdFromStoreKey( storeKey );
+                const store = this.get( 'store' );
+                const id = store.getIdFromStoreKey( storeKey );
                 this._indexOfRequested.push([
                     id,
                     function () {
-                        callback( this._list.indexOf( storeKey, from ) );
+                        callback( this._storeKeys.indexOf( storeKey, from ) );
                     }.bind( this ),
                 ]);
                 this.get( 'source' ).fetchQuery( this );
@@ -429,7 +437,7 @@ const WindowedRemoteQuery = Class({
         }
 
         if ( isComplete ) {
-            callback( this._list.slice( start, end ), start, end );
+            callback( this._storeKeys.slice( start, end ), start, end );
         }
         else {
             this._awaitingIdFetch.push([ start, end, callback ]);
@@ -522,7 +530,7 @@ const WindowedRemoteQuery = Class({
     checkIfWindowIsFetched ( index ) {
         const store = this.get( 'store' );
         const windowSize = this.get( 'windowSize' );
-        const list = this._list;
+        const list = this._storeKeys;
         let i = index * windowSize;
         const l = Math.min( i + windowSize, this.get( 'length' ) );
         for ( ; i < l; i += 1 ) {
@@ -556,7 +564,7 @@ const WindowedRemoteQuery = Class({
 
         const windowSize = this.get( 'windowSize' );
         const windows = this._windows;
-        const list = this._list;
+        const list = this._storeKeys;
         // Start at last window index
         let windowIndex = Math.floor( ( length - 1 ) / windowSize );
         // And last list index
@@ -599,7 +607,7 @@ const WindowedRemoteQuery = Class({
     // ---- Updates ---
 
     _normaliseUpdate ( update ) {
-        const list = this._list;
+        const list = this._storeKeys;
         let removedStoreKeys = update.removed || [];
         let removedIndexes = mapIndexes( list, removedStoreKeys );
         const addedStoreKeys = [];
@@ -656,7 +664,7 @@ const WindowedRemoteQuery = Class({
         const addedIndexes = args.addedIndexes;
         const addedStoreKeys = args.addedStoreKeys;
         const addedLength = addedStoreKeys.length;
-        const list = this._list;
+        const list = this._storeKeys;
         let recalculateFetchedWindows = !!( addedLength || removedLength );
         const oldLength = this.get( 'length' );
         const newLength = args.total;
@@ -839,8 +847,6 @@ const WindowedRemoteQuery = Class({
 
         newState - {String} The state this delta updates the remote query to.
         oldState - {String} The state this delta updates the remote query from.
-        sort     - {*} The sort presumed in this delta.
-        filter   - {*} The filter presumed in this delta.
         removed  - {String[]} The ids of all records removed since
                    oldState.
         added    - {[Number,String][]} A list of [ index, id ] pairs, in
@@ -859,224 +865,200 @@ const WindowedRemoteQuery = Class({
         Returns:
             {O.WindowedRemoteQuery} Returns self.
     */
-    sourceDidFetchUpdate: ( function () {
-        const equalArrays = function ( a1, a2 ) {
-            let l = a1.length;
-            if ( a2.length !== l ) { return false; }
-            while ( l-- ) {
-                if ( a1[l] !== a2[l] ) { return false; }
+    sourceDidFetchUpdate ( update ) {
+        const state = this.get( 'state' );
+        const status = this.get( 'status' );
+        const preemptives = this._preemptiveUpdates;
+        const preemptivesLength = preemptives.length;
+        let allPreemptives, composed;
+
+        // We've got an update, so we're no longer in the LOADING state.
+        this.set( 'status', status & ~LOADING );
+
+        // Check we've not already got this update.
+        if ( state === update.newState ) {
+            if ( preemptivesLength && !( status & DIRTY ) ) {
+                allPreemptives = preemptives.reduce( composeUpdates );
+                this._applyUpdate( invertUpdate( allPreemptives ) );
+                preemptives.length = 0;
             }
-            return true;
-        };
+            return this;
+        }
+        // We can only update from our old state.
+        if ( state !== update.oldState ) {
+            return this.setObsolete();
+        }
+        // Set new state
+        this.set( 'state', update.newState );
 
-        const updateIsEqual = function ( u1, u2 ) {
-            return u1.total === u2.total &&
-                equalArrays( u1.addedIndexes, u2.addedIndexes ) &&
-                equalArrays( u1.addedStoreKeys, u2.addedStoreKeys ) &&
-                equalArrays( u1.removedIndexes, u2.removedIndexes ) &&
-                equalArrays( u1.removedStoreKeys, u2.removedStoreKeys );
-        };
+        // Map ids to store keys
+        const toStoreKey = this.get( '_toStoreKey' );
+        update.removed = update.removed.map( toStoreKey );
+        update.added.forEach( function ( tuple ) {
+            tuple[1] = toStoreKey( tuple[1] );
+        });
+        update.upto = update.upto && toStoreKey( update.upto );
 
-        return function ( update ) {
-            const state = this.get( 'state' );
-            const status = this.get( 'status' );
-            const preemptives = this._preemptiveUpdates;
-            const preemptivesLength = preemptives.length;
-            let allPreemptives, composed;
+        if ( !preemptivesLength ) {
+            this._applyUpdate( this._normaliseUpdate( update ) );
+        } else {
+            // 1. Compose all preemptives:
+            // [p1, p2, p3] -> [p1, p1 + p2, p1 + p2 + p3 ]
+            composed = [ preemptives[0] ];
+            for ( let i = 1; i < preemptivesLength; i += 1 ) {
+                composed[i] = composeUpdates(
+                    composed[ i - 1 ], preemptives[i] );
+            }
 
-            // We've got an update, so we're no longer in the LOADING state.
-            this.set( 'status', status & ~LOADING );
+            // 2. Normalise the update from the server. This is trickier
+            // than normal, as we need to determine what the indexes of the
+            // removed store keys were in the previous state.
+            const normalisedUpdate = this._normaliseUpdate({
+                added: update.added,
+                total: update.total,
+                upto: update.upto,
+            });
 
-            // Check we've not already got this update.
-            if ( state === update.newState ) {
-                if ( preemptivesLength && !( status & DIRTY ) ) {
+            // Find the removedIndexes for our update. If they were removed
+            // in the composed preemptive, we have the index. Otherwise, we
+            // need to search for the store key in the current list then
+            // compose the result with the preemptive in order to get the
+            // original index.
+            const removed = update.removed;
+            let _indexes = [];
+            const _storeKeys = [];
+            const removedIndexes = [];
+            const removedStoreKeys = [];
+            const list = this._storeKeys;
+            let wasSuccessfulPreemptive = false;
+            let storeKey, index;
+
+            allPreemptives = composed[ preemptivesLength - 1 ];
+            for ( let i = 0, l = removed.length; i < l; i += 1 ) {
+                storeKey = removed[i];
+                index = allPreemptives.removedStoreKeys.indexOf( storeKey );
+                if ( index > -1 ) {
+                    removedIndexes.push(
+                        allPreemptives.removedIndexes[ index ] );
+                    removedStoreKeys.push( storeKey );
+                } else {
+                    index = list.indexOf( storeKey );
+                    if ( index > -1 ) {
+                        _indexes.push( index );
+                        _storeKeys.push( storeKey );
+                    } else {
+                        normalisedUpdate.truncateAtFirstGap = true;
+                    }
+                }
+            }
+            if ( _indexes.length ) {
+                const x = composeUpdates( allPreemptives, {
+                    removedIndexes: _indexes,
+                    removedStoreKeys: _storeKeys,
+                    addedIndexes: [],
+                    addedStoreKeys: [],
+                });
+                _indexes = _storeKeys.reduce(
+                function ( indexes, storeKey ) {
+                    // If the id was added in a preemptive add it won't be
+                    // in the list of removed ids.
+                    const i = x.removedStoreKeys.indexOf( storeKey );
+                    if ( i > -1 ) {
+                        indexes.push( x.removedIndexes[i] );
+                    }
+                    return indexes;
+                }, [] );
+                let ll = removedIndexes.length;
+                for ( let i = 0, l = _indexes.length; i < l; i += 1 ) {
+                    removedIndexes[ ll ] = _indexes[i];
+                    removedStoreKeys[ ll ] = _storeKeys[i];
+                    ll += 1;
+                }
+            }
+
+            sortLinkedArrays( removedIndexes, removedStoreKeys );
+
+            normalisedUpdate.removedIndexes = removedIndexes;
+            normalisedUpdate.removedStoreKeys = removedStoreKeys;
+
+            // Now remove any idempotent operations
+            const addedIndexes = normalisedUpdate.addedIndexes;
+            const addedStoreKeys = normalisedUpdate.addedStoreKeys;
+            let l = addedIndexes.length;
+
+            while ( l-- ) {
+                storeKey = addedStoreKeys[l];
+                const i = removedStoreKeys.indexOf( storeKey );
+                if ( i > -1 &&
+                        removedIndexes[i] - i + l === addedIndexes[l] ) {
+                    removedIndexes.splice( i, 1 );
+                    removedStoreKeys.splice( i, 1 );
+                    addedIndexes.splice( l, 1 );
+                    addedStoreKeys.splice( l, 1 );
+                }
+            }
+
+            // 3. We now have a normalised update from the server. We
+            // compare this to each composed state of our preemptive
+            // updates. If it matches any completely, we guessed correctly
+            // and the list is already up to date. We just need to set the
+            // status and apply any waiting packets. If it doesn't match, we
+            // remove all our preemptive updates and apply the update from
+            // the server instead, to ensure we end up in a consistent
+            // state.
+
+            // If nothing actually changed in this update, we're done,
+            // but we can apply any waiting packets.
+            if ( !removedStoreKeys.length && !addedStoreKeys.length ) {
+                wasSuccessfulPreemptive = true;
+            } else {
+                let l = composed.length;
+                while ( l-- ) {
+                    if ( updateIsEqual(
+                            normalisedUpdate, composed[l] ) ) {
+                        // Remove the preemptives that have now been
+                        // confirmed by the server
+                        preemptives.splice( 0, l + 1 );
+                        wasSuccessfulPreemptive = true;
+                        break;
+                    }
+                }
+            }
+            if ( wasSuccessfulPreemptive ) {
+                // Truncate if needed
+                if ( normalisedUpdate.truncateAtFirstGap ) {
+                    let i = 0;
+                    while ( list[i] ) {
+                        i += 1;
+                    }
+                    if ( list.length !== i ) {
+                        list.length = i;
+                        this.recalculateFetchedWindows( i );
+                    }
+                }
+                // If we aren't in the dirty state, we shouldn't have any
+                // preemptive updates left. If we do, remove them.
+                if ( !( status & DIRTY ) && preemptives.length ) {
                     allPreemptives = preemptives.reduce( composeUpdates );
                     this._applyUpdate( invertUpdate( allPreemptives ) );
                     preemptives.length = 0;
+                } else {
+                    this._applyWaitingPackets();
                 }
-                return this;
-            }
-            // We can only update from our old state.
-            if ( state !== update.oldState ) {
-                return this.setObsolete();
-            }
-            // Check the sort and filter is still the same
-            if ( !isEqual( update.sort, this.get( 'sort' ) ) ||
-                    !isEqual( update.filter, this.get( 'filter' ) ) ) {
-                return this;
-            }
-            // Set new state
-            this.set( 'state', update.newState );
-
-            // Map ids to store keys
-            const toStoreKey = this.get( '_toStoreKey' );
-            update.removed = update.removed.map( toStoreKey );
-            update.added.forEach( function ( tuple ) {
-                tuple[1] = toStoreKey( tuple[1] );
-            });
-            update.upto = update.upto && toStoreKey( update.upto );
-
-            if ( !preemptivesLength ) {
-                this._applyUpdate( this._normaliseUpdate( update ) );
             } else {
-                // 1. Compose all preemptives:
-                // [p1, p2, p3] -> [p1, p1 + p2, p1 + p2 + p3 ]
-                composed = [ preemptives[0] ];
-                for ( let i = 1; i < preemptivesLength; i += 1 ) {
-                    composed[i] = composeUpdates(
-                        composed[ i - 1 ], preemptives[i] );
-                }
-
-                // 2. Normalise the update from the server. This is trickier
-                // than normal, as we need to determine what the indexes of the
-                // removed store keys were in the previous state.
-                const normalisedUpdate = this._normaliseUpdate({
-                    added: update.added,
-                    total: update.total,
-                    upto: update.upto,
-                });
-
-                // Find the removedIndexes for our update. If they were removed
-                // in the composed preemptive, we have the index. Otherwise, we
-                // need to search for the store key in the current list then
-                // compose the result with the preemptive in order to get the
-                // original index.
-                const removed = update.removed;
-                let _indexes = [];
-                const _storeKeys = [];
-                const removedIndexes = [];
-                const removedStoreKeys = [];
-                const list = this._list;
-                let wasSuccessfulPreemptive = false;
-                let storeKey, index;
-
-                allPreemptives = composed[ preemptivesLength - 1 ];
-                for ( let i = 0, l = removed.length; i < l; i += 1 ) {
-                    storeKey = removed[i];
-                    index = allPreemptives.removedStoreKeys.indexOf( storeKey );
-                    if ( index > -1 ) {
-                        removedIndexes.push(
-                            allPreemptives.removedIndexes[ index ] );
-                        removedStoreKeys.push( storeKey );
-                    } else {
-                        index = list.indexOf( storeKey );
-                        if ( index > -1 ) {
-                            _indexes.push( index );
-                            _storeKeys.push( storeKey );
-                        } else {
-                            normalisedUpdate.truncateAtFirstGap = true;
-                        }
-                    }
-                }
-                if ( _indexes.length ) {
-                    const x = composeUpdates( allPreemptives, {
-                        removedIndexes: _indexes,
-                        removedStoreKeys: _storeKeys,
-                        addedIndexes: [],
-                        addedStoreKeys: [],
-                    });
-                    _indexes = _storeKeys.reduce(
-                    function ( indexes, storeKey ) {
-                        // If the id was added in a preemptive add it won't be
-                        // in the list of removed ids.
-                        const i = x.removedStoreKeys.indexOf( storeKey );
-                        if ( i > -1 ) {
-                            indexes.push( x.removedIndexes[i] );
-                        }
-                        return indexes;
-                    }, [] );
-                    let ll = removedIndexes.length;
-                    for ( let i = 0, l = _indexes.length; i < l; i += 1 ) {
-                        removedIndexes[ ll ] = _indexes[i];
-                        removedStoreKeys[ ll ] = _storeKeys[i];
-                        ll += 1;
-                    }
-                }
-
-                sortLinkedArrays( removedIndexes, removedStoreKeys );
-
-                normalisedUpdate.removedIndexes = removedIndexes;
-                normalisedUpdate.removedStoreKeys = removedStoreKeys;
-
-                // Now remove any idempotent operations
-                const addedIndexes = normalisedUpdate.addedIndexes;
-                const addedStoreKeys = normalisedUpdate.addedStoreKeys;
-                let l = addedIndexes.length;
-
-                while ( l-- ) {
-                    storeKey = addedStoreKeys[l];
-                    const i = removedStoreKeys.indexOf( storeKey );
-                    if ( i > -1 &&
-                            removedIndexes[i] - i + l === addedIndexes[l] ) {
-                        removedIndexes.splice( i, 1 );
-                        removedStoreKeys.splice( i, 1 );
-                        addedIndexes.splice( l, 1 );
-                        addedStoreKeys.splice( l, 1 );
-                    }
-                }
-
-                // 3. We now have a normalised update from the server. We
-                // compare this to each composed state of our preemptive
-                // updates. If it matches any completely, we guessed correctly
-                // and the list is already up to date. We just need to set the
-                // status and apply any waiting packets. If it doesn't match, we
-                // remove all our preemptive updates and apply the update from
-                // the server instead, to ensure we end up in a consistent
-                // state.
-
-                // If nothing actually changed in this update, we're done,
-                // but we can apply any waiting packets.
-                if ( !removedStoreKeys.length && !addedStoreKeys.length ) {
-                    wasSuccessfulPreemptive = true;
-                } else {
-                    let l = composed.length;
-                    while ( l-- ) {
-                        if ( updateIsEqual(
-                                normalisedUpdate, composed[l] ) ) {
-                            // Remove the preemptives that have now been
-                            // confirmed by the server
-                            preemptives.splice( 0, l + 1 );
-                            wasSuccessfulPreemptive = true;
-                            break;
-                        }
-                    }
-                }
-                if ( wasSuccessfulPreemptive ) {
-                    // Truncate if needed
-                    if ( normalisedUpdate.truncateAtFirstGap ) {
-                        let i = 0;
-                        while ( list[i] ) {
-                            i += 1;
-                        }
-                        if ( list.length !== i ) {
-                            list.length = i;
-                            this.recalculateFetchedWindows( i );
-                        }
-                    }
-                    // If we aren't in the dirty state, we shouldn't have any
-                    // preemptive updates left. If we do, remove them.
-                    if ( !( status & DIRTY ) && preemptives.length ) {
-                        allPreemptives = preemptives.reduce( composeUpdates );
-                        this._applyUpdate( invertUpdate( allPreemptives ) );
-                        preemptives.length = 0;
-                    } else {
-                        this._applyWaitingPackets();
-                    }
-                } else {
-                    // Undo all preemptive updates and apply server change
-                    // instead.
-                    preemptives.length = 0;
-                    this._applyUpdate(
-                        composeUpdates(
-                            invertUpdate( allPreemptives ),
-                            normalisedUpdate
-                        )
-                    );
-                }
+                // Undo all preemptive updates and apply server change
+                // instead.
+                preemptives.length = 0;
+                this._applyUpdate(
+                    composeUpdates(
+                        invertUpdate( allPreemptives ),
+                        normalisedUpdate
+                    )
+                );
             }
-            return this;
-        };
-    }() ),
+        }
+        return this;
+    },
 
     /**
         Method: O.WindowedRemoteQuery#sourceDidFetchIdList
@@ -1085,8 +1067,6 @@ const WindowedRemoteQuery = Class({
         this query. The args object should contain:
 
         state    - {String} The state of the server when this slice was taken.
-        sort     - {*} The sort used.
-        filter   - {*} The filter used.
         idList   - {String[]} The list of ids.
         position - {Number} The index in the query of the first id in idList.
         total    - {Number} The total number of records in the query.
@@ -1099,14 +1079,6 @@ const WindowedRemoteQuery = Class({
             {O.WindowedRemoteQuery} Returns self.
     */
     sourceDidFetchIdList ( args ) {
-        // User may have changed sort or filter in intervening time; presume the
-        // value on the object is the right one, so if data doesn't match, just
-        // ignore it.
-        if ( !isEqual( args.sort, this.get( 'sort' ) ) ||
-                !isEqual( args.filter, this.get( 'filter' ) ) ) {
-            return this;
-        }
-
         const state = this.get( 'state' );
         const status = this.get( 'status' );
         const oldLength = this.get( 'length' ) || 0;
@@ -1115,7 +1087,7 @@ const WindowedRemoteQuery = Class({
         let total = args.total;
         const ids = args.idList;
         let length = ids.length;
-        const list = this._list;
+        const list = this._storeKeys;
         const windows = this._windows;
         const preemptives = this._preemptiveUpdates;
         let informAllRangeObservers = false;
@@ -1242,7 +1214,7 @@ const WindowedRemoteQuery = Class({
         const recordRequests = [];
         const idRequests = [];
         const optimiseFetching = this.get( 'optimiseFetching' );
-        const ranges =  ( meta( this ).rangeObservers || [] ).map(
+        const ranges = ( meta( this ).rangeObservers || [] ).map(
             function ( observer ) {
                 return observer.range;
             });

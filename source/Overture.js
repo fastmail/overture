@@ -91,9 +91,9 @@ export { default as Router } from './application/Router';
 export { default as ThemeManager } from './application/ThemeManager';
 export { default as WindowController } from './application/WindowController';
 
-export { default as LiveQuery } from './datastore/query/LiveQuery';
 export { default as RecordArray } from './datastore/query/RecordArray';
 export { default as RemoteQuery } from './datastore/query/RemoteQuery';
+export { default as LiveQuery } from './datastore/query/LiveQuery';
 export { default as WindowedRemoteQuery } from './datastore/query/WindowedRemoteQuery';
 export { default as AttributeErrors } from './datastore/record/AttributeErrors';
 export { default as Record } from './datastore/record/Record';
