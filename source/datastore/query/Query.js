@@ -24,7 +24,7 @@ const AUTO_REFRESH_IF_OBSERVED = 1;
 const AUTO_REFRESH_ALWAYS = 2;
 
 /**
-    Class: O.RemoteQuery
+    Class: O.Query
 
     Extends: O.Object
 
@@ -34,7 +34,7 @@ const AUTO_REFRESH_ALWAYS = 2;
     the array is calculated by a server rather than the client. In its simplest
     form, you would use remote query like this:
 
-        const query = new O.RemoteQuery({
+        const query = new O.Query({
             store: TodoApp.store
             Type: TodoApp.TodoItem,
             where: 'done',
@@ -63,40 +63,40 @@ const AUTO_REFRESH_ALWAYS = 2;
     sending back unneccessary data.
 
 */
-const RemoteQuery = Class({
+const Query = Class({
 
     Extends: Obj,
 
     Mixin: [ Enumerable, ObservableRange ],
 
     /**
-        Property: O.RemoteQuery#store
+        Property: O.Query#store
         Type: O.Store
     */
 
     /**
-        Property: O.RemoteQuery#Type
+        Property: O.Query#Type
         Type: O.Class
 
         The type of records this query contains.
     */
 
     /**
-        Property: O.RemoteQuery#where
+        Property: O.Query#where
         Type: *
 
         Any filter to apply to the query. This MUST NOT change after init.
     */
 
     /**
-        Property: O.RemoteQuery#sort
+        Property: O.Query#sort
         Type: *
 
         The sort order to use for this query. This MUST NOT change after init.
     */
 
     /**
-        Property: O.RemoteQuery#state
+        Property: O.Query#state
         Type: String
 
         A state string from the server to allow the query to fetch updates and
@@ -104,17 +104,17 @@ const RemoteQuery = Class({
     */
 
     /**
-        Property: O.RemoteQuery#status
+        Property: O.Query#status
         Type: O.Status
 
         The status of the query. Initially EMPTY, will be READY once it knows
         the number of records contained in the query and DESTROYED after you've
-        finished with the query and called <O.RemoteQuery#destroy>. It may also
+        finished with the query and called <O.Query#destroy>. It may also
         have OBSOLETE and LOADING bits set as appropriate.
     */
 
     /**
-        Property: O.RemoteQuery#length
+        Property: O.Query#length
         Type: (Number|null)
 
         The length of the list of records matching the query, or null if
@@ -124,11 +124,11 @@ const RemoteQuery = Class({
     autoRefresh: AUTO_REFRESH_NEVER,
 
     /**
-        Constructor: O.RemoteQuery
+        Constructor: O.Query
 
         Parameters:
             mixin - {Object} (optional) Any properties in this object will be
-                    added to the new O.RemoteQuery instance before
+                    added to the new O.Query instance before
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
@@ -147,7 +147,7 @@ const RemoteQuery = Class({
         this.length = null;
         this.lastAccess = Date.now();
 
-        RemoteQuery.parent.constructor.apply( this, arguments );
+        Query.parent.constructor.apply( this, arguments );
 
         this.get( 'store' ).addQuery( this );
         this.monitorForChanges();
@@ -155,7 +155,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#destroy
+        Method: O.Query#destroy
 
         Sets the status to DESTROYED, deregisters the query with the store and
         removes bindings and path observers so the object may be garbage
@@ -165,7 +165,7 @@ const RemoteQuery = Class({
         this.unmonitorForChanges();
         this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
         this.get( 'store' ).removeQuery( this );
-        RemoteQuery.parent.destroy.call( this );
+        Query.parent.destroy.call( this );
     },
 
     monitorForChanges () {
@@ -181,7 +181,7 @@ const RemoteQuery = Class({
     // ---
 
     /**
-        Method: O.RemoteQuery#is
+        Method: O.Query#is
 
         Checks whether the query has a particular status. You can also supply a
         union of statuses (e.g. `query.is(O.Status.OBSOLETE|O.Status.DIRTY)`),
@@ -199,12 +199,12 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#setObsolete
+        Method: O.Query#setObsolete
 
         Sets the OBSOLETE bit on the query's status value.
 
         Returns:
-            {O.RemoteQuery} Returns self.
+            {O.Query} Returns self.
     */
     setObsolete () {
         this.set( 'status', this.get( 'status' ) | OBSOLETE );
@@ -226,12 +226,12 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#setLoading
+        Method: O.Query#setLoading
 
         Sets the LOADING bit on the query's status value.
 
         Returns:
-            {O.RemoteQuery} Returns self.
+            {O.Query} Returns self.
     */
     setLoading () {
         return this.set( 'status', this.get( 'status' ) | LOADING );
@@ -240,7 +240,7 @@ const RemoteQuery = Class({
     // ---
 
     /**
-        Method: O.RemoteQuery#refresh
+        Method: O.Query#refresh
 
         Fetcj the query or refresh if needed.
 
@@ -252,7 +252,7 @@ const RemoteQuery = Class({
                            when the fetch finishes.
 
         Returns:
-            {O.RemoteQuery} Returns self.
+            {O.Query} Returns self.
     */
     refresh ( force, callback ) {
         const status = this.get( 'status' );
@@ -268,13 +268,13 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#reset
+        Method: O.Query#reset
 
         Resets the list, throwing away the id list, resetting the state string
         and setting the status to EMPTY.
 
         Returns:
-            {O.RemoteQuery} Returns self.
+            {O.Query} Returns self.
     */
     reset () {
         const length = this.get( 'length' );
@@ -293,7 +293,7 @@ const RemoteQuery = Class({
     // ---
 
     /**
-        Property: O.RemoteQuery#[]
+        Property: O.Query#[]
         Type: Array
 
         A standard array of record objects for the records in this query.
@@ -306,7 +306,7 @@ const RemoteQuery = Class({
     }.property(),
 
     /**
-        Method: O.RemoteQuery#getStoreKeys
+        Method: O.Query#getStoreKeys
 
         Returns:
             {String[]} The store keys. You MUST NOT modify this.
@@ -316,7 +316,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#getObjectAt
+        Method: O.Query#getObjectAt
 
         Returns the record at the index given in the array, if loaded. It will
         also ensure the entire window that index is contained in is loaded and
@@ -352,7 +352,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#fetchDataForObjectAt
+        Method: O.Query#fetchDataForObjectAt
 
         This method is called by <getObjectAt> before getting the id of the
         index given from the internal list and fetching the record from the
@@ -372,7 +372,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#indexOfStoreKey
+        Method: O.Query#indexOfStoreKey
 
         Finds the index of a store key in the query. Since the entire list may
         not be loaded, this data may have to be loaded from the server so you
@@ -404,7 +404,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#getStoreKeysForObjectsInRange
+        Method: O.Query#getStoreKeysForObjectsInRange
 
         Makes a callback with a subset of the ids for records in this query.
 
@@ -448,7 +448,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#getStoreKeysForAllObjects
+        Method: O.Query#getStoreKeysForAllObjects
 
         Get a callback with an array of the store keys for all records in the
         query.
@@ -472,10 +472,10 @@ const RemoteQuery = Class({
     // ---
 
     /**
-        Method (private): O.RemoteQuery#_adjustIdFetches
+        Method (private): O.Query#_adjustIdFetches
 
         Modifies the id range to be returned in the callback to
-        <O.RemoteQuery#getStoreKeysForObjectsInRange> in response to an update
+        <O.Query#getStoreKeysForObjectsInRange> in response to an update
         from the server.
 
         We adjust the range being fetched mainly so that new records that are
@@ -519,7 +519,7 @@ const RemoteQuery = Class({
     }.on( 'query:updated' ),
 
     /**
-        Method (private): O.RemoteQuery#_idsWereFetched
+        Method (private): O.Query#_idsWereFetched
 
         This processes any waiting callbacks after a fetch has completed. There
         may be multiple packets arriving so this method is only invoked once per
@@ -539,12 +539,12 @@ const RemoteQuery = Class({
     // ---
 
     /**
-        Method: O.RemoteQuery#sourceWillFetchQuery
+        Method: O.Query#sourceWillFetchQuery
 
         The source should call this method just before it fetches the query. By
         default this function just sets the loading flag on the query, but
         subclasses may like to return an object reflecting exactly the what the
-        source should fetch (see <O.WindowedRemoteQuery#sourceWillFetchQuery)
+        source should fetch (see <O.WindowedQuery#sourceWillFetchQuery)
         for example.
 
         Returns:
@@ -561,7 +561,7 @@ const RemoteQuery = Class({
     },
 
     /**
-        Method: O.RemoteQuery#sourceDidFetchQuery
+        Method: O.Query#sourceDidFetchQuery
 
         The source should call this method with the data returned from fetching
         the query.
@@ -573,7 +573,7 @@ const RemoteQuery = Class({
                         the query on the server at the time of the fetch.
 
         Returns:
-            {RemoteQuery} Returns self.
+            {Query} Returns self.
     */
     sourceDidFetchQuery ( storeKeys, state ) {
         // Could use a proper diffing algorithm to calculate added/removed
@@ -656,8 +656,8 @@ const RemoteQuery = Class({
     },
 });
 
-RemoteQuery.AUTO_REFRESH_NEVER = AUTO_REFRESH_NEVER;
-RemoteQuery.AUTO_REFRESH_IF_OBSERVED = AUTO_REFRESH_IF_OBSERVED;
-RemoteQuery.AUTO_REFRESH_ALWAYS = AUTO_REFRESH_ALWAYS;
+Query.AUTO_REFRESH_NEVER = AUTO_REFRESH_NEVER;
+Query.AUTO_REFRESH_IF_OBSERVED = AUTO_REFRESH_IF_OBSERVED;
+Query.AUTO_REFRESH_ALWAYS = AUTO_REFRESH_ALWAYS;
 
-export default RemoteQuery;
+export default Query;

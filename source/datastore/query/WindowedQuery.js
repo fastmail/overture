@@ -15,10 +15,10 @@ import {
     // was requested.
     OBSOLETE,
 } from '../record/Status';
-import RemoteQuery from './RemoteQuery';
+import Query from './Query';
 
 /**
-    Enum: O.WindowedRemoteQuery-WindowState
+    Enum: O.WindowedQuery-WindowState
 
     The state of each window in the query is represented as follows:
 
@@ -41,7 +41,7 @@ const WINDOW_RECORDS_LOADING = 16;
 const WINDOW_RECORDS_READY = 32;
 
 /**
-    Method: O.WindowedRemoteQuery-sortLinkedArrays
+    Method: O.WindowedQuery-sortLinkedArrays
 
     Sorts an array whilst performing the same swaps on a second array, so that
     if item x was in position i in array 1, and item y was in position i in
@@ -98,7 +98,7 @@ const mapIndexes = function ( list, storeKeys ) {
 };
 
 /**
-    Method: O.WindowedRemoteQuery-mergeSortedLinkedArrays
+    Method: O.WindowedQuery-mergeSortedLinkedArrays
 
     Parameters:
         a1 - {Array}
@@ -243,9 +243,9 @@ const windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
 };
 
 /**
-    Class: O.WindowedRemoteQuery
+    Class: O.WindowedQuery
 
-    Extends: O.RemoteQuery
+    Extends: O.Query
 
     A windowed remote query represents a potentially very large array of records
     calculated by the server. Records are loaded in blocks (windows); for
@@ -257,12 +257,12 @@ const windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
     calculating, transfering and applying delta updates as the results of the
     query changes.
 */
-const WindowedRemoteQuery = Class({
+const WindowedQuery = Class({
 
-    Extends: RemoteQuery,
+    Extends: Query,
 
     /**
-        Property: O.WindowedRemoteQuery#windowSize
+        Property: O.WindowedQuery#windowSize
         Type: Number
 
         The number of records that make up one window.
@@ -276,7 +276,7 @@ const WindowedRemoteQuery = Class({
     }.property( 'length' ),
 
     /**
-        Property: O.WindowedRemoteQuery#triggerPoint
+        Property: O.WindowedQuery#triggerPoint
         Type: Number
 
         If the record at an index less than this far from the end of a window is
@@ -286,7 +286,7 @@ const WindowedRemoteQuery = Class({
     triggerPoint: 10,
 
     /**
-        Property: O.WindowedRemoteQuery#optimiseFetching
+        Property: O.WindowedQuery#optimiseFetching
         Type: Boolean
 
         If true, if a requested window is no longer either observed or adjacent
@@ -296,7 +296,7 @@ const WindowedRemoteQuery = Class({
     optimiseFetching: false,
 
     /**
-        Property: O.WindowedRemoteQuery#prefetch
+        Property: O.WindowedQuery#prefetch
         Type: Number
 
         The number of windows either side of an explicitly requested window, for
@@ -305,7 +305,7 @@ const WindowedRemoteQuery = Class({
     prefetch: 1,
 
     /**
-        Property: O.WindowedRemoteQuery#canGetDeltaUpdates
+        Property: O.WindowedQuery#canGetDeltaUpdates
         Type: Boolean
 
         If the state is out of date, can the source fetch the delta of exactly
@@ -315,17 +315,17 @@ const WindowedRemoteQuery = Class({
     canGetDeltaUpdates: true,
 
     /**
-        Property (private): O.WindowedRemoteQuery#_isAnExplicitIdFetch
+        Property (private): O.WindowedQuery#_isAnExplicitIdFetch
         Type: Boolean
 
         This is set to true when an explicit request is made to fetch ids (e.g.
-        through <O.RemoteQuery#getStoreKeysForObjectsInRange>). This prevents
+        through <O.Query#getStoreKeysForObjectsInRange>). This prevents
         the query from optimising away the request when it corresponds to a
         non-observed range in the query.
     */
 
     /**
-        Property: O.WindowedRemoteQuery#allIdsAreLoaded
+        Property: O.WindowedQuery#allIdsAreLoaded
         Type: Boolean
 
         Do we have the complete list of ids for this query in memory?
@@ -353,7 +353,7 @@ const WindowedRemoteQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedRemoteQuery.parent.constructor.apply( this, arguments );
+        WindowedQuery.parent.constructor.apply( this, arguments );
     },
 
     reset () {
@@ -364,7 +364,7 @@ const WindowedRemoteQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedRemoteQuery.parent.reset.call( this );
+        WindowedQuery.parent.reset.call( this );
     },
 
     // We keep a local cache so that we can handle records changing ids.
@@ -469,7 +469,7 @@ const WindowedRemoteQuery = Class({
     },
 
     /**
-        Method: O.WindowedRemoteQuery#fetchWindow
+        Method: O.WindowedQuery#fetchWindow
 
         Fetches all records in the window with the index given. e.g. if the
         window size is 30, calling this with index 1 will load all records
@@ -483,7 +483,7 @@ const WindowedRemoteQuery = Class({
             prefetch     - {Number} (optional)
 
         Returns:
-            {O.WindowedRemoteQuery} Returns self.
+            {O.WindowedQuery} Returns self.
     */
     fetchWindow ( index, fetchRecords, prefetch ) {
         let status = this.get( 'status' );
@@ -542,7 +542,7 @@ const WindowedRemoteQuery = Class({
     },
 
     /**
-        Method: O.WindowedRemoteQuery#recalculateFetchedWindows
+        Method: O.WindowedQuery#recalculateFetchedWindows
 
         Recalculates whether the ids and records are fetched for windows,
         for all windows with an index equal or greater than that of the window
@@ -809,7 +809,7 @@ const WindowedRemoteQuery = Class({
     },
 
     /**
-        Method: O.WindowedRemoteQuery#clientDidGenerateUpdate
+        Method: O.WindowedQuery#clientDidGenerateUpdate
 
         Call this to update the list with what you think the server will do
         after an action has committed. The change will be applied immediately,
@@ -826,7 +826,7 @@ const WindowedRemoteQuery = Class({
             update - {Object} The removed/added updates to make.
 
         Returns:
-            {O.WindowedRemoteQuery} Returns self.
+            {O.WindowedQuery} Returns self.
     */
     clientDidGenerateUpdate ( update ) {
         this._normaliseUpdate( update );
@@ -840,7 +840,7 @@ const WindowedRemoteQuery = Class({
     },
 
     /**
-        Method: O.WindowedRemoteQuery#sourceDidFetchUpdate
+        Method: O.WindowedQuery#sourceDidFetchUpdate
 
         The source should call this when it fetches a delta update for the
         query. The args object should contain the following properties:
@@ -863,7 +863,7 @@ const WindowedRemoteQuery = Class({
             update - {Object} The delta update (see description above).
 
         Returns:
-            {O.WindowedRemoteQuery} Returns self.
+            {O.WindowedQuery} Returns self.
     */
     sourceDidFetchUpdate ( update ) {
         const state = this.get( 'state' );
@@ -1061,7 +1061,7 @@ const WindowedRemoteQuery = Class({
     },
 
     /**
-        Method: O.WindowedRemoteQuery#sourceDidFetchIdList
+        Method: O.WindowedQuery#sourceDidFetchIdList
 
         The source should call this when it fetches a portion of the id list for
         this query. The args object should contain:
@@ -1076,7 +1076,7 @@ const WindowedRemoteQuery = Class({
                    details.
 
         Returns:
-            {O.WindowedRemoteQuery} Returns self.
+            {O.WindowedQuery} Returns self.
     */
     sourceDidFetchIdList ( args ) {
         const state = this.get( 'state' );
@@ -1308,4 +1308,4 @@ const WindowedRemoteQuery = Class({
     },
 });
 
-export default WindowedRemoteQuery;
+export default WindowedQuery;

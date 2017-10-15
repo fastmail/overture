@@ -78,7 +78,7 @@ const Source = Class({
         Fetches the data for a remote query from the source.
 
         Parameters:
-            query - {O.RemoteQuery} The query to fetch.
+            query - {O.Query} The query to fetch.
 
         Returns:
             {Boolean} Returns true if the source handled the fetch.

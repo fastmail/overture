@@ -1,29 +1,29 @@
 import { Class, guid } from '../../core/Core';
 import sortByProperties from '../../core/sortByProperties';
-import RemoteQuery from './RemoteQuery';
+import Query from './Query';
 import { EMPTY, READY, OBSOLETE } from '../record/Status';
 
 /**
-    Class: O.LiveQuery
+    Class: O.LocalQuery
 
     Extends: O.Object
 
     Includes: O.ObserverableRange, O.Enumerable
 
-    A LiveQuery instance can be treated as an observable array which
+    A LocalQuery instance can be treated as an observable array which
     automatically updates its contents to reflect a certain query on the store.
     A query consists of a particular type, a filter function and a sort order.
-    Normally you will not create a LiveQuery instance yourself but get it by
+    Normally you will not create a LocalQuery instance yourself but get it by
     retrieving the query from the store.
  */
-const LiveQuery = Class({
+const LocalQuery = Class({
 
-    Extends: RemoteQuery,
+    Extends: Query,
 
-    autoRefresh: RemoteQuery.AUTO_REFRESH_ALWAYS,
+    autoRefresh: Query.AUTO_REFRESH_ALWAYS,
 
     /**
-        Constructor: O.LiveQuery
+        Constructor: O.LocalQuery
 
         The following properties should be configured:
 
@@ -49,7 +49,7 @@ const LiveQuery = Class({
         if ( sort && !( sort instanceof Function ) ) {
             mixin.sort = sortByProperties( sort );
         }
-        LiveQuery.parent.constructor.apply( this, arguments );
+        LocalQuery.parent.constructor.apply( this, arguments );
     },
 
     monitorForChanges () {
@@ -99,4 +99,4 @@ const LiveQuery = Class({
     },
 });
 
-export default LiveQuery;
+export default LocalQuery;

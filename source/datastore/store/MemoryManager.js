@@ -2,7 +2,7 @@ import { Class, guid } from '../../core/Core';
 import RunLoop from '../../foundation/RunLoop';
 
 import Record from '../record/Record';
-import RemoteQuery from '../query/RemoteQuery';
+import Query from '../query/Query';
 
 /**
     Class: O.MemoryManager
@@ -34,7 +34,7 @@ const MemoryManager = Class({
         Type: Array
 
         An array of objects, each containing the properties:
-        - Type: The constructor for the Record or RemoteQuery subclass.
+        - Type: The constructor for the Record or Query subclass.
         - max: The maximum number allowed.
         - afterCleanup: An optional callback after cleanup, which will be given
           an array of removed objects of the given type, every time some are
@@ -56,7 +56,7 @@ const MemoryManager = Class({
             store        - {Store} The store to be memory managed.
             restrictions - {Array} An array of objects, each containing the
                            properties:
-                           * Type: The constructor for the Record or RemoteQuery
+                           * Type: The constructor for the Record or Query
                              subclass.
                            * max: The maximum number allowed.
                            * afterCleanup: An optional callback after cleanup,
@@ -121,7 +121,7 @@ const MemoryManager = Class({
             if ( ParentType === Record ) {
                 deleted = this.cleanupRecordType( Type, max );
                 break;
-            } else if ( ParentType === RemoteQuery ) {
+            } else if ( ParentType === Query ) {
                 deleted = this.cleanupQueryType( Type, max );
                 break;
             }

@@ -92,9 +92,9 @@ export { default as ThemeManager } from './application/ThemeManager';
 export { default as WindowController } from './application/WindowController';
 
 export { default as RecordArray } from './datastore/query/RecordArray';
-export { default as RemoteQuery } from './datastore/query/RemoteQuery';
-export { default as LiveQuery } from './datastore/query/LiveQuery';
-export { default as WindowedRemoteQuery } from './datastore/query/WindowedRemoteQuery';
+export { default as Query } from './datastore/query/Query';
+export { default as LocalQuery } from './datastore/query/LocalQuery';
+export { default as WindowedQuery } from './datastore/query/WindowedQuery';
 export { default as AttributeErrors } from './datastore/record/AttributeErrors';
 export { default as Record } from './datastore/record/Record';
 export { default as RecordAttribute } from './datastore/record/RecordAttribute';
