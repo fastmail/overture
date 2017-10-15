@@ -262,7 +262,7 @@ const Record = Class({
     },
 
     /**
-        Method: O.Record#refresh
+        Method: O.Record#fetch
 
         Fetch/refetch the data from the source. Will have no effect if the
         record is new or already loading.
@@ -270,7 +270,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    refresh () {
+    fetch () {
         const storeKey = this.get( 'storeKey' );
         if ( storeKey ) { this.get( 'store' ).fetchData( storeKey ); }
         return this;

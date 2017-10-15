@@ -151,7 +151,7 @@ const Query = Class({
 
         this.get( 'store' ).addQuery( this );
         this.monitorForChanges();
-        this.refresh();
+        this.fetch();
     },
 
     /**
@@ -220,7 +220,7 @@ const Query = Class({
         }
         /* falls through */
         case AUTO_REFRESH_ALWAYS:
-            this.refresh();
+            this.fetch();
         }
         return this;
     },
@@ -254,7 +254,7 @@ const Query = Class({
         Returns:
             {O.Query} Returns self.
     */
-    refresh ( force, callback ) {
+    fetch ( force, callback ) {
         const status = this.get( 'status' );
         if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
             if ( status & READY ) {
@@ -393,7 +393,7 @@ const Query = Class({
         const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
-                this.refresh( false, function () {
+                this.fetch( false, function () {
                     callback( this._storeKeys.indexOf( storeKey, from ) );
                 }.bind( this ) );
             } else {
@@ -436,7 +436,7 @@ const Query = Class({
 
         if ( length === null ) {
             this._awaitingIdFetch.push([ start, end, callback ]);
-            this.refresh();
+            this.fetch();
             return true;
         }
 

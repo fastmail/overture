@@ -74,7 +74,7 @@ const LocalQuery = Class({
                 .removeObserverForKey( typeId, this, 'typeStatusChanged' );
     },
 
-    refresh ( force, callback ) {
+    fetch ( force, callback ) {
         const status = this.get( 'status' );
 
         if ( force || status === EMPTY || ( status & OBSOLETE ) ) {

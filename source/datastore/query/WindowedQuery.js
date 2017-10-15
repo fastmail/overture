@@ -491,7 +491,7 @@ const WindowedQuery = Class({
         let doFetch = false;
 
         if ( status & OBSOLETE ) {
-            this.refresh();
+            this.fetch();
         }
 
         if ( prefetch === undefined ) {
@@ -835,7 +835,7 @@ const WindowedQuery = Class({
         this._applyUpdate( update );
         this._preemptiveUpdates.push( update );
         this.set( 'status', this.get( 'status' ) | DIRTY );
-        this.refresh( true );
+        this.fetch( true );
         return this;
     },
 
@@ -1098,7 +1098,7 @@ const WindowedQuery = Class({
         if ( state && state !== args.state ) {
             if ( canGetDeltaUpdates ) {
                 this._waitingPackets.push( args );
-                return this.setObsolete().refresh();
+                return this.setObsolete().fetch();
             } else {
                 list.length = windows.length = preemptives.length = 0;
                 informAllRangeObservers = true;
