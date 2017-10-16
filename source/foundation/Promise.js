@@ -1,6 +1,7 @@
 import './RunLoop';  // For Function#invokeInRunLoop
 
 const NativePromise = Promise;
+const NativePromisePrototype = NativePromise.prototype;
 
 /**
     Class: O.Promise
@@ -11,38 +12,63 @@ const NativePromise = Promise;
 
     It is intended to supplant the global `Promise`.
 */
-class OPromise extends NativePromise {
-    // No need to override the constructor: the executor runs immediately.
+/*
+    Implementation note: with class syntax, parts work just fine and dandy; but
+    when you transpile class syntax to the older function syntax, it breaks: the
+    constructor looks like this:
 
-    then ( onFulfilled, onRejected ) {
-        return super.then( onFulfilled.invokeInRunLoop(),
-                           onRejected && onRejected.invokeInRunLoop() );
-    }
+        function OPromise () {
+            NativePromise.apply(this, arguments);
+        }
 
-    catch ( onRejected ) {
-        return super.catch( onRejected.invokeInRunLoop() );
-    }
+    And browsers don’t like that; Firefox’s opinion is: “TypeError: calling a
+    builtin Promise constructor without new is forbidden”.
 
-    // In at least Firefox (I didn’t test any other browsers), using these
-    // methods via inheritance blows up (something about needing `new` to
-    // construct a promise, which is simply wonky). Hence these definitions
-    // which just defer straight to super, to make the JS engine happy.
+    (Similarly, using static methods like `OPromise.then()` break without the
+    static method declarations. Native functionality is often weird. ☹)
 
-    static all ( iterable ) {
-        return super.all( iterable );
-    }
+    So because we still care about IE 11 which doesn’t support class syntax,
+    we are constrained to use a different technique for the constructor, one
+    which is incompatible with class syntax, and so the entire thing stops
+    working as a class. ☹
+*/
+const OPromise = Object.setPrototypeOf( function OPromise ( executor ) {
+    return Object.setPrototypeOf( new NativePromise( executor ),
+        OPromise.prototype );
+}, NativePromise );
 
-    static race ( iterable ) {
-        return super.race( iterable );
-    }
+Object.assign( OPromise, {
+    prototype: Object.assign( Object.create( NativePromisePrototype ), {
+        constructor: OPromise,
 
-    static reject ( reason ) {
-        return super.reject( reason );
-    }
+        then ( onFulfilled, onRejected ) {
+            return NativePromisePrototype.then.call( this,
+                onFulfilled.invokeInRunLoop(),
+                onRejected && onRejected.invokeInRunLoop() );
+        },
 
-    static resolve ( value ) {
-        return super.resolve( value );
-    }
-}
+        catch ( onRejected ) {
+            return NativePromisePrototype.catch.call( this,
+                onRejected.invokeInRunLoop() );
+        },
+    }),
+
+
+    all ( iterable ) {
+        return NativePromise.all.call( this, iterable );
+    },
+
+    race ( iterable ) {
+        return NativePromise.race.call( this, iterable );
+    },
+
+    reject ( reason ) {
+        return NativePromise.reject.call( this, reason );
+    },
+
+    resolve ( value ) {
+        return NativePromise.resolve.call( this, value );
+    },
+});
 
 export default OPromise;
