@@ -74,6 +74,10 @@ const sort = function ( compare, a, b ) {
 
 // ---
 
+const STRING_ID = 0;
+const ARRAY_IDS = 1;
+const SET_IDS = 2;
+
 const typeToForeignRefAttrs = {};
 
 const getForeignRefAttrs = function ( Type ) {
@@ -88,10 +92,14 @@ const getForeignRefAttrs = function ( Type ) {
             propKey = attrs[ attrKey ];
             attribute = propKey && proto[ propKey ];
             if ( attribute instanceof ToOneAttribute ) {
-                foreignRefAttrs.push([ attrKey, 1, attribute.Type ]);
+                foreignRefAttrs.push([ attrKey, STRING_ID, attribute.Type ]);
             }
             if ( attribute instanceof ToManyAttribute ) {
-                foreignRefAttrs.push([ attrKey, 0, attribute.recordType ]);
+                foreignRefAttrs.push([
+                    attrKey,
+                    attribute.Type === Object ? SET_IDS : ARRAY_IDS,
+                    attribute.recordType,
+                ]);
             }
         }
         typeToForeignRefAttrs[ typeId ] = foreignRefAttrs;
@@ -104,16 +112,26 @@ const toStoreKey = function ( store, Type, id ) {
 };
 
 const convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
-    let i, l, foreignRef, attrKey, AttrType, value;
-    for ( i = 0, l = foreignRefAttrs.length; i < l; i += 1 ) {
-        foreignRef = foreignRefAttrs[i];
-        attrKey = foreignRef[0];
-        AttrType = foreignRef[2];
+    const l = foreignRefAttrs.length;
+    for ( let i = 0; i < l; i += 1 ) {
+        const foreignRef = foreignRefAttrs[i];
+        const attrKey = foreignRef[0];
+        const AttrType = foreignRef[2];
+        const idType = foreignRef[1];
         if ( attrKey in data ) {
-            value = data[ attrKey ];
-            data[ attrKey ] = value && ( foreignRef[1] === 1 ?
-                toStoreKey( store, AttrType, value ) :
-                value.map( toStoreKey.bind( null, store, AttrType ) )
+            const value = data[ attrKey ];
+            data[ attrKey ] = value && (
+                idType === STRING_ID ?
+                    toStoreKey( store, AttrType, value ) :
+                idType === ARRAY_IDS ?
+                    value.map( toStoreKey.bind( null, store, AttrType ) ) :
+                // idType === SET_IDS ?
+                    Object.zip(
+                        Object.keys( value ).map(
+                            toStoreKey.bind( null, store, AttrType )
+                        ),
+                        Object.values( value )
+                    )
             );
         }
     }
@@ -130,14 +148,22 @@ const convertForeignKeysToId = function ( store, Type, data ) {
     for ( let i = 0; i < l; i += 1 ) {
         const foreignRef = foreignRefAttrs[i];
         const attrKey = foreignRef[0];
+        const idType = foreignRef[1];
         if ( attrKey in data ) {
             if ( result === data ) {
                 result = clone( data );
             }
             const value = data[ attrKey ];
-            result[ attrKey ] = value && ( foreignRef[1] === 1 ?
-                toId( store, value ) :
-                value.map( toId.bind( null, store ) )
+            result[ attrKey ] = value && (
+                idType === STRING_ID ?
+                    toId( store, value ) :
+                idType === ARRAY_IDS ?
+                    value.map( toId.bind( null, store ) ) :
+                // idType === SET_IDS ?
+                    Object.zip(
+                        Object.keys( value ).map( toId.bind( null, store ) ),
+                        Object.values( value )
+                    )
             );
         }
     }

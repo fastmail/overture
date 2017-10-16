@@ -28,13 +28,18 @@ Record.prototype.notifyRecordArray = function ( _, propKey ) {
     }
 };
 
+const mapToTrue = function ( result, key ) {
+    result[ key ] = true;
+    return result;
+};
+
 // ---
 
 const RecordArray = Class({
 
     Extends: ObservableArray,
 
-    init ( record, propKey, value, Type ) {
+    init ( record, propKey, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;
@@ -42,7 +47,7 @@ const RecordArray = Class({
 
         this._updatingStore = false;
 
-        RecordArray.parent.constructor.call( this, value && value.slice() );
+        RecordArray.parent.constructor.call( this );
     },
 
     toJSON () {
@@ -53,9 +58,17 @@ const RecordArray = Class({
         if ( !this._updatingStore ) {
             const record = this.get( 'record' );
             const propKey = this.get( 'propKey' );
-            const list = record[ propKey ].getRaw( record, propKey );
+            let list = record[ propKey ].getRaw( record, propKey );
+            if ( !list ) {
+                list = [];
+            } else if ( record[ propKey ].Type === Object ) {
+                list = Object.keys( list );
+                list.sort();
+            } else {
+                list = list.slice();
+            }
 
-            this.set( '[]', list ? list.slice() : [] );
+            this.set( '[]', list );
         }
     },
 
@@ -76,7 +89,6 @@ const RecordArray = Class({
 
         const record = this.get( 'record' );
         const propKey = this.get( 'propKey' );
-        const Type = this.get( 'Type' );
         const store = this.get( 'store' );
         const oldItems = RecordArray.parent.replaceObjectsAt.call(
                 this, index, numberRemoved, newItems.map( function ( record ) {
@@ -85,9 +97,15 @@ const RecordArray = Class({
             ).map( function ( storeKey ) {
                 return store.getRecordFromStoreKey( storeKey );
             });
+        let value = this._array;
 
         this._updatingStore = true;
-        record[ propKey ].setRaw( record, propKey, this._array.slice() );
+        if ( record[ propKey ].Type === Object ) {
+            value = value.reduce( mapToTrue, {} );
+        } else {
+            value = value.slice();
+        }
+        record[ propKey ].setRaw( record, propKey, value );
         this._updatingStore = false;
 
         return oldItems;
@@ -152,20 +170,13 @@ const ToManyAttribute = Class({
     call ( record, propValue, propKey ) {
         const arrayKey = '_' + propKey + 'RecordArray';
         let recordArray = record[ arrayKey ];
+        if ( !recordArray ) {
+            recordArray = record[ arrayKey ] =
+                new RecordArray( record, propKey, this.recordType );
+        }
         // Race condition: another observer may fetch this before
         // our notifyRecordArray method has been called.
-        if ( recordArray ) {
-            recordArray.updateFromRecord();
-        } else {
-            recordArray = record[ arrayKey ] =
-            new RecordArray(
-                record,
-                propKey,
-                ToManyAttribute.parent.call.call(
-                    this, record, undefined, propKey ),
-                this.recordType
-            );
-        }
+        recordArray.updateFromRecord();
         if ( propValue !== undefined ) {
             recordArray
                 .replaceObjectsAt( 0,
