@@ -1,6 +1,36 @@
 # Changelog
 
-## 2017-10-06
+## 2017-10-16: query refactoring
+
+Queries were refactored quite a bit to make more sense, with some renamings and some mild changes in behaviour.
+
+### Changed
+
+- Renamed `RemoteQuery` to `Query`.
+- Renamed `WindowedRemoteQuery` to `WindowedQuery`.
+- Renamed `LiveQuery` to `LocalQuery`.
+- Renamed `Query#refresh` to `Query#fetch`. (It also now takes an optional extra argument, callback.)
+- Renamed `Record#refresh` to `Record#fetch`.
+- Renamed `Store#getAllRemoteQueries` to `Store#getAllQueries`.
+- `LocalQuery` is now a subclass of `Query` rather than of `O.Object`.
+- There are a handful of internal implementation details that changed (keywords of some methods introduced or changed: monitorForChanges, unmonitorForChanges, reset, getStoreKeys, sourceDidFetchQuery, typeStatusChanged, storeDidChangeRecords).
+- Removed now-unnecessary methods `Store#setRemoteQueriesObsolete`, `Store#refreshLiveQueries` and `Store#liveQueriesAreReady`.
+- Renamed `Query#filter` to `Query#where`, to fix the collision on the `Enumerable.filter` method.
+- New property `Query#autoRefresh`, controlling the eponymous behaviour on the query, defaulting to `AUTO_REFRESH_NEVER` on `Query` and `AUTO_REFRESH_ALWAYS` on `LocalQuery`. (These are the same semantics as were previously present, but it gives the flexibility to change it.)
+- New static properties `RemoteQuery.AUTO_REFRESH_NEVER`, `RemoteQuery.AUTO_REFRESH_IF_OBSERVED` and `RemoteQuery.AUTO_REFRESH_ALWAYS` for `Query#autoRefresh`.
+
+### Added
+
+- Observable property `Store#typeToStatus`.
+  (Formerly it was a private, unobservable property named `_typeToStatus`.)
+- New method `Store#getRecordFromStoreKey`, replacing a common pattern of `Store#getRecord` usage.
+- Support for unordered `toMany` attribute. (Represented as object with `{ id1: true, id2: true }` instead of `[ id1, id2 ]`.)
+
+### Removed
+
+- The third argument (`value`) of the `RecordArray` constructor. That is, you can no longer initialise the value of a `RecordArray` up front. `RecordArray`’s constructor signature changed from `( record, propKey, value, Type )` to `( record, propKey, Type )`.
+
+## 2017-10-06: modernisation
 
 ### Added
 
@@ -44,7 +74,7 @@
   classList on SVG elements. If this matters to you, get a polyfill like
   https://github.com/eligrey/classList.js.)
 
-## 2017-09-12
+## 2017-09-12: modernisation
 
 ### Changed
 
@@ -58,7 +88,7 @@
 
 - O.ViewEventsController.{registerActiveView, deregisterActiveView}
 
-## Some time in the first half of 2017
+## Some time in the first half of 2017: modernisation
 
 ### Removed
 
