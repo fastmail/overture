@@ -78,7 +78,7 @@ var Connection = O.Class({
         // List of callback functions to be executed after the next request.
         this._callbackQueue = [];
 
-        // Map of id -> RemoteQuery for all queries to be fetched.
+        // Map of id -> Query for all queries to be fetched.
         this._queriesToFetch = {};
         // Map of guid( Type ) -> state
         this._typesToRefresh = {};
@@ -646,7 +646,7 @@ var Connection = O.Class({
         Method: O.Connection#fetchQuery
         Fetches the data for a remote query from the source.
         Parameters:
-            query - {O.RemoteQuery} The query to fetch.
+            query - {O.Query} The query to fetch.
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */

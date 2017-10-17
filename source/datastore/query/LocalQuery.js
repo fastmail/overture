@@ -6,7 +6,7 @@ import { EMPTY, READY, OBSOLETE } from '../record/Status';
 /**
     Class: O.LocalQuery
 
-    Extends: O.Object
+    Extends: O.Query
 
     Includes: O.ObserverableRange, O.Enumerable
 

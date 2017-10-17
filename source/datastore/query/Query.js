@@ -242,7 +242,7 @@ const Query = Class({
     /**
         Method: O.Query#refresh
 
-        Fetcj the query or refresh if needed.
+        Fetch the query or refresh if needed.
 
         Parameters:
             force        - {Boolean} (optional) Unless this is true, the remote
@@ -311,7 +311,7 @@ const Query = Class({
         Returns:
             {String[]} The store keys. You MUST NOT modify this.
     */
-    getStoreKeys: function () {
+    getStoreKeys () {
         return this._storeKeys;
     },
 

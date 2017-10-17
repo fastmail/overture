@@ -392,7 +392,7 @@ App.state = new O.Router({
             ( searchTree ? '&&' + searchTree.toFunctionString() : '' )
         );
 
-        return new O.LiveQuery({
+        return new O.LocalQuery({
             store: App.store,
             Type: Todo,
             sort: function ( a, b ) {
@@ -403,7 +403,7 @@ App.state = new O.Router({
         });
     }.property( 'listId', 'search' ),
 
-    /* Destroy the previous LiveQuery, as it's no longer needed. In the current
+    /* Destroy the previous LocalQuery, as it's no longer needed. In the current
        implementation we're not reusing queries, so we should always destroy
        the old ones, otherwise we will leak memory (and time, as each old
        query is kept up to date!)
