@@ -1,5 +1,17 @@
 # Changelog
 
+## 2017-10-16: better `Promise` support
+
+## Added
+
+- `O.Promise`, a subclass of the native `Promise` which executes the `onFulfilled` and `onRejected` functions in the run loop, via `O.RunLoop.invoke`, ensuring that promises won’t produce surprising behaviour.
+
+## Changed
+
+- The global `Promise` is overridden to set it to `O.Promise`. This is convenient, probably harmless and makes `async function` Overture-ready—not that native browser support is yet wide!
+- `O.RunLoop.invoke` now returns the return value of the function, rather than `RunLoop`. (But bear in mind that the run loop queues will be flushed between the completion of the function and the return of that value, so if caution is not exercised that value could be stale.)
+- Functions wrapped in the run loop via `Function#invokeInRunLoop` will now return the value returned by the wrapped function, not `undefined`.
+
 ## 2017-10-16: query refactoring
 
 Queries were refactored quite a bit to make more sense, with some renamings and some mild changes in behaviour.

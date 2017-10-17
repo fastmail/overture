@@ -232,18 +232,20 @@ const RunLoop = {
             args - {Array} (optional) The arguments to pass to the function.
 
         Returns:
-            {O.RunLoop} Returns self.
+            {*} The return value of the invoked function, or `undefined` if it
+                throws an exception.
     */
     invoke ( fn, bind, args ) {
+        let returnValue;
         this._depth += 1;
         try {
             // Avoiding apply/call when not needed is faster
             if ( args ) {
-                fn.apply( bind, args );
+                returnValue = fn.apply( bind, args );
             } else if ( bind ) {
-                fn.call( bind );
+                returnValue = fn.call( bind );
             } else {
-                fn();
+                returnValue = fn();
             }
         } catch ( error ) {
             RunLoop.didError( error );
@@ -255,7 +257,7 @@ const RunLoop = {
         if ( !this._depth ) {
             this.processTimeouts();
         }
-        return this;
+        return returnValue;
     },
 
     /**
@@ -497,7 +499,7 @@ Object.assign( Function.prototype, {
     invokeInRunLoop () {
         const fn = this;
         return function () {
-            RunLoop.invoke( fn, this, arguments );
+            return RunLoop.invoke( fn, this, arguments );
         };
     },
 });
