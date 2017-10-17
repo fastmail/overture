@@ -4,7 +4,6 @@ import '../core/String';  // For String#camelCase, #contains, #hyphenate
 import UA from '../ua/UA';
 import Binding from '../foundation/Binding';
 import RunLoop from '../foundation/RunLoop';
-import ViewEventsController from '../views/ViewEventsController';
 import View from '../views/View';  // Circular but it's OK
 
 /**
@@ -205,14 +204,6 @@ for ( const property in styles ) {
 */
 const doc = document;
 
-/**
-    Property (private): O.Element-ieEventModel
-    Type: Boolean
-
-    Does the browser only support the IE event model?
-*/
-const ieEventModel = !!doc.addEventListener.isFake;
-
 // = Node.DOCUMENT_POSITION_CONTAINED_BY
 const DOCUMENT_POSITION_CONTAINED_BY = 16;
 
@@ -296,11 +287,6 @@ export default {
             doc.createElementNS( svgNS, tag ) :
             doc.createElement( tag );
 
-        if ( ieEventModel && ( tag === 'input' ||
-                tag === 'select' || tag === 'textarea' ) ) {
-            el.addEventListener( tag === 'select' ?
-                'change' : 'propertychange', ViewEventsController, false );
-        }
         if ( props ) {
             setAttributes( el, props );
         }
