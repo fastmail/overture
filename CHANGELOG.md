@@ -38,10 +38,6 @@ Queries were refactored quite a bit to make more sense, with some renamings and 
 - New method `Store#getRecordFromStoreKey`, replacing a common pattern of `Store#getRecord` usage.
 - Support for unordered `toMany` attribute. (Represented as object with `{ id1: true, id2: true }` instead of `[ id1, id2 ]`.)
 
-### Removed
-
-- The third argument (`value`) of the `RecordArray` constructor. That is, you can no longer initialise the value of a `RecordArray` up front. `RecordArray`’s constructor signature changed from `( record, propKey, value, Type )` to `( record, propKey, Type )`.
-
 ## 2017-10-06: modernisation
 
 ### Added
