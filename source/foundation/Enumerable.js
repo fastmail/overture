@@ -278,7 +278,8 @@ const Enumerable = {
         let acc;
 
         if ( !l && arguments.length === 1 ) {
-            throw new TypeError();
+            throw new TypeError(
+                'reduce of empty enumerable with no initial value' );
         }
 
         if ( arguments.length >= 2 ) {
