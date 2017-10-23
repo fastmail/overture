@@ -574,7 +574,8 @@ const Store = Class({
                 entry = changes[ typeId ] = {
                     primaryKey: idAttrKey,
                     create: { storeKeys: [], records: [] },
-                    update: { storeKeys: [], records: [], changes: [] },
+                    update: { storeKeys: [], records: [],
+                        committed: [], changes: [] },
                     destroy: { storeKeys: [], ids: [] },
                     state: _typeToClientState[ typeId ],
                 };
@@ -605,19 +606,24 @@ const Store = Class({
             const status = _skToStatus[ storeKey ];
             const Type = _skToType[ storeKey ];
             let data = _skToData[ storeKey ];
+            let previous;
 
             const changed = _skToChanged[ storeKey ];
             if ( status & COMMITTING ) {
                 newSkToChanged[ storeKey ] = changed;
                 continue;
             }
-            _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
+
+            previous = _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
+            previous = convertForeignKeysToId( this, Type, previous );
             delete _skToCommitted[ storeKey ];
+
             data = convertForeignKeysToId( this, Type, data );
 
             const update = getEntry( Type ).update;
             update.storeKeys.push( storeKey );
             update.records.push( data );
+            update.committed.push( previous );
             update.changes.push( changed );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
