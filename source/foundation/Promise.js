@@ -43,13 +43,12 @@ Object.assign( OPromise, {
 
         then ( onFulfilled, onRejected ) {
             return NativePromisePrototype.then.call( this,
-                onFulfilled.invokeInRunLoop(),
-                onRejected && onRejected.invokeInRunLoop() );
-        },
-
-        catch ( onRejected ) {
-            return NativePromisePrototype.catch.call( this,
-                onRejected.invokeInRunLoop() );
+                typeof onFulfilled === 'function' ?
+                    onFulfilled.invokeInRunLoop() :
+                    onFulfilled,
+                typeof onRejected === 'function' ?
+                    onRejected.invokeInRunLoop() :
+                    onRejected );
         },
     }),
 
