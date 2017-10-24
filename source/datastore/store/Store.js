@@ -574,8 +574,12 @@ const Store = Class({
                 entry = changes[ typeId ] = {
                     primaryKey: idAttrKey,
                     create: { storeKeys: [], records: [] },
-                    update: { storeKeys: [], records: [],
-                        committed: [], changes: [] },
+                    update: {
+                        storeKeys: [],
+                        records: [],
+                        committed: [],
+                        changes: [],
+                    },
                     destroy: { storeKeys: [], ids: [] },
                     state: _typeToClientState[ typeId ],
                 };
