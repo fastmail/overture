@@ -134,11 +134,10 @@ const ScrollView = Class({
 
     didCreateLayer ( layer ) {
         layer.tabIndex = -1;
-        this.scrollLayer = layer;
     },
 
     didEnterDocument () {
-        this.get( 'scrollLayer' ).addEventListener( 'scroll', this, false );
+        this.get( 'layer' ).addEventListener( 'scroll', this, false );
 
         // Add keyboard shortcuts:
         const keys = this.get( 'keys' );
@@ -158,7 +157,7 @@ const ScrollView = Class({
             shortcuts.deregister( key, this, keys[ key ] );
         }
 
-        this.get( 'scrollLayer' ).removeEventListener( 'scroll', this, false );
+        this.get( 'layer' ).removeEventListener( 'scroll', this, false );
 
         return ScrollView.parent.willLeaveDocument.call( this );
     },
@@ -167,7 +166,7 @@ const ScrollView = Class({
         // Scroll is reset to 0 in some browsers whenever it is removed from the
         // DOM, so we need to set it to what it should be.
         if ( this.get( 'isInDocument' ) ) {
-            const layer = this.get( 'scrollLayer' );
+            const layer = this.get( 'layer' );
             layer.scrollLeft = this.get( 'scrollLeft' );
             layer.scrollTop = this.get( 'scrollTop' );
         }
@@ -221,7 +220,7 @@ const ScrollView = Class({
     */
     scrollToBottom () {
         return this.scrollTo( 0,
-            this.get( 'scrollLayer' ).scrollHeight - this.get( 'pxHeight' ),
+            this.get( 'layer' ).scrollHeight - this.get( 'pxHeight' ),
             true
         );
     },
@@ -370,7 +369,7 @@ const ScrollView = Class({
         Redraws the scroll position in the layer to match the view's state.
     */
     redrawScroll () {
-        const layer = this.get( 'scrollLayer' );
+        const layer = this.get( 'layer' );
         const x = this.get( 'scrollLeft' );
         const y = this.get( 'scrollTop' );
         layer.scrollLeft = x;
@@ -393,7 +392,7 @@ const ScrollView = Class({
         if ( this._needsRedraw ) {
             return;
         }
-        const layer = this.get( 'scrollLayer' );
+        const layer = this.get( 'layer' );
         const x = layer.scrollLeft;
         const y = layer.scrollTop;
         this.beginPropertyChanges()
@@ -421,7 +420,7 @@ const ScrollView = Class({
             {O.ScrollView} Returns self.
     */
     focus () {
-        this.scrollLayer.focus();
+        this.get( 'layer' ).focus();
         return this;
     },
 });
@@ -436,56 +435,11 @@ if ( UA.isIOS ) {
         draw ( layer, Element, el ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
             let scrollFixerHeight = 1;
-            let wrapper = null;
-            const safariVersion = UA.safari;
 
             // Render the children.
             const children = ScrollView.parent.draw.call( this,
                 layer, Element, el );
 
-            // Trick 1: The dual overflow:scroll view.
-            // By default, iOS Safari will scroll the containing scroll view
-            // if you are at the top/bottom of an overflow:scroll view. This
-            // means it scrolls the window instead of bouncing your scroll view.
-            // The dual overflow:scroll fixes this in iOS < 8. You only need
-            // this in Safari: if in a UIWebView you can disable the natural
-            // scrolling of the window.
-            if ( 0 < safariVersion && safariVersion < 8 ) {
-                wrapper = this.scrollLayer = el( 'div', {
-                    tabIndex: -1,
-                    style: 'position:relative;height:100%;' +
-                        '-webkit-overflow-scrolling:touch;' +
-                        'overflow-x:' +
-                            ( this.get( 'showScrollbarX' ) ?
-                                'auto;' : 'hidden;' ) +
-                        'overflow-y:' +
-                            ( this.get( 'showScrollbarY' ) ?
-                                'auto;' : 'hidden;' ),
-                });
-                layer.appendChild( wrapper );
-                layer = wrapper;
-            }
-
-            // Trick 2: Never leave the scroll view at the ends.
-            // As Trick 1 doesn't work in Safari on iOS8, or any other WKWebView
-            // based browser. We have to use a more crude method: ensure the
-            // scrollHeight is at least pxHeight + 2, then make sure scrollTop
-            // is never at the absolute end, so there is always room to scroll
-            // in both directions. We add a 1px tall empty div at the top of
-            // the content so at scrollTop=1px, it looks like it should.
-            if ( UA.isWKWebView ) {
-                scrollFixerHeight = 2;
-                layer.appendChild(
-                    el( 'div', { style: 'height:1px' } )
-                );
-                this.on( 'scroll', this, '_setNotAtEnd' )
-                    .addObserverForKey( 'isInDocument', this, '_setNotAtEnd' );
-            }
-
-            // Append the actual children of the scroll view.
-            Element.appendChildren( layer, children );
-
-            // Trick 3: Ensuring the view scrolls.
             // Following platform conventions, we assume a fixed height
             // ScrollView should always scroll, regardless of whether the
             // content is taller than the view, whereas a variable height
@@ -493,13 +447,29 @@ if ( UA.isIOS ) {
             // Therefore, if it's a fixed height view, we add an extra
             // invisible div permanently 1px below the height, so it always
             // has scrollable content.
+            // From iOS 11, if not in Safari, it appears that the view will
+            // always be scrollable as long as the content is at longer; you
+            // don't need to ensure you are not at the very top
+            if ( isFixedDimensions && ( UA.version < 11 || UA.safari ) ) {
+                scrollFixerHeight = 2;
+                layer.appendChild(
+                    el( 'div', { style: 'height:1px' } )
+                );
+            }
+
+            // Append the actual children of the scroll view.
+            Element.appendChildren( layer, children );
+
             if ( isFixedDimensions ) {
+                layer.style.paddingBottom = 'constant(safe-area-inset-bottom)';
                 layer.appendChild(
                     el( 'div', {
                         style: 'position:absolute;top:100%;left:0px;' +
                             'width:1px;height:' + scrollFixerHeight + 'px;',
                     })
                 );
+                this.on( 'scroll', this, '_setNotAtEnd' )
+                    .addObserverForKey( 'isInDocument', this, '_setNotAtEnd' );
             }
         },
 
@@ -507,7 +477,7 @@ if ( UA.isIOS ) {
             if ( this.get( 'isInDocument' ) ) {
                 const scrollTop = this.get( 'scrollTop' );
                 const scrollLeft = this.get( 'scrollLeft' );
-                if ( !scrollTop ) {
+                if ( !scrollTop && ( UA.version < 11 || UA.safari ) ) {
                     this.scrollTo( scrollLeft, 1 );
                 } else if ( scrollTop + this.get( 'pxHeight' ) ===
                         this.get( 'layer' ).scrollHeight ) {
@@ -526,18 +496,15 @@ if ( UA.isIOS ) {
         }.on( 'touchmove' ),
 
         insertView ( view, relativeTo, where ) {
-            if ( !relativeTo && this.get( 'isRendered' ) ) {
-                relativeTo = this.scrollLayer;
+            if ( !relativeTo && this.get( 'isRendered' ) &&
+                    this.get( 'isFixedDimensions' ) ) {
+                relativeTo = this.get( 'layer' );
                 if ( where === 'top' ) {
-                    if ( UA.safari >= 8 ) {
-                        relativeTo = relativeTo.firstChild;
-                        where = 'after';
-                    }
+                    relativeTo = relativeTo.firstChild;
+                    where = 'after';
                 } else if ( !where || where === 'bottom' ) {
-                    if ( this.get( 'isFixedDimensions' ) ) {
-                        relativeTo = relativeTo.lastChild;
-                        where = 'before';
-                    }
+                    relativeTo = relativeTo.lastChild;
+                    where = 'before';
                 }
             }
             return ScrollView.parent.insertView.call(

@@ -72,8 +72,7 @@ const PopOverView = Class({
         }
 
         // Now find out our offsets;
-        const position = Element.getPosition( atNode, parent.get(
-            parent instanceof ScrollView ? 'scrollLayer' : 'layer' ) );
+        const position = Element.getPosition( atNode, parent.get( 'layer' ) );
         let top = position.top;
         let left = position.left;
 
