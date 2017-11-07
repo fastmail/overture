@@ -28,6 +28,8 @@ const getRule = function ( rules, offset, datetime, isUTC, recurse ) {
     let l = rules.length;
     const year = datetime.getUTCFullYear();
     let ruleInEffect = null;
+    let prevRule;
+    let dateInEffect;
     while ( l-- ) {
         const rule = rules[l];
         // Sorted by end year. So if ends before this date, no further rules
@@ -37,7 +39,6 @@ const getRule = function ( rules, offset, datetime, isUTC, recurse ) {
         }
         // If starts on or before this date, the rule applies.
         if ( rule[0] <= year ) {
-            let prevRule, dateInEffect;
             // Create the date object representing the transition point.
             const month = rule[2];
             // 0 => last day of the month
