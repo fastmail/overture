@@ -74,8 +74,6 @@ const nextFrame = function () {
 export default Class({
 
     init ( mixin ) {
-        this.duration = this.duration;
-        this.ease = this.ease;
         this.isRunning = false;
         this.startTime = 0;
 
