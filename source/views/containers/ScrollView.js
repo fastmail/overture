@@ -402,9 +402,7 @@ const ScrollView = Class({
         if ( event ) {
             event.stopPropagation();
             // Don't interpret tap to stop scroll as a real tap.
-            if ( Tap ) {
-                Tap.cancel();
-            }
+            Tap.cancel();
         }
     }.on( 'scroll' ),
 
