@@ -537,8 +537,8 @@ const WindowedQuery = Class({
             if ( store.getStatus( list[i] ) & (EMPTY|OBSOLETE) ) {
                 return false;
             }
-            return true;
         }
+        return true;
     },
 
     /**
