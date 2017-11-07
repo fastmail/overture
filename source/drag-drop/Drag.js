@@ -639,7 +639,6 @@ const Drag = Class({
     */
     _check ( view, x, y ) {
         let scroll = this._scrollBounds;
-        let scrollView = this._scrollView;
         const outsideTriggerRegionWidth = 15;
 
         // If we don't have any containing scroll container bounds, recalculate.
@@ -649,7 +648,7 @@ const Drag = Class({
             // Optimise by only reclaculating scrollView bounds when we mouse
             // over a new view.
             if ( view && this._lastTargetView !== view ) {
-                this._lastTargetView = scrollView = view;
+                let scrollView = this._lastTargetView = view;
 
                 if ( !( scrollView instanceof ScrollView ) ) {
                     scrollView = scrollView.getParent( ScrollView );

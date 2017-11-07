@@ -126,7 +126,7 @@ const SelectionController = Class({
         const query = this.get( 'visible' ) || this.get( 'content' );
         const selectionId = ( this._selectionId += 1 );
         const loading = query.getStoreKeysForObjectsInRange(
-            start, end = Math.min( end, query.get( 'length' ) || 0 ),
+            start, Math.min( end, query.get( 'length' ) || 0 ),
             ( storeKeys, start, end ) => {
                 this.selectStoreKeys( storeKeys,
                     isSelected, selectionId, start, end );
