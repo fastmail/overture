@@ -310,6 +310,17 @@ const Record = Class({
     },
 
     /**
+        Method: O.Record#getData
+
+        Returns:
+            {Object} The raw data hash in the store for this object.
+    */
+    getData () {
+        return this._data ||
+            this.get( 'store' ).getData( this.get( 'storeKey' ) );
+    },
+
+    /**
         Method: O.Record#storeWillUnload
 
         This should only be called by the store, when it unloads the record's
