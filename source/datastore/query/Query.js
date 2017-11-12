@@ -140,6 +140,7 @@ const Query = Class({
         this.id = guid( this );
         this.source = null;
         this.store = null;
+        this.accountId = null;
         this.where = null;
         this.sort = null;
         this.state = '';
@@ -169,13 +170,17 @@ const Query = Class({
     },
 
     monitorForChanges () {
-        this.get( 'store' )
-            .on( guid( this.get( 'Type' ) ) + ':server', this, 'setObsolete' );
+        const store = this.get( 'store' );
+        const typeId = guid( this.get( 'Type' ) );
+        const accountId = this.get( 'accountId' );
+        store.on( typeId + ':server:' + accountId, this, 'setObsolete' );
     },
 
     unmonitorForChanges () {
-        this.get( 'store' )
-            .off( guid( this.get( 'Type' ) ) + ':server', this, 'setObsolete' );
+        const store = this.get( 'store' );
+        const typeId = guid( this.get( 'Type' ) );
+        const accountId = this.get( 'accountId' );
+        store.off( typeId + ':server:' + accountId, this, 'setObsolete' );
     },
 
     // ---

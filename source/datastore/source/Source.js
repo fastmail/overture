@@ -21,15 +21,16 @@ const Source = Class({
         Fetches a particular record from the source
 
         Parameters:
-            Type     - {O.Class} The record type.
-            id       - {String} The record id.
-            callback - {Function} (optional) A callback to make after the record
-                       fetch completes (successfully or unsuccessfully).
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            id        - {String} The record id.
+            callback  - {Function} (optional) A callback to make after the
+                       record fetch completes (successfully or unsuccessfully).
 
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchRecord (/* Type, id, callback */) {
+    fetchRecord (/* accountId, Type, id, callback */) {
         return false;
     },
 
@@ -41,15 +42,16 @@ const Source = Class({
         changes since that state.
 
         Parameters:
-            Type     - {O.Class} The record type.
-            state    - {(String|undefined)} The current state in the store.
-            callback - {Function} (optional) A callback to make after the record
-                       fetch completes (successfully or unsuccessfully).
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            state     - {(String|undefined)} The current state in the store.
+            callback  - {Function} (optional) A callback to make after the
+                        record fetch completes (successfully or unsuccessfully).
 
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords (/* Type, state, callback */) {
+    fetchAllRecords (/* accountId, Type, state, callback */) {
         return false;
     },
 
@@ -60,16 +62,18 @@ const Source = Class({
         this method just calls <O.Source#fetchRecord>.
 
         Parameters:
-            Type     - {O.Class} The record type.
-            id       - {String} The record id.
-            callback - {Function} (optional) A callback to make after the record
-                       refresh completes (successfully or unsuccessfully).
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            id        - {String} The record id.
+            callback  - {Function} (optional) A callback to make after the
+                        record refresh completes (successfully or
+                        unsuccessfully).
 
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
-    refreshRecord ( Type, id, callback ) {
-        return this.fetchRecord( Type, id, callback );
+    refreshRecord ( accountId, Type, id, callback ) {
+        return this.fetchRecord( accountId, Type, id, callback );
     },
 
     /**
@@ -102,7 +106,9 @@ const Source = Class({
 
             source.commitChanges({
                 MyType: {
-                    primaryKey: "id",
+                    Type,
+                    accountId,
+                    primaryKey,
                     create: {
                         storeKeys: [ "sk1", "sk2" ],
                         records: [{ attr: val, attr2: val2 ...}, {...}]
@@ -111,6 +117,10 @@ const Source = Class({
                         storeKeys: [ "sk3", "sk4", ... ],
                         records: [{ id: "id3", attr: val ... }, {...}],
                         changes: [{ attr: true }, ... ]
+                    },
+                    moveFromAccount: {
+                        previousAccountId: ... same as update ...
+                        ...
                     },
                     destroy: {
                         storeKeys: [ "sk5", "sk6" ],

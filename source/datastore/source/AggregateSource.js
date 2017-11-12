@@ -66,27 +66,27 @@ const AggregateSource = Class({
         });
     }.observes( 'store' ),
 
-    fetchRecord ( Type, id, callback ) {
+    fetchRecord ( accountId, Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
-            return source.fetchRecord( Type, id, callback );
+            return source.fetchRecord( accountId, Type, id, callback );
         });
     },
 
-    fetchAllRecords ( Type, state, callback ) {
+    fetchAllRecords ( accountId, Type, state, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
-            return source.fetchAllRecords( Type, state, callback );
+            return source.fetchAllRecords( accountId, Type, state, callback );
         });
     },
 
-    refreshRecord ( Type, id, callback ) {
+    refreshRecord ( accountId, Type, id, callback ) {
         return this.get( 'sources' ).some( function ( source ) {
-            return source.refreshRecord( Type, id, callback );
+            return source.refreshRecord( accountId, Type, id, callback );
         });
     },
 
     commitChanges ( changes, callback ) {
-        let waiting = 0,
-            callbackAfterAll;
+        let waiting = 0;
+        let callbackAfterAll;
         if ( callback ) {
             callbackAfterAll = function () {
                 if ( !( waiting-= 1 ) ) {

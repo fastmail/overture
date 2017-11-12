@@ -54,10 +54,7 @@ const LocalQuery = Class({
 
     monitorForChanges () {
         const typeId = guid( this.get( 'Type' ) );
-        this.get( 'store' )
-            .on( typeId, this, 'setObsolete' )
-            .typeToStatus
-                .addObserverForKey( typeId, this, 'typeStatusChanged' );
+        this.get( 'store' ).on( typeId, this, 'setObsolete' );
     },
 
     typeStatusChanged ( _, __, oldStatus, newStatus ) {
@@ -68,10 +65,7 @@ const LocalQuery = Class({
 
     unmonitorForChanges () {
         const typeId = guid( this.get( 'Type' ) );
-        this.get( 'store' )
-            .off( typeId, this, 'setObsolete' )
-            .typeToStatus
-                .removeObserverForKey( typeId, this, 'typeStatusChanged' );
+        this.get( 'store' ).off( typeId, this, 'setObsolete' );
     },
 
     fetch ( force, callback ) {
@@ -85,8 +79,7 @@ const LocalQuery = Class({
                 this.sourceWillFetchQuery();
                 this.sourceDidFetchQuery(
                     store.findAll(
-                        Type, this.get( 'where' ), this.get( 'sort' ) ),
-                    store.getTypeState( Type )
+                        Type, this.get( 'where' ), this.get( 'sort' ) )
                 );
             }
         }

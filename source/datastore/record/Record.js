@@ -32,7 +32,9 @@ const Record = Class({
     */
     init ( store, storeKey ) {
         this._noSync = false;
-        this._data = storeKey ? null : {};
+        this._data = storeKey ? null : {
+            accountId: store.getDefaultAccountId(),
+        };
         this.store = store;
         this.storeKey = storeKey;
 
@@ -61,6 +63,7 @@ const Record = Class({
         const clone = new Type( store );
         const attrs = meta( this ).attrs;
         let attrKey, propKey, value;
+        clone.set( 'accountId', this.get( 'accountId' ) );
         for ( attrKey in attrs ) {
             propKey = attrs[ attrKey ];
             if ( prototype[ propKey ].noSync ) {
@@ -191,6 +194,25 @@ const Record = Class({
         return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
     },
 
+    accountId: function ( accountId ) {
+        const storeKey = this.get( 'storeKey' );
+        const store = this.get( 'store' );
+        if ( accountId === undefined ) {
+            accountId = storeKey ?
+                store.getAccountIdFromStoreKey( storeKey ) :
+                this._data.accountId;
+        } else {
+            if ( storeKey ) {
+                store.updateData( storeKey, {
+                    accountId,
+                }, true );
+            } else {
+                this._data.accountId = accountId;
+            }
+        }
+        return accountId;
+    }.property(),
+
     /**
         Method: O.Record#saveToStore
 
@@ -209,9 +231,11 @@ const Record = Class({
         const Type = this.constructor;
         const data = this._data;
         const store = this.get( 'store' );
+        const accountId = this.get( 'accountId' );
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = this[ idPropKey ].key || idPropKey;
-        const storeKey = store.getStoreKey( Type, data[ idAttrKey ] );
+        const storeKey =
+            store.getStoreKey( accountId, Type, data[ idAttrKey ] );
         const attrs = meta( this ).attrs;
 
         this._data = null;

@@ -155,7 +155,7 @@ const MemoryManager = Class({
         const _skToLastAccess = store._skToLastAccess;
         const _skToData = store._skToData;
         const storeKeys =
-            Object.keys( store._typeToSkToId[ guid( Type ) ] || {} );
+            Object.keys( store._typeToSKToId[ guid( Type ) ] || {} );
         let l = storeKeys.length;
         let numberToDelete = l - max;
         const deleted = [];

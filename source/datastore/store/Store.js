@@ -107,11 +107,8 @@ const getForeignRefAttrs = function ( Type ) {
     return foreignRefAttrs;
 };
 
-const toStoreKey = function ( store, Type, id ) {
-    return store.getStoreKey( Type, id );
-};
-
-const convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
+const convertForeignKeysToSK =
+        function ( store, foreignRefAttrs, data, accountId ) {
     const l = foreignRefAttrs.length;
     for ( let i = 0; i < l; i += 1 ) {
         const foreignRef = foreignRefAttrs[i];
@@ -122,13 +119,15 @@ const convertForeignKeysToSK = function ( store, foreignRefAttrs, data ) {
             const value = data[ attrKey ];
             data[ attrKey ] = value && (
                 idType === STRING_ID ?
-                    toStoreKey( store, AttrType, value ) :
+                    store.getStoreKey( accountId, AttrType, value ) :
                 idType === ARRAY_IDS ?
-                    value.map( toStoreKey.bind( null, store, AttrType ) ) :
+                    value.map(
+                        store.getStoreKey.bind( store, accountId, AttrType )
+                    ) :
                 // idType === SET_IDS ?
                     Object.zip(
                         Object.keys( value ).map(
-                            toStoreKey.bind( null, store, AttrType )
+                            store.getStoreKey.bind( store, accountId, AttrType )
                         ),
                         Object.values( value )
                     )
@@ -250,54 +249,49 @@ const Store = Class({
                         for this store.
     */
     init (/* ...mixins */) {
-        // Map store key -> record
-        this._skToRecord = {};
-        // Map store key -> data
-        this._skToData = {};
-        // Map store key -> status
-        this._skToStatus = {};
+        // Map Type -> store key -> id
+        this._typeToSKToId = {};
+        // Map store key -> accountId
+        // We don't add store keys that belong to the default account.
+        this._skToAccountId = {};
         // Map store key -> Type
         this._skToType = {};
-        // Map Type -> store key -> id
-        this._typeToSkToId = {};
-        // Map Type -> id -> store key
-        this._typeToIdToSk = {};
-        // Map store key -> property key -> bool (isChanged)
+        // Map store key -> status
+        this._skToStatus = {};
+        // Map store key -> data
+        this._skToData = {};
+        // Map store key -> object with `true` for each changed property
         this._skToChanged = {};
-        // Map store key -> last committed data
+        // Map store key -> last committed data (when changed)
         this._skToCommitted = {};
-        // Map store key -> last committed data (whilst committing)
+        // Map store key -> last committed data (when committing)
         this._skToRollback = {};
-
+        // Map store key -> record
+        this._skToRecord = {};
         // Map store key -> last access timestamp for memory manager
         this._skToLastAccess = {};
 
+        // Any changes waiting to be committed?
+        this.hasChanges = false;
         // Flag if committing
         this.isCommitting = false;
         // Set of store keys for created records
         this._created = {};
         // Set of store keys for destroyed records
         this._destroyed = {};
-        // Any changes waiting to be committed?
-        this.hasChanges = false;
 
         // Map id -> query
         this._idToQuery = {};
+        // Set of types that have had data changed during this run loop
+        this._changedTypes = {};
 
         // List of nested stores
         this._nestedStores = [];
 
-        // READY      -> Some records of type loaded
-        // LOADING    -> Loading or refreshing ALL records of type
-        // COMMITTING -> Committing some records of type
-        this.typeToStatus = new Obj();
-        // Type -> state string for type in client
-        this._typeToClientState = {};
-        // Type -> latest known state string for type on server
-        // If committing or loading type, wait until finish to check
-        this._typeToServerState = {};
-        // Type -> [ store key ] of changed records.
-        this._typeToChangedSks = {};
+        // Map accountId -> { status, clientState, serverState }
+        this._defaultAccountId = '';
+        this._accounts = {};
+        this.addAccount( '', { isDefault: true });
 
         Store.parent.constructor.apply( this, arguments );
 
@@ -344,6 +338,54 @@ const Store = Class({
         return this;
     },
 
+    // === Accounts ============================================================
+
+    getDefaultAccountId () {
+        return this._defaultAccountId;
+    },
+
+    getAccount ( accountId ) {
+        if ( accountId === null || accountId === undefined ) {
+            accountId = this._defaultAccountId;
+        }
+        return this._accounts[ accountId ];
+    },
+
+    addAccount ( accountId, data ) {
+        const _accounts = this._accounts;
+        if ( !_accounts[ accountId ] ) {
+            _accounts[ accountId ] = {
+                isDefault: data.isDefault,
+                hasDataFor: data.hasDataFor || null,
+                // Type -> status
+                // READY      - Some records of type loaded
+                // LOADING    - Loading or refreshing ALL records of type
+                // COMMITTING - Committing some records of type
+                status: {},
+                // Type -> state string for type in client
+                clientState: {},
+                // Type -> latest known state string for type on server
+                // If committing or loading type, wait until finish to check
+                serverState: {},
+                // Type -> id -> store key
+                typeToIdToSK: {},
+            };
+        }
+        if ( accountId && data.isDefault ) {
+            this._defaultAccountId = accountId;
+            this._nestedStores.forEach( store => {
+                store._defaultAccountId = accountId;
+            });
+            if ( _accounts[ '' ] ) {
+                _accounts[ accountId ].typeToIdToSK =
+                    _accounts[ '' ].typeToIdToSK;
+                delete _accounts[ '' ];
+            }
+        }
+
+        return this;
+    },
+
     // === Get/set Ids =========================================================
 
     /**
@@ -355,28 +397,39 @@ const Store = Class({
         returned.
 
         Parameters:
-            Type - {O.Class} The constructor for the record type.
-            id   - {String} (optional) The id of the record.
+            accountId - {String|null} The account to use, or null for default.
+            Type      - {O.Class} The constructor for the record type.
+            id        - {String} (optional) The id of the record.
 
         Returns:
             {String} Returns the store key for that record type and id.
     */
-    getStoreKey ( Type, id ) {
+    getStoreKey ( accountId, Type, id ) {
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
-        const idToSk = ( this._typeToIdToSk[ typeId ] ||
-                ( this._typeToIdToSk[ typeId ] = {} ) );
-        const skToId = ( this._typeToSkToId[ typeId ] ||
-                ( this._typeToSkToId[ typeId ] = {} ) );
-        let storeKey = id && idToSk[ id ];
+        const typeToIdToSK = account.typeToIdToSK;
+        const idToSk = typeToIdToSK[ typeId ] ||
+            ( typeToIdToSK[ typeId ] = {} );
+        let storeKey;
 
+        if ( id ) {
+            storeKey = idToSk[ id ];
+        }
         if ( !storeKey ) {
             storeKey = generateStoreKey();
             this._skToType[ storeKey ] = Type;
+            if ( !account.isDefault ) {
+                this._skToAccountId[ storeKey ] = accountId;
+            }
+            const { _typeToSKToId } = this;
+            const skToId = _typeToSKToId[ typeId ] ||
+                ( _typeToSKToId[ typeId ] = {} );
             skToId[ storeKey ] = id;
             if ( id ) {
                 idToSk[ id ] = storeKey;
             }
         }
+
         return storeKey;
     },
 
@@ -389,30 +442,31 @@ const Store = Class({
             storeKey - {String} The store key to get the record id for.
 
         Returns:
-            {(String|undefined)} Returns the id for the record, of undefined if
-            the store key was not found or does not have an id (normally because
-            the server assigns ids and the record has not yet been committed).
+            {(String|null)} Returns the id for the record, or null if the store
+            key was not found or does not have an id (normally because the
+            server assigns ids and the record has not yet been committed).
     */
     getIdFromStoreKey ( storeKey ) {
         const Type = this._skToType[ storeKey ];
-        return Type &&
-            ( this._typeToSkToId[ guid( Type ) ] || {} )[ storeKey ];
+        const skToId = this._typeToSKToId[ guid( Type ) ];
+        return skToId && skToId[ storeKey ] || null;
     },
 
     /**
-        Method: O.Store#getTypeFromStoreKey
+        Method: O.Store#getAccountIdFromStoreKey
 
-        Get the record type for a given store key.
+        Get the account id for a given store key.
 
         Parameters:
-            storeKey - {String} The store key to get the record type for.
+            storeKey - {String} The store key to get the account id for.
 
         Returns:
-            {(Type|null)} Returns the type for the record, or `null` if the
-            store key is not found.
+            {(String)} Returns the id of the account the record belongs to.
     */
-    getTypeFromStoreKey ( storeKey ) {
-        return this._skToType[ storeKey ] || null;
+    getAccountIdFromStoreKey ( storeKey ) {
+        const data = this._skToData[ storeKey ];
+        return data ? data.accountId :
+            this._skToAccountId[ storeKey ] || this._defaultAccountId;
     },
 
     // === Client API ==========================================================
@@ -423,15 +477,17 @@ const Store = Class({
         Returns the status value for a given record type and id.
 
         Parameters:
-            Type - {O.Class} The record type.
-            id   - {String} The record id.
+            accountId - {String|null} The account id.
+            Type      - {O.Class} The record type.
+            id        - {String} The record id.
 
         Returns:
             {O.Status} The status in this store of the given record.
     */
-    getRecordStatus ( Type, id ) {
-        const _idToSk = this._typeToIdToSk[ guid( Type ) ];
-        return _idToSk ? this.getStatus( _idToSk[ id ] ) : EMPTY;
+    getRecordStatus ( accountId, Type, id ) {
+        const idToSk = this.getAccount( accountId )
+                           .typeToIdToSK[ guid( Type ) ];
+        return idToSk ? this.getStatus( idToSk[ id ] ) : EMPTY;
     },
 
     /**
@@ -442,6 +498,7 @@ const Store = Class({
         memory, unless the doNotFetch parameter is set.
 
         Parameters:
+            accountId  - {String|null} The account id.
             Type       - {O.Class} The record type.
             id         - {String} The record id, or the store key prefixed with
                          a '#'.
@@ -452,18 +509,18 @@ const Store = Class({
             {O.Record|null} Returns the requested record, or null if no type or
             no id given.
     */
-    getRecord ( Type, id, doNotFetch ) {
+    getRecord ( accountId, Type, id, doNotFetch ) {
         let storeKey;
         if ( !Type || !id ) {
             return null;
         }
         if ( id.charAt( 0 ) === '#' ) {
             storeKey = id.slice( 1 );
-            if ( this.getTypeFromStoreKey( storeKey ) !== Type ) {
+            if ( this._skToType[ storeKey ] !== Type ) {
                 return null;
             }
         } else {
-            storeKey = this.getStoreKey( Type, id );
+            storeKey = this.getStoreKey( accountId, Type, id );
         }
         return this.getRecordFromStoreKey( storeKey, doNotFetch );
     },
@@ -553,25 +610,27 @@ const Store = Class({
 
         this.fire( 'willCommit' );
         const {
-            _created, _destroyed, _skToData, _skToStatus, _skToType,
-            _typeToSkToId, _skToChanged, _skToCommitted, _skToRollback,
-            _typeToClientState, typeToStatus,
+            _typeToSKToId,
+            _skToData, _skToStatus, _skToType,
+            _skToChanged, _skToCommitted, _skToRollback,
+            _created, _destroyed,
+            _accounts,
         } = this;
 
-        const newSkToChanged = {};
-        const newDestroyed = {};
         const changes = {};
-        const types = {};
         let hasChanges = false;
 
-        const getEntry = function ( Type ) {
+        const getEntry = function ( Type, accountId ) {
             const typeId = guid( Type );
-            let idPropKey, idAttrKey;
-            let entry = changes[ typeId ];
+            let entry = changes[ typeId + accountId ];
             if ( !entry ) {
-                idPropKey = Type.primaryKey || 'id';
-                idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
-                entry = changes[ typeId ] = {
+                const account = _accounts[ accountId ];
+                const idPropKey = Type.primaryKey || 'id';
+                const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+                entry = changes[ typeId + accountId ] = {
+                    Type,
+                    typeId,
+                    accountId,
                     primaryKey: idAttrKey,
                     create: { storeKeys: [], records: [] },
                     update: {
@@ -580,12 +639,11 @@ const Store = Class({
                         committed: [],
                         changes: [],
                     },
+                    moveFromAccount: {},
                     destroy: { storeKeys: [], ids: [] },
-                    state: _typeToClientState[ typeId ],
+                    state: account.clientState[ typeId ],
                 };
-                typeToStatus.set( typeId,
-                    typeToStatus.get( typeId ) | COMMITTING );
-                types[ typeId ] = Type;
+                account.status[ typeId ] |= COMMITTING;
                 hasChanges = true;
             }
             return entry;
@@ -595,13 +653,14 @@ const Store = Class({
             const status = _skToStatus[ storeKey ];
             const Type = _skToType[ storeKey ];
             let data = _skToData[ storeKey ];
+            const accountId = data.accountId;
 
             data = Object.filter(
                 convertForeignKeysToId( this, Type, data ),
                 Record.getClientSettableAttributes( Type )
             );
 
-            const create = getEntry( Type ).create;
+            const create = getEntry( Type, accountId ).create;
             create.storeKeys.push( storeKey );
             create.records.push( data );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
@@ -609,22 +668,31 @@ const Store = Class({
         for ( const storeKey in _skToChanged ) {
             const status = _skToStatus[ storeKey ];
             const Type = _skToType[ storeKey ];
-            let data = _skToData[ storeKey ];
-            let previous;
-
             const changed = _skToChanged[ storeKey ];
-            if ( status & COMMITTING ) {
-                newSkToChanged[ storeKey ] = changed;
-                continue;
-            }
+            let previous = _skToCommitted[ storeKey ];
+            let data = _skToData[ storeKey ];
+            const accountId = data.accountId;
+            const previousAccountId = previous.accountId;
+            const entry = getEntry( Type, accountId );
+            let update;
 
-            previous = _skToRollback[ storeKey ] = _skToCommitted[ storeKey ];
+            _skToRollback[ storeKey ] = previous;
             previous = convertForeignKeysToId( this, Type, previous );
             delete _skToCommitted[ storeKey ];
-
             data = convertForeignKeysToId( this, Type, data );
 
-            const update = getEntry( Type ).update;
+            if ( previousAccountId !== accountId ) {
+                update = entry.moveFromAccount[ previousAccountId ] ||
+                    ( entry.moveFromAccount[ previousAccountId ] = {
+                        storeKeys: [],
+                        records: [],
+                        committed: [],
+                        changes: [],
+                    });
+            } else {
+                update = entry.update;
+            }
+
             update.storeKeys.push( storeKey );
             update.records.push( data );
             update.committed.push( previous );
@@ -634,34 +702,31 @@ const Store = Class({
         for ( const storeKey in _destroyed ) {
             const status = _skToStatus[ storeKey ];
             const Type = _skToType[ storeKey ];
-            const id = _typeToSkToId[ guid( Type ) ][ storeKey ];
+            const accountId = _skToData[ storeKey ].accountId;
+            const id = _typeToSKToId[ guid( Type ) ][ storeKey ];
+            const destroy = getEntry( Type, accountId ).destroy;
 
-            // This means it's new and committing, so wait for commit to finish
-            // first.
-            if ( status & NEW ) {
-                newDestroyed[ storeKey ] = 1;
-                continue;
-            }
-
-            const destroy = getEntry( Type ).destroy;
             destroy.storeKeys.push( storeKey );
             destroy.ids.push( id );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
 
-        this._skToChanged = newSkToChanged;
+        this._skToChanged = {};
         this._created = {};
-        this._destroyed = newDestroyed;
+        this._destroyed = {};
 
         if ( hasChanges ) {
             this.source.commitChanges( changes, () => {
-                for ( const typeId in types ) {
-                    typeToStatus.set( typeId,
-                        typeToStatus.get( typeId ) & ~COMMITTING );
-                    this._checkServerStatus( types[ typeId ] );
+                for ( const id in changes ) {
+                    const entry = changes[ id ];
+                    const Type = entry.Type;
+                    const typeId = entry.typeId;
+                    const accountId = entry.accountId;
+                    _accounts[ accountId ].status[ typeId ] &= ~COMMITTING;
+                    this._checkServerStatus( accountId, Type );
                 }
                 this.set( 'isCommitting', false );
-                if ( this.autoCommit &&
+                if ( this.get( 'autoCommit' ) &&
                         this.checkForChanges().get( 'hasChanges' ) ) {
                     this.commitChanges();
                 }
@@ -670,7 +735,7 @@ const Store = Class({
             this.set( 'isCommitting', false );
         }
 
-        mayHaveChanges( this );
+        this.set( 'hasChanges', false );
         this.fire( 'didCommit' );
     }.queue( 'middle' ),
 
@@ -734,7 +799,7 @@ const Store = Class({
                 storeKey,
                 Type,
                 Object.filter(
-                    clone( _skToData[ storeKey ] ),
+                    _skToData[ storeKey ],
                     Record.getClientSettableAttributes( Type )
                 ),
             ]);
@@ -775,13 +840,23 @@ const Store = Class({
         Get the status of a type
 
         Parameters:
-            Type - {O.Class} The record type.
+            accountId - {String|null} The account id.
+            Type      - {O.Class} The record type.
 
         Returns:
             {O.Status} The status of the type in the store.
     */
-    getTypeStatus ( Type ) {
-        return this.typeToStatus.get( guid( Type ) ) || EMPTY;
+    getTypeStatus ( accountId, Type ) {
+        if ( !Type ) {
+            const _accounts = this._accounts;
+            let status = 0;
+            Type = accountId;
+            for ( accountId in _accounts ) {
+                status |= this.getTypeStatus( accountId, Type );
+            }
+            return status;
+        }
+        return this.getAccount( accountId ).status[ guid( Type ) ] || EMPTY;
     },
 
     /**
@@ -790,13 +865,14 @@ const Store = Class({
         Get the current client state token for a type.
 
         Parameters:
-            Type - {O.Class} The record type.
+            accountId - {String|null} The account id.
+            Type      - {O.Class} The record type.
 
         Returns:
             {String|null} The client's current state token for the type.
     */
-    getTypeState ( Type ) {
-        return this._typeToClientState[ guid( Type ) ] || null;
+    getTypeState ( accountId, Type ) {
+        return this.getAccount( accountId ).clientState[ guid( Type ) ] || null;
     },
 
     /**
@@ -861,7 +937,7 @@ const Store = Class({
             {O.Record} Returns the requested record.
     */
     getRecordFromStoreKey ( storeKey, doNotFetch ) {
-        const Type = this.getTypeFromStoreKey( storeKey );
+        const Type = this._skToType[ storeKey ];
         const record = this.materialiseRecord( storeKey, Type );
         // If the caller is already handling the fetching, they can
         // set doNotFetch to true.
@@ -988,13 +1064,6 @@ const Store = Class({
         // Can't delete id/sk mapping without checking if we have any other
         // references to this key elsewhere (as either a foreign key or in a
         // remote query). For now just always keep.
-        // const typeId = guid( this._skToType[ storeKey ] );
-        // const id = this._typeToSkToId[ typeId ][ storeKey ];
-        // delete this._skToType[ storeKey ];
-        // delete this._typeToSkToId[ typeId ][ storeKey ];
-        // if ( id ) {
-        //     delete this._typeToIdToSk[ typeId ][ id ];
-        // }
 
         return true;
     },
@@ -1032,8 +1101,13 @@ const Store = Class({
             return this;
         }
 
+        if ( !data ) {
+            data = {};
+        }
+        data.accountId = this.getAccountIdFromStoreKey( storeKey );
+
         this._created[ storeKey ] = 1;
-        this._skToData[ storeKey ] = data || {};
+        this._skToData[ storeKey ] = data;
 
         this.setStatus( storeKey, (READY|NEW|DIRTY) );
 
@@ -1120,14 +1194,16 @@ const Store = Class({
         if there's a server state update to process.
 
         Parameters:
-            Type - {O.Class} The record type.
+            accountId - {String|null} The account id.
+            Type      - {O.Class} The record type.
     */
-    _checkServerStatus ( Type ) {
+    _checkServerStatus ( accountId, Type ) {
+        const typeToServerState = this.getAccount( accountId ).serverState;
         const typeId = guid( Type );
-        const serverState = this._typeToServerState[ typeId ];
+        const serverState = typeToServerState[ typeId ];
         if ( serverState ) {
-            delete this._typeToServerState[ typeId ];
-            this.sourceStateDidChange( Type, serverState );
+            delete typeToServerState[ typeId ];
+            this.sourceStateDidChange( accountId, Type, serverState );
         }
     },
 
@@ -1138,25 +1214,45 @@ const Store = Class({
         fetched updates the set of records.
 
         Parameters:
+            accountId - {String|null} (optional) The account id. Omit to fetch
+                        for all accounts.
             Type  - {O.Class} The type of records to fetch.
             force - {Boolean} (optional) Fetch even if we have a state string.
 
         Returns:
             {O.Store} Returns self.
     */
-    fetchAll ( Type, force ) {
-        const { typeToStatus } = this;
+    fetchAll ( accountId, Type, force ) {
+        // If accountId omitted => fetch all
+        if ( typeof accountId === 'function' ) {
+            force = Type;
+            Type = accountId;
+
+            const _accounts = this._accounts;
+            let hasDataFor;
+            for ( accountId in this._accounts ) {
+                hasDataFor = _accounts[ accountId ].hasDataFor;
+                if ( accountId &&
+                        ( !hasDataFor ||
+                            hasDataFor[ Type.dataGroup || 'all' ] ) ) {
+                    this.fetchAll( accountId, Type, force );
+                }
+            }
+            return this;
+        }
+
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
-        const status = typeToStatus.get( typeId );
-        const state = this._typeToClientState[ typeId ];
+        const typeToStatus = account.status;
+        const status = typeToStatus[ typeId ];
+        const state = account.clientState[ typeId ];
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
-            this.source.fetchAllRecords( Type, state, () => {
-                typeToStatus.set( typeId,
-                    typeToStatus.get( typeId ) & ~LOADING );
-                this._checkServerStatus( Type );
+            this.source.fetchAllRecords( accountId, Type, state, () => {
+                typeToStatus[ typeId ] &= ~LOADING;
+                this._checkServerStatus( accountId, Type );
             });
-            typeToStatus.set( typeId, status | LOADING );
+            typeToStatus[ typeId ] |= LOADING;
         }
         return this;
     },
@@ -1184,13 +1280,14 @@ const Store = Class({
         if ( !Type ) {
             return this;
         }
-        const typeId = guid( Type );
-        const id = this._typeToSkToId[ typeId ][ storeKey ];
+        const id = this._typeToSKToId[ guid( Type ) ][ storeKey ];
+        const accountId = this.getAccountIdFromStoreKey( storeKey );
+
         if ( status & EMPTY ) {
-            this.source.fetchRecord( Type, id );
+            this.source.fetchRecord( accountId, Type, id );
             this.setStatus( storeKey, (EMPTY|LOADING) );
         } else {
-            this.source.refreshRecord( Type, id );
+            this.source.refreshRecord( accountId, Type, id );
             this.setStatus( storeKey, ( status & ~OBSOLETE ) | LOADING );
         }
         return this;
@@ -1256,7 +1353,7 @@ const Store = Class({
     */
     updateData ( storeKey, data, changeIsDirty ) {
         const status = this.getStatus( storeKey );
-        const { _skToData, _skToCommitted, _skToChanged } = this;
+        const { _skToData, _skToCommitted, _skToChanged, isNested } = this;
         let current = _skToData[ storeKey ];
         const changedKeys = [];
         let seenChange = false;
@@ -1273,7 +1370,7 @@ const Store = Class({
         }
 
         // Copy-on-write for nested stores.
-        if ( this.isNested && !_skToData.hasOwnProperty( storeKey ) ) {
+        if ( isNested && !_skToData.hasOwnProperty( storeKey ) ) {
             _skToData[ storeKey ] = current = clone( current );
         }
 
@@ -1314,7 +1411,7 @@ const Store = Class({
                 this.setStatus( storeKey, status & ~DIRTY );
                 delete _skToCommitted[ storeKey ];
                 delete _skToChanged[ storeKey ];
-                if ( this.isNested ) {
+                if ( isNested ) {
                     delete _skToData[ storeKey ];
                 }
             }
@@ -1327,6 +1424,33 @@ const Store = Class({
                     current[ key ] = value;
                     changedKeys.push( key );
                 }
+            }
+        }
+
+        // If in main store, or record is new (so not in other stores),
+        // update the accountId associated with the id.
+        const accountId = data.accountId;
+        if ( ( !isNested || status === (READY|NEW|DIRTY) ) && accountId ) {
+            const typeId = guid( this._skToType[ storeKey ] );
+            const oldAccount = this.getAccount(
+                this._skToAccountId[ storeKey ] || this._defaultAccountId
+            );
+            const newAccount = this.getAccount( accountId );
+            const id = this.getIdFromStoreKey( storeKey );
+
+            if ( !oldAccount.isDefault ) {
+                delete this._skToAccountId[ storeKey ];
+            }
+            if ( !newAccount.isDefault ) {
+                this._skToAccountId[ storeKey ] = accountId;
+            }
+            if ( id ) {
+                const oldIdToSk = oldAccount.typeToIdToSK[ typeId ];
+                const newTypeToIdToSK = newAccount.typeToIdToSK;
+                const newIdToSk = newTypeToIdToSK[ typeId ] ||
+                    ( newTypeToIdToSK[ typeId ] = {} );
+                delete oldIdToSk[ id ];
+                newIdToSk[ id ] = storeKey;
             }
         }
 
@@ -1383,8 +1507,8 @@ const Store = Class({
                 // Server may return more data than is defined in the record;
                 // ignore the rest.
                 if ( !propKey ) {
-                    // Special case: implicit id attribute
-                    if ( attrKey === 'id' ) {
+                    // Special case: implicit id/accountId attributes
+                    if ( attrKey === 'id' || attrKey === 'accountId' ) {
                         propKey = attrKey;
                     } else {
                         continue;
@@ -1416,10 +1540,7 @@ const Store = Class({
     */
     _recordDidChange ( storeKey ) {
         const typeId = guid( this._skToType[ storeKey ] );
-        const { _typeToChangedSks } = this;
-        const changedSks = _typeToChangedSks[ typeId ] ||
-                ( _typeToChangedSks[ typeId ] = {} );
-        changedSks[ storeKey ] = true;
+        this._changedTypes[ typeId ] = true;
         RunLoop.queueFn( 'middle', this._fireTypeChanges, this );
     },
 
@@ -1427,14 +1548,11 @@ const Store = Class({
         Method: O.Store#_fireTypeChanges
     */
     _fireTypeChanges () {
-        const { _typeToChangedSks } = this;
-        this._typeToChangedSks = {};
+        const { _changedTypes } = this;
+        this._changedTypes = {};
 
-        for ( const typeId in _typeToChangedSks ) {
-            const typeChanges = Object.keys( _typeToChangedSks[ typeId ] );
-            this.fire( typeId, {
-                storeKeys: typeChanges,
-            });
+        for ( const typeId in _changedTypes ) {
+            this.fire( typeId );
         }
 
         return this;
@@ -1465,11 +1583,11 @@ const Store = Class({
             {String[]} An array of store keys.
     */
     findAll ( Type, accept, compare ) {
-        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
+        const skToId = this._typeToSKToId[ guid( Type ) ] || {};
         const { _skToStatus } = this;
         let results = [];
 
-        for ( const storeKey in _skToId ) {
+        for ( const storeKey in skToId ) {
             if ( _skToStatus[ storeKey ] & READY ) {
                 results.push( storeKey );
             }
@@ -1508,7 +1626,7 @@ const Store = Class({
             found.
     */
     findOne ( Type, accept ) {
-        const _skToId = this._typeToSkToId[ guid( Type ) ] || {};
+        const _skToId = this._typeToSKToId[ guid( Type ) ] || {};
         const { _skToStatus } = this;
         const filterFn = accept && filter.bind( this, accept );
 
@@ -1616,27 +1734,29 @@ const Store = Class({
         it doesn't match, it will then request updates.
 
         Parameters:
-            Type     - {O.Class} The record type.
-            newState - {String} The new state on the server.
+            accountId - {String|null} The account id.
+            Type      - {O.Class} The record type.
+            newState  - {String} The new state on the server.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceStateDidChange ( Type, newState ) {
+    sourceStateDidChange ( accountId, Type, newState ) {
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
-        const clientState = this._typeToClientState[ typeId ];
+        const clientState = account.clientState[ typeId ];
 
         if ( clientState && newState !== clientState ) {
-            if ( !( this.typeToStatus.get( typeId ) & (LOADING|COMMITTING) ) ) {
-                this.fire( typeId + ':server' );
-                this.fetchAll( Type, true );
+            if ( !( account.status[ typeId ] & (LOADING|COMMITTING) ) ) {
+                this.fire( typeId + ':server:' + accountId );
+                this.fetchAll( accountId, Type, true );
             } else {
-                this._typeToServerState[ typeId ] = newState;
+                account.serverState[ typeId ] = newState;
             }
         } else if ( !clientState ) {
             // We have a query but not matches yet; we still need to refresh the
             // queries in case there are now matches.
-            this.fire( typeId + ':server' );
+            this.fire( typeId + ':server:' + accountId );
         }
 
         return this;
@@ -1651,37 +1771,45 @@ const Store = Class({
         it fetches some records from the server.
 
         Parameters:
-            Type    - {O.Class} The record type.
-            records - {Object[]} Array of data objects.
-            state   - {String} (optional) The state of the record type on the
-                      server.
-            isAll   - {Boolean} This is all the records of this type on the
-                      server.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            records   - {Object[]} Array of data objects.
+            state     - {String} (optional) The state of the record type on the
+                        server.
+            isAll     - {Boolean} This is all the records of this type on the
+                        server.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchRecords ( Type, records, state, isAll ) {
+    sourceDidFetchRecords ( accountId, Type, records, state, isAll ) {
+        const { _skToData, _skToLastAccess } = this;
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
-        const { _typeToClientState, typeToStatus } = this;
-        let l = records.length;
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
         const now = Date.now();
         const seen = {};
         const updates = {};
         const foreignRefAttrs = getForeignRefAttrs( Type );
+        let l = records.length;
+
+        if ( !accountId ) {
+            accountId = this._defaultAccountId;
+        }
 
         while ( l-- ) {
             const data = records[l];
             const id = data[ idAttrKey ];
-            seen[ id ] = true;
-            const storeKey = this.getStoreKey( Type, id );
+            const storeKey = this.getStoreKey( accountId, Type, id );
             const status = this.getStatus( storeKey );
+            seen[ storeKey ] = true;
 
             if ( foreignRefAttrs.length ) {
-                convertForeignKeysToSK( this, foreignRefAttrs, data );
+                convertForeignKeysToSK(
+                    this, foreignRefAttrs, data, accountId );
             }
+            data.accountId = accountId;
 
             if ( status & READY ) {
                 // We already have the record loaded, process it as an update.
@@ -1690,7 +1818,7 @@ const Store = Class({
                     ( status & (DIRTY|COMMITTING) ) ) {
                 // We're in the middle of destroying it. Update the data in case
                 // we need to roll back.
-                this._skToData[ storeKey ] = data;
+                _skToData[ storeKey ] = data;
                 this.setStatus( storeKey, status & ~LOADING );
             } else {
                 // Anything else is new.
@@ -1702,37 +1830,45 @@ const Store = Class({
                 }
                 this.setData( storeKey, data );
                 this.setStatus( storeKey, READY );
-                this._skToLastAccess[ storeKey ] = now;
+                _skToLastAccess[ storeKey ] = now;
             }
         }
 
         if ( isAll ) {
-            const _idToSk = this._typeToIdToSk[ guid( Type ) ];
+            const skToId = this._typeToSKToId[ guid( Type ) ];
             const destroyed = [];
-            for ( const id in _idToSk ) {
-                if ( !seen[ id ] &&
-                        ( this.getStatus( _idToSk[ id ] ) & READY ) ) {
-                    destroyed.push( id );
+            for ( const storeKey in skToId ) {
+                if ( seen[ storeKey ] ) {
+                    continue;
+                }
+                const status = this.getStatus( storeKey );
+                if ( ( status & READY ) && !( status & NEW ) &&
+                        _skToData[ storeKey ].accountId === accountId ) {
+                    destroyed.push( skToId[ storeKey ] );
                 }
             }
             if ( destroyed.length ) {
-                this.sourceDidDestroyRecords( Type, destroyed );
+                this.sourceDidDestroyRecords( accountId, Type, destroyed );
             }
         }
 
-        this.sourceDidFetchPartialRecords( Type, updates, true );
+        this.sourceDidFetchPartialRecords( accountId, Type, updates, true );
 
         if ( state ) {
-            const oldState = _typeToClientState[ typeId ];
+            const oldState = account.clientState[ typeId ];
             // If the state has changed, we need to fetch updates, but we can
             // still load these records
             if ( !isAll && oldState && oldState !== state ) {
-                this.sourceStateDidChange( Type, state );
+                this.sourceStateDidChange( accountId, Type, state );
             } else {
-                _typeToClientState[ typeId ] = state;
+                account.clientState[ typeId ] = state;
             }
         }
-        typeToStatus.set( typeId, typeToStatus.get( typeId ) | READY );
+        account.status[ typeId ] |= READY;
+
+        // Notify LocalQuery we're now ready even if no records loaded.
+        this._changedTypes[ typeId ] = true;
+        RunLoop.queueFn( 'middle', this._fireTypeChanges, this );
 
         return this;
     },
@@ -1747,18 +1883,20 @@ const Store = Class({
         state.
 
         Parameters:
-            Type    - {O.Class} The record type.
-            updates - {Object} An object mapping record id to an object of
-                      changed attributes.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            updates   - {Object} An object mapping record id to an object of
+                        changed attributes.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchPartialRecords ( Type, updates, _idsAreSKs ) {
+    sourceDidFetchPartialRecords ( accountId, Type, updates, _idsAreSKs ) {
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
         const { _skToData, _skToStatus, _skToChanged, _skToCommitted } = this;
-        const _idToSk = this._typeToIdToSk[ typeId ] || {};
-        const _skToId = this._typeToSkToId[ typeId ] || {};
+        const _idToSk = account.typeToIdToSK[ typeId ] || {};
+        const _skToId = this._typeToSKToId[ typeId ] || {};
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
         const foreignRefAttrs = _idsAreSKs ? [] : getForeignRefAttrs( Type );
@@ -1787,7 +1925,8 @@ const Store = Class({
             }
 
             if ( foreignRefAttrs.length ) {
-                convertForeignKeysToSK( this, foreignRefAttrs, update );
+                convertForeignKeysToSK(
+                    this, foreignRefAttrs, update, accountId );
             }
 
             if ( status & DIRTY ) {
@@ -1847,19 +1986,20 @@ const Store = Class({
         responded that the records do not exist.
 
         Parameters:
-            Type   - {O.Class} The record type.
-            idList - {String[]} The list of ids of non-existent requested
-                     records.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            idList    - {String[]} The list of ids of non-existent requested
+                        records.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceCouldNotFindRecords ( Type, idList ) {
+    sourceCouldNotFindRecords ( accountId, Type, idList ) {
         let l = idList.length;
         const { _skToCommitted, _skToChanged } = this;
 
         while ( l-- ) {
-            const storeKey = this.getStoreKey( Type, idList[l] );
+            const storeKey = this.getStoreKey( accountId, Type, idList[l] );
             const status = this.getStatus( storeKey );
             if ( status & EMPTY ) {
                 this.setStatus( storeKey, NON_EXISTENT );
@@ -1886,30 +2026,32 @@ const Store = Class({
         created/modified/destroyed of a particular since the client's state.
 
         Parameters:
-            Type     - {O.Class} The record type.
-            changed  - {String[]} List of ids for records which have been
-                       added or changed in the store since oldState.
-            removed  - {String[]} List of ids for records which have been
-                       destroyed in the store since oldState.
-            oldState - {String} The state these changes are from.
-            newState - {String} The state these changes are to.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            changed   - {String[]} List of ids for records which have been
+                        added or changed in the store since oldState.
+            removed   - {String[]} List of ids for records which have been
+                        destroyed in the store since oldState.
+            oldState  - {String} The state these changes are from.
+            newState  - {String} The state these changes are to.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchUpdates ( Type, changed, removed, oldState,
+    sourceDidFetchUpdates ( accountId, Type, changed, removed, oldState,
             newState ) {
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
-        if ( this._typeToClientState[ typeId ] === oldState ) {
+        if ( oldState === account.clientState[ typeId ] ) {
             if ( changed ) {
-                this.sourceDidModifyRecords( Type, changed );
+                this.sourceDidModifyRecords( accountId, Type, changed );
             }
             if ( removed ) {
-                this.sourceDidDestroyRecords( Type, removed );
+                this.sourceDidDestroyRecords( accountId, Type, removed );
             }
-            this._typeToClientState[ typeId ] = newState;
+            account.clientState[ typeId ] = newState;
         } else {
-            this.sourceStateDidChange( Type, newState );
+            this.sourceStateDidChange( accountId, Type, newState );
         }
         return this;
     },
@@ -1921,21 +2063,19 @@ const Store = Class({
         some records may be out of date.
 
         Parameters:
-            Type   - {O.Class} The record type.
-            idList - {String[]} Array of record ids for records of the
-                     given type which have updates available on the server.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            idList    - {String[]} The list of ids of records which have
+                        updates available on the server.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidModifyRecords ( Type, idList ) {
-        const { _skToStatus } = this;
-        const _idToSk = this._typeToIdToSk[ guid( Type ) ] || {};
+    sourceDidModifyRecords ( accountId, Type, idList ) {
         let l = idList.length;
-
         while ( l-- ) {
-            const storeKey = _idToSk[ idList[l] ];
-            const status = _skToStatus[ storeKey ];
+            const storeKey = this.getStoreKey( accountId, Type, idList[l] );
+            const status = this.getStatus( storeKey );
             if ( status & READY ) {
                 this.setStatus( storeKey, status | OBSOLETE );
             }
@@ -1951,19 +2091,18 @@ const Store = Class({
         by the client).
 
         Parameters:
-            Type   - {O.Class} The record type.
-            idList - {String[]} The list of ids of records which have been
-                     destroyed.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            idList    - {String[]} The list of ids of records which have been
+                        destroyed.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidDestroyRecords ( Type, idList ) {
-        let l = idList.length,
-            storeKey;
-
+    sourceDidDestroyRecords ( accountId, Type, idList ) {
+        let l = idList.length;
         while ( l-- ) {
-            storeKey = this.getStoreKey( Type, idList[l] );
+            const storeKey = this.getStoreKey( accountId, Type, idList[l] );
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
         }
@@ -1980,22 +2119,23 @@ const Store = Class({
         sync with the server.
 
         Parameters:
-            Type     - {O.Class} The record type.
-            oldState - {String} The state before the commit.
-            newState - {String} The state after the commit.
+            accountId - {String} The account id.
+            Type      - {O.Class} The record type.
+            oldState  - {String} The state before the commit.
+            newState  - {String} The state after the commit.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceCommitDidChangeState ( Type, oldState, newState ) {
+    sourceCommitDidChangeState ( accountId, Type, oldState, newState ) {
+        const account = this.getAccount( accountId );
         const typeId = guid( Type );
-        const { _typeToClientState } = this;
 
-        if ( _typeToClientState[ typeId ] === oldState ) {
-            _typeToClientState[ typeId ] = newState;
+        if ( account.clientState[ typeId ] === oldState ) {
+            account.clientState[ typeId ] = newState;
         } else {
-            delete this._typeToServerState[ typeId ];
-            this.sourceStateDidChange( Type, newState );
+            delete account.serverState[ typeId ];
+            this.sourceStateDidChange( accountId, Type, newState );
         }
 
         return this;
@@ -2019,7 +2159,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidCommitCreate ( skToPartialData ) {
-        const { _skToType, _typeToSkToId, _typeToIdToSk } = this;
+        const { _skToType, _skToData, _typeToSKToId } = this;
         for ( const storeKey in skToPartialData ) {
             const status = this.getStatus( storeKey );
             if ( status & NEW ) {
@@ -2029,15 +2169,22 @@ const Store = Class({
                 const typeId = guid( Type );
                 const idPropKey = Type.primaryKey || 'id';
                 const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
+                const accountId = _skToData[ storeKey ].accountId;
                 const id = data[ idAttrKey ];
+                const typeToIdToSK = this.getAccount( accountId ).typeToIdToSK;
+                const skToId = _typeToSKToId[ typeId ] ||
+                    ( _typeToSKToId[ typeId ] = {} );
+                const idToSK = typeToIdToSK[ typeId ] ||
+                    ( typeToIdToSK[ typeId ] = {} );
 
                 // Set id internally
-                _typeToSkToId[ typeId ][ storeKey ] = id;
-                _typeToIdToSk[ typeId ][ id ] = storeKey;
+                skToId[ storeKey ] = id;
+                idToSK[ id ] = storeKey;
 
                 const foreignRefAttrs = getForeignRefAttrs( Type );
                 if ( foreignRefAttrs.length ) {
-                    convertForeignKeysToSK( this, foreignRefAttrs, data );
+                    convertForeignKeysToSK(
+                        this, foreignRefAttrs, data, accountId );
                 }
 
                 // Notify record, and update with any other data

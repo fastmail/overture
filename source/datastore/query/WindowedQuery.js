@@ -368,10 +368,12 @@ const WindowedQuery = Class({
     // current store key.
     _toStoreKey: function () {
         const store = this.get( 'store' );
+        const accountId = this.get( 'accountId' );
         const Type = this.get( 'Type' );
         const cache = {};
         return id => (
-            cache[ id ] || ( cache[ id ] = store.getStoreKey( Type, id ) )
+            cache[ id ] ||
+                ( cache[ id ] = store.getStoreKey( accountId, Type, id ) )
         );
     }.property(),
 

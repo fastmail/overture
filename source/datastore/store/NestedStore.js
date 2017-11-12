@@ -41,22 +41,17 @@ const NestedStore = Class({
     init ( store ) {
         NestedStore.parent.constructor.call( this );
 
-        // Copy on write, shared data object store
-        this._skToData = Object.create( store._skToData );
-        // Copy on write, shared status store.
-        this._skToStatus = Object.create( store._skToStatus );
-
-        // Share store key -> Type
+        // Shared properties with parent
+        this._typeToSKToId = store._typeToSKToId;
+        this._skToAccountId = store._skToAccountId;
         this._skToType = store._skToType;
-        // Share Type -> store key -> id
-        this._typeToSkToId = store._typeToSkToId;
-        // Share Type -> id -> store key
-        this._typeToIdToSk = store._typeToIdToSk;
-
-        // Share last access timestamp for
         this._skToLastAccess = store._skToLastAccess;
+        this._accounts = store._accounts;
+        this._defaultAccountId = store._defaultAccountId;
 
-        this.typeToStatus = store.typeToStatus;
+        // Copy on write, shared status/data
+        this._skToStatus = Object.create( store._skToStatus );
+        this._skToData = Object.create( store._skToData );
 
         store.addNested( this );
 
@@ -151,8 +146,8 @@ const NestedStore = Class({
             status : status & ~(NEW|COMMITTING|DIRTY);
     },
 
-    fetchAll ( storeKey ) {
-        this._parentStore.fetchAll( storeKey );
+    fetchAll ( accountId, Type, force ) {
+        this._parentStore.fetchAll( accountId, Type, force );
         return this;
     },
 
