@@ -1,5 +1,3 @@
-/*global window */
-
 import { Class } from '../core/Core';
 import '../foundation/EventTarget';  // For Function#on
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop
@@ -105,10 +103,6 @@ const RootView = Class({
         }
     }.on( 'touchmove' ) : null,
 
-    hideAddressBar () {
-        window.scrollTo( 0, 0 );
-    },
-
     focus () {
         const layer = this.get( 'layer' );
         const activeElement = layer.ownerDocument.activeElement;
@@ -136,8 +130,6 @@ const RootView = Class({
             break;
         // Window resize events: just notify parent has resized.
         case 'orientationchange':
-            this.hideAddressBar();
-            /* falls through */
         case 'resize':
             this.didResize();
             return;
