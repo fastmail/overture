@@ -371,7 +371,7 @@ const PopOverView = Class({
     },
 
     closeOnEsc: function ( event ) {
-        if ( lookupKey( event ) === 'esc' ) {
+        if ( lookupKey( event ) === 'Escape' ) {
             this.hide();
         }
     }.on( 'keydown' ),

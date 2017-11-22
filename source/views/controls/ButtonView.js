@@ -330,12 +330,12 @@ const ButtonView = Class({
     */
     keyboardActivate: function ( event ) {
         const key = lookupKey( event );
-        if ( key === 'enter' || key === 'space' ) {
+        if ( key === 'Enter' || key === 'Space' ) {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-        if ( key === 'esc' ) {
+        if ( key === 'Escape' ) {
             this.blur();
             event.stopPropagation();
         }

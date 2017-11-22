@@ -82,18 +82,18 @@ const GlobalKeyboardShortcuts = Class({
 
         Parameters:
             key     - {String} The key to trigger the callback on. Modifier keys
-                      (alt, ctrl, meta, shift) should be prefixed in
+                      (Alt, Ctrl, Meta, Shift) should be prefixed in
                       alphabetical order and with a hypen after each one.
-                      Letters should be lower case. e.g. `ctrl-f`.
+                      Letters should be lower case. e.g. `Ctrl-f`.
 
-                      The special modifier "cmd-" may be used, which will map
-                      to "meta-" on a Mac (the command key) and "Ctrl-"
+                      The special modifier "Cmd-" may be used, which will map
+                      to "Meta-" on a Mac (the command key) and "Ctrl-"
                       elsewhere.
             object  - {Object} The object to trigger the callback on.
             method  - {String} The name of the method to trigger.
             ifInput - {Number} Determines whether the shortcut is active when
                       focused inside an <input> or equivalent. Defaults to
-                      active if and only if meta or ctrl are part of the
+                      active if and only if Meta or Ctrl are part of the
                       shortcut. The value must be one of:
 
                       * DEFAULT_IN_INPUT (Use the default)
@@ -104,7 +104,7 @@ const GlobalKeyboardShortcuts = Class({
             {O.GlobalKeyboardShortcuts} Returns self.
     */
     register ( key, object, method, ifInput ) {
-        key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
+        key = key.replace( 'Cmd-', isMac ? 'Meta-' : 'Ctrl-' );
         const shortcuts = this._shortcuts;
         ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
             .push([ object, method, ifInput || DEFAULT_IN_INPUT ]);
@@ -126,7 +126,7 @@ const GlobalKeyboardShortcuts = Class({
             {O.GlobalKeyboardShortcuts} Returns self.
    */
     deregister ( key, object, method ) {
-        key = key.replace( 'cmd-', isMac ? 'meta-' : 'ctrl-' );
+        key = key.replace( 'Cmd-', isMac ? 'Meta-' : 'Ctrl-' );
         const current = this._shortcuts[ key ];
         const length = current ? current.length : 0;
         let l = length;

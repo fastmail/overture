@@ -7,7 +7,7 @@ const ClearSearchButtonView = Class({
 
     type: 'v-ClearSearchButton',
     positioning: 'absolute',
-    shortcut: 'ctrl-/',
+    shortcut: 'Ctrl-/',
 });
 
 export default ClearSearchButtonView;

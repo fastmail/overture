@@ -434,7 +434,7 @@ const RichTextView = Class({
                 isActive: bind( 'isBold', this ),
                 label: loc( 'Bold' ),
                 tooltip: loc( 'Bold' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-b' ),
+                    formatKeyForPlatform( 'Cmd-b' ),
                 activate () {
                     if ( richTextView.get( 'isBold' ) ) {
                         richTextView.removeBold();
@@ -451,7 +451,7 @@ const RichTextView = Class({
                 isActive: bind( 'isItalic', this ),
                 label: loc( 'Italic' ),
                 tooltip: loc( 'Italic' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-i' ),
+                    formatKeyForPlatform( 'Cmd-i' ),
                 activate () {
                     if ( richTextView.get( 'isItalic' ) ) {
                         richTextView.removeItalic();
@@ -468,7 +468,7 @@ const RichTextView = Class({
                 isActive: bind( 'isUnderlined', this ),
                 label: loc( 'Underline' ),
                 tooltip: loc( 'Underline' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-u' ),
+                    formatKeyForPlatform( 'Cmd-u' ),
                 activate () {
                     if ( richTextView.get( 'isUnderlined' ) ) {
                         richTextView.removeUnderline();
@@ -485,7 +485,7 @@ const RichTextView = Class({
                 isActive: bind( 'isStriked', this ),
                 label: loc( 'Strikethrough' ),
                 tooltip: loc( 'Strikethrough' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-shift-7' ),
+                    formatKeyForPlatform( 'Cmd-Shift-7' ),
                 activate () {
                     if ( richTextView.get( 'isStriked' ) ) {
                         richTextView.removeStrikethrough();
@@ -538,7 +538,7 @@ const RichTextView = Class({
                 isActive: bind( 'isLink', this ),
                 label: loc( 'Link' ),
                 tooltip: loc( 'Link' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-k' ),
+                    formatKeyForPlatform( 'Cmd-k' ),
                 activate () {
                     if ( richTextView.get( 'isLink' ) ) {
                         richTextView.removeLink();
@@ -637,7 +637,7 @@ const RichTextView = Class({
                 icon: 'icon-quotes-left',
                 label: loc( 'Quote' ),
                 tooltip: loc( 'Quote' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-]' ),
+                    formatKeyForPlatform( 'Cmd-]' ),
                 target: richTextView,
                 method: 'increaseQuoteLevel',
             }),
@@ -647,7 +647,7 @@ const RichTextView = Class({
                 icon: 'icon-quotes-right',
                 label: loc( 'Unquote' ),
                 tooltip: loc( 'Unquote' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-[' ),
+                    formatKeyForPlatform( 'Cmd-[' ),
                 target: richTextView,
                 method: 'decreaseQuoteLevel',
             }),
@@ -658,7 +658,7 @@ const RichTextView = Class({
                 isActive: bind( 'isUnorderedList', this ),
                 label: loc( 'Unordered List' ),
                 tooltip: loc( 'Unordered List' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-shift-8' ),
+                    formatKeyForPlatform( 'Cmd-Shift-8' ),
                 activate () {
                     if ( richTextView.get( 'isUnorderedList' ) ) {
                         richTextView.removeList();
@@ -675,7 +675,7 @@ const RichTextView = Class({
                 isActive: bind( 'isOrderedList', this ),
                 label: loc( 'Ordered List' ),
                 tooltip: loc( 'Ordered List' ) + '\n' +
-                    formatKeyForPlatform( 'cmd-shift-9' ),
+                    formatKeyForPlatform( 'Cmd-Shift-9' ),
                 activate () {
                     if ( richTextView.get( 'isOrderedList' ) ) {
                         richTextView.removeList();
@@ -868,7 +868,7 @@ const RichTextView = Class({
             }.nextFrame().observes( 'isInDocument' ),
             addLinkOnEnter: function ( event ) {
                 event.stopPropagation();
-                if ( lookupKey( event ) === 'enter' ) {
+                if ( lookupKey( event ) === 'Enter' ) {
                     this.addLink();
                 }
             }.on( 'keyup' ),
@@ -998,13 +998,13 @@ const RichTextView = Class({
     kbShortcuts: function ( event ) {
         const isMac = UA.isMac;
         switch ( lookupKey( event ) ) {
-        case isMac ? 'meta-k' : 'ctrl-k':
+        case isMac ? 'Meta-k' : 'Ctrl-k':
             event.preventDefault();
             this.showLinkOverlay(
                 this.get( 'toolbarView' ).getView( 'link' )
             );
             break;
-        case 'pagedown':
+        case 'PageDown':
             if ( !isMac ) {
                 const scrollView = this.getParent( ScrollView );
                 if ( scrollView ) {

@@ -3,12 +3,13 @@ import UA from '../ua/UA';
 
 const isMac = UA.isMac;
 const platformKeys = {
-    alt: isMac ? '⌥' : 'Alt-',
-    cmd: isMac ? '⌘' : 'Ctrl-',
-    meta: isMac ? '⌘' : 'Meta-',
-    shift: isMac ? '⇧' : 'Shift-',
-    enter: isMac ? '↵' : 'Enter',
-    backspace: isMac ? '⌫' : 'Backspace',
+    Alt: isMac ? '⌥' : 'Alt-',
+    Cmd: isMac ? '⌘' : 'Ctrl-',
+    Meta: isMac ? '⌘' : 'Meta-',
+    Shift: isMac ? '⇧' : 'Shift-',
+    Escape: 'Esc',
+    Enter: isMac ? '↵' : 'Enter',
+    Backspace: isMac ? '⌫' : 'Backspace',
 };
 
 /**

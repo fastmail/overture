@@ -122,12 +122,12 @@ const ScrollView = Class({
         For example, on the main scroll view for you content, you might set:
 
             {
-                'pagedown': 'scrollPage',
-                'pageup': 'reverseScrollPage',
-                'space': 'scrollPage',
-                'shift-space': 'reverseScrollPage',
-                'down': 'scrollLine',
-                'up': 'reverseScrollLine'
+                'PageDown': 'scrollPage',
+                'PageUp': 'reverseScrollPage',
+                'Space': 'scrollPage',
+                'Shift-Space': 'reverseScrollPage',
+                'ArrowDown': 'scrollLine',
+                'ArrowUp': 'reverseScrollLine'
             }
     */
     keys: {},

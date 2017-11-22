@@ -849,7 +849,7 @@ var appView = new O.View({
                     icon: 'icon-plus-circle',
                     isDisabled: O.bind( App.state, 'isLoadingList' ),
                     label: 'New Todo',
-                    shortcut: 'enter',
+                    shortcut: 'Enter',
                     target: App.actions,
                     method: 'newTodo'
                 }),

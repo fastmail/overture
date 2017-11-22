@@ -173,12 +173,12 @@ const TextView = Class({
     /**
         Property: O.TextView#blurOnKeys
         Type: Object
-        Default: { esc: true }
+        Default: { Escape: true }
 
         For each truthy value in the object, if the user is focussed in the
         text view and hits the key, the focus will be removed.
     */
-    blurOnKeys: { esc: true },
+    blurOnKeys: { Escape: true },
 
     // --- Render ---
 
@@ -485,7 +485,7 @@ const TextView = Class({
         // (presumably as though it were submitting the form). Stop this
         // unless we're actually in a form.
         if ( !this.get( 'isMultiline' ) &&
-                lookupKey( event, true ) === 'enter' &&
+                lookupKey( event, true ) === 'Enter' &&
                 !Element.nearest( this.get( 'layer' ), 'FORM' ) ) {
             event.preventDefault();
         }

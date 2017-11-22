@@ -23,9 +23,9 @@ const ListKBFocusView = Class({
         j: 'goNext',
         k: 'goPrev',
         x: 'select',
-        'shift-x': 'select',
+        X: 'select',
         o: 'trigger',
-        enter: 'trigger',
+        Enter: 'trigger',
         s: 'star',
     },
 

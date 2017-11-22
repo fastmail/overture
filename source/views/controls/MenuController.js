@@ -112,12 +112,12 @@ const MenuController = Class({
     // --- Keyboard support ---
 
     keyBindings: {
-        esc: 'onEscape',
-        enter: 'selectFocussed',
-        up: 'focusPrevious',
-        down: 'focusNext',
-        left: 'closeIfSub',
-        right: 'activateIfMenu',
+        Escape: 'onEscape',
+        Enter: 'selectFocussed',
+        ArrowUp: 'focusPrevious',
+        ArrowDown: 'focusNext',
+        ArrowLeft: 'closeIfSub',
+        ArrowRight: 'activateIfMenu',
     },
 
     triggerKeyBinding: function ( event ) {

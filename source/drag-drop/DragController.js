@@ -527,7 +527,7 @@ const DragController = new Obj({
     */
     _escCancel: function ( event ) {
         const drag = this._drag;
-        if ( drag && lookupKey( event ) === 'esc' ) {
+        if ( drag && lookupKey( event ) === 'Escape' ) {
             drag.endDrag();
         }
     }.on( 'keydown' ),
