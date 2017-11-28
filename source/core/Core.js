@@ -188,9 +188,9 @@ const guid = function ( item ) {
         return 'date:' + (+item);
     }
 
-    let guid = guids.get( item );
+    let guid = item.__guid__ || guids.get( item );
     if ( !guid ) {
-        guid = 'id:' + nextGuid.toString(36);
+        guid = 'id:' + nextGuid.toString( 36 );
         nextGuid += 1;
         guids.set( item, guid );
     }
