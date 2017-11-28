@@ -20,6 +20,19 @@ const DISABLE_IN_INPUT = 2;
 
 const handleOnDown = {};
 
+const toPlatformKey = function ( key ) {
+    if ( key.startsWith( 'Cmd-' ) ) {
+        key = ( isMac ? 'Meta-' : 'Ctrl-' ) + key.slice( 4 );
+        if ( !isMac && key.contains( 'Shift-' ) ) {
+            // The shift modifier is applied to the key returned (so it is
+            // uppercase) if the Ctrl key is pressed, but not if Meta is
+            // pressed
+            key = key.slice( 0, -1 ) + key.slice( -1 ).toUpperCase();
+        }
+    }
+    return key;
+};
+
 /**
     Class: O.GlobalKeyboardShortcuts
 
@@ -104,7 +117,7 @@ const GlobalKeyboardShortcuts = Class({
             {O.GlobalKeyboardShortcuts} Returns self.
     */
     register ( key, object, method, ifInput ) {
-        key = key.replace( 'Cmd-', isMac ? 'Meta-' : 'Ctrl-' );
+        key = toPlatformKey( key );
         const shortcuts = this._shortcuts;
         ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
             .push([ object, method, ifInput || DEFAULT_IN_INPUT ]);
@@ -126,7 +139,7 @@ const GlobalKeyboardShortcuts = Class({
             {O.GlobalKeyboardShortcuts} Returns self.
    */
     deregister ( key, object, method ) {
-        key = key.replace( 'Cmd-', isMac ? 'Meta-' : 'Ctrl-' );
+        key = toPlatformKey( key );
         const current = this._shortcuts[ key ];
         const length = current ? current.length : 0;
         let l = length;
