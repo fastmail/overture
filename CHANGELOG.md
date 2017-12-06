@@ -2,6 +2,7 @@
 
 ## Miscellaneous changes
 
+- 2017-11-23: changed `O.View#allowTextSelection` to support and default to null (mostly harmless, but will change some behaviour).
 - 2017-11-11: added `O.Record#getData`
 
 ## 2017-10-16: better `Promise` support

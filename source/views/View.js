@@ -315,7 +315,6 @@ const View = Class({
             id: this.get( 'id' ),
             className: this.get( 'className' ),
             style: Object.toCSSString( this.get( 'layerStyles' ) ),
-            unselectable: this.get( 'allowTextSelection' ) ? undefined : 'on',
         });
         this.didCreateLayer( layer );
         this.redrawAriaAttributes( layer );
@@ -502,13 +501,13 @@ const View = Class({
 
     /**
         Property: O.View#allowTextSelection
-        Type: Boolean
-        Default: false
+        Type: Boolean|null
+        Default: null
 
-        May text be selected by the user inside this view? Can be overridden
-        inside subviews.
-   */
-    allowTextSelection: false,
+        May text be selected by the user inside this view?
+        `null` means inherit. Can be overridden inside subviews.
+    */
+    allowTextSelection: null,
 
     // --- Layout ---
 
@@ -543,11 +542,14 @@ const View = Class({
         properties change.
     */
     layerStyles: function () {
-        const allowTextSelection = this.get( 'allowTextSelection' );
-        return Object.assign({
+        const values = {
             position: this.get( 'positioning' ),
-            userSelect: allowTextSelection ? 'text' : userSelectNone,
-        }, this.get( 'layout' ) );
+        };
+        const allowTextSelection = this.get( 'allowTextSelection' );
+        if ( allowTextSelection !== null ) {
+            values.userSelect = allowTextSelection ? 'text' : userSelectNone;
+        }
+        return Object.assign( values, this.get( 'layout' ) );
     }.property( 'layout', 'allowTextSelection', 'positioning' ),
 
     /**
