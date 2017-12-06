@@ -3,7 +3,9 @@
 ## Miscellaneous changes
 
 - 2017-12-06: added `resistHiding` to `O.PopOverView#show` options
-- 2017-11-23: changed `O.View#allowTextSelection` to support and default to null (mostly harmless, but will change some behaviour).
+- 2017-12-06: changed `O.View#allowTextSelection` to support and default to null (mostly harmless, but will change some behaviour).
+- 2017-11-28: allow objects to determine their own guid
+- 2017-11-22: changed keyboard shortcuts to use the newer `event.key` API, which reflects the *logical* model rather than the physical model of `keyCode`; this entails some fairly significant changes; notably, `shift-j` must become `J`; other examples of changes: `ctrl-esc` becomes `Ctrl-Escape`, `up` `ArrowUp` and `cmd-q` `Cmd-q`. (Note that shortcuts using the arrow keys will be broken on Firefox 36 and earlier which use `Up` instead of `ArrowUp`.)
 - 2017-11-11: added `O.Record#getData`
 
 ## 2017-10-16: better `Promise` support
