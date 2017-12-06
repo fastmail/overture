@@ -83,8 +83,8 @@ Object.assign( Object, {
     fromQueryString ( query ) {
         const result = {};
         query.split( '&' ).forEach( function ( pair ) {
-           const parts = pair.split( '=' ).map( decodeURIComponent );
-           result[ parts[0] ] = parts[1];
+            const parts = pair.split( '=' ).map( decodeURIComponent );
+            result[ parts[0] ] = parts[1];
         });
         return result;
     },

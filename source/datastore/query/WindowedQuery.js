@@ -1196,9 +1196,9 @@ const WindowedQuery = Class({
                 .set( 'status', (status & EMPTY) ? READY : status )
             .endPropertyChanges()
             .rangeDidChange(
-                 informAllRangeObservers ? 0 : position,
-                 informAllRangeObservers ?
-                     Math.max( oldLength, end ) : end
+                informAllRangeObservers ? 0 : position,
+                informAllRangeObservers ?
+                    Math.max( oldLength, end ) : end
             )
             .fire( 'query:idsLoaded' );
     },

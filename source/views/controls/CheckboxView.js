@@ -61,7 +61,7 @@ const CheckboxView = Class({
         redraw.
     */
     checkboxNeedsRedraw: function ( self, property, oldValue ) {
-       return this.propertyNeedsRedraw( self, property, oldValue );
+        return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'value' ),
 
     /**

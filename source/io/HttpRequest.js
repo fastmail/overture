@@ -199,7 +199,7 @@ const HttpRequest = Class({
         Event: io:begin
 
         This event is fired when the request starts.
-     */
+    */
 
     /**
         Event: io:abort

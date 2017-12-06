@@ -51,7 +51,7 @@ const RecordArray = Class({
         const storeKey = this.get( 'storeKeys' )[ index ];
         if ( storeKey ) {
             return this.get( 'store' )
-                         .materialiseRecord( storeKey, this.get( 'Type' ) );
+                .materialiseRecord( storeKey, this.get( 'Type' ) );
         }
     },
 });

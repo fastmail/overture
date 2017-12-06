@@ -137,7 +137,7 @@ const GlobalKeyboardShortcuts = Class({
 
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
-   */
+    */
     deregister ( key, object, method ) {
         key = toPlatformKey( key );
         const current = this._shortcuts[ key ];
@@ -168,7 +168,7 @@ const GlobalKeyboardShortcuts = Class({
         Returns:
             {Array|null} Returns the [ object, method ] tuple to be triggered by
             the event, or null if nothing is registered for this key press.
-   */
+    */
     getHandlerForKey ( key ) {
         const shortcuts = this._shortcuts[ key ];
         if ( shortcuts && this.get( 'isEnabled' ) ) {
@@ -184,7 +184,7 @@ const GlobalKeyboardShortcuts = Class({
 
         Parameters:
             event - {DOMEvent} The keydown/keypress event.
-   */
+    */
     trigger: function ( event ) {
         const target = event.target;
         const nodeName = target.nodeName;

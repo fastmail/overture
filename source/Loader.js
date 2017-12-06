@@ -113,7 +113,7 @@ const checkAndExecuteModule = function ( name ) {
                 executeModule( name );
             });
         } else {
-             executeModule( name );
+            executeModule( name );
         }
     }
 };
@@ -219,7 +219,7 @@ const load = function ( name, executeOnLoad, force ) {
 
 require = function ( modules, fn, bind ) {
     if ( !( modules instanceof Array ) ) {
-         modules = [ modules ];
+        modules = [ modules ];
     }
 
     let allLoaded = true;

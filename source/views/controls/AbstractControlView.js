@@ -151,7 +151,7 @@ const AbstractControlView = Class({
         Default: 'label'
 
         Overrides default in <O.View#layerTag>.
-   */
+    */
     layerTag: 'label',
 
     /**
@@ -205,7 +205,7 @@ const AbstractControlView = Class({
     // --- Keep render in sync with state ---
 
     abstractControlNeedsRedraw: function ( self, property, oldValue ) {
-       return this.propertyNeedsRedraw( self, property, oldValue );
+        return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'isDisabled', 'label', 'name', 'tooltip', 'tabIndex' ),
 
     /**

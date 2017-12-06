@@ -100,7 +100,7 @@ const MenuButtonView = Class({
     },
 
     ariaNeedsRedraw: function ( self, property, oldValue ) {
-       return this.propertyNeedsRedraw( self, 'aria', oldValue );
+        return this.propertyNeedsRedraw( self, 'aria', oldValue );
     }.observes( 'isActive' ),
 
     redrawAria ( layer ) {

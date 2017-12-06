@@ -76,7 +76,7 @@ const ScrollView = Class({
         Default: 'absolute'
 
         Overrides default in <O.View#positioning>.
-   */
+    */
     positioning: 'absolute',
 
     /**

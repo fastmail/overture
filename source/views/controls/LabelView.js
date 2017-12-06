@@ -62,7 +62,7 @@ const LabelView = Class({
         redraw.
     */
     labelNeedsRedraw: function ( self, property, oldValue ) {
-       return this.propertyNeedsRedraw( self, property, oldValue );
+        return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'tooltip', 'value' ),
 
     /**
