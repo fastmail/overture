@@ -35,6 +35,10 @@ const PopOverView = Class({
         - showCallout -> true/false
         - offsetLeft
         - offsetTop
+        - resistHiding -> true to stop clicking outside or pressing Esc closing
+          the popover, false for normal behaviour; may also be a function
+          returning true or false
+          (incidental note: this would be nicer if options was an O.Object)
         - onHide: fn
     */
     show ( options ) {
@@ -355,8 +359,17 @@ const PopOverView = Class({
             null : new ModalEventHandler({ view: this });
     }.property(),
 
+    softHide () {
+        const options = this._options;
+        if ( !options.resistHiding || (
+                typeof options.resistHiding === 'function' &&
+                !options.resistHiding() ) ) {
+            this.hide();
+        }
+    },
+
     clickedOutside () {
-        this.hide();
+        this.softHide();
     },
 
     keyOutside ( event ) {
@@ -372,7 +385,7 @@ const PopOverView = Class({
 
     closeOnEsc: function ( event ) {
         if ( lookupKey( event ) === 'Escape' ) {
-            this.hide();
+            this.softHide();
         }
     }.on( 'keydown' ),
 

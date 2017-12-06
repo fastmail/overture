@@ -2,6 +2,7 @@
 
 ## Miscellaneous changes
 
+- 2017-12-06: added `resistHiding` to `O.PopOverView#show` options
 - 2017-11-23: changed `O.View#allowTextSelection` to support and default to null (mostly harmless, but will change some behaviour).
 - 2017-11-11: added `O.Record#getData`
 
