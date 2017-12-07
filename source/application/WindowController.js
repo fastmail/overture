@@ -122,7 +122,7 @@ const WindowController = Class({
             event - {Event} The event object.
     */
     handleEvent: function ( event ) {
-        switch( event.type ) {
+        switch ( event.type ) {
         case 'storage':
             if ( event.key === this.get( 'broadcastKey' ) ) {
                 try {

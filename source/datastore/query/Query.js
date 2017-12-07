@@ -300,9 +300,9 @@ const Query = Class({
     */
     '[]': function () {
         const store = this.get( 'store' );
-        return this._storeKeys.map( function ( storeKey ) {
-            return storeKey ? store.getRecordFromStoreKey( storeKey ) : null;
-        });
+        return this._storeKeys.map( storeKey => (
+            storeKey ? store.getRecordFromStoreKey( storeKey ) : null
+        ));
     }.property(),
 
     /**
@@ -393,9 +393,9 @@ const Query = Class({
         const index = this._storeKeys.indexOf( storeKey, from );
         if ( callback ) {
             if ( this.get( 'length' ) === null ) {
-                this.fetch( false, function () {
+                this.fetch( false, () => {
                     callback( this._storeKeys.indexOf( storeKey, from ) );
-                }.bind( this ) );
+                });
             } else {
                 callback( index );
             }
@@ -542,9 +542,9 @@ const Query = Class({
         const awaitingIdFetch = this._awaitingIdFetch;
         if ( awaitingIdFetch.length ) {
             this._awaitingIdFetch = [];
-            awaitingIdFetch.forEach( function ( call ) {
+            awaitingIdFetch.forEach( call => {
                 this.getStoreKeysForObjectsInRange( call[0], call[1], call[2] );
-            }, this );
+            });
         }
     }.queue( 'before' ).on( 'query:idsLoaded' ),
 

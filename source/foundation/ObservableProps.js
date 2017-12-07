@@ -58,18 +58,16 @@ const teardownObserver = function ( metadata, method ) {
                     break;
                 }
             }
-        } else {
-            if ( !pathObservers ) {
-                pathObservers = metadata.pathObservers;
-                if ( !metadata.hasOwnProperty( 'pathObservers' ) ) {
-                    pathObservers =
-                        metadata.pathObservers = Object.create( pathObservers );
-                }
-                // We want to remove all path observers. Can't just delete
-                // though, as it may defined on the prototype object.
-                pathObservers[ method ] = null;
-                metadata.inits.Observers -= 1;
+        } else if ( !pathObservers ) {
+            pathObservers = metadata.pathObservers;
+            if ( !metadata.hasOwnProperty( 'pathObservers' ) ) {
+                pathObservers =
+                    metadata.pathObservers = Object.create( pathObservers );
             }
+            // We want to remove all path observers. Can't just delete though,
+            // as it may be defined on the prototype object.
+            pathObservers[ method ] = null;
+            metadata.inits.Observers -= 1;
         }
     }
 };

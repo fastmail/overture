@@ -998,12 +998,10 @@ const View = Class({
                 childViews.length;
             childViews.splice( index, 0, view );
             relativeTo = relativeTo.get( 'layer' );
+        } else if ( where === 'top' ) {
+            childViews.unshift( view );
         } else {
-            if ( where === 'top' ) {
-                childViews.unshift( view );
-            } else {
-                childViews.push( view );
-            }
+            childViews.push( view );
         }
 
         if ( this.get( 'isRendered' ) ) {
@@ -1193,20 +1191,19 @@ const View = Class({
                 parent = aParents[ al + 1 ];
                 if ( !parent ) {
                     return POSITION_DISCONNECTED;
-                } else {
-                    children = parent.get( 'childViews' );
-                    l = children.length;
-                    while ( l-- ) {
-                        view = children[l];
-                        if ( view === b ) {
-                            return POSITION_PRECEDING;
-                        }
-                        if ( view === a ) {
-                            return POSITION_FOLLOWING;
-                        }
-                    }
-                    break;
                 }
+                children = parent.get( 'childViews' );
+                l = children.length;
+                while ( l-- ) {
+                    view = children[l];
+                    if ( view === b ) {
+                        return POSITION_PRECEDING;
+                    }
+                    if ( view === a ) {
+                        return POSITION_FOLLOWING;
+                    }
+                }
+                break;
             }
         }
 

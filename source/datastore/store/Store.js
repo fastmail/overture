@@ -654,7 +654,7 @@ const Store = Class({
         this._destroyed = newDestroyed;
 
         if ( hasChanges ) {
-            this.source.commitChanges( changes, function () {
+            this.source.commitChanges( changes, () => {
                 for ( const typeId in types ) {
                     typeToStatus.set( typeId,
                         typeToStatus.get( typeId ) & ~COMMITTING );
@@ -665,7 +665,7 @@ const Store = Class({
                         this.checkForChanges().get( 'hasChanges' ) ) {
                     this.commitChanges();
                 }
-            }.bind( this ) );
+            });
         } else {
             this.set( 'isCommitting', false );
         }
@@ -1151,11 +1151,11 @@ const Store = Class({
         const state = this._typeToClientState[ typeId ];
 
         if ( !( status & LOADING ) && ( !state || force ) ) {
-            this.source.fetchAllRecords( Type, state, function () {
+            this.source.fetchAllRecords( Type, state, () => {
                 typeToStatus.set( typeId,
                     typeToStatus.get( typeId ) & ~LOADING );
                 this._checkServerStatus( Type );
-            }.bind( this ));
+            });
             typeToStatus.set( typeId, status | LOADING );
         }
         return this;

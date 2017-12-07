@@ -55,13 +55,9 @@ const WINDOW_RECORDS_READY = 32;
         a2 - {Array} The array to perform the same swaps on.
 */
 const sortLinkedArrays = function ( a1, a2 ) {
-    const zipped = a1.map( function ( item, i ) {
-        return [ item, a2[i] ];
-    });
-    zipped.sort( function ( a, b ) {
-        return a[0] - b[0];
-    });
-    zipped.forEach( function ( item, i ) {
+    const zipped = a1.map( ( item, i ) => [ item, a2[i] ] );
+    zipped.sort( ( a, b ) => a[0] - b[0] );
+    zipped.forEach( ( item, i ) => {
         a1[i] = item[0];
         a2[i] = item[1];
     });
@@ -374,10 +370,9 @@ const WindowedQuery = Class({
         const store = this.get( 'store' );
         const Type = this.get( 'Type' );
         const cache = {};
-        return function ( id ) {
-            return cache[ id ] ||
-                ( cache[ id ] = store.getStoreKey( Type, id ) );
-        };
+        return id => (
+            cache[ id ] || ( cache[ id ] = store.getStoreKey( Type, id ) )
+        );
     }.property(),
 
     indexOfStoreKey ( storeKey, from, callback ) {
@@ -399,9 +394,9 @@ const WindowedQuery = Class({
                 const id = store.getIdFromStoreKey( storeKey );
                 this._indexOfRequested.push([
                     id,
-                    function () {
+                    () => {
                         callback( this._storeKeys.indexOf( storeKey, from ) );
-                    }.bind( this ),
+                    },
                 ]);
                 this.get( 'source' ).fetchQuery( this );
             } else {
@@ -913,7 +908,7 @@ const WindowedQuery = Class({
         // Map ids to store keys
         const toStoreKey = this.get( '_toStoreKey' );
         update.removed = update.removed.map( toStoreKey );
-        update.added.forEach( function ( tuple ) {
+        update.added.forEach( tuple => {
             tuple[1] = toStoreKey( tuple[1] );
         });
         update.upto = update.upto && toStoreKey( update.upto );
@@ -977,8 +972,7 @@ const WindowedQuery = Class({
                     addedIndexes: [],
                     addedStoreKeys: [],
                 });
-                _indexes = _storeKeys.reduce(
-                function ( indexes, storeKey ) {
+                _indexes = _storeKeys.reduce( ( indexes, storeKey ) => {
                     // If the id was added in a preemptive add it won't be
                     // in the list of removed ids.
                     const i = x.removedStoreKeys.indexOf( storeKey );
@@ -1233,10 +1227,8 @@ const WindowedQuery = Class({
         const recordRequests = [];
         const idRequests = [];
         const optimiseFetching = this.get( 'optimiseFetching' );
-        const ranges = ( meta( this ).rangeObservers || [] ).map(
-            function ( observer ) {
-                return observer.range;
-            });
+        const ranges = ( meta( this ).rangeObservers || [] )
+            .map( observer => observer.range );
         const fetchAllObservedIds = refreshRequested &&
                 !this.get( 'canGetDeltaUpdates' );
         const prefetch = this.get( 'prefetch' );
@@ -1317,12 +1309,12 @@ const WindowedQuery = Class({
             records: recordRequests,
             indexOf: indexOfRequested,
             refresh: refreshRequested,
-            callback: function () {
-                this._windows = this._windows.map( function ( status ) {
-                    return status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING);
-                });
+            callback: () => {
+                this._windows = this._windows.map(
+                    status => status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING)
+                );
                 this.set( 'status', this.get( 'status' ) & ~LOADING );
-            }.bind( this ),
+            },
         };
     },
 });
