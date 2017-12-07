@@ -206,7 +206,9 @@ const DragController = new Obj({
             event - {Event} The mousedown event.
     */
     _onMousedown: function ( event ) {
-        if ( event.button || event.metaKey || event.ctrlKey ) { return; }
+        if ( event.button || event.metaKey || event.ctrlKey ) {
+            return;
+        }
         if ( isControl[ event.target.nodeName ] ) {
             this._ignore = true;
         } else {

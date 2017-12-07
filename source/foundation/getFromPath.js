@@ -24,7 +24,9 @@ export default function getFromPath ( root, path ) {
             return undefined;
         }
         let nextDot = path.indexOf( '.', currentPosition );
-        if ( nextDot === -1 ) { nextDot = pathLength; }
+        if ( nextDot === -1 ) {
+            nextDot = pathLength;
+        }
         const key = path.slice( currentPosition, nextDot );
         root = root.getObjectAt && isNum.test( key ) ?
             root.getObjectAt( +key ) :

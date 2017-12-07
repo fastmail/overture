@@ -117,8 +117,7 @@ const AttributeErrors = Class({
                 isValid = !vals.newValue;
                 if ( wasValid && !isValid ) {
                     errorCount += 1;
-                }
-                else if ( isValid && !wasValid ) {
+                } else if ( isValid && !wasValid ) {
                     errorCount -= 1;
                 }
             }

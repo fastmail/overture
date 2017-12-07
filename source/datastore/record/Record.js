@@ -272,7 +272,9 @@ const Record = Class({
     */
     fetch () {
         const storeKey = this.get( 'storeKey' );
-        if ( storeKey ) { this.get( 'store' ).fetchData( storeKey ); }
+        if ( storeKey ) {
+            this.get( 'store' ).fetchData( storeKey );
+        }
         return this;
     },
 
@@ -486,8 +488,12 @@ Record.getClientSettableAttributes = function ( Type ) {
         {O.RecordAttribute} Getter/setter for that record attribute.
 */
 Record.attr = function ( Type, mixin ) {
-    if ( !mixin ) { mixin = {}; }
-    if ( Type && !mixin.Type ) { mixin.Type = Type; }
+    if ( !mixin ) {
+        mixin = {};
+    }
+    if ( Type && !mixin.Type ) {
+        mixin.Type = Type;
+    }
     return new RecordAttribute( mixin );
 };
 

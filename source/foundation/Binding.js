@@ -74,7 +74,7 @@ const isNum = /^\d+$/;
     Returns:
         {*} The value v.
 */
-const identity = function ( v ) { return v; };
+const identity = v => v;
 
 const Binding = Class({
 
@@ -315,7 +315,9 @@ const Binding = Class({
             {O.Binding} Returns self.
     */
     connect () {
-        if ( this.isConnected ) { return this; }
+        if ( this.isConnected ) {
+            return this;
+        }
 
         this.isSuspended = false;
 
@@ -373,7 +375,9 @@ const Binding = Class({
             {O.Binding} Returns self.
     */
     disconnect () {
-        if ( !this.isConnected ) { return this; }
+        if ( !this.isConnected ) {
+            return this;
+        }
 
         this.fromObject.removeObserverForPath(
             this.fromPath, this, 'fromDidChange' );

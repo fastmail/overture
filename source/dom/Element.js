@@ -269,7 +269,9 @@ export default {
         if ( /[#.]/.test( tag ) ) {
             const parts = tag.split( /([#.])/ );
             tag = parts[0];
-            if ( !props ) { props = {}; }
+            if ( !props ) {
+                props = {};
+            }
             const l = parts.length;
             for ( let i = 1; i + 1 < l; i += 2 ) {
                 const name = parts[ i + 1 ];
@@ -317,7 +319,9 @@ export default {
             if ( value !== undefined ) {
                 if ( value instanceof Binding ) {
                     value.to( prop, el ).connect();
-                    if ( view ) { view.registerBinding( value ); }
+                    if ( view ) {
+                        view.registerBinding( value );
+                    }
                 } else {
                     el.set( prop, value );
                 }
@@ -339,14 +343,15 @@ export default {
             {Element} The element.
     */
     appendChildren: appendChildren = function ( el, children ) {
-        if ( !( children instanceof Array ) ) { children = [ children ]; }
+        if ( !( children instanceof Array ) ) {
+            children = [ children ];
+        }
         for ( let i = 0, l = children.length; i < l; i += 1 ) {
             let node = children[i];
             if ( node ) {
                 if ( node instanceof Array ) {
                     appendChildren( el, node );
-                }
-                else if ( node instanceof View ) {
+                } else if ( node instanceof View ) {
                     view.insertView( node, el );
                 } else {
                     if ( typeof node !== 'object' ) {
@@ -528,7 +533,9 @@ export default {
             matched.
     */
     nearest ( el, test, limit ) {
-        if ( !limit ) { limit = el.ownerDocument.documentElement; }
+        if ( !limit ) {
+            limit = el.ownerDocument.documentElement;
+        }
         if ( typeof test === 'string' ) {
             const nodeName = test.toUpperCase();
             test = el => el.nodeName === nodeName;

@@ -104,8 +104,8 @@ export default {
         const layerAnimation = this.get( 'layerAnimation' );
         const setStyle = Element.setStyle;
 
-        // Animate
         if ( this.get( 'animateLayer' ) && this.get( 'isInDocument' ) ) {
+            // Animate
             if ( !layerAnimation.current ) {
                 layerAnimation.current = oldStyles || newStyles;
             }
@@ -114,9 +114,8 @@ export default {
                 this.get( 'animateLayerDuration' ),
                 this.get( 'animateLayerEasing' )
             );
-        }
-        // Or just set.
-        else {
+        } else {
+            // Or just set.
             layerAnimation.stop();
             layerAnimation.current = newStyles;
             setStyle( layer, 'transition-property', 'none' );

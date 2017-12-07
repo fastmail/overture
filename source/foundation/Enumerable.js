@@ -113,7 +113,9 @@ const Enumerable = {
         let lower = 0,
             upper = this.get( 'length' ),
             middle, candidate;
-        if ( !comparator ) { comparator = defaultComparator; }
+        if ( !comparator ) {
+            comparator = defaultComparator;
+        }
         while ( lower < upper ) {
             middle = ( lower + upper ) >> 1;
             candidate = this.getObjectAt( middle );

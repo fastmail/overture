@@ -78,7 +78,9 @@ const formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
         {String} Relative date string.
 */
 Date.prototype.relativeTo = function ( date, approx ) {
-    if ( !date ) { date = new Date(); }
+    if ( !date ) {
+        date = new Date();
+    }
 
     let duration = ( date - this );
     const isFuture = ( duration < 0 );
@@ -90,9 +92,8 @@ Date.prototype.relativeTo = function ( date, approx ) {
     // Less than a day
     if ( duration < 1000 * 60 * 60 * 24 ) {
         time = formatDuration( duration, approx );
-    }
     // Less than 6 weeks
-    else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
+    } else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
         if ( approx ) {
             duration = new Date(
                 date.getFullYear(),
@@ -105,8 +106,7 @@ Date.prototype.relativeTo = function ( date, approx ) {
             );
         }
         time = formatDuration( duration, approx );
-    }
-    else {
+    } else {
         years = date.getFullYear() - this.getFullYear();
         months = date.getMonth() - this.getMonth();
 

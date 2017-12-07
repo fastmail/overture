@@ -417,8 +417,12 @@ const WindowedQuery = Class({
         let windows, windowSize;
 
         if ( length !== null ) {
-            if ( start < 0 ) { start = 0; }
-            if ( end > length ) { end = length; }
+            if ( start < 0 ) {
+                start = 0;
+            }
+            if ( end > length ) {
+                end = length;
+            }
 
             windows = this._windows;
             windowSize = this.get( 'windowSize' );
@@ -438,8 +442,7 @@ const WindowedQuery = Class({
 
         if ( isComplete ) {
             callback( this._storeKeys.slice( start, end ), start, end );
-        }
-        else {
+        } else {
             this._awaitingIdFetch.push([ start, end, callback ]);
         }
         return !isComplete;
@@ -559,8 +562,12 @@ const WindowedQuery = Class({
             length - {Number} The new length of the list.
     */
     recalculateFetchedWindows ( start, length ) {
-        if ( !start ) { start = 0; }
-        if ( length === undefined ) { length = this.get( 'length' ); }
+        if ( !start ) {
+            start = 0;
+        }
+        if ( length === undefined ) {
+            length = this.get( 'length' );
+        }
 
         const windowSize = this.get( 'windowSize' );
         const windows = this._windows;
@@ -677,7 +684,9 @@ const WindowedQuery = Class({
         while ( l-- ) {
             index = removedIndexes[l];
             list.splice( index, 1 );
-            if ( index < firstChange ) { firstChange = index; }
+            if ( index < firstChange ) {
+                firstChange = index;
+            }
         }
 
         if ( args.truncateAtFirstGap ) {
@@ -685,9 +694,13 @@ const WindowedQuery = Class({
             // the first gap may be incorrect as a record may have been removed
             // from that gap.
             let i = 0;
-            while ( list[i] ) { i += 1; }
+            while ( list[i] ) {
+                i += 1;
+            }
             list.length = i;
-            if ( i < firstChange ) { firstChange = i; }
+            if ( i < firstChange ) {
+                firstChange = i;
+            }
         }
 
         // --- Add items to list ---
@@ -706,7 +719,9 @@ const WindowedQuery = Class({
                 list.splice( index, 0, storeKey );
                 listLength += 1;
             }
-            if ( index < firstChange ) { firstChange = index; }
+            if ( index < firstChange ) {
+                firstChange = index;
+            }
         }
 
         // --- Check upto ---
@@ -797,8 +812,12 @@ const WindowedQuery = Class({
                 range = ranges[l].range;
                 observerStart = range.start || 0;
                 observerEnd = 'end' in range ? range.end : length;
-                if ( observerStart < 0 ) { observerStart += length; }
-                if ( observerEnd < 0 ) { observerEnd += length; }
+                if ( observerStart < 0 ) {
+                    observerStart += length;
+                }
+                if ( observerEnd < 0 ) {
+                    observerEnd += length;
+                }
                 firstWindow = Math.floor( observerStart / windowSize );
                 lastWindow = Math.floor( ( observerEnd - 1 ) / windowSize );
                 for ( ; firstWindow <= lastWindow; firstWindow += 1 ) {

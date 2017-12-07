@@ -138,8 +138,7 @@ const RunLoop = {
                     } else {
                         fn();
                     }
-                }
-                catch ( error ) {
+                } catch ( error ) {
                     RunLoop.didError( error );
                 }
             }

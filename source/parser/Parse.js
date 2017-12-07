@@ -43,7 +43,9 @@ Parse.not = function ( pattern ) {
 
 Parse.repeat = function ( pattern, min, max ) {
     // Max int: 2^31 - 1;
-    if ( !max ) { max = 2147483647; }
+    if ( !max ) {
+        max = 2147483647;
+    }
     return function ( parse ) {
         const newParse = parse.clone();
         let i = 0;

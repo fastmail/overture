@@ -47,12 +47,16 @@ const MenuController = Class({
     },
 
     focusPrevious ( event ) {
-        if ( event ) { event.preventDefault(); }
+        if ( event ) {
+            event.preventDefault();
+        }
         return this.focusOption( this.getAdjacentOption( -1 ) );
     },
 
     focusNext ( event ) {
-        if ( event ) { event.preventDefault(); }
+        if ( event ) {
+            event.preventDefault();
+        }
         return this.focusOption( this.getAdjacentOption( 1 ) );
     },
 
@@ -82,7 +86,9 @@ const MenuController = Class({
     },
 
     selectFocussed ( event ) {
-        if ( event ) { event.preventDefault(); }
+        if ( event ) {
+            event.preventDefault();
+        }
         const focussedOption = this.get( 'focussedOption' );
         if ( focussedOption && this.canSelect( focussedOption ) ) {
             focussedOption.activate( this );

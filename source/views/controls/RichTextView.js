@@ -887,9 +887,8 @@ const RichTextView = Class({
                     email = emailRegExp.exec( url );
                     if ( email ) {
                         url = 'mailto:' + email[0];
-                    }
                     // Or an http:// prefix if not.
-                    else {
+                    } else {
                         url = 'http://' + url;
                     }
                 }

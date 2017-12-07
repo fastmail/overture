@@ -225,11 +225,15 @@ const mixin = function ( object, extras, doNotOverwrite ) {
                 const old = object[ key ];
                 const value = extras[ key ];
                 if ( old && old.__teardownProperty__ ) {
-                    if ( !metadata ) { metadata = meta( object ); }
+                    if ( !metadata ) {
+                        metadata = meta( object );
+                    }
                     old.__teardownProperty__( metadata, key, object );
                 }
                 if ( value && value.__setupProperty__ ) {
-                    if ( !metadata ) { metadata = meta( object ); }
+                    if ( !metadata ) {
+                        metadata = meta( object );
+                    }
                     value.__setupProperty__( metadata, key, object );
                 }
                 object[ key ] = value;
@@ -428,7 +432,9 @@ const Class = function ( params ) {
     }
     let mixins = params.Mixin;
     const init = params.init || ( parent ?
-            function () { parent.apply( this, arguments ); } :
+            function () {
+                parent.apply( this, arguments );
+            } :
             function () {} );
 
     if ( parent ) {

@@ -208,8 +208,7 @@ const RecordAttribute = Class({
             if ( !this.isNullable ) {
                 return false;
             }
-        }
-        else if ( this.Type && !instanceOf( propValue, this.Type ) ) {
+        } else if ( this.Type && !instanceOf( propValue, this.Type ) ) {
             throw new Error(
                 'Incorrect value type for record attribute: \n' +
                 'key: ' + propKey + '\n' +

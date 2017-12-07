@@ -221,8 +221,12 @@ const PopOverView = Class({
                 ( positionToThe === 'top' || positionToThe === 'bottom' );
         const parentMargin = this.get( 'parentMargin' );
 
-        if ( !deltaLeft ) { deltaLeft = 0; }
-        if ( !deltaTop ) { deltaTop = 0; }
+        if ( !deltaLeft ) {
+            deltaLeft = 0;
+        }
+        if ( !deltaTop ) {
+            deltaTop = 0;
+        }
 
         // Check not run off screen.
         if ( parent instanceof PopOverView ) {

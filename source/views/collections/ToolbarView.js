@@ -47,7 +47,9 @@ const OverflowMenuView = Class({
     setShortcuts: function ( _, __, oldShortcuts, shortcuts ) {
         if ( this.get( 'isInDocument' ) ) {
             const kbShortcuts = ViewEventsController.kbShortcuts;
-            if ( !shortcuts ) { shortcuts = this.get( 'shortcuts' ); }
+            if ( !shortcuts ) {
+                shortcuts = this.get( 'shortcuts' );
+            }
             for ( const key in oldShortcuts ) {
                 kbShortcuts.deregister( key, this, 'activateButton' );
             }
@@ -173,7 +175,9 @@ const ToolbarView = Class({
                 while ( pxWidth < 0 && l-- ) {
                     pxWidth += widths[ leftConfig[l] ];
                 }
-                if ( l < 0 ) { l = 0; }
+                if ( l < 0 ) {
+                    l = 0;
+                }
 
                 this._views.overflow.set( 'menuView', new MenuView({
                     showFilter: false,

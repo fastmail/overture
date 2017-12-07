@@ -121,7 +121,9 @@ const Router = Class({
 
     init ( mixin, win ) {
         Router.parent.constructor.call( this, mixin );
-        if ( !win ) { win = window; }
+        if ( !win ) {
+            win = window;
+        }
         const location = win.location;
         const path = ( this.useHash && getHash( location ) ) ||
                 getUrl( location, this.baseUrl );
@@ -207,7 +209,9 @@ const Router = Class({
                 if ( replaceState ) {
                     let href = location.href;
                     const i = href.indexOf( '#' );
-                    if ( i > -1 ) { href = href.slice( 0, i ); }
+                    if ( i > -1 ) {
+                        href = href.slice( 0, i );
+                    }
                     location.replace( href + '#/' + state );
                 } else {
                     location.hash = '#/' + state;

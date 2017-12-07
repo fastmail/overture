@@ -30,11 +30,15 @@ const compileTranslation = function ( translation ) {
         // Standard text section
         const part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
         if ( part ) {
-            if ( compiled ) { compiled += '+'; }
+            if ( compiled ) {
+                compiled += '+';
+            }
             compiled += JSON.stringify( part );
         }
         // Check if we've reached the end of the string
-        if ( end === length ) { break; }
+        if ( end === length ) {
+            break;
+        }
         // Macro section
         start = searchIndex = end + 1;
         // Find the end of the macro call.
@@ -92,17 +96,14 @@ const compileTranslation = function ( translation ) {
                 compiled += ( part === '*' ?
                     '' : '[' + ( parseInt( part, 10 ) - 1 ) + ']'
                 );
-            }
-            // Otherwise:
-            else {
-                // First part is the macro name.
+            } else { // Otherwise:
                 if ( !i ) {
+                    // First part is the macro name.
                     compiled += ( part === '*' ?
                         'quant' : part === '#' ? 'numf' : part );
                     compiled += '"].call(lang,';
-                }
-                // Anything else is a plain string argument
-                else {
+                } else {
+                    // Anything else is a plain string argument
                     compiled += JSON.stringify( part );
                 }
             }

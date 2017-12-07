@@ -320,8 +320,7 @@ export default {
             } else {
                 oldValue = undefined;
             }
-        }
-        else {
+        } else {
             // No point in notifying of a change if it hasn't really happened.
             silent = ( oldValue === value );
             this[ key ] = value;

@@ -61,7 +61,9 @@ const ViewEventsController = {
             {O.ViewEventsController} Returns self.
     */
     addEventTarget ( eventTarget, priority ) {
-        if ( !priority ) { priority = 0; }
+        if ( !priority ) {
+            priority = 0;
+        }
         const eventTargets = this._eventTargets.slice();
         let index = eventTargets.binarySearch( priority, etSearch );
         const length = eventTargets.length;

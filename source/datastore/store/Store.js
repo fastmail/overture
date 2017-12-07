@@ -1633,10 +1633,9 @@ const Store = Class({
             } else {
                 this._typeToServerState[ typeId ] = newState;
             }
-        }
-        // We could have a query but not matches yet; we still need to refresh
-        // the queries incase there are now matches.
-        else if ( !clientState ) {
+        } else if ( !clientState ) {
+            // We have a query but not matches yet; we still need to refresh the
+            // queries in case there are now matches.
             this.fire( typeId + ':server' );
         }
 
@@ -1684,19 +1683,17 @@ const Store = Class({
                 convertForeignKeysToSK( this, foreignRefAttrs, data );
             }
 
-            // If we already have the record loaded, process it as an update.
             if ( status & READY ) {
+                // We already have the record loaded, process it as an update.
                 updates[ id ] = data;
-            }
-            // We're in the middle of destroying it. Update the data in case
-            // we need to roll back.
-            else if ( ( status & DESTROYED ) &&
+            } else if ( ( status & DESTROYED ) &&
                     ( status & (DIRTY|COMMITTING) ) ) {
+                // We're in the middle of destroying it. Update the data in case
+                // we need to roll back.
                 this._skToData[ storeKey ] = data;
                 this.setStatus( storeKey, status & ~LOADING );
-            }
-            // Anything else is new.
-            else {
+            } else {
+                // Anything else is new.
                 if ( !( status & EMPTY ) ) {
                     // Record was destroyed or non-existent, but has now been
                     // created (again). Set status back to empty so setData
@@ -2103,8 +2100,7 @@ const Store = Class({
             if ( status & DESTROYED ) {
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
-            }
-            else {
+            } else {
                 if ( status & DIRTY ) {
                     delete _skToCommitted[ storeKey ];
                     delete _skToChanged[ storeKey ];

@@ -440,8 +440,12 @@ const Query = Class({
             return true;
         }
 
-        if ( start < 0 ) { start = 0; }
-        if ( end > length ) { end = length; }
+        if ( start < 0 ) {
+            start = 0;
+        }
+        if ( end > length ) {
+            end = length;
+        }
         callback( this._storeKeys.slice( start, end ), start, end );
 
         return false;
@@ -502,14 +506,22 @@ const Query = Class({
 
             for ( j = 0, ll = removed.length; j < ll; j += 1 ) {
                 index = removed[j];
-                if ( index < start ) { start -= 1; }
-                if ( index < end ) { end -= 1; }
+                if ( index < start ) {
+                    start -= 1;
+                }
+                if ( index < end ) {
+                    end -= 1;
+                }
             }
 
             for ( j = 0, ll = added.length; j < ll; j += 1 ) {
                 index = added[j];
-                if ( index <= start ) { start += 1; }
-                if ( index < end ) { end += 1; }
+                if ( index <= start ) {
+                    start += 1;
+                }
+                if ( index < end ) {
+                    end += 1;
+                }
             }
 
             // Update waiting method call arguments

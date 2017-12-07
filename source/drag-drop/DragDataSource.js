@@ -22,7 +22,9 @@ export default {
                        itself as the values.
     */
     init ( dragData ) {
-        if ( !dragData ) { dragData = {}; }
+        if ( !dragData ) {
+            dragData = {};
+        }
         this._dragData = dragData;
         this.dragDataTypes = Object.keys( dragData );
         this.get = function ( key ) {

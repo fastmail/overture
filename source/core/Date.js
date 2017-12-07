@@ -256,7 +256,9 @@ Object.assign( Date.prototype, {
         // 1 January has four or more days in the new year, then it is
         // considered week 1. Otherwise, it is the last week of the
         // previous year, and the next week is week 1.
-        if ( firstDayOfWeek == null ) { firstDayOfWeek = 1; }
+        if ( firstDayOfWeek == null ) {
+            firstDayOfWeek = 1;
+        }
 
         // 4th January is always in week 1.
         const jan4 = utc ?

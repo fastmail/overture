@@ -1053,13 +1053,19 @@ const View = Class({
             {O.View} Returns self.
     */
     replaceView ( view, oldView ) {
-        if ( view === oldView ) { return this; }
+        if ( view === oldView ) {
+            return this;
+        }
         const children = this.get( 'childViews' );
         const i = children.indexOf( oldView );
         const oldParent = view.get( 'parentView' );
-        if ( i === -1 ) { return this; }
+        if ( i === -1 ) {
+            return this;
+        }
 
-        if ( oldParent ) { oldParent.removeView( view ); }
+        if ( oldParent ) {
+            oldParent.removeView( view );
+        }
         view.set( 'parentView', this );
         children.setObjectAt( i, view );
 

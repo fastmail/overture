@@ -215,16 +215,22 @@ const SingleSelectionController = Class({
             let l = removedIndexes.length;
             let change = 0;
             for ( let i = 0; i < l; i += 1 ) {
-                if ( removedIndexes[i] < index ) { change += 1; }
-                // Guaranteed in ascending order.
-                else { break; }
+                if ( removedIndexes[i] < index ) {
+                    change += 1;
+                } else {
+                    // Guaranteed in ascending order.
+                    break;
+                }
             }
             index -= change;
             l = addedIndexes.length;
             for ( let i = 0; i < l; i += 1 ) {
-                if ( addedIndexes[i] <= index ) { index += 1; }
-                // Guaranteed in ascending order.
-                else { break; }
+                if ( addedIndexes[i] <= index ) {
+                    index += 1;
+                } else {
+                    // Guaranteed in ascending order.
+                    break;
+                }
             }
         }
         index = Math.min( index,

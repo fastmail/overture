@@ -127,7 +127,9 @@ const MemoryManager = Class({
             }
         } while ( ParentType = ParentType.parent.constructor );
 
-        if ( afterFn ) { afterFn( deleted ); }
+        if ( afterFn ) {
+            afterFn( deleted );
+        }
 
         this._index = index = ( index + 1 ) % this._restrictions.length;
 
@@ -167,7 +169,9 @@ const MemoryManager = Class({
             const data = _skToData[ storeKey ];
             if ( store.unloadRecord( storeKey ) ) {
                 numberToDelete -= 1;
-                if ( data ) { deleted.push( data ); }
+                if ( data ) {
+                    deleted.push( data );
+                }
             }
         }
         return deleted;

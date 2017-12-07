@@ -355,9 +355,9 @@ const Drag = Class({
         const files = [];
         const dataTransfer = this.event.dataTransfer;
         if ( dataTransfer ) {
-            // Current HTML5 DnD interface
             let items;
             if ( ( items = dataTransfer.items ) ) {
+                // Current HTML5 DnD interface
                 const l = items.length;
                 for ( let i = 0; i < l; i += 1 ) {
                     const item = items[i];
@@ -368,8 +368,7 @@ const Drag = Class({
                             if ( item.getAsEntry &&
                                     !item.getAsEntry().isFile ) {
                                 continue;
-                            }
-                            else if ( item.webkitGetAsEntry &&
+                            } else if ( item.webkitGetAsEntry &&
                                     !item.webkitGetAsEntry().isFile ) {
                                 continue;
                             }
@@ -380,9 +379,8 @@ const Drag = Class({
                         }
                     }
                 }
-            }
-            // Deprecated HTML5 DnD interface (FF etc.)
-            else if ( ( items = dataTransfer.files ) ) {
+            } else if ( ( items = dataTransfer.files ) ) {
+                // Deprecated HTML5 DnD interface (FF etc.)
                 const l = items.length;
                 for ( let i = 0; i < l; i += 1 ) {
                     const item = items[i];
@@ -420,12 +418,11 @@ const Drag = Class({
         if ( dataSource && dataSource.get( 'isDragDataSource' ) ) {
             callback( dataSource.getDragDataOfType( type, this ) );
             dataFound = true;
-        }
-        else if ( this.isNative ) {
+        } else if ( this.isNative ) {
             const dataTransfer = this.event.dataTransfer;
             const items = dataTransfer.items;
-            // Current HTML5 DnD interface
             if ( items ) {
+                // Current HTML5 DnD interface
                 const l = items.length;
                 for ( let i = 0; i < l; i += 1 ) {
                     const item = items[i];
@@ -435,9 +432,8 @@ const Drag = Class({
                         break;
                     }
                 }
-            }
-            // Deprecated HTML5 DnD interface
-            else if ( dataTransfer.getData ) {
+            } else if ( dataTransfer.getData ) {
+                // Deprecated HTML5 DnD interface
                 callback( dataTransfer.getData( type ) );
                 dataFound = true;
             }
@@ -485,12 +481,11 @@ const Drag = Class({
                         if ( type.contains( '/' ) ) {
                             const data = dataSource.getDragDataOfType(
                                 type, this );
-                            // Current HTML5 DnD interface
                             if ( dataTransfer.items ) {
+                                // Current HTML5 DnD interface
                                 dataTransfer.items.add( data, type );
-                            }
-                            // Deprecated HTML5 DnD interface
-                            else if ( dataTransfer.setData ) {
+                            } else if ( dataTransfer.setData ) {
+                                // Deprecated HTML5 DnD interface
                                 dataTransfer.setData( type, data );
                             }
                             dataIsSet = true;

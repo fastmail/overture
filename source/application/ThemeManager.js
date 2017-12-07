@@ -108,7 +108,9 @@ const ThemeManager = Class({
             {O.ThemeManager} Returns self.
     */
     addStylesheet ( id, theme ) {
-        if ( !theme ) { theme = this.get( 'theme' ); }
+        if ( !theme ) {
+            theme = this.get( 'theme' );
+        }
 
         const styles = this._styles[ theme ];
         let data = styles[ id ] || this._styles.all[ id ];
@@ -148,7 +150,9 @@ const ThemeManager = Class({
             {O.ThemeManager} Returns self.
     */
     removeStylesheet ( id, theme ) {
-        if ( !theme ) { theme = this.get( 'theme' ); }
+        if ( !theme ) {
+            theme = this.get( 'theme' );
+        }
 
         const sheet = document.getElementById( theme + '-' + id );
         if ( sheet ) {

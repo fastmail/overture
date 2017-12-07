@@ -489,8 +489,7 @@ export default {
         const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.addObserverForKey( path, object, method );
-        }
-        else {
+        } else {
             const key = path.slice( 0, nextDot );
             const value = this.get( key );
             const restOfPath = path.slice( nextDot + 1 );
@@ -531,8 +530,7 @@ export default {
         const nextDot = path.indexOf( '.' );
         if ( nextDot === -1 ) {
             this.removeObserverForKey( path, object, method );
-        }
-        else {
+        } else {
             const key = path.slice( 0, nextDot );
             const value = this.get( key );
             const restOfPath = path.slice( nextDot + 1 );

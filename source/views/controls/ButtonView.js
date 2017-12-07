@@ -179,7 +179,9 @@ const ButtonView = Class({
         redraw.
     */
     buttonNeedsRedraw: function ( self, property, oldValue ) {
-        if ( property === 'isWaiting' ) { property = 'isDisabled'; }
+        if ( property === 'isWaiting' ) {
+            property = 'isDisabled';
+        }
         return this.propertyNeedsRedraw( self, property, oldValue );
     }.observes( 'icon', 'isWaiting' ),
 

@@ -96,7 +96,9 @@ const MenuOptionView = Class({
 
     activate () {
         const button = this.get( 'button' );
-        if ( button.activate ) { button.activate(); }
+        if ( button.activate ) {
+            button.activate();
+        }
     },
 });
 

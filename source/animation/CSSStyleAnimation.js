@@ -158,7 +158,9 @@ const CSSStyleAnimation = Class({
         const index = animating.indexOf( property );
         if ( index > -1 ) {
             animating.splice( index, 1 );
-            if ( !animating.length ) { this.stop(); }
+            if ( !animating.length ) {
+                this.stop();
+            }
         }
     },
 

@@ -27,7 +27,9 @@ export default {
             {O.ObservableRange} Returns self.
     */
     rangeDidChange ( start, end ) {
-        if ( end === undefined ) { end = start + 1; }
+        if ( end === undefined ) {
+            end = start + 1;
+        }
         const metadata = meta( this );
         for ( const key in metadata.observers ) {
             const index = parseInt( key, 10 );
@@ -44,8 +46,12 @@ export default {
             let observerStart = range.start || 0;
             let observerEnd = 'end' in range ?
                     range.end : Math.max( enumerableLength, end );
-            if ( observerStart < 0 ) { observerStart += enumerableLength; }
-            if ( observerEnd < 0 ) { observerEnd += enumerableLength; }
+            if ( observerStart < 0 ) {
+                observerStart += enumerableLength;
+            }
+            if ( observerEnd < 0 ) {
+                observerEnd += enumerableLength;
+            }
             if ( observerStart < end && observerEnd > start ) {
                 observer.object[ observer.method ]( this, start, end );
             }

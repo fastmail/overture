@@ -387,8 +387,12 @@ const TextView = Class({
             const control = this._domControl;
             const left = this.get( 'scrollLeft' );
             const top = this.get( 'scrollTop' );
-            if ( left ) { control.scrollLeft = left; }
-            if ( top ) { control.scrollTop = top; }
+            if ( left ) {
+                control.scrollLeft = left;
+            }
+            if ( top ) {
+                control.scrollTop = top;
+            }
             control.addEventListener( 'scroll', this, false );
         }
         const selection = this.get( 'savedSelection' );

@@ -79,10 +79,18 @@ const lookupKey = function ( event, noModifiers ) {
         // Different keyboard layouts may require Shift/Alt for non A-Z
         // keys, so we only add meta and ctrl modifiers.
         const altAndShift = !isKeyPress || ( /[a-z]/.test( key ) );
-        if ( event.altKey && altAndShift ) { modifiers += 'Alt-'; }
-        if ( event.ctrlKey ) { modifiers += 'Ctrl-'; }
-        if ( event.metaKey ) { modifiers += 'Meta-'; }
-        if ( event.shiftKey && altAndShift ) { modifiers += 'Shift-'; }
+        if ( event.altKey && altAndShift ) {
+            modifiers += 'Alt-';
+        }
+        if ( event.ctrlKey ) {
+            modifiers += 'Ctrl-';
+        }
+        if ( event.metaKey ) {
+            modifiers += 'Meta-';
+        }
+        if ( event.shiftKey && altAndShift ) {
+            modifiers += 'Shift-';
+        }
     }
 
     return modifiers + key;

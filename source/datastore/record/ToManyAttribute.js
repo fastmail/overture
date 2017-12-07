@@ -181,7 +181,7 @@ const ToManyAttribute = Class({
             recordArray
                 .replaceObjectsAt( 0,
                     recordArray.get( 'length' ),
-                    propValue.map( function ( x ) { return x; } )
+                    propValue.map( x => x )
                 );
         }
         return recordArray;

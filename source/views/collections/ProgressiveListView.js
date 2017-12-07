@@ -40,15 +40,21 @@ const ProgressiveListView = Class({
             // of items doesn't stop you from viewing a section of the list.
             if ( top > 2 ) {
                 for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
-                    if ( removedIndexes[i] < top ) { change -= 1; }
-                    // Guaranteed in ascending order.
-                    else { break; }
+                    if ( removedIndexes[i] < top ) {
+                        change -= 1;
+                    } else {
+                        // Guaranteed in ascending order.
+                        break;
+                    }
                 }
                 top += change;
                 for ( i = 0, l = addedIndexes.length; i < l; i += 1 ) {
-                    if ( addedIndexes[i] <= top ) { change += 1; }
-                    // Guaranteed in ascending order.
-                    else { break; }
+                    if ( addedIndexes[i] <= top ) {
+                        change += 1;
+                    } else {
+                        // Guaranteed in ascending order.
+                        break;
+                    }
                 }
             }
             if ( change ) {
@@ -68,7 +74,9 @@ const ProgressiveListView = Class({
 
     _simulateScroll: function ( _, __, oldLength, length ) {
         // Convert null/undefined length to 0.
-        if ( !length ) { length = 0; }
+        if ( !length ) {
+            length = 0;
+        }
         // In IE or Opera, if the scrollTop of the containing overflowed div was
         // past the new maximum scrollTop, then although it correctly changes
         // to the new maximum scrollTop, no scroll event is fired. Therefore we

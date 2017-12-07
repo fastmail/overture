@@ -95,8 +95,7 @@ const SelectionController = Class({
             if ( isSelected !== wasSelected ) {
                 if ( isSelected ) {
                     _selectedStoreKeys[ storeKey ] = true;
-                }
-                else {
+                } else {
                     delete _selectedStoreKeys[ storeKey ];
                 }
                 howManyChanged += 1;

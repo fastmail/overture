@@ -88,13 +88,17 @@ const ListKBFocusView = Class({
             const top = position.top;
             const above = top - scrollTop;
 
-            if ( above < 0 ) { return above; }
+            if ( above < 0 ) {
+                return above;
+            }
 
             const scrollHeight = scrollView.get( 'pxHeight' );
             const below = top + this.get( 'pxHeight' ) -
                 scrollTop - scrollHeight;
 
-            if ( below > 0 ) { return below; }
+            if ( below > 0 ) {
+                return below;
+            }
         }
         return 0;
     }.property().nocache(),
