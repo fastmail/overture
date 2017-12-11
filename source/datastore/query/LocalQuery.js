@@ -1,4 +1,4 @@
-import { Class, guid } from '../../core/Core';
+import { Class } from '../../core/Core';
 import sortByProperties from '../../core/sortByProperties';
 import Query from './Query';
 import { EMPTY, READY, OBSOLETE } from '../record/Status';
@@ -45,27 +45,32 @@ const LocalQuery = Class({
             mixin - {Object} The properties for the query.
     */
     init ( mixin ) {
+        this.dependsOn = null;
+        this.where = null;
+        this.sort = null;
+
         const sort = mixin.sort;
         if ( sort && !( sort instanceof Function ) ) {
             mixin.sort = sortByProperties( sort );
         }
+
         LocalQuery.parent.constructor.apply( this, arguments );
     },
 
     monitorForChanges () {
-        const typeId = guid( this.get( 'Type' ) );
-        this.get( 'store' ).on( typeId, this, 'setObsolete' );
-    },
-
-    typeStatusChanged ( _, __, oldStatus, newStatus ) {
-        if ( !( oldStatus & READY ) && ( newStatus & READY ) ) {
-            this.setObsolete();
-        }
+        const store = this.get( 'store' );
+        const types = this.get( 'dependsOn' ) || [ this.get( 'Type' ) ];
+        types.forEach( function ( Type ) {
+            store.on( Type, this, 'setObsolete' );
+        }, this );
     },
 
     unmonitorForChanges () {
-        const typeId = guid( this.get( 'Type' ) );
-        this.get( 'store' ).off( typeId, this, 'setObsolete' );
+        const store = this.get( 'store' );
+        const types = this.get( 'dependsOn' ) || [ this.get( 'Type' ) ];
+        types.forEach( function ( Type ) {
+            store.off( Type, this, 'setObsolete' );
+        }, this );
     },
 
     fetch ( force, callback ) {
