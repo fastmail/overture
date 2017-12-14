@@ -31,7 +31,7 @@ const ListItemView = Class({
 
     positioning: 'absolute',
 
-    layout: ( UA.cssProps.transform3d ? function () {
+    layout: function () {
         const index = this.get( 'index' );
         const itemHeight = this.get( 'itemHeight' );
         const isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' );
@@ -40,19 +40,17 @@ const ListItemView = Class({
             transform: 'translate3d(0,' + y + 'px,0)',
             opacity: isNew ? 0 : 1,
         };
-    } : function () {
-        const index = this.get( 'index' );
-        const itemHeight = this.get( 'itemHeight' );
-        return {
-            top: index * itemHeight,
-        };
-    }).property( 'index', 'itemHeight' ),
+    }.property(),
+
+    layoutWillChange: function () {
+        this.computedPropertyDidChange( 'layout' );
+    }.nextLoop().observes( 'index', 'itemHeight' ),
 
     resetLayout: function () {
         if ( this.get( 'animateIn' ) ) {
             this.computedPropertyDidChange( 'layout' );
         }
-    }.nextFrame().observes( 'isInDocument' ),
+    }.nextLoop().observes( 'isInDocument' ),
 });
 
 export default ListItemView;

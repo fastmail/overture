@@ -170,6 +170,7 @@ const ListView = Class({
         const removed = this._removed;
         // Bookkeeping
         const viewsDidEnterDoc = [];
+        const moved = new Set();
         let frag = null;
         let currentViewIndex;
         let viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
@@ -210,7 +211,11 @@ const ListView = Class({
                     childViews[ currentViewIndex ] === view;
                 // If not, remove
                 if ( !viewIsInCorrectPosition ) {
+                    // Suspend property changes so we don't redraw layout
+                    // until back in the document, so that animation works
                     if ( isInDocument ) {
+                        moved.add( view );
+                        view.beginPropertyChanges();
                         view.willLeaveDocument();
                     }
                     layer.removeChild( view.get( 'layer' ) );
@@ -256,7 +261,11 @@ const ListView = Class({
         }
         if ( isInDocument && viewsDidEnterDoc.length ) {
             for ( i = 0, l = viewsDidEnterDoc.length; i < l; i += 1 ) {
-                viewsDidEnterDoc[i].didEnterDocument();
+                view = viewsDidEnterDoc[i];
+                view.didEnterDocument();
+                if ( moved.has( view ) ) {
+                    view.endPropertyChanges();
+                }
             }
         }
 
