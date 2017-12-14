@@ -3,8 +3,6 @@
 import { Class } from '../core/Core';
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop
 
-const isLocal = location.protocol === 'file:';
-
 const parseHeaders = function ( allHeaders ) {
     const headers = {};
     let start = 0;
@@ -272,11 +270,8 @@ const XHR = Class({
             xhr.removeEventListener( 'progress', this, false );
         }
 
-        let status = xhr.status;
-        this._status = status =
-            // Local requests will have a 0 response
-            ( !status && isLocal ) ? 200 :
-            status;
+        const status = xhr.status;
+        this._status = status;
 
         if ( io ) {
             const allHeaders = xhr.getAllResponseHeaders();
