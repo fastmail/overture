@@ -75,6 +75,12 @@ const SelectionController = Class({
         return !!this._selectedStoreKeys[ storeKey ];
     },
 
+    getSelectedRecords ( store ) {
+        return this.get( 'selectedStoreKeys' ).map(
+            storeKey => store.getRecordFromStoreKey( storeKey )
+        );
+    },
+
     // ---
 
     selectStoreKeys ( storeKeys, isSelected, _selectionId ) {
