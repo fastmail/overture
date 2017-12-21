@@ -4,8 +4,8 @@ import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
 import PopOverView from '../panels/PopOverView';
 import RootView from '../RootView';
-import ButtonView from './ButtonView';
-import MenuOptionView from './MenuOptionView';  // Circular but it's OK
+import ButtonView from '../controls/ButtonView';
+import MenuOptionView from './MenuOptionView';
 
 /**
     Class: O.MenuButtonView

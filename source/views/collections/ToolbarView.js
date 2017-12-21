@@ -8,8 +8,8 @@ import { loc } from '../../localisation/LocaleController';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import PopOverView from '../panels/PopOverView';
-import MenuButtonView from '../controls/MenuButtonView';
-import MenuView from '../controls/MenuView';
+import MenuButtonView from '../menu/MenuButtonView';
+import MenuView from '../menu/MenuView';
 
 const toView = function ( name ) {
     return ( name === '-' ) ? Element.create( 'span.v-Toolbar-divider' ) :

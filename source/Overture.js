@@ -29,17 +29,11 @@
 
     - dom/Element ↔ views/View: not used in the global scope
 
-    - views/controls/{MenuButtonView → MenuOptionView → MenuView →
-      MenuController → MenuButtonView}: not used in the global scope
-
     Bad cycles that exist and are dependent on import order (marked elsewhere in
     this file by FIXME notes):
 
     - core/Date → localisation/LocaleController → localisation/Locale →
       core/Date: LocaleController uses Locale in the global scope
-
-    - views/controls/{MenuOptionView ↔ MenuView}:
-      MenuView uses MenuOptionView in the global scope
 */
 
 export * from './core/Core';
@@ -78,12 +72,6 @@ export { default as CSSStyleAnimation } from './animation/CSSStyleAnimation';
 export { default as CSSStyleAnimationController } from './animation/CSSStyleAnimationController';
 export { default as Easing } from './animation/Easing';
 export { default as StyleAnimation } from './animation/StyleAnimation';
-
-// FIXME(circular-imports): MenuView ↔ MenuOptionView, but MenuView uses
-// MenuOptionView immediately so MenuView must be imported before MenuOptionView
-// which is indirectly imported by GlobalKeyboardShortcuts, so this import must
-// appear before GlobalKeyboardShortcuts in this list.
-export { default as MenuView } from './views/controls/MenuView';
 
 export { default as formatKeyForPlatform } from './application/formatKeyForPlatform';
 export { default as GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts';
@@ -146,6 +134,7 @@ import './localisation/RelativeDate';
 export { default as parse } from './parser/DateParser';
 export { default as Parse } from './parser/Parse';
 
+export { default as OptionsController } from './selection/OptionsController';
 export { default as SelectionController } from './selection/SelectionController';
 export { default as SingleSelectionController } from './selection/SingleSelectionController';
 
@@ -168,6 +157,7 @@ export { default as ListItemView } from './views/collections/ListItemView';
 export { default as ListKBFocusView } from './views/collections/ListKBFocusView';
 export { default as ListView } from './views/collections/ListView';
 export { default as ProgressiveListView } from './views/collections/ProgressiveListView';
+export { default as OptionsListView } from './views/collections/OptionsListView';
 export { default as SwitchView } from './views/collections/SwitchView';
 export { default as ToolbarView } from './views/collections/ToolbarView';
 export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect';
@@ -180,9 +170,10 @@ export { default as CheckboxView } from './views/controls/CheckboxView';
 export { default as ClearSearchButtonView } from './views/controls/ClearSearchButtonView';
 export { default as FileButtonView } from './views/controls/FileButtonView';
 export { default as LabelView } from './views/controls/LabelView';
-export { default as MenuButtonView } from './views/controls/MenuButtonView';
-export { default as MenuController } from './views/controls/MenuController';
-export { default as MenuOptionView } from './views/controls/MenuOptionView';
+export { default as MenuOptionView } from './views/menu/MenuOptionView';
+export { default as MenuFilterView } from './views/menu/MenuFilterView';
+export { default as MenuButtonView } from './views/menu/MenuButtonView';
+export { default as MenuView } from './views/menu/MenuView';
 export { default as RadioView } from './views/controls/RadioView';
 export { default as RichTextView } from './views/controls/RichTextView';
 export { default as SearchTextView } from './views/controls/SearchTextView';

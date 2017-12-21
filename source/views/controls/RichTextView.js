@@ -22,7 +22,7 @@ import ToolbarView from '../collections/ToolbarView';
 import PopOverView from '../panels/PopOverView';
 import ButtonView from './ButtonView';
 import FileButtonView from './FileButtonView';
-import MenuView from './MenuView';
+import MenuView from '../menu/MenuView';
 import TextView from './TextView';
 
 const execCommand = function ( command ) {
