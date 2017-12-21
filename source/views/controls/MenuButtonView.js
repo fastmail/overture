@@ -133,7 +133,7 @@ const MenuButtonView = Class({
                         buttonView.set( 'isActive', false );
                         if ( menuOptionView ) {
                             menuOptionView.removeObserverForKey(
-                                'isFocussed', popOverView, 'hide' );
+                                'isFocused', popOverView, 'hide' );
                         }
                     },
                 }, this.get( 'popOverOptions' ) );
@@ -160,7 +160,7 @@ const MenuButtonView = Class({
             popOverView = popOverView.show( popOverOptions );
             if ( menuOptionView ) {
                 menuOptionView.addObserverForKey(
-                    'isFocussed', popOverView, 'hide' );
+                    'isFocused', popOverView, 'hide' );
             }
         }
     },

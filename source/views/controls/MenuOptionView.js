@@ -16,7 +16,7 @@ const MenuOptionView = Class({
     isDisabled: function () {
         return this.getFromPath( 'button.isDisabled' );
     }.property( 'button.isDisabled' ),
-    isFocussed: false,
+    isFocused: false,
     isFocussable: function () {
         return !this.get( 'isHidden' ) && !this.get( 'isDisabled' );
     }.property( 'isHidden', 'isDisabled' ),
@@ -25,9 +25,9 @@ const MenuOptionView = Class({
 
     className: function () {
         return 'v-MenuOption' +
-            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
             ( this.get( 'isHidden' ) ? ' u-hidden' : '' );
-    }.property( 'isFocussed', 'isHidden' ),
+    }.property( 'isFocused', 'isHidden' ),
 
     init ( view, controller ) {
         this.childViews = [ view ];
@@ -37,7 +37,7 @@ const MenuOptionView = Class({
     },
 
     scrollIntoView: function () {
-        if ( this.get( 'isFocussed' ) ) {
+        if ( this.get( 'isFocused' ) ) {
             const scrollView = this.getParent( ScrollView );
             if ( scrollView ) {
                 const scrollHeight = scrollView.get( 'pxHeight' );
@@ -56,7 +56,7 @@ const MenuOptionView = Class({
                 this.button.focus();
             }
         }
-    }.observes( 'isFocussed' ),
+    }.observes( 'isFocused' ),
 
     _focusTimeout: null,
 
@@ -68,7 +68,7 @@ const MenuOptionView = Class({
     },
 
     mouseMove: function () {
-        if ( !this.get( 'isFocussed' ) && !this._focusTimeout ) {
+        if ( !this.get( 'isFocused' ) && !this._focusTimeout ) {
             const popOverView = this.getParent( PopOverView );
             if ( popOverView && popOverView.hasSubView() ) {
                 this._focusTimeout = RunLoop.invokeAfterDelay(

@@ -162,7 +162,7 @@ export default new Gesture({
                     // is fired 300ms later, if there is now an input under the
                     // area the touch took place, in iOS the keyboard will
                     // appear, even though the preventDefault on the click event
-                    // stops it actually being focussed. Calling preventDefault
+                    // stops it actually being focused. Calling preventDefault
                     // on the touchend event stops this happening, however we
                     // must not do this if the user actually taps an input or
                     // a link!

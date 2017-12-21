@@ -46,10 +46,10 @@ const SelectView = Class({
     className: function () {
         const type = this.get( 'type' );
         return 'v-Select' +
-            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
             ( type ? ' ' + type : '' );
-    }.property( 'type', 'isFocussed', 'isDisabled' ),
+    }.property( 'type', 'isFocused', 'isDisabled' ),
 
     /**
         Method: O.SelectView#draw
@@ -118,14 +118,14 @@ const SelectView = Class({
         if ( !isEqual( options, oldOptions ) ) {
             // Must blur before removing from DOM in iOS, otherwise
             // the slot-machine selector will not hide
-            const isFocussed = this.get( 'isFocussed' );
+            const isFocused = this.get( 'isFocused' );
             const select = this._drawSelect( options );
-            if ( isFocussed ) {
+            if ( isFocused ) {
                 this.blur();
             }
             layer.replaceChild( select, this._domControl );
             this._domControl = select;
-            if ( isFocussed ) {
+            if ( isFocused ) {
                 this.focus();
             }
         }
@@ -150,7 +150,7 @@ const SelectView = Class({
         }
         // Work around Chrome on Android bug where it doesn't redraw the
         // select control until the element blurs.
-        if ( this.get( 'isFocussed' ) ) {
+        if ( this.get( 'isFocused' ) ) {
             this.blur().focus();
         }
     },

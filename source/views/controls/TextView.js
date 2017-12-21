@@ -175,7 +175,7 @@ const TextView = Class({
         Type: Object
         Default: { Escape: true }
 
-        For each truthy value in the object, if the user is focussed in the
+        For each truthy value in the object, if the user is focused in the
         text view and hits the key, the focus will be removed.
     */
     blurOnKeys: { Escape: true },
@@ -201,7 +201,7 @@ const TextView = Class({
         other class names dependent on state:
 
         is-highlight - The <#isHighlighted> property is true.
-        is-focussed  - The <#isFocussed> property is true.
+        is-focused  - The <#isFocused> property is true.
         is-invalid   - The <#isValid> property is false.
         is-disabled  - The <#isDisabled> property is true.
     */
@@ -210,12 +210,12 @@ const TextView = Class({
         return 'v-Text' +
             ( this.get( 'isExpanding' ) ? ' v-Text--expanding' : '' ) +
             ( this.get( 'isHighlighted' ) ? ' is-highlighted' : '' ) +
-            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
             ( this.get( 'isValid' ) ? '' : ' is-invalid' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
             ( type ? ' ' + type : '' );
     }.property( 'type', 'isExpanding', 'isHighlighted',
-        'isFocussed', 'isValid', 'isDisabled' ),
+        'isFocused', 'isValid', 'isDisabled' ),
 
     layerStyles: function () {
         return Object.assign({
@@ -339,7 +339,7 @@ const TextView = Class({
         } else {
             this._domControl.style.height = 'auto';
             // Scroll to cursor
-            if ( this.get( 'isFocussed' ) ) {
+            if ( this.get( 'isFocused' ) ) {
                 this.blur().focus();
             }
         }
@@ -401,8 +401,8 @@ const TextView = Class({
         <O.View#willLeaveDocument>.
     */
     willLeaveDocument () {
-        // If focussed, save cursor position
-        if ( this.get( 'isFocussed' ) ) {
+        // If focused, save cursor position
+        if ( this.get( 'isFocused' ) ) {
             this.set( 'savedSelection', this.get( 'selection' ) );
             this.blur();
         }

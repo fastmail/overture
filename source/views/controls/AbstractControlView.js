@@ -32,12 +32,12 @@ const AbstractControlView = Class({
     isDisabled: false,
 
     /**
-        Property: O.AbstractControlView#isFocussed
+        Property: O.AbstractControlView#isFocused
         Type: Boolean
 
         Represents whether the control currently has focus or not.
     */
-    isFocussed: false,
+    isFocused: false,
 
     /**
         Property: O.AbstractControlView#label
@@ -136,9 +136,9 @@ const AbstractControlView = Class({
                     .deregister( key, this, 'activate' );
             });
         }
-        // iOS is very buggy if you remove a focussed control from the doc;
+        // iOS is very buggy if you remove a focused control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
-        if ( UA.isIOS && this.get( 'isFocussed' ) ) {
+        if ( UA.isIOS && this.get( 'isFocused' ) ) {
             this.blur();
         }
         return AbstractControlView.parent.willLeaveDocument.call(
@@ -281,7 +281,7 @@ const AbstractControlView = Class({
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.focus();
             // Fire event synchronously.
-            if ( !this.get( 'isFocussed' ) ) {
+            if ( !this.get( 'isFocused' ) ) {
                 this.fire( 'focus' );
             }
         }
@@ -300,7 +300,7 @@ const AbstractControlView = Class({
         if ( this.get( 'isInDocument' ) ) {
             this._domControl.blur();
             // Fire event synchronously.
-            if ( this.get( 'isFocussed' ) ) {
+            if ( this.get( 'isFocused' ) ) {
                 this.fire( 'blur' );
             }
         }
@@ -308,15 +308,15 @@ const AbstractControlView = Class({
     },
 
     /**
-        Method (private): O.AbstractControlView#_updateIsFocussed
+        Method (private): O.AbstractControlView#_updateIsFocused
 
-        Updates the <#isFocussed> property.
+        Updates the <#isFocused> property.
 
         Parameters:
             event - {Event} The focus event.
     */
-    _updateIsFocussed: function ( event ) {
-        this.set( 'isFocussed', event.type === 'focus' );
+    _updateIsFocused: function ( event ) {
+        this.set( 'isFocused', event.type === 'focus' );
     }.on( 'focus', 'blur' ),
 
     // --- Activate ---

@@ -72,7 +72,7 @@ const RichTextView = Class({
 
     Mixin: DropTarget,
 
-    isFocussed: false,
+    isFocused: false,
     isDisabled: false,
     tabIndex: undefined,
     label: undefined,
@@ -194,11 +194,11 @@ const RichTextView = Class({
 
     className: function () {
         return 'v-RichText' +
-            ( this.get( 'isFocussed' ) ? ' is-focussed' : '' ) +
+            ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
             ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
             ( this.get( 'showToolbar' ) === TOOLBAR_HIDDEN ?
                 ' v-RichText--noToolbar' : '' );
-    }.property( 'isFocussed', 'isDisabled' ),
+    }.property( 'isFocused', 'isDisabled' ),
 
     draw ( layer, Element, el ) {
         const editorClassName = this.get( 'editorClassName' );
@@ -258,14 +258,14 @@ const RichTextView = Class({
     // ---
 
     redrawIOSCursor: function () {
-        if ( this.get( 'isFocussed' ) ) {
+        if ( this.get( 'isFocused' ) ) {
             const editor = this.get( 'editor' );
             editor.setSelection( editor.getSelection() );
         }
     }.nextFrame(),
 
     scrollIntoView: function () {
-        if ( !this.get( 'isFocussed' ) ) {
+        if ( !this.get( 'isFocused' ) ) {
             return;
         }
 
@@ -1111,11 +1111,11 @@ const RichTextView = Class({
     },
 
     _onFocus: function () {
-        this.set( 'isFocussed', true );
+        this.set( 'isFocused', true );
     }.on( 'focus' ),
 
     _onBlur: function () {
-        this.set( 'isFocussed', false );
+        this.set( 'isFocused', false );
     }.on( 'blur' ),
 
     blurOnEsc: function ( event ) {

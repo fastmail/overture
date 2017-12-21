@@ -58,10 +58,10 @@ const WindowController = Class({
     */
 
     /**
-        Property: O.WindowController#isFocussed
+        Property: O.WindowController#isFocused
         Type: Boolean
 
-        Is the tab/window currently focussed?
+        Is the tab/window currently focused?
     */
 
     /**
@@ -75,7 +75,7 @@ const WindowController = Class({
     init (/* ...mixins */) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
-        this.isFocussed = document.hasFocus ? document.hasFocus() : true;
+        this.isFocused = document.hasFocus ? document.hasFocus() : true;
         this._seenWCs = {};
 
         WindowController.parent.constructor.apply( this, arguments );
@@ -139,10 +139,10 @@ const WindowController = Class({
             this.destroy();
             break;
         case 'focus':
-            this.set( 'isFocussed', true );
+            this.set( 'isFocused', true );
             break;
         case 'blur':
-            this.set( 'isFocussed', false );
+            this.set( 'isFocused', false );
             break;
         }
     }.invokeInRunLoop(),

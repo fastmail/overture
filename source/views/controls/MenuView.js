@@ -59,7 +59,7 @@ const MenuView = Class({
         if ( this.get( 'showFilter' ) ) {
             controller = this.get( 'controller' );
             input = this._input;
-            if ( !controller.get( 'focussedOption' ) ) {
+            if ( !controller.get( 'focusedOption' ) ) {
                 controller.focusNext();
             }
             RunLoop.invokeInNextFrame( function () {

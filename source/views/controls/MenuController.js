@@ -10,7 +10,7 @@ import PopOverView from '../panels/PopOverView';
 
 // A menu option must have:
 // filter( pattern ): RegExp -> Boolean
-// isFocussed: Boolean
+// isFocused: Boolean
 // isHidden: Boolean
 // isDisabled: Boolean
 
@@ -26,12 +26,12 @@ const MenuController = Class({
         return !option.get( 'isHidden' ) && !option.get( 'isDisabled' );
     },
 
-    focussedOption: null,
+    focusedOption: null,
 
     getAdjacentOption ( step ) {
         const options = this.get( 'options' );
         const l = options.get( 'length' );
-        let i = options.indexOf( this.get( 'focussedOption' ) );
+        let i = options.indexOf( this.get( 'focusedOption' ) );
 
         if ( i < 0 && step < 0 ) {
             i = l;
@@ -61,37 +61,37 @@ const MenuController = Class({
     },
 
     focusOption ( option ) {
-        const current = this.get( 'focussedOption' );
+        const current = this.get( 'focusedOption' );
         if ( current !== option ) {
             if ( current ) {
-                current.set( 'isFocussed', false );
+                current.set( 'isFocused', false );
             }
             if ( option ) {
                 if ( !this.canSelect( option ) ) {
                     option = null;
                 } else {
-                    option.set( 'isFocussed', true );
+                    option.set( 'isFocused', true );
                 }
             }
-            this.set( 'focussedOption', option );
+            this.set( 'focusedOption', option );
         }
         return this;
     },
 
     blurOption ( option ) {
-        if ( this.get( 'focussedOption' ) === option ) {
+        if ( this.get( 'focusedOption' ) === option ) {
             this.focusOption( null );
         }
         return this;
     },
 
-    selectFocussed ( event ) {
+    selectFocused ( event ) {
         if ( event ) {
             event.preventDefault();
         }
-        const focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption && this.canSelect( focussedOption ) ) {
-            focussedOption.activate( this );
+        const focusedOption = this.get( 'focusedOption' );
+        if ( focusedOption && this.canSelect( focusedOption ) ) {
+            focusedOption.activate( this );
         }
         return this;
     },
@@ -105,12 +105,12 @@ const MenuController = Class({
         const pattern = value ? i18n.makeSearchRegExp( value ) : null;
         const options = this.get( 'options' );
         let l = options.get( 'length' );
-        const focussedOption = this.get( 'focussedOption' );
+        const focusedOption = this.get( 'focusedOption' );
 
         while ( l-- ) {
             options.getObjectAt( l ).filter( pattern );
         }
-        if ( !focussedOption || !this.canSelect( focussedOption ) ) {
+        if ( !focusedOption || !this.canSelect( focusedOption ) ) {
             this.focusOption( null ).focusNext();
         }
     }.observes( 'filter' ),
@@ -119,7 +119,7 @@ const MenuController = Class({
 
     keyBindings: {
         Escape: 'onEscape',
-        Enter: 'selectFocussed',
+        Enter: 'selectFocused',
         ArrowUp: 'focusPrevious',
         ArrowDown: 'focusNext',
         ArrowLeft: 'closeIfSub',
@@ -156,10 +156,10 @@ const MenuController = Class({
     },
 
     activateIfMenu () {
-        const focussedOption = this.get( 'focussedOption' );
-        if ( focussedOption &&
-                focussedOption.get( 'button' ) instanceof MenuButtonView ) {
-            this.selectFocussed();
+        const focusedOption = this.get( 'focusedOption' );
+        if ( focusedOption &&
+                focusedOption.get( 'button' ) instanceof MenuButtonView ) {
+            this.selectFocused();
         }
     },
 });
