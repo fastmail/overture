@@ -64,7 +64,7 @@ const RootView = Class({
         for ( l = events.length; l--; ) {
             node.addEventListener( events[l], this, true );
         }
-        events = [ 'resize', 'orientationchange', 'scroll' ];
+        events = [ 'resize', 'scroll' ];
         for ( l = events.length; l--; ) {
             win.addEventListener( events[l], this, false );
         }
@@ -129,7 +129,6 @@ const RootView = Class({
                 .removeEventListener( 'mousemove', this, false );
             break;
         // Window resize events: just notify parent has resized.
-        case 'orientationchange':
         case 'resize':
             this.didResize();
             return;
