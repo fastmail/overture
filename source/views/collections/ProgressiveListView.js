@@ -16,6 +16,8 @@ const ProgressiveListView = Class({
 
     init (/* ...mixins */) {
         ProgressiveListView.parent.constructor.apply( this, arguments );
+        this.firstVisible = 0;
+        this.lastVisible = 0;
         this._renderRange.end = 0;
     },
 
@@ -94,15 +96,21 @@ const ProgressiveListView = Class({
             const visible = this.get( 'visibleRect' );
             const extension = this.get( 'triggerInPx' );
             const batchSize = this.get( 'batchSize' );
-            const height = this.get( 'itemHeight' ) * batchSize;
+            const itemHeight = this.get( 'itemHeight' );
+            const batchHeight = itemHeight * batchSize;
             const y = visible.y;
+            const height = visible.height;
             // Index of first item we want rendered
             const start = Math.max( 0,
-                    ~~( ( y - extension ) / height ) * batchSize );
+                    ~~( ( y - extension ) / batchHeight ) * batchSize );
             // Index of last item we want rendered
-            const end = ~~( ( y + visible.height + extension ) / height ) *
+            const end = ~~( ( y + height + extension ) / batchHeight ) *
                     batchSize + batchSize;
             const _renderRange = this._renderRange;
+
+            this.set( 'firstVisible', Math.floor( y / itemHeight ) )
+                .set( 'lastVisible',
+                    Math.floor( ( y + height ) / itemHeight ) + 1 );
 
             if ( start !== _renderRange.start || end !== _renderRange.end ) {
                 _renderRange.start = start;
