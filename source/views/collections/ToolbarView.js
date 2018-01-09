@@ -11,8 +11,8 @@ import MenuButtonView from '../controls/MenuButtonView';
 import MenuView from '../controls/MenuView';
 
 const toView = function ( name ) {
-    return ( name === '-' ) ?
-        Element.create( 'span.v-Toolbar-divider' ) :
+    return ( name === '-' ) ? Element.create( 'span.v-Toolbar-divider' ) :
+        ( name === '*' ) ? null :
         this._views[ name ];
 };
 
@@ -84,6 +84,7 @@ const ToolbarView = Class({
         this._views = {
             overflow: new OverflowMenuView({
                 label: loc( 'More' ),
+                shortcut: '.',
                 popOverView: this.popOverView || new PopOverView(),
             }),
         };
@@ -158,7 +159,7 @@ const ToolbarView = Class({
         const rightConfig = this.get( 'rightConfig' );
         let pxWidth = this.get( 'pxWidth' );
         const widths = this._widths;
-        let i, l;
+        let i, l, config;
 
         if ( widths && pxWidth && this.get( 'preventOverlap' ) ) {
             pxWidth -= this.get( 'minimumGap' );
@@ -166,36 +167,41 @@ const ToolbarView = Class({
                 pxWidth -= widths[ rightConfig[i] ];
             }
             for ( i = 0, l = leftConfig.length; i < l; i += 1 ) {
-                pxWidth -= widths[ leftConfig[i] ];
+                config = leftConfig[i];
+                if ( config === '*' ) {
+                    break;
+                } else {
+                    pxWidth -= widths[ config ];
+                }
             }
-            if ( pxWidth < 0 ) {
+            if ( pxWidth < 0 || i < l ) {
                 pxWidth -= widths[ '-' ];
                 pxWidth -= widths.overflow;
 
-                while ( pxWidth < 0 && l-- ) {
-                    pxWidth += widths[ leftConfig[l] ];
+                while ( pxWidth < 0 && i-- ) {
+                    pxWidth += widths[ leftConfig[i] ];
                 }
-                if ( l < 0 ) {
-                    l = 0;
+
+                if ( i < 0 ) {
+                    i = 0;
                 }
 
                 this._views.overflow.set( 'menuView', new MenuView({
                     showFilter: false,
-                    options: leftConfig.slice( l )
+                    options: leftConfig.slice( i )
                         .map( toView, this )
                         .filter( view => view instanceof View ),
-                }) );
+                }));
 
-                if ( l > 0 ) {
-                    if ( leftConfig[ l - 1 ] === '-' ) {
-                        l -= 1;
+                if ( i > 0 ) {
+                    if ( leftConfig[ i - 1 ] === '-' ) {
+                        i -= 1;
                     }
-                    leftConfig = leftConfig.slice( 0, l );
+                    leftConfig = leftConfig.slice( 0, i );
                     leftConfig.push( '-' );
                     leftConfig.push( 'overflow' );
                 } else {
                     leftConfig = [ 'overflow' ];
-                    l = 0;
                 }
             }
         }
@@ -299,9 +305,9 @@ const ToolbarView = Class({
     },
 
     redrawSide ( container, oldViews, newViews ) {
-        let start = 0,
-            isEqual = true,
-            i, l, view, parent;
+        let start = 0;
+        let isEqual = true;
+        let i, l, view, parent;
 
         for ( i = start, l = oldViews.length; i < l; i += 1 ) {
             view = oldViews[i];
