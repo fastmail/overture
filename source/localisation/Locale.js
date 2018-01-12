@@ -635,9 +635,8 @@ const Locale = Class({
 
         2. If at least one of the arguments is an object:
 
-           You cannot use macros, only "[_n]" placeholders. The result will be
-           an array of string parts and your arguments. This can be useful when
-           working with views, for example:
+           The result will be an array of string parts and your arguments.
+           This can be useful when working with views, for example:
 
                O.Element.appendChildren( layer, O.loc(
                    "Searching [_1] for [_2]",
@@ -687,8 +686,16 @@ const Locale = Class({
         }
 
         const parts = translation.split( /\[_(\d)\]/ );
-        for ( i = 1, l = parts.length; i < l; i += 2 ) {
-            parts[i] = args[ parts[i] - 1 ] || null;
+        for ( i = 0, l = parts.length; i < l; i += 1 ) {
+            const part = parts[i];
+            if ( i % 2 === 1 ) {
+                parts[i] = args[ part - 1 ] || null;
+            } else if ( part.indexOf( '[' ) !== -1 ) {
+                // Presumably it contains a macro; execute that.
+                const compiled = this.compiled[ part ] ||
+                    ( this.compiled[ part ] = compileTranslation( part ) );
+                parts[i] = compiled( this, args );
+            }
         }
         return parts;
     },
