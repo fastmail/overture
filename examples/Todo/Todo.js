@@ -547,7 +547,6 @@ App.actions = {
         newTodo.saveToStore();
 
         // Select new todo
-        App.store.refreshLiveQueries();
         App.selectedTodo.set( 'record', newTodo );
         App.state.set( 'editTodo', newTodo );
     },
@@ -613,14 +612,14 @@ App.actions = {
 
 /* Self explanatory */
 App.keyboardShortcuts = new O.GlobalKeyboardShortcuts()
-    .register( 'down', App.actions, 'selectNext' )
-    .register( 'up', App.actions, 'selectPrevious' )
+    .register( 'ArrowDown', App.actions, 'selectNext' )
+    .register( 'ArrowUp', App.actions, 'selectPrevious' )
     .register( 'j', App.actions, 'selectNext' )
     .register( 'k', App.actions, 'selectPrevious' )
-    .register( 'cmd-shift-z', App.undoManager, 'redo' )
-    .register( 'space', App.actions, 'toggleComplete' )
-    .register( 'tab', App.actions, 'edit' )
-    .register( 'backspace', App.actions, 'destroy' );
+    .register( 'Cmd-Shift-z', App.undoManager, 'redo' )
+    .register( 'Space', App.actions, 'toggleComplete' )
+    .register( 'Tab', App.actions, 'edit' )
+    .register( 'Backspace', App.actions, 'destroy' );
 
 // --- Views ---
 
@@ -784,7 +783,7 @@ var TodoView = O.Class({
     stopEditing: function ( event ) {
         if ( this.get( 'isEditing' ) ) {
             var key = O.DOMEvent.lookupKey( event );
-            if ( key === 'enter' || key === 'esc' ) {
+            if ( key === 'Enter' || key === 'Escape' ) {
                 App.state.set( 'editTodo', null );
                 event.stopPropagation();
             }
@@ -862,7 +861,7 @@ var appView = new O.View({
                     /* Can define a keyboard shortcut directly on the button
                        it is equivalent to. The shortcut will be active so long
                        as the button is in the document. */
-                    shortcut: 'cmd-z',
+                    shortcut: 'Cmd-z',
                     target: App.undoManager,
                     method: 'undo'
                 })
