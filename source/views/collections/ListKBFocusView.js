@@ -43,8 +43,10 @@ const ListKBFocusView = Class({
             index = -1;
         }
         return {
-            top: itemHeight * index,
-            height: index < 0 ? 0 : itemHeight,
+            top: index < 0 ? 0 : itemHeight * index,
+            left: index < 0 ? 'auto' : '0',
+            right: index < 0 ? '100%' : 'auto',
+            height: itemHeight,
         };
     }.property( 'itemHeight', 'index', 'record' ),
 
@@ -71,18 +73,18 @@ const ListKBFocusView = Class({
         if ( this.get( 'index' ) > -1 && this.get( 'distanceFromVisRect' ) ) {
             this.scrollIntoView( 0, false );
         }
-    }.queue( 'after' ),
+    }.nextFrame(),
 
     checkScroll: function () {
         const distance = this.get( 'distanceFromVisRect' );
         if ( distance ) {
             this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
         }
-    }.queue( 'after' ),
+    }.nextFrame().observes( 'index' ),
 
     distanceFromVisRect: function () {
         const scrollView = this.getParent( ScrollView );
-        if ( scrollView ) {
+        if ( scrollView && this.get( 'isInDocument' ) ) {
             const scrollTop = scrollView.get( 'scrollTop' );
             const position = this.getPositionRelativeTo( scrollView );
             const top = position.top;
@@ -138,9 +140,6 @@ const ListKBFocusView = Class({
                 ( index + delta ).limit( 0, length - 1 ) );
         } else {
             singleSelection.propertyDidChange( 'index' );
-        }
-        if ( this.get( 'isInDocument' ) ) {
-            this.checkScroll();
         }
     },
     goNext () {
