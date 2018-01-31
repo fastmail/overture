@@ -183,15 +183,6 @@ const TextView = Class({
     // --- Render ---
 
     /**
-        Property: O.TextView#allowTextSelection
-        Type: Boolean
-        Default: true
-
-        Overrides default in <O.View#allowTextSelection>.
-    */
-    allowTextSelection: true,
-
-    /**
         Property: O.TextView#type
         Type: String
 

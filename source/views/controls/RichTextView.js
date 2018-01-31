@@ -77,8 +77,6 @@ const RichTextView = Class({
     tabIndex: undefined,
     label: undefined,
 
-    allowTextSelection: true,
-
     // ---
 
     isTextSelected: false,

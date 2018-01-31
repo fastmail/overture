@@ -106,8 +106,7 @@ const ScrollView = Class({
         styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
         styles.WebkitOverflowScrolling = 'touch';
         return styles;
-    }.property( 'layout', 'allowTextSelection', 'positioning',
-        'showScrollbarX', 'showScrollbarY' ),
+    }.property( 'layout', 'positioning', 'showScrollbarX', 'showScrollbarY' ),
 
     /**
         Property: O.ScrollView#keys

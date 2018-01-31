@@ -19,10 +19,6 @@ const POSITION_FOLLOWING = 0x04;
 const POSITION_CONTAINS = 0x08;
 const POSITION_CONTAINED_BY = 0x10;
 
-const userSelectNone =
-        ( UA.cssProps[ 'user-select' ] === '-moz-user-select' ) ?
-            '-moz-none' : 'none';
-
 /**
     Class: O.View
 
@@ -501,16 +497,6 @@ const View = Class({
     */
     isDraggable: false,
 
-    /**
-        Property: O.View#allowTextSelection
-        Type: Boolean|null
-        Default: null
-
-        May text be selected by the user inside this view?
-        `null` means inherit. Can be overridden inside subviews.
-    */
-    allowTextSelection: null,
-
     // --- Layout ---
 
     /**
@@ -544,15 +530,10 @@ const View = Class({
         properties change.
     */
     layerStyles: function () {
-        const values = {
+        return Object.assign({
             position: this.get( 'positioning' ),
-        };
-        const allowTextSelection = this.get( 'allowTextSelection' );
-        if ( allowTextSelection !== null ) {
-            values.userSelect = allowTextSelection ? 'text' : userSelectNone;
-        }
-        return Object.assign( values, this.get( 'layout' ) );
-    }.property( 'layout', 'allowTextSelection', 'positioning' ),
+        }, this.get( 'layout' ) );
+    }.property( 'layout', 'positioning' ),
 
     /**
         Method: O.View#render
