@@ -22,14 +22,8 @@ const SingleSelectionController = Class({
         SingleSelectionController.parent.constructor.apply( this, arguments );
 
         const content = this.get( 'content' );
-        const record = this.get( 'record' );
         if ( content ) {
             this.contentDidChange( null, '', null, content );
-        }
-        // Treat as explicitly set; contentDidChange will have triggered
-        // setRecordInNewContent which may have blanked it.
-        if ( record ) {
-            this.set( 'record', record );
         }
     },
 
@@ -171,7 +165,10 @@ const SingleSelectionController = Class({
             this.set( 'isFetchingIndex', false );
             // If we're already setting the record, nothing to do.
             if ( !this._ignore ) {
-                if ( newVal.is( READY ) ) {
+                // If no oldVal but record, presume it was an explicit set.
+                if ( !oldVal && this.get( 'record' ) ) {
+                    this._recordDidChange();
+                } else if ( newVal.is( READY ) ) {
                     this.setRecordInNewContent( newVal );
                 } else {
                     newVal.addObserverForKey(
