@@ -398,6 +398,38 @@ const Drag = Class({
     },
 
     /**
+        Method: O.Drag#getFileSystemEntries
+
+        Returns:
+            {FileSystemEntry[]|null} An array of all file system entries represented by the drag.
+    */
+    getFileSystemEntries () {
+        const items = this.getFromPath( 'event.dataTransfer.items' );
+        let entries = null;
+        if ( items ) {
+            const l = items.length;
+            for ( let i = 0; i < l; i += 1 ) {
+                const item = items[i];
+                if ( item.kind === 'file' ) {
+                    if ( item.getAsEntry ) {
+                        if ( !entries ) {
+                            entries = [];
+                        }
+                        entries.push( item.getAsEntry() );
+                    }
+                    else if ( item.webkitGetAsEntry ) {
+                        if ( !entries ) {
+                            entries = [];
+                        }
+                        entries.push( item.webkitGetAsEntry() );
+                    }
+                }
+            }
+        }
+        return entries;
+    },
+
+    /**
         Method: O.Drag#getDataOfType
 
         Fetches data of a particular type represented by the drag.
