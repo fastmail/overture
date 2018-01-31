@@ -279,7 +279,7 @@ const LocaleController = {
     */
     makeSearchRegExp ( string ) {
         return new RegExp(
-            '(?:^|\\W)' +
+            '(?:^|\\W|_)' +
             string.escapeRegExp().replace( /[A-Z]/gi,
                 letter => alternatives[ letter.toUpperCase() ] ),
             'i'
