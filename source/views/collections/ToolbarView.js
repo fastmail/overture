@@ -1,6 +1,7 @@
 import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
+import RunLoop from '../../foundation/RunLoop';
 import { lookupKey } from '../../dom/DOMEvent';
 import Element from '../../dom/Element';
 import { loc } from '../../localisation/LocaleController';
@@ -274,7 +275,7 @@ const ToolbarView = Class({
         this.beginPropertyChanges();
         ToolbarView.parent.didEnterDocument.call( this );
         if ( this.get( 'preventOverlap' ) ) {
-            this.postMeasure();
+            RunLoop.invokeInNextFrame( this.postMeasure, this );
         }
         this.endPropertyChanges();
         return this;
