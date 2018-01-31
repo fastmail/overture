@@ -98,6 +98,7 @@ const booleanProperties = {
     readOnly: 1,
     required: 1,
     selected: 1,
+    webkitdirectory: 1,
 };
 
 /**

@@ -1,13 +1,8 @@
-/*global FormData */
-
 import { Class } from '../../core/Core';
 import '../../foundation/EventTarget';  // For Function#on
-import Element from '../../dom/Element';
 
 import ButtonView from './ButtonView';
 import AbstractControlView from './AbstractControlView';
-
-const canUseMultiple = FormData.isFake ? null : 'multiple';
 
 /**
     Class: O.FileButtonView
@@ -25,11 +20,11 @@ const canUseMultiple = FormData.isFake ? null : 'multiple';
 
     The underlying DOM structure is:
 
-        <label>
+        <button>
             <input type="file">
             ${view.icon}
             <span class="label">${view.label}</span>
-        </label>
+        </button>
 
 */
 const FileButtonView = Class({
@@ -41,10 +36,19 @@ const FileButtonView = Class({
         Type: Boolean
         Default: false
 
-        Should the user be allowed to select multiple files at once (if the
-        browser supports it)?
+        Should the user be allowed to select multiple files at once?
     */
     acceptMultiple: false,
+
+    /**
+        Property: O.FileButtonView#acceptFolder
+        Type: Boolean
+        Default: false
+
+        Should the user be allowed to select a folder to upload instead of
+        individual files (if the browser supports it)?
+    */
+    acceptFolder: false,
 
     /**
         Property: O.FileButtonView#acceptOnlyTypes
@@ -58,15 +62,6 @@ const FileButtonView = Class({
     acceptOnlyTypes: '',
 
     // --- Render ---
-
-    /**
-        Property: O.ButtonView#layerTag
-        Type: String
-        Default: 'label'
-
-        Overrides default in <O.ButtonView#layerTag>.
-    */
-    layerTag: 'label',
 
     /**
         Property: O.FileButtonView#type
@@ -95,7 +90,8 @@ const FileButtonView = Class({
                 className: 'v-FileButton-input',
                 type: 'file',
                 accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                multiple: this.get( 'acceptMultiple' ) && canUseMultiple,
+                multiple: this.get( 'acceptMultiple' ),
+                webkitdirectory: this.get( 'acceptFolder' ) || undefined,
             }),
             icon,
             AbstractControlView.prototype.draw
@@ -111,6 +107,7 @@ const FileButtonView = Class({
         Opens the OS file chooser dialog.
     */
     activate () {
+        this._setIgnoreUntil();
         this._domControl.click();
     },
 
@@ -126,42 +123,24 @@ const FileButtonView = Class({
     */
     _fileWasChosen: function ( event ) {
         const input = this._domControl;
-        let files, filePath;
-        let target, action;
-        if ( event.target === input ) {
-            input.parentNode.replaceChild(
-                this._domControl = Element.create( 'input', {
-                    className: 'v-FileButton-input',
-                    type: 'file',
-                    disabled: this.get( 'isDisabled' ),
-                    tabIndex: this.get( 'tabIndex' ),
-                    accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                    multiple: this.get( 'acceptMultiple' ) && canUseMultiple,
-                }), input );
-            if ( !FormData.isFake && input.files ) {
-                files = Array.prototype.slice.call( input.files );
-            } else {
-                filePath = input.value.replace( /\\/g, '/' );
-                files = [{
-                    name: filePath.slice( filePath.lastIndexOf( '/' ) + 1 ),
-                    size: 0,
-                    type: '',
-                    file: input,
-                }];
-            }
+        const files = Array.prototype.slice.call( input.files );
+
+        if ( event.target === input && files.length ) {
+            let target, action;
             if ( !this.get( 'isDisabled' ) ) {
                 target = this.get( 'target' ) || this;
-                if ( ( action = this.get( 'action' ) ) ) {
+                if (( action = this.get( 'action' ) )) {
                     target.fire( action, {
                         originView: this,
                         files,
                     });
-                } else if ( ( action = this.get( 'method' ) ) ) {
+                } else if (( action = this.get( 'method' ) )) {
                     target[ action ]( files, this );
                 }
-                this.fire( 'button:activate' );
             }
         }
+        input.value = '';
+        this.fire( 'button:activate' );
     }.on( 'change' ),
 });
 
