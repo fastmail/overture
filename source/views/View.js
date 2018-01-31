@@ -168,6 +168,8 @@ const renderView = function ( view ) {
     return view.render().get( 'layer' );
 };
 
+let isRedrawingLayer = false;
+
 const View = Class({
 
     Extends: Obj,
@@ -677,7 +679,7 @@ const View = Class({
     */
     redrawLayer ( layer ) {
         const prevView = Element.forView( this );
-        const childViews = this.get( 'childViews' );
+        let childViews = this.get( 'childViews' );
         let l = childViews.length;
         let node, view;
 
@@ -686,12 +688,21 @@ const View = Class({
             this.removeView( view );
             view.destroy();
         }
-        while ( ( node = layer.lastChild ) ) {
+        while (( node = layer.lastChild )) {
             layer.removeChild( node );
         }
+
+        isRedrawingLayer = true;
         Element.appendChildren( layer,
             this.draw( layer, Element, Element.create )
         );
+        isRedrawingLayer = false;
+
+        childViews = this.get( 'childViews' );
+        for ( let i = 0; i < childViews.length; i += 1 ) {
+            childViews[i].didEnterDocument();
+        }
+
         Element.forView( prevView );
     },
 
@@ -1026,7 +1037,7 @@ const View = Class({
             } else {
                 parent.appendChild( layer );
             }
-            if ( isInDocument ) {
+            if ( isInDocument && !isRedrawingLayer ) {
                 view.didEnterDocument();
             }
         }
