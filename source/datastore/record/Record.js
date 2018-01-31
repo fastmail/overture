@@ -179,11 +179,24 @@ const Record = Class({
         is the primary key. If the primary key for the record is not called
         'id', you must not override this property.
     */
-    id: function () {
+    id: function ( id ) {
         const storeKey = this.get( 'storeKey' );
+        const primaryKey = this.constructor.primaryKey || 'id';
+        if ( id !== undefined ) {
+            if ( storeKey ) {
+                RunLoop.didError({
+                    name: 'O.Record#id',
+                    message: 'Cannot change immutable property',
+                });
+            } else if ( primaryKey === 'id' ) {
+                this._data.id = id;
+            } else {
+                this.set( primaryKey, id );
+            }
+        }
         return storeKey ?
             this.get( 'store' ).getIdFromStoreKey( storeKey ) :
-            this.get( this.constructor.primaryKey );
+            this._data[ primaryKey ];
     }.property(),
 
     toJSON () {
