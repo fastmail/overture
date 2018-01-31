@@ -2030,7 +2030,7 @@ const Store = Class({
             Type      - {O.Class} The record type.
             changed   - {String[]} List of ids for records which have been
                         added or changed in the store since oldState.
-            removed   - {String[]} List of ids for records which have been
+            destroyed - {String[]} List of ids for records which have been
                         destroyed in the store since oldState.
             oldState  - {String} The state these changes are from.
             newState  - {String} The state these changes are to.
@@ -2038,7 +2038,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidFetchUpdates ( accountId, Type, changed, removed, oldState,
+    sourceDidFetchUpdates ( accountId, Type, changed, destroyed, oldState,
             newState ) {
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
@@ -2046,8 +2046,8 @@ const Store = Class({
             if ( changed ) {
                 this.sourceDidModifyRecords( accountId, Type, changed );
             }
-            if ( removed ) {
-                this.sourceDidDestroyRecords( accountId, Type, removed );
+            if ( destroyed ) {
+                this.sourceDidDestroyRecords( accountId, Type, destroyed );
             }
             account.clientState[ typeId ] = newState;
         } else {
