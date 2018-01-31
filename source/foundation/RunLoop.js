@@ -164,16 +164,30 @@ const RunLoop = {
         const order = this._queueOrder;
         const l = order.length;
         let i = 0;
+        let doneWork = false;
         while ( i < l ) {
-            // Render waits for next frame, except if in bg, since
-            // animation frames don't fire while in the background
-            // and we want to flush queues in a reasonable time, as they may
-            // redraw the tab name, favicon etc.
-            if ( i === 3 && !this.mayRedraw && !document.hidden ) {
-                this.invokeInNextFrame( this.flushAllQueues, this );
+            // "Render" waits for next frame, except if in bg, since
+            // animation frames don't fire while in the background and we want
+            // to flush queues in a reasonable time, as they may redraw the tab
+            // name, favicon etc.
+            //
+            // "After" waits for next frame if we draw anything, as it's often
+            // expensive measuring operations and we don't want to hold up
+            // display
+            if ( !document.hidden && (
+                    ( i === 3 && !this.mayRedraw ) ||
+                    ( i === 4 && doneWork ) ) ) {
+                if ( !this._queues.nextFrame.length ) {
+                    requestAnimFrame( nextFrame );
+                }
                 return;
             }
-            i = this.flushQueue( order[i] ) ? 0 : i + 1;
+            if ( this.flushQueue( order[i] ) ) {
+                doneWork = true;
+                i = 0;
+            } else {
+                i = i + 1;
+            }
         }
     },
 
@@ -269,17 +283,17 @@ const RunLoop = {
             fn   - {Function} The function to invoke.
             bind - {Object} (optional) The object to make the 'this' parameter
                    when the function is invoked.
+            allowDups - {Boolean} (optional) If not true, will search queue to
+                        check this fn/bind combination is not already present.
 
         Returns:
             {O.RunLoop} Returns self.
     */
-    invokeInNextEventLoop ( fn, bind ) {
-        const nextLoopQueue = this._queues.nextLoop;
-        if ( !nextLoopQueue.length ) {
+    invokeInNextEventLoop ( fn, bind, allowDups ) {
+        if ( !this._queues.nextLoop.length ) {
             setImmediate( nextLoop );
         }
-        nextLoopQueue.push([ fn, bind ]);
-        return this;
+        return this.queueFn( 'nextLoop', fn, bind, allowDups );
     },
 
     /**
@@ -291,17 +305,17 @@ const RunLoop = {
             fn   - {Function} The function to invoke.
             bind - {Object} (optional) The object to make the 'this' parameter
                    when the function is invoked.
+            allowDups - {Boolean} (optional) If not true, will search queue to
+                        check this fn/bind combination is not already present.
 
         Returns:
             {O.RunLoop} Returns self.
     */
-    invokeInNextFrame ( fn, bind ) {
-        const nextFrameQueue = this._queues.nextFrame;
-        if ( !nextFrameQueue.length ) {
+    invokeInNextFrame ( fn, bind, allowDups ) {
+        if ( !this._queues.nextFrame.length ) {
             requestAnimFrame( nextFrame );
         }
-        nextFrameQueue.push([ fn, bind ]);
-        return this;
+        return this.queueFn( 'nextFrame', fn, bind, allowDups );
     },
 
     /**
