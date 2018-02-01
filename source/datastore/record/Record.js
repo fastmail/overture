@@ -2,6 +2,7 @@ import { Class, meta, clone } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import '../../foundation/ComputedProps';  // For Function#property, #nocache
 
+import ToOneAttribute from './ToOneAttribute';
 import RecordAttribute from './RecordAttribute';
 import AttributeErrors from './AttributeErrors';
 import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status';
@@ -200,7 +201,7 @@ const Record = Class({
     }.property(),
 
     toJSON () {
-        return this.get( 'storeKey' );
+        return this.get( 'storeKey' ) || this;
     },
 
     toIdOrStoreKey () {
@@ -253,7 +254,8 @@ const Record = Class({
 
         this._data = null;
 
-        // Fill in any missing defaults
+        // Fill in any missing defaults + toOne attributes to previously
+        // uncreated records
         for ( const attrKey in attrs ) {
             const propKey = attrs[ attrKey ];
             if ( propKey ) {
@@ -264,6 +266,9 @@ const Record = Class({
                         data[ attrKey ] = defaultValue && defaultValue.toJSON ?
                             defaultValue.toJSON() : clone( defaultValue );
                     }
+                } else if ( ( attribute instanceof ToOneAttribute ) &&
+                        ( data[ attrKey ] instanceof Record ) ) {
+                    data[ attrKey ] = data[ attrKey ].toJSON();
                 }
             }
         }
@@ -532,6 +537,10 @@ Record.attr = function ( Type, mixin ) {
         mixin.Type = Type;
     }
     return new RecordAttribute( mixin );
+};
+
+Record.toOne = function ( mixin ) {
+    return new ToOneAttribute( mixin );
 };
 
 export default Record;

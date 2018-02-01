@@ -10,7 +10,8 @@ const ToOneAttribute = Class({
     willSet ( propValue, propKey, record ) {
         if ( ToOneAttribute.parent.willSet.call(
                 this, propValue, propKey, record ) ) {
-            if ( propValue && !propValue.get( 'storeKey' ) ) {
+            if ( record.get( 'storeKey' ) &&
+                    propValue && !propValue.get( 'storeKey' ) ) {
                 throw new Error( 'O.ToOneAttribute: ' +
                     'Cannot set connection to record not saved to store.' );
             }
@@ -30,7 +31,3 @@ const ToOneAttribute = Class({
 });
 
 export default ToOneAttribute;
-
-Record.toOne = function ( mixin ) {
-    return new ToOneAttribute( mixin );
-};
