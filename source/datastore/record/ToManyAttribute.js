@@ -1,6 +1,7 @@
 import { Class, meta } from '../../core/Core';
 import '../../core/Array';  // For Array#erase
 import ObservableArray from '../../foundation/ObservableArray';
+
 import RecordAttribute from './RecordAttribute';
 import Record from './Record';
 
