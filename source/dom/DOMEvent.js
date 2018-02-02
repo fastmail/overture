@@ -32,6 +32,25 @@ const keys = {
     144: 'NumLock',
 };
 
+const keyReplacements = {
+    // For our own convenience
+    ' ': 'Space',
+
+    // For some older browsers (specifically, Firefox < 37)
+    Left: 'ArrowLeft',
+    Right: 'ArrowRight',
+    Up: 'ArrowUp',
+    Down: 'ArrowDown',
+
+    // For iOS Safari/WKWebView, to work around
+    // https://bugreport.apple.com/web/?problemID=37144181
+    UIKeyInputEscape: 'Escape',
+    UIKeyInputLeftArrow: 'ArrowLeft',
+    UIKeyInputRightArrow: 'ArrowRight',
+    UIKeyInputUpArrow: 'ArrowUp',
+    UIKeyInputDownArrow: 'ArrowDown',
+};
+
 /**
     Function: O.DOMEvent.lookupKey
 
@@ -69,8 +88,8 @@ const lookupKey = function ( event, noModifiers ) {
         if ( !preferAsci && 111 < code && code < 124 ) {
             key = 'F' + ( code - 111 );
         }
-    } else if ( key === ' ' ) {
-        key = 'Space';
+    } else {
+        key = keyReplacements[ key ] || key;
     }
 
     // Append modifiers (use alphabetical order)
