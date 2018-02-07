@@ -162,7 +162,7 @@ const ToolbarView = Class({
         const widths = this._widths;
         let i, l, config;
 
-        if ( widths && pxWidth && this.get( 'preventOverlap' ) ) {
+        if ( this.get( 'preventOverlap' ) ) {
             pxWidth -= this.get( 'minimumGap' );
             for ( i = 0, l = rightConfig.length; i < l; i += 1 ) {
                 pxWidth -= widths[ rightConfig[i] ];
