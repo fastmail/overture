@@ -9,6 +9,21 @@ import { getViewFromNode } from './activeViews';
 import ScrollView from './containers/ScrollView';
 import AbstractControlView from './controls/AbstractControlView';
 
+
+let passiveSupported = false;
+
+try {
+    const options = Object.defineProperty( {}, 'passive', {
+        get: function () {
+            passiveSupported = true;
+        }
+    });
+    window.addEventListener( 'test', options, options);
+    window.removeEventListener( 'test', options, options);
+} catch ( error ) {
+    passiveSupported = false;
+}
+
 /**
     Class: O.RootView
 
@@ -53,7 +68,9 @@ const RootView = Class({
             'submit',
         ];
         for ( l = events.length; l--; ) {
-            node.addEventListener( events[l], this, false );
+            node.addEventListener( events[l], this, passiveSupported ? {
+                passive: false,
+            } : false );
         }
         // These events don't bubble: have to capture.
         // In IE, we use a version of focus and blur which will bubble, but
