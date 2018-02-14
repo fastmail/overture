@@ -73,11 +73,14 @@ const formatDuration = Date.formatDuration = function ( durationInMS, approx ) {
         approx - {Boolean} (optional) If true, only return a string for the
                  most significant part of the relative time (e.g. just "5
                  hours ago" instead of "5 hours 34 mintues ago").
+        mustNotBeFuture - {Boolean} (optional) If true and a date is supplied in
+                          the future, it is assumed this is due to clock skew
+                          and the string "just now" is always returned.
 
     Returns:
         {String} Relative date string.
 */
-Date.prototype.relativeTo = function ( date, approx ) {
+Date.prototype.relativeTo = function ( date, approx, mustNotBeFuture ) {
     if ( !date ) {
         date = new Date();
     }
@@ -89,8 +92,11 @@ Date.prototype.relativeTo = function ( date, approx ) {
     if ( isFuture ) {
         duration = -duration;
     }
+    if ( !duration || ( isFuture && mustNotBeFuture ) ) {
+        return loc( 'just now' );
+    }
     // Less than a day
-    if ( duration < 1000 * 60 * 60 * 24 ) {
+    else if ( duration < 1000 * 60 * 60 * 24 ) {
         time = formatDuration( duration, approx );
     // Less than 6 weeks
     } else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {
