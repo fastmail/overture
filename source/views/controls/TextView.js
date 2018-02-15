@@ -358,6 +358,29 @@ const TextView = Class({
         this.focus();
     },
 
+    selectAll: function () {
+        return this.set( 'selection', {
+            start: 0,
+            end: this.get( 'value' ).length,
+        });
+    },
+
+    copySelectionToClipboard: function () {
+        var didSucceed = false;
+        var focused = null;
+        if ( !this.get( 'isFocused' ) ) {
+            focused = document.activeElement;
+            this.focus();
+        }
+        try {
+            didSucceed = document.execCommand( 'copy' );
+        }  catch ( error ) {}
+        if ( focused ) {
+            focused.focus();
+        }
+        return didSucceed;
+    },
+
     // --- Scrolling and focus ---
 
     savedSelection: null,
