@@ -98,7 +98,11 @@ MAKE_TZ := $(TOOLS)/olsonParser.js
 UPDATE_PO := $(TOOLS)/localise.js updatePo
 DB_TO_PO := $(TOOLS)/localise.js dbToPo
 
+ifeq ($(wildcard node_modules/.bin/uglifyjs),)
+UGLIFY_JS := uglifyjs
+else
 UGLIFY_JS := node_modules/.bin/uglifyjs
+endif
 
 ifeq ($(shell which sha1sum),)
 HASH_FILE := md5 -q
