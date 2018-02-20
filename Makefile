@@ -6,9 +6,10 @@ all: compile docs
 
 compile: build/Loader-raw.js build/Overture-raw.js
 
-node_modules: package.json yarn.lock
+node_modules/.up-to-date: package.json yarn.lock
+	rm -rf node_modules
 	yarn
-	touch -c node_modules
+	touch -c node_modules/.up-to-date
 
 build:
 	mkdir -p build
@@ -37,7 +38,7 @@ include $(PATH_TO_DOC)/Makefile
 
 MODULE = $(patsubst build/%-raw.js,%,$@)
 
-build/%-raw.js: $$(shell find source -name "*.js") node_modules | build
+build/%-raw.js: $$(shell find source -name "*.js") node_modules/.up-to-date | build
 	$(REMOVE_OLD)
 	yarn run rollup source/$(MODULE).js -o $@ -c
 	$(GZIP_AND_COMPRESS)
