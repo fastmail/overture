@@ -1247,7 +1247,7 @@ const Store = Class({
         const status = typeToStatus[ typeId ];
         const state = account.clientState[ typeId ];
 
-        if ( !( status & LOADING ) && ( !state || force ) ) {
+        if ( !( status & LOADING ) && ( !( status & READY ) || force ) ) {
             this.source.fetchAllRecords( accountId, Type, state, () => {
                 typeToStatus[ typeId ] &= ~LOADING;
                 this._checkServerStatus( accountId, Type );
