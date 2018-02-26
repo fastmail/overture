@@ -5,7 +5,6 @@ import RunLoop from '../foundation/RunLoop';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property
 import Element from '../dom/Element';  // Circular but it's OK
-import UA from '../ua/UA';
 
 import ViewEventsController from './ViewEventsController';
 import activeViews from './activeViews';
