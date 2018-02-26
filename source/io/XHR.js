@@ -131,11 +131,15 @@ const XHR = Class({
         Returns the response to the request.
 
         Returns:
-            {String|ArrayBuffer|Blob|Document|Object} The response.
+            {String|ArrayBuffer|Blob|Document|Object|null} The response.
             (The type is determined by the responseType parameter to #send.)
     */
     getResponse () {
-        return this.xhr.response;
+        try {
+            return this.xhr.response;
+        } catch ( error ) {
+            return null;
+        }
     },
 
     /**
