@@ -690,7 +690,7 @@ const Locale = Class({
             const part = parts[i];
             if ( i % 2 === 1 ) {
                 parts[i] = args[ part - 1 ] || null;
-            } else if ( part.indexOf( '[' ) !== -1 ) {
+            } else if ( part.indexOf( '[*' ) !== -1 ) {
                 // Presumably it contains a macro; execute that.
                 const compiled = this.compiled[ part ] ||
                     ( this.compiled[ part ] = compileTranslation( part ) );
