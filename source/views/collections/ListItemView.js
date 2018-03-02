@@ -37,7 +37,7 @@ const ListItemView = Class({
         const isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' );
         const y = ( index - ( isNew ? 1 : 0 ) ) * itemHeight;
         return {
-            transform: 'translate3d(0,' + y + 'px,0)',
+            top: y,
             opacity: isNew ? 0 : 1,
         };
     }.property(),
