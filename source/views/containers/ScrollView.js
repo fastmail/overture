@@ -3,11 +3,14 @@ import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
+import Element from '../../dom/Element';
 import Animation from '../../animation/Animation';
 import Tap from '../../touch/Tap';
 import UA from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
+
+const setStyle = Element.setStyle;
 
 const ScrollAnimation = Class({
 
@@ -24,15 +27,22 @@ const ScrollAnimation = Class({
         const deltaX = this.deltaX = endX - startX;
         const deltaY = this.deltaY = endY - startY;
 
+        setStyle( object.get( 'layer' ), 'will-change', 'scroll-position' );
+
         return !!( deltaX || deltaY );
     },
 
     drawFrame ( position ) {
-        const x = position < 1 ?
+        const isRunning = position < 1;
+        const object = this.object;
+        const x = isRunning ?
                 this.startX + ( position * this.deltaX ) : this.endX;
-        const y = position < 1 ?
+        const y = isRunning ?
                 this.startY + ( position * this.deltaY ) : this.endY;
-        this.object._scrollTo( x, y );
+        object._scrollTo( x, y );
+        if ( !isRunning ) {
+            setStyle( object.get( 'layer' ), 'will-change', 'auto' );
+        }
     },
 });
 

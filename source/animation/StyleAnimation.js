@@ -1,37 +1,45 @@
 import Animation from './Animation';
 import { Class, clone } from '../core/Core';
+import RunLoop from '../foundation/RunLoop';
 import Element from '../dom/Element';
+
+const setStyle = Element.setStyle;
+
+const numbersRe = /[.\-\d]+/g;
 
 const splitTransform = function ( transform ) {
     const result = [];
-    let i = 0;
     const l = transform.length;
-    let next = 0;
+    let last = 0;
+    let inFn = false;
+    let inNumber = false;
+    let i, character, part;
 
-    while ( true ) {
-        // Gather text part
-        while ( next < l && /^[^,(]$/.test( transform.charAt( next ) ) ) {
-            next += 1;
+    for ( i = 0; i < l; i += 1 ) {
+        character = transform.charAt( i );
+        if ( ( inNumber || inFn ) &&
+                ( inNumber !== /^[.\-\d]/.test( character ) ) ) {
+            part = transform.slice( last, i );
+            result.push( inNumber ? parseFloat( part ) : part );
+            last = i;
+            inNumber = !inNumber;
+        } else if ( character === '(' ) {
+            inFn = true;
+        } else if ( character === ')' ) {
+            inFn = false;
         }
-        if ( next < l ) {
-            next += 1;
-            result.push( transform.slice( i, next ) );
-            i = next;
-        } else {
-            result.push( transform.slice( i ) );
-            return result;
-        }
-
-        // Gather number
-        while ( /^[\s\d\-.]$/.test( transform.charAt( next ) ) ) {
-            next += 1;
-        }
-        result.push( parseFloat( transform.slice( i, next ) ) );
-        i = next;
     }
+    result.push( transform.slice( last ) );
+    return result;
 };
 
-const numbersRe = /[.\-\d]/g;
+const zeroTransform = function ( parts ) {
+    parts = parts.slice();
+    for ( let i = 1, l = parts.length; i < l; i += 2 ) {
+        parts[i] = 0;
+    }
+    return parts;
+};
 
 const styleAnimators = {
     display: {
@@ -44,11 +52,24 @@ const styleAnimators = {
     },
     transform: {
         calcDelta ( startValue, endValue ) {
-            let start = splitTransform( startValue );
-            let end = splitTransform( endValue );
+            let start = splitTransform( startValue || '' );
+            let end = splitTransform( endValue || '' );
+            let i, l;
+            if ( !endValue || ( endValue === 'none' ) ) {
+                end = zeroTransform( start );
+            }
+            if ( !startValue || ( startValue === 'none' ) ) {
+                start = zeroTransform( end );
+            }
             if ( start.length !== end.length ) {
                 start = [ startValue ];
                 end = [ endValue ];
+            }
+            for ( i = 0, l = start.length; i < l; i += 1 ) {
+                if ( start[i] === 0 && /^[,\)]/.test( start[ i + 1 ] ) ) {
+                    start[ i + 1 ] = end[ i + 1 ].replace( /[,\)].*/g, '' ) +
+                        start[ i + 1 ];
+                }
             }
             return {
                 start,
@@ -78,6 +99,16 @@ const supported = {
     bottom: 1,
     left: 1,
 
+    marginTop: 1,
+    marginRight: 1,
+    marginBottom: 1,
+    marginLeft: 1,
+
+    paddingTop: 1,
+    paddingRight: 1,
+    paddingBottom: 1,
+    paddingLeft: 1,
+
     width: 1,
     height: 1,
 
@@ -105,7 +136,7 @@ const supported = {
     * left
     * width
     * height
-    * transform (values must be in matrix form)
+    * transform
     * opacity
 */
 export default Class({
@@ -132,12 +163,13 @@ export default Class({
         const current = this.current = clone( from );
         const delta = this.deltaValue = {};
         const units = this.units = {};
+        const element = this.element;
 
         this.endValue = styles;
 
         for ( const property in styles ) {
-            let start = from[ property ] || 0;
-            const end = styles[ property ] || 0;
+            let start = from[ property ];
+            const end = styles[ property ];
             if ( start !== end ) {
                 // We only support animating key layout properties.
                 if ( supported[ property ] ) {
@@ -159,12 +191,48 @@ export default Class({
                         delta[ property ] = parseInt( end, 10 ) - start;
                     }
                 } else {
+                    RunLoop.didError({
+                        name: 'Can’t animate property: ' + property,
+                    });
                     current[ property ] = end;
-                    Element.setStyle( this.element, property, end );
+                    setStyle( element, property, end );
                 }
             }
         }
-        return !!animated.length;
+
+        // Animate common top change as a transform for performance
+        if ( delta.top && ( !units.top || units.top === 'px' ) ) {
+            let transform = styles.transform || '';
+            if ( transform === 'none' ) {
+                transform = '';
+            }
+            if ( transform === '' ||
+                    /^translate3d\([^,]+,|\d+(?:px)?,0\)$/.test( transform ) ) {
+                if ( !delta.transform ) {
+                    animated.push( 'transform' );
+                }
+                if ( transform === '' ) {
+                    styles.transform = 'none';
+                    transform = 'translate3d(0,' + delta.top +'px,0)';
+                } else {
+                    let parts = transform.split( ',' );
+                    parts[1] = ( parseInt( parts[1], 10 ) + delta.top ) + 'px';
+                    transform = parts.join( ',' );
+                }
+                delta.transform = styleAnimators.transform.calcDelta(
+                    from.transform || '',
+                    transform
+                );
+                delta.top = 0;
+            }
+        }
+
+        if ( animated.length ) {
+            setStyle( element, 'will-change', animated.join( ', ' ) );
+            return true;
+        }
+
+        return false;
     },
 
     /**
@@ -177,26 +245,25 @@ export default Class({
             position - {Number} The position in the animation.
     */
     drawFrame ( position ) {
+        const isRunning = position < 1;
         const {
             startValue, endValue, deltaValue,
             units, current, animated, element,
         } = this;
-
-        const setStyle = Element.setStyle;
         let l = animated.length;
 
         while ( l-- ) {
             const property = animated[l];
 
             // Calculate new value.
-            const start = startValue[ property ] || 0;
-            const end = endValue[ property ] || 0;
+            const start = startValue[ property ];
+            const end = endValue[ property ];
             const delta = deltaValue[ property ];
             const unit = units[ property ];
 
             const animator = styleAnimators[ property ];
 
-            const value = current[ property ] = position < 1 ?
+            const value = current[ property ] = isRunning ?
                 animator ?
                     animator.calcValue( position, delta, start, end ) :
                     ( start + ( position * delta ) ) + unit :
@@ -204,6 +271,9 @@ export default Class({
 
             // And set.
             setStyle( element, property, value );
+        }
+        if ( !isRunning ) {
+            setStyle( element, 'will-change', 'auto' );
         }
     },
 });

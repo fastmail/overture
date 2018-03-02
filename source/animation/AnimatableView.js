@@ -2,7 +2,6 @@ import UA from '../ua/UA';
 import '../foundation/ComputedProps';  // For Function#property
 import Element from '../dom/Element';
 import Easing from './Easing';
-import CSSStyleAnimation from './CSSStyleAnimation';
 import StyleAnimation from './StyleAnimation';
 
 /**
@@ -75,15 +74,13 @@ export default {
 
     /**
         Property: O.AnimatableView#layerAnimation
-        Type: O.CSSStyleAnimation|O.StyleAnimation
+        Type: O.StyleAnimation
 
         An appropriate animation object (depending on browser support) to
         animate the layer styles. Automatically generated when first accessed.
     */
     layerAnimation: function () {
-        const Animation = UA.cssProps.transition ?
-            CSSStyleAnimation : StyleAnimation;
-        return new Animation({
+        return new StyleAnimation({
             object: this,
             element: this.get( 'layer' ),
         });
@@ -118,7 +115,6 @@ export default {
             // Or just set.
             layerAnimation.stop();
             layerAnimation.current = newStyles;
-            setStyle( layer, 'transition-property', 'none' );
             for ( const property in newStyles ) {
                 const value = newStyles[ property ];
                 if ( value !== oldStyles[ property ] ) {

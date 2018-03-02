@@ -68,8 +68,6 @@ export { Promise };
 
 export { default as AnimatableView } from './animation/AnimatableView';
 export { default as Animation } from './animation/Animation';
-export { default as CSSStyleAnimation } from './animation/CSSStyleAnimation';
-export { default as CSSStyleAnimationController } from './animation/CSSStyleAnimationController';
 export { default as Easing } from './animation/Easing';
 export { default as StyleAnimation } from './animation/StyleAnimation';
 
