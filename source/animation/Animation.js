@@ -28,12 +28,20 @@ const nextFrame = function () {
             }
             while ( i-- ) {
                 const animation = objAnimations[i];
-                let animTime = time - animation.startTime;
-                // For Safari 7, sigh.
-                if ( animTime === time ) {
-                    animation.startTime = time;
-                    animTime = 0;
+                let animTime = animation.startTime;
+                // We start the animation clock at the first frame *after* the
+                // animation begins. This is becaues there are often a lot of
+                // changes happening as well as the animation beginning, and
+                // it's better to start the animation a frame later than have
+                // a slow first frame and thus stuttery start to the animation
+                if ( animTime <= 0 ) {
+                    if ( !animTime ) {
+                        animation.startTime = -1;
+                        continue;
+                    }
+                    animation.startTime = animTime = time;
                 }
+                animTime = time - animTime;
                 const duration = animation.duration;
                 if ( animTime < duration ) {
                     animation.drawFrame(
