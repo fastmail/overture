@@ -786,12 +786,22 @@ const Store = Class({
             inverse.destroy.push( storeKey );
         }
         for ( const storeKey in _skToChanged ) {
-            inverse.update.push([
-                storeKey,
-                Object.filter(
-                    _skToCommitted[ storeKey ], _skToChanged[ storeKey ]
-                ),
-            ]);
+            const committed = _skToCommitted[ storeKey ];
+            const changed = _skToChanged[ storeKey ];
+            const Type = _skToType[ storeKey ];
+            const proto = Type.prototype;
+            const attrs = meta( proto ).attrs;
+            const update = {};
+            for ( const attrKey in changed ) {
+                let prevAttrValue = committed[ attrKey ];
+                if ( prevAttrValue === undefined ) {
+                    prevAttrValue = proto[ attrs[ attrKey ] ].defaultValue;
+                }
+                if ( changed[ attrKey ] ) {
+                    update[ attrKey ] = prevAttrValue;
+                }
+            }
+            inverse.update.push([ storeKey, update ]);
         }
         for ( const storeKey in _destroyed ) {
             const Type = _skToType[ storeKey ];

@@ -263,8 +263,7 @@ const Record = Class({
                 if ( !( attrKey in data ) ) {
                     const defaultValue = attribute.defaultValue;
                     if ( defaultValue !== undefined ) {
-                        data[ attrKey ] = defaultValue && defaultValue.toJSON ?
-                            defaultValue.toJSON() : clone( defaultValue );
+                        data[ attrKey ] = clone( defaultValue );
                     }
                 } else if ( ( attribute instanceof ToOneAttribute ) &&
                         ( data[ attrKey ] instanceof Record ) ) {

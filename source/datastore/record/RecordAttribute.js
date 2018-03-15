@@ -240,11 +240,12 @@ const RecordAttribute = Class({
         Default: undefined
 
         If the attribute is not set on the underlying data object, the
-        defaultValue will be returned instead. This will also be used to add
-        this attribute to the data object if a new record is created and the
-        attribute is not set.
+        defaultValue will be used as the attribute instead. This will also be
+        used to add this attribute to the data object if a new record is
+        created and the attribute is not set.
 
-        The value should be of the type specified in <O.RecordAttribute#Type>.
+        The value should be the JSON encoding of the type specified in
+        <O.RecordAttribute#Type>.
     */
     defaultValue: undefined,
 
@@ -300,10 +301,14 @@ const RecordAttribute = Class({
         const store = record.get( 'store' );
         const storeKey = record.get( 'storeKey' );
         const data = storeKey ? store.getData( storeKey ) : record._data;
-        let attrKey, attrValue, currentAttrValue, update, Type;
+        const attrKey = this.key || propKey;
+        const Type = this.Type;
+        let currentAttrValue, attrValue, update;
         if ( data ) {
-            attrKey = this.key || propKey;
             currentAttrValue = data[ attrKey ];
+            if ( currentAttrValue === undefined ) {
+                currentAttrValue = this.defaultValue;
+            }
             if ( propValue !== undefined &&
                     this.willSet( propValue, propKey, record ) ) {
                 if ( this.toJSON ) {
@@ -327,12 +332,11 @@ const RecordAttribute = Class({
                 }
                 return propValue;
             }
-            Type = this.Type;
+        } else {
+            currentAttrValue = this.defaultValue;
         }
-        return currentAttrValue !== undefined ?
-            currentAttrValue !== null && Type && Type.fromJSON ?
-                Type.fromJSON( currentAttrValue ) : currentAttrValue :
-            this.defaultValue;
+        return currentAttrValue !== null && Type && Type.fromJSON ?
+            Type.fromJSON( currentAttrValue ) : currentAttrValue;
     },
 });
 
