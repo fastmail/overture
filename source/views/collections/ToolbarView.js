@@ -338,7 +338,7 @@ const ToolbarView = Class({
                     parent.removeView( view );
                 }
                 this.insertView( view, container );
-            } else {
+            } else if ( view ) {
                 container.appendChild( view );
             }
         }
