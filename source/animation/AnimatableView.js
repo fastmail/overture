@@ -111,6 +111,10 @@ export default {
                 this.get( 'animateLayerDuration' ),
                 this.get( 'animateLayerEasing' )
             );
+            if ( !layerAnimation.isRunning ) {
+                this.willAnimate( layerAnimation );
+                this.didAnimate( layerAnimation );
+            }
         } else {
             // Or just set.
             layerAnimation.stop();
