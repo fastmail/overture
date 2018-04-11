@@ -2053,10 +2053,10 @@ const Store = Class({
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
         if ( oldState === account.clientState[ typeId ] ) {
-            if ( changed ) {
+            if ( changed && changed.length ) {
                 this.sourceDidModifyRecords( accountId, Type, changed );
             }
-            if ( destroyed ) {
+            if ( destroyed && destroyed.length ) {
                 this.sourceDidDestroyRecords( accountId, Type, destroyed );
             }
             account.clientState[ typeId ] = newState;
