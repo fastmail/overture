@@ -213,6 +213,10 @@ const Query = Class({
             const metadata = meta( this );
             const observers = metadata.observers;
             const rangeObservers = metadata.rangeObservers;
+            // Refresh if any of:
+            // 1. Length is observed
+            // 2. Contents ([]) is observed
+            // 3. A range is observed
             if ( !observers.length && !observers[ '[]' ] &&
                     !( rangeObservers && rangeObservers.length ) ) {
                 break;

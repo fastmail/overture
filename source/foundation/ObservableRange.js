@@ -127,4 +127,24 @@ export default {
         }
         return this;
     },
+
+    /**
+        Method: O.ObservableRange#hasRangeObservers
+
+        Returns true a range is being observed on the object by another object.
+
+        Returns:
+            {Boolean} Does the object have any range observers?
+    */
+    hasRangeObservers () {
+        const observers = meta( this ).rangeObservers;
+        let l = observers ? observers.length : 0;
+        while ( l-- ) {
+            const object = observers[l].object;
+            if ( object && object !== this ) {
+                return true;
+            }
+        }
+        return false;
+    },
 };

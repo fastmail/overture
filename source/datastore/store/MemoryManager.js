@@ -199,7 +199,7 @@ const MemoryManager = Class({
         });
         while ( numberToDelete > 0 && l-- ) {
             const query = queries[l];
-            if ( !query.hasObservers() ) {
+            if ( !query.hasObservers() && !query.hasRangeObservers() ) {
                 query.destroy();
                 deleted.push( query );
                 numberToDelete -= 1;
