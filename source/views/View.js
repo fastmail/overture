@@ -835,7 +835,7 @@ const View = Class({
                 break;
             }
             offset += layer.offsetTop;
-        } while ( ( layer = layer.offsetParent ) !== parent );
+        } while ( ( layer = layer.offsetParent ) && ( layer !== parent ) );
         return offset;
     }.property( 'pxLayout' ),
 
@@ -860,7 +860,7 @@ const View = Class({
                 break;
             }
             offset += layer.offsetLeft;
-        } while ( ( layer = layer.offsetParent ) !== parent );
+        } while ( ( layer = layer.offsetParent ) && ( layer !== parent ) );
         return offset;
     }.property( 'pxLayout' ),
 
