@@ -189,7 +189,9 @@ const NestedStore = Class({
                 // Ready clean/Destroyed dirty -> destroyed clean.
                 delete this._skToData[ storeKey ];
                 delete _skToStatus[ storeKey ];
-            } else {
+            } else if ( !( previous & NEW ) ) {
+                // If NEW, parent status means it's been committed, which means
+                // we're going to clear _skToStatus so we're already correct
                 _skToStatus[ storeKey ] = status =
                     previous|( status & (OBSOLETE|LOADING) );
             }
