@@ -678,9 +678,11 @@ const View = Class({
         );
         isRedrawingLayer = false;
 
-        childViews = this.get( 'childViews' );
-        for ( let i = 0; i < childViews.length; i += 1 ) {
-            childViews[i].didEnterDocument();
+        if ( this.get( 'isInDocument' ) ) {
+            childViews = this.get( 'childViews' );
+            for ( let i = 0; i < childViews.length; i += 1 ) {
+                childViews[i].didEnterDocument();
+            }
         }
 
         Element.forView( prevView );
