@@ -133,11 +133,6 @@ const Source = Class({
                 }
             });
 
-        Any types that are handled by the source are removed from the changes
-        object (`delete changes[ typeName ]`); any unhandled types are left
-        behind, so the object may be passed to several sources, with each
-        handling their own types.
-
         Parameters:
             changes  - {Object} The creates/updates/destroys to commit.
             callback - {Function} (optional) A callback to make after the
