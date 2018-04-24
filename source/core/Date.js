@@ -76,7 +76,7 @@ Object.assign( Date, {
 });
 
 const pad = function ( num, nopad, character ) {
-    return ( nopad || num > 9 ) ? num : ( character || '0' ) + num;
+    return ( nopad || num > 9 ? '' : ( character || '0' ) ) + num;
 };
 
 const aDay = 86400000; // milliseconds in a day
@@ -350,6 +350,10 @@ Object.assign( Date.prototype, {
         H - Hour of the day in 24h clock (00-23).
         I - Hour of the day in 12h clock (01-12).
         j - Day of the year as a decimal number (001-366).
+        k - Hour of the day in 12h clock (0-23), padded with a space if single
+            digit.
+        l - Hour of the day in 12h clock (1-12), padded with a space if single
+            digit.
         m - Month of the year (01-12).
         M - Minute of the hour (00-59).
         n - Newline character.
@@ -376,6 +380,7 @@ Object.assign( Date.prototype, {
         X - The locale's appropriate time representation.
         y - Year without century (00-99).
         Y - Year with century (0-9999)
+        z - Timezone offset
         Z - Timezone name or abbreviation.
         % - A '%' character.
 
@@ -391,7 +396,7 @@ Object.assign( Date.prototype, {
         return format ?
             format.replace(/%(-)?([%A-Za-z])/g,
                 function ( string, nopad, character ) {
-            let num, str;
+            let num, str, offset, sign, hoursOffset, minutesOffset;
             switch ( character ) {
             case 'a':
                 // Abbreviated day of the week, e.g. 'Mon'.
@@ -435,11 +440,25 @@ Object.assign( Date.prototype, {
             case 'I':
                 // Hour of the day in 12h clock (01-12).
                 num = utc ? date.getUTCHours() : date.getHours();
-                return num ? pad( num < 13 ? num : num - 12, nopad ) : 12;
+                return num ? pad( num < 13 ? num : num - 12, nopad ) : '12';
             case 'j':
                 // Day of the year as a decimal number (001-366).
                 num = date.getDayOfYear( utc );
-                return nopad ? num : num < 100 ? '0' + pad( num ) : pad( num );
+                return nopad ?
+                    num + '' :
+                    num < 100 ? '0' + pad( num ) : pad( num );
+            case 'k':
+                // Hour of the day in 12h clock (0-23), padded with a space if
+                // single digit.
+                return pad(
+                    utc ? date.getUTCHours() : date.getHours(), nopad, ' ' );
+            case 'l':
+                // Hour of the day in 12h clock (1-12), padded with a space if
+                // single digit.
+                num = utc ? date.getUTCHours() : date.getHours();
+                return num ?
+                    pad( num < 13 ? num : num - 12, nopad, ' ' ) :
+                    '12';
             case 'm':
                 // Month of the year (01-12).
                 return pad(
@@ -513,6 +532,16 @@ Object.assign( Date.prototype, {
             case 'Y':
                 // Year with century (0-9999).
                 return utc ? date.getUTCFullYear() : date.getFullYear();
+            case 'z':
+                // Timezone offset
+                offset = date.getTimezoneOffset();
+                sign = ( offset > 0 ? '-' : '+' );
+                offset = Math.abs( offset );
+                hoursOffset = ~~( offset / 60 );
+                minutesOffset = offset - ( 60 * hoursOffset );
+                return sign +
+                    '%\'02n'.format( hoursOffset ) +
+                    ':%\'02n'.format( minutesOffset );
             case 'Z':
                 // Timezone name or abbreviation.
                 return ( /\((.*)\)/.exec( date.toString() ) || [ '' ] ).pop();
