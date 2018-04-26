@@ -21,7 +21,7 @@ to be dragged not just within the window but also between windows and other
 applications/the OS itself. However, by default, all drags initiated within the
 application will bypass this system and use a custom implementation, as the
 native implementation (and indeed the spec) is extremely buggy. Problems (as of
-13.05.11) include:
+2011-05-13) include:
 
 1. If an element is draggable, you cannot select text in any text input area
    underneath it.
@@ -360,7 +360,7 @@ const Drag = Class({
         if ( dataTransfer ) {
             let items;
             if ( ( items = dataTransfer.items ) ) {
-                // Current HTML5 DnD interface
+                // Current HTML5 DnD interface (Chrome, Firefox 50+, Edge)
                 const l = items.length;
                 for ( let i = 0; i < l; i += 1 ) {
                     const item = items[i];
@@ -383,7 +383,7 @@ const Drag = Class({
                     }
                 }
             } else if ( ( items = dataTransfer.files ) ) {
-                // Deprecated HTML5 DnD interface (FF etc.)
+                // Deprecated HTML5 DnD interface (Firefox <50, IE)
                 const l = items.length;
                 for ( let i = 0; i < l; i += 1 ) {
                     const item = items[i];
