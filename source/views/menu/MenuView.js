@@ -184,16 +184,16 @@ const MenuView = Class({
     buttonDidActivate: function () {
         if ( this.get( 'closeOnActivate' ) ) {
             let popOverView = this.getParent( PopOverView ) ||
-                    this.get( 'parentView' ),
-                parent;
+                    this.get( 'parentView' );
+            let parent;
             if ( popOverView ) {
-                while ( parent = popOverView.get( 'parentPopOverView' ) ) {
+                while (( parent = popOverView.get( 'parentPopOverView' ) )) {
                     popOverView = parent;
                 }
-                RunLoop.invokeInNextFrame( popOverView.hide, popOverView );
+                popOverView.hide();
             }
         }
-    }.on( 'button:activate' ),
+    }.nextFrame().on( 'button:activate' ),
 
     keydown: function ( event ) {
         const key = lookupKey( event );
