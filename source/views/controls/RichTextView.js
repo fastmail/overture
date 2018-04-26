@@ -389,7 +389,10 @@ const RichTextView = Class({
         if ( !toolbarIsVisible && this.get( 'isTextSelected' ) ) {
             this.showFloatingToolbar();
         }
-    }.on( 'mouseup' ),
+    // (You might think 'select' was the right event to hook onto, but that
+    // causes trouble as it shows the toolbar while the mouse is still down,
+    // which gets in the way of the selection. So mouseup it is.)
+    }.on( 'mouseup', 'keyup' ),
 
     // ---
 
