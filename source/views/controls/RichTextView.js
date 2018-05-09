@@ -66,6 +66,62 @@ const hiddenFloatingToolbarLayout = {
     transform: 'translate3d(-100vw,0,0)',
 };
 
+const URLPickerView = Class({
+
+    Extends: View,
+
+    prompt: '',
+    placeholder: '',
+    confirm: '',
+
+    value: '',
+
+    className: 'v-UrlPicker',
+
+    draw ( layer, Element, el ) {
+        return [
+            el( 'h3.u-bold', [
+                this.get( 'prompt' )
+            ]),
+            this._input = new TextView({
+                value: bindTwoWay( this, 'value' ),
+                placeholder: this.get( 'placeholder' ),
+            }),
+            el( 'p.u-alignRight', [
+                new ButtonView({
+                    type: 'v-Button--destructive v-Button--size13',
+                    label: loc( 'Cancel' ),
+                    target: popOver,
+                    method: 'hide',
+                }),
+                new ButtonView({
+                    type: 'v-Button--constructive v-Button--size13',
+                    label: this.get( 'confirm' ),
+                    target: this,
+                    method: 'add',
+                })
+            ])
+        ];
+    },
+
+    // ---
+
+    autoFocus: function () {
+        if ( this.get( 'isInDocument' ) ) {
+            this._input.set( 'selection', this.get( 'value' ).length )
+                       .focus();
+            // IE8 and Safari 6 don't fire this event for some reason.
+            this._input.fire( 'focus' );
+        }
+    }.nextFrame().observes( 'isInDocument' ),
+
+    addOnEnter: function ( event ) {
+        if ( lookupKey( event ) === 'Enter' ) {
+            this.add();
+        }
+    }.on( 'keyup' ),
+});
+
 const RichTextView = Class({
 
     Extends: View,
@@ -563,6 +619,15 @@ const RichTextView = Class({
                 target: this,
                 method: 'insertImagesFromFiles',
             }),
+            remoteImage: new ButtonView({
+                tabIndex: -1,
+                type: 'v-Button--iconOnly',
+                icon: 'icon-image',
+                label: loc( 'Insert Image' ),
+                tooltip: loc( 'Insert Image' ),
+                target: this,
+                method: 'showInsertImageOverlay',
+            }),
             left: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
@@ -834,51 +899,13 @@ const RichTextView = Class({
 
     linkOverlayView: function () {
         const richTextView = this;
-        return new View({
-            className: 'v-UrlPicker',
-            value: '',
-            draw ( layer, Element, el ) {
-                return [
-                    el( 'h3.u-bold', [
-                        loc( 'Add a link to the following URL or email:' ),
-                    ]),
-                    this._input = new TextView({
-                        value: bindTwoWay( 'value', this ),
-                        placeholder: 'e.g. www.example.com',
-                    }),
-                    el( 'p.u-alignRight', [
-                        new ButtonView({
-                            type: 'v-Button--destructive v-Button--size13',
-                            label: loc( 'Cancel' ),
-                            target: popOver,
-                            method: 'hide',
-                        }),
-                        new ButtonView({
-                            type: 'v-Button--constructive v-Button--size13',
-                            label: loc( 'Add Link' ),
-                            target: this,
-                            method: 'addLink',
-                        }),
-                    ]),
-                ];
-            },
-            focus: function () {
-                if ( this.get( 'isInDocument' ) ) {
-                    this._input.set( 'selection', this.get( 'value' ).length )
-                               .focus();
-                    // Safari 6 doesn't fire this event for some reason.
-                    this._input.fire( 'focus' );
-                }
-            }.nextFrame().observes( 'isInDocument' ),
-            addLinkOnEnter: function ( event ) {
-                event.stopPropagation();
-                if ( lookupKey( event ) === 'Enter' ) {
-                    this.addLink();
-                }
-            }.on( 'keyup' ),
-            addLink () {
-                let url = this.get( 'value' ).trim(),
-                    email;
+        return new URLPickerView({
+            prompt: loc( 'Add a link to the following URL or email:' ),
+            placeholder: 'e.g. www.example.com',
+            confirm: loc( 'Add Link' ),
+            add () {
+                var url = this.get( 'value' ).trim();
+                var email;
                 // Don't allow malicious links
                 if ( /^(?:javascript|data):/i.test( url ) ) {
                     return;
@@ -910,6 +937,39 @@ const RichTextView = Class({
             value = '';
         }
         view.set( 'value', value );
+        this.showOverlay( view, buttonView );
+    },
+
+    insertImageOverlayView: function () {
+        var richTextView = this;
+        return new URLPickerView({
+            prompt: loc( 'Insert an image from the following URL:' ),
+            placeholder: 'e.g. https://example.com/path/to/image.jpg',
+            confirm: loc( 'Insert Image' ),
+            add () {
+                var url = this.get( 'value' ).trim();
+                if ( !/^https?:/i.test( url ) ) {
+                    // Must be http/https protocol
+                    if ( /^[a-z]:/i.test( url ) ) {
+                        return;
+                    }
+                    // If none, presume http
+                    url = 'http://' + url;
+                }
+                richTextView.insertImage( url );
+                popOver.hide();
+                richTextView.focus();
+            },
+        });
+    }.property(),
+
+    showInsertImageOverlay ( buttonView ) {
+        var view = this.get( 'insertImageOverlayView' );
+        view.set( 'value', '' );
+        this.showOverlay( view, buttonView );
+    },
+
+    showOverlay ( view, buttonView ) {
         // If we're in the overflow menu, align with the "More" button.
         if ( buttonView.getParent( MenuView ) ) {
             buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
