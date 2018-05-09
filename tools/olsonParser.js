@@ -151,12 +151,52 @@ var sortRules = function ( a, b ) {
     return a[1] - b[1];
 };
 
-var convertFile = function ( text ) {
+// The following obsolete names are aliases rather than linked
+const alwaysAlias = {
+    'GMT': true,
+    'Etc/Universal': true,
+    'Etc/Zulu': true,
+    'Etc/Greenwich': true,
+    'Etc/GMT-0': true,
+    'Etc/GMT+0': true,
+    'Etc/GMT0': true,
+};
+
+// We link rather than alias the common US/* zones, for ease of use
+// by Americans
+const alwaysLink = {
+    'US/Alaska': true,
+    'US/Arizona': true,
+    'US/Central': true,
+    'US/Eastern': true,
+    'US/Hawaii': true,
+    'US/Mountain': true,
+    'US/Pacific': true,
+};
+
+// The following obsolete zones are defined in Olsen: alias them into an
+// equivalent modern zone
+const obsoleteZones = {
+    WET: 'Europe/Lisbon ',
+    CET: 'Europe/Paris',
+    MET: 'Europe/Paris',
+    EET: 'Europe/Helsinki',
+    EST: 'Etc/GMT+5',
+    MST: 'Etc/GMT+7',
+    HST: 'Etc/GMT+10',
+    EST5EDT: 'America/New_York',
+    CST6CDT: 'America/Chicago',
+    MST7MDT: 'America/Denver',
+    PST8PDT: 'America/Los_Angeles',
+};
+
+var convertFile = function ( text, isLinkAlias ) {
     var lines = text.replace( /#.*$/gm, '' ).split( '\n' ),
         zones = {},
         rules = {},
         usedRules = {},
         result = {
+            alias: {},
             link: {},
             zones: zones,
             rules: rules
@@ -175,7 +215,13 @@ var convertFile = function ( text ) {
         // console.log( 'parsing line ' + i + ': ' + line );
         switch ( parts[0] ) {
             case 'Link':
-                result.link[ parts[2] ] = parts[1];
+                zone = parts[2];
+                if ( ( isLinkAlias || alwaysAlias[ zone ] ) &&
+                        !alwaysLink[ zone ] ) {
+                    result.alias[ zone ] = parts[1];
+                } else {
+                    result.link[ zone ] = parts[1];
+                }
                 break;
             case 'Rule':
                 rule = formatRule( parts );
@@ -187,9 +233,14 @@ var convertFile = function ( text ) {
                 break;
             case 'Zone':
                 zone = parts[1];
-                // Skip obsolete legacy timezones.
+                // Handle obsolete legacy timezones.
                 if ( zone.indexOf( '/' ) === -1 ) {
-                    console.log( zone );
+                    var alias = obsoleteZones[ zone ];
+                    if ( alias ) {
+                        result.alias[ zone ] = alias;
+                    } else {
+                        console.log( 'Unhandled obsolete zone: ' + zone );
+                    }
                     continue;
                 }
                 parts = parts.slice( 2 );
@@ -238,11 +289,8 @@ var formatHeaderLine = function ( text, length ) {
 ( function () {
     var args = process.argv.slice( 2 );
     var olson = fs.readFileSync( args[0], 'utf8' );
-    var json = convertFile( olson );
-    if ( /backward/.test( args[0] ) ) {
-        json.alias = json.link;
-        delete json.link;
-    }
+    var isLinkAlias = /backward/.test( args[0] );
+    var json = convertFile( olson, isLinkAlias );
     var outputName = args[1];
     fs.writeFileSync( outputName,
         formatHeaderLine( new Array( 80 - 6 + 1 ).join( '-' ), 80 ) +
