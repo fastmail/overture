@@ -218,12 +218,13 @@ TimeZone.load = function ( json ) {
         addTimeZone( new TimeZone( id, zones[ id ] ) );
     }
     for ( const id in link ) {
-        addTimeZone( new TimeZone( id, zones[ link[ id ] ] ) );
+        addTimeZone( new TimeZone(
+            id,
+            zones[ link[ id ] ] || TimeZone[ link[ id ] ].periods
+        ));
     }
     for ( const id in alias ) {
-        if ( !TimeZone[ id ] ) {
-            TimeZone[ id ] = TimeZone[ alias[ id ] ];
-        }
+        TimeZone[ id ] = TimeZone[ alias[ id ] ];
     }
     Object.assign( TimeZone.rules, json.rules );
 };
