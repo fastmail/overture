@@ -135,6 +135,7 @@ const RichTextView = Class({
 
     // ---
 
+    savedSelection: null,
     isTextSelected: false,
 
     setIsTextSelected: function ( event ) {
@@ -209,6 +210,8 @@ const RichTextView = Class({
     },
 
     didEnterDocument () {
+        RichTextView.parent.didEnterDocument.call( this );
+
         const scrollView = this.getParent( ScrollView );
         if ( scrollView ) {
             if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
@@ -220,8 +223,22 @@ const RichTextView = Class({
                     'scrollTop', this, 'redrawIOSCursor' );
             }
         }
-        this.get( 'editor' ).moveCursorToStart();
-        return RichTextView.parent.didEnterDocument.call( this );
+
+        const selection = this.get( 'savedSelection' );
+        const editor = this.get( 'editor' );
+        if ( selection ) {
+            editor.setSelection(
+                editor.createRange(
+                    selection.sc, selection.so,
+                    selection.ec, selection.eo
+                )
+            ).focus();
+            this.set( 'savedSelection', null );
+        } else {
+            editor.moveCursorToStart();
+        }
+
+        return this;
     },
 
     willLeaveDocument () {
@@ -238,6 +255,19 @@ const RichTextView = Class({
                     'scrollTop', this, 'redrawIOSCursor' );
             }
         }
+
+        // If focused, save cursor position
+        if ( this.get( 'isFocused' ) ) {
+            const selection = this.get( 'editor' ).getSelection();
+            this.set( 'savedSelection', {
+                sc: selection.startContainer,
+                so: selection.startOffset,
+                ec: selection.endContainer,
+                eo: selection.endOffset,
+            });
+            this.blur();
+        }
+
         return RichTextView.parent.willLeaveDocument.call( this );
     },
 
