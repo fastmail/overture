@@ -88,17 +88,20 @@ const RichTextView = Class({
     // ---
 
     showToolbar: UA.isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
-    fontFaceOptions: [
-        [ loc( 'Default' ), null ],
-        [ 'Arial', 'arial, sans-serif' ],
-        [ 'Georgia', 'georgia, serif' ],
-        [ 'Helvetica', 'helvetica, arial, sans-serif' ],
-        [ 'Monospace', 'menlo, consolas, monospace' ],
-        [ 'Tahoma', 'tahoma, sans-serif' ],
-        [ 'Times New Roman', '"Times New Roman", times, serif' ],
-        [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
-        [ 'Verdana', 'verdana, sans-serif' ],
-    ],
+    fontFaceOptions: function () {
+        return [
+            [ loc( 'Default' ), null ],
+            [ 'Arial', 'arial, sans-serif' ],
+            [ 'Georgia', 'georgia, serif' ],
+            [ 'Helvetica', 'helvetica, arial, sans-serif' ],
+            [ 'Monospace', 'menlo, consolas, monospace' ],
+            [ 'Tahoma', 'tahoma, sans-serif' ],
+            [ 'Times New Roman', '"Times New Roman", times, serif' ],
+            [ 'Trebuchet MS', '"Trebuchet MS", sans-serif' ],
+            [ 'Verdana', 'verdana, sans-serif' ],
+        ];
+    }.property(),
+
     fontSizeOptions: function () {
         return [
             [ loc( 'Small' ), '10px' ],
