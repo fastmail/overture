@@ -106,9 +106,14 @@ const generateLocalisedDateParser = function ( locale, mode ) {
 
     const adjustSign = define( 'adjustSign', /^[+-]/ );
     const adjustUnit = define( 'adjustUnit',
-            /^[dwmy]|(?:day|week|month|year)/i );
+            /^(?:day|week|month|year)|[dwmy]/i );
     const adjustNumber = define( 'adjustNumber', /^\d+/ );
-    const adjust = sequence([ adjustSign, adjustNumber, adjustUnit ]);
+    const adjust = sequence([
+        optional( adjustSign ),
+        adjustNumber,
+        optional( whitespace ),
+        adjustUnit,
+    ]);
 
     const standardDate = sequence(
             locale.dateFormats.date.split( /%-?([dmbY])/ ).map(
@@ -216,9 +221,9 @@ const generateLocalisedDateParser = function ( locale, mode ) {
             weekday,
             fullyear,
             monthname,
-            day,
             relativeDate,
             adjust,
+            day,
             searchMethod,
             whitespace,
         ]);
@@ -226,13 +231,13 @@ const generateLocalisedDateParser = function ( locale, mode ) {
 
     return firstMatch([
         date,
-        time,
         weekday,
         fullyear,
         monthname,
-        day,
         relativeDate,
         adjust,
+        day,
+        time,
         searchMethod,
         whitespace,
     ]);
@@ -548,6 +553,9 @@ const interpreter = {
         date.adjust.push([ sign === '+' ? 1 : -1, 'day' ]);
     },
     adjustNumber ( date, number ) {
+        if ( !date.adjust ) {
+            date.adjust = [[ -1, 'day' ]];
+        }
         date.adjust.last()[0] *= number;
     },
     adjustUnit ( date, unit ) {
