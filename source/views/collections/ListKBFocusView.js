@@ -44,8 +44,8 @@ const ListKBFocusView = Class({
         }
         return {
             top: index < 0 ? 0 : itemHeight * index,
-            left: index < 0 ? 'auto' : '0',
-            right: index < 0 ? '100%' : 'auto',
+            left: index < 0 ? 'auto' : null,
+            right: index < 0 ? '100%' : null,
             height: itemHeight,
         };
     }.property( 'itemHeight', 'index', 'record' ),
