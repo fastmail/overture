@@ -1251,6 +1251,9 @@ const Store = Class({
             return this;
         }
 
+        if ( !accountId ) {
+            accountId = this._defaultAccountId;
+        }
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
         const typeToStatus = account.status;
