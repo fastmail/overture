@@ -79,6 +79,7 @@ const ToolbarView = Class({
     config: 'standard',
     minimumGap: 20,
     preventOverlap: false,
+    popOverOptions: null,
 
     init (/* ...mixins */) {
         ToolbarView.parent.constructor.apply( this, arguments );
@@ -87,6 +88,7 @@ const ToolbarView = Class({
                 label: loc( 'More' ),
                 shortcut: '.',
                 popOverView: this.popOverView || new PopOverView(),
+                popOverOptions: this.get( 'popOverOptions' ),
             }),
         };
         this._configs = {
@@ -344,5 +346,7 @@ const ToolbarView = Class({
         }
     },
 });
+
+ToolbarView.OverflowMenuView = OverflowMenuView;
 
 export default ToolbarView;
