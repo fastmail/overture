@@ -70,6 +70,23 @@ const OverflowMenuView = Class({
     },
 });
 
+const viewIsBeforeFlex = function ( view, flex ) {
+    var layer = view.get( 'layer' );
+    var childNodes = flex.parentNode.childNodes;
+    var l = childNodes.length;
+    var node;
+    while ( l-- ) {
+        node = childNodes[l];
+        if ( node === view ) {
+            return false;
+        }
+        if ( node === flex ) {
+            return true;
+        }
+    }
+    return true;
+};
+
 const ToolbarView = Class({
 
     Extends: View,
@@ -99,6 +116,7 @@ const ToolbarView = Class({
         };
         this._measureView = null;
         this._widths = {};
+        this._flex = null;
     },
 
     registerView ( name, view, _dontMeasure ) {
@@ -218,7 +236,7 @@ const ToolbarView = Class({
     preMeasure () {
         this.insertView( this._measureView =
             new View({
-                className: 'v-Toolbar-section v-Toolbar-section--measure',
+                className: 'v-Toolbar-measure',
                 layerStyles: {},
                 childViews: Object.values( this._views )
                                   .filter( view => !view.get( 'parentView' ) ),
@@ -285,12 +303,9 @@ const ToolbarView = Class({
 
     draw ( layer, Element, el ) {
         return [
-            el( 'div.v-Toolbar-section.v-Toolbar-section--left',
-                this.get( 'left' )
-            ),
-            el( 'div.v-Toolbar-section.v-Toolbar-section--right',
-                this.get( 'right' )
-            ),
+            this.get( 'left' ),
+            this._flex = el( 'div.v-Toolbar-flex' ),
+            this.get( 'right' ),
         ];
     },
 
@@ -301,15 +316,16 @@ const ToolbarView = Class({
     }.observes( 'left', 'right' ),
 
     redrawLeft ( layer, oldViews ) {
-        this.redrawSide( layer.firstChild, oldViews, this.get( 'left' ) );
+        this.redrawSide( layer, true, oldViews, this.get( 'left' ) );
     },
     redrawRight ( layer, oldViews ) {
-        this.redrawSide( layer.lastChild, oldViews, this.get( 'right' ) );
+        this.redrawSide( layer, false, oldViews, this.get( 'right' ) );
     },
 
-    redrawSide ( container, oldViews, newViews ) {
+    redrawSide ( layer, isLeft, oldViews, newViews ) {
         let start = 0;
         let isEqual = true;
+        var flex = this._flex;
         let i, l, view, parent;
 
         for ( i = start, l = oldViews.length; i < l; i += 1 ) {
@@ -320,7 +336,7 @@ const ToolbarView = Class({
                 } else {
                     isEqual = false;
                     // Check it hasn't already swapped sides!
-                    if ( view.get( 'layer' ).parentNode === container ) {
+                    if ( viewIsBeforeFlex( view, flex ) === isLeft ) {
                         this.removeView( view );
                     }
                 }
@@ -329,19 +345,21 @@ const ToolbarView = Class({
                     start += 1;
                     newViews[i] = view;
                 } else {
-                    container.removeChild( view );
+                    layer.removeChild( view );
                 }
             }
         }
         for ( i = start, l = newViews.length; i < l; i += 1 ) {
             view = newViews[i];
             if ( view instanceof View ) {
-                if ( parent = view.get( 'parentView' ) ) {
+                if (( parent = view.get( 'parentView' ) )) {
                     parent.removeView( view );
                 }
-                this.insertView( view, container );
+                this.insertView( view,
+                    isLeft ? flex : layer,
+                    isLeft ? 'before' : 'bottom' );
             } else if ( view ) {
-                container.appendChild( view );
+                layer.insertBefore( view, isLeft ? flex : null );
             }
         }
     },
