@@ -91,6 +91,8 @@ const RootView = Class({
         this.layer = nodeIsDocument ? node.body : node;
     },
 
+    safeAreaInsetBottom: 0,
+
     _onScroll: function ( event ) {
         const layer = this.get( 'layer' );
         const isBody = ( layer.nodeName === 'BODY' );

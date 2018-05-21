@@ -8,8 +8,10 @@ import Animation from '../../animation/Animation';
 import Tap from '../../touch/Tap';
 import UA from '../../ua/UA';
 import View from '../View';
+import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
 
+const el = Element.create;
 const setStyle = Element.setStyle;
 
 const ScrollAnimation = Class({
@@ -118,6 +120,11 @@ const ScrollView = Class({
         return styles;
     }.property( 'layout', 'positioning', 'showScrollbarX', 'showScrollbarY' ),
 
+    isFixedDimensions: function () {
+        const positioning = this.get( 'positioning' );
+        return positioning === 'absolute' || positioning === 'fixed';
+    }.property( 'positioning' ),
+
     /**
         Property: O.ScrollView#keys
         Type: Object
@@ -145,6 +152,19 @@ const ScrollView = Class({
         layer.tabIndex = -1;
     },
 
+    willEnterDocument () {
+        ScrollView.parent.willEnterDocument.call( this );
+        if ( this.get( 'isFixedDimensions' ) ) {
+            this.get( 'layer' ).appendChild(
+                this._safeAreaPadding = el( 'div.v-Scroll-safeAreaPadding' )
+            );
+            this.getParent( RootView ).addObserverForKey(
+                'safeAreaInsetBottom', this, 'redrawSafeArea' );
+            this.redrawSafeArea();
+        }
+        return this;
+    },
+
     didEnterDocument () {
         this.get( 'layer' ).addEventListener( 'scroll', this, false );
 
@@ -170,6 +190,35 @@ const ScrollView = Class({
 
         return ScrollView.parent.willLeaveDocument.call( this );
     },
+
+    didLeaveDocument () {
+        var safeAreaPadding = this._safeAreaPadding;
+        if ( safeAreaPadding ) {
+            this.getParent( RootView ).removeObserverForKey(
+                'safeAreaInsetBottom', this, 'redrawSafeArea' );
+            this.get( 'layer' ).removeChild( safeAreaPadding );
+            this._safeAreaPadding = null;
+        }
+        return ScrollView.parent.didLeaveDocument.call( this );
+    },
+
+    insertView ( view, relativeTo, where ) {
+        var safeAreaPadding = this._safeAreaPadding;
+        if ( !relativeTo && safeAreaPadding &&
+                ( !where || where === 'bottom' ) ) {
+            relativeTo = safeAreaPadding;
+            where = 'before';
+        }
+        return ScrollView.parent.insertView.call(
+            this, view, relativeTo, where );
+    },
+
+    redrawSafeArea: function () {
+        this._safeAreaPadding.style.height =
+            this.getParent( RootView ).get( 'safeAreaInsetBottom' ) + 'px';
+    },
+
+    // ---
 
     _restoreScroll: function () {
         // Scroll is reset to 0 in some browsers whenever it is removed from the
@@ -433,12 +482,7 @@ const ScrollView = Class({
 });
 
 if ( UA.isIOS ) {
-    Object.assign( ScrollView.prototype, {
-        isFixedDimensions: function () {
-            const positioning = this.get( 'positioning' );
-            return positioning === 'absolute' || positioning === 'fixed';
-        }.property( 'positioning' ),
-
+    ScrollView.implement({
         draw ( layer, Element, el ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
             let scrollFixerHeight = 1;
@@ -468,7 +512,6 @@ if ( UA.isIOS ) {
             Element.appendChildren( layer, children );
 
             if ( isFixedDimensions ) {
-                layer.style.paddingBottom = 'constant(safe-area-inset-bottom)';
                 layer.appendChild(
                     el( 'div', {
                         style: 'position:absolute;top:100%;left:0px;' +
@@ -503,21 +546,23 @@ if ( UA.isIOS ) {
         }.on( 'touchmove' ),
 
         insertView ( view, relativeTo, where ) {
-            if ( !relativeTo && this.get( 'isRendered' ) &&
-                    this.get( 'isFixedDimensions' ) ) {
+            var safeAreaPadding = this._safeAreaPadding;
+            if ( !relativeTo && safeAreaPadding ) {
                 relativeTo = this.get( 'layer' );
                 if ( where === 'top' ) {
                     relativeTo = relativeTo.firstChild;
                     where = 'after';
                 } else if ( !where || where === 'bottom' ) {
-                    relativeTo = relativeTo.lastChild;
+                    relativeTo = this.get( 'isFixedDimensions' ) ?
+                        safeAreaPadding.previousSibling :
+                        safeAreaPadding;
                     where = 'before';
                 }
             }
             return ScrollView.parent.insertView.call(
                 this, view, relativeTo, where );
         },
-    });
+    }, true );
 }
 
 export default ScrollView;
