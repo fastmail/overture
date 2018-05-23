@@ -77,7 +77,7 @@ const viewIsBeforeFlex = function ( view, flex ) {
     var node;
     while ( l-- ) {
         node = childNodes[l];
-        if ( node === view ) {
+        if ( node === layer ) {
             return false;
         }
         if ( node === flex ) {
@@ -246,9 +246,7 @@ const ToolbarView = Class({
                         View.prototype.draw.call( this, layer, Element, el ),
                     ];
                 },
-            }),
-            this.get( 'layer' ).lastChild,
-            'before'
+            })
         );
         return this;
     },
