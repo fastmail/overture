@@ -283,10 +283,11 @@ const ToolbarView = Class({
     },
 
     willEnterDocument () {
+        ToolbarView.parent.willEnterDocument.call( this );
         if ( this.get( 'preventOverlap' ) ) {
             this.preMeasure();
         }
-        return ToolbarView.parent.willEnterDocument.call( this );
+        return this;
     },
 
     didEnterDocument () {
