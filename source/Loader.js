@@ -1,4 +1,4 @@
-/*global document, setTimeout, XMLHttpRequest, XDomainRequest, localStorage, O*/
+/*global document, setTimeout, XMLHttpRequest, localStorage, O*/
 
 /*
     Object: O.Loader
@@ -22,12 +22,8 @@ const moduleInfo = {};
 let require;  // eslint-disable-line prefer-const
 let loader;  // eslint-disable-line prefer-const
 
-const CORSRequest =
-    ( 'withCredentials' in new XMLHttpRequest() ) ? XMLHttpRequest :
-    ( typeof XDomainRequest !== 'undefined' ) ? XDomainRequest : null;
-
 const getFile = function ( src, callback ) {
-    const xhr = new CORSRequest();
+    const xhr = new XMLHttpRequest();
     const send = function () {
         xhr.open( 'GET', src );
         xhr.send();
@@ -54,10 +50,6 @@ const getFile = function ( src, callback ) {
     xhr.ontimeout = function () {};
     setTimeout( send, 0 );
 };
-
-// Will the browser execute the scripts in the order they are injected into the
-// page?
-const inOrderScripts = ( CORSRequest === XMLHttpRequest );
 
 let afterModuleExecute = function ( name ) {
     const info = moduleInfo[ name ];
@@ -135,20 +127,9 @@ const load = function ( name, executeOnLoad, force ) {
     const info = moduleInfo[ name ];
     const src = info.src;
     const status = info.status;
-    const useScriptTag = !CORSRequest || loader.debug;
-
-    if ( useScriptTag ) {
-        if ( !executeOnLoad ) {
-            return;
-        }
-        const dependencies = info.dependencies;
-        if ( !inOrderScripts && !force &&
-                dependencies ) {
-            require( dependencies, function () {
-                load( name, executeOnLoad, true );
-            });
-            return;
-        }
+    const useScriptTag = loader.debug;
+    if ( useScriptTag && !executeOnLoad ) {
+        return;
     }
 
     if ( status === UNREQUESTED ) {
