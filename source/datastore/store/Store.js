@@ -2428,11 +2428,22 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidCommitDestroy ( storeKeys ) {
-        let l = storeKeys.length,
-            storeKey, status;
+        const { _skToType, _typeToSKToId } = this;
+        let l = storeKeys.length;
+        let storeKey, status;
         while ( l-- ) {
             storeKey = storeKeys[l];
             status = this.getStatus( storeKey );
+
+            // Id is no longer valid: remove it. If the record is undestroyed,
+            // it will keep the same store key but will need to be referenced
+            // by creation id until the server gives it a new id
+            const typeId = guid( _skToType[ storeKey ] );
+            const id = this.getIdFromStoreKey( storeKey );
+            const accountId = this.getAccountIdFromStoreKey( storeKey );
+            delete _typeToSKToId[ typeId ][ storeKey ];
+            delete this.getAccount( accountId ).typeToIdToSK[ typeId ][ id ];
+
             // If the record has been undestroyed while being committed
             // it will no longer be in the destroyed state, but instead be
             // READY|NEW|COMMITTING.
