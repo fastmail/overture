@@ -449,6 +449,13 @@ const Store = Class({
     getIdFromStoreKey ( storeKey ) {
         const Type = this._skToType[ storeKey ];
         const skToId = this._typeToSKToId[ guid( Type ) ];
+        if ( this._skToStatus[ storeKey ] & COMMITTING ) {
+            const rollback = this._skToRollback[ storeKey ];
+            const data = this._skToData[ storeKey ];
+            if ( rollback && rollback.accountId !== data.accountId ) {
+                return null;
+            }
+        }
         return skToId && skToId[ storeKey ] || null;
     },
 
@@ -1440,30 +1447,19 @@ const Store = Class({
             }
         }
 
-        // If in main store, or record is new (so not in other stores),
-        // update the accountId associated with the id.
+        // If the record is new (so not in other stores), update the accountId
+        // associated with the record.
         const accountId = data.accountId;
-        if ( ( !isNested || status === (READY|NEW|DIRTY) ) && accountId ) {
-            const typeId = guid( this._skToType[ storeKey ] );
+        if ( status === (READY|NEW|DIRTY) && accountId ) {
             const oldAccount = this.getAccount(
                 this._skToAccountId[ storeKey ] || this._defaultAccountId
             );
             const newAccount = this.getAccount( accountId );
-            const id = this.getIdFromStoreKey( storeKey );
-
             if ( !oldAccount.isDefault ) {
                 delete this._skToAccountId[ storeKey ];
             }
             if ( !newAccount.isDefault ) {
                 this._skToAccountId[ storeKey ] = accountId;
-            }
-            if ( id ) {
-                const oldIdToSk = oldAccount.typeToIdToSK[ typeId ];
-                const newTypeToIdToSK = newAccount.typeToIdToSK;
-                const newIdToSk = newTypeToIdToSK[ typeId ] ||
-                    ( newTypeToIdToSK[ typeId ] = {} );
-                delete oldIdToSk[ id ];
-                newIdToSk[ id ] = storeKey;
             }
         }
 
@@ -2295,11 +2291,34 @@ const Store = Class({
     */
     sourceDidCommitUpdate ( storeKeys ) {
         let l = storeKeys.length;
-        const { _skToRollback } = this;
+        const {
+            _skToRollback, _skToData, _skToAccountId, _skToType, _typeToSKToId,
+        } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
             const status = this.getStatus( storeKey );
+            const oldAccountId = _skToRollback[ storeKey ].accountId;
+            const newAccountId = _skToData[ storeKey ].accountId;
+            // If the account has changed, update the id to sk map
+            if ( oldAccountId !== newAccountId ) {
+                const oldAccount = this.getAccount( oldAccountId );
+                const newAccount = this.getAccount( newAccountId );
+                if ( !oldAccount.isDefault ) {
+                    delete _skToAccountId[ storeKey ];
+                }
+                if ( !newAccount.isDefault ) {
+                    _skToAccountId[ storeKey ] = newAccountId;
+                }
+                const typeId = guid( _skToType[ storeKey ] );
+                const id = _typeToSKToId[ typeId ][ storeKey ];
+                const oldIdToSk = oldAccount.typeToIdToSK[ typeId ];
+                const newTypeToIdToSK = newAccount.typeToIdToSK;
+                const newIdToSk = newTypeToIdToSK[ typeId ] ||
+                    ( newTypeToIdToSK[ typeId ] = {} );
+                delete oldIdToSk[ id ];
+                newIdToSk[ id ] = storeKey;
+            }
             delete _skToRollback[ storeKey ];
             if ( status !== EMPTY ) {
                 this.setStatus( storeKey, status & ~COMMITTING );

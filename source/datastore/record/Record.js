@@ -198,7 +198,7 @@ const Record = Class({
         return storeKey ?
             this.get( 'store' ).getIdFromStoreKey( storeKey ) :
             this._data[ primaryKey ];
-    }.property(),
+    }.property( 'accountId' ),
 
     toJSON () {
         return this.get( 'storeKey' ) || this;
