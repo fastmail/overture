@@ -51,10 +51,12 @@ const ModalEventHandler = Class({
                         view.clickedOutside( event );
                     }
                 }
+            } else if ( type === 'wheel' ) {
+                event.preventDefault();
             }
         }
         event.seenByModal = true;
-    }.on( 'click', 'mousedown', 'mouseup', 'tap' ),
+    }.on( 'click', 'mousedown', 'mouseup', 'tap', 'wheel' ),
 
     // If the user clicks on a scroll bar to scroll (I know, who does that
     // these days right?), we don't want to count that as a click. So cancel

@@ -64,6 +64,7 @@ const RootView = Class({
             'keypress', 'keydown', 'keyup',
             'dragstart',
             'touchstart', 'touchmove', 'touchend', 'touchcancel',
+            'wheel',
             'cut',
             'submit',
         ];
