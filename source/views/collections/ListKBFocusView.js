@@ -80,7 +80,7 @@ const ListKBFocusView = Class({
         if ( distance ) {
             this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
         }
-    }.nextFrame().observes( 'index' ),
+    }.nextFrame().observes( 'record' ),
 
     distanceFromVisRect: function () {
         const scrollView = this.getParent( ScrollView );
