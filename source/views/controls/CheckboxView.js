@@ -21,6 +21,8 @@ const CheckboxView = Class({
 
     type: '',
 
+    isIndeterminate: false,
+
     /**
         Property: O.CheckboxView#className
         Type: String
@@ -47,6 +49,7 @@ const CheckboxView = Class({
                 className: 'v-Checkbox-input',
                 type: 'checkbox',
                 checked: this.get( 'value' ),
+                indeterminate: this.get( 'isIndeterminate' ),
             }),
             CheckboxView.parent.draw.call( this, layer, Element, el ),
         ];
@@ -62,7 +65,7 @@ const CheckboxView = Class({
     */
     checkboxNeedsRedraw: function ( self, property, oldValue ) {
         return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'value' ),
+    }.observes( 'value', 'isIndeterminate' ),
 
     /**
         Method: O.CheckboxView#redrawValue
@@ -72,6 +75,10 @@ const CheckboxView = Class({
     */
     redrawValue () {
         this._domControl.checked = this.get( 'value' );
+    },
+
+    redrawIsIndeterminate () {
+        this._domControl.indeterminate = this.get( 'isIndeterminate' );
     },
 
     // --- Activate ---
