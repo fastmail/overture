@@ -365,9 +365,9 @@ const PopOverView = Class({
 
     softHide () {
         const options = this._options;
-        if ( !options.resistHiding || (
+        if ( this.get( 'isVisible' ) && ( !options.resistHiding || (
                 typeof options.resistHiding === 'function' &&
-                !options.resistHiding() ) ) {
+                !options.resistHiding() ) ) ) {
             this.hide();
         }
     },
@@ -382,9 +382,6 @@ const PopOverView = Class({
             view = view.get( 'subPopOverView' );
         }
         view.get( 'childViews' )[0].fire( event.type, event );
-        if ( event.type === 'keydown' ) {
-            view.closeOnEsc( event );
-        }
     },
 
     closeOnEsc: function ( event ) {
