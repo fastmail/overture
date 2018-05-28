@@ -19,6 +19,7 @@ const PopOverView = Class({
 
     isVisible: false,
     parentPopOverView: null,
+    options: null,
 
     ariaAttributes: {
         modal: 'true',
@@ -47,7 +48,7 @@ const PopOverView = Class({
         }
         this.hide();
 
-        this._options = options;
+        this.set( 'options', options );
 
         // Set layout and insert in the right place
         const eventHandler = this.get( 'eventHandler' );
@@ -215,7 +216,7 @@ const PopOverView = Class({
     adjustPosition ( deltaLeft, deltaTop ) {
         let parent = this.get( 'parentView' );
         const layer = this.get( 'layer' );
-        const positionToThe = this._options.positionToThe || 'bottom';
+        const positionToThe = this.get( 'options' ).positionToThe || 'bottom';
         const callout = this._callout;
         const calloutIsAtTopOrBottom =
                 ( positionToThe === 'top' || positionToThe === 'bottom' );
@@ -228,7 +229,9 @@ const PopOverView = Class({
             deltaTop = 0;
         }
 
-        // Check not run off screen.
+        // Check not run off screen. We only move it on the axis the pop over
+        // has been positioned along. It is up to the contents to ensure the
+        // pop over is not too long in the other direction.
         if ( parent instanceof PopOverView ) {
             parent = parent.getParent( ScrollView ) ||
                 parent.getParent( RootView );
@@ -237,54 +240,56 @@ const PopOverView = Class({
         let gap;
         let calloutDelta = 0;
 
-        // Check right edge
-        if ( !parent.get( 'showScrollbarX' ) ) {
-            gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
-                layer.offsetWidth;
-            // If gap is negative, move the view.
+        if ( positionToThe === 'bottom' || positionToThe === 'top' ) {
+            // Check right edge
+            if ( !parent.get( 'showScrollbarX' ) ) {
+                gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
+                    layer.offsetWidth;
+                // If gap is negative, move the view.
+                if ( gap < 0 ) {
+                    deltaLeft += gap;
+                    deltaLeft -= parentMargin.right;
+                    if ( callout && calloutIsAtTopOrBottom ) {
+                        calloutDelta += gap;
+                        calloutDelta -= parentMargin.right;
+                    }
+                }
+            }
+
+            // Check left edge
+            gap = position.left + deltaLeft;
             if ( gap < 0 ) {
-                deltaLeft += gap;
-                deltaLeft -= parentMargin.right;
+                deltaLeft -= gap;
+                deltaLeft += parentMargin.left;
                 if ( callout && calloutIsAtTopOrBottom ) {
-                    calloutDelta += gap;
-                    calloutDelta -= parentMargin.right;
+                    calloutDelta -= gap;
+                    calloutDelta += parentMargin.left;
                 }
             }
-        }
-
-        // Check left edge
-        gap = position.left + deltaLeft;
-        if ( gap < 0 ) {
-            deltaLeft -= gap;
-            deltaLeft += parentMargin.left;
-            if ( callout && calloutIsAtTopOrBottom ) {
-                calloutDelta -= gap;
-                calloutDelta += parentMargin.left;
+        } else {
+            // Check bottom edge
+            if ( !parent.get( 'showScrollbarY' ) ) {
+                gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
+                    layer.offsetHeight;
+                if ( gap < 0 ) {
+                    deltaTop += gap;
+                    deltaTop -= parentMargin.bottom;
+                    if ( callout && !calloutIsAtTopOrBottom ) {
+                        calloutDelta += gap;
+                        calloutDelta -= parentMargin.bottom;
+                    }
+                }
             }
-        }
 
-        // Check bottom edge
-        if ( !parent.get( 'showScrollbarY' ) ) {
-            gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
-                layer.offsetHeight;
+            // Check top edge
+            gap = position.top + deltaTop;
             if ( gap < 0 ) {
-                deltaTop += gap;
-                deltaTop -= parentMargin.bottom;
+                deltaTop -= gap;
+                deltaTop += parentMargin.top;
                 if ( callout && !calloutIsAtTopOrBottom ) {
-                    calloutDelta += gap;
-                    calloutDelta -= parentMargin.bottom;
+                    calloutDelta -= gap;
+                    calloutDelta += parentMargin.top;
                 }
-            }
-        }
-
-        // Check top edge
-        gap = position.top + deltaTop;
-        if ( gap < 0 ) {
-            deltaTop -= gap;
-            deltaTop += parentMargin.top;
-            if ( callout && !calloutIsAtTopOrBottom ) {
-                calloutDelta -= gap;
-                calloutDelta += parentMargin.top;
             }
         }
 
@@ -323,7 +328,7 @@ const PopOverView = Class({
             const subPopOverView = this.hasSubView() ?
                     this.get( 'subPopOverView' ) : null;
             const eventHandler = this.get( 'eventHandler' );
-            const options = this._options;
+            const options = this.get( 'options' );
             let onHide, layer;
             if ( subPopOverView ) {
                 subPopOverView.hide();
@@ -341,7 +346,7 @@ const PopOverView = Class({
                 ViewEventsController.removeEventTarget( eventHandler );
                 eventHandler._seenMouseDown = false;
             }
-            this._options = null;
+            this.set( 'options', null );
             if ( onHide = options.onHide ) {
                 onHide( options, this );
             }
@@ -364,7 +369,7 @@ const PopOverView = Class({
     }.property(),
 
     softHide () {
-        const options = this._options;
+        const options = this.get( 'options' );
         if ( this.get( 'isVisible' ) && ( !options.resistHiding || (
                 typeof options.resistHiding === 'function' &&
                 !options.resistHiding() ) ) ) {
