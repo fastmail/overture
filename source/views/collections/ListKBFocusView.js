@@ -33,22 +33,26 @@ const ListKBFocusView = Class({
 
     positioning: 'absolute',
 
-    layout: function () {
-        const itemHeight = this.get( 'itemHeight' );
-        let index = this.get( 'index' );
-        const singleSelection = this.get( 'singleSelection' );
-        const list = singleSelection.get( 'content' );
+    layoutIndex: function () {
+        const index = this.get( 'index' );
+        const list = this.get( 'singleSelection' ).get( 'content' );
         if ( index > -1 && list &&
                 list.getObjectAt( index ) !== this.get( 'record' ) ) {
-            index = -1;
+            return -1;
         }
+        return index;
+    }.property( 'index', 'record' ),
+
+    layout: function () {
+        const itemHeight = this.get( 'itemHeight' );
+        const index = this.get( 'layoutIndex' );
         return {
             top: index < 0 ? 0 : itemHeight * index,
             left: index < 0 ? 'auto' : null,
             right: index < 0 ? '100%' : null,
             height: itemHeight,
         };
-    }.property( 'itemHeight', 'index', 'record' ),
+    }.property( 'itemHeight', 'layoutIndex' ),
 
     didEnterDocument () {
         const keys = this.get( 'keys' );
@@ -70,7 +74,7 @@ const ListKBFocusView = Class({
 
     // Scroll to centre widget on screen with no animation
     checkInitialScroll: function () {
-        if ( this.get( 'index' ) > -1 && this.get( 'distanceFromVisRect' ) ) {
+        if ( this.get( 'distanceFromVisRect' ) ) {
             this.scrollIntoView( 0, false );
         }
     }.nextFrame(),
@@ -83,8 +87,9 @@ const ListKBFocusView = Class({
     }.nextFrame().observes( 'record' ),
 
     distanceFromVisRect: function () {
+        const layoutIndex = this.get( 'layoutIndex' );
         const scrollView = this.getParent( ScrollView );
-        if ( scrollView && this.get( 'isInDocument' ) ) {
+        if ( scrollView && layoutIndex > -1 && this.get( 'isInDocument' ) ) {
             const scrollTop = scrollView.get( 'scrollTop' );
             const position = this.getPositionRelativeTo( scrollView );
             const top = position.top;
