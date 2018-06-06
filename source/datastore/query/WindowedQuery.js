@@ -533,8 +533,11 @@ const WindowedQuery = Class({
         const list = this._storeKeys;
         let i = index * windowSize;
         const l = Math.min( i + windowSize, this.get( 'length' ) );
+        let status;
         for ( ; i < l; i += 1 ) {
-            if ( store.getStatus( list[i] ) & (EMPTY|OBSOLETE) ) {
+            status = store.getStatus( list[i] );
+            if ( !( status & READY ) ||
+                    ( ( status & OBSOLETE ) && !( status & LOADING ) ) ) {
                 return false;
             }
         }

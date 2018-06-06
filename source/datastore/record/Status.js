@@ -11,8 +11,7 @@
     DIRTY        - Changes have been made to the record which have not yet been
                    committed to the source.
     OBSOLETE     - Changes may have been made to the record in the source which
-                   have not yet been fetched. If the record is loading, this
-                   means the result of the load may not be the latest.
+                   have not yet loaded.
 */
 
 // Core states:

@@ -20,7 +20,7 @@ import {
     COMMITTING,  // Request in progress to commit record
     NEW,         // Record is not created on source (has no source id)
     DIRTY,       // Record has local changes not yet committing
-    OBSOLETE,    // Record may have changes not yet requested
+    OBSOLETE,    // Record may have changes not yet loaded
 } from '../record/Status';
 // eslint-disable-next-line no-duplicate-imports
 import * as Status from '../record/Status';
@@ -198,7 +198,7 @@ const convertForeignKeysToId = function ( store, Type, data ) {
       - `NEW`: The record is not yet created on the source (and therefore has
          no source id).
       - `DIRTY`: The record has local changes not yet committing.
-      - `OBSOLETE`: The record may have changes on the server not yet requested.
+      - `OBSOLETE`: The record may have changes on the server not yet loaded.
 */
 const Store = Class({
 
@@ -1308,7 +1308,7 @@ const Store = Class({
             this.setStatus( storeKey, (EMPTY|LOADING) );
         } else {
             this.source.refreshRecord( accountId, Type, id );
-            this.setStatus( storeKey, ( status & ~OBSOLETE ) | LOADING );
+            this.setStatus( storeKey, status | LOADING );
         }
         return this;
     },
@@ -1921,13 +1921,9 @@ const Store = Class({
                 continue;
             }
 
-            // If OBSOLETE, the record may have changed since the fetch was
-            // initiated. Since we don't want to overwrite any preemptive
-            // changes, ignore this data and fetch it again.
-            // Similarly if the record is committing, we don't know for sure
-            // what state the update was applied on top of, so fetch again
-            // to be sure.
-            if ( status & (COMMITTING|OBSOLETE) ) {
+            // If the record is committing, we don't know for sure what state
+            // the update was applied on top of, so fetch again to be sure.
+            if ( status & COMMITTING ) {
                 this.setStatus( storeKey, status & ~LOADING );
                 this.fetchData( storeKey );
                 continue;
