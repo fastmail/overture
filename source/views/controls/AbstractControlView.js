@@ -112,6 +112,7 @@ const AbstractControlView = Class({
         See <O.View#didEnterDocument>.
     */
     didEnterDocument () {
+        AbstractControlView.parent.didEnterDocument.call( this );
         const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( key => {
@@ -119,7 +120,7 @@ const AbstractControlView = Class({
                     .register( key, this, 'activate' );
             });
         }
-        return AbstractControlView.parent.didEnterDocument.call( this );
+        return this;
     },
 
     /**
