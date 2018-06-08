@@ -33,6 +33,42 @@ const Timeout = function ( time, period, fn, bind ) {
     this.bind = bind;
 };
 
+const parentsBeforeChildren = function ( a, b ) {
+    let aView = a[1];
+    let bView = b[1];
+
+    // Cheap test for ( x instanceof View )
+    if ( !aView || !aView.parentView ) {
+        aView = null;
+    }
+    if ( !bView || !bView.parentView ) {
+        bView = null;
+    }
+
+    // If equal, order doesn't matter
+    if ( aView === bView ) {
+        return 0;
+    }
+
+    // Redraw views before bindings directly to DOM nodes; it may remove
+    // the view from the DOM so the update is cheaper
+    if ( !aView || !bView ) {
+        return !aView ? 1 : -1;
+    }
+
+    // Redraw parents before children; it may remove the child so nullify
+    // the need to redraw.
+    let aDepth = 0;
+    let bDepth = 0;
+    while (( aView = aView.get( 'parentView' ) )) {
+        aDepth += 1;
+    }
+    while (( bView = bView.get( 'parentView' ) )) {
+        bDepth += 1;
+    }
+    return aDepth - bDepth;
+};
+
 /**
     Class: O.RunLoop
 
@@ -127,6 +163,10 @@ const RunLoop = {
 
         if ( l ) {
             this._queues[ queue ] = [];
+
+            if ( queue === 'render' ) {
+                toInvoke.sort( parentsBeforeChildren );
+            }
 
             for ( let i = 0; i < l; i += 1 ) {
                 const tuple = toInvoke[i];
