@@ -1,11 +1,11 @@
 import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
-import RunLoop from '../../foundation/RunLoop';
 import { lookupKey } from '../../dom/DOMEvent';
 import Element from '../../dom/Element';
 import { loc } from '../../localisation/LocaleController';
 import View from '../View';
+import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
 import PopOverView from '../panels/PopOverView';
 import MenuButtonView from '../menu/MenuButtonView';
@@ -71,10 +71,10 @@ const OverflowMenuView = Class({
 });
 
 const viewIsBeforeFlex = function ( view, flex ) {
-    var layer = view.get( 'layer' );
-    var childNodes = flex.parentNode.childNodes;
-    var l = childNodes.length;
-    var node;
+    const layer = view.get( 'layer' );
+    const childNodes = flex.parentNode.childNodes;
+    let l = childNodes.length;
+    let node;
     while ( l-- ) {
         node = childNodes[l];
         if ( node === layer ) {
@@ -177,12 +177,15 @@ const ToolbarView = Class({
 
     left: function () {
         let leftConfig = this.get( 'leftConfig' );
-        const rightConfig = this.get( 'rightConfig' );
-        let pxWidth = this.get( 'pxWidth' );
-        const widths = this._widths;
-        let i, l, config;
-
         if ( this.get( 'preventOverlap' ) ) {
+            const rightConfig = this.get( 'rightConfig' );
+            const widths = this._widths;
+            let pxWidth = this.get( 'pxWidth' );
+            let rootView, i, l, config;
+            if ( !pxWidth ) {
+                rootView = this.getParent( RootView );
+                pxWidth = rootView ? rootView.get( 'pxWidth' ) : 1024;
+            }
             pxWidth -= this.get( 'minimumGap' );
             for ( i = 0, l = rightConfig.length; i < l; i += 1 ) {
                 pxWidth -= widths[ rightConfig[i] ];
@@ -291,12 +294,10 @@ const ToolbarView = Class({
     },
 
     didEnterDocument () {
-        this.beginPropertyChanges();
         ToolbarView.parent.didEnterDocument.call( this );
         if ( this.get( 'preventOverlap' ) ) {
-            RunLoop.invokeInNextFrame( this.postMeasure, this );
+            this.postMeasure();
         }
-        this.endPropertyChanges();
         return this;
     },
 
@@ -324,7 +325,7 @@ const ToolbarView = Class({
     redrawSide ( layer, isLeft, oldViews, newViews ) {
         let start = 0;
         let isEqual = true;
-        var flex = this._flex;
+        const flex = this._flex;
         let i, l, view, parent;
 
         for ( i = start, l = oldViews.length; i < l; i += 1 ) {
