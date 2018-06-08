@@ -698,7 +698,10 @@ const View = Class({
             layer - {Element} The view's layer.
     */
     redrawClassName ( layer ) {
-        layer.className = this.get( 'className' );
+        var className = this.get( 'className' );
+        if ( className !== undefined ) {
+            layer.className = className;
+        }
     },
 
     /**
