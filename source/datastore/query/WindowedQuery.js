@@ -854,7 +854,7 @@ const WindowedQuery = Class({
         this._applyUpdate( update );
         this._preemptiveUpdates.push( update );
         this.set( 'status', this.get( 'status' ) | DIRTY );
-        this.fetch( true );
+        this.setObsolete();
         return this;
     },
 
