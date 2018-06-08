@@ -195,7 +195,7 @@ const AbstractControlView = Class({
             control.tabIndex = tabIndex;
         }
 
-        if ( shortcut && ( /^\w$/.test( shortcut ) ) ) {
+        if ( shortcut && /^\w$/.test( shortcut ) ) {
             control.accessKey = shortcut;
         }
 
@@ -207,7 +207,8 @@ const AbstractControlView = Class({
 
     abstractControlNeedsRedraw: function ( self, property, oldValue ) {
         return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'isDisabled', 'label', 'name', 'tooltip', 'tabIndex' ),
+    }.observes(
+        'isDisabled', 'label', 'name', 'tooltip', 'tabIndex', 'shortcut' ),
 
     /**
         Method: O.AbstractControlView#redrawIsDisabled
@@ -266,6 +267,14 @@ const AbstractControlView = Class({
     */
     redrawTabIndex () {
         this._domControl.tabIndex = this.get( 'tabIndex' );
+    },
+
+    redrawShortcut () {
+        let shortcut = this.get( 'shortcut' );
+        if ( shortcut && !/^\w$/.test( shortcut ) ) {
+            shortcut = '';
+        }
+        this._domControl.accessKey = shortcut;
     },
 
     // --- Focus ---
