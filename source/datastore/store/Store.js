@@ -1219,7 +1219,7 @@ const Store = Class({
         const typeId = guid( Type );
         const serverState = typeToServerState[ typeId ];
         if ( serverState ) {
-            delete typeToServerState[ typeId ];
+            typeToServerState[ typeId ] = '';
             this.sourceStateDidChange( accountId, Type, serverState );
         }
     },
@@ -1755,13 +1755,15 @@ const Store = Class({
         const typeId = guid( Type );
         const clientState = account.clientState[ typeId ];
 
-        if ( clientState && newState !== clientState ) {
-            if ( !( account.status[ typeId ] & (LOADING|COMMITTING) ) ) {
-                this.fire( typeId + ':server:' + accountId );
-                this.fetchAll( accountId, Type, true );
-            } else {
-                account.serverState[ typeId ] = newState;
-            }
+        if ( account.serverState[ typeId ] === newState ) {
+            return;
+        }
+        account.serverState[ typeId ] = newState;
+
+        if ( clientState && newState !== clientState &&
+                    !( account.status[ typeId ] & (LOADING|COMMITTING) ) ) {
+            this.fire( typeId + ':server:' + accountId );
+            this.fetchAll( accountId, Type, true );
         } else if ( !clientState ) {
             // We have a query but not matches yet; we still need to refresh the
             // queries in case there are now matches.
@@ -1864,13 +1866,17 @@ const Store = Class({
         this.sourceDidFetchPartialRecords( accountId, Type, updates, true );
 
         if ( state ) {
-            const oldState = account.clientState[ typeId ];
+            const oldClientState = account.clientState[ typeId ];
+            const oldServerState = account.serverState[ typeId ];
             // If the state has changed, we need to fetch updates, but we can
             // still load these records
-            if ( !isAll && oldState && oldState !== state ) {
+            if ( !isAll && oldClientState && oldClientState !== state ) {
                 this.sourceStateDidChange( accountId, Type, state );
             } else {
                 account.clientState[ typeId ] = state;
+                if ( !oldClientState || !oldServerState ) {
+                    account.serverState[ typeId ] = state;
+                }
             }
         }
         account.status[ typeId ] |= READY;
@@ -2048,13 +2054,25 @@ const Store = Class({
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
         if ( oldState === account.clientState[ typeId ] ) {
+            let hasChanges = false;
+            // Invalidate changed records
             if ( changed && changed.length ) {
+                hasChanges = true;
                 this.sourceDidModifyRecords( accountId, Type, changed );
             }
             if ( destroyed && destroyed.length ) {
+                hasChanges = true;
                 this.sourceDidDestroyRecords( accountId, Type, destroyed );
             }
+            // Invalidate remote queries on the type, unless this was done
+            // before.
+            if ( hasChanges && newState !== account.serverState[ typeId ] ) {
+                this.fire( typeId + ':server:' + accountId );
+            }
             account.clientState[ typeId ] = newState;
+            if ( account.serverState[ typeId ] === oldState ) {
+                account.serverState[ typeId ] = newState;
+            }
         } else {
             this.sourceStateDidChange( accountId, Type, newState );
         }
@@ -2138,8 +2156,10 @@ const Store = Class({
 
         if ( account.clientState[ typeId ] === oldState ) {
             account.clientState[ typeId ] = newState;
+            if ( account.serverState[ typeId ] === oldState ) {
+                account.serverState[ typeId ] = newState;
+            }
         } else {
-            delete account.serverState[ typeId ];
             this.sourceStateDidChange( accountId, Type, newState );
         }
 
