@@ -1756,18 +1756,26 @@ const Store = Class({
         const clientState = account.clientState[ typeId ];
 
         if ( account.serverState[ typeId ] === newState ) {
-            return;
-        }
-        account.serverState[ typeId ] = newState;
-
-        if ( clientState && newState !== clientState &&
-                    !( account.status[ typeId ] & (LOADING|COMMITTING) ) ) {
+            // Do nothing, we're already in this state.
+        } else if ( clientState && newState !== clientState &&
+                !( account.status[ typeId ] & (LOADING|COMMITTING) ) ) {
+            // Set this to clientState to avoid potential infinite loop. We
+            // don't know for sure if our serverState is older or newer due to
+            // concurrency. As we're now requesting updates, we can reset it to
+            // be clientState and then it will be updated to the real new server
+            // automatically if has changed in the sourceDidFetchUpdates
+            // handler. If a push comes in while fetching the updates, this
+            // won't match and we'll fetch again.
+            account.serverState[ typeId ] = clientState;
             this.fire( typeId + ':server:' + accountId );
             this.fetchAll( accountId, Type, true );
-        } else if ( !clientState ) {
-            // We have a query but not matches yet; we still need to refresh the
-            // queries in case there are now matches.
-            this.fire( typeId + ':server:' + accountId );
+        } else {
+            account.serverState[ typeId ] = newState;
+            if ( !clientState ) {
+                // We have a query but not matches yet; we still need to
+                // refresh the queries in case there are now matches.
+                this.fire( typeId + ':server:' + accountId );
+            }
         }
 
         return this;
