@@ -2062,19 +2062,17 @@ const Store = Class({
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
         if ( oldState === account.clientState[ typeId ] ) {
-            let hasChanges = false;
             // Invalidate changed records
             if ( changed && changed.length ) {
-                hasChanges = true;
                 this.sourceDidModifyRecords( accountId, Type, changed );
             }
             if ( destroyed && destroyed.length ) {
-                hasChanges = true;
                 this.sourceDidDestroyRecords( accountId, Type, destroyed );
             }
             // Invalidate remote queries on the type, unless this was done
             // before.
-            if ( hasChanges && newState !== account.serverState[ typeId ] ) {
+            if ( oldState !== newState &&
+                    newState !== account.serverState[ typeId ] ) {
                 this.fire( typeId + ':server:' + accountId );
             }
             account.clientState[ typeId ] = newState;
