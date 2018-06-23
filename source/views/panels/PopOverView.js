@@ -216,11 +216,21 @@ const PopOverView = Class({
     adjustPosition ( deltaLeft, deltaTop ) {
         let parent = this.get( 'parentView' );
         const layer = this.get( 'layer' );
-        const positionToThe = this.get( 'options' ).positionToThe || 'bottom';
+        const options = this.get( 'options' );
+        const positionToThe = options.positionToThe || 'bottom';
         const callout = this._callout;
         const calloutIsAtTopOrBottom =
                 ( positionToThe === 'top' || positionToThe === 'bottom' );
         const parentMargin = this.get( 'parentMargin' );
+        let keepInVerticalBounds = options.keepInVerticalBounds;
+        let keepInHorizontalBounds = options.keepInHorizontalBounds;
+
+        if ( keepInHorizontalBounds === undefined ) {
+            keepInHorizontalBounds = calloutIsAtTopOrBottom;
+        }
+        if ( keepInVerticalBounds === undefined ) {
+            keepInVerticalBounds = !calloutIsAtTopOrBottom;
+        }
 
         if ( !deltaLeft ) {
             deltaLeft = 0;
@@ -240,7 +250,7 @@ const PopOverView = Class({
         let gap;
         let calloutDelta = 0;
 
-        if ( positionToThe === 'bottom' || positionToThe === 'top' ) {
+        if ( keepInHorizontalBounds ) {
             // Check right edge
             if ( !parent.get( 'showScrollbarX' ) ) {
                 gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
@@ -266,7 +276,8 @@ const PopOverView = Class({
                     calloutDelta += parentMargin.left;
                 }
             }
-        } else {
+        }
+        if ( keepInVerticalBounds ) {
             // Check bottom edge
             if ( !parent.get( 'showScrollbarY' ) ) {
                 gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
