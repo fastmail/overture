@@ -634,9 +634,7 @@ const WindowedQuery = Class({
             removedStoreKeys = removedStoreKeys.slice( i );
         }
         // But truncate at first gap.
-        update.truncateAtFirstGap = !!i;
-        update.removedIndexes = removedIndexes;
-        update.removedStoreKeys = removedStoreKeys;
+        const truncateAtFirstGap = !!i;
 
         for ( i = 0, l = added.length; i < l; i += 1 ) {
             item = added[i];
@@ -653,15 +651,20 @@ const WindowedQuery = Class({
                 addedStoreKeys.push( storeKey );
             }
         }
-        update.addedIndexes = addedIndexes;
-        update.addedStoreKeys = addedStoreKeys;
 
-        if ( !( 'total' in update ) ) {
-            update.total = this.get( 'length' ) -
-                removedIndexes.length + addedIndexes.length;
-        }
-
-        return update;
+        return {
+            removedIndexes,
+            removedStoreKeys,
+            addedIndexes,
+            addedStoreKeys,
+            truncateAtFirstGap,
+            total: update.total !== undefined ?
+                update.total :
+                this.get( 'length' ) -
+                    removedIndexes.length +
+                    addedIndexes.length,
+            upto: update.upto,
+        };
     },
 
     _applyUpdate ( args ) {
@@ -848,7 +851,7 @@ const WindowedQuery = Class({
             {O.WindowedQuery} Returns self.
     */
     clientDidGenerateUpdate ( update ) {
-        this._normaliseUpdate( update );
+        update = this._normaliseUpdate( update );
         // Ignore completely any ids we don't have.
         update.truncateAtFirstGap = false;
         this._applyUpdate( update );
@@ -932,23 +935,27 @@ const WindowedQuery = Class({
             // 2. Normalise the update from the server. This is trickier
             // than normal, as we need to determine what the indexes of the
             // removed store keys were in the previous state.
-            const normalisedUpdate = this._normaliseUpdate({
-                added: update.added,
+            const normalisedUpdate = {
+                removedIndexes: [],
+                removedStoreKeys: [],
+                addedIndexes: update.added.map( tuple => tuple[0] ),
+                addedStoreKeys: update.added.map( tuple => tuple[1] ),
+                truncateAtFirstGap: false,
                 total: update.total,
                 upto: update.upto,
-            });
+            };
 
             // Find the removedIndexes for our update. If they were removed
             // in the composed preemptive, we have the index. Otherwise, we
             // need to search for the store key in the current list then
             // compose the result with the preemptive in order to get the
             // original index.
-            const removed = update.removed;
-            let _indexes = [];
-            const _storeKeys = [];
-            const removedIndexes = [];
-            const removedStoreKeys = [];
             const list = this._storeKeys;
+            const removed = update.removed;
+            const removedIndexes = normalisedUpdate.removedIndexes;
+            const removedStoreKeys = normalisedUpdate.removedStoreKeys;
+            let _indexes = [];
+            let _storeKeys = [];
             let wasSuccessfulPreemptive = false;
             let storeKey, index;
 
@@ -977,15 +984,8 @@ const WindowedQuery = Class({
                     addedIndexes: [],
                     addedStoreKeys: [],
                 });
-                _indexes = _storeKeys.reduce( ( indexes, storeKey ) => {
-                    // If the id was added in a preemptive add it won't be
-                    // in the list of removed ids.
-                    const i = x.removedStoreKeys.indexOf( storeKey );
-                    if ( i > -1 ) {
-                        indexes.push( x.removedIndexes[i] );
-                    }
-                    return indexes;
-                }, [] );
+                _indexes = x.removedIndexes;
+                _storeKeys = x.removedStoreKeys;
                 let ll = removedIndexes.length;
                 for ( let i = 0, l = _indexes.length; i < l; i += 1 ) {
                     removedIndexes[ ll ] = _indexes[i];
@@ -993,11 +993,7 @@ const WindowedQuery = Class({
                     ll += 1;
                 }
             }
-
             sortLinkedArrays( removedIndexes, removedStoreKeys );
-
-            normalisedUpdate.removedIndexes = removedIndexes;
-            normalisedUpdate.removedStoreKeys = removedStoreKeys;
 
             // Now remove any idempotent operations
             const addedIndexes = normalisedUpdate.addedIndexes;
