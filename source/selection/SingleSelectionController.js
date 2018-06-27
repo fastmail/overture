@@ -75,18 +75,16 @@ const SingleSelectionController = Class({
 
     _recordDidChange: function () {
         if ( !this._ignore ) {
-            const record = this.get( 'record' );
-            const list = this.get( 'content' );
             // If both content and record are bound, content *must* be synced
             // first in order to look for the new record in the new list.
-            // If changed, return as the new record will be handled by the
-            // setRecordInNewContent fn.
             const binding = meta( this ).bindings.content;
             if ( binding ) {
                 this._ignore = true;
                 binding.sync();
                 this._ignore = false;
             }
+            const record = this.get( 'record' );
+            const list = this.get( 'content' );
             if ( record && list ) {
                 this.set( 'isFetchingIndex', true );
                 list.indexOfStoreKey(
