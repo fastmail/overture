@@ -2007,18 +2007,18 @@ const Store = Class({
         Parameters:
             accountId - {String} The account id.
             Type      - {O.Class} The record type.
-            idList    - {String[]} The list of ids of non-existent requested
+            ids       - {String[]} The list of ids of non-existent requested
                         records.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceCouldNotFindRecords ( accountId, Type, idList ) {
-        let l = idList.length;
+    sourceCouldNotFindRecords ( accountId, Type, ids ) {
+        let l = ids.length;
         const { _skToCommitted, _skToChanged } = this;
 
         while ( l-- ) {
-            const storeKey = this.getStoreKey( accountId, Type, idList[l] );
+            const storeKey = this.getStoreKey( accountId, Type, ids[l] );
             const status = this.getStatus( storeKey );
             if ( status & EMPTY ) {
                 this.setStatus( storeKey, NON_EXISTENT );
@@ -2094,16 +2094,16 @@ const Store = Class({
         Parameters:
             accountId - {String} The account id.
             Type      - {O.Class} The record type.
-            idList    - {String[]} The list of ids of records which have
+            ids       - {String[]} The list of ids of records which have
                         updates available on the server.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidModifyRecords ( accountId, Type, idList ) {
-        let l = idList.length;
+    sourceDidModifyRecords ( accountId, Type, ids ) {
+        let l = ids.length;
         while ( l-- ) {
-            const storeKey = this.getStoreKey( accountId, Type, idList[l] );
+            const storeKey = this.getStoreKey( accountId, Type, ids[l] );
             const status = this.getStatus( storeKey );
             if ( status & READY ) {
                 this.setStatus( storeKey, status | OBSOLETE );
@@ -2122,16 +2122,16 @@ const Store = Class({
         Parameters:
             accountId - {String} The account id.
             Type      - {O.Class} The record type.
-            idList    - {String[]} The list of ids of records which have been
+            ids       - {String[]} The list of ids of records which have been
                         destroyed.
 
         Returns:
             {O.Store} Returns self.
     */
-    sourceDidDestroyRecords ( accountId, Type, idList ) {
-        let l = idList.length;
+    sourceDidDestroyRecords ( accountId, Type, ids ) {
+        let l = ids.length;
         while ( l-- ) {
-            const storeKey = this.getStoreKey( accountId, Type, idList[l] );
+            const storeKey = this.getStoreKey( accountId, Type, ids[l] );
             this.setStatus( storeKey, DESTROYED );
             this.unloadRecord( storeKey );
         }

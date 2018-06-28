@@ -57,7 +57,7 @@ const AUTO_REFRESH_ALWAYS = 2;
     object passed to the sourceDidFetchQuery callback must be identical to the
     current values in the query for the data to be accepted.
 
-    The server may also return a state string, which represents the current
+    The server may also return a queryState string, which represents the current
     state of the query. The source may then send this to the server if the query
     is refreshed; if there have been no changes, the server can then avoid
     sending back unneccessary data.
@@ -96,7 +96,7 @@ const Query = Class({
     */
 
     /**
-        Property: O.Query#state
+        Property: O.Query#queryState
         Type: String
 
         A state string from the server to allow the query to fetch updates and
@@ -143,7 +143,7 @@ const Query = Class({
         this.accountId = null;
         this.where = null;
         this.sort = null;
-        this.state = '';
+        this.queryState = '';
         this.status = EMPTY;
         this.length = null;
         this.lastAccess = Date.now();
@@ -279,8 +279,8 @@ const Query = Class({
     /**
         Method: O.Query#reset
 
-        Resets the list, throwing away the id list, resetting the state string
-        and setting the status to EMPTY.
+        Resets the list, throwing away the id list, resetting the queryState
+        string and setting the status to EMPTY.
 
         Returns:
             {O.Query} Returns self.
@@ -292,7 +292,7 @@ const Query = Class({
         this._refresh = false;
 
         return this
-            .set( 'state', '' )
+            .set( 'queryState', '' )
             .set( 'status', EMPTY )
             .set( 'length', null )
             .rangeDidChange( 0, length )
@@ -571,7 +571,7 @@ const Query = Class({
         Returns:
             {Boolean} Does the list need refreshing or just fetching (the two
             cases may be the same, but can be handled separately if the server
-            has an efficient way of calculating changes from the state).
+            has an efficient way of calculating changes from the queryState).
     */
     sourceWillFetchQuery () {
         const refresh = this._refresh;
@@ -588,15 +588,15 @@ const Query = Class({
         the query.
 
         Parameters:
-            storeKeys - {String[]} The store keys of the records represented by
-                        this query.
-            state     - {String} (optional) A string representing the state of
-                        the query on the server at the time of the fetch.
+            storeKeys  - {String[]} The store keys of the records represented by
+                         this query.
+            queryState - {String} (optional) A string representing the state of
+                         the query on the server at the time of the fetch.
 
         Returns:
             {Query} Returns self.
     */
-    sourceDidFetchQuery ( storeKeys, state ) {
+    sourceDidFetchQuery ( storeKeys, queryState ) {
         // Could use a proper diffing algorithm to calculate added/removed
         // arrays, but probably not worth it.
         const oldStoreKeys = this._storeKeys;
@@ -656,7 +656,7 @@ const Query = Class({
 
         this._storeKeys = storeKeys;
         this.beginPropertyChanges()
-            .set( 'state', state || '' )
+            .set( 'queryState', queryState || '' )
             .set( 'status', READY|( this.is( OBSOLETE ) ? OBSOLETE : 0 ) )
             .set( 'length', total );
         if ( firstChange < lastChangeNew ) {

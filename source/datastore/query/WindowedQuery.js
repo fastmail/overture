@@ -179,7 +179,7 @@ const composeUpdates = function ( u1, u2 ) {
         truncateAtFirstGap:
             u1.truncateAtFirstGap || u2.truncateAtFirstGap,
         total: u2.total,
-        upto: u2.upto,
+        upToId: u2.upToId,
     };
 };
 
@@ -615,12 +615,12 @@ const WindowedQuery = Class({
 
     _normaliseUpdate ( update ) {
         const list = this._storeKeys;
-        let removedStoreKeys = update.removed || [];
+        let removedStoreKeys = update.removed;
         let removedIndexes = mapIndexes( list, removedStoreKeys );
         const addedStoreKeys = [];
         const addedIndexes = [];
-        const added = update.added || [];
-        let i, j, l, item, index, storeKey;
+        const added = update.added;
+        let i, j, l;
 
         sortLinkedArrays( removedIndexes, removedStoreKeys );
         for ( i = 0; removedIndexes[i] === -1; i += 1 ) {
@@ -637,9 +637,7 @@ const WindowedQuery = Class({
         const truncateAtFirstGap = !!i;
 
         for ( i = 0, l = added.length; i < l; i += 1 ) {
-            item = added[i];
-            index = item[0];
-            storeKey = item[1];
+            const { index, storeKey } = added[i];
             j = removedStoreKeys.indexOf( storeKey );
 
             if ( j > -1 &&
@@ -663,7 +661,7 @@ const WindowedQuery = Class({
                 this.get( 'length' ) -
                     removedIndexes.length +
                     addedIndexes.length,
-            upto: update.upto,
+            upToId: update.upToId,
         };
     },
 
@@ -727,14 +725,14 @@ const WindowedQuery = Class({
             }
         }
 
-        // --- Check upto ---
+        // --- Check upToId ---
 
-        // upto is the last item id the updates are to. Anything after here
+        // upToId is the last item id the updates are to. Anything after here
         // may have changed, but won't be in the updates, so we need to truncate
         // the list to ensure it doesn't get into an inconsistent state.
         // If we can't find the id, we have to reset.
-        if ( args.upto ) {
-            l = list.lastIndexOf( args.upto ) + 1;
+        if ( args.upToId ) {
+            l = list.lastIndexOf( args.upToId ) + 1;
             if ( l ) {
                 if ( l !== listLength ) {
                     recalculateFetchedWindows = true;
@@ -784,19 +782,19 @@ const WindowedQuery = Class({
         let didDropPackets = false;
         const waitingPackets = this._waitingPackets;
         let l = waitingPackets.length;
-        const state = this.get( 'state' );
+        const queryState = this.get( 'queryState' );
         let packet;
 
         while ( l-- ) {
             packet = waitingPackets.shift();
             // If these values aren't now the same, the packet must
-            // be OLDER than our current state, so just discard.
-            if ( packet.state !== state ) {
+            // be OLDER than our current queryState, so just discard.
+            if ( packet.queryState !== queryState ) {
                 // But also fetch everything missing in observed range, to
                 // ensure we have the required data
                 didDropPackets = true;
             } else {
-                this.sourceDidFetchIdList( packet );
+                this.sourceDidFetchIds( packet );
             }
         }
         if ( didDropPackets ) {
@@ -867,15 +865,17 @@ const WindowedQuery = Class({
         The source should call this when it fetches a delta update for the
         query. The args object should contain the following properties:
 
-        newState - {String} The state this delta updates the remote query to.
-        oldState - {String} The state this delta updates the remote query from.
+        newQueryState - {String} The state this delta updates the remote query
+                        to.
+        oldQueryState - {String} The state this delta updates the remote query
+                        from.
         removed  - {String[]} The ids of all records removed since
-                   oldState.
-        added    - {[Number,String][]} A list of [ index, id ] pairs, in
-                   ascending order of index, for all records added since
-                   oldState.
-        upto     - {String} (optional) As an optimisation, updates may only be
-                   for the first portion of a list, upto a certain id. This is
+                   oldQueryState.
+        added    - {{index: Number, id: String}[]} A list of { index, id }
+                   objects, in ascending order of index, for all records added
+                   since oldQueryState.
+        upToId   - {String} (optional) As an optimisation, updates may only be
+                   for the first portion of a list, up to a certain id. This is
                    the last id which is included in the range covered by the
                    updates; any information past this id must be discarded, and
                    if the id can't be found the list must be reset.
@@ -888,7 +888,7 @@ const WindowedQuery = Class({
             {O.WindowedQuery} Returns self.
     */
     sourceDidFetchUpdate ( update ) {
-        const state = this.get( 'state' );
+        const queryState = this.get( 'queryState' );
         const status = this.get( 'status' );
         const preemptives = this._preemptiveUpdates;
         const preemptivesLength = preemptives.length;
@@ -898,7 +898,7 @@ const WindowedQuery = Class({
         this.set( 'status', status & ~LOADING );
 
         // Check we've not already got this update.
-        if ( state === update.newState ) {
+        if ( queryState === update.newQueryState ) {
             if ( preemptivesLength && !( status & DIRTY ) ) {
                 allPreemptives = preemptives.reduce( composeUpdates );
                 this._applyUpdate( invertUpdate( allPreemptives ) );
@@ -906,20 +906,20 @@ const WindowedQuery = Class({
             }
             return this;
         }
-        // We can only update from our old state.
-        if ( state !== update.oldState ) {
+        // We can only update from our old query state.
+        if ( queryState !== update.oldQueryState ) {
             return this.setObsolete();
         }
-        // Set new state
-        this.set( 'state', update.newState );
+        // Set new query state
+        this.set( 'queryState', update.newQueryState );
 
         // Map ids to store keys
         const toStoreKey = this.get( '_toStoreKey' );
         update.removed = update.removed.map( toStoreKey );
-        update.added.forEach( tuple => {
-            tuple[1] = toStoreKey( tuple[1] );
+        update.added.forEach( item => {
+            item.id = toStoreKey( item.id );
         });
-        update.upto = update.upto && toStoreKey( update.upto );
+        update.upToId = update.upToId && toStoreKey( update.upToId );
 
         if ( !preemptivesLength ) {
             this._applyUpdate( this._normaliseUpdate( update ) );
@@ -934,15 +934,15 @@ const WindowedQuery = Class({
 
             // 2. Normalise the update from the server. This is trickier
             // than normal, as we need to determine what the indexes of the
-            // removed store keys were in the previous state.
+            // removed store keys were in the previous query state.
             const normalisedUpdate = {
                 removedIndexes: [],
                 removedStoreKeys: [],
-                addedIndexes: update.added.map( tuple => tuple[0] ),
-                addedStoreKeys: update.added.map( tuple => tuple[1] ),
+                addedIndexes: update.added.map( item => item.index ),
+                addedStoreKeys: update.added.map( item => item.id ),
                 truncateAtFirstGap: false,
                 total: update.total,
-                upto: update.upto,
+                upToId: update.upToId,
             };
 
             // Find the removedIndexes for our update. If they were removed
@@ -1075,15 +1075,16 @@ const WindowedQuery = Class({
     },
 
     /**
-        Method: O.WindowedQuery#sourceDidFetchIdList
+        Method: O.WindowedQuery#sourceDidFetchIds
 
         The source should call this when it fetches a portion of the id list for
         this query. The args object should contain:
 
-        state    - {String} The state of the server when this slice was taken.
-        idList   - {String[]} The list of ids.
-        position - {Number} The index in the query of the first id in idList.
-        total    - {Number} The total number of records in the query.
+        queryState - {String} The queryState of the server when this slice was
+                     taken.
+        ids        - {String[]} The list of ids.
+        position   - {Number} The index in the query of the first id in ids.
+        total      - {Number} The total number of records in the query.
 
         Parameters:
             args - {Object} The portion of the overall id list. See above for
@@ -1092,14 +1093,14 @@ const WindowedQuery = Class({
         Returns:
             {O.WindowedQuery} Returns self.
     */
-    sourceDidFetchIdList ( args ) {
-        const state = this.get( 'state' );
+    sourceDidFetchIds ( args ) {
+        const queryState = this.get( 'queryState' );
         const status = this.get( 'status' );
         const oldLength = this.get( 'length' ) || 0;
         const canGetDeltaUpdates = this.get( 'canGetDeltaUpdates' );
         let position = args.position;
         let total = args.total;
-        const ids = args.idList;
+        const ids = args.ids;
         let length = ids.length;
         const list = this._storeKeys;
         const windows = this._windows;
@@ -1107,9 +1108,9 @@ const WindowedQuery = Class({
         let informAllRangeObservers = false;
         let beginningOfWindowIsFetched = true;
 
-        // If the state does not match, the list has changed since we last
+        // If the query state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
-        if ( state && state !== args.state ) {
+        if ( queryState && queryState !== args.queryState ) {
             if ( canGetDeltaUpdates ) {
                 this._waitingPackets.push( args );
                 return this.setObsolete().fetch();
@@ -1118,7 +1119,7 @@ const WindowedQuery = Class({
                 informAllRangeObservers = true;
             }
         }
-        this.set( 'state', args.state );
+        this.set( 'queryState', args.queryState );
 
         // Map ids to store keys
         const toStoreKey = this.get( '_toStoreKey' );
