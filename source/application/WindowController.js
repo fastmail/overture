@@ -76,7 +76,10 @@ const WindowController = Class({
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
+
         this._seenWCs = {};
+        this._checkTimeout = null;
+        this._pingTimeout = null;
 
         WindowController.parent.constructor.apply( this, arguments );
 
@@ -85,6 +88,21 @@ const WindowController = Class({
         window.addEventListener( 'focus', this, false );
         window.addEventListener( 'blur', this, false );
 
+        this.start();
+    },
+
+    destroy () {
+        this.end( this.get( 'broadcastKey' ) );
+
+        window.removeEventListener( 'storage', this, false );
+        window.removeEventListener( 'unload', this, false );
+        window.removeEventListener( 'focus', this, false );
+        window.removeEventListener( 'blur', this, false );
+
+        WindowController.parent.destroy.call( this );
+    },
+
+    start () {
         this.broadcast( 'wc:hello' );
 
         const check = () => {
@@ -99,19 +117,17 @@ const WindowController = Class({
         this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
     },
 
-    destroy () {
+    end ( broadcastKey ) {
         RunLoop.cancel( this._pingTimeout )
                .cancel( this._checkTimeout );
 
-        window.removeEventListener( 'storage', this, false );
-        window.removeEventListener( 'unload', this, false );
-        window.removeEventListener( 'focus', this, false );
-        window.removeEventListener( 'blur', this, false );
-
-        this.broadcast( 'wc:bye' );
-
-        WindowController.parent.destroy.call( this );
+        this.broadcast( 'wc:bye', null, broadcastKey );
     },
+
+    broadcastKeyDidChange: function ( _, __, oldBroadcastKey ) {
+        this.end( oldBroadcastKey );
+        this.start();
+    }.observes( 'broadcastKey' ),
 
     /**
         Method (protected): O.WindowController#handleEvent
@@ -228,13 +244,15 @@ const WindowController = Class({
         Broadcast an event with JSON-serialisable data to other tabs.
 
         Parameters:
-            type - {String} The name of the event being broadcast.
-            data - {Object} (optional). The data to broadcast.
+            type         - {String} The name of the event being broadcast.
+            data         - {Object} (optional). The data to broadcast.
+            broadcastKey - {String} (optional). The key to use; otherwise the
+                           key will be taken from the broadcastKey property.
     */
-    broadcast ( type, data ) {
+    broadcast ( type, data, broadcastKey ) {
         try {
             localStorage.setItem(
-                this.get( 'broadcastKey' ),
+                broadcastKey || this.get( 'broadcastKey' ),
                 JSON.stringify( Object.assign({
                     wcId: this.id,
                     type,
