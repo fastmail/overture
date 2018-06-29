@@ -289,9 +289,9 @@ const Store = Class({
         this._nestedStores = [];
 
         // Map accountId -> { status, clientState, serverState }
-        this._defaultAccountId = '';
+        // (An account MUST be added before attempting to use the store.)
+        this._defaultAccountId = null;
         this._accounts = {};
-        this.addAccount( '', { isDefault: true });
 
         Store.parent.constructor.apply( this, arguments );
 
@@ -356,7 +356,11 @@ const Store = Class({
         if ( !_accounts[ accountId ] ) {
             _accounts[ accountId ] = {
                 isDefault: data.isDefault,
-                hasDataFor: data.hasDataFor || null,
+                // Transform [ ...uri ] into { ...uri: true } for fast access
+                hasDataFor: data.hasDataFor.reduce( ( obj, uri ) => (
+                    obj[ uri ] = true,
+                    obj
+                ), {} ),
                 // Type -> status
                 // READY      - Some records of type loaded
                 // LOADING    - Loading or refreshing ALL records of type
@@ -1246,12 +1250,9 @@ const Store = Class({
             Type = accountId;
 
             const _accounts = this._accounts;
-            let hasDataFor;
-            for ( accountId in this._accounts ) {
-                hasDataFor = _accounts[ accountId ].hasDataFor;
+            for ( accountId in _accounts ) {
                 if ( accountId &&
-                        ( !hasDataFor ||
-                            hasDataFor[ Type.dataGroup || 'all' ] ) ) {
+                        _accounts[ accountId ].hasDataFor[ Type.dataGroup ] ) {
                     this.fetchAll( accountId, Type, force );
                 }
             }
