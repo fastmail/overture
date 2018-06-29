@@ -353,8 +353,9 @@ const Store = Class({
 
     addAccount ( accountId, data ) {
         const _accounts = this._accounts;
-        if ( !_accounts[ accountId ] ) {
-            _accounts[ accountId ] = {
+        let account = _accounts[ accountId ];
+        if ( !account ) {
+            account = {
                 isDefault: data.isDefault,
                 // Transform [ ...uri ] into { ...uri: true } for fast access
                 hasDataFor: data.hasDataFor.reduce( ( obj, uri ) => (
@@ -375,17 +376,17 @@ const Store = Class({
                 typeToIdToSK: {},
             };
         }
-        if ( accountId && data.isDefault ) {
+        if ( data.isDefault ) {
             this._defaultAccountId = accountId;
             this._nestedStores.forEach( store => {
                 store._defaultAccountId = accountId;
             });
-            if ( _accounts[ '' ] ) {
-                _accounts[ accountId ].typeToIdToSK =
-                    _accounts[ '' ].typeToIdToSK;
+            if ( accountId && _accounts[ '' ] ) {
+                account.typeToIdToSK = _accounts[ '' ].typeToIdToSK;
                 delete _accounts[ '' ];
             }
         }
+        _accounts[ accountId ] = account;
 
         return this;
     },
