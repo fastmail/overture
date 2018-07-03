@@ -615,11 +615,11 @@ const WindowedQuery = Class({
 
     _normaliseUpdate ( update ) {
         const list = this._storeKeys;
-        let removedStoreKeys = update.removed || [];
+        let removedStoreKeys = update.removed;
         let removedIndexes = mapIndexes( list, removedStoreKeys );
         const addedStoreKeys = [];
         const addedIndexes = [];
-        const added = update.added || [];
+        const added = update.added;
         let i, j, l;
 
         sortLinkedArrays( removedIndexes, removedStoreKeys );
@@ -637,9 +637,7 @@ const WindowedQuery = Class({
         const truncateAtFirstGap = !!i;
 
         for ( i = 0, l = added.length; i < l; i += 1 ) {
-            const item = added[i];
-            const index = item.index;
-            const storeKey = item.id;
+            const { index, storeKey } = added[i];
             j = removedStoreKeys.indexOf( storeKey );
 
             if ( j > -1 &&
@@ -839,9 +837,9 @@ const WindowedQuery = Class({
         happened next time an update arrives. If it turns out to be wrong the
         list will be reset, but in most cases it should appear more efficient.
 
-        removed - {String[]} (optional) The store keys of all records to delete.
-        added   - {[Number,String][]} (optional) A list of [ index, storeKey ]
-                  pairs, in ascending order of index, for all records to be
+        removed - {String[]} The store keys of all records to delete.
+        added   - {Object[]} A list of objects with index and storeKey
+                  properties, in ascending order of index, for all records to be
                   inserted.
 
         Parameters:
@@ -917,16 +915,21 @@ const WindowedQuery = Class({
 
         // Map ids to store keys
         const toStoreKey = this.get( '_toStoreKey' );
-        const added = update.added || [];
-        let removed = update.removed || [];
-        added.forEach( item => {
-            item.id = toStoreKey( item.id );
-        });
-        update.removed = removed = removed.map( toStoreKey );
-        update.upToId = update.upToId && toStoreKey( update.upToId );
+        const added = update.added.map( item => ({
+            index: item.index,
+            storeKey: toStoreKey( item.id ),
+        }));
+        const removed = update.removed.map( toStoreKey );
+        const upToId = update.upToId && toStoreKey( update.upToId );
+        const total = update.total;
 
         if ( !preemptivesLength ) {
-            this._applyUpdate( this._normaliseUpdate( update ) );
+            this._applyUpdate( this._normaliseUpdate({
+                removed,
+                added,
+                total,
+                upToId,
+            }));
         } else {
             // 1. Compose all preemptives:
             // [p1, p2, p3] -> [p1, p1 + p2, p1 + p2 + p3 ]
@@ -943,10 +946,10 @@ const WindowedQuery = Class({
                 removedIndexes: [],
                 removedStoreKeys: [],
                 addedIndexes: added.map( item => item.index ),
-                addedStoreKeys: added.map( item => item.id ),
+                addedStoreKeys: added.map( item => item.storeKey ),
                 truncateAtFirstGap: false,
-                total: update.total,
-                upToId: update.upToId,
+                total,
+                upToId,
             };
 
             // Find the removedIndexes for our update. If they were removed
