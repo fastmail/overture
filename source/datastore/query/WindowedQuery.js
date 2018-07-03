@@ -615,11 +615,11 @@ const WindowedQuery = Class({
 
     _normaliseUpdate ( update ) {
         const list = this._storeKeys;
-        let removedStoreKeys = update.removed;
+        let removedStoreKeys = update.removed || [];
         let removedIndexes = mapIndexes( list, removedStoreKeys );
         const addedStoreKeys = [];
         const addedIndexes = [];
-        const added = update.added;
+        const added = update.added || [];
         let i, j, l;
 
         sortLinkedArrays( removedIndexes, removedStoreKeys );
@@ -637,7 +637,9 @@ const WindowedQuery = Class({
         const truncateAtFirstGap = !!i;
 
         for ( i = 0, l = added.length; i < l; i += 1 ) {
-            const { index, storeKey } = added[i];
+            const item = added[i];
+            const index = item.index;
+            const storeKey = item.id;
             j = removedStoreKeys.indexOf( storeKey );
 
             if ( j > -1 &&
@@ -915,10 +917,12 @@ const WindowedQuery = Class({
 
         // Map ids to store keys
         const toStoreKey = this.get( '_toStoreKey' );
-        update.removed = update.removed.map( toStoreKey );
-        update.added.forEach( item => {
+        const added = update.added || [];
+        let removed = update.removed || [];
+        added.forEach( item => {
             item.id = toStoreKey( item.id );
         });
+        update.removed = removed = removed.map( toStoreKey );
         update.upToId = update.upToId && toStoreKey( update.upToId );
 
         if ( !preemptivesLength ) {
@@ -938,8 +942,8 @@ const WindowedQuery = Class({
             const normalisedUpdate = {
                 removedIndexes: [],
                 removedStoreKeys: [],
-                addedIndexes: update.added.map( item => item.index ),
-                addedStoreKeys: update.added.map( item => item.id ),
+                addedIndexes: added.map( item => item.index ),
+                addedStoreKeys: added.map( item => item.id ),
                 truncateAtFirstGap: false,
                 total: update.total,
                 upToId: update.upToId,
@@ -951,7 +955,6 @@ const WindowedQuery = Class({
             // compose the result with the preemptive in order to get the
             // original index.
             const list = this._storeKeys;
-            const removed = update.removed;
             const removedIndexes = normalisedUpdate.removedIndexes;
             const removedStoreKeys = normalisedUpdate.removedStoreKeys;
             let _indexes = [];
