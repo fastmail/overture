@@ -21,9 +21,11 @@ const DISABLE_IN_INPUT = 2;
 const handleOnDown = {};
 
 const toPlatformKey = function ( key ) {
-    if ( key.startsWith( 'Cmd-' ) ) {
-        key = ( isMac ? 'Meta-' : 'Ctrl-' ) + key.slice( 4 );
-        if ( !isMac && key.contains( 'Shift-' ) ) {
+    if ( key.contains( 'Cmd-' ) ) {
+        key = key.replace( 'Cmd-', isMac ? 'Meta-' : 'Ctrl-' );
+        if ( !isMac &&
+                key.contains( 'Shift-' ) &&
+                key.charAt( key.length - 2 ) === '-' ) {
             // The shift modifier is applied to the key returned (so it is
             // uppercase) if the Ctrl key is pressed, but not if Meta is
             // pressed
