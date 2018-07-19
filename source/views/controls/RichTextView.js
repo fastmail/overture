@@ -169,6 +169,7 @@ const RichTextView = Class({
     }.property(),
 
     editor: null,
+    editorId: undefined,
     editorClassName: '',
     styles: null,
     blockDefaults: null,
@@ -292,6 +293,7 @@ const RichTextView = Class({
     draw ( layer, Element, el ) {
         const editorClassName = this.get( 'editorClassName' );
         const editingLayer = this._editingLayer = el( 'div', {
+            id: this.get( 'editorId' ),
             'role': 'textbox',
             'aria-multiline': 'true',
             'aria-label': this.get( 'label' ),
