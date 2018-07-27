@@ -56,8 +56,9 @@ const popOver = new PopOverView();
 const equalTo = Transform.isEqualToValue;
 
 const TOOLBAR_HIDDEN = 0;
-const TOOLBAR_AT_SELECTION = 1;
-const TOOLBAR_AT_TOP = 2;
+const TOOLBAR_INLINE = 1;
+const TOOLBAR_AT_SELECTION = 2;
+const TOOLBAR_AT_TOP = 3;
 
 const hiddenFloatingToolbarLayout = {
     top: 0,
@@ -510,13 +511,15 @@ const RichTextView = Class({
         return new ToolbarView({
             className: 'v-Toolbar v-RichText-toolbar',
             positioning: 'absolute',
-            layout: showToolbar === TOOLBAR_AT_TOP ? {
-                overflow: 'hidden',
-                zIndex: 1,
-                top: 0,
-                left: 0,
-                right: 0,
-            } : bind( this, 'floatingToolbarLayout' ),
+            layout: showToolbar === TOOLBAR_AT_SELECTION ?
+                bind( this, 'floatingToolbarLayout' ) :
+                {
+                    overflow: 'hidden',
+                    zIndex: 1,
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                },
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
         }).registerViews({
             bold: new ButtonView({
@@ -1255,6 +1258,7 @@ RichTextView.isSupported = (
 );
 
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
+RichTextView.TOOLBAR_INLINE = TOOLBAR_INLINE;
 RichTextView.TOOLBAR_AT_SELECTION = TOOLBAR_AT_SELECTION;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 
