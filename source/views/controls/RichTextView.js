@@ -526,7 +526,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-bold',
-                isActive: bind( 'isBold', this ),
+                isActive: bind( this, 'isBold' ),
                 label: loc( 'Bold' ),
                 tooltip: loc( 'Bold' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-b' ),
@@ -543,7 +543,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-italic',
-                isActive: bind( 'isItalic', this ),
+                isActive: bind( this, 'isItalic' ),
                 label: loc( 'Italic' ),
                 tooltip: loc( 'Italic' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-i' ),
@@ -560,7 +560,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-underline',
-                isActive: bind( 'isUnderlined', this ),
+                isActive: bind( this, 'isUnderlined' ),
                 label: loc( 'Underline' ),
                 tooltip: loc( 'Underline' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-u' ),
@@ -577,7 +577,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-strikethrough',
-                isActive: bind( 'isStriked', this ),
+                isActive: bind( this, 'isStriked' ),
                 label: loc( 'Strikethrough' ),
                 tooltip: loc( 'Strikethrough' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-Shift-7' ),
@@ -630,7 +630,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-link',
-                isActive: bind( 'isLink', this ),
+                isActive: bind( this, 'isLink' ),
                 label: loc( 'Link' ),
                 tooltip: loc( 'Link' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-k' ),
@@ -647,7 +647,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-code',
-                isActive: bind( 'isCode', this ),
+                isActive: bind( this, 'isCode' ),
                 label: loc( 'Preformatted Text' ),
                 tooltip: loc( 'Preformatted Text' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-d' ),
@@ -684,7 +684,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-left',
-                isActive: bind( 'alignment', this, equalTo( 'left' ) ),
+                isActive: bind( this, 'alignment', equalTo( 'left' ) ),
                 label: loc( 'Left' ),
                 tooltip: loc( 'Left' ),
                 activate () {
@@ -696,7 +696,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-centre',
-                isActive: bind( 'alignment', this, equalTo( 'center' ) ),
+                isActive: bind( this, 'alignment', equalTo( 'center' ) ),
                 label: loc( 'Center' ),
                 tooltip: loc( 'Center' ),
                 activate () {
@@ -708,7 +708,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-right',
-                isActive: bind( 'alignment', this, equalTo( 'right' ) ),
+                isActive: bind( this, 'alignment', equalTo( 'right' ) ),
                 label: loc( 'Right' ),
                 tooltip: loc( 'Right' ),
                 activate () {
@@ -720,7 +720,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-justify',
-                isActive: bind( 'alignment', this, equalTo( 'justify' ) ),
+                isActive: bind( this, 'alignment', equalTo( 'justify' ) ),
                 label: loc( 'Justify' ),
                 tooltip: loc( 'Justify' ),
                 activate () {
@@ -732,7 +732,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-lefttoright',
-                isActive: bind( 'direction', this, equalTo( 'ltr' ) ),
+                isActive: bind( this, 'direction', equalTo( 'ltr' ) ),
                 label: loc( 'Text Direction: Left to Right' ),
                 tooltip: loc( 'Text Direction: Left to Right' ),
                 activate () {
@@ -744,7 +744,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-righttoleft',
-                isActive: bind( 'direction', this, equalTo( 'rtl' ) ),
+                isActive: bind( this, 'direction', equalTo( 'rtl' ) ),
                 label: loc( 'Text Direction: Right to Left' ),
                 tooltip: loc( 'Text Direction: Right to Left' ),
                 activate () {
@@ -776,7 +776,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-list',
-                isActive: bind( 'isUnorderedList', this ),
+                isActive: bind( this, 'isUnorderedList' ),
                 label: loc( 'Unordered List' ),
                 tooltip: loc( 'Unordered List' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-Shift-8' ),
@@ -793,7 +793,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-numbered-list',
-                isActive: bind( 'isOrderedList', this ),
+                isActive: bind( this, 'isOrderedList' ),
                 label: loc( 'Ordered List' ),
                 tooltip: loc( 'Ordered List' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-Shift-9' ),
