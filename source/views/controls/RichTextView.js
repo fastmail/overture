@@ -82,7 +82,7 @@ const URLPickerView = Class({
     draw ( layer, Element, el ) {
         return [
             el( 'h3.u-bold', [
-                this.get( 'prompt' )
+                this.get( 'prompt' ),
             ]),
             this._input = new TextView({
                 value: bindTwoWay( this, 'value' ),
@@ -100,8 +100,8 @@ const URLPickerView = Class({
                     label: this.get( 'confirm' ),
                     target: this,
                     method: 'add',
-                })
-            ])
+                }),
+            ]),
         ];
     },
 
@@ -643,6 +643,23 @@ const RichTextView = Class({
                     this.fire( 'button:activate' );
                 },
             }),
+            code: new ButtonView({
+                tabIndex: -1,
+                type: 'v-Button--iconOnly',
+                icon: 'icon-code',
+                isActive: bind( 'isCode', this ),
+                label: loc( 'Preformatted Text' ),
+                tooltip: loc( 'Preformatted Text' ) + '\n' +
+                    formatKeyForPlatform( 'Cmd-d' ),
+                activate () {
+                    if ( richTextView.get( 'isCode' ) ) {
+                        richTextView.removeCode();
+                    } else {
+                        richTextView.code();
+                    }
+                    this.fire( 'button:activate' );
+                },
+            }),
             image: new FileButtonView({
                 tabIndex: -1,
                 type: 'v-FileButton v-Button--iconOnly',
@@ -939,8 +956,8 @@ const RichTextView = Class({
             placeholder: 'e.g. www.example.com',
             confirm: loc( 'Add Link' ),
             add () {
-                var url = this.get( 'value' ).trim();
-                var email;
+                let url = this.get( 'value' ).trim();
+                let email;
                 // Don't allow malicious links
                 if ( /^(?:javascript|data):/i.test( url ) ) {
                     return;
@@ -976,13 +993,13 @@ const RichTextView = Class({
     },
 
     insertImageOverlayView: function () {
-        var richTextView = this;
+        const richTextView = this;
         return new URLPickerView({
             prompt: loc( 'Insert an image from the following URL:' ),
             placeholder: 'e.g. https://example.com/path/to/image.jpg',
             confirm: loc( 'Insert Image' ),
             add () {
-                var url = this.get( 'value' ).trim();
+                let url = this.get( 'value' ).trim();
                 if ( !/^https?:/i.test( url ) ) {
                     // Must be http/https protocol
                     if ( /^[a-z]:/i.test( url ) ) {
@@ -999,7 +1016,7 @@ const RichTextView = Class({
     }.property(),
 
     showInsertImageOverlay ( buttonView ) {
-        var view = this.get( 'insertImageOverlayView' );
+        const view = this.get( 'insertImageOverlayView' );
         view.set( 'value', '' );
         this.showOverlay( view, buttonView );
     },
@@ -1070,6 +1087,9 @@ const RichTextView = Class({
 
     increaseListLevel: execCommand( 'increaseListLevel' ),
     decreaseListLevel: execCommand( 'decreaseListLevel' ),
+
+    code: execCommand( 'code' ),
+    removeCode: execCommand( 'removeCode' ),
 
     removeAllFormatting: execCommand( 'removeAllFormatting' ),
 
@@ -1148,6 +1168,14 @@ const RichTextView = Class({
     isUnderlined: queryCommandState( 'U' ),
     isStriked: queryCommandState( 'S' ),
     isLink: queryCommandState( 'A' ),
+    isCode: function () {
+        const regexp = new RegExp( '(?:^|>)(?:PRE|CODE)\\b' );
+        const editor = this.get( 'editor' );
+        const path = this.get( 'path' );
+        return path === '(selection)' ?
+            editor.hasFormat( 'PRE' ) || editor.hasFormat( 'CODE' ) :
+            regexp.test( path );
+    }.property( 'path' ),
 
     alignment: function () {
         const path = this.get( 'path' );
