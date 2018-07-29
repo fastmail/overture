@@ -554,7 +554,7 @@ const Store = Class({
     */
     getOne ( Type, filter ) {
         const storeKey = this.findOne( Type, filter );
-        return storeKey ? this.materialiseRecord( storeKey, Type ) : null;
+        return storeKey ? this.materialiseRecord( storeKey ) : null;
     },
 
     /**
@@ -959,8 +959,7 @@ const Store = Class({
             {O.Record} Returns the requested record.
     */
     getRecordFromStoreKey ( storeKey, doNotFetch ) {
-        const Type = this._skToType[ storeKey ];
-        const record = this.materialiseRecord( storeKey, Type );
+        const record = this.materialiseRecord( storeKey );
         // If the caller is already handling the fetching, they can
         // set doNotFetch to true.
         if ( !doNotFetch && this.getStatus( storeKey ) === EMPTY ) {
@@ -996,14 +995,14 @@ const Store = Class({
 
         Parameters:
             storeKey - {String} The store key of the record.
-            Type     - {O.Class} The record type.
 
         Returns:
             {O.Record} Returns the requested record.
     */
-    materialiseRecord ( storeKey, Type ) {
+    materialiseRecord ( storeKey ) {
         return this._skToRecord[ storeKey ] ||
-            ( this._skToRecord[ storeKey ] = new Type( this, storeKey ) );
+            ( this._skToRecord[ storeKey ] =
+                new this._skToType[ storeKey ]( this, storeKey ) );
     },
 
     // ---

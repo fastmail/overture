@@ -348,8 +348,7 @@ const Record = Class({
         if ( this.get( 'store' ) === store ) {
             return this;
         }
-        return store.materialiseRecord(
-            this.get( 'storeKey' ), this.constructor );
+        return store.materialiseRecord( this.get( 'storeKey' ) );
     },
 
     /**
