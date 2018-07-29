@@ -1026,7 +1026,7 @@ const Store = Class({
         const status = this.getStatus( storeKey );
         // Only unload unwatched clean, non-committing records.
         if ( ( status & (COMMITTING|NEW|DIRTY) ) ||
-                ( ( status & READY ) && record && record.hasObservers() ) ) {
+                ( record && record.hasObservers() ) ) {
             return false;
         }
         return this._nestedStores.every( function ( store ) {
