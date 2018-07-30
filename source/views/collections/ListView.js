@@ -133,8 +133,8 @@ const ListView = Class({
 
     // -----------------------------------------------------------------------
 
-    isCorrectItemView ( view, item ) {
-        return view.get( 'content' ) === item;
+    isCorrectItemView (/* view, item */) {
+        return true;
     },
 
     createItemView ( content, index, list, isAdded ) {
