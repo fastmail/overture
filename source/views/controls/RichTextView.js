@@ -220,10 +220,6 @@ const RichTextView = Class({
                 scrollView.addObserverForKey(
                     'scrollTop', this, '_calcToolbarPosition' );
             }
-            if ( UA.isIOS ) {
-                scrollView.addObserverForKey(
-                    'scrollTop', this, 'redrawIOSCursor' );
-            }
         }
 
         const selection = this.get( 'savedSelection' );
@@ -251,10 +247,6 @@ const RichTextView = Class({
                     'scrollTop', this, '_calcToolbarPosition' );
                 this._setToolbarPosition(
                     scrollView, this.get( 'toolbarView' ), false );
-            }
-            if ( UA.isIOS ) {
-                scrollView.removeObserverForKey(
-                    'scrollTop', this, 'redrawIOSCursor' );
             }
         }
 
@@ -348,13 +340,6 @@ const RichTextView = Class({
     },
 
     // ---
-
-    redrawIOSCursor: function () {
-        if ( this.get( 'isFocused' ) ) {
-            const editor = this.get( 'editor' );
-            editor.setSelection( editor.getSelection() );
-        }
-    }.nextFrame(),
 
     scrollIntoView: function () {
         if ( !this.get( 'isFocused' ) ) {
