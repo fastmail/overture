@@ -7,6 +7,10 @@ const ToOneAttribute = Class({
 
     Extends: RecordAttribute,
 
+    // Referenced record may be garbage collected independently of this record,
+    // so always ask store for the value.
+    isVolatile: true,
+
     willSet ( propValue, propKey, record ) {
         if ( ToOneAttribute.parent.willSet.call(
                 this, propValue, propKey, record ) ) {
