@@ -88,6 +88,7 @@ import * as Status from './datastore/record/Status';
 export { Status };
 export { default as ToManyAttribute } from './datastore/record/ToManyAttribute';
 export { default as ToOneAttribute } from './datastore/record/ToOneAttribute';
+export { default as RecordResult } from './datastore/record/RecordResult';
 export { default as ValidationError } from './datastore/record/ValidationError';
 export { default as AggregateSource } from './datastore/source/AggregateSource';
 export { default as Source } from './datastore/source/Source';
