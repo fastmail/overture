@@ -482,7 +482,7 @@ const ScrollView = Class({
 });
 
 if ( UA.isIOS ) {
-    ScrollView.implement({
+    Object.assign( ScrollView.prototype, {
         draw ( layer, Element, el ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
             let scrollFixerHeight = 1;
@@ -562,7 +562,7 @@ if ( UA.isIOS ) {
             return ScrollView.parent.insertView.call(
                 this, view, relativeTo, where );
         },
-    }, true );
+    });
 }
 
 export default ScrollView;

@@ -139,7 +139,7 @@ RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
 
 // ---
 
-Record.implement({
+Object.assign( Record.prototype, {
     getResult ( mixin ) {
         return new Promise( resolve =>
             new RecordResult( this, resolve, mixin )
