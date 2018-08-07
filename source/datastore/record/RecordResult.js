@@ -8,42 +8,17 @@ const HANDLE_ALL_ERRORS = [];
 const HANDLE_NO_ERRORS = [];
 
 /**
+    Class: O.RecordResult
 
     This class allows you to observe the result of fetching or committing a
     record.
 
-    Usage (demonstrating the simpler form):
-
-        record
-            .set( … )  // Or anything that makes it commit changes.
-            .ifSuccess({
-                handledErrorTypes: [ 'somethingWrong' ],
-            })
-            .then( result => {
-                if ( result.error ) {
-                    // Do something with the somethingWrong error
-                }
-            });
-
-    Or loading a record that may or may not exist:
-
-        store
-            .getRecord( null, Foo, 'id' )
-            .ifSuccess()
-                .then( function () {
-                    // record loaded
-                })
-                .catch( function () {
-                    // record didn't load
-                })
+    This class if used directly deals in callbacks; you should probably only
+    ever instantiate it via <O.Record#ifSuccess> or <O.Record#getResult> which
+    provide Promise interfaces. See those two functions for usage examples.
 
     The object waits for the record to transition into a READY, DESTROYED or
-    NON_EXISTENT state, then resolves.
-
-    Note that when errors occur, the promise is still *resolved* with the
-    RecordResult, rather than being rejected; this is because the place this
-    class was designed for needs to handle the commit results of many records,
-    and `Promise.all` will reject when the first one fails.
+    NON_EXISTENT state, then calls the callback.
 
     When an error is “caught” (that is, error propagation is stopped), the
     changes in the store are not reverted.
@@ -64,8 +39,8 @@ const RecordResult = Class({
         The record being observed
     */
 
-    init ( record, resolve, mixin ) {
-        this._resolve = resolve;
+    init ( record, callback, mixin ) {
+        this._callback = callback;
 
         this.record = record;
         this.error = null;
@@ -82,7 +57,7 @@ const RecordResult = Class({
         this.record
             .removeObserverForKey( 'status', this, 'statusDidChange' )
             .off( 'record:commit:error', this, 'onError' );
-        this._resolve( this );
+        this._callback( this );
     },
 
     statusDidChange ( record, key, _, newStatus ) {
@@ -140,17 +115,82 @@ RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
 // ---
 
 Object.assign( Record.prototype, {
+    /*
+        Function: O.Record#getResult
+        Returns: {Promise<O.RecordResult>}
+
+        The promise it returns will resolve to a RecordResult which has two
+        notable properties, `record` and `error`.
+
+        Normally, <O.Record#ifSuccess> will be easier to use, but if you’re
+        working with batch processing of objects and Promise.all(), then you’ll
+        want to use getResult rather than ifSuccess, because Promise.all() will
+        reject with the first error it receives, whereas in such a situation
+        you’ll want instead to produce an array of errors.
+
+        Usage:
+
+            record
+                .set( … )  // Or anything that makes it commit changes.
+                .getResult({
+                    handledErrorTypes: [ 'somethingWrong' ],
+                })
+                .then( result => {
+                    if ( result.error ) {
+                        // Do something with the somethingWrong error
+                    }
+                });
+    */
     getResult ( mixin ) {
         return new Promise( resolve =>
             new RecordResult( this, resolve, mixin )
         );
     },
+
+    /*
+        Function: O.Record#ifSuccess
+        Returns: {Promise<O.Record, O.RecordResult>}
+
+        The promise it returns will either resolve to the record, or be rejected
+        with a RecordResult, which is an object containing two properties to
+        care about, `record` and `error`.
+
+        (Why the name ifSuccess? Read it as “set this field; if success, then do
+        such-and-such, otherwise catch so-and-so.)
+
+        Usage for catching failed commits:
+
+            record
+                .set( … )  // Or anything that makes it commit changes.
+                .ifSuccess({
+                    handledErrorTypes: [ 'somethingWrong' ],
+                })
+                .then( record => {
+                    // Do something after the commit has finished
+                })
+                .catch( ({ record, error }) => {
+                    // Do something with the somethingWrong error
+                });
+
+        Or for loading a record that may or may not exist:
+
+            store
+                .getRecord( null, Foo, 'id' )
+                .ifSuccess()
+                    .then( record => {
+                        // record loaded
+                    })
+                    .catch( ({ record }) => {
+                        // record didn't load
+                    })
+
+    */
     ifSuccess ( mixin ) {
         return new Promise( ( resolve, reject ) =>
-            new RecordResult( this, function ( result ) {
+            new RecordResult( this, result => {
                 const record = result.record;
                 if ( result.error || record.is( NON_EXISTENT ) ) {
-                    reject( record );
+                    reject( result );
                 } else {
                     resolve( record );
                 }
