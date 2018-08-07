@@ -405,7 +405,7 @@ const Drag = Class({
 
         Returns:
             {FileSystemEntry[]|null} An array of all file system entries
-                                     represented by the drag.
+            represented by the drag.
     */
     getFileSystemEntries () {
         const items = this.getFromPath( 'event.dataTransfer.items' );
