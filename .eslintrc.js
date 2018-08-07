@@ -127,7 +127,7 @@ module.exports = {
         'no-process-exit': 'error',
         'no-proto': 'error',
         'no-prototype-builtins': 'off',
-        'no-restricted-globals': 'error',
+        'no-restricted-globals': 'off',
         'no-restricted-imports': 'error',
         'no-restricted-modules': 'error',
         'no-restricted-properties': 'error',

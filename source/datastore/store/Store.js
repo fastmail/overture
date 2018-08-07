@@ -358,10 +358,10 @@ const Store = Class({
             account = {
                 isDefault: data.isDefault,
                 // Transform [ ...uri ] into { ...uri: true } for fast access
-                hasDataFor: data.hasDataFor.reduce( ( obj, uri ) => (
-                    obj[ uri ] = true,
-                    obj
-                ), {} ),
+                hasDataFor: data.hasDataFor.reduce( ( obj, uri ) => {
+                    obj[ uri ] = true;
+                    return obj;
+                }, {} ),
                 // Type -> status
                 // READY      - Some records of type loaded
                 // LOADING    - Loading or refreshing ALL records of type

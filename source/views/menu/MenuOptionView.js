@@ -4,7 +4,6 @@ import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
 import RunLoop from '../../foundation/RunLoop';
 import View from '../View';
-import ScrollView from '../containers/ScrollView';
 import PopOverView from '../panels/PopOverView';
 
 const MenuOptionView = Class({
@@ -25,7 +24,7 @@ const MenuOptionView = Class({
             ( this.get( 'isFocused' ) ? ' is-focused' : '' );
     }.property( 'isFocused' ),
 
-    draw: function (/* layer, Element, el */) {
+    draw (/* layer, Element, el */) {
         return this.get( 'content' ).get( 'button' );
     },
 

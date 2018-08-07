@@ -66,8 +66,8 @@ const styleAnimators = {
                 end = [ endValue ];
             }
             for ( i = 0, l = start.length; i < l; i += 1 ) {
-                if ( start[i] === 0 && /^[,\)]/.test( start[ i + 1 ] ) ) {
-                    start[ i + 1 ] = end[ i + 1 ].replace( /[,\)].*/g, '' ) +
+                if ( start[i] === 0 && /^[,)]/.test( start[ i + 1 ] ) ) {
+                    start[ i + 1 ] = end[ i + 1 ].replace( /[,)].*/g, '' ) +
                         start[ i + 1 ];
                 }
             }
@@ -215,7 +215,7 @@ export default Class({
                     styles.transform = 'none';
                     transform = 'translate3d(0,' + delta.top +'px,0)';
                 } else {
-                    let parts = transform.split( ',' );
+                    const parts = transform.split( ',' );
                     parts[1] = ( parseInt( parts[1], 10 ) + delta.top ) + 'px';
                     transform = parts.join( ',' );
                 }

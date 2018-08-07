@@ -123,7 +123,7 @@ const moduleDidLoad = function ( name, data ) {
 };
 
 // Loads text, but does not parse/execute unless executeOnLoad is set.
-const load = function ( name, executeOnLoad, force ) {
+const load = function ( name, executeOnLoad ) {
     const info = moduleInfo[ name ];
     const src = info.src;
     const status = info.status;

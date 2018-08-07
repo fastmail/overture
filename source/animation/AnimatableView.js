@@ -1,4 +1,3 @@
-import UA from '../ua/UA';
 import '../foundation/ComputedProps';  // For Function#property
 import Element from '../dom/Element';
 import Easing from './Easing';

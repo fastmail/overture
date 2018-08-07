@@ -8,7 +8,7 @@ const OptionsListView = Class({
 
     Extends: ListView,
 
-    init: function () {
+    init () {
         this._focused = null;
         this._selected = null;
         this._views = {};

@@ -404,7 +404,8 @@ const Drag = Class({
         Method: O.Drag#getFileSystemEntries
 
         Returns:
-            {FileSystemEntry[]|null} An array of all file system entries represented by the drag.
+            {FileSystemEntry[]|null} An array of all file system entries
+                                     represented by the drag.
     */
     getFileSystemEntries () {
         const items = this.getFromPath( 'event.dataTransfer.items' );
@@ -419,8 +420,7 @@ const Drag = Class({
                             entries = [];
                         }
                         entries.push( item.getAsEntry() );
-                    }
-                    else if ( item.webkitGetAsEntry ) {
+                    } else if ( item.webkitGetAsEntry ) {
                         if ( !entries ) {
                             entries = [];
                         }

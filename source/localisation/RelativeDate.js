@@ -94,9 +94,8 @@ Date.prototype.relativeTo = function ( date, approx, mustNotBeFuture ) {
     }
     if ( !duration || ( isFuture && mustNotBeFuture ) ) {
         return loc( 'just now' );
-    }
     // Less than a day
-    else if ( duration < 1000 * 60 * 60 * 24 ) {
+    } else if ( duration < 1000 * 60 * 60 * 24 ) {
         time = formatDuration( duration, approx );
     // Less than 6 weeks
     } else if ( duration < 1000 * 60 * 60 * 24 * 7 * 6 ) {

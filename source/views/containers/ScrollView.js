@@ -192,7 +192,7 @@ const ScrollView = Class({
     },
 
     didLeaveDocument () {
-        var safeAreaPadding = this._safeAreaPadding;
+        const safeAreaPadding = this._safeAreaPadding;
         if ( safeAreaPadding ) {
             this.getParent( RootView ).removeObserverForKey(
                 'safeAreaInsetBottom', this, 'redrawSafeArea' );
@@ -203,7 +203,7 @@ const ScrollView = Class({
     },
 
     insertView ( view, relativeTo, where ) {
-        var safeAreaPadding = this._safeAreaPadding;
+        const safeAreaPadding = this._safeAreaPadding;
         if ( !relativeTo && safeAreaPadding &&
                 ( !where || where === 'bottom' ) ) {
             relativeTo = safeAreaPadding;
@@ -213,7 +213,7 @@ const ScrollView = Class({
             this, view, relativeTo, where );
     },
 
-    redrawSafeArea: function () {
+    redrawSafeArea () {
         this._safeAreaPadding.style.height =
             this.getParent( RootView ).get( 'safeAreaInsetBottom' ) + 'px';
     },
@@ -546,7 +546,7 @@ if ( UA.isIOS ) {
         }.on( 'touchmove' ),
 
         insertView ( view, relativeTo, where ) {
-            var safeAreaPadding = this._safeAreaPadding;
+            const safeAreaPadding = this._safeAreaPadding;
             if ( !relativeTo && safeAreaPadding ) {
                 relativeTo = this.get( 'layer' );
                 if ( where === 'top' ) {

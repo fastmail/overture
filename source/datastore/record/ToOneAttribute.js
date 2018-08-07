@@ -1,7 +1,6 @@
 import { Class } from '../../core/Core';
 
 import RecordAttribute from './RecordAttribute';
-import Record from './Record';
 
 const ToOneAttribute = Class({
 

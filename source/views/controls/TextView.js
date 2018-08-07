@@ -358,20 +358,20 @@ const TextView = Class({
         this.focus();
     },
 
-    selectAll: function () {
+    selectAll () {
         return this.set( 'selection', {
             start: 0,
             end: this.get( 'value' ).length,
         });
     },
 
-    copySelectionToClipboard: function () {
-        var didSucceed = false;
-        var focused = null;
+    copySelectionToClipboard () {
+        let focused = null;
         if ( !this.get( 'isFocused' ) ) {
             focused = document.activeElement;
             this.focus();
         }
+        let didSucceed = false;
         try {
             didSucceed = document.execCommand( 'copy' );
         }  catch ( error ) {}
