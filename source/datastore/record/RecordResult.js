@@ -4,7 +4,7 @@ import Record from './Record';
 
 // ---
 
-const HANDLE_ALL_ERRORS = [];
+const HANDLE_ALL_ERRORS = Symbol( 'HANDLE_ALL_ERRORS' );
 const HANDLE_NO_ERRORS = [];
 
 /**
