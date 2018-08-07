@@ -14,7 +14,7 @@ const OptionsController = Class({
         this.isFiltering = false;
         this.focused = null;
         this.selected = null;
-        OptionsController.parent.init.apply( this, arguments );
+        OptionsController.parent.constructor.apply( this, arguments );
         this.setOptions();
     },
 

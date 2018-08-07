@@ -13,7 +13,7 @@ const OptionsListView = Class({
         this._selected = null;
         this._views = {};
 
-        OptionsListView.parent.init.apply( this, arguments );
+        OptionsListView.parent.constructor.apply( this, arguments );
     },
 
     layerTag: 'ul',

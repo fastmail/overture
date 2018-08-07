@@ -46,7 +46,7 @@ const MenuController = Class({
         this.content = content.map(
             button => new MenuOption( button, this )
         );
-        MenuController.parent.init.call( this, {
+        MenuController.parent.constructor.call( this, {
             isFiltering,
         });
     },
