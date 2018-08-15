@@ -13,16 +13,232 @@ const PopOverView = Class({
 
     Extends: View,
 
-    className: 'v-PopOver',
+    init () {
+        this.parentPopOverView = null;
+        this.isVisible = false;
+        this.options = {};
+        PopOverView.parent.init.apply( this, arguments );
+    },
+
+    className: function () {
+        const options = this.get( 'options' );
+        const positionToThe = options.positionToThe || 'bottom';
+        const alignEdge = options.alignEdge || 'left';
+        return 'v-PopOverContainer' +
+            ' v-PopOverContainer--p' + positionToThe.charAt( 0 ) +
+            ' v-PopOverContainer--a' + alignEdge.charAt( 0 );
+    }.property( 'options' ),
 
     positioning: 'absolute',
 
-    isVisible: false,
-    parentPopOverView: null,
-    options: null,
-
     ariaAttributes: {
         modal: 'true',
+    },
+
+    draw ( layer, Element, el ) {
+        const children = [
+            this._aFlex = el( 'div' ),
+            this._popOver = el( 'div.v-PopOver', [
+                this._callout = el( 'b.v-PopOver-callout', [
+                    el( 'b.v-PopOver-triangle' ),
+                ]),
+            ]),
+            this._bFlex = el( 'div' ),
+        ];
+        this.redrawLayer();
+        return children;
+    },
+
+    redrawLayer () {
+        const options = this.get( 'options' );
+        const alignWithView = options.alignWithView;
+        const atNode = options.atNode || alignWithView.get( 'layer' );
+        const positionToThe = options.positionToThe || 'bottom';
+        const positionToTheLeftOrRight =
+            positionToThe === 'left' || positionToThe === 'right';
+        const alignEdge = options.alignEdge || 'left';
+        const offsetTop = options.offsetTop || 0;
+        const offsetLeft = options.offsetLeft || 0;
+        const rootView = alignWithView.getParent( RootView );
+        const position = Element.getPosition( atNode );
+        const posTop = position.top;
+        const posLeft = position.left;
+        const posWidth = position.width;
+        const posHeight = position.height;
+        const aFlexEl = this._aFlex;
+        const bFlexEl = this._bFlex;
+        const calloutEl = this._callout;
+        const safeAreaInsetBottom = rootView.get( 'safeAreaInsetBottom' );
+        const layout = {};
+        let calloutStyle = '';
+        let aFlex, bFlex, startDistance, endDistance;
+
+        this.insertView( options.view, this._popOver );
+
+        if ( safeAreaInsetBottom ) {
+            layout.paddingBottom = safeAreaInsetBottom;
+        }
+        switch ( positionToThe ) {
+        case 'top':
+            layout.paddingBottom = Math.max( safeAreaInsetBottom,
+                rootView.get( 'pxHeight' ) - posTop - offsetTop );
+            break;
+        case 'right':
+            layout.paddingLeft = posLeft + posWidth + offsetLeft;
+            break;
+        case 'bottom':
+            layout.paddingTop = posTop + posHeight + offsetTop;
+            break;
+        case 'left':
+            layout.paddingRight =
+                rootView.get( 'pxWidth' ) - posLeft - offsetLeft;
+            break;
+        }
+
+        switch ( alignEdge ) {
+        case 'top':
+            aFlex = '0 1 ' + ( posTop + offsetTop ) + 'px';
+            bFlex = '1 0 0';
+            break;
+        case 'middle':
+            startDistance =
+                Math.round( posTop + offsetTop + ( posHeight / 2 ) );
+            endDistance = rootView.get( 'pxHeight' ) - startDistance;
+            aFlex = startDistance + ' 0 0';
+            bFlex = endDistance + ' 0 0';
+            calloutStyle = 'top:' +
+                ( 100 * startDistance / ( startDistance + endDistance ) ) + '%';
+            break;
+        case 'bottom':
+            aFlex = '1 0 0';
+            bFlex = '0 1 ' + ( rootView.get( 'pxHeight' ) -
+                ( posTop + posHeight + offsetTop ) ) + 'px';
+            break;
+        case 'left':
+            aFlex = '0 1 ' + ( posLeft + offsetLeft ) + 'px';
+            bFlex = '1 0 0';
+            break;
+        case 'centre':
+            startDistance =
+                Math.round( posLeft + offsetLeft + ( posWidth / 2 ) );
+            endDistance = rootView.get( 'pxWidth' ) - startDistance;
+            aFlex = startDistance + ' 0 0';
+            bFlex = endDistance + ' 0 0';
+            calloutStyle = 'left:' +
+                ( 100 * startDistance / ( startDistance + endDistance ) ) + '%';
+            break;
+        case 'right':
+            aFlex = '1 0 0';
+            bFlex = '0 1 ' + ( rootView.get( 'pxWidth' ) -
+                ( posLeft + posWidth + offsetLeft ) ) + 'px';
+            break;
+        }
+
+        if ( !options.showCallout ) {
+            calloutStyle = 'display:none';
+        }
+
+        aFlexEl.className = positionToTheLeftOrRight ?
+            'v-PopOverContainer-top' : 'v-PopOverContainer-left';
+        aFlexEl.style = 'flex:' + aFlex;
+        bFlexEl.className = positionToTheLeftOrRight ?
+            'v-PopOverContainer-bottom' : 'v-PopOverContainer-right';
+        bFlexEl.style = 'flex:' + bFlex;
+        calloutEl.style = calloutStyle;
+
+        this.set( 'layout', layout );
+        this.keepInBounds();
+    },
+
+    keepInBounds: function () {
+        let parent = this.get( 'parentView' );
+        const layer = this.get( 'layer' );
+        const options = this.get( 'options' );
+        const positionToThe = options.positionToThe;
+        const positionToTheLeftOrRight =
+            positionToThe === 'left' || positionToThe === 'right';
+        const parentMargin = this.get( 'parentMargin' );
+        let keepInVerticalBounds = options.keepInVerticalBounds;
+        let keepInHorizontalBounds = options.keepInHorizontalBounds;
+        let deltaLeft = 0;
+        let deltaTop = 0;
+
+        if ( keepInHorizontalBounds === undefined ) {
+            keepInHorizontalBounds = !positionToTheLeftOrRight;
+        }
+        if ( keepInVerticalBounds === undefined ) {
+            keepInVerticalBounds = positionToTheLeftOrRight;
+        }
+
+        // Check not run off screen. We only move it on the axis the pop over
+        // has been positioned along. It is up to the contents to ensure the
+        // pop over is not too long in the other direction.
+        if ( parent instanceof PopOverView ) {
+            parent = parent.getParent( ScrollView ) ||
+                parent.getParent( RootView );
+        }
+        const position = Element.getPosition( layer, parent.get( 'layer' ) );
+        let gap;
+
+        if ( keepInHorizontalBounds ) {
+            // Check right edge
+            if ( !parent.get( 'showScrollbarX' ) ) {
+                gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
+                    layer.offsetWidth;
+                // If gap is negative, move the view.
+                if ( gap < 0 ) {
+                    deltaLeft += gap;
+                    deltaLeft -= parentMargin.right;
+                }
+            }
+
+            // Check left edge
+            gap = position.left + deltaLeft;
+            if ( gap < 0 ) {
+                deltaLeft -= gap;
+                deltaLeft += parentMargin.left;
+            }
+        }
+        if ( keepInVerticalBounds ) {
+            // Check bottom edge
+            if ( !parent.get( 'showScrollbarY' ) ) {
+                gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
+                    layer.offsetHeight;
+                if ( gap < 0 ) {
+                    deltaTop += gap;
+                    deltaTop -= parentMargin.bottom;
+                }
+            }
+
+            // Check top edge
+            gap = position.top + deltaTop;
+            if ( gap < 0 ) {
+                deltaTop -= gap;
+                deltaTop += parentMargin.top;
+            }
+        }
+
+        Element.setStyle( this._popOver, 'transform',
+            'translate(' + deltaLeft + 'px,' + deltaTop + 'px)' );
+        Element.setStyle( this._callout, 'transform',
+            'translate(' +
+                ( positionToTheLeftOrRight ? 0 : -deltaLeft ) + 'px,' +
+                ( positionToTheLeftOrRight ? -deltaTop : 0 ) + 'px)'
+        );
+    }.queue( 'after' ),
+
+    viewNeedsRedraw: function () {
+        this.propertyNeedsRedraw( this, 'layer' );
+    }.observes( 'options' ),
+
+    parentViewDidResize () {
+        if ( this.get( 'isInDocument' ) ) {
+            if ( this.get( 'options' ).alignWithView.get( 'isInDocument' ) ) {
+                this.redrawLayer();
+            } else {
+                this.hide();
+            }
+        }
     },
 
     /*
@@ -43,154 +259,16 @@ const PopOverView = Class({
         - onHide: fn
     */
     show ( options ) {
-        if ( options.alignWithView === this ) {
+        const alignWithView = options.alignWithView;
+        if ( alignWithView === this ) {
             return this.get( 'subPopOverView' ).show( options );
         }
+
         this.hide();
-
         this.set( 'options', options );
+        alignWithView.getParent( RootView ).insertView( this );
 
-        // Set layout and insert in the right place
         const eventHandler = this.get( 'eventHandler' );
-        const view = options.view;
-        const alignWithView = options.alignWithView;
-        const atNode = options.atNode || alignWithView.get( 'layer' );
-        let atNodeWidth = atNode.offsetWidth;
-        let atNodeHeight = atNode.offsetHeight;
-        const positionToThe = options.positionToThe || 'bottom';
-        const alignEdge = options.alignEdge || 'left';
-        let parent = options.inParent;
-        let deltaLeft = 0;
-        let deltaTop = 0;
-        const el = Element.create;
-
-        // Want nearest parent scroll view (or root view if none).
-        // Special case parent == parent pop-over view.
-        if ( !parent ) {
-            parent = options.atNode ?
-                alignWithView : alignWithView.get( 'parentView' );
-            while ( !( parent instanceof RootView ) &&
-                    !( parent instanceof ScrollView ) &&
-                    !( parent instanceof PopOverView ) ) {
-                parent = parent.get( 'parentView' );
-            }
-        }
-
-        // Now find out our offsets;
-        const position = Element.getPosition( atNode, parent.get( 'layer' ) );
-        let top = position.top;
-        let left = position.left;
-
-        switch ( positionToThe ) {
-        case 'right':
-            left += atNodeWidth;
-            /* falls through */
-        case 'left':
-            switch ( alignEdge ) {
-            // case 'top':
-            //    break; // nothing to do
-            case 'middle':
-                atNodeHeight = atNodeHeight >> 1;
-                /* falls through */
-            case 'bottom':
-                top += atNodeHeight;
-                break;
-            }
-            break;
-        case 'bottom':
-            top += atNodeHeight;
-            /* falls through */
-        case 'top':
-            switch ( alignEdge ) {
-            // case 'left':
-            //     break; // nothing to do
-            case 'centre':
-                atNodeWidth = atNodeWidth >> 1;
-                /* falls through */
-            case 'right':
-                left += atNodeWidth;
-                break;
-            }
-            break;
-        }
-
-        top += options.offsetTop || 0;
-        left += options.offsetLeft || 0;
-
-        // Round values to prevent buggy callout rendering.
-        top = Math.round( top );
-        left = Math.round( left );
-
-        // Set layout
-        this.set( 'layout', {
-            top: 0,
-            left: 0,
-            transform: 'translate(' +
-                ( left + deltaLeft ) + 'px,' +
-                ( top + deltaTop ) + 'px' +
-            ')',
-        });
-
-        // Insert view
-        this.insertView( view );
-        this.render();
-
-        // Callout
-        const layer = this.get( 'layer' );
-        if ( options.showCallout ) {
-            layer.appendChild(
-                el( 'b', {
-                    className: 'v-PopOver-callout' +
-                        ' v-PopOver-callout--' + positionToThe.charAt( 0 ) +
-                        ' v-PopOver-callout--' + alignEdge,
-                }, [
-                    this._callout = el( 'b', {
-                        className: 'v-PopOver-triangle' +
-                            ' v-PopOver-triangle--' + positionToThe.charAt( 0 ),
-                    }),
-                ])
-            );
-        }
-
-        // Insert into parent.
-        parent.insertView( this );
-
-        // Adjust positioning
-        switch ( positionToThe ) {
-        case 'left':
-            deltaLeft -= layer.offsetWidth;
-            /* falls through */
-        case 'right':
-            switch ( alignEdge ) {
-            // case 'top':
-            //    break; // nothing to do
-            case 'middle':
-                deltaTop -= layer.offsetHeight >> 1;
-                break;
-            case 'bottom':
-                deltaTop -= layer.offsetHeight;
-                break;
-            }
-            break;
-        case 'top':
-            deltaTop -= layer.offsetHeight;
-            /* falls through */
-        case 'bottom':
-            switch ( alignEdge ) {
-            // case 'left':
-            //     break; // nothing to do
-            case 'centre':
-                deltaLeft -= layer.offsetWidth >> 1;
-                break;
-            case 'right':
-                deltaLeft -= layer.offsetWidth;
-                break;
-            }
-            break;
-        }
-
-        this.adjustPosition( deltaLeft, deltaTop );
-
         if ( eventHandler ) {
             ViewEventsController.addEventTarget( eventHandler, 10 );
         }
@@ -199,133 +277,17 @@ const PopOverView = Class({
         return this;
     },
 
-    /**
-        Property: O.PopOverView#parentMargin
-        Type: {top: number, left: number, right: number, bottom: number}
-
-        The popover will ensure that it is at least N pixels away from each edge
-        of the parent view.
-    */
-    parentMargin: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 10,
+    didEnterDocument () {
+        PopOverView.parent.didEnterDocument.call( this );
+        this.getParent( RootView ).addObserverForKey(
+            'safeAreaInsetBottom', this, 'viewNeedsRedraw' );
+        return this;
     },
 
-    adjustPosition ( deltaLeft, deltaTop ) {
-        let parent = this.get( 'parentView' );
-        const layer = this.get( 'layer' );
-        const options = this.get( 'options' );
-        const positionToThe = options.positionToThe || 'bottom';
-        const callout = this._callout;
-        const calloutIsAtTopOrBottom =
-                ( positionToThe === 'top' || positionToThe === 'bottom' );
-        const parentMargin = this.get( 'parentMargin' );
-        let keepInVerticalBounds = options.keepInVerticalBounds;
-        let keepInHorizontalBounds = options.keepInHorizontalBounds;
-
-        if ( keepInHorizontalBounds === undefined ) {
-            keepInHorizontalBounds = calloutIsAtTopOrBottom;
-        }
-        if ( keepInVerticalBounds === undefined ) {
-            keepInVerticalBounds = !calloutIsAtTopOrBottom;
-        }
-
-        if ( !deltaLeft ) {
-            deltaLeft = 0;
-        }
-        if ( !deltaTop ) {
-            deltaTop = 0;
-        }
-
-        // Check not run off screen. We only move it on the axis the pop over
-        // has been positioned along. It is up to the contents to ensure the
-        // pop over is not too long in the other direction.
-        if ( parent instanceof PopOverView ) {
-            parent = parent.getParent( ScrollView ) ||
-                parent.getParent( RootView );
-        }
-        const position = Element.getPosition( layer, parent.get( 'layer' ) );
-        let gap;
-        let calloutDelta = 0;
-
-        if ( keepInHorizontalBounds ) {
-            // Check right edge
-            if ( !parent.get( 'showScrollbarX' ) ) {
-                gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
-                    layer.offsetWidth;
-                // If gap is negative, move the view.
-                if ( gap < 0 ) {
-                    deltaLeft += gap;
-                    deltaLeft -= parentMargin.right;
-                    if ( callout && calloutIsAtTopOrBottom ) {
-                        calloutDelta += gap;
-                        calloutDelta -= parentMargin.right;
-                    }
-                }
-            }
-
-            // Check left edge
-            gap = position.left + deltaLeft;
-            if ( gap < 0 ) {
-                deltaLeft -= gap;
-                deltaLeft += parentMargin.left;
-                if ( callout && calloutIsAtTopOrBottom ) {
-                    calloutDelta -= gap;
-                    calloutDelta += parentMargin.left;
-                }
-            }
-        }
-        if ( keepInVerticalBounds ) {
-            // Check bottom edge
-            if ( !parent.get( 'showScrollbarY' ) ) {
-                gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
-                    layer.offsetHeight;
-                if ( gap < 0 ) {
-                    deltaTop += gap;
-                    deltaTop -= parentMargin.bottom;
-                    if ( callout && !calloutIsAtTopOrBottom ) {
-                        calloutDelta += gap;
-                        calloutDelta -= parentMargin.bottom;
-                    }
-                }
-            }
-
-            // Check top edge
-            gap = position.top + deltaTop;
-            if ( gap < 0 ) {
-                deltaTop -= gap;
-                deltaTop += parentMargin.top;
-                if ( callout && !calloutIsAtTopOrBottom ) {
-                    calloutDelta -= gap;
-                    calloutDelta += parentMargin.top;
-                }
-            }
-        }
-
-        if ( deltaLeft || deltaTop ) {
-            const transform = this.get( 'layout' ).transform
-                    .slice( 10, -1 )
-                    .split( ',' );
-            const left = parseInt( transform[0], 10 );
-            const top = parseInt( transform[1], 10 );
-            // Redraw immediately to prevent "flashing"
-            this.set( 'layout', {
-                top: 0,
-                left: 0,
-                transform: 'translate(' +
-                    ( left + deltaLeft ) + 'px,' +
-                    ( top + deltaTop ) + 'px' +
-                ')',
-            }).redraw();
-        }
-        if ( calloutDelta ) {
-            Element.setStyle( callout,
-                calloutIsAtTopOrBottom ? 'left' : 'top',
-                -calloutDelta + 'px'
-            );
-        }
+    willLeaveDocument () {
+        this.getParent( RootView ).removeObserverForKey(
+            'safeAreaInsetBottom', this, 'viewNeedsRedraw' );
+        return PopOverView.parent.willLeaveDocument.call( this );
     },
 
     didLeaveDocument () {
@@ -340,25 +302,19 @@ const PopOverView = Class({
                     this.get( 'subPopOverView' ) : null;
             const eventHandler = this.get( 'eventHandler' );
             const options = this.get( 'options' );
-            let onHide, layer;
+            let onHide;
             if ( subPopOverView ) {
                 subPopOverView.hide();
             }
-            this.set( 'isVisible', false );
-            const view = this.get( 'childViews' )[0];
-            this.detach();
-            this.removeView( view );
-            if ( options.showCallout ) {
-                layer = this.get( 'layer' );
-                layer.removeChild( layer.firstChild );
-                this._callout = null;
-            }
+            this.set( 'isVisible', false )
+                .detach()
+                .removeView( this.get( 'childViews' )[0] );
             if ( eventHandler ) {
                 ViewEventsController.removeEventTarget( eventHandler );
                 eventHandler._seenMouseDown = false;
             }
             this.set( 'options', null );
-            if ( onHide = options.onHide ) {
+            if (( onHide = options.onHide )) {
                 onHide( options, this );
             }
         }
@@ -405,6 +361,12 @@ const PopOverView = Class({
             this.softHide();
         }
     }.on( 'keydown' ),
+
+    closeOnClick: function ( event ) {
+        if ( !Element.contains( this._popOver, event.target ) ) {
+            this.softHide();
+        }
+    }.on( 'click' ),
 
     stopEvents: function ( event ) {
         event.stopPropagation();

@@ -107,8 +107,6 @@ const MenuView = Class({
         const layer = this.get( 'layer' );
         let menuFilterView;
 
-        this.checkHeight();
-
         if ( this.get( 'showFilter' ) ) {
             menuFilterView = this.filterView;
             RunLoop.invokeInNextFrame( menuFilterView.focus, menuFilterView );
@@ -135,30 +133,6 @@ const MenuView = Class({
 
         return MenuView.parent.didLeaveDocument.call( this );
     },
-
-    checkHeight: function () {
-        const scrollView = this.scrollView;
-        const gap = 10;
-        let popOver, windowHeight, rect, delta;
-
-        if ( scrollView ) {
-            popOver = this.getParent( PopOverView );
-            windowHeight = ( this.getParent( ScrollView ) ||
-                this.getParent( RootView ) ).get( 'pxHeight' );
-            rect = this.get( 'layer' ).getBoundingClientRect();
-            delta = Math.max( -rect.top + gap, 0 );
-            if ( delta && popOver.get( 'options' ).positionToThe === 'top' ) {
-                popOver.adjustPosition( 0, delta );
-            }
-            delta += Math.max( rect.bottom - windowHeight + gap, 0 );
-            scrollView.set( 'layout', {
-                maxHeight: Math.max(
-                    scrollView.get( 'pxHeight' ) - delta,
-                    windowHeight / 2
-                ),
-            });
-        }
-    }.queue( 'render' ),
 
     ItemView: MenuOptionView,
 
