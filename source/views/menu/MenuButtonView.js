@@ -124,7 +124,7 @@ const MenuButtonView = Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             const buttonView = this;
-            let popOverView, menuOptionView, rootView;
+            let popOverView, menuOptionView, rootView, position;
             const popOverOptions = Object.assign({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
@@ -140,18 +140,18 @@ const MenuButtonView = Class({
             if ( this.get( 'isInMenu' ) ) {
                 popOverView = this.getParent( PopOverView );
                 menuOptionView = this.get( 'parentView' );
-                rootView = buttonView.getParent( RootView );
-
+                rootView = this.getParent( RootView );
+                position = this.get( 'layer' ).getBoundingClientRect();
                 popOverOptions.alignWithView = popOverView;
                 popOverOptions.atNode = this.get( 'layer' );
                 popOverOptions.positionToThe =
-                    buttonView.getPositionRelativeTo( rootView ).left +
-                    buttonView.get( 'pxWidth' ) + 180 <
-                        rootView.get( 'pxWidth' ) ?
+                    position.left < rootView.get( 'pxWidth' ) - position.right ?
                             'right' : 'left';
+                popOverOptions.showCallout = false;
                 popOverOptions.alignEdge = 'top';
                 popOverOptions.offsetTop =
                     popOverOptions.view.get( 'showFilter' ) ? -35 : -5;
+                popOverOptions.offsetLeft = 0;
             } else {
                 popOverView = this.get( 'popOverView' );
             }
@@ -159,8 +159,8 @@ const MenuButtonView = Class({
             // of this popOverView, and is returned from the show method.
             popOverView = popOverView.show( popOverOptions );
             if ( menuOptionView ) {
-                menuOptionView.addObserverForKey(
-                    'isFocused', popOverView, 'hide' );
+                menuOptionView.get( 'controller' ).addObserverForKey(
+                    'focused', popOverView, 'hide' );
             }
         }
     },

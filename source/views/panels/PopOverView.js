@@ -5,7 +5,6 @@ import Element from '../../dom/Element';
 import RootView from '../RootView';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
-import ScrollView from '../containers/ScrollView';
 
 import ModalEventHandler from './ModalEventHandler';
 
@@ -52,7 +51,9 @@ const PopOverView = Class({
     redrawLayer () {
         const options = this.get( 'options' );
         const alignWithView = options.alignWithView;
-        const atNode = options.atNode || alignWithView.get( 'layer' );
+        const atNode = options.atNode ||
+            ( alignWithView === this.get( 'parentPopOverView' ) ?
+                alignWithView._popOver : alignWithView.get( 'layer' ) );
         const positionToThe = options.positionToThe || 'bottom';
         const positionToTheLeftOrRight =
             positionToThe === 'left' || positionToThe === 'right';
@@ -60,7 +61,7 @@ const PopOverView = Class({
         const offsetTop = options.offsetTop || 0;
         const offsetLeft = options.offsetLeft || 0;
         const rootView = alignWithView.getParent( RootView );
-        const position = Element.getPosition( atNode );
+        const position = atNode.getBoundingClientRect();
         const posTop = position.top;
         const posLeft = position.left;
         const posWidth = position.width;
@@ -150,9 +151,26 @@ const PopOverView = Class({
         this.keepInBounds();
     },
 
+    /**
+        Property: O.PopOverView#parentMargin
+        Type: {top: number, left: number, right: number, bottom: number}
+
+        The popover will ensure that it is at least N pixels away from each edge
+        of the parent view.
+    */
+    parentMargin: {
+        top: 10,
+        left: 10,
+        right: 10,
+        bottom: 10,
+    },
+
     keepInBounds: function () {
-        let parent = this.get( 'parentView' );
-        const layer = this.get( 'layer' );
+        if ( !this.get( 'isInDocument' ) ) {
+            return;
+        }
+        const rootView = this.get( 'parentView' );
+        const popOverEl = this._popOver;
         const options = this.get( 'options' );
         const positionToThe = options.positionToThe;
         const positionToTheLeftOrRight =
@@ -173,18 +191,13 @@ const PopOverView = Class({
         // Check not run off screen. We only move it on the axis the pop over
         // has been positioned along. It is up to the contents to ensure the
         // pop over is not too long in the other direction.
-        if ( parent instanceof PopOverView ) {
-            parent = parent.getParent( ScrollView ) ||
-                parent.getParent( RootView );
-        }
-        const position = Element.getPosition( layer, parent.get( 'layer' ) );
+        const position = Element.getPosition( popOverEl );
         let gap;
 
         if ( keepInHorizontalBounds ) {
             // Check right edge
-            if ( !parent.get( 'showScrollbarX' ) ) {
-                gap = parent.get( 'pxWidth' ) - position.left - deltaLeft -
-                    layer.offsetWidth;
+            if ( !rootView.get( 'showScrollbarX' ) ) {
+                gap = rootView.get( 'pxWidth' ) - position.right;
                 // If gap is negative, move the view.
                 if ( gap < 0 ) {
                     deltaLeft += gap;
@@ -201,9 +214,8 @@ const PopOverView = Class({
         }
         if ( keepInVerticalBounds ) {
             // Check bottom edge
-            if ( !parent.get( 'showScrollbarY' ) ) {
-                gap = parent.get( 'pxHeight' ) - position.top - deltaTop -
-                    layer.offsetHeight;
+            if ( !rootView.get( 'showScrollbarY' ) ) {
+                gap = rootView.get( 'pxHeight' ) - position.bottom;
                 if ( gap < 0 ) {
                     deltaTop += gap;
                     deltaTop -= parentMargin.bottom;
@@ -269,9 +281,7 @@ const PopOverView = Class({
         alignWithView.getParent( RootView ).insertView( this );
 
         const eventHandler = this.get( 'eventHandler' );
-        if ( eventHandler ) {
-            ViewEventsController.addEventTarget( eventHandler, 10 );
-        }
+        ViewEventsController.addEventTarget( eventHandler, 10 );
         this.set( 'isVisible', true );
 
         return this;
@@ -309,10 +319,8 @@ const PopOverView = Class({
             this.set( 'isVisible', false )
                 .detach()
                 .removeView( this.get( 'childViews' )[0] );
-            if ( eventHandler ) {
-                ViewEventsController.removeEventTarget( eventHandler );
-                eventHandler._seenMouseDown = false;
-            }
+            ViewEventsController.removeEventTarget( eventHandler );
+            eventHandler._seenMouseDown = false;
             this.set( 'options', null );
             if (( onHide = options.onHide )) {
                 onHide( options, this );
@@ -331,8 +339,7 @@ const PopOverView = Class({
     }.property(),
 
     eventHandler: function () {
-        return this.get( 'parentPopOverView' ) ?
-            null : new ModalEventHandler({ view: this });
+        return new ModalEventHandler({ view: this });
     }.property(),
 
     softHide () {
@@ -345,15 +352,16 @@ const PopOverView = Class({
     },
 
     clickedOutside () {
-        this.softHide();
+        var view = this;
+        var parent;
+        while ( parent = view.get( 'parentPopOverView' ) ) {
+            view = parent;
+        }
+        view.softHide();
     },
 
     keyOutside ( event ) {
-        let view = this;
-        while ( view.hasSubView() ) {
-            view = view.get( 'subPopOverView' );
-        }
-        view.get( 'childViews' )[0].fire( event.type, event );
+        this.get( 'childViews' )[0].fire( event.type, event );
     },
 
     closeOnEsc: function ( event ) {
@@ -361,12 +369,6 @@ const PopOverView = Class({
             this.softHide();
         }
     }.on( 'keydown' ),
-
-    closeOnClick: function ( event ) {
-        if ( !Element.contains( this._popOver, event.target ) ) {
-            this.softHide();
-        }
-    }.on( 'click' ),
 
     stopEvents: function ( event ) {
         event.stopPropagation();
