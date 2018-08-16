@@ -68,6 +68,7 @@ const PopOverView = Class({
         const posHeight = position.height;
         const aFlexEl = this._aFlex;
         const bFlexEl = this._bFlex;
+        const popOverEl = this._popOver;
         const calloutEl = this._callout;
         const safeAreaInsetBottom = rootView.get( 'safeAreaInsetBottom' );
         const layout = {};
@@ -141,11 +142,12 @@ const PopOverView = Class({
 
         aFlexEl.className = positionToTheLeftOrRight ?
             'v-PopOverContainer-top' : 'v-PopOverContainer-left';
-        aFlexEl.style = 'flex:' + aFlex;
+        aFlexEl.style.cssText = 'flex:' + aFlex;
         bFlexEl.className = positionToTheLeftOrRight ?
             'v-PopOverContainer-bottom' : 'v-PopOverContainer-right';
-        bFlexEl.style = 'flex:' + bFlex;
-        calloutEl.style = calloutStyle;
+        bFlexEl.style.cssText = 'flex:' + bFlex;
+        popOverEl.style.cssText = '';
+        calloutEl.style.cssText = calloutStyle;
 
         this.set( 'layout', layout );
         this.keepInBounds();
@@ -191,7 +193,7 @@ const PopOverView = Class({
         // Check not run off screen. We only move it on the axis the pop over
         // has been positioned along. It is up to the contents to ensure the
         // pop over is not too long in the other direction.
-        const position = Element.getPosition( popOverEl );
+        const position = popOverEl.getBoundingClientRect();
         let gap;
 
         if ( keepInHorizontalBounds ) {
