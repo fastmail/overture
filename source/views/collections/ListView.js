@@ -50,9 +50,15 @@ const ListView = Class({
         };
 
         this.controller = null;
+        this.focused = null;
         this.selection = null;
 
         ListView.parent.constructor.apply( this, arguments );
+
+        const focused = this.get( 'focused' );
+        if ( focused ) {
+            focused.addObserverForKey( 'record', this, 'redrawFocused' );
+        }
 
         const selection = this.get( 'selection' );
         if ( selection ) {
@@ -67,6 +73,12 @@ const ListView = Class({
             selection.removeObserverForKey(
                 'selectedStoreKeys', this, 'redrawSelection' );
         }
+
+        const focused = this.get( 'focused' );
+        if ( focused ) {
+            focused.removeObserverForKey( 'record', this, 'redrawFocused' );
+        }
+
         if ( this.get( 'isRendered' ) ) {
             const content = this.get( 'content' );
             if ( content ) {
@@ -75,6 +87,7 @@ const ListView = Class({
                 content.off( 'query:updated', this, 'contentWasUpdated' );
             }
         }
+
         ListView.parent.destroy.call( this );
     },
 
@@ -139,7 +152,8 @@ const ListView = Class({
 
     createItemView ( content, index, list, isAdded ) {
         const ItemView = this.get( 'ItemView' );
-        return new ItemView({
+        const focused = this.get( 'focused' );
+        const view = new ItemView({
             controller: this.get( 'controller' ),
             selection: this.get( 'selection' ),
             parentView: this,
@@ -148,6 +162,10 @@ const ListView = Class({
             list,
             isAdded,
         });
+        if ( focused ) {
+            view.set( 'isFocused', content === focused.get( 'record' ) );
+        }
+        return view;
     },
 
     destroyItemView ( view ) {
@@ -275,6 +293,23 @@ const ListView = Class({
         this._removed = null;
         this.propertyDidChange( 'childViews' );
         this.endPropertyChanges();
+    },
+
+    redrawFocused ( _, __, oldRecord ) {
+        const rendered = this._rendered;
+        const newRecord = this.get( 'focused' ).get( 'record' );
+        if ( oldRecord ) {
+            const view = rendered[ guid( oldRecord ) ];
+            if ( view ) {
+                view.set( 'isFocused', false );
+            }
+        }
+        if ( newRecord ) {
+            const view = rendered[ guid( newRecord ) ];
+            if ( view ) {
+                view.set( 'isFocused', true );
+            }
+        }
     },
 
     redrawSelection () {
