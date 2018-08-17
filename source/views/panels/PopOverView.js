@@ -354,9 +354,9 @@ const PopOverView = Class({
     },
 
     clickedOutside () {
-        var view = this;
-        var parent;
-        while ( parent = view.get( 'parentPopOverView' ) ) {
+        let view = this;
+        let parent;
+        while (( parent = view.get( 'parentPopOverView' ) )) {
             view = parent;
         }
         view.softHide();

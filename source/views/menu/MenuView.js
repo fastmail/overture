@@ -9,7 +9,6 @@ import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import { lookupKey } from '../../dom/DOMEvent';
 import OptionsController from '../../selection/OptionsController';
 import View from '../View';
-import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
 import OptionsListView from '../collections/OptionsListView';
