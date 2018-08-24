@@ -101,7 +101,7 @@ DB_TO_PO := $(TOOLS)/localise.js dbToPo
 ifeq ($(wildcard node_modules/.bin/uglifyjs),)
 UGLIFY_JS := uglifyjs
 else
-UGLIFY_JS := node_modules/.bin/uglifyjs
+UGLIFY_JS := $(abspath node_modules/.bin/uglifyjs)
 endif
 
 ifeq ($(shell which sha1sum),)
@@ -116,15 +116,18 @@ TYPE=`echo $@ | cut -d . -f 2-`; \
 HASH=`$(HASH_FILE) $@ | cut -c 1-8`; \
 COMPRESSEDNAME=`echo $@ | sed s/raw/$$HASH/`; \
 if [ $$TYPE = js ]; then \
-$(UGLIFY_JS) $@ -m > $$COMPRESSEDNAME || exit 1; \
+OLDPWD=`pwd`; cd `dirname $@`; $(UGLIFY_JS) `basename $@` -m --source-map "url='`basename $$COMPRESSEDNAME.map`'" -o `basename $$COMPRESSEDNAME` || exit 1; cd $$OLDPWD; \
 elif [ $$TYPE = css ]; then \
 $(MINIFY_CSS_ONLY) $@ $$COMPRESSEDNAME || exit 1; \
 else \
 cp $@ $$COMPRESSEDNAME; \
 fi; \
+if [ $$TYPE = js ]; then \
+gzip -9c $$COMPRESSEDNAME.map > $$COMPRESSEDNAME.map.gz; \
+fi; \
 gzip -9c $$COMPRESSEDNAME > $$COMPRESSEDNAME.gz
 endef
 
 define REMOVE_OLD
-rm -f $@ $@.gz `echo $@ $@.gz | sed "s/-raw/-????????/g"`
+rm -f $@ $@.gz `echo $@ $@.gz $@.map $@.map.gz | sed "s/-raw/-????????/g"`
 endef
