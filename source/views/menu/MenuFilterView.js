@@ -31,13 +31,6 @@ const MenuFilterView = Class({
             value: bindTwoWay( controller, 'search' ),
         });
 
-        // Remove Ctrl-/ shortcut from search clear button.
-        searchTextView
-            .render()
-            .get( 'childViews' )
-            .last()
-            .set( 'shortcut', '' );
-
         return searchTextView;
     },
 
