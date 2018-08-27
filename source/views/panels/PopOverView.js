@@ -21,8 +21,8 @@ const PopOverView = Class({
 
     className: function () {
         const options = this.get( 'options' );
-        const positionToThe = options.positionToThe || 'bottom';
-        const alignEdge = options.alignEdge || 'left';
+        const positionToThe = options && options.positionToThe || 'bottom';
+        const alignEdge = options && options.alignEdge || 'left';
         return 'v-PopOverContainer' +
             ' v-PopOverContainer--p' + positionToThe.charAt( 0 ) +
             ' v-PopOverContainer--a' + alignEdge.charAt( 0 );
@@ -50,6 +50,9 @@ const PopOverView = Class({
 
     redrawLayer () {
         const options = this.get( 'options' );
+        if ( !options ) {
+            return;
+        }
         const alignWithView = options.alignWithView;
         const atNode = options.atNode ||
             ( alignWithView === this.get( 'parentPopOverView' ) ?
