@@ -9,8 +9,8 @@ const OptionsListView = Class({
     Extends: ListView,
 
     init () {
-        this._focused = null;
-        this._selected = null;
+        this._focusedOption = null;
+        this._selectedOption = null;
         this._views = {};
 
         OptionsListView.parent.constructor.apply( this, arguments );
@@ -28,8 +28,8 @@ const OptionsListView = Class({
 
     // ---
 
-    focused: bind( 'controller*focused' ),
-    selected: bind( 'controller*selected' ),
+    focusedOption: bind( 'controller*focused' ),
+    selectedOption: bind( 'controller*selected' ),
 
     createItemView ( item, index, list ) {
         const itemHeight = this.get( 'itemHeight' );
@@ -42,8 +42,8 @@ const OptionsListView = Class({
                 .set( 'list', list )
                 .set( 'parentView', this );
         } else {
-            const isFocused = ( item === this.get( 'focused' ) );
-            const isSelected = ( item === this.get( 'selected' ) );
+            const isFocused = ( item === this.get( 'focusedOption' ) );
+            const isSelected = ( item === this.get( 'selectedOption' ) );
             view = this._views[ id ] = new View({
                 controller: this.get( 'controller' ),
                 parentView: this,
@@ -55,10 +55,10 @@ const OptionsListView = Class({
                 isSelected,
             });
             if ( isFocused ) {
-                this._focused = view;
+                this._focusedOption = view;
             }
             if ( isSelected ) {
-                this._selected = view;
+                this._selectedOption = view;
             }
         }
         return view;
@@ -77,8 +77,8 @@ const OptionsListView = Class({
     },
 
     redrawFocused: function () {
-        const item = this.get( 'focused' );
-        const oldView = this._focused;
+        const item = this.get( 'focusedOption' );
+        const oldView = this._focusedOption;
         const newView = item && this.getView( item );
         if ( oldView !== newView ) {
             if ( oldView ) {
@@ -88,13 +88,13 @@ const OptionsListView = Class({
                 newView.set( 'isFocused', true );
                 this.scrollIntoView( newView );
             }
-            this._focused = newView;
+            this._focusedOption = newView;
         }
-    }.observes( 'focused' ),
+    }.observes( 'focusedOption' ),
 
     redrawSelected: function () {
-        const item = this.get( 'selected' );
-        const oldView = this._selected;
+        const item = this.get( 'selectedOption' );
+        const oldView = this._selectedOption;
         const newView = item && this.getView( item );
         if ( oldView !== newView ) {
             if ( oldView ) {
@@ -104,9 +104,9 @@ const OptionsListView = Class({
                 newView.set( 'isSelected', true );
                 this.scrollIntoView( newView );
             }
-            this._selected = newView;
+            this._selectedOption = newView;
         }
-    }.observes( 'selected' ),
+    }.observes( 'selectedOption' ),
 
     scrollIntoView ( view ) {
         const scrollView = this.getParent( ScrollView );
