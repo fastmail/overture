@@ -104,13 +104,6 @@ const MenuView = Class({
         MenuView.parent.didEnterDocument.call( this );
 
         const layer = this.get( 'layer' );
-        let menuFilterView;
-
-        if ( this.get( 'showFilter' ) ) {
-            menuFilterView = this.filterView;
-            RunLoop.invokeInNextFrame( menuFilterView.focus, menuFilterView );
-        }
-
         layer.addEventListener( 'mousemove', this, false );
         layer.addEventListener( 'mouseout', this, false );
 
