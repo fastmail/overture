@@ -374,6 +374,9 @@ const Store = Class({
                 serverState: {},
                 // Type -> id -> store key
                 typeToIdToSK: {},
+                // Clients can set this to true while doing a batch of changes
+                // to avoid fetching updates to related types during the process
+                ignoreServerState: false,
             };
         }
         if ( data.isDefault ) {
@@ -735,7 +738,7 @@ const Store = Class({
                     const typeId = entry.typeId;
                     const accountId = entry.accountId;
                     _accounts[ accountId ].status[ typeId ] &= ~COMMITTING;
-                    this._checkServerStatus( accountId, Type );
+                    this.checkServerState( accountId, Type );
                 }
                 this.set( 'isCommitting', false );
                 if ( this.get( 'autoCommit' ) &&
@@ -1209,7 +1212,7 @@ const Store = Class({
     // ---
 
     /**
-        Method (private): O.Store#_checkServerStatus
+        Method: O.Store#checkServerState
 
         Called internally when a type finishes loading or committing, to check
         if there's a server state update to process.
@@ -1218,7 +1221,7 @@ const Store = Class({
             accountId - {String|null} The account id.
             Type      - {O.Class} The record type.
     */
-    _checkServerStatus ( accountId, Type ) {
+    checkServerState ( accountId, Type ) {
         const typeToServerState = this.getAccount( accountId ).serverState;
         const typeId = guid( Type );
         const serverState = typeToServerState[ typeId ];
@@ -1271,7 +1274,7 @@ const Store = Class({
         if ( !( status & LOADING ) && ( !( status & READY ) || force ) ) {
             this.source.fetchAllRecords( accountId, Type, state, () => {
                 typeToStatus[ typeId ] &= ~LOADING;
-                this._checkServerStatus( accountId, Type );
+                this.checkServerState( accountId, Type );
             });
             typeToStatus[ typeId ] |= LOADING;
         }
@@ -1759,6 +1762,7 @@ const Store = Class({
         if ( account.serverState[ typeId ] === newState ) {
             // Do nothing, we're already in this state.
         } else if ( clientState && newState !== clientState &&
+                !account.ignoreServerState &&
                 !( account.status[ typeId ] & (LOADING|COMMITTING) ) ) {
             // Set this to clientState to avoid potential infinite loop. We
             // don't know for sure if our serverState is older or newer due to
