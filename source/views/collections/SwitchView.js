@@ -36,6 +36,8 @@ const SwitchView = Class({
 
     Extends: View,
 
+    syncOnlyInDocument: false,
+
     init (/* ...mixins */) {
         this._oldView = null;
         // -1 => Not added views to parent
@@ -63,8 +65,8 @@ const SwitchView = Class({
     },
 
     destroy () {
-        let views = this.get( 'views' ),
-            l = views.length;
+        let views = this.get( 'views' );
+        let l = views.length;
         while ( l-- ) {
             forEachView( views[l], 'destroy' );
         }
@@ -83,7 +85,7 @@ const SwitchView = Class({
     }.property(),
 
     willEnterDocument () {
-        this.resumeBindings();
+        this.resume();
         this.redraw();
         return this;
     },
@@ -101,7 +103,7 @@ const SwitchView = Class({
     },
 
     didLeaveDocument () {
-        return this.suspendBindings();
+        return this.suspend();
     },
 
     // ---
@@ -112,17 +114,26 @@ const SwitchView = Class({
         // If not yet added to parent, nothing to redraw; _add will be called
         // automatically soon.
         if ( !this.isDestroyed && oldIndex > -1 && oldIndex !== newIndex ) {
-            const parentView = this.get( 'parentView' );
-            if ( parentView ) {
-                this._remove( parentView );
-                this._add();
+            if ( this._suspendRedraw ) {
+                this._needsRedraw = [];
+            } else {
+                this._needsRedraw = null;
+                const parentView = this.get( 'parentView' );
+                if ( parentView ) {
+                    this._remove( parentView );
+                    this._add();
+                }
             }
         }
     },
 
     switchNeedsRedraw: function () {
         if ( this.get( 'isInDocument' ) ) {
-            RunLoop.queueFn( 'render', this.redraw, this );
+            if ( this._suspendRedraw ) {
+                this._needsRedraw = [];
+            } else {
+                RunLoop.queueFn( 'render', this.redraw, this );
+            }
         }
     }.observes( 'index' ),
 

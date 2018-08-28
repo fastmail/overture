@@ -195,6 +195,7 @@ const View = Class({
     syncOnlyInDocument: true,
 
     init (/* ...mixins */) {
+        this._suspendRedraw = false;
         this._needsRedraw = null;
 
         this.parentView = null;
@@ -232,6 +233,23 @@ const View = Class({
         }
         this.clearPropertyCache();
         View.parent.destroy.call( this );
+    },
+
+    suspend: function () {
+        if ( !this._suspendRedraw ) {
+            this.suspendBindings();
+            this._suspendRedraw = true;
+        }
+    },
+
+    resume: function () {
+        if ( this._suspendRedraw ) {
+            this._suspendRedraw = false;
+            this.resumeBindings();
+            if ( this._needsRedraw && this.get( 'isInDocument' ) ) {
+                RunLoop.queueFn( 'render', this.redraw, this );
+            }
+        }
     },
 
     // --- Screen reader accessibility ---
@@ -350,7 +368,7 @@ const View = Class({
     */
     willEnterDocument () {
         if ( this.get( 'syncOnlyInDocument' ) ) {
-            this.resumeBindings();
+            this.resume();
         }
 
         if ( this._needsRedraw ) {
@@ -444,7 +462,7 @@ const View = Class({
             children[l].didLeaveDocument();
         }
         if ( this.get( 'syncOnlyInDocument' ) ) {
-            this.suspendBindings();
+            this.suspend();
         }
         return this;
     },
@@ -614,7 +632,7 @@ const View = Class({
                 layerProperty,
                 oldProp,
             ];
-            if ( this.get( 'isInDocument' ) ) {
+            if ( !this._suspendRedraw && this.get( 'isInDocument' ) ) {
                 RunLoop.queueFn( 'render', this.redraw, this );
             }
         }
@@ -635,7 +653,8 @@ const View = Class({
     redraw () {
         const needsRedraw = this._needsRedraw;
         let layer, i, l, prop;
-        if ( needsRedraw && !this.isDestroyed && this.get( 'isRendered' ) ) {
+        if ( needsRedraw && !this._suspendRedraw &&
+                !this.isDestroyed && this.get( 'isRendered' ) ) {
             layer = this.get( 'layer' );
             this._needsRedraw = null;
             for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
