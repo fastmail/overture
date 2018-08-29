@@ -235,14 +235,14 @@ const View = Class({
         View.parent.destroy.call( this );
     },
 
-    suspend: function () {
+    suspend () {
         if ( !this._suspendRedraw ) {
             this.suspendBindings();
             this._suspendRedraw = true;
         }
     },
 
-    resume: function () {
+    resume () {
         if ( this._suspendRedraw ) {
             this._suspendRedraw = false;
             this.resumeBindings();
