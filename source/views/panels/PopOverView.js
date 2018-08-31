@@ -100,10 +100,12 @@ const PopOverView = Class({
             break;
         }
 
+        // 0% rather than 0 for IE11 compatibility due to Bug #4
+        // in https://github.com/philipwalton/flexbugs
         switch ( alignEdge ) {
         case 'top':
             aFlex = '0 1 ' + ( posTop + offsetTop ) + 'px';
-            bFlex = '1 0 0';
+            bFlex = '1 0 0%';
             break;
         case 'middle':
             startDistance =
@@ -115,13 +117,13 @@ const PopOverView = Class({
                 ( 100 * startDistance / ( startDistance + endDistance ) ) + '%';
             break;
         case 'bottom':
-            aFlex = '1 0 0';
+            aFlex = '1 0 0%';
             bFlex = '0 1 ' + ( rootView.get( 'pxHeight' ) -
                 ( posTop + posHeight + offsetTop ) ) + 'px';
             break;
         case 'left':
             aFlex = '0 1 ' + ( posLeft + offsetLeft ) + 'px';
-            bFlex = '1 0 0';
+            bFlex = '1 0 0%';
             break;
         case 'centre':
             startDistance =
@@ -133,7 +135,7 @@ const PopOverView = Class({
                 ( 100 * startDistance / ( startDistance + endDistance ) ) + '%';
             break;
         case 'right':
-            aFlex = '1 0 0';
+            aFlex = '1 0 0%';
             bFlex = '0 1 ' + ( rootView.get( 'pxWidth' ) -
                 ( posLeft + posWidth + offsetLeft ) ) + 'px';
             break;
