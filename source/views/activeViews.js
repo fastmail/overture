@@ -35,7 +35,7 @@ export const getViewFromNode = function ( node ) {
     const doc = node.ownerDocument;
     let view = null;
     while ( !view && node && node !== doc ) {
-        view = activeViews[ node.id ];
+        view = activeViews[ node.id ] || null;
         node = node.parentNode;
     }
     return view;
