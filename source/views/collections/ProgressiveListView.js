@@ -75,6 +75,9 @@ const ProgressiveListView = Class({
     },
 
     _simulateScroll: function ( _, __, oldLength, length ) {
+        if ( !this.get( 'isInDocument' ) ) {
+            return;
+        }
         // Convert null/undefined length to 0.
         if ( !length ) {
             length = 0;
