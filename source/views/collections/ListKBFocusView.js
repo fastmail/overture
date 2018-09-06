@@ -88,7 +88,8 @@ const ListKBFocusView = Class({
     distanceFromVisRect: function () {
         const layoutIndex = this.get( 'layoutIndex' );
         const scrollView = this.getParent( ScrollView );
-        if ( scrollView && layoutIndex > -1 && this.get( 'isInDocument' ) ) {
+        if ( scrollView && layoutIndex > -1 &&
+                this.get( 'isInDocument' ) && !this._needsRedraw ) {
             const scrollTop = scrollView.get( 'scrollTop' );
             const position = this.getPositionRelativeTo( scrollView );
             const top = position.top;
