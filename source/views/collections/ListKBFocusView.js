@@ -76,14 +76,14 @@ const ListKBFocusView = Class({
         if ( this.get( 'distanceFromVisRect' ) ) {
             this.scrollIntoView( 0, false );
         }
-    }.nextFrame(),
+    }.queue( 'after' ),
 
     checkScroll: function () {
         const distance = this.get( 'distanceFromVisRect' );
         if ( distance ) {
             this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
         }
-    }.nextFrame().observes( 'record' ),
+    }.queue( 'after' ).observes( 'record' ),
 
     distanceFromVisRect: function () {
         const layoutIndex = this.get( 'layoutIndex' );
