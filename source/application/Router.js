@@ -75,15 +75,6 @@ const Router = Class({
     encodedState: '',
 
     /**
-        Property: O.Router#mayGoBack
-        Type: Boolean
-        Default: true
-
-        If false, the router will ignore popstate events.
-    */
-    mayGoBack: true,
-
-    /**
         Property: O.Router#replaceState
         Type: Boolean
         Default: false
@@ -119,9 +110,7 @@ const Router = Class({
         if ( !win ) {
             win = window;
         }
-        const path = getUrl( win.location, this.baseUrl );
-        this.set( 'currentPath', path );
-        this.restoreStateFromUrl( path );
+        this._routesChanged();
         win.addEventListener( 'popstate', this, false );
         this._win = win;
     },
@@ -146,7 +135,7 @@ const Router = Class({
     handleEvent: function () {
         const path = getUrl( this._win.location, this.baseUrl );
 
-        if ( this.get( 'mayGoBack' ) && path !== this.get( 'currentPath' ) ) {
+        if ( path !== this.get( 'currentPath' ) ) {
             this.set( 'currentPath', path );
             this.restoreStateFromUrl( path );
         }
@@ -180,6 +169,18 @@ const Router = Class({
         }
         return this;
     },
+
+    /**
+        Method (private): O.Router#_routesChanged
+
+        Reruns the routing, when the routes change. This is designed so that,
+        for example, you can block routes when login is required.
+    */
+    _routesChanged: function () {
+        const path = getUrl( win.location, this.baseUrl );
+        this.set( 'currentPath', path );
+        this.restoreStateFromUrl( path );
+    }.observes( 'routes' ),
 
     /**
         Method (private): O.Router#_encodeStateToUrl
