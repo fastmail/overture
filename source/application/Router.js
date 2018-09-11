@@ -127,12 +127,12 @@ const Router = Class({
     },
 
     /**
-        Method: O.Router#setTitle
+        Method (private): O.Router#_setTitle
 
         Sets the window title. Called automatically whenever the
         <O.Router#title> property changes.
     */
-    setTitle: function () {
+    _setTitle: function () {
         document.title = this.get( 'title' );
     }.observes( 'title' ),
 
@@ -182,13 +182,13 @@ const Router = Class({
     },
 
     /**
-        Method: O.Router#encodeStateToUrl
+        Method (private): O.Router#_encodeStateToUrl
 
         Sets the current URL to match the <O.Router#encodedState> property.
         This method is called automatically once, at the end of the run loop,
         whenever this property changes.
     */
-    encodeStateToUrl: function () {
+    _encodeStateToUrl: function () {
         const state = this.get( 'encodedState' );
         const replaceState = this.get( 'replaceState' );
         const win = this._win;
