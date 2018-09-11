@@ -11,14 +11,16 @@ import '../foundation/RunLoop';  // For Function#invokeInRunLoop, #queue
     The Application module contains classes for managing an HTML5 application.
 */
 
-const getHash = function ( location ) {
-    const href = location.href;
-    const i = href.indexOf( '#/' );
-    return  i > -1 ? href.slice( i + 2 ) : '';
-};
 const getUrl = function ( location, base ) {
-    return location.pathname.slice( base.length );
+    location = location.toString();
+    if ( !location.startsWith( base ) ) {
+        const error = new Error( 'Router.baseUrl is bad: location doesn’t start with base' );
+        error.details = { location, base };
+        throw error;
+    }
+    return location.slice( base.length );
 };
+
 /**
     Class: O.Router
 
@@ -48,25 +50,18 @@ const Router = Class({
     currentPath: '',
 
     /**
-        Property: O.Router#useHash
-        Type: Boolean
-        Default: True if supported
-
-        If true, will use pushState to manipulate the real URL. If false, will
-        just set the hash component instead. By default this is true if the
-        browser supports pushState and false otherwise. If left as true,
-        <O.Router#baseUrl> *must* be correctly configured.
-    */
-    useHash: !history.pushState || ( location.protocol === 'file:' ),
-
-    /**
         Property: O.Router#baseUrl
         Type: String
-        Default: "/"
+        Default: the origin, plus a trailing slash.
 
         The path to the base of the URL space that maps to application state.
+        There’s also a different default for the file: scheme, using the hash,
+        but realise that it may have issues if you have links that use the hash,
+        or if you try loading the page without “#/” added on the end.
     */
-    baseUrl: '/',
+    baseUrl: location.protocol === 'file:' ?
+        location.href.replace(/#.*/, '') + '#/' :
+        location.protocol + '//' + location.host + '/',
 
     /**
         Property: O.Router#encodedState
@@ -84,8 +79,7 @@ const Router = Class({
         Type: Boolean
         Default: true
 
-        If false, the router will ignore history events (hashchange or
-        popstate).
+        If false, the router will ignore popstate events.
     */
     mayGoBack: true,
 
@@ -125,13 +119,10 @@ const Router = Class({
         if ( !win ) {
             win = window;
         }
-        const location = win.location;
-        const path = ( this.useHash && getHash( location ) ) ||
-                getUrl( location, this.baseUrl );
+        const path = getUrl( win.location, this.baseUrl );
         this.set( 'currentPath', path );
         this.restoreStateFromUrl( path );
-        win.addEventListener(
-            this.useHash ? 'hashchange' : 'popstate', this, false );
+        win.addEventListener( 'popstate', this, false );
         this._win = win;
     },
 
@@ -153,9 +144,7 @@ const Router = Class({
         the new URL.
     */
     handleEvent: function () {
-        const location = this._win.location;
-        const path = this.useHash ?
-                getHash( location ) : getUrl( location, this.baseUrl );
+        const path = getUrl( this._win.location, this.baseUrl );
 
         if ( this.get( 'mayGoBack' ) && path !== this.get( 'currentPath' ) ) {
             this.set( 'currentPath', path );
@@ -205,34 +194,14 @@ const Router = Class({
         const win = this._win;
         if ( this.get( 'currentPath' ) !== state ) {
             this.set( 'currentPath', state );
-            if ( this.useHash ) {
-                const location = win.location;
-                if ( replaceState ) {
-                    let href = location.href;
-                    const i = href.indexOf( '#' );
-                    if ( i > -1 ) {
-                        href = href.slice( 0, i );
-                    }
-                    location.replace( href + '#/' + state );
-                } else {
-                    location.hash = '#/' + state;
-                }
-            } else {
-                const history = win.history;
-                const title = this.get( 'title' );
-                const url = this.getUrlForEncodedState( state );
-                // Firefox sometimes throws an error for no good reason,
-                // especially on replaceState, so wrap in a try/catch.
-                try {
-                    if ( replaceState ) {
-                        history.replaceState( null, title, url );
-                    } else {
-                        history.pushState( null, title, url );
-                    }
-                } catch ( error ) {}
-            }
+            const history = win.history;
+            const title = this.get( 'title' );
+            const url = this.getUrlForEncodedState( state );
             if ( replaceState ) {
+                history.replaceState( null, title, url );
                 this.set( 'replaceState', false );
+            } else {
+                history.pushState( null, title, url );
             }
         }
     }.queue( 'after' ).observes( 'encodedState' ),
