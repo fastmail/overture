@@ -11,15 +11,7 @@ import '../foundation/RunLoop';  // For Function#invokeInRunLoop, #queue
     The Application module contains classes for managing an HTML5 application.
 */
 
-const getUrl = function ( location, base ) {
-    location = location.toString();
-    if ( !location.startsWith( base ) ) {
-        const error = new Error( 'Router.baseUrl is bad: location doesn’t start with base' );
-        error.details = { location, base };
-        throw error;
-    }
-    return location.slice( base.length );
-};
+let doRouting;
 
 /**
     Class: O.Router
@@ -28,6 +20,13 @@ const getUrl = function ( location, base ) {
 
     This class adds the ability to manage the URL in the browser window,
     updating it when your application state changes and vice versa.
+
+    One thing to be careful of: using the hash (you know, `<h2 id=foo>` with `<a
+    href=#foo>` elsewhere) is unreliable; it will generally work, but navigation
+    back/forwards won’t jump to the right place automatically like it would in a
+    normal document. Also, modifying <O.Router#routes> will cause the route
+    handler to be evaluated again, which, depending on how you do things, will
+    probably clobber the hash.
 */
 const Router = Class({
 
@@ -40,14 +39,6 @@ const Router = Class({
         The last title for the page window.
     */
     title: document.title,
-
-    /**
-        Property: O.Router#currentPath
-        Type: String
-
-        The last URL set by the app.
-    */
-    currentPath: '',
 
     /**
         Property: O.Router#baseUrl
@@ -101,6 +92,8 @@ const Router = Class({
                  expression matches. This will be given the full encoded state
                  as the first parameter, followed by any capturing groups in the
                  regular expression.
+
+        Handlers SHOULD be idempotent.
     */
     routes: [],
 
@@ -110,9 +103,9 @@ const Router = Class({
         if ( !win ) {
             win = window;
         }
-        this._routesChanged();
-        win.addEventListener( 'popstate', this, false );
         this._win = win;
+        this.doRouting();
+        win.addEventListener( 'popstate', this, false );
     },
 
     /**
@@ -126,40 +119,55 @@ const Router = Class({
     }.observes( 'title' ),
 
     /**
+        Method: O.Router#doRouting
+
+        Reruns the routing. This method is called automatically when
+        <O.Router#routes> changes. This is designed so that, for example, you
+        can block routes when login is required.
+
+        (This method would more naturally be called “route”, the verb, but that
+        may lead to confusion with the noun “route”, referring to the current
+        route. Hence the clumsy name doRouting.)
+    */
+    doRouting: doRouting = function () {
+        const baseUrl = this.baseUrl;
+        const href = this._win.location.href;
+        if ( !href.startsWith( baseUrl ) ) {
+            const error = new Error( 'Bad Router.baseUrl' );
+            error.details = { href, baseUrl };
+            throw error;
+        }
+        this.restoreEncodedState( href.slice( baseUrl.length ) );
+    }.observes( 'routes' ),
+
+    /**
         Method: O.Router#handleEvent
 
         Called automatically whenever the URL changes. Will compare to the last
-        set value and if different, invoke <O.Router#restoreStateFromUrl> with
+        set value and if different, invoke <O.Router#restoreEncodedState> with
         the new URL.
     */
-    handleEvent: function () {
-        const path = getUrl( this._win.location, this.baseUrl );
-
-        if ( path !== this.get( 'currentPath' ) ) {
-            this.set( 'currentPath', path );
-            this.restoreStateFromUrl( path );
-        }
-    }.invokeInRunLoop(),
+    handleEvent: doRouting.invokeInRunLoop(),
 
     /**
-        Method: O.Router#restoreStateFromUrl
+        Method: O.Router#restoreEncodedState
 
         Iterates throught the <O.Router#routes> until it finds a match, then
-        uses that to decode the state from the URL. Called automatically
-        whenever the URL changes.
+        uses that to decode the state. Called automatically whenever the URL
+        changes, via <O.Router#doRouting>.
 
         Parameters:
-            url - {String} The url to restore state from.
+            encodedState - {String} The encodedState to restore state from.
 
         Returns:
             {O.Router} Returns self.
     */
-    restoreStateFromUrl ( url ) {
+    restoreEncodedState ( encodedState ) {
         const routes = this.get( 'routes' );
 
         for ( let i = 0, l = routes.length; i < l; i += 1 ) {
             const route = routes[i];
-            const match = route.url.exec( url );
+            const match = route.url.exec( encodedState );
             if ( match ) {
                 this.beginPropertyChanges();
                 route.handle.apply( this, match );
@@ -169,18 +177,6 @@ const Router = Class({
         }
         return this;
     },
-
-    /**
-        Method (private): O.Router#_routesChanged
-
-        Reruns the routing, when the routes change. This is designed so that,
-        for example, you can block routes when login is required.
-    */
-    _routesChanged: function () {
-        const path = getUrl( win.location, this.baseUrl );
-        this.set( 'currentPath', path );
-        this.restoreStateFromUrl( path );
-    }.observes( 'routes' ),
 
     /**
         Method (private): O.Router#_encodeStateToUrl
@@ -193,17 +189,20 @@ const Router = Class({
         const state = this.get( 'encodedState' );
         const replaceState = this.get( 'replaceState' );
         const win = this._win;
-        if ( this.get( 'currentPath' ) !== state ) {
-            this.set( 'currentPath', state );
-            const history = win.history;
-            const title = this.get( 'title' );
-            const url = this.getUrlForEncodedState( state );
-            if ( replaceState ) {
-                history.replaceState( null, title, url );
-                this.set( 'replaceState', false );
-            } else {
-                history.pushState( null, title, url );
-            }
+        const url = this.getUrlForEncodedState( state );
+        const currentHref = win.location.href;
+        if ( currentHref === url || ( currentHref.startsWith( url ) &&
+                currentHref.charAt( url.length ) === '#' ) ) {
+            // At the same path (possibly with an added hash); nothing to do.
+            return;
+        }
+        const history = win.history;
+        const title = this.get( 'title' );
+        if ( replaceState ) {
+            history.replaceState( null, title, url );
+            this.set( 'replaceState', false );
+        } else {
+            history.pushState( null, title, url );
         }
     }.queue( 'after' ).observes( 'encodedState' ),
 
