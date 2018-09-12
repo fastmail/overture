@@ -166,8 +166,13 @@ const Router = Class({
                  state.
         handle - {Function} The handler for decoding the state if the regular
                  expression matches. This will be given the full encoded state
-                 as the first parameter, followed by any capturing groups in the
-                 regular expression.
+                 minus any query string as the first parameter, the query string
+                 decoded as an object for the second parameter, followed by any
+                 capturing groups in the regular expression. Concerning the
+                 query string object: if there is no query string, that second
+                 parameter will be an empty object, not null. Also, global query
+                 string parameters, which correspond to properties on the Router
+                 instance, are excluded from the object.
 
         Handlers SHOULD be idempotent.
     */
@@ -262,13 +267,16 @@ const Router = Class({
                     return obj;
                 }, {} );
 
-            // Consume global query string parameters, applying them to `this`.
+            // Consume global query string parameters, applying them to `this`
+            // and deleting them from the object that will be passed to the
+            // route handler.
             const { knownGlobalQueryParams } = this;
             for ( const property in knownGlobalQueryParams ) {
                 if ( hasOwnProperty.call( knownGlobalQueryParams, property ) ) {
                     const name = knownGlobalQueryParams[ property ];
                     if ( hasOwnProperty.call( queryString, name ) ) {
                         this.set( property, queryString[ name ] );
+                        delete queryString[ name ];
                     } else {
                         this.set( property, null );
                     }
@@ -278,6 +286,7 @@ const Router = Class({
             encodedStateSansQueryString =
                 encodedState.slice( 0, queryStringStart );
         } else {
+            // We use {} rather than null for convenience in route handlers.
             queryString = {};
             encodedStateSansQueryString = encodedState;
         }
@@ -288,7 +297,11 @@ const Router = Class({
             const route = routes[i];
             const match = route.url.exec( encodedStateSansQueryString );
             if ( match ) {
-                route.handle.apply( this, match );
+                // Example: encodedState is 'foo/bar?baz=quux',
+                // route.url is /^foo\/(.*)$/, → route.handle.call( this,
+                // 'foo/bar', { 'baz': 'quux' }, 'bar' )
+                route.handle.call( this, encodedStateSansQueryString,
+                    queryString, ...match.slice( 1 ) );
                 break;
             }
         }
