@@ -67,8 +67,11 @@ export default {
         animating a property on the object. Decrements the <#animating>
         property.
     */
-    didAnimate () {
+    didAnimate ( animation ) {
         this.increment( 'animating', -1 );
+        if ( !this.get( 'animating' ) && animation instanceof StyleAnimation ) {
+            this.didResize();
+        }
     },
 
     /**
@@ -124,6 +127,7 @@ export default {
                     setStyle( layer, property, value );
                 }
             }
+            this.didResize();
         }
         // Just remove styles that are not specified in the new styles, but were
         // in the old styles
