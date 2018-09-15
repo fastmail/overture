@@ -240,6 +240,7 @@ const View = Class({
             this.suspendBindings();
             this._suspendRedraw = true;
         }
+        return this;
     },
 
     resume () {
@@ -250,6 +251,7 @@ const View = Class({
                 RunLoop.queueFn( 'render', this.redraw, this );
             }
         }
+        return this;
     },
 
     // --- Screen reader accessibility ---
