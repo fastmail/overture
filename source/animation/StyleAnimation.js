@@ -191,9 +191,6 @@ export default Class({
                         delta[ property ] = parseInt( end, 10 ) - start;
                     }
                 } else {
-                    RunLoop.didError({
-                        name: 'Can’t animate property: ' + property,
-                    });
                     current[ property ] = end;
                     setStyle( element, property, end );
                 }
