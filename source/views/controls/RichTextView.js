@@ -214,14 +214,6 @@ const RichTextView = Class({
     didEnterDocument () {
         RichTextView.parent.didEnterDocument.call( this );
 
-        const scrollView = this.getParent( ScrollView );
-        if ( scrollView ) {
-            if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
-                scrollView.addObserverForKey(
-                    'scrollTop', this, '_calcToolbarPosition' );
-            }
-        }
-
         const selection = this.get( 'savedSelection' );
         const editor = this.get( 'editor' );
         if ( selection ) {
@@ -236,18 +228,29 @@ const RichTextView = Class({
             editor.moveCursorToStart();
         }
 
+        const scrollView = this.getParent( ScrollView );
+        if ( scrollView && this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
+            scrollView.addObserverForKey(
+                'scrollTop', this, '_calcToolbarPosition' );
+            // Need to queue rather than call immediately because the toolbar
+            // will be in the rich text view and if we need to make it sticky
+            // we need to shift it round. But we're in the middle of the
+            // will/did enter callbacks, so we might end up in an inconsistent
+            // state.
+            RunLoop.queueFn( 'after', this._calcToolbarPosition.bind( this,
+                scrollView, '', 0, scrollView.get( 'scrollTop' ) ) );
+        }
+
         return this;
     },
 
     willLeaveDocument () {
         const scrollView = this.getParent( ScrollView );
-        if ( scrollView ) {
-            if ( this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
-                scrollView.removeObserverForKey(
-                    'scrollTop', this, '_calcToolbarPosition' );
-                this._setToolbarPosition(
-                    scrollView, this.get( 'toolbarView' ), false );
-            }
+        if ( scrollView && this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
+            scrollView.removeObserverForKey(
+                'scrollTop', this, '_calcToolbarPosition' );
+            this._setToolbarPosition(
+                scrollView, this.get( 'toolbarView' ), false );
         }
 
         // If focused, save cursor position
@@ -404,6 +407,7 @@ const RichTextView = Class({
             this._setToolbarPosition( scrollView, toolbarView, isSticky );
         }
     },
+
     _setToolbarPosition ( scrollView, toolbarView, isSticky ) {
         if ( isSticky ) {
             const newParent = scrollView.get( 'parentView' );
