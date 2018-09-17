@@ -110,7 +110,8 @@ const PopOverView = Class({
         case 'middle':
             startDistance =
                 Math.round( posTop + offsetTop + ( posHeight / 2 ) );
-            endDistance = rootView.get( 'pxHeight' ) - startDistance;
+            endDistance = rootView.get( 'pxHeight' ) -
+                safeAreaInsetBottom - startDistance;
             aFlex = startDistance + ' 0 0';
             bFlex = endDistance + ' 0 0';
             calloutStyle = 'top:' +
