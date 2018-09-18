@@ -155,7 +155,7 @@ const ScrollView = Class({
     willEnterDocument () {
         ScrollView.parent.willEnterDocument.call( this );
         if ( this.get( 'isFixedDimensions' ) ) {
-            var scrollContents = this._scrollContents || this.get( 'layer' );
+            const scrollContents = this._scrollContents || this.get( 'layer' );
             scrollContents.appendChild(
                 this._safeAreaPadding = el( 'div.v-Scroll-safeAreaPadding' )
             );

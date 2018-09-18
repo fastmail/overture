@@ -130,7 +130,7 @@ const DragController = new Obj({
             drag - {O.Drag} The new drag instance.
     */
     register ( drag ) {
-        var oldDrag = this.drag;
+        const oldDrag = this.drag;
         if ( oldDrag ) {
             oldDrag.endDrag();
         }

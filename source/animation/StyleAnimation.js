@@ -1,6 +1,5 @@
 import Animation from './Animation';
 import { Class, clone } from '../core/Core';
-import RunLoop from '../foundation/RunLoop';
 import Element from '../dom/Element';
 
 const setStyle = Element.setStyle;
