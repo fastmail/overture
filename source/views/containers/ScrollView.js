@@ -155,7 +155,8 @@ const ScrollView = Class({
     willEnterDocument () {
         ScrollView.parent.willEnterDocument.call( this );
         if ( this.get( 'isFixedDimensions' ) ) {
-            this.get( 'layer' ).appendChild(
+            var scrollContents = this._scrollContents || this.get( 'layer' );
+            scrollContents.appendChild(
                 this._safeAreaPadding = el( 'div.v-Scroll-safeAreaPadding' )
             );
             this.getParent( RootView ).addObserverForKey(
@@ -196,7 +197,7 @@ const ScrollView = Class({
         if ( safeAreaPadding ) {
             this.getParent( RootView ).removeObserverForKey(
                 'safeAreaInsetBottom', this, 'redrawSafeArea' );
-            this.get( 'layer' ).removeChild( safeAreaPadding );
+            safeAreaPadding.parentNode.removeChild( safeAreaPadding );
             this._safeAreaPadding = null;
         }
         return ScrollView.parent.didLeaveDocument.call( this );
