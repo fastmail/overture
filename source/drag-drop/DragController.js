@@ -112,12 +112,12 @@ const DragController = new Obj({
     _touchId: null,
 
     /**
-        Property (private): O.DragController._drag
+        Property: O.DragController.drag
         Type: O.Drag|null
 
         If a drag is in progress, this holds the current <O.Drag> instance.
     */
-    _drag: null,
+    drag: null,
 
     /**
         Method: O.DragController.register
@@ -130,10 +130,11 @@ const DragController = new Obj({
             drag - {O.Drag} The new drag instance.
     */
     register ( drag ) {
-        if ( this._drag ) {
-            this._drag.endDrag();
+        var oldDrag = this.drag;
+        if ( oldDrag ) {
+            oldDrag.endDrag();
         }
-        this._drag = drag;
+        this.set( 'drag', drag );
     },
 
     /**
@@ -146,8 +147,8 @@ const DragController = new Obj({
             drag - {O.Drag} The finished drag instance.
     */
     deregister ( drag ) {
-        if ( this._drag === drag ) {
-            this._drag = null;
+        if ( this.drag === drag ) {
+            this.set( 'drag', null );
             this._touchId = null;
         }
     },
@@ -229,7 +230,7 @@ const DragController = new Obj({
             event - {Event} The mousemove event.
     */
     _onMousemove: function ( event ) {
-        const drag = this._drag;
+        const drag = this.drag;
         if ( drag && this._touchId === null ) {
             // Mousemove should only be fired if not native DnD, but sometimes
             // is fired even when there's a native drag
@@ -272,7 +273,7 @@ const DragController = new Obj({
         this._ignore = true;
         this._targetView = null;
         // Mouseup will not fire if native DnD
-        const drag = this._drag;
+        const drag = this.drag;
         if ( drag && this._touchId === null ) {
             drag.drop( event ).endDrag();
         }
@@ -291,10 +292,10 @@ const DragController = new Obj({
         const touchEvent = new TouchDragEvent( touch );
         const view = this.getNearestDragView( touchEvent.targetView );
         if ( view && !isControl[ touchEvent.target.nodeName ] ) {
-            this._drag = new Drag({
+            this.set( 'drag', new Drag({
                 dragSource: view,
                 event: touchEvent,
-            });
+            }));
             this._touchId = touch.identifier;
         }
     }.on( 'hold' ),
@@ -311,7 +312,7 @@ const DragController = new Obj({
         if ( this._touchId !== null ) {
             const touch = getTouch( event.touches, this._touchId );
             if ( !touch ) {
-                this._drag.endDrag();
+                this.drag.endDrag();
             }
         }
     }.on( 'touchstart' ),
@@ -325,7 +326,7 @@ const DragController = new Obj({
     _onTouchmove: function ( event ) {
         const touch = getTouch( event.changedTouches, this._touchId );
         if ( touch ) {
-            this._drag.move( new TouchDragEvent( touch ) );
+            this.drag.move( new TouchDragEvent( touch ) );
             // Don't propagate to views and don't trigger scroll.
             event.preventDefault();
             event.stopPropagation();
@@ -341,7 +342,7 @@ const DragController = new Obj({
     _onTouchend: function ( event ) {
         const touch = getTouch( event.changedTouches, this._touchId );
         if ( touch ) {
-            this._drag.drop( new TouchDragEvent( touch ) ).endDrag();
+            this.drag.drop( new TouchDragEvent( touch ) ).endDrag();
         }
     }.on( 'touchend' ),
 
@@ -354,7 +355,7 @@ const DragController = new Obj({
     _onTouchcancel: function ( event ) {
         const touch = getTouch( event.changedTouches, this._touchId );
         if ( touch ) {
-            this._drag.endDrag();
+            this.drag.endDrag();
         }
     }.on( 'touchcancel' ),
 
@@ -392,7 +393,7 @@ const DragController = new Obj({
             event - {Event} The dragover event.
     */
     _onDragover: function ( event ) {
-        let drag = this._drag;
+        let drag = this.drag;
         const dataTransfer = event.dataTransfer;
         let notify = true;
         // Probably hasn't come via root view controller, so doesn't have target
@@ -475,7 +476,7 @@ const DragController = new Obj({
             event - {Event} The dragleave event.
     */
     _onDragleave: function (/* event */) {
-        const drag = this._drag;
+        const drag = this.drag;
         if ( !( this._nativeRefCount -= 1 ) && drag ) {
             drag.endDrag();
         }
@@ -490,7 +491,7 @@ const DragController = new Obj({
             event - {Event} The drop event.
     */
     _onDrop: function ( event ) {
-        const drag = this._drag;
+        const drag = this.drag;
         if ( drag ) {
             if ( drag.get( 'dropEffect' ) !== DEFAULT ) {
                 event.preventDefault();
@@ -510,7 +511,7 @@ const DragController = new Obj({
             event - {Event} The dragend event.
     */
     _onDragend: function (/* event */) {
-        const drag = this._drag;
+        const drag = this.drag;
         if ( drag ) {
             drag.endDrag();
         }
@@ -528,7 +529,7 @@ const DragController = new Obj({
             event - {Event} The keydown event.
     */
     _escCancel: function ( event ) {
-        const drag = this._drag;
+        const drag = this.drag;
         if ( drag && lookupKey( event ) === 'Escape' ) {
             drag.endDrag();
         }
