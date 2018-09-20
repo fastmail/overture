@@ -171,6 +171,20 @@ const convertForeignKeysToId = function ( store, Type, data ) {
 
 // ---
 
+const getChanged = function ( a, b ) {
+    const changed = {};
+    let hasChanges = false;
+    for ( const key in a ) {
+        if ( !isEqual( a[ key ], b[ key ] ) ) {
+            changed[ key ] = true;
+            hasChanges = true;
+        }
+    }
+    return hasChanges ? changed : null;
+};
+
+// ---
+
 /**
     Class: O.Store
 
@@ -2415,16 +2429,11 @@ const Store = Class({
             const committed = _skToCommitted[ storeKey ] =
                 _skToRollback[ storeKey ];
             delete _skToRollback[ storeKey ];
-            const changed = {};
             const current = _skToData[ storeKey ];
             delete _skToChanged[ storeKey ];
-            for ( const key in current ) {
-                if ( !isEqual( current[ key ], committed[ key ] ) ) {
-                    changed[ key ] = true;
-                    _skToChanged[ storeKey ] = changed;
-                }
-            }
-            if ( _skToChanged[ storeKey ] ) {
+            const changed = getChanged( current, committed );
+            if ( changed ) {
+                _skToChanged[ storeKey ] = changed;
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
             } else {
                 this.setStatus( storeKey, ( status & ~COMMITTING ) );
