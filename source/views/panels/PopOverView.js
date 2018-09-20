@@ -155,8 +155,9 @@ const PopOverView = Class({
         popOverEl.style.cssText = '';
         calloutEl.style.cssText = calloutStyle;
 
-        this.set( 'layout', layout );
-        this.keepInBounds();
+        this.set( 'layout', layout )
+            .redraw()
+            .keepInBounds();
     },
 
     /**
