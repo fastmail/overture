@@ -183,6 +183,22 @@ const getChanged = function ( a, b ) {
     return hasChanges ? changed : null;
 };
 
+const getDelta = function ( Type, data, changed ) {
+    const proto = Type.prototype;
+    const attrs = meta( proto ).attrs;
+    const delta = {};
+    for ( const attrKey in changed ) {
+        if ( changed[ attrKey ] ) {
+            let value = data[ attrKey ];
+            if ( value === undefined ) {
+                value = proto[ attrs[ attrKey ] ].defaultValue;
+            }
+            delta[ attrKey ] = value;
+        }
+    }
+    return delta;
+};
+
 // ---
 
 /**
@@ -818,18 +834,7 @@ const Store = Class({
             const committed = _skToCommitted[ storeKey ];
             const changed = _skToChanged[ storeKey ];
             const Type = _skToType[ storeKey ];
-            const proto = Type.prototype;
-            const attrs = meta( proto ).attrs;
-            const update = {};
-            for ( const attrKey in changed ) {
-                let prevAttrValue = committed[ attrKey ];
-                if ( prevAttrValue === undefined ) {
-                    prevAttrValue = proto[ attrs[ attrKey ] ].defaultValue;
-                }
-                if ( changed[ attrKey ] ) {
-                    update[ attrKey ] = prevAttrValue;
-                }
-            }
+            const update = getDelta( Type, committed, changed );
             inverse.update.push([ storeKey, update ]);
         }
         for ( const storeKey in _destroyed ) {
