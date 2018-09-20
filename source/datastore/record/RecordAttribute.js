@@ -299,7 +299,7 @@ const RecordAttribute = Class({
     */
     call ( record, propValue, propKey ) {
         const store = record.get( 'store' );
-        const storeKey = record.get( 'storeKey' );
+        let storeKey = record.get( 'storeKey' );
         const data = storeKey ? store.getData( storeKey ) : record._data;
         const attrKey = this.key || propKey;
         const Type = this.Type;
@@ -319,6 +319,9 @@ const RecordAttribute = Class({
                     attrValue = propValue;
                 }
                 if ( !isEqual( attrValue, currentAttrValue ) ) {
+                    // May have changed if willSet moved the account this record
+                    // is in.
+                    storeKey = record.get( 'storeKey' );
                     if ( storeKey ) {
                         update = {};
                         update[ attrKey ] = attrValue;

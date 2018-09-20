@@ -85,27 +85,41 @@ const NestedStore = Class({
         const parent = this._parentStore;
 
         for ( const storeKey in _created ) {
-            const status = parent.getStatus( storeKey );
-            const data = _skToData[ storeKey ];
-            if ( status === EMPTY || status === DESTROYED ) {
-                parent.createRecord( storeKey, data );
-            } else if ( ( status & ~(OBSOLETE|LOADING) ) ===
-                    (DESTROYED|COMMITTING) ) {
-                parent._skToData[ storeKey ] = data;
-                parent.setStatus( storeKey, READY|NEW|COMMITTING );
-            } else if ( status & DESTROYED ) {
-                delete parent._destroyed[ storeKey ];
-                parent._skToData[ storeKey ] = data;
-                parent.setStatus( storeKey,
-                    ( status & ~(DESTROYED|DIRTY) ) | READY );
+            const isCopyOfStoreKey = _created[ storeKey ];
+            if ( isCopyOfStoreKey ) {
+                const data = _skToData[ storeKey ];
+                parent.moveRecord( isCopyOfStoreKey,
+                    this.getAccountIdFromStoreKey( storeKey ), storeKey );
+                delete _skToData[ storeKey ];
+                parent.updateData( storeKey, data, true );
+            } else {
+                const status = parent.getStatus( storeKey );
+                const data = _skToData[ storeKey ];
+                if ( status === EMPTY || status === DESTROYED ) {
+                    parent.createRecord( storeKey, data );
+                } else if ( ( status & ~(OBSOLETE|LOADING) ) ===
+                        (DESTROYED|COMMITTING) ) {
+                    parent._skToData[ storeKey ] = data;
+                    parent.setStatus( storeKey, READY|NEW|COMMITTING );
+                } else if ( status & DESTROYED ) {
+                    delete parent._destroyed[ storeKey ];
+                    parent._skToData[ storeKey ] = data;
+                    parent.setStatus( storeKey,
+                        ( status & ~(DESTROYED|DIRTY) ) | READY );
+                }
             }
         }
         for ( const storeKey in _skToChanged ) {
-            parent.updateData( storeKey, Object.filter(
-                _skToData[ storeKey ], _skToChanged[ storeKey ] ), true );
+            const changed = _skToChanged[ storeKey ];
+            const data = _skToData[ storeKey ];
+            parent.updateData( storeKey, Object.filter( data, changed ), true );
         }
         for ( const storeKey in _destroyed ) {
-            parent.destroyRecord( storeKey );
+            const ifCopiedStoreKey = _destroyed[ storeKey ];
+            // Check if already handled by moveFromAccount in create.
+            if ( !ifCopiedStoreKey || !_created[ ifCopiedStoreKey ] ) {
+                parent.destroyRecord( storeKey );
+            }
         }
 
         this._skToData = Object.create( parent._skToData );
@@ -245,13 +259,13 @@ const NestedStore = Class({
             changedKeys - {Object} A list of keys which have changed.
     */
     parentDidUpdateData ( storeKey, changedKeys ) {
-        if ( this._skToData.hasOwnProperty( storeKey ) ) {
-            const { _skToData, _skToChanged, _skToCommitted } = this;
+        const { _skToData, _skToChanged, _skToCommitted } = this;
+        const oldChanged = _skToChanged[ storeKey ];
+        if ( oldChanged && _skToData.hasOwnProperty( storeKey ) ) {
             const parent = this._parentStore;
             const rebase = this.rebaseConflicts;
             const newBase = parent.getData( storeKey );
             const oldData = _skToData[ storeKey ];
-            const oldChanged = _skToChanged[ storeKey ];
             const newData = {};
             const newChanged = {};
             let clean = true;

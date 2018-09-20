@@ -171,11 +171,12 @@ const convertForeignKeysToId = function ( store, Type, data ) {
 
 // ---
 
-const getChanged = function ( a, b ) {
+const getChanged = function ( Type, a, b ) {
     const changed = {};
+    const clientSettable = Record.getClientSettableAttributes( Type );
     let hasChanges = false;
     for ( const key in a ) {
-        if ( !isEqual( a[ key ], b[ key ] ) ) {
+        if ( clientSettable[ key ] && !isEqual( a[ key ], b[ key ] ) ) {
             changed[ key ] = true;
             hasChanges = true;
         }
@@ -487,13 +488,6 @@ const Store = Class({
     getIdFromStoreKey ( storeKey ) {
         const Type = this._skToType[ storeKey ];
         const skToId = this._typeToSKToId[ guid( Type ) ];
-        if ( this._skToStatus[ storeKey ] & COMMITTING ) {
-            const rollback = this._skToRollback[ storeKey ];
-            const data = this._skToData[ storeKey ];
-            if ( rollback && rollback.accountId !== data.accountId ) {
-                return null;
-            }
-        }
         return skToId && skToId[ storeKey ] || null;
     },
 
@@ -695,17 +689,38 @@ const Store = Class({
         };
 
         for ( const storeKey in _created ) {
+            const isCopyOfStoreKey = _created[ storeKey ];
             const status = _skToStatus[ storeKey ];
             const Type = _skToType[ storeKey ];
             let data = _skToData[ storeKey ];
             const accountId = data.accountId;
+            const entry = getEntry( Type, accountId );
+            let previousAccountId, create, changed;
 
-            data = Object.filter(
-                convertForeignKeysToId( this, Type, data ),
-                Record.getClientSettableAttributes( Type )
-            );
+            if ( isCopyOfStoreKey ) {
+                changed =
+                    getChanged( Type, data, _skToData[ isCopyOfStoreKey ] );
+                data = convertForeignKeysToId( this, Type, data );
+                previousAccountId =
+                    this.getAccountIdFromStoreKey( isCopyOfStoreKey );
+                create = entry.moveFromAccount[ previousAccountId ] ||
+                    ( entry.moveFromAccount[ previousAccountId ] = {
+                        copyFromIds: [],
+                        storeKeys: [],
+                        records: [],
+                        changes: [],
+                    });
+                create.copyFromIds.push(
+                    this.getIdFromStoreKey( isCopyOfStoreKey ) );
+                create.changes.push( changed );
+            } else {
+                data = Object.filter(
+                    convertForeignKeysToId( this, Type, data ),
+                    Record.getClientSettableAttributes( Type )
+                );
+                create = entry.create;
+            }
 
-            const create = getEntry( Type, accountId ).create;
             create.storeKeys.push( storeKey );
             create.records.push( data );
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
@@ -717,26 +732,12 @@ const Store = Class({
             let previous = _skToCommitted[ storeKey ];
             let data = _skToData[ storeKey ];
             const accountId = data.accountId;
-            const previousAccountId = previous.accountId;
-            const entry = getEntry( Type, accountId );
-            let update;
+            const update = getEntry( Type, accountId ).update;
 
             _skToRollback[ storeKey ] = previous;
             previous = convertForeignKeysToId( this, Type, previous );
             delete _skToCommitted[ storeKey ];
             data = convertForeignKeysToId( this, Type, data );
-
-            if ( previousAccountId !== accountId ) {
-                update = entry.moveFromAccount[ previousAccountId ] ||
-                    ( entry.moveFromAccount[ previousAccountId ] = {
-                        storeKeys: [],
-                        records: [],
-                        committed: [],
-                        changes: [],
-                    });
-            } else {
-                update = entry.update;
-            }
 
             update.storeKeys.push( storeKey );
             update.records.push( data );
@@ -746,13 +747,17 @@ const Store = Class({
         }
         for ( const storeKey in _destroyed ) {
             const status = _skToStatus[ storeKey ];
-            const Type = _skToType[ storeKey ];
-            const accountId = _skToData[ storeKey ].accountId;
-            const id = _typeToSKToId[ guid( Type ) ][ storeKey ];
-            const destroy = getEntry( Type, accountId ).destroy;
+            const ifCopiedStoreKey = _destroyed[ storeKey ];
+            // Check if already handled by moveFromAccount in create.
+            if ( !ifCopiedStoreKey || !_created[ ifCopiedStoreKey ] ) {
+                const Type = _skToType[ storeKey ];
+                const accountId = _skToData[ storeKey ].accountId;
+                const id = _typeToSKToId[ guid( Type ) ][ storeKey ];
+                const destroy = getEntry( Type, accountId ).destroy;
 
-            destroy.storeKeys.push( storeKey );
-            destroy.ids.push( id );
+                destroy.storeKeys.push( storeKey );
+                destroy.ids.push( id );
+            }
             this.setStatus( storeKey, ( status & ~DIRTY ) | COMMITTING );
         }
 
@@ -825,10 +830,32 @@ const Store = Class({
             create: [],
             update: [],
             destroy: [],
+            move: [],
         };
 
         for ( const storeKey in _created ) {
-            inverse.destroy.push( storeKey );
+            if ( !_created[ storeKey ] ) {
+                inverse.destroy.push( storeKey );
+            } else {
+                const previousStoreKey = _created[ storeKey ];
+                inverse.move.push([
+                    storeKey,
+                    this.getAccountIdFromStoreKey( previousStoreKey ),
+                    previousStoreKey,
+                ]);
+                inverse.update.push([
+                    previousStoreKey,
+                    getDelta(
+                        _skToType[ storeKey ],
+                        _skToData[ previousStoreKey ],
+                        getChanged(
+                            _skToType[ storeKey ],
+                            _skToData[ previousStoreKey ],
+                            _skToData[ storeKey ]
+                        )
+                    ),
+                ]);
+            }
         }
         for ( const storeKey in _skToChanged ) {
             const committed = _skToCommitted[ storeKey ];
@@ -838,15 +865,14 @@ const Store = Class({
             inverse.update.push([ storeKey, update ]);
         }
         for ( const storeKey in _destroyed ) {
-            const Type = _skToType[ storeKey ];
-            inverse.create.push([
-                storeKey,
-                Type,
-                Object.filter(
-                    _skToData[ storeKey ],
-                    Record.getClientSettableAttributes( Type )
-                ),
-            ]);
+            if ( !_destroyed[ storeKey ] ) {
+                const Type = _skToType[ storeKey ];
+                inverse.create.push([
+                    storeKey,
+                    Type,
+                    clone( _skToData[ storeKey ] ),
+                ]);
+            }
         }
 
         return inverse;
@@ -856,6 +882,7 @@ const Store = Class({
         const create = changes.create;
         const update = changes.update;
         const destroy = changes.destroy;
+        const move = changes.move;
 
         for ( let i = 0, l = create.length; i < l; i += 1 ) {
             const createObj = create[i];
@@ -863,6 +890,13 @@ const Store = Class({
             const Type = createObj[1];
             const data = createObj[2];
             this.undestroyRecord( storeKey, Type, data );
+        }
+        for ( let i = 0, l = move.length; i < l; i += 1 ) {
+            const moveObj = move[i];
+            const storeKey = moveObj[0];
+            const toAccountId = moveObj[1];
+            const previousStoreKey = moveObj[2];
+            this.moveRecord( storeKey, toAccountId, previousStoreKey );
         }
         for ( let i = 0, l = update.length; i < l; i += 1 ) {
             const updateObj = update[i];
@@ -1131,7 +1165,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    createRecord ( storeKey, data ) {
+    createRecord ( storeKey, data, _isCopyOfStoreKey ) {
         const status = this.getStatus( storeKey );
         if ( status !== EMPTY && status !== DESTROYED ) {
             RunLoop.didError({
@@ -1149,7 +1183,7 @@ const Store = Class({
         }
         data.accountId = this.getAccountIdFromStoreKey( storeKey );
 
-        this._created[ storeKey ] = 1;
+        this._created[ storeKey ] = _isCopyOfStoreKey || '';
         this._skToData[ storeKey ] = data;
 
         this.setStatus( storeKey, (READY|NEW|DIRTY) );
@@ -1159,6 +1193,52 @@ const Store = Class({
         }
 
         return this.set( 'hasChanges', true );
+    },
+
+    /**
+        Method: O.Store#moveRecord
+
+        Creates a copy of a record with the given store key in a different
+        account and destroys the original.
+
+        Parameters:
+            storeKey    - {String} The store key of the record to copy
+            toAccountId - {String} The id of the account to copy to
+
+        Returns:
+            {String} The store key of the copy.
+    */
+    moveRecord ( storeKey, toAccountId, copyStoreKey ) {
+        const Type = this._skToType[ storeKey ];
+        const copyData = clone( this._skToData[ storeKey ] );
+        copyStoreKey = copyStoreKey || this._created[ storeKey ];
+        if ( copyStoreKey ) {
+            this.undestroyRecord( copyStoreKey, Type, copyData, storeKey );
+        } else {
+            copyStoreKey = this.getStoreKey( toAccountId, Type );
+            this.createRecord( copyStoreKey, copyData, storeKey );
+        }
+        // Swizzle the storeKey on records
+        this._changeRecordStoreKey( storeKey, copyStoreKey );
+        // Revert data, because the change is all in the copy now.
+        this.revertData( storeKey );
+        this.destroyRecord( storeKey, copyStoreKey );
+        return copyStoreKey;
+    },
+
+    _changeRecordStoreKey ( oldStoreKey, newStoreKey ) {
+        const { _skToRecord } = this;
+        const record = _skToRecord[ oldStoreKey ];
+        if ( record ) {
+            delete _skToRecord[ oldStoreKey ];
+            _skToRecord[ newStoreKey ] = record;
+            record
+                .set( 'storeKey', newStoreKey )
+                .computedPropertyDidChange( 'accountId' );
+        }
+        this._nestedStores.forEach( function ( store ) {
+            store._changeRecordStoreKey( oldStoreKey, newStoreKey );
+        });
     },
 
     /**
@@ -1178,7 +1258,7 @@ const Store = Class({
         Returns:
             {O.Store} Returns self.
     */
-    destroyRecord ( storeKey ) {
+    destroyRecord ( storeKey, _ifCopiedStoreKey ) {
         const status = this.getStatus( storeKey );
         // If created -> just remove from created.
         if ( status === (READY|NEW|DIRTY) ) {
@@ -1195,7 +1275,7 @@ const Store = Class({
                     delete this._skToData[ storeKey ];
                 }
             }
-            this._destroyed[ storeKey ] = 1;
+            this._destroyed[ storeKey ] = _ifCopiedStoreKey || '';
             // Maintain COMMITTING flag so we know to wait for that to finish
             // before committing the destroy.
             // Maintain NEW flag as we have to wait for commit to finish (so we
@@ -1210,20 +1290,29 @@ const Store = Class({
         return mayHaveChanges( this );
     },
 
-    undestroyRecord ( storeKey, Type, data ) {
+    undestroyRecord ( storeKey, Type, data, _isCopyOfStoreKey ) {
         const status = this.getStatus( storeKey );
+        if ( data ) {
+            data = Object.filter(
+                data,
+                Record.getClientSettableAttributes( Type )
+            );
+        }
         if ( status === EMPTY || status === DESTROYED ) {
-            const idPropKey = Type.primaryKey || 'id';
-            const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
-            delete data[ idAttrKey ];
-            this._skToType[ storeKey ] = Type;
-            this.createRecord( storeKey, data );
-        } else if ( ( status & ~(OBSOLETE|LOADING) ) ===
-                (DESTROYED|COMMITTING) ) {
-            this.setStatus( storeKey, READY|NEW|COMMITTING );
-        } else if ( status & DESTROYED ) {
-            delete this._destroyed[ storeKey ];
-            this.setStatus( storeKey, ( status & ~(DESTROYED|DIRTY) ) | READY );
+            this.createRecord( storeKey, data, _isCopyOfStoreKey );
+        } else {
+            if ( ( status & ~(OBSOLETE|LOADING) ) ===
+                    (DESTROYED|COMMITTING) ) {
+                this.setStatus( storeKey, READY|NEW|COMMITTING );
+                this._created[ storeKey ] = _isCopyOfStoreKey || '';
+            } else if ( status & DESTROYED ) {
+                this.setStatus( storeKey,
+                    ( status & ~(DESTROYED|DIRTY) ) | READY );
+                delete this._destroyed[ storeKey ];
+            }
+            if ( data ) {
+                this.updateData( storeKey, data, true );
+            }
         }
         return mayHaveChanges( this );
     },
@@ -2308,7 +2397,7 @@ const Store = Class({
                     delete _skToChanged[ storeKey ];
                 }
                 this.setStatus( storeKey, (READY|NEW|DIRTY) );
-                _created[ storeKey ] = 1;
+                _created[ storeKey ] = '';
                 if ( isPermanent && errors &&
                         !this._notifyRecordOfError( storeKey, errors[l] ) ) {
                     this.destroyRecord( storeKey );
@@ -2337,34 +2426,11 @@ const Store = Class({
     */
     sourceDidCommitUpdate ( storeKeys ) {
         let l = storeKeys.length;
-        const {
-            _skToRollback, _skToData, _skToAccountId, _skToType, _typeToSKToId,
-        } = this;
+        const { _skToRollback } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
             const status = this.getStatus( storeKey );
-            const oldAccountId = _skToRollback[ storeKey ].accountId;
-            const newAccountId = _skToData[ storeKey ].accountId;
-            // If the account has changed, update the id to sk map
-            if ( oldAccountId !== newAccountId ) {
-                const oldAccount = this.getAccount( oldAccountId );
-                const newAccount = this.getAccount( newAccountId );
-                if ( !oldAccount.isDefault ) {
-                    delete _skToAccountId[ storeKey ];
-                }
-                if ( !newAccount.isDefault ) {
-                    _skToAccountId[ storeKey ] = newAccountId;
-                }
-                const typeId = guid( _skToType[ storeKey ] );
-                const id = _typeToSKToId[ typeId ][ storeKey ];
-                const oldIdToSk = oldAccount.typeToIdToSK[ typeId ];
-                const newTypeToIdToSK = newAccount.typeToIdToSK;
-                const newIdToSk = newTypeToIdToSK[ typeId ] ||
-                    ( newTypeToIdToSK[ typeId ] = {} );
-                delete oldIdToSk[ id ];
-                newIdToSk[ id ] = storeKey;
-            }
             delete _skToRollback[ storeKey ];
             if ( status !== EMPTY ) {
                 this.setStatus( storeKey, status & ~COMMITTING );
@@ -2412,7 +2478,9 @@ const Store = Class({
     */
     sourceDidNotUpdate ( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
-        const { _skToData, _skToChanged, _skToCommitted, _skToRollback } = this;
+        const {
+            _skToData, _skToChanged, _skToCommitted, _skToRollback, _skToType,
+        } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
@@ -2436,7 +2504,8 @@ const Store = Class({
             delete _skToRollback[ storeKey ];
             const current = _skToData[ storeKey ];
             delete _skToChanged[ storeKey ];
-            const changed = getChanged( current, committed );
+            const changed =
+                getChanged( _skToType[ storeKey ], current, committed );
             if ( changed ) {
                 _skToChanged[ storeKey ] = changed;
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
@@ -2494,7 +2563,6 @@ const Store = Class({
                     delete this._skToChanged[ storeKey ];
                 }
                 this.setStatus( storeKey, (READY|NEW|DIRTY) );
-                this._created[ storeKey ] = 1;
             } else if ( status & DESTROYED ) {
                 this.setStatus( storeKey, DESTROYED );
                 this.unloadRecord( storeKey );
@@ -2548,16 +2616,17 @@ const Store = Class({
     */
     sourceDidNotDestroy ( storeKeys, isPermanent, errors ) {
         let l = storeKeys.length;
-        const { _destroyed } = this;
+        const { _created, _destroyed } = this;
 
         while ( l-- ) {
             const storeKey = storeKeys[l];
             const status = this.getStatus( storeKey );
             if ( ( status & ~DIRTY ) === (READY|NEW|COMMITTING) ) {
                 this.setStatus( storeKey, status & ~(COMMITTING|NEW) );
+                delete _created[ storeKey ];
             } else if ( status & DESTROYED ) {
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
-                _destroyed[ storeKey ] = 1;
+                _destroyed[ storeKey ] = '';
                 if ( isPermanent && errors &&
                         !this._notifyRecordOfError( storeKey, errors[l] ) ) {
                     this.undestroyRecord( storeKey );

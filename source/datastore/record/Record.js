@@ -209,21 +209,26 @@ const Record = Class({
         return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
     },
 
-    accountId: function ( accountId ) {
+    accountId: function ( toAccountId ) {
         const storeKey = this.get( 'storeKey' );
         const store = this.get( 'store' );
-        if ( accountId === undefined ) {
-            accountId = storeKey ?
+        let accountId = storeKey ?
                 store.getAccountIdFromStoreKey( storeKey ) :
                 this._data.accountId;
-        } else {
-            if ( storeKey ) {
-                store.updateData( storeKey, {
-                    accountId,
-                }, true );
+        if ( toAccountId !== undefined && toAccountId !== accountId ) {
+            if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
+                if ( storeKey ) {
+                    store.updateData( storeKey, {
+                        accountId: toAccountId,
+                    }, true );
+                } else {
+                    this._data.accountId = toAccountId;
+                }
             } else {
-                this._data.accountId = accountId;
+                store.moveRecord( storeKey, toAccountId );
             }
+            accountId = toAccountId;
+            store.fire( 'record:user:update', { record: this } );
         }
         return accountId;
     }.property(),
