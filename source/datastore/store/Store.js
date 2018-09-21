@@ -2400,8 +2400,8 @@ const Store = Class({
                 }
                 this.setStatus( storeKey, (READY|NEW|DIRTY) );
                 _created[ storeKey ] = '';
-                if ( isPermanent && errors &&
-                        !this._notifyRecordOfError( storeKey, errors[l] ) ) {
+                if ( isPermanent && ( !errors ||
+                        !this._notifyRecordOfError( storeKey, errors[l] ) ) ) {
                     this.destroyRecord( storeKey );
                 }
             }
@@ -2514,8 +2514,8 @@ const Store = Class({
             } else {
                 this.setStatus( storeKey, ( status & ~COMMITTING ) );
             }
-            if ( isPermanent && errors &&
-                    !this._notifyRecordOfError( storeKey, errors[l] ) ) {
+            if ( isPermanent && ( !errors ||
+                    !this._notifyRecordOfError( storeKey, errors[l] ) ) ) {
                 this.revertData( storeKey );
             }
         }
@@ -2619,8 +2619,8 @@ const Store = Class({
             } else if ( status & DESTROYED ) {
                 this.setStatus( storeKey, ( status & ~COMMITTING )|DIRTY );
                 _destroyed[ storeKey ] = '';
-                if ( isPermanent && errors &&
-                        !this._notifyRecordOfError( storeKey, errors[l] ) ) {
+                if ( isPermanent && ( !errors ||
+                        !this._notifyRecordOfError( storeKey, errors[l] ) ) ) {
                     this.undestroyRecord( storeKey );
                 }
             } else {
