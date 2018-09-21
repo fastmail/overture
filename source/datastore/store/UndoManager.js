@@ -33,7 +33,6 @@ const UndoManager = Class({
 
     dataDidChange () {
         this._isInUndoState = false;
-        this._redoStack.length = 0;
         return this
             .set( 'canRedo', false )
             .set( 'canUndo', true )
@@ -45,10 +44,11 @@ const UndoManager = Class({
             const data = this.getUndoData();
             if ( data !== null ) {
                 this._pushState( this._undoStack, data );
-            } else {
-                this._isInUndoState = true;
-                this.set( 'canUndo', !!this._undoStack.length );
             }
+            this._isInUndoState = true;
+            this._redoStack.length = 0;
+            this.set( 'canUndo', !!this._undoStack.length )
+                .set( 'canRedo', false );
         }
         return this;
     },

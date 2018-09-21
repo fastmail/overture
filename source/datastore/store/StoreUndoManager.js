@@ -24,6 +24,15 @@ const StoreUndoManager = Class({
         StoreUndoManager.parent.destroy.call( this );
     },
 
+    dataDidChange () {
+        const noChanges = !this.get( 'store' ).get( 'hasChanges' );
+        this._isInUndoState = noChanges;
+        return this
+            .set( 'canRedo', noChanges && !!this._redoStack.length )
+            .set( 'canUndo', noChanges && !!this._undoStack.length )
+            .fire( 'input' );
+    },
+
     getUndoData () {
         const store = this.get( 'store' );
         return store.checkForChanges().get( 'hasChanges' ) ?
@@ -36,13 +45,6 @@ const StoreUndoManager = Class({
         const inverse = store.getInverseChanges();
         store.commitChanges();
         return inverse;
-    },
-
-    undo () {
-        if ( this._isInUndoState || !this.get( 'store' ).get( 'hasChanges' ) ) {
-            StoreUndoManager.parent.undo.call( this );
-        }
-        return this;
     },
 });
 
