@@ -363,18 +363,12 @@ const WindowedQuery = Class({
         WindowedQuery.parent.reset.call( this );
     },
 
-    // We keep a local cache so that we can handle records changing ids.
-    // There may be old ids in the "removed" array, which need to alias to the
-    // current store key.
     _toStoreKey: function () {
         const store = this.get( 'store' );
         const accountId = this.get( 'accountId' );
         const Type = this.get( 'Type' );
         const cache = {};
-        return id => (
-            cache[ id ] ||
-                ( cache[ id ] = store.getStoreKey( accountId, Type, id ) )
-        );
+        return id => store.getStoreKey( accountId, Type, id );
     }.property(),
 
     indexOfStoreKey ( storeKey, from, callback ) {

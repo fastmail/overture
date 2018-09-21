@@ -2100,8 +2100,9 @@ const Store = Class({
 
             const newId = update[ idAttrKey ];
             if ( newId && newId !== id ) {
+                // Don't delete the old idToSk mapping, as references to the
+                // old id may still appear in queryChanges responses
                 _skToId[ storeKey ] = newId;
-                delete _idToSk[ id ];
                 _idToSk[ newId ] = storeKey;
             }
 
