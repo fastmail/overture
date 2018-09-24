@@ -10,7 +10,7 @@ import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
 import Element from '../../dom/Element';
-import { lookupKey } from '../../dom/DOMEvent';
+import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
@@ -1240,6 +1240,18 @@ const RichTextView = Class({
             this.blur();
         }
     }.on( 'keydown' ),
+
+    // Chrome (and Opera) as of 2018-09-24 have a bug where if an image is
+    // inside a link, clicking the image actually loads the link, even though
+    // it's inside a content editable area.
+    click: function ( event ) {
+        const target = event.target;
+        if ( !isClickModified( event ) &&
+                target.nodeName === 'IMG' &&
+                Element.nearest( target, 'A', this.get( 'layer' ) ) ) {
+            event.preventDefault();
+        }
+    }.on( 'click' ),
 
     // -- Drag and drop ---
 
