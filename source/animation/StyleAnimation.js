@@ -77,7 +77,10 @@ const styleAnimators = {
                 )),
             };
         },
-        calcValue ( position, deltaValue ) {
+        calcValue ( position, deltaValue, _, end ) {
+            if ( !deltaValue ) {
+                return end;
+            }
             const start = deltaValue.start;
             const delta = deltaValue.delta;
             let transform = start[0];
@@ -138,7 +141,7 @@ const supported = {
     * transform
     * opacity
 */
-export default Class({
+const StyleAnimation = Class({
 
     Extends: Animation,
 
@@ -157,7 +160,7 @@ export default Class({
             {Boolean} True if any of the styles are going to be animated.
     */
     prepare ( styles ) {
-        const animated = this.animated = [];
+        let animated = this.animated = [];
         const from = this.startValue = this.current;
         const current = this.current = clone( from );
         const delta = this.deltaValue = {};
@@ -215,11 +218,12 @@ export default Class({
                     parts[1] = ( parseInt( parts[1], 10 ) + delta.top ) + 'px';
                     transform = parts.join( ',' );
                 }
-                delta.transform = styleAnimators.transform.calcDelta(
+                delta.tt = styleAnimators.transform.calcDelta(
                     from.transform || '',
                     transform
                 );
-                delta.top = 0;
+                animated.push( 'tt' );
+                animated = animated.filter( x => x !== 'top' && x !== 'tt' );
             }
         }
 
@@ -249,27 +253,50 @@ export default Class({
         let l = animated.length;
 
         while ( l-- ) {
-            const property = animated[l];
+            let property = animated[l];
+            const delta = deltaValue[ property ];
+            const isTopTransform = ( property === 'tt' );
+            if ( isTopTransform ) {
+                property = 'transform';
+            }
 
-            // Calculate new value.
             const start = startValue[ property ];
             const end = endValue[ property ];
-            const delta = deltaValue[ property ];
             const unit = units[ property ];
-
             const animator = styleAnimators[ property ];
-
-            const value = current[ property ] = isRunning ?
+            const value = isRunning ?
                 animator ?
                     animator.calcValue( position, delta, start, end ) :
                     ( start + ( position * delta ) ) + unit :
                 end;
 
-            // And set.
+            if ( isTopTransform ) {
+                if ( !isRunning ) {
+                    continue;
+                }
+            } else {
+                current[ property ] = value;
+                if ( isRunning &&
+                        ( property === 'top' || property === 'transform' ) ) {
+                    continue;
+                }
+            }
             setStyle( element, property, value );
         }
-        if ( !isRunning ) {
+    },
+
+    stop () {
+        if ( this.isRunning ) {
+            const element = this.element;
+            if ( this.deltaValue.tt ) {
+                const current = this.current;
+                setStyle( element, 'top', current.top );
+                setStyle( element, 'transform', current.transform );
+            }
             setStyle( element, 'will-change', 'auto' );
         }
+        return StyleAnimation.parent.stop.call( this );
     },
 });
+
+export default StyleAnimation;
