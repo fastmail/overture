@@ -276,7 +276,7 @@ const StyleAnimation = Class({
                 }
             } else {
                 current[ property ] = value;
-                if ( isRunning &&
+                if ( isRunning && deltaValue.tt &&
                         ( property === 'top' || property === 'transform' ) ) {
                     continue;
                 }
