@@ -35,7 +35,7 @@ const Record = Class({
     init ( store, storeKey ) {
         this._noSync = false;
         this._data = storeKey ? null : {
-            accountId: store.getDefaultAccountId(),
+            accountId: store.getDefaultAccountId( this.constructor ),
         };
         this.store = store;
         this.storeKey = storeKey;
