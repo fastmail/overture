@@ -532,18 +532,22 @@ export default {
             const key = path.slice( 0, nextDot );
             const value = this.get( key );
             const restOfPath = path.slice( nextDot + 1 );
-            const observers = meta( this ).observers[ key ];
+            const observers = meta( this ).observers;
+            const keyObservers = observers[ key ];
 
-            if ( observers ) {
-                let l = observers.length;
+            if ( keyObservers ) {
+                let l = keyObservers.length;
                 while ( l-- ) {
-                    const observer = observers[l];
+                    const observer = keyObservers[l];
                     if ( observer.path === restOfPath &&
                          observer.object === object &&
                          observer.method === method) {
-                            observers.splice( l, 1 );
+                            keyObservers.splice( l, 1 );
                             break;
                     }
+                }
+                if ( !keyObservers.length ) {
+                    delete observers[ key ];
                 }
             }
             if ( value ) {
