@@ -371,7 +371,7 @@ const Store = Class({
 
     // === Accounts ============================================================
 
-    getDefaultAccountId ( Type ) {
+    getDefaultAccountId (/* Type */) {
         return this._defaultAccountId;
     },
 

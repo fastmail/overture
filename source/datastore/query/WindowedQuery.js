@@ -367,7 +367,6 @@ const WindowedQuery = Class({
         const store = this.get( 'store' );
         const accountId = this.get( 'accountId' );
         const Type = this.get( 'Type' );
-        const cache = {};
         return id => store.getStoreKey( accountId, Type, id );
     }.property(),
 
