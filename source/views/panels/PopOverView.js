@@ -269,7 +269,6 @@ const PopOverView = Class({
         - atNode -> the node within the view to align to
         - positionToThe -> 'bottom'/'top'/'left'/'right'
         - alignEdge -> 'left'/'centre'/'right'/'top'/'middle'/'bottom'
-        - inParent -> The view to insert the pop over in (optional)
         - showCallout -> true/false
         - offsetLeft
         - offsetTop
