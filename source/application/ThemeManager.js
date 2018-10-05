@@ -112,10 +112,10 @@ const ThemeManager = Class({
             theme = this.get( 'theme' );
         }
 
-        const styles = this._styles[ theme ];
-        let data = styles[ id ] || this._styles.all[ id ];
+        const styles = this._styles[ theme ] || {};
         const images = this._images[ theme ] || {};
         const themeIndependentImages = this._images.all;
+        let data = styles[ id ] || this._styles.all[ id ] || '';
         const active = this._activeStylesheets;
 
         if ( data ) {
@@ -131,9 +131,12 @@ const ThemeManager = Class({
                 }
                 return 'url(' + ( imageData || src ) + ')';
             });
-            Stylesheet.create( theme + '-' + id, data );
-            active[ id ] = ( active[ id ] || 0 ) + 1;
         }
+
+        // Even if no data, create the stylesheet as we'll probably change it
+        // for a different theme that's currently loading.
+        Stylesheet.create( theme + '-' + id, data );
+        active[ id ] = ( active[ id ] || 0 ) + 1;
 
         return this;
     },
