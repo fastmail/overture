@@ -736,7 +736,7 @@ const View = Class({
     */
     redrawLayerStyles ( layer ) {
         layer.style.cssText = Object.toCSSString( this.get( 'layerStyles' ) );
-        this.didResize();
+        this.parentViewDidResize();
     },
 
     /**
@@ -799,7 +799,7 @@ const View = Class({
         const children = this.get( 'childViews' );
         let l = children.length;
         while ( l-- ) {
-            children[l].parentViewDidResize();
+            children[l].didResize();
         }
     },
 

@@ -70,7 +70,7 @@ export default {
     didAnimate ( animation ) {
         this.increment( 'animating', -1 );
         if ( !this.get( 'animating' ) && animation instanceof StyleAnimation ) {
-            this.didResize();
+            this.parentViewDidResize();
         }
     },
 
@@ -127,7 +127,7 @@ export default {
                     setStyle( layer, property, value );
                 }
             }
-            this.didResize();
+            this.parentViewDidResize();
         }
         // Just remove styles that are not specified in the new styles, but were
         // in the old styles
