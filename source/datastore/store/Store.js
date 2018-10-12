@@ -1596,10 +1596,26 @@ const Store = Class({
             {O.Store} Returns self.
     */
     revertData ( storeKey ) {
+        const Type = this._skToType[ storeKey ];
         const committed = this._skToCommitted[ storeKey ];
+        const changed = this._skToChanged[ storeKey ];
+
         if ( committed ) {
+            const proto = Type.prototype;
+            const attrs = meta( proto ).attrs;
+            let defaultValue;
+            for ( const attrKey in changed ) {
+                if ( committed[ attrKey ] === undefined ) {
+                    defaultValue = proto[ attrs[ attrKey ] ].defaultValue;
+                    if ( defaultValue === undefined ) {
+                        defaultValue = null;
+                    }
+                    committed[ attrKey ] = defaultValue;
+                }
+            }
             this.updateData( storeKey, committed, true );
         }
+
         return this;
     },
 
