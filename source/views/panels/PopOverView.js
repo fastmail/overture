@@ -16,6 +16,7 @@ const PopOverView = Class({
         this.parentPopOverView = null;
         this.isVisible = false;
         this.options = {};
+        this._inResize = false;
         PopOverView.parent.init.apply( this, arguments );
     },
 
@@ -252,13 +253,17 @@ const PopOverView = Class({
         this.propertyNeedsRedraw( this, 'layer' );
     }.observes( 'options' ),
 
-    parentViewDidResize () {
-        if ( this.get( 'isInDocument' ) ) {
+    didResize () {
+        if ( !this._inResize ) {
+            // We redraw layer styles as part of redrawing layer; don't get
+            // stuck in infinite call stack!
+            this._inResize = true;
             if ( this.get( 'options' ).alignWithView.get( 'isInDocument' ) ) {
                 this.redrawLayer();
             } else {
                 this.hide();
             }
+            this._inResize = false;
         }
     },
 
