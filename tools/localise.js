@@ -658,7 +658,7 @@ var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) 
     var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
         inputPo = parsePo( fs.readFileSync( inputPoPath, 'utf8' ) ),
         // usage = JSON.parse( fs.readFileSync( usagePath, 'utf8' ) ),
-        output = 'msgid ""\nmsgstr ""\n"Content-Type: text/plain; charset=utf-8\\n"\n\n';
+        output = '';
 
     db.forEach( function ( dbObj ) {
         var id = dbObj.id,
@@ -714,7 +714,7 @@ var updatePo = function ( englishDbPath, usagePath, inputPoPath, outputPoPath ) 
 
 var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
     var db = parseDB( fs.readFileSync( englishDbPath, 'utf8' ) ),
-        output = 'msgid ""\nmsgstr ""\n"Content-Type: text/plain; charset=utf-8\\n"\n\n';
+        output = '';
 
     db.forEach( function ( dbObj ) {
         var id = dbObj.id,
