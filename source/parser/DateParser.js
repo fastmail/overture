@@ -67,7 +67,7 @@ const generateLocalisedDateParser = function ( locale, mode ) {
                 sequence([
                     shorthours,
                     minutes,
-                ])
+                ]),
             ]),
             optional(
                 timeSuffix
