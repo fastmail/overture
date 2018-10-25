@@ -78,8 +78,9 @@ App.source = new JMAP.Connection();
 */
 App.store = new O.Store({
     source: App.source,
-    autoCommit: false
 });
+
+App.editStore = new O.NestedStore( App.store );
 
 var accounts = sessionObject.accounts;
 for ( var accountId in accounts ) {
@@ -97,7 +98,7 @@ for ( var accountId in accounts ) {
    automatically records an undo checkpoint.
 */
 App.undoManager = new O.StoreUndoManager({
-    store: App.store,
+    store: App.editStore,
     maxUndoCount: 10
 });
 
@@ -180,7 +181,7 @@ var Todo = O.Class({
 
     autoCommitIsComplete: function () {
         if ( !( this.get( 'status' ) & O.Status.NEW ) ) {
-            App.store.commitChanges();
+            App.editStore.commitChanges();
         }
     }.observes( 'isComplete' )
 });
@@ -402,7 +403,7 @@ App.state = new O.Router({
        lists.
     */
     list: function () {
-        return App.store.getRecord( null, TodoList, this.get( 'listId' ) );
+        return App.editStore.getRecord( null, TodoList, this.get( 'listId' ) );
     }.property( 'listId' ),
 
     /* An observable collection of Todo instances that belong to the currently
@@ -417,7 +418,7 @@ App.state = new O.Router({
             filter;
 
         if ( listId ) {
-            listId = App.store.getStoreKey( null, TodoList, listId );
+            listId = App.editStore.getStoreKey( null, TodoList, listId );
         }
 
         filter = new Function( 'data', 'return' +
@@ -426,7 +427,7 @@ App.state = new O.Router({
         );
 
         return new O.LocalQuery({
-            store: App.store,
+            store: App.editStore,
             Type: Todo,
             sort: function ( a, b ) {
                 return ( a.precedence - b.precedence ) ||
@@ -481,7 +482,7 @@ App.state = new O.Router({
     */
     commitChanges: function ( _, __, oldTodo ) {
         if ( oldTodo !== null ) {
-            App.store.commitChanges();
+            App.editStore.commitChanges();
         }
     }.observes( 'editTodo' ),
 
@@ -567,11 +568,11 @@ App.actions = {
         // Create todo
         var todos = App.state.get( 'todos' ),
             selectedIndex = App.selectedTodo.get( 'index' ),
-            newTodo = new Todo( App.store );
+            newTodo = new Todo( App.editStore );
 
         // Assign to the currently selected list.
         newTodo.set( 'list',
-            App.state.get( 'list' ).getDoppelganger( App.store ) );
+            App.state.get( 'list' ).getDoppelganger( App.editStore ) );
 
         // Place just after selected todo, or at end of list if none selected
         this.reorderTodo( todos, newTodo,
@@ -639,7 +640,7 @@ App.actions = {
         if ( todo ) {
             todo.destroy();
         }
-        App.store.commitChanges();
+        App.editStore.commitChanges();
     }
 };
 
@@ -861,7 +862,7 @@ var TodoView = O.Class({
     dragEnded: function () {
         delete this.animateLayer;
         TodoView.prototype.animateLayer = false;
-        App.store.commitChanges();
+        App.editStore.commitChanges();
     }
 });
 
