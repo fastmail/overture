@@ -24,8 +24,9 @@ const StoreUndoManager = Class({
         StoreUndoManager.parent.destroy.call( this );
     },
 
-    dataDidChange () {
-        const noChanges = !this.get( 'store' ).get( 'hasChanges' );
+    dataDidChange: function () {
+        const noChanges =
+            !this.get( 'store' ).checkForChanges().get( 'hasChanges' );
         this._isInUndoState = noChanges;
         return this
             .set( 'canRedo', noChanges && !!this._redoStack.length )
