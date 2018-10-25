@@ -280,11 +280,15 @@ const Record = Class({
 
         // Save to store
         store.createRecord( storeKey, data )
-             .setRecordForStoreKey( storeKey, this )
-             .fire( 'record:user:create', { record: this } );
+             .setRecordForStoreKey( storeKey, this );
 
         // And save store reference on record instance.
-        return this.set( 'storeKey', storeKey );
+        this.set( 'storeKey', storeKey );
+
+        // Fire event
+        store.fire( 'record:user:create', { record: this } );
+
+        return this;
     },
 
     /**
@@ -335,8 +339,8 @@ const Record = Class({
         const storeKey = this.get( 'storeKey' );
         if ( storeKey && this.get( 'isEditable' ) ) {
             this.get( 'store' )
-                .fire( 'record:user:destroy', { record: this } )
-                .destroyRecord( storeKey );
+                .destroyRecord( storeKey )
+                .fire( 'record:user:destroy', { record: this } );
         }
     },
 
