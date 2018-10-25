@@ -20,6 +20,8 @@
 
 "use strict";
 
+var TODO_SPEC_URI = 'http://overturejs.com/examples/Todo';
+
 // --- Namespace ---
 
 /*  There's no specific naming requirement for your app when using Overture,
@@ -37,10 +39,26 @@ var App = {};
     There's no backend implemented for this little todo demo, so I've faked one
     (see fixtures.js). However, check the console if you want to see the
     requests the client is making to the server.
+
+    We’re using a limited portion of jmap-js only, which doesn’t concern itself
+    with a full session object; hence setting JMAP.auth.apiUrl like this, and
+    the hard-coded addAccount call later.
 */
-App.source = new JMAP.Connection({
-    url: '/api/'
-});
+
+// In a practical deployment, you’d probably seek to embed the JMAP session
+// object in the HTML somewhere, to remove the need for another request before
+// you can get started. But for this simple demonstration, it is sufficient
+// (just barely!) to fetch it synchronously:
+var xhr = new XMLHttpRequest();
+xhr.open( 'GET', '/.well-known/jmap', false );
+xhr.setRequestHeader('Content-type', 'application/json');
+xhr.setRequestHeader('Accept', 'application/json');
+xhr.send();
+var sessionObject = JSON.parse( xhr.responseText );
+// JMAP.auth is stubbed, and we only need apiUrl (here) and the accounts (below)
+JMAP.auth.set( 'apiUrl', sessionObject.apiUrl );
+
+App.source = new JMAP.Connection();
 /*  The store instance stores the locally cached copies of the different
     records in the model. It keeps track of what has changed compared to the
     copy received from the source, and can then send those changes to the source
@@ -62,6 +80,18 @@ App.store = new O.Store({
     source: App.source,
     autoCommit: false
 });
+
+var accounts = sessionObject.accounts;
+for ( var accountId in accounts ) {
+    if ( Object.prototype.hasOwnProperty.call( accounts, accountId ) ) {
+        var account = accounts[ accountId ];
+        App.store.addAccount( accountId, {
+            isDefault: true,
+            hasDataFor: accounts[ accountId ].hasDataFor,
+        });
+    }
+}
+
 /* A StoreUndoManager hooks into the store to provide automatic undo support.
    Each time the store commits changes to the source, the UndoManager
    automatically records an undo checkpoint.
@@ -98,19 +128,21 @@ var TodoList = O.Class({
         }
     })
 });
+TodoList.dataGroup = TODO_SPEC_URI;
 
 /*
     We tell the source how to fetch, create, modify etc. TodoLists.
 */
 App.source.handle( TodoList, {
     precedence: 1,
-    fetch: 'getTodoLists',
-    commit: 'setTodoLists',
+
+    fetch: 'TodoList',
+    commit: 'TodoList',
     // Response handlers
-    todoLists: function ( args ) {
-        this.didFetch( TodoList, args, true );
+    'TodoList/get': function ( args, _reqName, reqArgs ) {
+        this.didFetch( TodoList, args, reqArgs.ids === null );
     },
-    todoListsSet: function ( args ) {
+    'TodoList/set': function ( args ) {
         this.didCommit( TodoList, args );
     }
 });
@@ -152,16 +184,17 @@ var Todo = O.Class({
         }
     }.observes( 'isComplete' )
 });
+Todo.dataGroup = TODO_SPEC_URI;
 
 App.source.handle( Todo, {
     precedence: 2,
-    fetch: 'getTodos',
-    commit: 'setTodos',
+    fetch: 'Todo',
+    commit: 'Todo',
     // Response handlers
-    todos: function ( args ) {
-        this.didFetch( Todo, args, true );
+    'Todo/get': function ( args, _reqName, reqArgs ) {
+        this.didFetch( Todo, args, reqArgs.ids === null );
     },
-    todosSet: function ( args ) {
+    'Todo/set': function ( args ) {
         this.didCommit( Todo, args );
     }
 });
@@ -369,7 +402,7 @@ App.state = new O.Router({
        lists.
     */
     list: function () {
-        return App.store.getRecord( TodoList, this.get( 'listId' ) );
+        return App.store.getRecord( null, TodoList, this.get( 'listId' ) );
     }.property( 'listId' ),
 
     /* An observable collection of Todo instances that belong to the currently
@@ -384,7 +417,7 @@ App.state = new O.Router({
             filter;
 
         if ( listId ) {
-            listId = App.store.getStoreKey( TodoList, listId );
+            listId = App.store.getStoreKey( null, TodoList, listId );
         }
 
         filter = new Function( 'data', 'return' +
@@ -399,7 +432,7 @@ App.state = new O.Router({
                 return ( a.precedence - b.precedence ) ||
                     ( a.id < b.id ? -1 : a.id > b.id ? 1 : 0 );
             },
-            filter: filter
+            where: filter
         });
     }.property( 'listId', 'search' ),
 

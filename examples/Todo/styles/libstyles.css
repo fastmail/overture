@@ -16,6 +16,7 @@
 .v-Button--hasIcon > .label {
   padding-left: 27px;
 }
+.v-ClearSearchButton > .icon,
 .v-Button > .icon {
   position: absolute;
   top: 0;
@@ -33,12 +34,14 @@
   overflow: hidden;
   width: 32px;
 }
+.v-ClearSearchButton > .icon,
 .v-Button.v-Button--iconOnly > .icon {
   left: 0;
   right: 0;
   margin: auto;
   text-align: center;
 }
+.v-ClearSearchButton > .label,
 .v-Button.v-Button--iconOnly > .label {
   position: absolute;
   top: 100%;
@@ -68,6 +71,10 @@
   width: 26px;
   background: transparent;
   color: #888;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 6px 9px;
 }
 .v-ClearSearchButton:hover {
   color: #555;
@@ -124,30 +131,17 @@ textarea.v-Text-input {
 
 .v-Toolbar {
   border-bottom: 1px solid #777;
-  height: 44px;
+  height: 32px;
+  padding: 6px 10px;
   background: rgba(86, 50, 33, 0.69);
   white-space: nowrap;
+  display: flex;
 }
-.v-Toolbar-section {
-  position: absolute;
-  top: 50%;
-  margin-top: -16px;
-  height: 32px;
-  line-height: 32px;
-}
-.v-Toolbar-section--left {
-  left: 10px;
-}
-.v-Toolbar-section--right {
-  right: 10px;
-}
-.v-Toolbar-section--measure {
-  visibility: hidden;
-  right: 100%;
-  min-width: 500px;
+.v-Toolbar-flex {
+  flex: 1;
 }
 
-.v-Toolbar-section > .v-Button {
+.v-Toolbar .v-Button {
   float: left;
   margin-top: 1px;
   border: 1px solid rgba(0,0,0,0.3);
@@ -155,31 +149,31 @@ textarea.v-Text-input {
   color: #fff;
   background: rgba(0,0,0,0.1);
 }
-.v-Toolbar-section > .v-Button:not(.is-disabled):hover {
+.v-Toolbar .v-Button:not(.is-disabled):hover {
   background: rgba(0,0,0,0.2);
 }
-.v-Toolbar-section > .v-Button:not(.is-disabled):active,
-.v-Toolbar-section > .v-Button:not(.is-disabled).is-active {
+.v-Toolbar .v-Button:not(.is-disabled):active,
+.v-Toolbar .v-Button:not(.is-disabled).is-active {
   background: rgba(0,0,0,0.3);
 }
-.v-Toolbar-section > .v-Button:disabled,
-.v-Toolbar-section > .v-Button.is-disabled {
+.v-Toolbar .v-Button:disabled,
+.v-Toolbar .v-Button.is-disabled {
   opacity: 0.7;
 }
 
-.v-Toolbar-section > .v-Button > .icon {
+.v-Toolbar .v-Button > .icon {
   left: 9px;
 }
 
-.v-Toolbar-section > .v-Button.v-Button--iconOnly > .icon {
+.v-Toolbar .v-Button.v-Button--iconOnly > .icon {
   left: 0;
 }
 
-.v-Toolbar-section > .v-Button--hasIcon > .label {
+.v-Toolbar .v-Button--hasIcon > .label {
   padding-left: 22px;
 }
 
-.v-Toolbar-section > .v-Text {
+.v-Toolbar .v-Text {
   box-shadow: none;
   border: 1px solid #c5c5c5;
   border-color: rgba(0, 0, 0, 0.3);
@@ -193,6 +187,6 @@ textarea.v-Text-input {
   -o-transition: none;
   transition: none;
 }
-.v-Toolbar-section > .v-Text.is-focussed {
+.v-Toolbar .v-Text.is-focussed {
   background-color: #fff;
 }

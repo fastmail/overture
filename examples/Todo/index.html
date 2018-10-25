@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Overture Todo Example App</title>
+<script>
+    if ( location.protocol !== 'file:' ) {
+        // On file:, we use the hash to store the route, but elsewhere we use the path, and so the CSS, PNG and JS refs need this.
+        document.write( '<base href="/examples/Todo/">' );
+    }
+</script>
 <link rel="stylesheet" href="styles/reset.css">
 <link rel="stylesheet" href="styles/libstyles.css">
 <link rel="stylesheet" href="styles/icons.css">
@@ -106,7 +112,12 @@ html {
 </style>
 </head>
 <body>
-<script src="fixtures.js"></script>
+<script>
+    // On HTTP assume a real JMAP backend, but on file:, use a dummy backend.
+    if ( location.protocol === 'file:' ) {
+        document.write( '<script src="fixtures.js"><' + '/script>' );
+    }
+</script>
 <script src="../../build/Overture.js"></script>
 <script src="Connection.js"></script>
 <script src="Todo.js"></script>
