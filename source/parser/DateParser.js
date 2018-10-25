@@ -29,6 +29,7 @@ const generateLocalisedDateParser = function ( locale, mode ) {
     const whitespace = define( 'whitespace', (/^(?:[\s"']+|$)/) );
 
     const hours = define( 'hour', /^(?:2[0-3]|[01]?\d)/ );
+    const shorthours = define( 'hour', /^[12]/ );
     const minutes = define( 'minute', /^[0-5][0-9]/ );
     const seconds = define( 'second', /^[0-5][0-9]/ );
     const meridian = firstMatch([
@@ -41,29 +42,43 @@ const generateLocalisedDateParser = function ( locale, mode ) {
     ]);
     const timeDelimiter = define( 'timeDelimiter', ( /^[:.]/ ) );
     const timeContext = define( 'timeContext', datePatterns.timeContext );
-    const time = sequence([
-        hours,
-        optional( sequence([
-            timeDelimiter,
-            minutes,
+    const time = firstMatch([
+        sequence([
+            hours,
             optional( sequence([
                 timeDelimiter,
-                seconds,
+                minutes,
+                optional( sequence([
+                    timeDelimiter,
+                    seconds,
+                ])),
             ])),
-        ])),
-        optional(
-            timeSuffix
-        ),
-        whitespace,
+            optional(
+                timeSuffix
+            ),
+            whitespace,
+        ]),
+        sequence([
+            firstMatch([
+                sequence([
+                    hours,
+                    minutes,
+                ]),
+                sequence([
+                    shorthours,
+                    minutes,
+                ])
+            ]),
+            optional(
+                timeSuffix
+            ),
+            whitespace,
+        ]),
     ]);
 
     if ( mode === JUST_TIME ) {
         return firstMatch([
             time,
-            sequence([
-                hours,
-                minutes,
-            ]),
             whitespace,
         ]);
     }
