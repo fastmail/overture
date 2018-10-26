@@ -85,11 +85,8 @@ const RecordResult = Class({
     */
     handledErrorTypes: HANDLE_NO_ERRORS,
 
-     /**
+    /**
         Method: O.RecordResult#shouldStopErrorPropagation
-
-        Parameters:
-            event - {O.Event} The commit error object.
 
         When an error occurs, should its propagation be stopped? If propagation
         is stopped, the changes will not be reverted in the store, and the
@@ -98,6 +95,9 @@ const RecordResult = Class({
 
         Instances should normally be able to set `handledErrorTypes`, but if
         more complex requirements come up this method can also be overridden.
+
+        Parameters:
+            event - {O.Event} The commit error object.
 
         Returns:
             {Boolean} Stop propagation of the event?
