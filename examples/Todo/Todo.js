@@ -174,10 +174,10 @@ var Todo = O.Class({
         defaultValue: ''
     }),
 
-    // Ran out of time! TODO: add support for scheduling todos in UI.
-    // start: O.Record.attr( Date, {
-    //     defaultValue: null
-    // }),
+    dueBy: O.Record.attr( Date, {
+        isNullable: true,
+        defaultValue: null
+    }),
 
     autoCommitIsComplete: function () {
         if ( !( this.get( 'status' ) & O.Status.NEW ) ) {
@@ -795,12 +795,13 @@ var TodoView = O.Class({
                     */
                     text: O.bind( todo, 'summary' )
                 })
-            ]).end()
-            // el( 'div.v-Todo-date', {
-            //     text: O.bind( todo, 'start', function ( date ) {
-            //         return date ? O.i18n.date( date, 'date', true ) : '';
-            //     })
-            // })
+            ]).end(),
+
+            el( 'div.v-Todo-date', {
+                text: O.bind( todo, 'dueBy', function ( date ) {
+                    return date ? O.i18n.date( date, 'date', true ) : '';
+                })
+            })
         ];
     },
 
