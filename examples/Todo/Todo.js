@@ -454,18 +454,30 @@ App.state = new O.Router({
     */
     isLoadingList: false,
 
+    defaultListId: 'inbox',
+
+    fetchAllLists: function () {
+        App.source.addCallback( function () {
+            App.state.set( 'defaultListId',
+                App.store.getOne( TodoList ).get( 'id' ) );
+        });
+        App.store.fetchAll( accountId, TodoList );
+    },
+
     /* If the current TodoList is destroyed, go back to the Inbox TodoList
        (we assume this is always present). If we arrived via a URL, we may have
        tried to load a list id that doesn't actually exist; in this case, the
        same behaviour is applied.
     */
-    checkListStatus: function ( _, __, ___, status )  {
+    checkListStatus: function ()  {
+        var status = this.getFromPath( 'list.status' );
+
         if ( status & (O.Status.DESTROYED|O.Status.NON_EXISTENT) ) {
-            this.set( 'listId', 'inbox' );
+            this.set( 'listId', this.get( 'defaultListId' ) );
         } else {
             this.set( 'isLoadingList', !!( status & O.Status.LOADING ) );
         }
-    }.observes( 'list.status' ),
+    }.observes( 'list.status', 'defaultListId' ),
 
     /* If we switch lists, clear any current search.
     */
@@ -529,11 +541,13 @@ App.state = new O.Router({
             handle: function () {
                 /* Don't keep the old state in history */
                 this.set( 'replaceState', true );
-                this.set( 'listId', 'inbox' );
+                this.set( 'listId', this.get( 'defaultListId' ) );
             }
         }
     ]
 });
+
+App.state.fetchAllLists();
 
 // --- Selection ---
 
