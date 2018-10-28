@@ -968,7 +968,6 @@ const RichTextView = Class({
                 }
                 richTextView.makeLink( url );
                 popOver.hide();
-                richTextView.focus();
             },
         });
     }.property(),
@@ -1001,7 +1000,6 @@ const RichTextView = Class({
                 }
                 richTextView.insertImage( url );
                 popOver.hide();
-                richTextView.focus();
             },
         });
     }.property(),
@@ -1017,12 +1015,16 @@ const RichTextView = Class({
         if ( buttonView.getParent( MenuView ) ) {
             buttonView = this.get( 'toolbarView' ).getView( 'overflow' );
         }
+        const richTextView = this;
         popOver.show({
             view,
             alignWithView: buttonView,
             showCallout: true,
             offsetTop: 2,
             offsetLeft: -4,
+            onHide: function () {
+                richTextView.focus();
+            },
         });
     },
 
