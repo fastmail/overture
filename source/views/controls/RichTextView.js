@@ -109,8 +109,10 @@ const URLPickerView = Class({
 
     autoFocus: function () {
         if ( this.get( 'isInDocument' ) ) {
-            this._input.set( 'selection', this.get( 'value' ).length )
-                       .focus();
+            this._input.set( 'selection', {
+                start: 0,
+                end: this.get( 'value' ).length,
+            }).focus();
             // IE8 and Safari 6 don't fire this event for some reason.
             this._input.fire( 'focus' );
         }
