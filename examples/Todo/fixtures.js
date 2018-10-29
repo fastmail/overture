@@ -52,42 +52,42 @@ var API = {
                 precedence: 32,
                 summary: 'Open OvertureJS Todo demo app',
                 isComplete: true,
-                start: null
+                dueBy: null
             }, {
                 id: 't2',
                 listId: 'inbox',
                 precedence: 64,
                 summary: 'Drag & drop to reorder',
                 isComplete: false,
-                start: null
+                dueBy: new Date().add( 1, 'day' ).toJSON(),
             }, {
                 id: 't3',
                 listId: 'inbox',
                 precedence: 96,
                 summary: 'Up/down or j/k to change focus',
                 isComplete: false,
-                start: null
+                dueBy: null
             }, {
                 id: 't4',
                 listId: 'inbox',
                 precedence: 128,
                 summary: 'Hit tab to edit',
                 isComplete: false,
-                start: null
+                dueBy: new Date().add( 1, 'week' ).toJSON(),
             }, {
                 id: 't5',
                 listId: 'inbox',
                 precedence: 128,
                 summary: 'Hit enter to create a new todo',
                 isComplete: false,
-                start: null
+                dueBy: null
             }, {
                 id: 't6',
                 listId: 'inbox',
                 precedence: 128,
                 summary: 'Hit space to toggle isComplete',
                 isComplete: false,
-                start: null
+                dueBy: null
             }, {
 
                 id: 't7',
@@ -95,7 +95,7 @@ var API = {
                 precedence: 160,
                 summary: 'Cmd-Z for undo, Cmd-Shift-Z for redo',
                 isComplete: false,
-                start: null
+                dueBy: null
             }]
         }]);
     },
