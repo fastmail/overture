@@ -50,6 +50,7 @@ var parseFile = function ( contents, path ) {
         header = {
             Module: module,
             File: filename,
+            pathToRoot: '../'.repeat( pathComponents.length - 2 ),
         },
         result, line, block, current, isDelimiterLine;
 

@@ -414,8 +414,10 @@ var renderFullIndex = function () {
         html = template.replace( /\{([A-Z]+)\}/g, function ( _, name ) {
             switch ( name ) {
                 case 'TITLE':
-                    pathToRoot = '../';
+                    pathToRoot = input.header.pathToRoot;
                     return input.header.File;
+                case 'ROOT':
+                    return pathToRoot;
                 case 'BREADCRUMBS':
                     return renderBreadCrumbs( input );
                 case 'SECTIONS':
