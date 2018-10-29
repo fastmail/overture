@@ -786,7 +786,23 @@ var TodoView = O.Class({
                             }
                         }.observes( 'isInDocument' )
                     })
-                ])
+                ]),
+                el( 'div.v-Todo-date', [
+                    new O.TextView({
+                        value: O.bindTwoWay( todo, 'dueBy',
+                            function ( date, _ ) {
+                                console.log( ...arguments );
+                                if ( date instanceof Date ) {
+                                    return date.format( '%Y-%m-%d' );
+                                } else if ( date instanceof String ) {
+                                    return Date.fromJSON( date );
+                                } else if ( !date ) {
+                                    return null;
+                                }
+                            }),
+                        inputType: 'date',
+                    })
+                ]),
             ]).otherwise([
                 el( 'div.v-Todo-summary', {
                     /* You can bind directly to DOM properties (text is a
@@ -794,14 +810,14 @@ var TodoView = O.Class({
                        every time)
                     */
                     text: O.bind( todo, 'summary' )
+                }),
+                el( 'div.v-Todo-date', {
+                    text: O.bind( todo, 'dueBy', function ( date ) {
+                        return date ? O.i18n.date( date, 'date', true ) : '';
+                    })
                 })
             ]).end(),
 
-            el( 'div.v-Todo-date', {
-                text: O.bind( todo, 'dueBy', function ( date ) {
-                    return date ? O.i18n.date( date, 'date', true ) : '';
-                })
-            })
         ];
     },
 
