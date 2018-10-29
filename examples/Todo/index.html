@@ -28,14 +28,17 @@ html {
 }
 
 .v-App-title {
+    position: absolute;
     top: -80px;
     left: 0;
     right: 0;
     line-height: 1;
-    color: rgba(255, 255, 255, 0.3);
     font-size: 70px;
     text-align: center;
     text-shadow: -1px -1px rgba(0, 0, 0, 0.2);
+}
+.v-App-title:not(.is-editing) {
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .v-TodoList {

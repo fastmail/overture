@@ -707,6 +707,7 @@ App.views = {
     mainWindow: new O.RootView( document, {
         selectNone: function ( event ) {
             if ( !( event.targetView instanceof O.ButtonView ) ) {
+                appView.set( 'isEditing', false );
                 App.state.set( 'editTodo', null );
                 App.selectedTodo.set( 'record', null );
             }
@@ -937,7 +938,7 @@ var appView = new O.View({
     draw: function ( layer, Element, el ) {
         return [
             Element.when( this, 'isEditing' ).show([
-                el( 'div.v-TodoList-name', [
+                el( 'div.v-App-title.is-editing', [
                     new O.TextView({
                         value: O.bindTwoWay( App.state, 'list.name' ),
                         autoFocus: function () {
@@ -948,9 +949,9 @@ var appView = new O.View({
                     })
                 ]),
             ]).otherwise([
-              this._name = el( 'div.v-TodoList-name', {
-                  text: O.bind( App.state, 'list.name' )
-              })
+                this._name = el( 'div.v-App-title', {
+                    text: O.bind( App.state, 'list.name' )
+                })
             ]).end(),
 
             new O.ToolbarView({
