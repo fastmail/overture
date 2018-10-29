@@ -1022,7 +1022,7 @@ const RichTextView = Class({
             showCallout: true,
             offsetTop: 2,
             offsetLeft: -4,
-            onHide: function () {
+            onHide () {
                 richTextView.focus();
             },
         });
