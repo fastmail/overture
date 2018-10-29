@@ -24,7 +24,15 @@ var trim = function trim ( obj ) {
     return obj;
 };
 
-var parseFile = function ( contents ) {
+var parseFile = function ( contents, path ) {
+    // First few lines are because we dropped headers when migrating to ES6
+    // modules, but still want this docbuilder to more or less work.
+    if ( !path.startsWith( 'source/' ) ) {
+        throw new Error( 'parseFile: needs path to start with source/ for now' );
+    }
+    var pathComponents = path.split( '/' );
+    var module = pathComponents[ 1 ];
+    var filename = pathComponents[ pathComponents.length - 1 ];
     var lines = contents.split( '\n' ),
         beginDocs = /^(\s*)\/\*\*$/,
         endDocs = /^(\s*)\*\/$/,
@@ -39,7 +47,10 @@ var parseFile = function ( contents ) {
         inHeader = false,
         code = '',
         blocks = [],
-        header = {},
+        header = {
+            Module: module,
+            File: filename,
+        },
         result, line, block, current, isDelimiterLine;
 
     for ( ; i < l; i += 1 ) {
@@ -146,7 +157,7 @@ var parseFile = function ( contents ) {
             console.log( 'Could not read ' + input );
         } else {
             fs.writeFileSync( output,
-                JSON.stringify( parseFile( data ), null, 4 ) );
+                JSON.stringify( parseFile( data, input ), null, 4 ) );
         }
     });
 }() );
