@@ -446,9 +446,11 @@ App.state = new O.Router({
             searchTree = App.parseSearch( this.get( 'search' ) ),
             filter;
 
-        if ( listId ) {
-            listId = App.editStore.getStoreKey( null, TodoList, listId );
+        if ( !listId ) {
+            return null;
         }
+
+        listId = App.editStore.getStoreKey( null, TodoList, listId );
 
         filter = new Function( 'data', 'return' +
             '(data.listId==="' + listId.replace( /"/g, '\\"') + '")' +
@@ -483,30 +485,18 @@ App.state = new O.Router({
     */
     isLoadingList: false,
 
-    defaultListId: 'inbox',
-
-    fetchAllLists: function () {
-        App.source.addCallback( function () {
-            App.state.set( 'defaultListId',
-                App.store.getOne( TodoList ).get( 'id' ) );
-        });
-        App.store.fetchAll( accountId, TodoList );
-    },
-
     /* If the current TodoList is destroyed, go back to the Inbox TodoList
        (we assume this is always present). If we arrived via a URL, we may have
        tried to load a list id that doesn't actually exist; in this case, the
        same behaviour is applied.
     */
-    checkListStatus: function ()  {
-        var status = this.getFromPath( 'list.status' );
-
+    checkListStatus: function ( _, __, ___, status ) {
         if ( status & (O.Status.DESTROYED|O.Status.NON_EXISTENT) ) {
-            this.set( 'listId', this.get( 'defaultListId' ) );
+            this.set( 'listId', null );
         } else {
             this.set( 'isLoadingList', !!( status & O.Status.LOADING ) );
         }
-    }.observes( 'list.status', 'defaultListId' ),
+    }.observes( 'list.status' ),
 
     /* If we switch lists, clear any current search.
     */
@@ -523,7 +513,17 @@ App.state = new O.Router({
     */
     commitChanges: function ( _, __, oldTodo ) {
         if ( oldTodo !== null ) {
-            App.editStore.commitChanges();
+            var status = oldTodo.get( 'status' );
+            if ( !oldTodo.get( 'summary' ) ) {
+                if ( status & O.Status.NEW ) {
+                    oldTodo.destroy();
+                    App.editStore.commitChanges();
+                } else {
+                    App.editStore.discardChanges();
+                }
+            } else {
+                App.editStore.commitChanges();
+            }
         }
     }.observes( 'editTodo' ),
 
@@ -547,7 +547,12 @@ App.state = new O.Router({
        selected TodoList, but I've decided not to encode any search in the URL.
     */
     encodedState: function () {
-        return this.get( 'listId' ) + '/';
+        var listId = this.get( 'listId' );
+        if ( listId ) {
+            return listId + '/';
+        } else {
+            return '';
+        }
     }.property( 'listId' ),
 
     /* Routes are simply a regexp to match against the URL (after any base part)
@@ -557,6 +562,12 @@ App.state = new O.Router({
        are supplied with any capture groups in the regexp as arguments 1+.
     */
     routes: [
+        {
+            url: /^$/,
+            handle: function () {
+                this.set( 'listId', null );
+            }
+        },
         {
             url: /^(.*?)\/$/,
             handle: function ( _, listId ) {
@@ -570,13 +581,11 @@ App.state = new O.Router({
             handle: function () {
                 /* Don't keep the old state in history */
                 this.set( 'replaceState', true );
-                this.set( 'listId', this.get( 'defaultListId' ) );
+                this.set( 'listId', null );
             }
         }
     ]
 });
-
-App.state.fetchAllLists();
 
 // --- Selection ---
 
@@ -605,6 +614,26 @@ App.actions = {
         if ( index > 0 ) {
             App.selectedTodo.set( 'index', index - 1 );
         }
+    },
+
+    newTodoList: function () {
+        // Create todo list
+        var todoLists = App.state.get( 'todoLists' ),
+            selectedIndex = App.selectedTodoList.get( 'index' ),
+            newTodoList = new TodoList( App.editStore );
+
+        // TODO: finish this stuff
+
+        // Place just after selected todo, or at end of list if none selected
+        this.reorderTodo( todos, newTodoList,
+            selectedIndex > -1 ? selectedIndex + 1 : todos.get( 'length' )
+        );
+        newTodoList.saveToStore();
+
+        // Select new todo
+        App.selectedTodo.set( 'record', newTodoList );
+        App.state.set( 'editTodo', newTodoList );
+
     },
 
     newTodo: function () {
@@ -1025,8 +1054,78 @@ var appView = new O.View({
     }.on( 'dblclick' )
 });
 
-/* Insert the view we've constructred into the document */
-App.views.mainWindow.insertView( appView );
+var todoListsView = new O.View({
+    className: 'v-App',
+    draw: function ( layer, Element, el ) {
+        return [
+            el('div.v-App-title', [ 'blah' ]),
+            new O.ToolbarView({
+                left: [
+                    new O.ButtonView({
+                        icon: 'icon-plus-circle',
+                        isDisabled: O.bind( App.state, 'isLoadingList' ),
+                        label: 'New Todo List',
+                        shortcut: 'Enter',
+                        target: App.actions,
+                        method: 'newTodoList'
+                    }),
+                    new O.ButtonView({
+                        icon: 'icon-rotate-left',
+                        layout: { marginLeft: 10 },
+                        isDisabled: O.bind( App.undoManager, 'canUndo',
+                            O.Transform.invert ),
+                        label: 'Undo',
+                        /* Can define a keyboard shortcut directly on the button
+                           it is equivalent to. The shortcut will be active so long
+                           as the button is in the document. */
+                        shortcut: 'Cmd-z',
+                        target: App.undoManager,
+                        method: 'undo'
+                    })
+                ],
+            }),
+            new O.View({
+                className: 'v-TodoList',
+                draw: function (/* layer, Element, el */) {
+                    return [
+                        'TODO'
+                        /*new O.ListView({
+                            content: O.bind( App.state, 'todoLists' ),
+                            ItemView: TodoListView,
+                            itemHeight: 48
+                        })*/
+                    ];
+                }
+            })
+        ];
+    },
+
+    stopEditing: function ( event ) {
+        if ( this.get( 'isEditing' ) ) {
+            var key = O.DOMEvent.lookupKey( event );
+            if ( key === 'Enter' || key === 'Escape' ) {
+                this.set( 'isEditing', false );
+                App.editStore.commitChanges();
+                event.stopPropagation();
+            }
+        }
+    }.on( 'keydown' ),
+
+    newTodoList: function ( event ) {
+        if ( event.targetView === this ) {
+            App.actions.newTodoList();
+        }
+    }.on( 'dblclick' )
+});
+
+/* Insert the view we've constructed into the document */
+App.views.mainWindow.insertView(
+  O.Element.when(App.state, 'listId').show([
+    appView,
+  ]).otherwise([
+    todoListsView,
+  ]).end()
+);
 
 /*  Because this setup code is not being run inside a run loop, we now need to
     flush all queues. Other than this, the queues will be managed completely
