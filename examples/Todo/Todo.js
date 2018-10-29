@@ -934,63 +934,91 @@ O.ClearSearchButtonView.prototype.icon = 'icon-clear';
 
 var appView = new O.View({
     className: 'v-App',
-    childViews: [
-        new O.LabelView({
-            positioning: 'absolute',
-            className: 'v-App-title',
-            value: 'Todo'
-        }),
-        new O.ToolbarView({
-            left: [
-                new O.ButtonView({
-                    icon: 'icon-plus-circle',
-                    isDisabled: O.bind( App.state, 'isLoadingList' ),
-                    label: 'New Todo',
-                    shortcut: 'Enter',
-                    target: App.actions,
-                    method: 'newTodo'
-                }),
-                new O.ButtonView({
-                    icon: 'icon-rotate-left',
-                    layout: { marginLeft: 10 },
-                    isDisabled: O.bind( App.undoManager, 'canUndo',
-                        O.Transform.invert ),
-                    label: 'Undo',
-                    /* Can define a keyboard shortcut directly on the button
-                       it is equivalent to. The shortcut will be active so long
-                       as the button is in the document. */
-                    shortcut: 'Cmd-z',
-                    target: App.undoManager,
-                    method: 'undo'
-                })
-            ],
-            right: [
-                new O.SearchTextView({
-                    icon: O.Element.create( 'i', {
-                        className: 'icon icon-search'
-                    }),
-                    layout: { width: 200 },
-                    placeholder: 'Search',
-                    shortcut: '/',
-                    value: O.bindTwoWay( App.state, 'search' )
-                })
-            ]
-        }),
-        new O.View({
-            className: 'v-TodoList',
-            draw: function (/* layer, Element, el */) {
-                return [
-                    new O.ListView({
-                        content: O.bind( App.state, 'todos' ),
-                        ItemView: TodoView,
-                        itemHeight: 48
+    draw: function ( layer, Element, el ) {
+        return [
+            Element.when( this, 'isEditing' ).show([
+                el( 'div.v-TodoList-name', [
+                    new O.TextView({
+                        value: O.bindTwoWay( App.state, 'list.name' ),
+                        autoFocus: function () {
+                            if ( this.get( 'isInDocument' ) ) {
+                                this.focus();
+                            }
+                        }.observes( 'isInDocument' )
                     })
-                ];
+                ]),
+            ]).otherwise([
+              this._name = el( 'div.v-TodoList-name', {
+                  text: O.bind( App.state, 'list.name' )
+              })
+            ]).end(),
+
+            new O.ToolbarView({
+                left: [
+                    new O.ButtonView({
+                        icon: 'icon-plus-circle',
+                        isDisabled: O.bind( App.state, 'isLoadingList' ),
+                        label: 'New Todo',
+                        shortcut: 'Enter',
+                        target: App.actions,
+                        method: 'newTodo'
+                    }),
+                    new O.ButtonView({
+                        icon: 'icon-rotate-left',
+                        layout: { marginLeft: 10 },
+                        isDisabled: O.bind( App.undoManager, 'canUndo',
+                            O.Transform.invert ),
+                        label: 'Undo',
+                        /* Can define a keyboard shortcut directly on the button
+                           it is equivalent to. The shortcut will be active so long
+                           as the button is in the document. */
+                        shortcut: 'Cmd-z',
+                        target: App.undoManager,
+                        method: 'undo'
+                    })
+                ],
+                right: [
+                    new O.SearchTextView({
+                        icon: O.Element.create( 'i', {
+                            className: 'icon icon-search'
+                        }),
+                        layout: { width: 200 },
+                        placeholder: 'Search',
+                        shortcut: '/',
+                        value: O.bindTwoWay( App.state, 'search' )
+                    })
+                ]
+            }),
+            new O.View({
+                className: 'v-TodoList',
+                draw: function (/* layer, Element, el */) {
+                    return [
+                        new O.ListView({
+                            content: O.bind( App.state, 'todos' ),
+                            ItemView: TodoView,
+                            itemHeight: 48
+                        })
+                    ];
+                }
+            })
+        ];
+    },
+
+    stopEditing: function ( event ) {
+        if ( this.get( 'isEditing' ) ) {
+            var key = O.DOMEvent.lookupKey( event );
+            if ( key === 'Enter' || key === 'Escape' ) {
+                this.set( 'isEditing', false );
+                App.editStore.commitChanges();
+                event.stopPropagation();
             }
-        })
-    ],
+        }
+    }.on( 'keydown' ),
+
     newTodo: function ( event ) {
-        if ( event.targetView === this ) {
+        if ( event.target === this._name ) {
+            this.set( 'isEditing', true );
+        } else if ( event.targetView === this ) {
             App.actions.newTodo();
         }
     }.on( 'dblclick' )
