@@ -148,6 +148,34 @@ App.source.handle( TodoList, {
     }
 });
 
+/* We have brought this in from jmap-js for persisting Date objects into
+ * the JMAP data store.  There's no native method (or Overture method) on Date
+ * to convert to a JMAP format.  (We keep getting pesky milliseconds.)
+ */
+const toJSON = function ( date ) {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + 1;
+    const day = date.getUTCDate();
+    const hour = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    const second = date.getUTCSeconds();
+
+    return (
+        ( year < 1000 ?
+            '0' + ( year < 100 ? '0' + ( year < 10 ? '0' : '' ) : '' ) + year :
+            '' + year ) + '-' +
+        ( month < 10 ? '0' + month : '' + month ) + '-' +
+        ( day < 10 ? '0' + day : '' + day ) + 'T' +
+        ( hour < 10 ? '0' + hour : '' + hour ) + ':' +
+        ( minute < 10 ? '0' + minute : '' + minute ) + ':' +
+        ( second < 10 ? '0' + second : '' + second )
+    );
+};
+
+const toUTCJSON = function ( date ) {
+    return toJSON( date ) + 'Z';
+};
+
 // ---
 
 var Todo = O.Class({
@@ -176,6 +204,7 @@ var Todo = O.Class({
 
     dueBy: O.Record.attr( Date, {
         isNullable: true,
+        toJSON: toUTCJSON,
         defaultValue: null
     }),
 
@@ -685,6 +714,22 @@ App.views = {
     })
 };
 
+/* We'll use this to convert dates and strings in bindings.
+ */
+var dateToString = function ( date ) {
+  return date ? O.i18n.date( date, 'date', true ) : '';
+};
+
+var dateToStringTwoWay = function ( date, syncForwards ) {
+    return syncForwards ?
+      date === null ?
+        '' :
+        date.format( '%Y-%m-%d', true ) :
+      date === '' ?
+        null :
+        Date.fromJSON( date );
+};
+
 /* The TodoView is used to render a Todo. The content property (set
    automatically by the ListView) is expected to be an instance of Todo.
 */
@@ -789,17 +834,7 @@ var TodoView = O.Class({
                 ]),
                 el( 'div.v-Todo-date', [
                     new O.TextView({
-                        value: O.bindTwoWay( todo, 'dueBy',
-                            function ( date, _ ) {
-                                console.log( ...arguments );
-                                if ( date instanceof Date ) {
-                                    return date.format( '%Y-%m-%d' );
-                                } else if ( date instanceof String ) {
-                                    return Date.fromJSON( date );
-                                } else if ( !date ) {
-                                    return null;
-                                }
-                            }),
+                        value: O.bindTwoWay( todo, 'dueBy', dateToStringTwoWay ),
                         inputType: 'date',
                     })
                 ]),
@@ -812,9 +847,7 @@ var TodoView = O.Class({
                     text: O.bind( todo, 'summary' )
                 }),
                 el( 'div.v-Todo-date', {
-                    text: O.bind( todo, 'dueBy', function ( date ) {
-                        return date ? O.i18n.date( date, 'date', true ) : '';
-                    })
+                    text: O.bind( todo, 'dueBy', dateToString )
                 })
             ]).end(),
 
