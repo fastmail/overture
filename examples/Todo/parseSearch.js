@@ -1,7 +1,6 @@
 /* global O */
 
 const {
-    Class,
     Parse,
     Parse: { define, optional, repeat, sequence, firstMatch },
 } = O;
@@ -62,13 +61,12 @@ const normaliseBinaryOp = function ( type, children, newChildren ) {
     return newChildren;
 };
 
-const SearchTreeNode = Class({
-
-    init ( type, value, children ) {
+class SearchTreeNode {
+    constructor ( type, value, children ) {
         this.type = type;
         this.value = value;
         this.children = children || null;
-    },
+    }
 
     normalise () {
         let node = this;
@@ -97,7 +95,7 @@ const SearchTreeNode = Class({
             }
         }
         return node;
-    },
+    }
 
     toFunctionString () {
         const { type, value, children } = this;
@@ -118,60 +116,60 @@ const SearchTreeNode = Class({
             }).join( '&&' ) + ')';
         }
         return '';
-    },
-});
+    }
 
-SearchTreeNode.fromTokens = function ( tokens ) {
-    const len = tokens.length;
-    const parents = [];
-    let parent = new SearchTreeNode( 'AND', null, [] );
-    let nextTerms;
-    for ( let i = 0; i < len; i += 1 ) {
-        const token = tokens[i];
-        const string = token[1];
-        const children = nextTerms || parent.children;
-        nextTerms = null;
-        let type;
-        let value;
-        switch ( token[0] ) {
-        case 'bool':
-            type = 'isComplete';
-            value = string.indexOf( 'not' ) === -1;
-            break;
-        case 'word':
-            type = 'text';
-            value = string;
-            break;
-        case 'phrase':
-            type = 'text';
-            value = string.replace( /\\(.)/g, '$1' );
-            break;
-        case 'begin:group':
-            parents.push( parent );
-            children.push( parent = new SearchTreeNode( 'AND', null, [] ) );
-            continue;
-        case 'end:group':
-            parent = parents.pop();
-            continue;
-        case 'op':
-            if ( string === 'AND' ) {
+    static fromTokens ( tokens ) {
+        const len = tokens.length;
+        const parents = [];
+        let parent = new SearchTreeNode( 'AND', null, [] );
+        let nextTerms;
+        for ( let i = 0; i < len; i += 1 ) {
+            const token = tokens[i];
+            const string = token[1];
+            const children = nextTerms || parent.children;
+            nextTerms = null;
+            let type;
+            let value;
+            switch ( token[0] ) {
+            case 'bool':
+                type = 'isComplete';
+                value = string.indexOf( 'not' ) === -1;
+                break;
+            case 'word':
+                type = 'text';
+                value = string;
+                break;
+            case 'phrase':
+                type = 'text';
+                value = string.replace( /\\(.)/g, '$1' );
+                break;
+            case 'begin:group':
+                parents.push( parent );
+                children.push( parent = new SearchTreeNode( 'AND', null, [] ) );
+                continue;
+            case 'end:group':
+                parent = parents.pop();
+                continue;
+            case 'op':
+                if ( string === 'AND' ) {
+                    continue;
+                }
+                nextTerms = [];
+                if ( string === 'OR' && children.length ) {
+                    nextTerms.push( children.pop() );
+                }
+                type = string;
+                value = null;
+                break;
+            default:
+                nextTerms = children;
                 continue;
             }
-            nextTerms = [];
-            if ( string === 'OR' && children.length ) {
-                nextTerms.push( children.pop() );
-            }
-            type = string;
-            value = null;
-            break;
-        default:
-            nextTerms = children;
-            continue;
+            children.push( new SearchTreeNode( type, value, nextTerms ) );
         }
-        children.push( new SearchTreeNode( type, value, nextTerms ) );
+        return parent;
     }
-    return parent;
-};
+}
 
 export default function ( string ) {
     const parse = new Parse( string.trim() );
