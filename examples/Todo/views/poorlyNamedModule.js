@@ -4,6 +4,7 @@ import state from '../state.js';
 import { actions } from '../actions.js';
 import { editStore, undoManager } from '../models.js';
 import TodoItemView from './TodoItemView.js';
+import TodoListItemView from './TodoListItemView.js';
 
 const {
     bind,
@@ -116,7 +117,7 @@ const todoListsView = new View({
     className: 'v-App',
     draw ( layer, Element, el ) {
         return [
-            el('div.v-App-title', [ 'blah' ]),
+            el('div.v-App-title', [ 'Your  Lists' ]),
             new ToolbarView({
                 left: [
                     new ButtonView({
@@ -145,12 +146,11 @@ const todoListsView = new View({
                 className: 'v-TodoList',
                 draw (/* layer, Element, el */) {
                     return [
-                        'TODO',
-                        /*new ListView({
+                        new ListView({
                             content: bind( state, 'todoLists' ),
-                            ItemView: TodoListView,
-                            itemHeight: 48
-                        })*/
+                            ItemView: TodoListItemView,
+                            itemHeight: 48,
+                        }),
                     ];
                 },
             }),

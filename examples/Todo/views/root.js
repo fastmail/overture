@@ -2,7 +2,7 @@
 
 import { appView } from './poorlyNamedModule.js';
 import state from '../state.js';
-import { selectedTodo } from '../selection.js';
+import { selectedThing } from '../selection.js';
 
 const { RootView, ButtonView } = O;
 
@@ -14,7 +14,7 @@ export default new RootView( document, {
         if ( !( event.targetView instanceof ButtonView ) ) {
             appView.set( 'isEditing', false );
             state.set( 'editTodo', null );
-            selectedTodo.set( 'record', null );
+            selectedThing.set( 'record', null );
         }
     }.on( 'click' ),
 });

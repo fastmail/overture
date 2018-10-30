@@ -56,6 +56,31 @@ const state = new Router({
         });
     }.property( 'listId', 'search' ),
 
+    todoLists: function () {
+        const searchTree = parseSearch( this.get( 'search' ) );
+
+        return new LocalQuery({
+            store: editStore,
+            Type: TodoList,
+            sort ( a, b ) {
+                return ( a.precedence - b.precedence ) ||
+                    ( a.id < b.id ? -1 : a.id > b.id ? 1 : 0 );
+            },
+            where: searchTree ?
+                new Function( 'data',
+                              'return' + searchTree.toFunctionString() ) :
+                null,
+        });
+    }.property( 'search' ),
+
+    things: function () {
+        if ( this.get( 'listId' ) === null ) {
+            return this.get( 'todoLists' );
+        } else {
+            return this.get( 'todos' );
+        }
+    }.property( 'todos', 'todoLists' ),
+
     /* Destroy the previous LocalQuery, as it's no longer needed. In the current
        implementation we're not reusing queries, so we should always destroy
        the old ones, otherwise we will leak memory (and time, as each old
@@ -96,15 +121,18 @@ const state = new Router({
     */
     editTodo: null,
 
+    editTodoList: null,
+
     /* When we finish editing a todo, commit the changes back to the source
        (this automatically records an Undo checkpoint as well).
     */
-    commitChanges: function ( _, __, oldTodo ) {
-        if ( oldTodo !== null ) {
-            const status = oldTodo.get( 'status' );
-            if ( !oldTodo.get( 'summary' ) ) {
+    commitChanges: function ( _, name, oldValue ) {
+        const prop = name === 'editTodo' ? 'summary' : 'name';
+        if ( oldValue !== null ) {
+            const status = oldValue.get( 'status' );
+            if ( !oldValue.get( prop ) ) {
                 if ( status & NEW ) {
-                    oldTodo.destroy();
+                    oldValue.destroy();
                     editStore.commitChanges();
                 } else {
                     editStore.discardChanges();
@@ -113,7 +141,7 @@ const state = new Router({
                 editStore.commitChanges();
             }
         }
-    }.observes( 'editTodo' ),
+    }.observes( 'editTodo', 'editTodoList' ),
 
     // Page title
 

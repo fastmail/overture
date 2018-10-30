@@ -11,15 +11,10 @@ const {
    selected in a list. There's another class "SelectionController" (not
    currently used in this example app) for keeping track of a multi-selection.
 */
-const selectedTodo = new SingleSelectionController({
-    content: bind( state, 'todos' ),
-});
-
-const selectedTodoList = new SingleSelectionController({
-    content: bind( state, 'todoLists' ),
+const selectedThing = new SingleSelectionController({
+    content: bind( state, 'things' ),
 });
 
 export {
-    selectedTodo,
-    selectedTodoList,
+    selectedThing,
 };

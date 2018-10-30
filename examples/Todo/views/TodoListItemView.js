@@ -10,7 +10,6 @@ const {
     bindTwoWay,
     Class,
     AnimatableView,
-    CheckboxView,
     Draggable,
     ListItemView,
     TextView,
@@ -20,26 +19,10 @@ const {
 
 // ---
 
-// We'll use these to convert dates and strings in bindings.
-
-const dateToString = function ( date ) {
-    return date ? O.i18n.date( date, 'date', true ) : '';
-};
-
-const dateToStringTwoWay = function ( date, syncForwards ) {
-    return syncForwards ?
-      date === null ?
-        '' :
-        date.format( '%Y-%m-%d', true ) :
-      date === '' ?
-        null :
-        Date.fromJSON( date );
-};
-
-/* The TodoItemView is used to render a Todo. The content property (set
+/* The TodoListItemView is used to render a Todo. The content property (set
    automatically by the ListView) is expected to be an instance of Todo.
 */
-const TodoItemView = Class({
+const TodoListItemView = Class({
 
     Extends: ListItemView,
 
@@ -55,14 +38,12 @@ const TodoItemView = Class({
     animateLayer: false,
     animateLayerDuration: 200,
 
-    isComplete: bind( 'content.isComplete' ),
-
     /* Inside a binding transform, `this` is the binding itself. We want to
        compare the object with Todo of this view, which can be found as the
        content property on the binding's toObject.
     */
-    isEditing: bind( state, 'editTodo', function ( editTodo ) {
-        return this.toObject.get( 'content' ) === editTodo;
+    isEditing: bind( state, 'editTodoList', function ( editTodoList ) {
+        return this.toObject.get( 'content' ) === editTodoList;
     }),
 
     isSelected: bind( selectedThing, 'record', function ( record ) {
@@ -74,10 +55,9 @@ const TodoItemView = Class({
     */
     className: function () {
         return 'v-Todo' +
-            ( this.get( 'isComplete' ) ? ' is-complete' : '' ) +
             ( this.get( 'isSelected' ) ? ' is-selected' : '' ) +
             ( this.get( 'isEditing' )  ? ' is-editing'  : '' );
-    }.property('isComplete', 'isSelected', 'isEditing' ),
+    }.property( 'isSelected', 'isEditing' ),
 
     /* Position the view absolutely to make it easy to animate.
     */
@@ -114,34 +94,20 @@ const TodoItemView = Class({
        Note, we can append other view instances as well as DOM nodes.
     */
     draw ( layer, Element, el ) {
-        const todo = this.get( 'content' );
+        const todoList = this.get( 'content' );
         return [
-            new CheckboxView({
-                positioning: 'absolute',
-                /* Two-way bindings are rarely needed, but here we use one to
-                   keep the checkbox in sync with the todo state, but also allow
-                   you to use the checkbox to update the todo.
-                */
-                value: bindTwoWay( todo, 'isComplete' ),
-            }),
             /* Element.when is a shortcut for creating an O.SwitchView
                instance; essentially a live-updating if/else.
             */
             when( this, 'isEditing' ).show([
                 el( 'div.v-Todo-summary', [
                     new TextView({
-                        value: bindTwoWay( todo, 'summary' ),
+                        value: bindTwoWay( todoList, 'name' ),
                         autoFocus: function () {
                             if ( this.get( 'isInDocument' ) ) {
                                 this.focus();
                             }
                         }.observes( 'isInDocument' ),
-                    }),
-                ]),
-                el( 'div.v-Todo-date', [
-                    new TextView({
-                        value: bindTwoWay( todo, 'dueBy', dateToStringTwoWay ),
-                        inputType: 'date',
                     }),
                 ]),
             ]).otherwise([
@@ -150,10 +116,7 @@ const TodoItemView = Class({
                        special case to save you having to write textContent
                        every time)
                     */
-                    text: bind( todo, 'summary' ),
-                }),
-                el( 'div.v-Todo-date', {
-                    text: bind( todo, 'dueBy', dateToString ),
+                    text: bind( todoList, 'name' ),
                 }),
             ]).end(),
 
@@ -163,12 +126,15 @@ const TodoItemView = Class({
     /* This method will trigger whenever you click on the View (or any of its
        child elements/views). Events are handled via delegation, and actual
        setup of the handler is done on class definition, so there is zero
-       overhead when instantiating instances of TodoItemView.
+       overhead when instantiating instances of TodoListItemView.
     */
     select: function ( event ) {
         if ( !this.get( 'isSelected' ) ) {
-            state.set( 'editTodo', null );
+            state.set( 'editTodoList', null );
             selectedThing.set( 'record', this.get( 'content' ) );
+        } else if ( !this.get( 'isEditing' ) ) {
+            selectedThing.set( 'record', this.get( 'content' ) );
+            actions.edit();
         }
         /* Stop propagation so the click handler on the root view isn't
            triggered.
@@ -176,11 +142,10 @@ const TodoItemView = Class({
         event.stopPropagation();
     }.on( 'click' ),
 
-    edit: function () {
-        if ( !this.get( 'isEditing' ) ) {
-            selectedThing.set( 'record', this.get( 'content' ) );
-            actions.edit();
-        }
+    open: function ( event ) {
+        this.stopEditing();
+        state.set( 'listId', this.getFromPath( 'content.id' ) );
+
         event.stopPropagation();
     }.on( 'dblclick' ),
 
@@ -188,7 +153,7 @@ const TodoItemView = Class({
         if ( this.get( 'isEditing' ) ) {
             const key = lookupKey( event );
             if ( key === 'Enter' || key === 'Escape' ) {
-                state.set( 'editTodo', null );
+                state.set( 'editTodoList', null );
                 event.stopPropagation();
             }
         }
@@ -197,7 +162,7 @@ const TodoItemView = Class({
     /* Handle dragging. When the user first starts to drag the view, this
        method is called. We'll record the initial position of the view, and
        pre-calculate the height. Then we turn animation on for all *other*
-       instances of TodoItemView (we don't want to animate this one, as it's
+       instances of TodoListItemView (we don't want to animate this one, as it's
        going to track the cursor).
     */
     dragStarted ( drag ) {
@@ -205,7 +170,7 @@ const TodoItemView = Class({
         drag.startY = this.get( 'index' ) * itemHeight;
         drag.maxY = ( this.getFromPath( 'list.length' ) - 1 ) * itemHeight;
         this.animateLayer = false;
-        TodoItemView.prototype.animateLayer = true;
+        TodoListItemView.prototype.animateLayer = true;
     },
 
     /* On move, update the position of this view, and work out if we have moved
@@ -231,11 +196,11 @@ const TodoItemView = Class({
     /* Cleanup on drag end */
     dragEnded () {
         delete this.animateLayer;
-        TodoItemView.prototype.animateLayer = false;
+        TodoListItemView.prototype.animateLayer = false;
         editStore.commitChanges();
     },
 });
 
 // --- Exports
 
-export default TodoItemView;
+export default TodoListItemView;

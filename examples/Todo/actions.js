@@ -2,7 +2,7 @@
 
 import { editStore, undoManager, Todo, TodoList } from './models.js';
 import state from './state.js';
-import { selectedTodo, selectedTodoList } from './selection.js';
+import { selectedThing } from './selection.js';
 
 const { GlobalKeyboardShortcuts } = O;
 
@@ -11,44 +11,44 @@ const { GlobalKeyboardShortcuts } = O;
 /* Self explanatory */
 const actions = {
     selectNext () {
-        const list = state.get( 'todos' );
-        const index = selectedTodo.get( 'index' ) + 1;
+        const list = state.get( 'things' );
+        const index = selectedThing.get( 'index' ) + 1;
         if ( index < list.get( 'length' ) ) {
-            selectedTodo.set( 'index', index );
+            selectedThing.set( 'index', index );
         }
     },
 
     selectPrevious () {
-        const index = selectedTodo.get( 'index' );
+        const index = selectedThing.get( 'index' );
         if ( index > 0 ) {
-            selectedTodo.set( 'index', index - 1 );
+            selectedThing.set( 'index', index - 1 );
         }
     },
 
     newTodoList () {
         // Create todo list
-        const todoLists = state.get( 'todoLists' );
-        const selectedIndex = selectedTodoList.get( 'index' );
+        const things = state.get( 'things' );
+        const selectedIndex = selectedThing.get( 'index' );
         const newTodoList = new TodoList( editStore );
 
         // TODO: finish this stuff. Considerations: order is not in the model
         // for TodoList at present.
 
         // Place just after selected todo, or at end of list if none selected
-        this.reorderTodoList( todoLists, newTodoList,
-            selectedIndex > -1 ? selectedIndex + 1 : todoLists.get( 'length' )
+        this.reorderTodoList( things, newTodoList,
+            selectedIndex > -1 ? selectedIndex + 1 : things.get( 'length' )
         );
         newTodoList.saveToStore();
 
         // Select new todo
-        selectedTodoList.set( 'record', newTodoList );
+        selectedThing.set( 'record', newTodoList );
         state.set( 'editTodoList', newTodoList );
     },
 
     newTodo () {
         // Create todo
-        const todos = state.get( 'todos' );
-        const selectedIndex = selectedTodo.get( 'index' );
+        const things = state.get( 'things' );
+        const selectedIndex = selectedThing.get( 'index' );
         const newTodo = new Todo( editStore );
 
         // Assign to the currently selected list.
@@ -56,13 +56,13 @@ const actions = {
             state.get( 'list' ).getDoppelganger( editStore ) );
 
         // Place just after selected todo, or at end of list if none selected
-        this.reorderTodo( todos, newTodo,
-            selectedIndex > -1 ? selectedIndex + 1 : todos.get( 'length' )
+        this.reorderTodo( things, newTodo,
+            selectedIndex > -1 ? selectedIndex + 1 : things.get( 'length' )
         );
         newTodo.saveToStore();
 
         // Select new todo
-        selectedTodo.set( 'record', newTodo );
+        selectedThing.set( 'record', newTodo );
         state.set( 'editTodo', newTodo );
     },
 
@@ -106,22 +106,26 @@ const actions = {
         todo.set( 'precedence', ( nextPrec + prevPrec ) >> 1 );
     },
 
+    reorderTodoList () {
+        // TODO
+    },
+
     toggleComplete () {
-        const todo = selectedTodo.get( 'record' );
+        const todo = selectedThing.get( 'record' );
         if ( todo ) {
             todo.toggle( 'isComplete' );
         }
     },
 
     edit () {
-        const todo = selectedTodo.get( 'record' );
+        const todo = selectedThing.get( 'record' );
         if ( todo ) {
             state.set( 'editTodo', todo );
         }
     },
 
     destroy () {
-        const todo = selectedTodo.get( 'record' );
+        const todo = selectedThing.get( 'record' );
         if ( todo ) {
             todo.destroy();
         }
