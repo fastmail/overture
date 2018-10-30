@@ -57,9 +57,8 @@ const RootView = Class({
         const nodeIsDocument = ( node.nodeType === 9 );
         const doc = nodeIsDocument ? node : node.ownerDocument;
         const win = doc.defaultView;
-        let events, l;
-
-        events = [
+        let l;
+        let events = [
             'click', 'mousedown', 'mouseup', 'dblclick',
             'keypress', 'keydown', 'keyup',
             'dragstart',
@@ -110,11 +109,10 @@ const RootView = Class({
 
     preventRootScroll: UA.isIOS ? function ( event ) {
         const view = event.targetView;
-        let doc, win;
         if ( !( view instanceof ScrollView ) &&
                 !view.getParent( ScrollView ) ) {
-            doc = this.layer.ownerDocument;
-            win = doc.defaultView;
+            const doc = this.layer.ownerDocument;
+            const win = doc.defaultView;
             if ( this.get( 'pxHeight' ) <= win.innerHeight &&
                     !/^(?:INPUT|TEXTAREA)$/.test(
                         doc.activeElement.nodeName ) ) {

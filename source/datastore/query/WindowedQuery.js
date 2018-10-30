@@ -404,7 +404,6 @@ const WindowedQuery = Class({
     getStoreKeysForObjectsInRange ( start, end, callback ) {
         const length = this.get( 'length' );
         let isComplete = true;
-        let windows, windowSize;
 
         if ( length !== null ) {
             if ( start < 0 ) {
@@ -414,8 +413,8 @@ const WindowedQuery = Class({
                 end = length;
             }
 
-            windows = this._windows;
-            windowSize = this.get( 'windowSize' );
+            const windows = this._windows;
+            const windowSize = this.get( 'windowSize' );
             let i = Math.floor( start / windowSize );
             const l = Math.floor( ( end - 1 ) / windowSize ) + 1;
 
@@ -569,7 +568,6 @@ const WindowedQuery = Class({
         let windowIndex = Math.floor( ( length - 1 ) / windowSize );
         // And last list index
         let listIndex = length - 1;
-        let target, status;
 
         // Convert start from list index to window index.
         start = Math.floor( start / windowSize );
@@ -582,10 +580,11 @@ const WindowedQuery = Class({
         // We always remove WINDOWS_RECORDS_READY flag, and calculate this when
         // the window is requested.
         while ( windowIndex >= start ) {
-            target = windowIndex * windowSize;
+            const target = windowIndex * windowSize;
             // Always remove WINDOWS_RECORDS_READY flag; this is recalculated
             // lazily when the window is fetched.
-            status = ( windows[ windowIndex ] || 0 ) & ~WINDOW_RECORDS_READY;
+            let status = ( windows[ windowIndex ] || 0 ) &
+                ~WINDOW_RECORDS_READY;
             // But the window might be ready, so add the WINDOW_READY flag and
             // then remove it if we find a gap in the window.
             status |= WINDOW_READY;
@@ -613,7 +612,8 @@ const WindowedQuery = Class({
         const addedStoreKeys = [];
         const addedIndexes = [];
         const added = update.added;
-        let i, j, l;
+        let i;
+        const addedLength = added.length;
 
         sortLinkedArrays( removedIndexes, removedStoreKeys );
         for ( i = 0; removedIndexes[i] === -1; i += 1 ) {
@@ -629,9 +629,9 @@ const WindowedQuery = Class({
         // But truncate at first gap.
         const truncateAtFirstGap = !!i;
 
-        for ( i = 0, l = added.length; i < l; i += 1 ) {
+        for ( i = 0; i < addedLength; i += 1 ) {
             const { index, storeKey } = added[i];
-            j = removedStoreKeys.indexOf( storeKey );
+            const j = removedStoreKeys.indexOf( storeKey );
 
             if ( j > -1 &&
                     removedIndexes[j] - j + addedIndexes.length === index ) {
@@ -670,13 +670,12 @@ const WindowedQuery = Class({
         const oldLength = this.get( 'length' );
         const newLength = args.total;
         let firstChange = oldLength;
-        let index, storeKey, listLength;
 
         // --- Remove items from list ---
 
         let l = removedLength;
         while ( l-- ) {
-            index = removedIndexes[l];
+            const index = removedIndexes[l];
             list.splice( index, 1 );
             if ( index < firstChange ) {
                 firstChange = index;
@@ -702,10 +701,10 @@ const WindowedQuery = Class({
         // If the index is past the end of the array, you can't use splice
         // (unless you set the length of the array first), so use standard
         // assignment.
-        listLength = list.length;
+        let listLength = list.length;
         for ( let i = 0, l = addedLength; i < l; i += 1 ) {
-            index = addedIndexes[i];
-            storeKey = addedStoreKeys[i];
+            const index = addedIndexes[i];
+            const storeKey = addedStoreKeys[i];
             if ( index >= listLength ) {
                 list[ index ] = storeKey;
                 listLength = index + 1;
@@ -799,21 +798,21 @@ const WindowedQuery = Class({
         const ranges = meta( this ).rangeObservers;
         const length = this.get( 'length' );
         const windowSize = this.get( 'windowSize' );
-        let observerStart, observerEnd, firstWindow, lastWindow, range, l;
         if ( ranges ) {
-            l = ranges.length;
+            let l = ranges.length;
             while ( l-- ) {
-                range = ranges[l].range;
-                observerStart = range.start || 0;
-                observerEnd = 'end' in range ? range.end : length;
+                const range = ranges[l].range;
+                let observerStart = range.start || 0;
+                let observerEnd = 'end' in range ? range.end : length;
                 if ( observerStart < 0 ) {
                     observerStart += length;
                 }
                 if ( observerEnd < 0 ) {
                     observerEnd += length;
                 }
-                firstWindow = Math.floor( observerStart / windowSize );
-                lastWindow = Math.floor( ( observerEnd - 1 ) / windowSize );
+                let firstWindow = Math.floor( observerStart / windowSize );
+                const lastWindow = Math.floor(
+                    ( observerEnd - 1 ) / windowSize );
                 for ( ; firstWindow <= lastWindow; firstWindow += 1 ) {
                     this.fetchWindow( firstWindow, true );
                 }
@@ -885,7 +884,8 @@ const WindowedQuery = Class({
         const status = this.get( 'status' );
         const preemptives = this._preemptiveUpdates;
         const preemptivesLength = preemptives.length;
-        let allPreemptives, composed;
+        let allPreemptives;
+        let composed;
 
         // We've got an update, so we're no longer in the LOADING state.
         this.set( 'status', status & ~LOADING );
@@ -956,7 +956,8 @@ const WindowedQuery = Class({
             let _indexes = [];
             let _storeKeys = [];
             let wasSuccessfulPreemptive = false;
-            let storeKey, index;
+            let storeKey;
+            let index;
 
             allPreemptives = composed[ preemptivesLength - 1 ];
             for ( let i = 0, l = removed.length; i < l; i += 1 ) {
@@ -1233,7 +1234,11 @@ const WindowedQuery = Class({
         const fetchAllObservedIds = refreshRequested &&
                 !this.get( 'canGetDeltaUpdates' );
         const prefetch = this.get( 'prefetch' );
-        let status, inUse, rPrev, iPrev, start;
+        let status;
+        let inUse;
+        let rPrev;
+        let iPrev;
+        let start;
 
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];

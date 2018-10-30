@@ -624,13 +624,13 @@ const View = Class({
     propertyNeedsRedraw: function ( _, layerProperty, oldProp ) {
         if ( this.get( 'isRendered' ) ) {
             const needsRedraw = this._needsRedraw || ( this._needsRedraw = [] );
-            let i, l;
-            for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
+            const len = needsRedraw.length;
+            for ( let i = 0; i < len; i += 1 ) {
                 if ( needsRedraw[i][0] === layerProperty ) {
                     return this;
                 }
             }
-            needsRedraw[l] = [
+            needsRedraw[ len ] = [
                 layerProperty,
                 oldProp,
             ];
@@ -654,13 +654,13 @@ const View = Class({
     */
     redraw () {
         const needsRedraw = this._needsRedraw;
-        let layer, i, l, prop;
         if ( needsRedraw && !this._suspendRedraw &&
                 !this.isDestroyed && this.get( 'isRendered' ) ) {
-            layer = this.get( 'layer' );
+            const layer = this.get( 'layer' );
             this._needsRedraw = null;
-            for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
-                prop = needsRedraw[i];
+            const len = needsRedraw.length;
+            for ( let i = 0; i < len; i += 1 ) {
+                const prop = needsRedraw[i];
                 this[ 'redraw' + prop[0].capitalise() ]( layer, prop[1] );
             }
         }
@@ -682,13 +682,13 @@ const View = Class({
         const prevView = Element.forView( this );
         let childViews = this.get( 'childViews' );
         let l = childViews.length;
-        let node, view;
 
         while ( l-- ) {
-            view = childViews[l];
+            const view = childViews[l];
             this.removeView( view );
             view.destroy();
         }
+        let node;
         while (( node = layer.lastChild )) {
             layer.removeChild( node );
         }
@@ -990,7 +990,6 @@ const View = Class({
     insertView ( view, relativeTo, where ) {
         const oldParent = view.get( 'parentView' );
         const childViews = this.get( 'childViews' );
-        let index, isInDocument, layer, parent, before;
 
         if ( oldParent === this ) {
             return this;
@@ -1007,7 +1006,7 @@ const View = Class({
         view.set( 'parentView', this );
 
         if ( relativeTo instanceof View ) {
-            index = childViews.indexOf( relativeTo );
+            let index = childViews.indexOf( relativeTo );
             index = ( index > -1 ) ?
                 where === 'before' ?
                     index :
@@ -1028,13 +1027,13 @@ const View = Class({
                     where = '';
                 }
             }
-            isInDocument = this.get( 'isInDocument' );
-            parent = ( where === 'before' || where === 'after' ) ?
+            const isInDocument = this.get( 'isInDocument' );
+            const parent = ( where === 'before' || where === 'after' ) ?
                 relativeTo.parentNode : relativeTo;
-            before = ( where === 'before' ) ? relativeTo :
+            const before = ( where === 'before' ) ? relativeTo :
                 ( where === 'top' ) ? relativeTo.firstChild :
                 ( where === 'after' ) ? relativeTo.nextSibling : null;
-            layer = view.render().get( 'layer' );
+            const layer = view.render().get( 'layer' );
             if ( isInDocument ) {
                 view.willEnterDocument();
             }
@@ -1119,15 +1118,14 @@ const View = Class({
     removeView ( view ) {
         const children = this.get( 'childViews' );
         const i = children.lastIndexOf( view );
-        let isInDocument, layer;
 
         if ( i === -1 ) {
             return this;
         }
 
         if ( this.get( 'isRendered' ) ) {
-            isInDocument = this.get( 'isInDocument' );
-            layer = view.get( 'layer' );
+            const isInDocument = this.get( 'isInDocument' );
+            const layer = view.get( 'layer' );
             if ( isInDocument ) {
                 view.willLeaveDocument();
             }
@@ -1185,7 +1183,6 @@ const View = Class({
         const aParents = [a];
         const bParents = [b];
         let parent = a;
-        let al, bl, children, l, view;
 
         while ( ( parent = parent.get( 'parentView' ) ) ) {
             if ( parent === b ) {
@@ -1201,18 +1198,18 @@ const View = Class({
             bParents.push( parent );
         }
 
-        al = aParents.length;
-        bl = bParents.length;
+        let al = aParents.length;
+        let bl = bParents.length;
         while ( al-- && bl-- ) {
             if ( ( a = aParents[ al ] ) !== ( b = bParents[ bl ] ) ) {
                 parent = aParents[ al + 1 ];
                 if ( !parent ) {
                     return POSITION_DISCONNECTED;
                 }
-                children = parent.get( 'childViews' );
-                l = children.length;
+                const children = parent.get( 'childViews' );
+                let l = children.length;
                 while ( l-- ) {
-                    view = children[l];
+                    const view = children[l];
                     if ( view === b ) {
                         return POSITION_PRECEDING;
                     }

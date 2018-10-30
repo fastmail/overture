@@ -9,10 +9,9 @@ import View from '../View';
 import Element from '../../dom/Element';
 
 const forEachView = function ( views, method, args ) {
-    let l = views ? views.length : 0,
-        view;
+    let l = views ? views.length : 0;
     while ( l-- ) {
-        view = views[l];
+        const view = views[l];
         if ( view instanceof View && !view.isDestroyed ) {
             if ( args ) {
                 view[ method ].apply( view, args );
@@ -165,7 +164,6 @@ const SwitchView = Class({
         const isInDocument = parent.get( 'isInDocument' );
         const position = this.get( 'layer' );
         const layer = position.parentNode;
-        let l, node, before;
 
         // May be a NOP, but just in case.
         parent.removeObserverForKey( 'childViews', this, '_add' );
@@ -181,16 +179,16 @@ const SwitchView = Class({
             }
         }
 
-        l = views ? views.length : 0;
+        let l = views ? views.length : 0;
         while ( l-- ) {
-            node = views[l];
+            let node = views[l];
             if ( node instanceof View ) {
                 parent.insertView( node, this, 'after' );
             } else {
                 if ( typeof node !== 'object' ) {
                     node = views[l] = document.createTextNode( node );
                 }
-                before = position.nextSibling;
+                const before = position.nextSibling;
                 if ( before ) {
                     layer.insertBefore( node, before );
                 } else {
@@ -213,15 +211,14 @@ const SwitchView = Class({
         const views = this.get( 'views' )[ oldIndex ];
         const subViews = this.get( 'subViews' )[ oldIndex ];
         const isInDocument = parent.get( 'isInDocument' );
-        let l, node, childViews, view, index, numToRemove;
 
         if ( isInDocument && subViews ) {
             forEachView( subViews, 'willLeaveDocument' );
         }
 
-        l = views ? views.length : 0;
+        let l = views ? views.length : 0;
         while ( l-- ) {
-            node = views[l];
+            const node = views[l];
             if ( node instanceof View ) {
                 parent.removeView( node );
             } else {
@@ -234,12 +231,12 @@ const SwitchView = Class({
                 forEachView( subViews, 'didLeaveDocument' );
             }
             forEachView( subViews, 'set', [ 'parentView', null ] );
-            childViews = parent.get( 'childViews' );
+            const childViews = parent.get( 'childViews' );
             l = subViews.length;
             while ( l-- ) {
-                view = subViews[l];
-                index = childViews.lastIndexOf( view );
-                numToRemove = 1;
+                const view = subViews[l];
+                let index = childViews.lastIndexOf( view );
+                let numToRemove = 1;
                 if ( index > -1 ) {
                     while ( l > 0 && index > 0 &&
                             subViews[ l - 1 ] === childViews[ index - 1 ] ) {

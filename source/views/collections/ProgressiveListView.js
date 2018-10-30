@@ -33,7 +33,6 @@ const ProgressiveListView = Class({
             const addedIndexes = event.addedIndexes;
             const rendered = this._rendered;
             let change = 0;
-            let i, l, id, view;
 
             // If we are within 3 items of the top, don't change anything.
             // The new items will push down the old so you will see the change.
@@ -41,6 +40,8 @@ const ProgressiveListView = Class({
             // hasn't changed when the new items are inserted above, so a flood
             // of items doesn't stop you from viewing a section of the list.
             if ( top > 2 ) {
+                let i;
+                let l;
                 for ( i = 0, l = removedIndexes.length; i < l; i += 1 ) {
                     if ( removedIndexes[i] < top ) {
                         change -= 1;
@@ -60,8 +61,8 @@ const ProgressiveListView = Class({
                 }
             }
             if ( change ) {
-                for ( id in rendered ) {
-                    view = rendered[ id ];
+                for ( const id in rendered ) {
+                    const view = rendered[ id ];
                     view.set( 'animateLayer', false )
                         .set( 'index', view.get( 'index' ) + change )
                         .redraw()

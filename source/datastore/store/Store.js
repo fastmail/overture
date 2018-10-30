@@ -83,14 +83,13 @@ const typeToForeignRefAttrs = {};
 const getForeignRefAttrs = function ( Type ) {
     const typeId = guid( Type );
     let foreignRefAttrs = typeToForeignRefAttrs[ typeId ];
-    let proto, attrs, attrKey, propKey, attribute;
     if ( !foreignRefAttrs ) {
-        proto = Type.prototype;
-        attrs = meta( proto ).attrs;
+        const proto = Type.prototype;
+        const attrs = meta( proto ).attrs;
         foreignRefAttrs = [];
-        for ( attrKey in attrs ) {
-            propKey = attrs[ attrKey ];
-            attribute = propKey && proto[ propKey ];
+        for ( const attrKey in attrs ) {
+            const propKey = attrs[ attrKey ];
+            const attribute = propKey && proto[ propKey ];
             if ( attribute instanceof ToOneAttribute ) {
                 foreignRefAttrs.push([ attrKey, STRING_ID, attribute.Type ]);
             }
@@ -696,13 +695,13 @@ const Store = Class({
             let data = _skToData[ storeKey ];
             const accountId = data.accountId;
             const entry = getEntry( Type, accountId );
-            let previousAccountId, create, changed;
+            let create;
 
             if ( isCopyOfStoreKey ) {
-                changed =
+                const changed =
                     getChanged( Type, data, _skToData[ isCopyOfStoreKey ] );
                 data = convertForeignKeysToId( this, Type, data );
-                previousAccountId =
+                const previousAccountId =
                     this.getAccountIdFromStoreKey( isCopyOfStoreKey );
                 create = entry.moveFromAccount[ previousAccountId ] ||
                     ( entry.moveFromAccount[ previousAccountId ] = {
@@ -2557,10 +2556,9 @@ const Store = Class({
     */
     sourceDidCommitDestroy ( storeKeys ) {
         let l = storeKeys.length;
-        let storeKey, status;
         while ( l-- ) {
-            storeKey = storeKeys[l];
-            status = this.getStatus( storeKey );
+            const storeKey = storeKeys[l];
+            const status = this.getStatus( storeKey );
 
             // If the record has been undestroyed while being committed
             // it will no longer be in the destroyed state, but instead be

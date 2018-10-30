@@ -77,7 +77,10 @@ const PopOverView = Class({
         const safeAreaInsetBottom = rootView.get( 'safeAreaInsetBottom' );
         const layout = {};
         let calloutStyle = '';
-        let aFlex, bFlex, startDistance, endDistance;
+        let aFlex;
+        let bFlex;
+        let startDistance;
+        let endDistance;
 
         this.insertView( options.view, this._popOver );
 

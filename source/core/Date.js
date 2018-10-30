@@ -394,9 +394,9 @@ Object.assign( Date.prototype, {
     format ( format, utc ) {
         const date = this;
         return format ?
-            format.replace(/%(-)?([%A-Za-z])/g,
+            format.replace( /%(-)?([%A-Za-z])/g,
                 function ( string, nopad, character ) {
-            let num, str, offset, sign, hoursOffset, minutesOffset;
+            let num;
             switch ( character ) {
             case 'a':
                 // Abbreviated day of the week, e.g. 'Mon'.
@@ -472,8 +472,9 @@ Object.assign( Date.prototype, {
                 return '\n';
             case 'p':
                 // Localised equivalent of AM or PM.
-                str = ( utc ? date.getUTCHours() : date.getHours() ) < 12 ?
-                    'am' : 'pm';
+                const str = (
+                    utc ? date.getUTCHours() : date.getHours()
+                ) < 12 ? 'am' : 'pm';
                 return i18n ?
                     i18n.get( str + 'Designator' ) : str.toUpperCase();
             case 'r':
@@ -534,11 +535,11 @@ Object.assign( Date.prototype, {
                 return utc ? date.getUTCFullYear() : date.getFullYear();
             case 'z':
                 // Timezone offset
-                offset = date.getTimezoneOffset();
-                sign = ( offset > 0 ? '-' : '+' );
+                let offset = date.getTimezoneOffset();
+                const sign = ( offset > 0 ? '-' : '+' );
                 offset = Math.abs( offset );
-                hoursOffset = ~~( offset / 60 );
-                minutesOffset = offset - ( 60 * hoursOffset );
+                const hoursOffset = ~~( offset / 60 );
+                const minutesOffset = offset - ( 60 * hoursOffset );
                 return sign +
                     '%\'02n'.format( hoursOffset ) +
                     ':%\'02n'.format( minutesOffset );

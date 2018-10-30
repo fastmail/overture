@@ -12,13 +12,12 @@ const splitTransform = function ( transform ) {
     let last = 0;
     let inFn = false;
     let inNumber = false;
-    let i, character, part;
 
-    for ( i = 0; i < l; i += 1 ) {
-        character = transform.charAt( i );
+    for ( let i = 0; i < l; i += 1 ) {
+        const character = transform.charAt( i );
         if ( ( inNumber || inFn ) &&
                 ( inNumber !== /^[.\-\d]/.test( character ) ) ) {
-            part = transform.slice( last, i );
+            const part = transform.slice( last, i );
             result.push( inNumber ? parseFloat( part ) : part );
             last = i;
             inNumber = !inNumber;
@@ -53,7 +52,6 @@ const styleAnimators = {
         calcDelta ( startValue, endValue ) {
             let start = splitTransform( startValue || '' );
             let end = splitTransform( endValue || '' );
-            let i, l;
             if ( !endValue || ( endValue === 'none' ) ) {
                 end = zeroTransform( start );
             }
@@ -64,7 +62,8 @@ const styleAnimators = {
                 start = [ startValue ];
                 end = [ endValue ];
             }
-            for ( i = 0, l = start.length; i < l; i += 1 ) {
+            const l = start.length;
+            for ( let i = 0; i < l; i += 1 ) {
                 if ( start[i] === 0 && /^[,)]/.test( start[ i + 1 ] ) ) {
                     start[ i + 1 ] = end[ i + 1 ].replace( /[,)].*/g, '' ) +
                         start[ i + 1 ];

@@ -78,7 +78,11 @@ const parentsBeforeChildren = function ( a, b ) {
 */
 
 // eslint-disable-next-line prefer-const
-let nextLoop, processTimeouts, nextFrame;
+let nextLoop;
+// eslint-disable-next-line prefer-const
+let processTimeouts;
+// eslint-disable-next-line prefer-const
+let nextFrame;
 // (Because of a false positive. TODO(cmorgan): report this as a bug in eslint.)
 
 const RunLoop = {

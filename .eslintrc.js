@@ -71,6 +71,7 @@ module.exports = {
         'no-await-in-loop': 'error',
         'no-bitwise': 'off',
         'no-caller': 'error',
+        'no-case-declarations': 'off',
         'no-catch-shadow': 'error',
         'no-compare-neg-zero': 'error',
         'no-confusing-arrow': [ 'error', { 'allowParens': true } ],
@@ -175,7 +176,7 @@ module.exports = {
             'allowMultiplePropertiesPerLine': true,
         }],
         'object-shorthand': 'error',
-        'one-var': 'off',
+        'one-var': [ 'error', 'never' ],
         'one-var-declaration-per-line': 'off',
         'operator-assignment': 'off',
         'operator-linebreak': [

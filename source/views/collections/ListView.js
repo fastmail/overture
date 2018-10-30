@@ -18,10 +18,9 @@ const addToTable = function ( array, table ) {
 
 const getNextViewIndex = function ( childViews, newRendered, fromIndex ) {
     const length = childViews.length;
-    let view, item;
     while ( fromIndex < length ) {
-        view = childViews[ fromIndex ];
-        item = view.get( 'content' );
+        const view = childViews[ fromIndex ];
+        const item = view.get( 'content' );
         if ( item && newRendered[ guid( item ) ] ) {
             break;
         }
@@ -191,7 +190,12 @@ const ListView = Class({
         const moved = new Set();
         let frag = null;
         let currentViewIndex;
-        let viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
+        let viewIsInCorrectPosition;
+        let i;
+        let l;
+        let item;
+        let id;
+        let view;
 
         // Mark views we still need
         for ( i = start, l = end; i < l; i += 1 ) {
@@ -209,7 +213,7 @@ const ListView = Class({
         for ( id in rendered ) {
             if ( !newRendered[ id ] ) {
                 view = rendered[ id ];
-                isRemoved = removed && ( item = view.get( 'content' ) ) ?
+                const isRemoved = removed && ( item = view.get( 'content' ) ) ?
                     removed[ item.get( 'storeKey' ) ] : false;
                 view.detach( isRemoved );
                 this.destroyItemView( view );
@@ -256,7 +260,7 @@ const ListView = Class({
                     continue;
                 }
             } else {
-                isAdded = added && item ?
+                const isAdded = added && item ?
                     added[ item.get( 'storeKey' ) ] : false;
                 view = this.createItemView( item, i, list, isAdded );
                 if ( !view ) {

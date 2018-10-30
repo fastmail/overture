@@ -21,7 +21,11 @@ import View from '../views/View';  // Circular but it's OK
 */
 
 // Vars used to store references to fns so they can call each other.
-let setStyle, setStyles, setAttributes, appendChildren, getPosition;
+let setStyle;
+let setStyles;
+let setAttributes;
+let appendChildren;
+let getPosition;
 
 /**
     Property (private): Element-directProperties

@@ -665,7 +665,8 @@ const Locale = Class({
         let translation = this.translations[ string ];
         let returnString = true;
         const args = [];
-        let i, l;
+        let i;
+        let l;
 
         if ( translation === undefined ) {
             translation = string;

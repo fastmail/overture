@@ -38,7 +38,7 @@ const RecordAttribute = Class({
     __setupProperty__ ( metadata, propKey, object ) {
         const constructor = object.constructor;
         let attrs = metadata.attrs;
-        let dependents, observers, dependencies, l, key, AttributeErrorsType;
+        let dependents;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
         }
@@ -57,12 +57,12 @@ const RecordAttribute = Class({
         constructor.clientSettableAttributes = null;
 
         if ( this.validate ) {
-            observers = metadata.observers;
+            const observers = metadata.observers;
             addValidityObserver( observers, propKey );
 
-            dependencies = this.validityDependencies;
+            const dependencies = this.validityDependencies;
             if ( dependencies ) {
-                AttributeErrorsType = object.AttributeErrorsType;
+                let AttributeErrorsType = object.AttributeErrorsType;
                 if ( AttributeErrorsType.forRecordType !== constructor ) {
                     AttributeErrorsType = object.AttributeErrorsType =
                         Class({
@@ -76,9 +76,9 @@ const RecordAttribute = Class({
                     metadata = meta( AttributeErrorsType.prototype );
                     dependents = metadata.dependents;
                 }
-                l = dependencies.length;
+                let l = dependencies.length;
                 while ( l-- ) {
-                    key = dependencies[l];
+                    const key = dependencies[l];
                     if ( !dependents[ key ] ) {
                         dependents[ key ] = [];
                         addValidityObserver( observers, key );
@@ -303,7 +303,7 @@ const RecordAttribute = Class({
         const data = storeKey ? store.getData( storeKey ) : record._data;
         const attrKey = this.key || propKey;
         const Type = this.Type;
-        let currentAttrValue, attrValue, update;
+        let currentAttrValue;
         if ( data ) {
             currentAttrValue = data[ attrKey ];
             if ( currentAttrValue === undefined ) {
@@ -311,19 +311,18 @@ const RecordAttribute = Class({
             }
             if ( propValue !== undefined &&
                     this.willSet( propValue, propKey, record ) ) {
-                if ( this.toJSON ) {
-                    attrValue = this.toJSON( propValue, propKey, record );
-                } else if ( propValue && propValue.toJSON ) {
-                    attrValue = propValue.toJSON();
-                } else {
-                    attrValue = propValue;
-                }
+                const attrValue =
+                    ( this.toJSON ) ?
+                        this.toJSON( propValue, propKey, record ) :
+                    ( propValue && propValue.toJSON ) ?
+                        propValue.toJSON() :
+                        propValue;
                 if ( !isEqual( attrValue, currentAttrValue ) ) {
                     // May have changed if willSet moved the account this record
                     // is in.
                     storeKey = record.get( 'storeKey' );
                     if ( storeKey ) {
-                        update = {};
+                        const update = {};
                         update[ attrKey ] = attrValue;
                         store.updateData( storeKey, update,
                             !( this.noSync || record._noSync ) );

@@ -342,7 +342,7 @@ const interpreter = {
         const hasWeekday = !!( weekday || weekday === 0 );
 
         const dayInMs = 86400000;
-        let currentMonth, isFeb29, delta;
+        let currentMonth;
 
         if ( day && hasMonth && year ) {
             if ( day > getDaysInMonth( month, year ) ) {
@@ -391,14 +391,14 @@ const interpreter = {
             // If we have a weekday constraint, iterate in the past or future
             // direction until we find a year where that matches.
             if ( hasWeekday ) {
-                isFeb29 = ( day === 29 && month === 1 );
+                const isFeb29 = ( day === 29 && month === 1 );
                 if ( isFeb29 ) {
                     while ( !isLeapYear( year ) ) {
                         year += ( searchMethod || 1 );
                     }
                     date.setFullYear( year );
                 }
-                delta = ( isFeb29 ? 4 : 1 ) * ( searchMethod || 1 );
+                const delta = ( isFeb29 ? 4 : 1 ) * ( searchMethod || 1 );
                 while ( date.getDay() !== weekday ) {
                     do {
                         year += delta;

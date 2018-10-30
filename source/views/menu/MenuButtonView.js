@@ -124,7 +124,8 @@ const MenuButtonView = Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             const buttonView = this;
-            let popOverView, menuOptionView, rootView, position;
+            let popOverView;
+            let menuOptionView;
             const popOverOptions = Object.assign({
                     view: this.get( 'menuView' ),
                     alignWithView: buttonView,
@@ -140,8 +141,8 @@ const MenuButtonView = Class({
             if ( this.get( 'isInMenu' ) ) {
                 popOverView = this.getParent( PopOverView );
                 menuOptionView = this.get( 'parentView' );
-                rootView = this.getParent( RootView );
-                position = this.get( 'layer' ).getBoundingClientRect();
+                const rootView = this.getParent( RootView );
+                const position = this.get( 'layer' ).getBoundingClientRect();
                 popOverOptions.alignWithView = popOverView;
                 popOverOptions.atNode = this.get( 'layer' );
                 popOverOptions.positionToThe =
