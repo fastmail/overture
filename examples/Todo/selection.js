@@ -1,3 +1,5 @@
+/* global O */
+
 import state from './state.js';
 
 const {
@@ -10,11 +12,11 @@ const {
    currently used in this example app) for keeping track of a multi-selection.
 */
 const selectedTodo = new SingleSelectionController({
-    content: bind( state, 'todos' )
+    content: bind( state, 'todos' ),
 });
 
 const selectedTodoList = new SingleSelectionController({
-    content: bind( state, 'todoLists' )
+    content: bind( state, 'todoLists' ),
 });
 
 export {

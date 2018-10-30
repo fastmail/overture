@@ -1,3 +1,5 @@
+/* global O */
+
 import { actions } from '../actions.js';
 import state from '../state.js';
 import { editStore } from '../models.js';
@@ -20,11 +22,11 @@ const {
 
 // We'll use these to convert dates and strings in bindings.
 
-var dateToString = function ( date ) {
+const dateToString = function ( date ) {
     return date ? O.i18n.date( date, 'date', true ) : '';
 };
 
-var dateToStringTwoWay = function ( date, syncForwards ) {
+const dateToStringTwoWay = function ( date, syncForwards ) {
     return syncForwards ?
       date === null ?
         '' :
@@ -90,7 +92,7 @@ const TodoItemView = Class({
         }
         return {
             zIndex: this.get( 'isDragging' ) ? '1' : 'auto',
-            transform: 'translate3d(0,' + y + 'px,0)'
+            transform: 'translate3d(0,' + y + 'px,0)',
         };
     }.property( 'isDragging' ),
 
@@ -111,8 +113,8 @@ const TodoItemView = Class({
 
        Note, we can append other view instances as well as DOM nodes.
     */
-    draw: function ( layer, Element, el ) {
-        var todo = this.get( 'content' );
+    draw ( layer, Element, el ) {
+        const todo = this.get( 'content' );
         return [
             new CheckboxView({
                 positioning: 'absolute',
@@ -120,7 +122,7 @@ const TodoItemView = Class({
                    keep the checkbox in sync with the todo state, but also allow
                    you to use the checkbox to update the todo.
                 */
-                value: bindTwoWay( todo, 'isComplete' )
+                value: bindTwoWay( todo, 'isComplete' ),
             }),
             /* Element.when is a shortcut for creating an O.SwitchView
                instance; essentially a live-updating if/else.
@@ -133,14 +135,14 @@ const TodoItemView = Class({
                             if ( this.get( 'isInDocument' ) ) {
                                 this.focus();
                             }
-                        }.observes( 'isInDocument' )
-                    })
+                        }.observes( 'isInDocument' ),
+                    }),
                 ]),
                 el( 'div.v-Todo-date', [
                     new TextView({
                         value: bindTwoWay( todo, 'dueBy', dateToStringTwoWay ),
                         inputType: 'date',
-                    })
+                    }),
                 ]),
             ]).otherwise([
                 el( 'div.v-Todo-summary', {
@@ -148,11 +150,11 @@ const TodoItemView = Class({
                        special case to save you having to write textContent
                        every time)
                     */
-                    text: bind( todo, 'summary' )
+                    text: bind( todo, 'summary' ),
                 }),
                 el( 'div.v-Todo-date', {
-                    text: bind( todo, 'dueBy', dateToString )
-                })
+                    text: bind( todo, 'dueBy', dateToString ),
+                }),
             ]).end(),
 
         ];
@@ -184,7 +186,7 @@ const TodoItemView = Class({
 
     stopEditing: function ( event ) {
         if ( this.get( 'isEditing' ) ) {
-            var key = lookupKey( event );
+            const key = lookupKey( event );
             if ( key === 'Enter' || key === 'Escape' ) {
                 state.set( 'editTodo', null );
                 event.stopPropagation();
@@ -198,8 +200,8 @@ const TodoItemView = Class({
        instances of TodoItemView (we don't want to animate this one, as it's
        going to track the cursor).
     */
-    dragStarted: function ( drag ) {
-        var itemHeight = this.get( 'itemHeight' );
+    dragStarted ( drag ) {
+        const itemHeight = this.get( 'itemHeight' );
         drag.startY = this.get( 'index' ) * itemHeight;
         drag.maxY = ( this.getFromPath( 'list.length' ) - 1 ) * itemHeight;
         this.animateLayer = false;
@@ -211,13 +213,13 @@ const TodoItemView = Class({
        store. This will automatically update any affected views, and because
        animation is enabled, they will animate to their new positions.
     */
-    dragMoved: function ( drag ) {
-        var cursorPosition = drag.get( 'cursorPosition' ),
-            startPosition = drag.get( 'startPosition' ),
-            y = Math.max( 0, Math.min( drag.maxY,
-                    drag.startY + ( cursorPosition.y - startPosition.y ) ) ),
-            currentIndex = this.get( 'index' ),
-            newIndex = Math.round( y / this.get( 'itemHeight' ) );
+    dragMoved ( drag ) {
+        const cursorPosition = drag.get( 'cursorPosition' );
+        const startPosition = drag.get( 'startPosition' );
+        const y = Math.max( 0, Math.min( drag.maxY,
+            drag.startY + ( cursorPosition.y - startPosition.y ) ) );
+        const currentIndex = this.get( 'index' );
+        const newIndex = Math.round( y / this.get( 'itemHeight' ) );
         if ( newIndex !== currentIndex ) {
             actions.reorderTodo(
                 this.get( 'list' ), this.get( 'content' ), newIndex
@@ -227,11 +229,11 @@ const TodoItemView = Class({
     },
 
     /* Cleanup on drag end */
-    dragEnded: function () {
+    dragEnded () {
         delete this.animateLayer;
         TodoItemView.prototype.animateLayer = false;
         editStore.commitChanges();
-    }
+    },
 });
 
 // --- Exports

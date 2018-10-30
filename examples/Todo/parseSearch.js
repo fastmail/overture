@@ -1,3 +1,5 @@
+/* global O */
+
 const {
     Class,
     Parse,
@@ -6,48 +8,48 @@ const {
 
 // --- Search Grammar ---
 
-var bool = define( 'bool', (/^(?:is:(?:not)?done)\b/) ),
-    op = define( 'op', (/^(?:AND|OR|NOT)/) ),
-    word = define( 'word', (/^(?:[^\s\(\)\\]|\\.)+/) ),
-    phrase = firstMatch([
-        sequence([
-            define( 'begin:phrase', (/^"/) ),
-            define( 'phrase', (/^(?:[^"\\]|\\.)*/) ),
-            define( 'end:phrase', (/^"/) )
-        ]),
-        sequence([
-            define( 'begin:phrase', (/^'/) ),
-            define( 'phrase', (/^(?:[^'\\]|\\.)*/) ),
-            define( 'end:phrase', (/^'/) )
-        ])
+const bool = define( 'bool', (/^(?:is:(?:not)?done)\b/) );
+const op = define( 'op', (/^(?:AND|OR|NOT)/) );
+const word = define( 'word', (/^(?:[^\s()\\]|\\.)+/) );
+const phrase = firstMatch([
+    sequence([
+        define( 'begin:phrase', (/^"/) ),
+        define( 'phrase', (/^(?:[^"\\]|\\.)*/) ),
+        define( 'end:phrase', (/^"/) ),
     ]),
-    groupPatterns,
-    group = sequence( groupPatterns = [
-        define( 'begin:group', (/^\(/) ),
-        null, // Recursive; filled in below.
-        define( 'end:group', (/^\)/) )
+    sequence([
+        define( 'begin:phrase', (/^'/) ),
+        define( 'phrase', (/^(?:[^'\\]|\\.)*/) ),
+        define( 'end:phrase', (/^'/) ),
     ]),
-    searchTerm = firstMatch([
-        bool,
-        op,
-        phrase,
-        group,
-        word
-    ]),
-    whitespace = define( 'whitespace', (/^\s+/) ),
-    parseSearch = groupPatterns[1] = sequence([
-        optional( whitespace ),
-        searchTerm,
-        repeat( sequence([ whitespace, searchTerm ]), 0 ),
-        optional( whitespace )
-    ]);
+]);
+const groupPatterns = [
+    define( 'begin:group', (/^\(/) ),
+    null, // Recursive; filled in below.
+    define( 'end:group', (/^\)/) ),
+];
+const group = sequence( groupPatterns );
+const searchTerm = firstMatch([
+    bool,
+    op,
+    phrase,
+    group,
+    word,
+]);
+const whitespace = define( 'whitespace', (/^\s+/) );
+const parseSearch = groupPatterns[1] = sequence([
+    optional( whitespace ),
+    searchTerm,
+    repeat( sequence([ whitespace, searchTerm ]), 0 ),
+    optional( whitespace ),
+]);
 
 // --- Parse tree ---
 
-var normaliseBinaryOp = function ( type, children, newChildren ) {
-    var i, l, node;
-    for ( i = 0, l = children.length; i < l; i += 1 ) {
-        node = children[i].normalise();
+const normaliseBinaryOp = function ( type, children, newChildren ) {
+    const len = children.length;
+    for ( let i = 0; i < len; i += 1 ) {
+        const node = children[i].normalise();
         if ( !node ) {
             continue;
         }
@@ -60,52 +62,45 @@ var normaliseBinaryOp = function ( type, children, newChildren ) {
     return newChildren;
 };
 
-var SearchTreeNode = Class({
+const SearchTreeNode = Class({
 
-    init: function ( type, value, children ) {
+    init ( type, value, children ) {
         this.type = type;
         this.value = value;
         this.children = children || null;
     },
 
-    normalise: function () {
-        var node = this,
-            children = node.children,
-            type = node.type,
-            isBinaryOperator = false,
-            child;
+    normalise () {
+        let node = this;
+        let children = node.children;
         if ( children ) {
-            isBinaryOperator = ( type === 'AND' || type === 'OR' );
+            const type = node.type;
+            const isBinaryOperator = ( type === 'AND' || type === 'OR' );
             if ( isBinaryOperator ) {
                 children = node.children =
                     normaliseBinaryOp( type, children, [] );
             }
             if ( !children.length ) {
                 node = null;
-            }
-            else if ( !isBinaryOperator ) {
-                child = children[0] = children[0].normalise();
+            } else if ( !isBinaryOperator ) {
+                const child = children[0] = children[0].normalise();
                 if ( type === 'NOT' ) {
                     if ( child.type === 'NOT' ) {
                         node = child.children[0];
-                    }
-                    else if ( typeof child.value === 'boolean' ) {
+                    } else if ( typeof child.value === 'boolean' ) {
                         node = child;
                         node.value = !node.value;
                     }
                 }
-            }
-            else if ( children.length === 1 ) {
+            } else if ( children.length === 1 ) {
                 node = children[0].normalise();
             }
         }
         return node;
     },
 
-    toFunctionString: function () {
-        var type = this.type,
-            value = this.value,
-            children = this.children;
+    toFunctionString () {
+        const { type, value, children } = this;
         switch ( type ) {
         case 'isComplete':
             return ( value ? '' : '!' ) + 'data.isComplete';
@@ -123,19 +118,21 @@ var SearchTreeNode = Class({
             }).join( '&&' ) + ')';
         }
         return '';
-    }
+    },
 });
 
 SearchTreeNode.fromTokens = function ( tokens ) {
-    var parents = [],
-        parent = new SearchTreeNode( 'AND', null, [] ),
-        type, value, nextTerms,
-        i, l, token, string, children;
-    for ( i = 0, l = tokens.length; i < l; i += 1 ) {
-        token = tokens[i];
-        string = token[1];
-        children = nextTerms || parent.children;
+    const len = tokens.length;
+    const parents = [];
+    let parent = new SearchTreeNode( 'AND', null, [] );
+    let nextTerms;
+    for ( let i = 0; i < len; i += 1 ) {
+        const token = tokens[i];
+        const string = token[1];
+        const children = nextTerms || parent.children;
         nextTerms = null;
+        let type;
+        let value;
         switch ( token[0] ) {
         case 'bool':
             type = 'isComplete';
@@ -177,7 +174,7 @@ SearchTreeNode.fromTokens = function ( tokens ) {
 };
 
 export default function ( string ) {
-    var parse = new Parse( string.trim() );
+    const parse = new Parse( string.trim() );
     parseSearch( parse );
     return SearchTreeNode.fromTokens( parse.tokens ).normalise();
-};
+}

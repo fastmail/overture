@@ -1,3 +1,5 @@
+/* global O */
+
 import { editStore, TodoList, Todo } from './models.js';
 import parseSearch from './parseSearch.js';
 
@@ -31,29 +33,26 @@ const state = new Router({
        data in the store changes.
     */
     todos: function () {
-        var listId = this.get( 'listId' ),
-            searchTree = parseSearch( this.get( 'search' ) ),
-            filter;
+        const listId = this.get( 'listId' );
 
         if ( !listId ) {
             return null;
         }
 
-        listId = editStore.getStoreKey( null, TodoList, listId );
+        const listSK = editStore.getStoreKey( null, TodoList, listId );
 
-        filter = new Function( 'data', 'return' +
-            '(data.listId==="' + listId.replace( /"/g, '\\"') + '")' +
-            ( searchTree ? '&&' + searchTree.toFunctionString() : '' )
-        );
-
+        const searchTree = parseSearch( this.get( 'search' ) );
         return new LocalQuery({
             store: editStore,
             Type: Todo,
-            sort: function ( a, b ) {
+            sort ( a, b ) {
                 return ( a.precedence - b.precedence ) ||
                     ( a.id < b.id ? -1 : a.id > b.id ? 1 : 0 );
             },
-            where: filter
+            where: new Function( 'data', 'return' +
+                '(data.listId==="' + listSK.replace( /"/g, '\\"' ) + '")' +
+                ( searchTree ? '&&' + searchTree.toFunctionString() : '' )
+            ),
         });
     }.property( 'listId', 'search' ),
 
@@ -102,7 +101,7 @@ const state = new Router({
     */
     commitChanges: function ( _, __, oldTodo ) {
         if ( oldTodo !== null ) {
-            var status = oldTodo.get( 'status' );
+            const status = oldTodo.get( 'status' );
             if ( !oldTodo.get( 'summary' ) ) {
                 if ( status & NEW ) {
                     oldTodo.destroy();
@@ -121,8 +120,8 @@ const state = new Router({
     /* The title of our page (as displayed in the browser window/tab).
     */
     title: function () {
-        var appName = 'Overture Todo Example';
-        var listName = this.getFromPath( 'list.name' );
+        const appName = 'Overture Todo Example';
+        const listName = this.getFromPath( 'list.name' );
         return listName ? listName + ' – ' + appName : appName;
     }.property( 'list' ),
 
@@ -136,7 +135,7 @@ const state = new Router({
        selected TodoList, but I've decided not to encode any search in the URL.
     */
     encodedState: function () {
-        var listId = this.get( 'listId' );
+        const listId = this.get( 'listId' );
         if ( listId ) {
             return listId + '/';
         } else {
@@ -153,27 +152,27 @@ const state = new Router({
     routes: [
         {
             url: /^$/,
-            handle: function () {
+            handle () {
                 this.set( 'listId', null );
-            }
+            },
         },
         {
             url: /^(.*?)\/$/,
-            handle: function ( _, listId ) {
+            handle ( _, listId ) {
                 this.set( 'listId', listId );
-            }
+            },
         },
         // Fallback route; if the user comes in via a nonsense URL, just
         // go to our default view.
         {
             url: /.*/,
-            handle: function () {
+            handle () {
                 /* Don't keep the old state in history */
                 this.set( 'replaceState', true );
                 this.set( 'listId', null );
-            }
-        }
-    ]
+            },
+        },
+    ],
 });
 
 // --- Exports

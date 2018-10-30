@@ -22,6 +22,8 @@
     sadly.
 */
 
+/* global O */
+
 import state from './state.js';
 import { appView, todoListsView } from './views/poorlyNamedModule.js';
 import mainWindow from './views/root.js';

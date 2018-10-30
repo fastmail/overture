@@ -1,3 +1,5 @@
+/* global O */
+
 import { appView } from './poorlyNamedModule.js';
 import state from '../state.js';
 import { selectedTodo } from '../selection.js';
@@ -14,5 +16,5 @@ export default new RootView( document, {
             state.set( 'editTodo', null );
             selectedTodo.set( 'record', null );
         }
-    }.on( 'click' )
+    }.on( 'click' ),
 });

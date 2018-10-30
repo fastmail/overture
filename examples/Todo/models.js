@@ -1,3 +1,5 @@
+/* global O */
+
 import { Connection, auth } from './Connection.js';
 
 const { loc, Class, NestedStore, Record, Status, Store, StoreUndoManager } = O;
@@ -10,7 +12,8 @@ const TODO_SPEC_URI = 'http://overturejs.com/examples/Todo';
 
 /*  The source is the connection from the store to the server for fetching
     and modifying records. The JMAP.Connection class automatically uses the
-    JSON API format used in the [JMAP](http://jmap.io) spec for communicating with the server, but you could also easily build one to use HTTP REST, or
+    JSON API format used in the [JMAP](http://jmap.io) spec for communicating
+    with the server, but you could also easily build one to use HTTP REST, or
     even a local IndexDB database.
 
     There's no backend implemented for this little todo demo, so I've faked one
@@ -26,16 +29,16 @@ const TODO_SPEC_URI = 'http://overturejs.com/examples/Todo';
 // object in the HTML somewhere, to remove the need for another request before
 // you can get started. But for this simple demonstration, it is sufficient
 // (just barely!) to fetch it synchronously:
-var xhr = new XMLHttpRequest();
+const xhr = new XMLHttpRequest();
 xhr.open( 'GET', '/.well-known/jmap', false );
 xhr.setRequestHeader('Content-type', 'application/json');
 xhr.setRequestHeader('Accept', 'application/json');
 xhr.send();
-var sessionObject = JSON.parse( xhr.responseText );
+const sessionObject = JSON.parse( xhr.responseText );
 // auth is stubbed, and we only need apiUrl (here) and the accounts (below)
 auth.set( 'apiUrl', sessionObject.apiUrl );
 
-var source = new Connection();
+const source = new Connection();
 /*  The store instance stores the locally cached copies of the different
     records in the model. It keeps track of what has changed compared to the
     copy received from the source, and can then send those changes to the source
@@ -53,16 +56,15 @@ var source = new Connection();
     copy-on-write view of the original store. This allows you to edit stuff
     and commit it back independently; I've kept it simpler here.
 */
-var store = new Store({
-    source: source,
+const store = new Store({
+    source,
 });
 
-var editStore = new NestedStore( store );
+const editStore = new NestedStore( store );
 
-var accounts = sessionObject.accounts;
-for ( var accountId in accounts ) {
+const accounts = sessionObject.accounts;
+for ( const accountId in accounts ) {
     if ( Object.prototype.hasOwnProperty.call( accounts, accountId ) ) {
-        var account = accounts[ accountId ];
         store.addAccount( accountId, {
             isDefault: true,
             hasDataFor: accounts[ accountId ].hasDataFor,
@@ -76,10 +78,13 @@ for ( var accountId in accounts ) {
 */
 const undoManager = new StoreUndoManager({
     store: editStore,
-    maxUndoCount: 10
+    maxUndoCount: 10,
 });
 
 // ---
+
+const REQUIRED = 'Required';
+const TOO_LONG = 'Too long: use at most [*2,_1,%n character,%n characters].';
 
 /*
     A TodoList is simply a name for a collection of todos. All todos belong
@@ -88,23 +93,22 @@ const undoManager = new StoreUndoManager({
     I ran out of time to build support into the UI for multiple todo lists;
     pull requests welcome!
 */
-var TodoList = Class({
+const TodoList = Class({
 
     Extends: Record,
 
     name: Record.attr( String, {
         defaultValue: '',
-        validate: function ( propValue/*, propKey, record*/ ) {
-            var error = '';
+        validate ( propValue/*, propKey, record*/ ) {
+            let error = '';
             if ( !propValue ) {
-                error = loc( 'Required' );
-            }
-            else if ( propValue.length > 25 ) {
-                error = loc( 'Too long: use at most [*2,_1,%n character,%n characters].', 25 );
+                error = loc( REQUIRED );
+            } else if ( propValue.length > 25 ) {
+                error = loc( TOO_LONG, 25 );
             }
             return error;
-        }
-    })
+        },
+    }),
 });
 TodoList.dataGroup = TODO_SPEC_URI;
 
@@ -117,12 +121,12 @@ source.handle( TodoList, {
     fetch: 'TodoList',
     commit: 'TodoList',
     // Response handlers
-    'TodoList/get': function ( args, _reqName, reqArgs ) {
+    'TodoList/get' ( args, _reqName, reqArgs ) {
         this.didFetch( TodoList, args, reqArgs.ids === null );
     },
-    'TodoList/set': function ( args ) {
+    'TodoList/set' ( args ) {
         this.didCommit( TodoList, args );
-    }
+    },
 });
 
 /* We have brought this in from jmap-js for persisting Date objects into
@@ -155,41 +159,41 @@ const toUTCJSON = function ( date ) {
 
 // ---
 
-var Todo = Class({
+const Todo = Class({
 
     Extends: Record,
 
     list: Record.toOne({
         Type: TodoList,
-        key: 'listId'
+        key: 'listId',
     }),
 
     precedence: Record.attr( Number, {
         isNullable: false,
-        defaultValue: 0
+        defaultValue: 0,
     }),
 
     isComplete: Record.attr( Boolean, {
         isNullable: false,
-        defaultValue: false
+        defaultValue: false,
     }),
 
     summary: Record.attr( String, {
         isNullable: false,
-        defaultValue: ''
+        defaultValue: '',
     }),
 
     dueBy: Record.attr( Date, {
         isNullable: true,
         toJSON: toUTCJSON,
-        defaultValue: null
+        defaultValue: null,
     }),
 
     autoCommitIsComplete: function () {
         if ( !( this.get( 'status' ) & Status.NEW ) ) {
             editStore.commitChanges();
         }
-    }.observes( 'isComplete' )
+    }.observes( 'isComplete' ),
 });
 Todo.dataGroup = TODO_SPEC_URI;
 
@@ -198,12 +202,12 @@ source.handle( Todo, {
     fetch: 'Todo',
     commit: 'Todo',
     // Response handlers
-    'Todo/get': function ( args, _reqName, reqArgs ) {
+    'Todo/get' ( args, _reqName, reqArgs ) {
         this.didFetch( Todo, args, reqArgs.ids === null );
     },
-    'Todo/set': function ( args ) {
+    'Todo/set' ( args ) {
         this.didCommit( Todo, args );
-    }
+    },
 });
 
 // --- Exports

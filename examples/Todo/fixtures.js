@@ -1,15 +1,14 @@
 /*global console, setTimeout, clearTimeout, window */
-"use strict";
+
 
 ( function () {
-
-var confirmCommit = function ( args ) {
-    var result = {};
+const confirmCommit = function ( args ) {
+    const result = {};
     if ( args.create ) {
         result.created = Object.zip(
             Object.keys( args.create ),
             Object.keys( args.create ).map( function ( id ) {
-                return { id: id };
+                return { id };
             })
         );
     }
@@ -27,23 +26,23 @@ var confirmCommit = function ( args ) {
     return result;
 };
 
-var API = {
-    'TodoList/get' ( results, args ) {
+const API = {
+    'TodoList/get' ( results/*, args*/ ) {
         results.push([ 'TodoList/get', {
             state: 'foo',
             list: [{
                 id: 'inbox',
-                name: 'Inbox'
+                name: 'Inbox',
             }, {
                 id: 'someday',
-                name: 'Someday'
-            }]
+                name: 'Someday',
+            }],
         }]);
     },
     'TodoList/set' ( results, args ) {
         results.push([ 'TodoList/set', confirmCommit( args ) ]);
     },
-    'Todo/get': function ( results/*, args*/ ) {
+    'Todo/get' ( results/*, args*/ ) {
         results.push([ 'Todo/get', {
             state: 'foo',
             list: [{
@@ -52,7 +51,7 @@ var API = {
                 precedence: 32,
                 summary: 'Open OvertureJS Todo demo app',
                 isComplete: true,
-                dueBy: null
+                dueBy: null,
             }, {
                 id: 't2',
                 listId: 'inbox',
@@ -66,7 +65,7 @@ var API = {
                 precedence: 96,
                 summary: 'Up/down or j/k to change focus',
                 isComplete: false,
-                dueBy: null
+                dueBy: null,
             }, {
                 id: 't4',
                 listId: 'inbox',
@@ -80,14 +79,14 @@ var API = {
                 precedence: 128,
                 summary: 'Hit enter to create a new todo',
                 isComplete: false,
-                dueBy: null
+                dueBy: null,
             }, {
                 id: 't6',
                 listId: 'inbox',
                 precedence: 128,
                 summary: 'Hit space to toggle isComplete',
                 isComplete: false,
-                dueBy: null
+                dueBy: null,
             }, {
 
                 id: 't7',
@@ -95,8 +94,8 @@ var API = {
                 precedence: 160,
                 summary: 'Cmd-Z for undo, Cmd-Shift-Z for redo',
                 isComplete: false,
-                dueBy: null
-            }]
+                dueBy: null,
+            }],
         }]);
     },
     'Todo/set' ( results, args ) {
@@ -106,7 +105,7 @@ var API = {
 
 // ---
 
-function evaluatePointer ( value, pointer ) {
+const evaluatePointer = function ( value, pointer ) {
     if ( !pointer ) {
         return value;
     }
@@ -114,7 +113,7 @@ function evaluatePointer ( value, pointer ) {
         throw new Error( 'Invalid pointer' );
     }
     let token;
-    let next = pointer.indexOf( '/', 1 );
+    const next = pointer.indexOf( '/', 1 );
     if ( next !== -1 ) {
         token = pointer.slice( 1, next );
         pointer = pointer.slice( next );
@@ -144,16 +143,14 @@ function evaluatePointer ( value, pointer ) {
         return evaluatePointer( value[ token ], pointer );
     }
     throw new Error( 'Evaluation failed' );
-}
+};
 
-var resolveBackRefs = function ( args, results ) {
-    for ( var property in args ) {
+const resolveBackRefs = function ( args, results ) {
+    for ( const property in args ) {
         if ( property.charAt( 0 ) === '#' ) {
-            var resultOf = args[ property ].resultOf;
-            var path = args[ property ].path;
-            var result = results.find( function ( result ) {
-                return result[2] === resultOf;
-            });
+            const resultOf = args[ property ].resultOf;
+            const path = args[ property ].path;
+            const result = results.find( result => result[2] === resultOf );
             args[ property.slice( 1 ) ] = result ?
                 evaluatePointer( result[1], path ) :
                 [];
@@ -164,7 +161,7 @@ var resolveBackRefs = function ( args, results ) {
 
 // ---
 
-var XMLHttpRequest = function () {
+const XMLHttpRequest = function () {
     this.readyState = 0;
     this.status = 0;
     this.statusText = '';
@@ -183,51 +180,54 @@ XMLHttpRequest.prototype.setRequestHeader = function (/* name, value */) {
 XMLHttpRequest.prototype.send = function ( data ) {
     if ( this._url === '/.well-known/jmap' ) {
         this.responseText = JSON.stringify({
-            "username": "",
-            "accounts": {
-                "ACCOUNT ID": {
-                    "name": "",
-                    "isPersonal": false,
-                    "isReadOnly": false,
-                    "hasDataFor": [
-                        "http://overturejs.com/examples/Todo"
-                    ]
-                }
+            'username': '',
+            'accounts': {
+                'ACCOUNT ID': {
+                    'name': '',
+                    'isPersonal': false,
+                    'isReadOnly': false,
+                    'hasDataFor': [
+                        'http://overturejs.com/examples/Todo',
+                    ],
+                },
             },
-            "primaryAccounts": {
-                "http://overturejs.com/examples/Todo": "ACCOUNT ID"
+            'primaryAccounts': {
+                'http://overturejs.com/examples/Todo': 'ACCOUNT ID',
             },
-            "capabilities": {
-                "http://overturejs.com/examples/Todo": {},
-                "urn:ietf:params:jmap:core": {
-                    "maxSizeUpload": 0,
-                    "maxConcurrentUpload": 10,
-                    "maxSizeRequest": 10000000,
-                    "maxConcurrentRequests": 10,
-                    "maxCallsInRequest": 64,
-                    "maxObjectsInGet": 1000,
-                    "maxObjectsInSet": 1000,
-                    "collationAlgorithms": [
-                        "i;ascii-numeric",
-                        "i;ascii-casemap",
-                        "i;octet"
-                    ]
-                }
+            'capabilities': {
+                'http://overturejs.com/examples/Todo': {},
+                'urn:ietf:params:jmap:core': {
+                    'maxSizeUpload': 0,
+                    'maxConcurrentUpload': 10,
+                    'maxSizeRequest': 10000000,
+                    'maxConcurrentRequests': 10,
+                    'maxCallsInRequest': 64,
+                    'maxObjectsInGet': 1000,
+                    'maxObjectsInSet': 1000,
+                    'collationAlgorithms': [
+                        'i;ascii-numeric',
+                        'i;ascii-casemap',
+                        'i;octet',
+                    ],
+                },
             },
-            "apiUrl": "/jmap/api/",
-            "downloadUrl": "/jmap/download/{accountId}/{blobId}/{name}?accept={type}",
-            "uploadUrl": "/jmap/upload/{accountId}/",
-            "eventSourceUrl": "/jmap/event/",
-            "state": ""
+            'apiUrl': '/jmap/api/',
+            'downloadUrl':
+                '/jmap/download/{accountId}/{blobId}/{name}?accept={type}',
+            'uploadUrl': '/jmap/upload/{accountId}/',
+            'eventSourceUrl': '/jmap/event/',
+            'state': '',
         });
         return;
     }
-    if ( data !== null ) { console.log( this._method, this._url, data ); }
+    if ( data !== null ) {
+ console.log( this._method, this._url, data );
+}
     if ( this._url === '/log/error/' ) {
         console.log( data );
         return;
     }
-    var that = this;
+    const that = this;
     this._request = setTimeout( function () {
         that._returnResultForData( data );
     }, ~~( Math.random() * 500 ) + 200 );
@@ -242,27 +242,31 @@ XMLHttpRequest.prototype.getResponseHeader = function ( name ) {
     }
 };
 XMLHttpRequest.prototype.getAllResponseHeaders = function () {
-    return "IsLocal: True";
+    return 'IsLocal: True';
 };
 XMLHttpRequest.prototype._returnResultForData = function ( data ) {
     this.readyState = 4;
-    var methods = [];
+    let methods = [];
     try {
         methods = JSON.parse( data ).methodCalls || [];
     } catch ( error ) {}
-    var result = [];
-    var k = 0, kk;
-    for ( var i = 0, l = methods.length; i < l; i += 1 ) {
-        var call = methods[i];
-        var method = call[0];
-        var args = call[1];
-        var tag = call[2];
-        var accountId = args.accountId;
+    const result = [];
+    const methodsLength = methods.length;
+    let k = 0;
+    for ( let i = 0; i < methodsLength; i += 1 ) {
+        const call = methods[i];
+        const method = call[0];
+        let args = call[1];
+        const tag = call[2];
+        const accountId = args.accountId;
 
         args = resolveBackRefs( args, result );
-        API[ method ] && API[ method ]( result, args );
+        if ( API[ method ] ) {
+            API[ method ]( result, args );
+        }
 
-        for ( kk = result.length; k < kk; k += 1 ) {
+        const resultLength = result.length;
+        for ( ; k < resultLength; k += 1 ) {
             result[k][1].accountId = accountId;
             result[k][2] = tag;
         }
@@ -276,5 +280,4 @@ XMLHttpRequest.prototype._returnResultForData = function ( data ) {
 };
 
 window.XMLHttpRequest = XMLHttpRequest;
-
 }() );

@@ -1,4 +1,5 @@
 /* Connection.js from https://github.com/jmapio/jmap-js with this added auth stub, and ES6 module formatting – MIT Licensed */
+/* global O */
 
 const auth = new O.Object({
     capabilities: {},
