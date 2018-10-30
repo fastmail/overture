@@ -142,7 +142,7 @@ const TodoListItemView = Class({
     }.on( 'click' ),
 
     open: function ( event ) {
-        this.stopEditing();
+        state.set( 'editTodoList', null );
         state.set( 'listId', this.getFromPath( 'content.id' ) );
 
         event.stopPropagation();
