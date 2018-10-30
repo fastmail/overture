@@ -133,7 +133,6 @@ const TodoListItemView = Class({
             state.set( 'editTodoList', null );
             selectedThing.set( 'record', this.get( 'content' ) );
         } else if ( !this.get( 'isEditing' ) ) {
-            selectedThing.set( 'record', this.get( 'content' ) );
             actions.edit();
         }
         /* Stop propagation so the click handler on the root view isn't

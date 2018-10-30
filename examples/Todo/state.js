@@ -123,6 +123,18 @@ const state = new Router({
 
     editTodoList: null,
 
+    editThing: function ( value ) {
+        const prop = ( this.get( 'listId' ) === null ) ?
+            'editTodoList' :
+            'editTodo';
+
+        if ( value === undefined ) {
+            return this.get( prop );
+        } else {
+            return this.set( prop, value );
+        }
+    }.property( 'editTodo', 'editTodoList' ),
+
     /* When we finish editing a todo, commit the changes back to the source
        (this automatically records an Undo checkpoint as well).
     */

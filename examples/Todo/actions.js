@@ -118,9 +118,9 @@ const actions = {
     },
 
     edit () {
-        const todo = selectedThing.get( 'record' );
-        if ( todo ) {
-            state.set( 'editTodo', todo );
+        const thing = selectedThing.get( 'record' );
+        if ( thing ) {
+            state.set( 'editThing', thing );
         }
     },
 
