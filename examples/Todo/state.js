@@ -1,4 +1,4 @@
-/* global O */
+/* global O, useDummyData */
 
 import { editStore, TodoList, Todo } from './models.js';
 import parseSearch from './parseSearch.js';
@@ -127,6 +127,7 @@ const state = new Router({
 
     // URL routing (state encoding/decoding)
 
+    useHash: useDummyData,
     /* To use HTML5 URL rewriting, the router needs to know where the app is
        located relative to the root of the domain. */
     baseUrl: '/examples/Todo/',

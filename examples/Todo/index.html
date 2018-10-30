@@ -4,7 +4,16 @@
 <meta charset="utf-8">
 <title>Overture Todo Example App</title>
 <script>
-    if ( location.protocol !== 'file:' ) {
+	// Usage:
+
+	// With the dummy data, either on file: (may not work in all browsers) or http: with something like `python -m http.server` from the repository root:
+	// • file:///path/to/overture/examples/Todo/index.html
+	// • http://127.0.0.1:8000/examples/Todo/index.html
+
+	// With the TodoServer, exclude index.html:
+	// • http://127.0.0.1:5000/examples/Todo/
+	const useDummyData = location.href.includes( 'index.html' );
+    if ( !useDummyData ) {
         // On file:, we use the hash to store the route, but elsewhere we use the path, and so the CSS, PNG and JS refs need this.
         document.write( '<base href="/examples/Todo/">' );
     }
@@ -121,8 +130,7 @@ html {
 </head>
 <body>
 <script>
-    // On HTTP assume a real JMAP backend, but on file:, use a dummy backend.
-    if ( location.protocol === 'file:' ) {
+    if ( useDummyData ) {
         document.write( '<script src="fixtures.js"><' + '/script>' );
     }
 </script>
