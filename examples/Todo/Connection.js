@@ -1,21 +1,15 @@
-/* Connection.js from https://github.com/jmapio/jmap-js with this added JMAP.auth stub – MIT Licensed */
+/* Connection.js from https://github.com/jmapio/jmap-js with this added auth stub, and ES6 module formatting – MIT Licensed */
 
-window.JMAP = {
-    auth: new O.Object({
-        capabilities: {},
-        apiUrl: '',
-        didLoseAuthentication () { return this; },
-        connectionWillSend () { return true; },
-        connectionSucceeded () { },
-        connectionFailed () { },
-    }),
-};
+const auth = new O.Object({
+    capabilities: {},
+    apiUrl: '',
+    didLoseAuthentication () { return this; },
+    connectionWillSend () { return true; },
+    connectionSucceeded () { },
+    connectionFailed () { },
+});
 
-/*global O, JMAP, JSON, console, alert */
-
-'use strict';
-
-( function ( JMAP, undefined ) {
+/*global O, JSON, console, alert */
 
 const isEqual = O.isEqual;
 const loc = O.loc;
@@ -24,8 +18,6 @@ const Class = O.Class;
 const RunLoop = O.RunLoop;
 const HttpRequest = O.HttpRequest;
 const Source = O.Source;
-
-const auth = JMAP.auth;
 
 // ---
 
@@ -1149,6 +1141,9 @@ Connection.makeSetRequest = makeSetRequest;
 Connection.makePatches = makePatches;
 Connection.applyPatch = applyPatch;
 
-JMAP.Connection = Connection;
+// --- Suffix not from jmap-js, to squeeze it into ES6 module shape:
 
-}( JMAP ) );
+export {
+    Connection,
+    auth,
+};
