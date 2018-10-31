@@ -24,21 +24,42 @@
 
 /* global O */
 
+import todosView from './views/todosView.js';
+import todoListsView from './views/todoListsView.js';
 import state from './state.js';
-import { appView, todoListsView } from './views/poorlyNamedModule.js';
-import mainWindow from './views/root.js';
+import { selectedThing } from './selection.js';
 
 const {
+    ButtonView,
+    ClearSearchButtonView,
     Element: { when },
+    RootView,
     RunLoop,
 } = O;
 
 // --- Views ---
 
-/* Insert the view we've constructed into the document */
-mainWindow.insertView(
+ClearSearchButtonView.prototype.icon = 'icon-clear';
+
+/* A RootView instance is required for each browser window under the control of
+   your app
+*/
+const rootView = new RootView( document, {
+    selectNone: function ( event ) {
+        if ( !( event.targetView instanceof ButtonView ) ) {
+            const view = state.get( 'listId' ) === null ?
+                todoListsView :
+                todosView;
+            view.set( 'isEditing', false );
+            state.set( 'editThing', null );
+            selectedThing.set( 'record', null );
+        }
+    }.on( 'click' ),
+});
+
+rootView.insertView(
     when( state, 'listId' ).show([
-        appView,
+        todosView,
     ]).otherwise([
         todoListsView,
     ]).end()
@@ -60,3 +81,13 @@ mainWindow.insertView(
     and O.RunLoop.invoke() wrapping on *all* the code is not possible.]
 */
 RunLoop.flushAllQueues();
+
+// We’ve loaded the Router (state) and the root view, and flushed the queues to
+// get things going; we’re in business. For convenience of debugging, then—
+/*window.App = {
+    rootView,
+    todosView,
+    todoListsView,
+    state,
+    selectedThing,
+};*/
