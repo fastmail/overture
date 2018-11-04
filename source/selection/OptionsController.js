@@ -48,9 +48,14 @@ const OptionsController = Class({
     }.queue( 'before' ).observes( 'content', 'search', 'isFiltering' ),
 
     filterOptions ( content, search/*, isFiltering*/ ) {
-        const pattern = search ? i18n.makeSearchRegExp( search ) : null;
-        return pattern ? content.filter( function ( option ) {
-            return pattern.test( option.get( 'name' ) );
+        const patterns = search ?
+            search.split( /\s+/ ).map( i18n.makeSearchRegExp ) :
+            null;
+        return patterns ? content.filter( function ( option ) {
+            const name = option.get( 'name' );
+            return patterns.every( function ( pattern ) {
+                return pattern.test( name );
+            });
         }) : Array.isArray( content ) ? content : content.get( '[]' );
     },
 
