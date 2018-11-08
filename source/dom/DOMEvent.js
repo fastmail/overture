@@ -81,8 +81,9 @@ const lookupKey = function ( event, noModifiers ) {
         const code = event.keyCode || event.which;
         const preferAsci = isKeyPress && code > 32 &&
                 event.which !== 0 && event.charCode !== 0;
-        const str = String.fromCharCode( code ).toLowerCase();
-        key = ( !preferAsci && keys[ code ] ) || str;
+        const str = String.fromCharCode( code );
+        key = ( !preferAsci && keys[ code ] ) ||
+            ( event.shiftKey ? str.toUpperCase() : str.toLowerCase() );
 
         // Function keys
         if ( !preferAsci && 111 < code && code < 124 ) {
