@@ -1,4 +1,4 @@
-import { Class, meta } from '../core/Core';
+import { meta } from '../core/Core';
 import '../core/Array';  // For Array#erase
 import RunLoop from '../foundation/RunLoop';
 import Easing from './Easing';
@@ -79,9 +79,8 @@ const nextFrame = function () {
     For animating something other than a numeric property, override
     <O.Animation#prepare> and <O.Animation#drawFrame> methods.
 */
-export default Class({
-
-    init ( mixin ) {
+export default class Animation {
+    constructor ( mixin ) {
         this.isRunning = false;
         this.startTime = 0;
 
@@ -90,8 +89,10 @@ export default Class({
         this.deltaValue = null;
 
         Object.assign( this, mixin );
-    },
+    }
+}
 
+Object.assign( Animation.prototype, {
     /**
         Property: O.Animation#duration
         Type: Number

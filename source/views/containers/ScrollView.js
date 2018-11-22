@@ -14,12 +14,7 @@ import ViewEventsController from '../ViewEventsController';
 const el = Element.create;
 const setStyle = Element.setStyle;
 
-const ScrollAnimation = Class({
-
-    Extends: Animation,
-
-    duration: 250,
-
+class ScrollAnimation extends Animation {
     prepare ( coordinates ) {
         const object = this.object;
         const startX = this.startX = object.get( 'scrollLeft' );
@@ -32,7 +27,7 @@ const ScrollAnimation = Class({
         setStyle( object.get( 'layer' ), 'will-change', 'scroll-position' );
 
         return !!( deltaX || deltaY );
-    },
+    }
 
     drawFrame ( position ) {
         const isRunning = position < 1;
@@ -45,8 +40,10 @@ const ScrollAnimation = Class({
         if ( !isRunning ) {
             setStyle( object.get( 'layer' ), 'will-change', 'auto' );
         }
-    },
-});
+    }
+}
+
+ScrollAnimation.prototype.duration = 250;
 
 /**
     Class: O.ScrollView

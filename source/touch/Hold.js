@@ -1,19 +1,15 @@
-import { Class } from '../core/Core';
 import Event from '../foundation/Event';
 import RunLoop from '../foundation/RunLoop';
 import ViewEventsController from '../views/ViewEventsController';
 import Tap from './Tap';
 import Gesture from './Gesture';
 
-const HoldEvent = Class({
-
-    Extends: Event,
-
-    init ( touch ) {
-        HoldEvent.parent.constructor.call( this, 'hold', touch.target );
+class HoldEvent extends Event {
+    constructor ( touch ) {
+        super( 'hold', touch.target );
         this.touch = touch;
-    },
-});
+    }
+}
 
 const fireHoldEvent = function () {
     if ( !this._ignore ) {

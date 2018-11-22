@@ -1,4 +1,3 @@
-import { Class } from '../core/Core';
 import Event from '../foundation/Event';
 import ViewEventsController from '../views/ViewEventsController';
 import Gesture from './Gesture';
@@ -8,13 +7,13 @@ import Gesture from './Gesture';
     working. So we use this hack instead to capture the subsequent click and
     remove it from the app's existence.
 */
-const MouseEventRemover = Class({
-    init ( target, defaultPrevented ) {
+class MouseEventRemover {
+    constructor ( target, defaultPrevented ) {
         this.target = target;
         this.stop = defaultPrevented;
         this.time = Date.now();
         ViewEventsController.addEventTarget( this, 40 );
-    },
+    }
     fire ( type, event ) {
         const isClick = ( type === 'click' ) && !event.originalType;
         let isMouse = isClick || /^mouse/.test( type );
@@ -26,15 +25,12 @@ const MouseEventRemover = Class({
             event.preventDefault();
         }
         event.propagationStopped = isMouse;
-    },
-});
+    }
+}
 
-const TapEvent = Class({
+class TapEvent extends Event { }
 
-    Extends: Event,
-
-    originalType: 'tap',
-});
+TapEvent.prototype.originalType = 'tap';
 
 class TrackedTouch {
     constructor ( x, y, time, target ) {

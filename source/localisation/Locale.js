@@ -1,4 +1,4 @@
-import { Class, merge } from '../core/Core';
+import { merge } from '../core/Core';
 import '../core/Date';  // For Date#format. Circular but it's OK.
 
 const compileTranslation = function ( translation ) {
@@ -136,8 +136,7 @@ const formatInt = function ( number, locale ) {
     Locale packs for use in localisation are created as instances of the
     O.Locale class.
 */
-const Locale = Class({
-
+class Locale {
     /**
         Constructor: O.Locale
 
@@ -159,14 +158,16 @@ const Locale = Class({
         Parameters:
             mixin - {Object} Information for this locale.
     */
-    init ( mixin ) {
+    constructor ( mixin ) {
         [ 'macros', 'dateFormats' ].forEach( property => {
             this[ property ] = Object.create( this[ property ] );
         });
         this.compiled = {};
         merge( this, mixin );
-    },
+    }
+}
 
+Object.assign( Locale.prototype, {
     /**
         Property: O.Locale#code
         Type: String
