@@ -17,7 +17,8 @@ const ListItemView = Class({
 
     animateIn: false,
 
-    init ( mixin ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( mixin ) {
         const selection = mixin.selection;
         const content = mixin.content;
         if ( selection && content ) {

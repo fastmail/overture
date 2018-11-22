@@ -40,7 +40,8 @@ const LocalStorage = Class({
             sessionOnly - {Boolean} (optional) Should the values only be
                           persisted for the session?
     */
-    init ( name, sessionOnly ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( name, sessionOnly ) {
         this._name = name + '.';
         this._store = location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? sessionStorage : localStorage;

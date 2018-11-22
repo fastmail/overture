@@ -10,7 +10,8 @@ const SelectionController = Class({
     content: null,
     visible: null,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._selectionId = 0;
         this._lastSelectedIndex = 0;
         this._selectedStoreKeys = {};

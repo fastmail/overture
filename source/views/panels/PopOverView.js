@@ -12,7 +12,8 @@ const PopOverView = Class({
 
     Extends: View,
 
-    init () {
+    // eslint-disable-next-line object-shorthand
+    init: function () {
         this.parentPopOverView = null;
         this.isVisible = false;
         this.options = {};

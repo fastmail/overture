@@ -58,7 +58,8 @@ const EventSource = NativeEventSource ? Class({
                         initialisation (so you can pass it getter/setter
                         functions or observing methods).
     */
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._then = 0;
         this._tick = null;
 
@@ -193,7 +194,8 @@ const EventSource = NativeEventSource ? Class({
 
     readyState: CONNECTING,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         EventSource.parent.constructor.apply( this, arguments );
         this._xhr = new XHR( this );
     },

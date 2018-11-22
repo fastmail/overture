@@ -18,7 +18,8 @@ const RecordArray = Class({
 
     Mixin: Enumerable,
 
-    init ( store, Type, storeKeys ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( store, Type, storeKeys ) {
         this.store = store;
         this.Type = Type;
         this.storeKeys = storeKeys;

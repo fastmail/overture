@@ -72,7 +72,8 @@ const WindowController = Class({
         other open window.
     */
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;
         this.isFocused = document.hasFocus ? document.hasFocus() : true;

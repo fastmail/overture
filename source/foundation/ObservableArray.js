@@ -33,7 +33,8 @@ const ObservableArray = Class({
             array   - {Array} (optional) The initial contents of the array.
             ...mixins - {Object} (optional)
     */
-    init ( array /*, ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( array /*, ...mixins */) {
         this._array = array || [];
         this._length = this._array.length;
 

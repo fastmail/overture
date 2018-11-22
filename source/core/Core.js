@@ -484,6 +484,32 @@ const Class = function ( params ) {
         throw new Error( 'Bad O.Class definition: Extends is ' + parent );
     }
     let mixins = params.Mixin;
+    // Here’s a fine implementation detail: init must be a constructor, not just
+    // a function. Oh, you thought all functions were constructors? Not any more
+    // in ES6, because of new efficiency possibilities. Specifically, methods
+    // written with object shorthand and methods in classes are not
+    // constructors: what ES6-to-ES5 transpilers told you about `x () { }` being
+    // equivalent to `x: function () { }` was actually a lie which can
+    // accidentally make broken code work. For Class, object shorthand is the
+    // critical case; it means that you mustn’t write this:
+    //
+    //     Class({
+    //         init () { },
+    //         foo () { },
+    //         bar () { },
+    //         baz: 42,
+    //     })
+    //
+    // But rather, this, unshorthanding init (plus a recommended eslint line,
+    // because everywhere *else* you should still prefer shorthand):
+    //
+    //     Class({
+    //         // eslint-disable-next-line object-shorthand
+    //         init: function () { },
+    //         foo () { },
+    //         bar () { },
+    //         baz: 42,
+    //     })
     const init = params.init || ( parent ?
             function () {
                 parent.apply( this, arguments );

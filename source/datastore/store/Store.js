@@ -279,7 +279,8 @@ const Store = Class({
                         parameter named `source` of type {O.Source}, the source
                         for this store.
     */
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         // Map Type -> store key -> id
         this._typeToSKToId = {};
         // Map store key -> accountId

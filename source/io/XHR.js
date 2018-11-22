@@ -82,7 +82,8 @@ const XHR = Class({
         Parameters:
             io - {O.Object} (optional).
     */
-    init ( io ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( io ) {
         this._isRunning = false;
         this._status = 0;
         this.io = io || null;

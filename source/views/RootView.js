@@ -49,7 +49,8 @@ const RootView = Class({
 
     layer: null,
 
-    init ( node /*, ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( node /*, ...mixins */) {
         RootView.parent.constructor.apply( this,
             Array.prototype.slice.call( arguments, 1 ) );
 

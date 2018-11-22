@@ -119,7 +119,8 @@ const Router = Class({
     */
     routes: [],
 
-    init ( mixin, win ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( mixin, win ) {
         Router.parent.constructor.call( this, mixin );
         if ( !win ) {
             win = window;

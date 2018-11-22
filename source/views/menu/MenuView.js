@@ -21,7 +21,8 @@ const MenuOption = Class({
 
     Extends: Obj,
 
-    init ( button, controller ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( button, controller ) {
         this.button = button;
         this.controller = controller;
     },
@@ -39,7 +40,8 @@ const MenuController = Class({
 
     Extends: OptionsController,
 
-    init ( view, content, isFiltering ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( view, content, isFiltering ) {
         this.options = new ObservableArray();
         this.view = view;
         this.content = content.map(

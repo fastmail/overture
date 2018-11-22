@@ -44,7 +44,8 @@ const LocalQuery = Class({
         Parameters:
             mixin - {Object} The properties for the query.
     */
-    init ( mixin ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( mixin ) {
         this.dependsOn = null;
         this.where = null;
         this.sort = null;

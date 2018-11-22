@@ -39,7 +39,8 @@ const RecordArray = Class({
 
     Extends: ObservableArray,
 
-    init ( record, propKey, Type ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( record, propKey, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;

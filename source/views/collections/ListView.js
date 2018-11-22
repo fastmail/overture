@@ -40,7 +40,8 @@ const ListView = Class({
     ItemView: null,
     itemHeight: 0,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._added = null;
         this._removed = null;
         this._rendered = {};

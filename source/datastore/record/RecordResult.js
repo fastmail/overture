@@ -39,7 +39,8 @@ const RecordResult = Class({
         The record being observed
     */
 
-    init ( record, callback, mixin ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( record, callback, mixin ) {
         this._callback = callback;
 
         this.record = record;

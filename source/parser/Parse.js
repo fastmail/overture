@@ -1,7 +1,8 @@
 import { Class } from '../core/Core';
 
 const Parse = Class({
-    init ( string, tokens ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( string, tokens ) {
         this.string = string;
         this.tokens = tokens || [];
     },
