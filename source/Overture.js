@@ -36,7 +36,7 @@
       core/Date: LocaleController uses Locale in the global scope
 */
 
-export * from './core/Core';
+export { meta, guid, mixin, extend, merge, clone, isEqual, Class } from './core/Core';
 export { default as sortByProperties } from './core/sortByProperties';
 import './core/Array';
 import './core/Date';
@@ -45,7 +45,7 @@ import './core/Object';
 import './core/RegExp';
 import './core/String';
 
-export * from './foundation/Binding';
+export { Binding, bind, bindTwoWay } from './foundation/Binding';
 export { default as BoundProps } from './foundation/BoundProps';
 export { default as ComputedProps } from './foundation/ComputedProps';
 export { default as Enumerable } from './foundation/Enumerable';
@@ -127,7 +127,7 @@ export { default as XHR } from './io/XHR';
 // 3. Abolish the LocaleController export for good measure (O.i18n is nice,
 //    singletons with a capital first letter aren’t).
 export { default as Locale } from './localisation/Locale';
-export * from './localisation/LocaleController';
+export { LocaleController, i18n, loc } from './localisation/LocaleController';
 import './localisation/RelativeDate';
 
 export { default as parse } from './parser/DateParser';
