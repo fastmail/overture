@@ -34,11 +34,12 @@ const ListItemView = Class({
     layout: function () {
         const index = this.get( 'index' );
         const itemHeight = this.get( 'itemHeight' );
-        const isNew = this.get( 'animateIn' ) && !this.get( 'isInDocument' );
+        const animateIn = this.get( 'animateIn' );
+        const isNew = animateIn && !this.get( 'isInDocument' );
         const y = ( index - ( isNew ? 1 : 0 ) ) * itemHeight;
         return {
             top: y,
-            opacity: isNew ? 0 : 1,
+            opacity: animateIn ? isNew ? 0 : 1 : undefined,
         };
     }.property(),
 
