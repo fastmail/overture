@@ -338,7 +338,8 @@ const View = Class({
         const layer = el( this.get( 'layerTag' ), {
             id: this.get( 'id' ),
             className: this.get( 'className' ),
-            style: Object.toCSSString( this.get( 'layerStyles' ) ),
+            // (`|| undefined` to omit the attribute rather than leaving empty.)
+            style: Object.toCSSString( this.get( 'layerStyles' ) ) || undefined,
         });
         this.didCreateLayer( layer );
         this.redrawAriaAttributes( layer );
