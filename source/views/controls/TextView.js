@@ -5,7 +5,7 @@ import '../../foundation/ComputedProps';  // For Function#property, #nocache
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
 import UA from '../../ua/UA';
-import Element from '../../dom/Element';
+import { nearest } from '../../dom/Element';
 import { lookupKey } from '../../dom/DOMEvent';
 import ScrollView from '../containers/ScrollView';
 import AbstractControlView from './AbstractControlView';
@@ -505,7 +505,7 @@ const TextView = Class({
         // unless we're actually in a form.
         if ( !this.get( 'isMultiline' ) &&
                 lookupKey( event, true ) === 'Enter' &&
-                !Element.nearest( this.get( 'layer' ), 'FORM' ) ) {
+                !nearest( this.get( 'layer' ), 'FORM' ) ) {
             event.preventDefault();
         }
     }.on( 'keypress' ),

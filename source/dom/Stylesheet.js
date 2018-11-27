@@ -1,6 +1,6 @@
 /*global document */
 
-import Element from './Element';
+import { create as el } from './Element';
 
 /**
     Namespace: O.Stylesheet
@@ -23,7 +23,7 @@ export default {
             {Element} The <style> node that was created.
     */
     create ( id, css ) {
-        const style = Element.create( 'style', {
+        const style = el( 'style', {
             type: 'text/css',
             id,
             text: css,

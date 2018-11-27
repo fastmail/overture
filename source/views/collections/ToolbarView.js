@@ -2,7 +2,7 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import { lookupKey } from '../../dom/DOMEvent';
-import Element from '../../dom/Element';
+import { create as el } from '../../dom/Element';
 import { loc } from '../../localisation/LocaleController';
 import View from '../View';
 import RootView from '../RootView';
@@ -12,7 +12,7 @@ import MenuButtonView from '../menu/MenuButtonView';
 import MenuView from '../menu/MenuView';
 
 const toView = function ( name ) {
-    return ( name === '-' ) ? Element.create( 'span.v-Toolbar-divider' ) :
+    return ( name === '-' ) ? el( 'span.v-Toolbar-divider' ) :
         ( name === '*' ) ? null :
         this._views[ name ];
 };

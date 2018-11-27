@@ -9,7 +9,7 @@ import { bind, bindTwoWay } from '../../foundation/Binding';
 import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import Element from '../../dom/Element';
+import { getPosition, nearest } from '../../dom/Element';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
@@ -451,7 +451,7 @@ const RichTextView = Class({
         if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
             node = node.parentNode;
         }
-        const position = Element.getPosition( node, this.get( 'layer' ) );
+        const position = getPosition( node, this.get( 'layer' ) );
         this.set( 'floatingToolbarLayout', {
             top: 0,
             left: 0,
@@ -1252,7 +1252,7 @@ const RichTextView = Class({
         const target = event.target;
         if ( !isClickModified( event ) &&
                 target.nodeName === 'IMG' &&
-                Element.nearest( target, 'A', this.get( 'layer' ) ) ) {
+                nearest( target, 'A', this.get( 'layer' ) ) ) {
             event.preventDefault();
         }
     }.on( 'click' ),

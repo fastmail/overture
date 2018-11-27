@@ -100,6 +100,11 @@ export { default as UndoManager } from './datastore/store/UndoManager';
 
 import * as DOMEvent from './dom/DOMEvent';
 export { DOMEvent };
+// Alas, Element should be purely a namespace, but View#draw depends on it being
+// an object. Note that importing SwitchView later modifies it. Ick, huh? So
+// `import * as Element from './dom/Element';` actually gets you a tangibly
+// different result from `import Element from './dom/Element';` in that the
+// latter lacks <O.Element#when> and <O.Element#unless>. Yep, very ick. Sorry.
 export { default as Element } from './dom/Element';
 export { default as Stylesheet } from './dom/Stylesheet';
 

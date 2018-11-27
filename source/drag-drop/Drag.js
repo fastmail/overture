@@ -6,7 +6,7 @@ import '../core/String';  // For String#contains
 import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';  // Also Function#queue
 import '../foundation/ComputedProps';  // For Function#property
-import Element from '../dom/Element';
+import { create as el } from '../dom/Element';
 import Stylesheet from '../dom/Stylesheet';
 import ScrollView from '../views/containers/ScrollView';
 import { getViewFromNode } from '../views/activeViews';
@@ -216,7 +216,7 @@ const Drag = Class({
                     dragCursor.removeChild( oldImage );
                 }
             } else {
-                dragCursor = this._dragCursor = Element.create( 'div', {
+                dragCursor = this._dragCursor = el( 'div', {
                     style: 'position: fixed; z-index: 9999;',
                 });
                 this._updateDragImagePosition();

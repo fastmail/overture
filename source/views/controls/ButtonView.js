@@ -4,7 +4,7 @@ import '../../foundation/ObservableProps';  // For Function#observes
 import '../../foundation/EventTarget';  // For Function#on
 import RunLoop from '../../foundation/RunLoop';
 import { lookupKey } from '../../dom/DOMEvent';
-import Element from '../../dom/Element';
+import { create as el } from '../../dom/Element';
 
 import AbstractControlView from './AbstractControlView';
 
@@ -345,7 +345,7 @@ const ButtonView = Class({
 });
 
 ButtonView.drawIcon = function ( icon ) {
-    return Element.create( 'i', {
+    return el( 'i', {
         className: 'icon ' + icon,
     });
 };

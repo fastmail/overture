@@ -2,7 +2,7 @@ import { Class, isEqual } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import Element from '../../dom/Element';
+import { create as el } from '../../dom/Element';
 import AbstractControlView from './AbstractControlView';
 
 /**
@@ -78,7 +78,6 @@ const SelectView = Class({
     */
     _drawSelect ( options ) {
         const selected = this.get( 'value' );
-        const el = Element.create;
         const select = el( 'select', {
                 className: 'v-Select-input',
                 disabled: this.get( 'isDisabled' ),

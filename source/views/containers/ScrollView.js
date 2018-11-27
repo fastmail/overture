@@ -3,16 +3,13 @@ import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import Element from '../../dom/Element';
+import { create as el, setStyle, appendChildren } from '../../dom/Element';
 import Animation from '../../animation/Animation';
 import Tap from '../../touch/Tap';
 import UA from '../../ua/UA';
 import View from '../View';
 import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
-
-const el = Element.create;
-const setStyle = Element.setStyle;
 
 class ScrollAnimation extends Animation {
     prepare ( coordinates ) {
@@ -507,7 +504,7 @@ if ( UA.isIOS ) {
             }
 
             // Append the actual children of the scroll view.
-            Element.appendChildren( layer, children );
+            appendChildren( layer, children );
 
             if ( isFixedDimensions ) {
                 layer.appendChild(

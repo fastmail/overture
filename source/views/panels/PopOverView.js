@@ -1,7 +1,7 @@
 import { Class, meta } from '../../core/Core';
 import '../../foundation/EventTarget';  // For Function#on
 import { lookupKey } from '../../dom/DOMEvent';
-import Element from '../../dom/Element';
+import { setStyle } from '../../dom/Element';
 import RootView from '../RootView';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
@@ -241,9 +241,9 @@ const PopOverView = Class({
             }
         }
 
-        Element.setStyle( this._popOver, 'transform',
+        setStyle( this._popOver, 'transform',
             'translate(' + deltaLeft + 'px,' + deltaTop + 'px)' );
-        Element.setStyle( this._callout, 'transform',
+        setStyle( this._callout, 'transform',
             'translate(' +
                 ( positionToTheLeftOrRight ? 0 : -deltaLeft ) + 'px,' +
                 ( positionToTheLeftOrRight ? -deltaTop : 0 ) + 'px)'

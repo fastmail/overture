@@ -4,7 +4,13 @@ import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property
-import Element from '../dom/Element';  // Circular but it's OK
+import {
+    default as Element,
+    create as el,
+    forView,
+    appendChildren,
+    getPosition,
+} from '../dom/Element';  // Circular but it's OK
 
 import ViewEventsController from './ViewEventsController';
 import activeViews from './activeViews';
@@ -329,7 +335,7 @@ const View = Class({
         The underlying DOM node for this layer.
     */
     layer: function () {
-        const layer = Element.create( this.get( 'layerTag' ), {
+        const layer = el( this.get( 'layerTag' ), {
             id: this.get( 'id' ),
             className: this.get( 'className' ),
             style: Object.toCSSString( this.get( 'layerStyles' ) ),
@@ -572,13 +578,13 @@ const View = Class({
                 this.resumeBindings();
             }
             this.set( 'isRendered', true );
-            const prevView = Element.forView( this );
+            const prevView = forView( this );
             const layer = this.get( 'layer' );
-            const children = this.draw( layer, Element, Element.create );
+            const children = this.draw( layer, Element, el );
             if ( children ) {
-                Element.appendChildren( layer, children );
+                appendChildren( layer, children );
             }
-            Element.forView( prevView );
+            forView( prevView );
         }
         return this;
     },
@@ -680,7 +686,7 @@ const View = Class({
             layer - {Element} The view's layer.
     */
     redrawLayer ( layer ) {
-        const prevView = Element.forView( this );
+        const prevView = forView( this );
         let childViews = this.get( 'childViews' );
         let l = childViews.length;
         let node, view;
@@ -695,9 +701,7 @@ const View = Class({
         }
 
         isRedrawingLayer = true;
-        Element.appendChildren( layer,
-            this.draw( layer, Element, Element.create )
-        );
+        appendChildren( layer, this.draw( layer, Element, el ) );
         isRedrawingLayer = false;
 
         if ( this.get( 'isInDocument' ) ) {
@@ -707,7 +711,7 @@ const View = Class({
             }
         }
 
-        Element.forView( prevView );
+        forView( prevView );
     },
 
     /**
@@ -960,7 +964,6 @@ const View = Class({
             view.redraw();
         }
         this.redraw();
-        const getPosition = Element.getPosition;
         const selfPosition = getPosition( this.get( 'layer' ) );
         const viewPosition = getPosition( view.get( 'layer' ) );
         selfPosition.top -= viewPosition.top - view.get( 'scrollTop' );

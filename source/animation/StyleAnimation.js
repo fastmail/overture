@@ -1,8 +1,6 @@
 import Animation from './Animation';
-import { Class, clone } from '../core/Core';
-import Element from '../dom/Element';
-
-const setStyle = Element.setStyle;
+import { clone } from '../core/Core';
+import { setStyle } from '../dom/Element';
 
 const numbersRe = /[.\-\d]+/g;
 

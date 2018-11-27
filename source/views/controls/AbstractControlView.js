@@ -7,7 +7,7 @@ import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/LocaleController';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
 import UA from '../../ua/UA';
-import Element from '../../dom/Element';
+import { appendChildren } from '../../dom/Element';
 
 /**
     Class: O.AbstractControlView
@@ -231,7 +231,7 @@ const AbstractControlView = Class({
         while ( child = label.firstChild ) {
             label.removeChild( child );
         }
-        Element.appendChildren( label, [
+        appendChildren( label, [
             this.get( 'label' ),
         ]);
     },
