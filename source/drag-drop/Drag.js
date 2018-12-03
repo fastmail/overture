@@ -378,7 +378,13 @@ const Drag = Class({
                         }
                         // Add to files if type matches.
                         if ( !typeRegExp || typeRegExp.test( itemType ) ) {
-                            files.push( item.getAsFile() );
+                            // Error logs show Chrome may return null for
+                            // getAsFile; not sure why, but we should ignore
+                            // these, nothing we can do.
+                            const file = item.getAsFile();
+                            if ( file ) {
+                                files.push( file );
+                            }
                         }
                     }
                 }
