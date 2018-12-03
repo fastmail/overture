@@ -82,8 +82,7 @@ const lookupKey = function ( event, noModifiers ) {
         const preferAsci = isKeyPress && code > 32 &&
                 event.which !== 0 && event.charCode !== 0;
         const str = String.fromCharCode( code );
-        key = ( !preferAsci && keys[ code ] ) ||
-            ( event.shiftKey ? str.toUpperCase() : str.toLowerCase() );
+        key = ( !preferAsci && keys[ code ] ) || str;
 
         // Function keys
         if ( !preferAsci && 111 < code && code < 124 ) {
@@ -91,6 +90,11 @@ const lookupKey = function ( event, noModifiers ) {
         }
     } else {
         key = keyReplacements[ key ] || key;
+    }
+
+    // Ignore caps-lock
+    if ( /^[A-Za-z]$/.test( key ) ) {
+        key = event.shiftKey ? key.toUpperCase() : key.toLowerCase();
     }
 
     // Append modifiers (use alphabetical order)
