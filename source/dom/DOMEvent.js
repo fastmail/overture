@@ -63,16 +63,21 @@ const keyReplacements = {
                       to the returned value if the respective keys are held
                       down. They will always be in alphabetical order, e.g.
                       If the user pressed 'g' whilst holding down Shift and
-                      Alt, the return value would be 'Alt-Shift-g'.
+                      Alt, the return value would be 'Alt-Shift-G'.
 
     Returns:
         {String} The key pressed (in lowercase if a letter).
 */
 const lookupKey = function ( event, noModifiers ) {
     const isKeyPress = ( event.type === 'keypress' );
-    // Newer browser api
+    // Newer browser API: gives the character that would be inserted. This is
+    // normally what we want, but if Alt is held down then you get extra
+    // alternate characters when we really want to return Alt-{key}, where
+    // {key} is the letter printed on the keyboard.
+
+    // If alt key is held down we will get
     let key = event.key;
-    if ( !key ) {
+    if ( !key || event.altKey ) {
         // See http://unixpapa.com/js/key.html. Short summary:
         // event.keyCode || event.which gives the ASCII code for any normal
         // keypress on all browsers. However, if event.which === 0 then it was a
