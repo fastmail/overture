@@ -6,7 +6,6 @@ import '../core/String';  // For String#escapeHTML
 import Obj from '../foundation/Object';
 import '../foundation/EventTarget';  // For Function#on
 import RunLoop from '../foundation/RunLoop';  // + Function#invokeInRunLoop
-import UA from '../ua/UA';
 
 /**
     Class: O.WindowController
@@ -262,31 +261,5 @@ const WindowController = Class({
         } catch ( error ) {}
     },
 });
-
-WindowController.openExternal = function ( href ) {
-    const newWindow = window.open( '', '_blank' );
-    let htmlHref = href;
-    if ( newWindow ) {
-        // From goog.window.open; IE has trouble if there's a
-        // semi-colon in the URL apparently.
-        if ( UA.msie && href.indexOf( ';' ) > -1 ) {
-            htmlHref = "'" + htmlHref.replace( /'/g, '%27' ) + "'";
-        }
-        htmlHref = htmlHref.escapeHTML().replace( /"/g, '&quot;' );
-        try {
-            newWindow.opener = null;
-            newWindow.document.write(
-                '<META HTTP-EQUIV="refresh" content="0; url=' +
-                    htmlHref +
-                '">'
-            );
-            newWindow.document.close();
-        } catch ( error ) {
-            const location = newWindow.location || window.location;
-            location.href = href;
-        }
-    }
-    return newWindow;
-};
 
 export default WindowController;
