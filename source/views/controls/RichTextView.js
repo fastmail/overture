@@ -4,7 +4,7 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property, #nocache
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import Transform from '../../foundation/Transform';
+import { isEqualToValue } from '../../foundation/Transform';
 import { bind, bindTwoWay } from '../../foundation/Binding';
 import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
@@ -52,8 +52,6 @@ const urlRegExp =
     /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
 
 const popOver = new PopOverView();
-
-const equalTo = Transform.isEqualToValue;
 
 const TOOLBAR_HIDDEN = 0;
 const TOOLBAR_INLINE = 1;
@@ -675,7 +673,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-left',
-                isActive: bind( this, 'alignment', equalTo( 'left' ) ),
+                isActive: bind( this, 'alignment', isEqualToValue( 'left' ) ),
                 label: loc( 'Left' ),
                 tooltip: loc( 'Left' ),
                 activate () {
@@ -687,7 +685,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-centre',
-                isActive: bind( this, 'alignment', equalTo( 'center' ) ),
+                isActive: bind( this, 'alignment', isEqualToValue( 'center' ) ),
                 label: loc( 'Center' ),
                 tooltip: loc( 'Center' ),
                 activate () {
@@ -699,7 +697,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-right',
-                isActive: bind( this, 'alignment', equalTo( 'right' ) ),
+                isActive: bind( this, 'alignment', isEqualToValue( 'right' ) ),
                 label: loc( 'Right' ),
                 tooltip: loc( 'Right' ),
                 activate () {
@@ -711,7 +709,8 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-justify',
-                isActive: bind( this, 'alignment', equalTo( 'justify' ) ),
+                isActive: bind( this, 'alignment',
+                    isEqualToValue( 'justify' ) ),
                 label: loc( 'Justify' ),
                 tooltip: loc( 'Justify' ),
                 activate () {
@@ -723,7 +722,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-lefttoright',
-                isActive: bind( this, 'direction', equalTo( 'ltr' ) ),
+                isActive: bind( this, 'direction', isEqualToValue( 'ltr' ) ),
                 label: loc( 'Text Direction: Left to Right' ),
                 tooltip: loc( 'Text Direction: Left to Right' ),
                 activate () {
@@ -735,7 +734,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-righttoleft',
-                isActive: bind( this, 'direction', equalTo( 'rtl' ) ),
+                isActive: bind( this, 'direction', isEqualToValue( 'rtl' ) ),
                 label: loc( 'Text Direction: Right to Left' ),
                 tooltip: loc( 'Text Direction: Right to Left' ),
                 activate () {

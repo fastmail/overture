@@ -538,7 +538,7 @@ Record.getClientSettableAttributes = function ( Type ) {
     Returns:
         {O.RecordAttribute} Getter/setter for that record attribute.
 */
-Record.attr = function ( Type, mixin ) {
+const attr = function ( Type, mixin ) {
     if ( !mixin ) {
         mixin = {};
     }
@@ -548,8 +548,9 @@ Record.attr = function ( Type, mixin ) {
     return new RecordAttribute( mixin );
 };
 
-Record.toOne = function ( mixin ) {
+const toOne = function ( mixin ) {
     return new ToOneAttribute( mixin );
 };
 
 export default Record;
+export { Record, attr, toOne };

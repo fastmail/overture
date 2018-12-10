@@ -2,7 +2,7 @@
 
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
-import Stylesheet from '../dom/Stylesheet';
+import { create as createStylesheet } from '../dom/Stylesheet';
 import { loc } from '../localisation/LocaleController';
 
 /**
@@ -136,7 +136,7 @@ const ThemeManager = Class({
 
         // Even if no data, create the stylesheet as we'll probably change it
         // for a different theme that's currently loading.
-        Stylesheet.create( theme + '-' + id, data );
+        createStylesheet( theme + '-' + id, data );
         active[ id ] = ( active[ id ] || 0 ) + 1;
 
         return this;

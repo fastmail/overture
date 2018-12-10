@@ -7,7 +7,7 @@ import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';  // Also Function#queue
 import '../foundation/ComputedProps';  // For Function#property
 import { create as el } from '../dom/Element';
-import Stylesheet from '../dom/Stylesheet';
+import { create as createStylesheet } from '../dom/Stylesheet';
 import ScrollView from '../views/containers/ScrollView';
 import { getViewFromNode } from '../views/activeViews';
 
@@ -275,7 +275,7 @@ const Drag = Class({
                     break;
             }
 
-            stylesheet = Stylesheet.create( 'o-drag-cursor',
+            stylesheet = createStylesheet( 'o-drag-cursor',
                 '*{cursor:default !important;cursor:' + cursor + ' !important;}'
             );
         }

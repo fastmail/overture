@@ -59,7 +59,8 @@ export { default as ObservableArray } from './foundation/ObservableArray';
 export { default as ObservableProps } from './foundation/ObservableProps';
 export { default as ObservableRange } from './foundation/ObservableRange';
 export { default as RunLoop } from './foundation/RunLoop';
-export { default as Transform } from './foundation/Transform';
+import * as Transform from './foundation/Transform';
+export { Transform };
 import Promise from './foundation/Promise';
 // Replace the global Promise with our RunLoop-enabled Promise
 self.Promise = Promise;
@@ -82,7 +83,10 @@ export { default as Query } from './datastore/query/Query';
 export { default as LocalQuery } from './datastore/query/LocalQuery';
 export { default as WindowedQuery } from './datastore/query/WindowedQuery';
 export { default as AttributeErrors } from './datastore/record/AttributeErrors';
-export { default as Record } from './datastore/record/Record';
+import { default as Record, attr, toOne } from './datastore/record/Record';
+Record.attr = attr;
+Record.toOne = toOne;
+export { Record };
 export { default as RecordAttribute } from './datastore/record/RecordAttribute';
 import * as Status from './datastore/record/Status';
 export { Status };
@@ -106,7 +110,8 @@ export { DOMEvent };
 // different result from `import Element from './dom/Element';` in that the
 // latter lacks <O.Element#when> and <O.Element#unless>. Yep, very ick. Sorry.
 export { default as Element } from './dom/Element';
-export { default as Stylesheet } from './dom/Stylesheet';
+import * as Stylesheet from './dom/Stylesheet';
+export { Stylesheet };
 
 export { default as Drag } from './drag-drop/Drag';
 export { default as DragController } from './drag-drop/DragController';
