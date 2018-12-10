@@ -3,6 +3,10 @@ import UA from '../ua/UA';
 
 const isMac = UA.isMac;
 const platformKeys = {
+    ArrowUp: '↑',
+    ArrowDown: '↓',
+    ArrowRight: '→',
+    ArrowLeft:  '←',
     Alt: isMac ? '⌥' : 'Alt-',
     Cmd: isMac ? '⌘' : 'Ctrl-',
     Meta: isMac ? '⌘' : 'Meta-',
