@@ -6,7 +6,7 @@ const platformKeys = {
     ArrowUp: '↑',
     ArrowDown: '↓',
     ArrowRight: '→',
-    ArrowLeft:  '←',
+    ArrowLeft: '←',
     Alt: isMac ? '⌥' : 'Alt-',
     Cmd: isMac ? '⌘' : 'Ctrl-',
     Meta: isMac ? '⌘' : 'Meta-',
