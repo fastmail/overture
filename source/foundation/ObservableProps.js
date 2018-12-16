@@ -1,16 +1,6 @@
 import { meta } from '../core/Core';
 import Binding from './Binding';
 
-const getKeyObservers = function ( metadata, key ) {
-    const observers = metadata.observers;
-    let keyObservers = observers[ key ];
-    if ( !observers.hasOwnProperty( key ) ) {
-        keyObservers = observers[ key ] = keyObservers ?
-            keyObservers.slice() : [];
-    }
-    return keyObservers;
-};
-
 const setupObserver = function ( metadata, method ) {
     const observes = this.observedProperties;
     let l = observes.length;
@@ -19,8 +9,7 @@ const setupObserver = function ( metadata, method ) {
     while ( l-- ) {
         const key = observes[l];
         if ( key.indexOf( '.' ) === -1 ) {
-            const keyObservers = getKeyObservers( metadata, key );
-            keyObservers.push({ object: null, method });
+            metadata.addObserver( key, { object: null, method } );
         } else {
             if ( !pathObservers ) {
                 pathObservers = metadata.pathObservers;
@@ -49,16 +38,7 @@ const teardownObserver = function ( metadata, method ) {
     while ( l-- ) {
         const key = observes[l];
         if ( key.indexOf( '.' ) === -1 ) {
-            const keyObservers = getKeyObservers( metadata, key );
-            let j = keyObservers.length;
-            while ( j-- ) {
-                const observer = keyObservers[j];
-                if ( observer.object === null &&
-                        observer.method === method ) {
-                    keyObservers.splice( j, 1 );
-                    break;
-                }
-            }
+            metadata.removeObserver( key, { object: null, method } );
         } else if ( !pathObservers ) {
             pathObservers = metadata.pathObservers;
             if ( !metadata.hasOwnProperty( 'pathObservers' ) ) {
@@ -269,7 +249,7 @@ export default {
         const observers = meta( this ).observers;
         for ( const key in observers ) {
             const keyObservers = observers[ key ];
-            let l = keyObservers.length;
+            let l = keyObservers ? keyObservers.length : 0;
             while ( l-- ) {
                 const object = keyObservers[l].object;
                 if ( object && object !== this &&
@@ -359,7 +339,7 @@ export default {
                 this.propertiesDependentOnKey( key ) : [];
         let l = dependents.length;
         const depth = metadata.depth;
-        const hasGenericObservers = metadata.observers[ '*' ];
+        const hasGenericObservers = !!metadata.observers[ '*' ];
         const fastPath = !l && !depth && !hasGenericObservers;
         const changed = fastPath ? null : metadata.changed || {};
         const cache = metadata.cache;
@@ -421,8 +401,7 @@ export default {
             {O.ObservableProps} Returns self.
     */
     addObserverForKey ( key, object, method ) {
-        const keyObservers = getKeyObservers( meta( this ), key );
-        keyObservers.push({ object, method });
+        meta( this ).addObserver( key, { object, method } );
         return this;
     },
 
@@ -443,22 +422,7 @@ export default {
             {O.ObservableProps} Returns self.
     */
     removeObserverForKey ( key, object, method ) {
-        const keyObservers = getKeyObservers( meta( this ), key );
-        let l = keyObservers.length;
-
-        while ( l-- ) {
-            const observer = keyObservers[l];
-            if ( observer.object === object &&
-                    observer.method === method ) {
-                keyObservers.splice( l, 1 );
-                break;
-            }
-        }
-
-        // Don't delete key from observers object even if zero length because
-        // prototype might have a value defined and we don't want that leaking
-        // through.
-
+        meta( this ).removeObserver( key, { object, method } );
         return this;
     },
 
@@ -487,12 +451,13 @@ export default {
             const key = path.slice( 0, nextDot );
             const value = this.get( key );
             const restOfPath = path.slice( nextDot + 1 );
-            const keyObservers = getKeyObservers( meta( this ), key );
-            keyObservers.push({
+
+            meta( this ).addObserver( key, {
                 path: restOfPath,
                 object,
                 method,
             });
+
             if ( value && !( value instanceof Binding ) ) {
                 value.addObserverForPath( restOfPath, object, method );
             }
@@ -522,22 +487,12 @@ export default {
             const key = path.slice( 0, nextDot );
             const value = this.get( key );
             const restOfPath = path.slice( nextDot + 1 );
-            const keyObservers = getKeyObservers( meta( this ), key );
 
-            let l = keyObservers.length;
-            while ( l-- ) {
-                const observer = keyObservers[l];
-                if ( observer.path === restOfPath &&
-                     observer.object === object &&
-                     observer.method === method) {
-                        keyObservers.splice( l, 1 );
-                        break;
-                }
-            }
-
-            // Don't delete key from observers object even if zero length
-            // because prototype might have a value defined and we don't want
-            // that leaking through.
+            meta( this ).removeObserver( key, {
+                path: restOfPath,
+                object,
+                method,
+            });
 
             if ( value ) {
                 value.removeObserverForPath( restOfPath, object, method );

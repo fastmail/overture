@@ -31,17 +31,20 @@ export default {
             end = start + 1;
         }
         const metadata = meta( this );
-        for ( const key in metadata.observers ) {
-            const index = parseInt( key, 10 );
-            if ( start <= index && index < end ) {
-                this.propertyDidChange( key );
+        const observers = metadata.observers;
+        for ( const key in observers ) {
+            if ( observers[ key ] ) {
+                const index = parseInt( key, 10 );
+                if ( start <= index && index < end ) {
+                    this.propertyDidChange( key );
+                }
             }
         }
-        const observers = metadata.rangeObservers;
-        let l = observers ? observers.length : 0;
+        const rangeObservers = metadata.rangeObservers;
+        let l = rangeObservers ? rangeObservers.length : 0;
         const enumerableLength = this.get( 'length' ) || 0;
         while ( l-- ) {
-            const observer = observers[l];
+            const observer = rangeObservers[l];
             const range = observer.range;
             let observerStart = range.start || 0;
             let observerEnd = 'end' in range ?

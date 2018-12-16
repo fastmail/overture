@@ -74,15 +74,7 @@ export default {
         if ( !( obj instanceof Function ) ) {
             obj = { object: obj, method };
         }
-        type = eventPrefix + type;
-
-        const observers = meta( this ).observers;
-        let handlers = observers[ type ];
-        if ( !observers.hasOwnProperty( type ) ) {
-            handlers = observers[ type ] = handlers ?
-                handlers.slice() : [];
-        }
-        handlers.push( obj );
+        meta( this ).addObserver( eventPrefix + type, obj );
         return this;
     },
 
@@ -186,17 +178,13 @@ export default {
     /**
         Method: O.EventTarget#off
 
-        Detaches a particular event handler or all handlers for a particular
-        event type. This method has no effect if the function supplied is not
-        subscribed to the event type given, or no function is supplied and the
-        event type given has no handlers subscribed.
+        Detaches a particular event handler. This method has no effect if the
+        function supplied is not subscribed to the event type given.
 
         Parameters:
             type   - {String} The name of the event to detach handlers from.
-            obj    - {(Function|Object)} (optional) The function to detach or
-                     the obj whose method will be detached. If this argument is
-                     not supplied, all handlers for the given type will be
-                     removed.
+            obj    - {(Function|Object)} The function to detach or the obj
+                     whose method will be detached.
             method - {String} (optional) The name of the callback method to be
                      detached. Ignored if a function is passed for the 2nd
                      parameter.
@@ -205,31 +193,10 @@ export default {
             {O.EventTarget} Returns self.
     */
     off ( type, obj, method ) {
-        type = eventPrefix + type;
-
-        const observers = meta( this ).observers;
-        let handlers = observers[ type ];
-        if ( handlers ) {
-            if ( !observers.hasOwnProperty( type ) ) {
-                handlers = observers[ type ] = handlers.slice();
-            }
-            if ( obj ) {
-                if ( !( obj instanceof Function ) ) {
-                    let l = handlers.length;
-                    while ( l-- ) {
-                        const handler = handlers[l];
-                        if ( handler.object === obj &&
-                                handler.method === method ) {
-                            handlers.splice( l, 1 );
-                        }
-                    }
-                } else {
-                    handlers.erase( obj );
-                }
-            } else {
-                handlers.length = 0;
-            }
+        if ( !( obj instanceof Function ) ) {
+            obj = { object: obj, method };
         }
+        meta( this ).removeObserver( eventPrefix + type, obj );
         return this;
     },
 };

@@ -120,6 +120,59 @@ const Metadata = function ( object ) {
     object.__meta__ = this;
 };
 
+const isIdentical = function ( a, b ) {
+    return a === b;
+};
+
+const isSameObserver = function ( a, b ) {
+    return a.object === b.object &&
+        a.method === b.method &&
+        a.path === b.path;
+};
+
+Metadata.prototype.addObserver = function ( key, observer ) {
+    const observers = this.observers;
+    let keyObservers = observers[ key ];
+    if ( !keyObservers ) {
+        keyObservers = observers[ key ] = [];
+    } else if ( !observers.hasOwnProperty( key ) ) {
+        keyObservers = observers[ key ] = keyObservers.slice();
+    }
+    const isSame = typeof observer === 'function' ?
+        isIdentical : isSameObserver;
+    let i = 0;
+    for ( const l = keyObservers.length; i < l; i += 1 ) {
+        if ( isSame( keyObservers[i], observer ) ) {
+            return this;
+        }
+    }
+    keyObservers[i] = observer;
+    return this;
+};
+
+Metadata.prototype.removeObserver = function ( key, observer ) {
+    const observers = this.observers;
+    let keyObservers = observers[ key ];
+    if ( keyObservers ) {
+        if ( !observers.hasOwnProperty( key ) ) {
+            keyObservers = observers[ key ] = keyObservers.slice();
+        }
+        const isSame = typeof observer === 'function' ?
+            isIdentical : isSameObserver;
+        let l = keyObservers.length;
+        while ( l-- ) {
+            if ( isSame( keyObservers[l], observer ) ) {
+                keyObservers.splice( l, 1 );
+                break;
+            }
+        }
+        if ( !keyObservers.length ) {
+            observers[ key ] = null;
+        }
+    }
+    return this;
+};
+
 const meta = function ( object ) {
     let data = object.__meta__;
     if ( !data ) {

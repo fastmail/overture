@@ -144,24 +144,13 @@ const ToManyAttribute = Class({
     __setupProperty__ ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__setupProperty__.call( this, metadata, propKey, object );
-        const observers = metadata.observers;
-        let keyObservers = observers[ propKey ];
-        if ( !observers.hasOwnProperty( propKey ) ) {
-            keyObservers = observers[ propKey ] = keyObservers ?
-                keyObservers.slice() : [];
-        }
-        keyObservers.push( notifyRecordArrayObserver );
+        metadata.addObserver( propKey, notifyRecordArrayObserver );
     },
 
     __teardownProperty__ ( metadata, propKey, object ) {
         ToManyAttribute.parent
             .__teardownProperty__.call( this, metadata, propKey, object );
-        const observers = metadata.observers;
-        let keyObservers = observers[ propKey ];
-        if ( !observers.hasOwnProperty( propKey ) ) {
-            keyObservers = observers[ propKey ] = keyObservers.slice();
-        }
-        keyObservers.erase( notifyRecordArrayObserver );
+        metadata.removeObserver( propKey, notifyRecordArrayObserver );
     },
 
     Type: Array,

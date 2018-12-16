@@ -69,7 +69,7 @@ const EventSource = NativeEventSource ? Class({
         const eventTypes = [ 'open', 'message', 'error' ];
         const observers = meta( this ).observers;
         for ( const type in observers ) {
-            if ( /^__event__/.test( type ) ) {
+            if ( observers[ type ] && /^__event__/.test( type ) ) {
                 eventTypes.include( type.slice( 9 ) );
             }
         }

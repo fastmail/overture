@@ -16,17 +16,6 @@ const attributeErrorsObserver = {
     object: null,
     method: 'notifyAttributeErrors',
 };
-const addValidityObserver = function ( observers, propKey ) {
-    let keyObservers = observers[ propKey ];
-    if ( keyObservers && keyObservers.contains( attributeErrorsObserver ) ) {
-        return;
-    }
-    if ( !observers.hasOwnProperty( propKey ) ) {
-        keyObservers = observers[ propKey ] = keyObservers ?
-            keyObservers.slice() : [];
-    }
-    keyObservers.push( attributeErrorsObserver );
-};
 
 /**
     Class: O.RecordAttribute
@@ -38,7 +27,8 @@ const RecordAttribute = Class({
     __setupProperty__ ( metadata, propKey, object ) {
         const constructor = object.constructor;
         let attrs = metadata.attrs;
-        let dependents, observers, dependencies, l, key, AttributeErrorsType;
+        let dependents, dependencies, l, key, AttributeErrorsType;
+        let attrErrorsMetadata;
         if ( !metadata.hasOwnProperty( 'attrs' ) ) {
             attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
         }
@@ -57,9 +47,7 @@ const RecordAttribute = Class({
         constructor.clientSettableAttributes = null;
 
         if ( this.validate ) {
-            observers = metadata.observers;
-            addValidityObserver( observers, propKey );
-
+            metadata.addObserver( propKey, attributeErrorsObserver );
             dependencies = this.validityDependencies;
             if ( dependencies ) {
                 AttributeErrorsType = object.AttributeErrorsType;
@@ -69,19 +57,20 @@ const RecordAttribute = Class({
                             Extends: AttributeErrorsType,
                         });
                     AttributeErrorsType.forRecordType = constructor;
-                    metadata = meta( AttributeErrorsType.prototype );
-                    dependents = metadata.dependents =
-                        clone( metadata.dependents );
+                    attrErrorsMetadata = meta( AttributeErrorsType.prototype );
+                    dependents = attrErrorsMetadata.dependents =
+                        clone( attrErrorsMetadata.dependents );
                 } else {
-                    metadata = meta( AttributeErrorsType.prototype );
-                    dependents = metadata.dependents;
+                    attrErrorsMetadata = meta( AttributeErrorsType.prototype );
+                    dependents = attrErrorsMetadata.dependents;
                 }
                 l = dependencies.length;
                 while ( l-- ) {
                     key = dependencies[l];
                     if ( !dependents[ key ] ) {
                         dependents[ key ] = [];
-                        addValidityObserver( observers, key );
+                        metadata
+                            .addObserver( key, attributeErrorsObserver );
                     }
                     dependents[ key ].push( propKey );
                 }
