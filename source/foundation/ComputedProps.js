@@ -18,7 +18,7 @@ const makeComputedDidChange = function ( key ) {
     };
 };
 
-const setupComputed = function ( metadata, key, obj ) {
+const setupComputed = function ( metadata, key, object ) {
     const dependencies = this.dependencies;
     let dependents = metadata.dependents;
     let method, pathObservers, methodObservers;
@@ -39,8 +39,8 @@ const setupComputed = function ( metadata, key, obj ) {
                 metadata.inits.Observers =
                     ( metadata.inits.Observers || 0 ) + 1;
             }
-            if ( !obj[ method ] ) {
-                obj[ method ] = makeComputedDidChange( key );
+            if ( !object[ method ] ) {
+                object[ method ] = makeComputedDidChange( key );
             }
             if ( !pathObservers ) {
                 pathObservers = metadata.pathObservers;
@@ -107,9 +107,10 @@ Object.assign( Function.prototype, {
         rather than just returned/overwritten itself.
 
         Normally, properties will only be dependent on other properties on the
-        same object. You may also specify paths though, e.g. 'obj.obj2.prop' and
-        this will also work, however if you do this the object (and all other
-        objects in the path) *MUST* also include the <O.ObservableProps> mixin.
+        same object. You may also specify paths though, e.g. `object.obj2.prop`
+        and this will also work, however if you do this the object (and all
+        other objects in the path) *MUST* also include the <O.ObservableProps>
+        mixin.
 
         Parameters:
             var_args - {...String} All arguments are treated as the names of

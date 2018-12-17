@@ -389,9 +389,9 @@ const Store = Class({
             account = {
                 isDefault: data.isDefault,
                 // Transform [ ...uri ] into { ...uri: true } for fast access
-                hasDataFor: data.hasDataFor.reduce( ( obj, uri ) => {
-                    obj[ uri ] = true;
-                    return obj;
+                hasDataFor: data.hasDataFor.reduce( ( object, uri ) => {
+                    object[ uri ] = true;
+                    return object;
                 }, {} ),
                 // Type -> status
                 // READY      - Some records of type loaded
@@ -2669,11 +2669,11 @@ const Store = Class({
 });
 
 [ 'on', 'once', 'off' ].forEach( function ( property ) {
-    Store.prototype[ property ] = function ( type, obj, method ) {
+    Store.prototype[ property ] = function ( type, object, method ) {
         if ( typeof type !== 'string' ) {
             type = guid( type );
         }
-        return EventTarget[ property ].call( this, type, obj, method );
+        return EventTarget[ property ].call( this, type, object, method );
     };
 });
 

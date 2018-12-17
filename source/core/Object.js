@@ -61,11 +61,11 @@ Object.assign( Object, {
     */
     zip ( keys, values ) {
         let l = Math.min( keys.length, values.length );
-        const obj = {};
+        const object = {};
         while ( l-- ) {
-            obj[ keys[l] ] = values[l];
+            object[ keys[l] ] = values[l];
         }
-        return obj;
+        return object;
     },
 
     /**

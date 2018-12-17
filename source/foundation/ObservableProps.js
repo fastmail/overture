@@ -85,17 +85,17 @@ Function.prototype.observes = function () {
     Adds or removes path observers for methods on an object.
 
     Parameters:
-        obj    - {Object} The object to setup/teardown path observers for.
+        object - {Object} The object to setup/teardown path observers for.
         method - {String} Either 'addObserverForPath' or 'removeObserverForPath'
 */
-const _setupTeardownPaths = function ( obj, method ) {
-    const pathObservers = meta( obj ).pathObservers;
+const _setupTeardownPaths = function ( object, method ) {
+    const pathObservers = meta( object ).pathObservers;
     for ( const key in pathObservers ) {
         const paths = pathObservers[ key ];
         if ( paths ) {
             let l = paths.length;
             while ( l-- ) {
-                obj[ method ]( paths[l], obj, key );
+                object[ method ]( paths[l], object, key );
             }
         }
     }
@@ -386,11 +386,11 @@ export default {
 
         Registers an object and a method to be called on that object whenever a
         particular key changes in value. The method will be called with the
-        following parameters: obj, key, oldValue, newValue. If it is a computed
-        property the oldValue and newValue arguments may not be present. You can
-        also observe '*' to be notified of any changes to the object; in this
-        case the observer will only be supplied with the first argument: this
-        object.
+        following parameters: object, key, oldValue, newValue. If it is a
+        computed property the oldValue and newValue arguments may not be
+        present. You can also observe '*' to be notified of any changes to the
+        object; in this case the observer will only be supplied with the first
+        argument: this object.
 
         Parameters:
             key    - {String} The property to observer.

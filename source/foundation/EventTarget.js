@@ -59,22 +59,22 @@ export default {
 
         Parameters:
             type   - {String} The name of the event to subscribe to.
-            obj    - {(Function|Object)} The function to be called when the
+            object - {(Function|Object)} The function to be called when the
                      event fires, or alternatively supply an object and in the
                      third parameter give the name of the method to be called on
                      it.
             method - {String} (optional) The name of the callback method to be
-                     called on obj. Ignored if a function is passed for the 2nd
-                     parameter.
+                     called on object. Ignored if a function is passed for the
+                     2nd parameter.
 
         Returns:
             {O.EventTarget} Returns self.
     */
-    on ( type, obj, method ) {
-        if ( !( obj instanceof Function ) ) {
-            obj = { object: obj, method };
+    on ( type, object, method ) {
+        if ( !( object instanceof Function ) ) {
+            object = { object, method };
         }
-        meta( this ).addObserver( eventPrefix + type, obj );
+        meta( this ).addObserver( eventPrefix + type, object );
         return this;
     },
 
@@ -183,7 +183,7 @@ export default {
 
         Parameters:
             type   - {String} The name of the event to detach handlers from.
-            obj    - {(Function|Object)} The function to detach or the obj
+            object - {(Function|Object)} The function to detach or the object
                      whose method will be detached.
             method - {String} (optional) The name of the callback method to be
                      detached. Ignored if a function is passed for the 2nd
@@ -192,11 +192,11 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    off ( type, obj, method ) {
-        if ( !( obj instanceof Function ) ) {
-            obj = { object: obj, method };
+    off ( type, object, method ) {
+        if ( !( object instanceof Function ) ) {
+            object = { object, method };
         }
-        meta( this ).removeObserver( eventPrefix + type, obj );
+        meta( this ).removeObserver( eventPrefix + type, object );
         return this;
     },
 };
