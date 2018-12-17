@@ -393,7 +393,7 @@ const Locale = Class({
     getFormattedDate ( date, type, utc ) {
         const dateFormats = this.dateFormats;
         const format = dateFormats[ type ] || dateFormats.date;
-        return format instanceof Function ?
+        return typeof format === 'function' ?
             dateFormats[ type ]( date, this, utc ) : date.format( format, utc );
     },
 

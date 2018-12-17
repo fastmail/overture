@@ -71,7 +71,7 @@ export default {
             {O.EventTarget} Returns self.
     */
     on ( type, object, method ) {
-        if ( !( object instanceof Function ) ) {
+        if ( typeof object !== 'function' ) {
             object = { object, method };
         }
         meta( this ).addObserver( eventPrefix + type, object );
@@ -154,7 +154,7 @@ export default {
             while ( length-- ) {
                 try {
                     const handler = handlers[ length ];
-                    if ( handler instanceof Function ) {
+                    if ( typeof handler === 'function' ) {
                         handler.call( target, event );
                     } else {
                         ( handler.object || target )[ handler.method ]( event );
@@ -193,7 +193,7 @@ export default {
             {O.EventTarget} Returns self.
     */
     off ( type, object, method ) {
-        if ( !( object instanceof Function ) ) {
+        if ( typeof object !== 'function' ) {
             object = { object, method };
         }
         meta( this ).removeObserver( eventPrefix + type, object );

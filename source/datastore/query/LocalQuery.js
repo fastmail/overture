@@ -50,7 +50,7 @@ const LocalQuery = Class({
         this.sort = null;
 
         const sort = mixin.sort;
-        if ( sort && !( sort instanceof Function ) ) {
+        if ( sort && typeof sort !== 'function' ) {
             mixin.sort = sortByProperties( sort );
         }
 
