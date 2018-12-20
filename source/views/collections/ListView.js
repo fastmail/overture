@@ -5,6 +5,8 @@ import '../../foundation/ObservableProps';  // For Function#observes
 import UA from '../../ua/UA';
 import View from '../View';
 
+const isFirefox = UA.browser === 'firefox';
+
 const byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );
 };
@@ -120,7 +122,7 @@ const ListView = Class({
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
-        if ( UA.firefox && height > 16777216 ) {
+        if ( isFirefox && height > 16777216 ) {
             height = 16777216;
         }
         return itemHeight ? { height } : {};

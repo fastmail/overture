@@ -115,56 +115,6 @@ export default {
     version,
 
     /**
-        Property: O.UA.chrome
-        Type: Number
-
-        If running Chrome, this will be the version number running. Otherwise 0.
-        Other browsers like Opera may report as Chrome; the version number
-        should correspond to the build of Chromium whence they came.
-    */
-    chrome: browser === 'chrome' ? version : 0,
-    /**
-        Property: O.UA.safari
-        Type: Number
-
-        If running Safari, this will be the version number running. Otherwise 0.
-    */
-    safari: browser === 'safari' ? version : 0,
-    /**
-        Property: O.UA.firefox
-        Type: Number
-
-        If running Firefox, this will be the version number running. Otherwise
-        0.
-    */
-    firefox: browser === 'firefox' ? version : 0,
-    /**
-        Property: O.UA.edge
-        Type: Number
-
-        If running Edge, this will be the version number running. Otherwise
-        0.
-    */
-    edge: browser === 'edge' ? version : 0,
-    /**
-        Property: O.UA.msie
-        Type: Number
-
-        If running Internet Explorer, this will be the version number running.
-        Otherwise 0.
-    */
-    msie: browser === 'msie' ? version : 0,
-
-    /**
-        Property: O.UA.operaMini
-        Type: Number
-
-        If running Opera Mini, this will be the version number running.
-        Otherwise 0.
-    */
-    operaMini: window.operamini ? version : 0,
-
-    /**
         Property: O.UA.cssPrefix
         Type: String
 

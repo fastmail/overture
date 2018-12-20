@@ -477,6 +477,8 @@ const ScrollView = Class({
 });
 
 if ( UA.isIOS ) {
+    const isOldOrSafari = UA.version < 11 || UA.browser === 'safari';
+
     Object.assign( ScrollView.prototype, {
         draw ( layer, Element, el ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
@@ -496,7 +498,7 @@ if ( UA.isIOS ) {
             // From iOS 11, if not in Safari, it appears that the view will
             // always be scrollable as long as the content is at longer; you
             // don't need to ensure you are not at the very top
-            if ( isFixedDimensions && ( UA.version < 11 || UA.safari ) ) {
+            if ( isFixedDimensions && isOldOrSafari ) {
                 scrollFixerHeight = 2;
                 layer.appendChild(
                     el( 'div', { style: 'height:1px' } )
@@ -522,7 +524,7 @@ if ( UA.isIOS ) {
             if ( this.get( 'isInDocument' ) ) {
                 const scrollTop = this.get( 'scrollTop' );
                 const scrollLeft = this.get( 'scrollLeft' );
-                if ( !scrollTop && ( UA.version < 11 || UA.safari ) ) {
+                if ( !scrollTop && isOldOrSafari ) {
                     this.scrollTo( scrollLeft, 1 );
                 } else if ( scrollTop + this.get( 'pxHeight' ) ===
                         this.get( 'layer' ).scrollHeight ) {

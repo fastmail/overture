@@ -10,7 +10,7 @@ import { lookupKey } from '../../dom/DOMEvent';
 import ScrollView from '../containers/ScrollView';
 import AbstractControlView from './AbstractControlView';
 
-const isFirefox = !!UA.firefox;
+const isFirefox = UA.browser === 'firefox';
 
 /**
     Class: O.TextView
