@@ -159,9 +159,8 @@ class Locale {
             mixin - {Object} Information for this locale.
     */
     constructor ( mixin ) {
-        [ 'macros', 'dateFormats' ].forEach( property => {
-            this[ property ] = Object.create( this[ property ] );
-        });
+        this.macros = Object.create( this.macros );
+        this.dateFormats = Object.create( this.dateFormats );
         this.compiled = {};
         merge( this, mixin );
     }
