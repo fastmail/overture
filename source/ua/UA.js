@@ -184,9 +184,11 @@ export default {
         Property: O.UA.canU2F
         Type: Boolean
 
-        Does the browser support U2F?
+        Does the browser probably support U2F?
     */
-    // TODO: Find a way of detecting this rather than hardcoding
-    // For now, referencing http://caniuse.com/#feat=u2f
-    canU2F: browser === 'chrome' && version >= 41,
+    // See http://caniuse.com/#feat=u2f
+    // Chrome 41+ supports it but exposes no obvious global; Firefox has it
+    // disabled by default but if enabled by security.webauth.u2f exposes a
+    // global called U2F.
+    canU2F: ( browser === 'chrome' && version >= 41 ) || !!window.U2F,
 };
