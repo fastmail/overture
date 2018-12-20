@@ -34,73 +34,10 @@ const prefix = {
     msie: '-ms-',
     opera: '-o-',
 }[ browser ] || '-webkit-';
-const cssProps = {};
-
 if ( browser === 'opr/' ) {
     browser = 'opera';
 }
 
-( function () {
-    const props = {
-        'box-shadow': {
-            name: 'box-shadow',
-            value: '0 0 0 #000',
-        },
-        transform: {
-            name: 'transform',
-            value: 'translateX(0)',
-        },
-        transform3d: {
-            name: 'transform',
-            value: 'translateZ(0)',
-        },
-        transition: {
-            name: 'transition',
-            value: 'all .3s',
-        },
-        perspective: {
-            name: 'perspective',
-            value: '1px',
-        },
-        'user-select': {
-            name: 'user-select',
-            value: 'none',
-        },
-    };
-    const el = document.createElement( 'div' );
-    const style = el.style;
-
-    for ( const prop in props ) {
-        const test = props[ prop ];
-        const css = style.cssText = test.name + ':' + test.value;
-        if ( style.length ) {
-            cssProps[ prop ] = test.name;
-        } else {
-            style.cssText = prefix + css;
-            cssProps[ prop ] = style.length ? prefix + test.name : null;
-        }
-    }
-    style.cssText = 'display:flex';
-    if ( style.length ) {
-        cssProps.flexbox = 'flex';
-    } else {
-        style.cssText = 'display:' + prefix + 'flex';
-        cssProps.flexbox = style.length ? prefix + 'flex' : null;
-    }
-    const css = cssProps.transition;
-    [ 'delay', 'timing', 'duration', 'property' ].forEach( prop => {
-        cssProps[ 'transition-' + prop ] = css ? css + '-' + prop : null;
-    });
-
-    // Browser bugs:
-    // 1. iOS5 Sometimes fails to transform stuff.
-    // 2. Chrome on Windows XP has edge case bugs like
-    //    not rendering scroll bars in transformed elements.
-    if ( ( platform === 'ios' && version < 6 ) ||
-            /windows nt 5.1/.test( ua ) ) {
-        cssProps.transform3d = false;
-    }
-}() );
 
 /**
     Namespace: O.UA
@@ -257,18 +194,6 @@ export default {
     */
     operaMini: window.operamini ? version : 0,
 
-    /**
-        Property: O.UA.cssProps
-        Type: Object
-
-        A map of certain CSS property names to the browser-specific CSS property
-        name required, or null if the browser does not support the property.
-
-        The following properties are available: box-shadow, float, transform,
-        transform3d, transition, transition-delay, transition-duration,
-        transition-property and transition-timing.
-    */
-    cssProps,
     /**
         Property: O.UA.cssPrefix
         Type: String

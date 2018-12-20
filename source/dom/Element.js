@@ -116,19 +116,24 @@ const cssNoPx = {
     Map of normal CSS names to the name used on the style object.
 */
 const styleNames = {
-    'float': document.body.style.cssFloat !== undefined ?
-        'cssFloat' : 'styleFloat',
+    'float': 'cssFloat',
 };
-const styles = UA.cssProps;
-for ( const property in styles ) {
-    let style = styles[ property ];
-    if ( style ) {
-        style = style.camelCase();
-        // Stupid MS, don't follow convention.
-        if ( style.slice( 0, 2 ) === 'Ms' ) {
-            style = 'm' + style.slice( 1 );
-        }
-        styleNames[ property.camelCase() ] = style;
+
+// In times gone by, we had various properties that needed to be prefixed; now
+// it’s down to just user-select. This makes me happy. Hence no for loop.
+const style = document.createElement( 'div' ).style;
+style.cssText = 'user-select:none';
+let userSelectProperty = 'user-select';
+if ( !style.length ) {
+    if ( UA.browser === 'firefox' ) {
+        userSelectProperty = '-moz-user-select';
+        styleNames.userSelect = 'MozUserSelect';
+    } else if ( UA.browser === 'msie' ) {
+        userSelectProperty = '-ms-user-select';
+        styleNames.userSelect = 'msUserSelect';
+    } else {
+        userSelectProperty = '-webkit-user-select';
+        styleNames.userSelect = 'WebkitUserSelect';
     }
 }
 
@@ -545,7 +550,9 @@ Object.toCSSString = function ( object ) {
                 value += 'px';
             }
             key = key.hyphenate();
-            key = UA.cssProps[ key ] || key;
+            if ( key === 'user-select' ) {
+                key = userSelectProperty;
+            }
             result += key;
             result += ':';
             result += value;
