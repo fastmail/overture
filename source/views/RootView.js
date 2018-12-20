@@ -1,7 +1,7 @@
 import { Class } from '../core/Core';
 import '../foundation/EventTarget';  // For Function#on
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop
-import UA from '../ua/UA';
+import { isIOS } from '../ua/UA';
 
 import View from './View';
 import ViewEventsController from './ViewEventsController';
@@ -109,7 +109,7 @@ const RootView = Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
-    preventRootScroll: UA.isIOS ? function ( event ) {
+    preventRootScroll: isIOS ? function ( event ) {
         const view = event.targetView;
         let doc, win;
         if ( !( view instanceof ScrollView ) &&

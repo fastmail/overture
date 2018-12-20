@@ -156,7 +156,8 @@ export { default as GestureManager } from './touch/GestureManager';
 export { default as Hold } from './touch/Hold';
 export { default as Tap } from './touch/Tap';
 
-export { default as UA } from './ua/UA';
+import * as UA from './ua/UA';
+export { UA };
 
 export { default as RootView } from './views/RootView';
 export { default as View } from './views/View';

@@ -1,7 +1,7 @@
 /*global Element, document */
 
 import '../core/String';  // For String#camelCase, #contains, #hyphenate
-import UA from '../ua/UA';
+import { browser } from '../ua/UA';
 import Binding from '../foundation/Binding';
 import RunLoop from '../foundation/RunLoop';
 import View from '../views/View';  // Circular but it's OK
@@ -125,10 +125,10 @@ const style = document.createElement( 'div' ).style;
 style.cssText = 'user-select:none';
 let userSelectProperty = 'user-select';
 if ( !style.length ) {
-    if ( UA.browser === 'firefox' ) {
+    if ( browser === 'firefox' ) {
         userSelectProperty = '-moz-user-select';
         styleNames.userSelect = 'MozUserSelect';
-    } else if ( UA.browser === 'msie' ) {
+    } else if ( browser === 'msie' ) {
         userSelectProperty = '-ms-user-select';
         styleNames.userSelect = 'msUserSelect';
     } else {

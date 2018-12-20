@@ -14,7 +14,7 @@ import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
-import UA from '../../ua/UA';
+import { isIOS, isMac, isWinPhone, isWKWebView } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
@@ -145,7 +145,7 @@ const RichTextView = Class({
 
     // ---
 
-    showToolbar: UA.isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
+    showToolbar: isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
     fontFaceOptions: function () {
         return [
             [ loc( 'Default' ), null ],
@@ -366,7 +366,7 @@ const RichTextView = Class({
         const offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
         let scrollViewHeight = scrollView.get( 'pxHeight' );
         let scrollBy = 0;
-        if ( UA.isIOS ) {
+        if ( isIOS ) {
             scrollViewHeight -=
                 // Keyboard height (in WKWebView, but not Safari)
                 ( document.body.offsetHeight - window.innerHeight );
@@ -445,7 +445,7 @@ const RichTextView = Class({
             return;
         }
         const range = this.get( 'editor' ).getSelection();
-        let node = UA.isIOS ? range.endContainer : range.startContainer;
+        let node = isIOS ? range.endContainer : range.startContainer;
         if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
             node = node.parentNode;
         }
@@ -455,7 +455,7 @@ const RichTextView = Class({
             left: 0,
             maxWidth: '100%',
             transform: 'translate3d(0,' + (
-                UA.isIOS ?
+                isIOS ?
                 position.top + position.height + 10 :
                 position.top -
                     this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
@@ -1106,7 +1106,6 @@ const RichTextView = Class({
     },
 
     kbShortcuts: function ( event ) {
-        const isMac = UA.isMac;
         switch ( lookupKey( event ) ) {
         case isMac ? 'Meta-k' : 'Ctrl-k':
             event.preventDefault();
@@ -1281,10 +1280,10 @@ const RichTextView = Class({
 RichTextView.isSupported = (
     ( 'contentEditable' in document.body ) &&
     // Windows Phone as of v8.1 (IE11) is still pretty buggy
-    ( !UA.isWinPhone ) &&
+    ( !isWinPhone ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous
     // bugs.
-    ( !UA.isIOS || UA.isWKWebView )
+    ( !isIOS || isWKWebView )
 );
 
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;

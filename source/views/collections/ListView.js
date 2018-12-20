@@ -2,10 +2,10 @@ import { Class, guid } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
-import UA from '../../ua/UA';
+import { browser } from '../../ua/UA';
 import View from '../View';
 
-const isFirefox = UA.browser === 'firefox';
+const isFirefox = browser === 'firefox';
 
 const byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );

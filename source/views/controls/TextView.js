@@ -4,13 +4,13 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property, #nocache
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import UA from '../../ua/UA';
+import { browser } from '../../ua/UA';
 import { nearest } from '../../dom/Element';
 import { lookupKey } from '../../dom/DOMEvent';
 import ScrollView from '../containers/ScrollView';
 import AbstractControlView from './AbstractControlView';
 
-const isFirefox = UA.browser === 'firefox';
+const isFirefox = browser === 'firefox';
 
 /**
     Class: O.TextView

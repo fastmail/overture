@@ -6,7 +6,7 @@ import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/LocaleController';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import UA from '../../ua/UA';
+import { isIOS } from '../../ua/UA';
 import { appendChildren } from '../../dom/Element';
 
 /**
@@ -139,7 +139,7 @@ const AbstractControlView = Class({
         }
         // iOS is very buggy if you remove a focused control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
-        if ( UA.isIOS && this.get( 'isFocused' ) ) {
+        if ( isIOS && this.get( 'isFocused' ) ) {
             this.blur();
         }
         return AbstractControlView.parent.willLeaveDocument.call(

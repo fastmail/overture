@@ -1,12 +1,11 @@
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import '../foundation/EventTarget';  // For Function#on
-import UA from '../ua/UA';
+import { isMac } from '../ua/UA';
 import { lookupKey } from '../dom/DOMEvent';
 import RichTextView from '../views/controls/RichTextView';
 import ViewEventsController from '../views/ViewEventsController';
 
-const isMac = UA.isMac;
 const allowedInputs = {
     checkbox: 1,
     radio: 1,

@@ -6,7 +6,7 @@ import '../../foundation/ObservableProps';  // For Function#observes
 import { create as el, setStyle, appendChildren } from '../../dom/Element';
 import Animation from '../../animation/Animation';
 import Tap from '../../touch/Tap';
-import UA from '../../ua/UA';
+import { isIOS, browser, version } from '../../ua/UA';
 import View from '../View';
 import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
@@ -476,8 +476,8 @@ const ScrollView = Class({
     },
 });
 
-if ( UA.isIOS ) {
-    const isOldOrSafari = UA.version < 11 || UA.browser === 'safari';
+if ( isIOS ) {
+    const isOldOrSafari = version < 11 || browser === 'safari';
 
     Object.assign( ScrollView.prototype, {
         draw ( layer, Element, el ) {
