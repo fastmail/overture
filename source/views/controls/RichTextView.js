@@ -1280,8 +1280,6 @@ const RichTextView = Class({
 
 RichTextView.isSupported = (
     ( 'contentEditable' in document.body ) &&
-    // Opera Mobile. Yeh, no.
-    ( !UA.operaMobile ) &&
     // Windows Phone as of v8.1 (IE11) is still pretty buggy
     ( !UA.isWinPhone ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous

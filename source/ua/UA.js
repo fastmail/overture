@@ -15,13 +15,13 @@ const platform = /windows phone/.test( ua ) ? 'winphone' :
     /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
     other
 )[0];
-let browser = (
-    /firefox|edge|msie|iemobile|opr\//.exec( ua ) ||
-    /chrome|safari|opera/.exec( ua ) ||
+const browser = (
+    /firefox|edge|msie/.exec( ua ) ||
+    /chrome|safari/.exec( ua ) ||
     other
 )[0];
 const version = parseFloat((
-    /(?:; rv:|edge\/|version\/|firefox\/|opr\/|msie\s|os )(\d+(?:[._]\d+)?)/
+    /(?:; rv:|edge\/|version\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/
         .exec( ua ) ||
     /chrome\/(\d+\.\d+)/.exec( ua ) ||
     other
@@ -29,12 +29,7 @@ const version = parseFloat((
 const prefix = {
     firefox: '-moz-',
     msie: '-ms-',
-    opera: '-o-',
 }[ browser ] || '-webkit-';
-if ( browser === 'opr/' ) {
-    browser = 'opera';
-}
-
 
 /**
     Namespace: O.UA
@@ -106,8 +101,7 @@ export default {
         Property: O.UA.browser
         Type: String
 
-        The browser being run. "chrome", "firefox", "msie", "edge", "opera",
-        "safari" or "iemobile".
+        The browser being run. "chrome", "firefox", "msie", "edge" or "safari".
     */
     browser,
     /**
@@ -125,6 +119,8 @@ export default {
         Type: Number
 
         If running Chrome, this will be the version number running. Otherwise 0.
+        Other browsers like Opera may report as Chrome; the version number
+        should correspond to the build of Chromium whence they came.
     */
     chrome: browser === 'chrome' ? version : 0,
     /**
@@ -158,29 +154,6 @@ export default {
         Otherwise 0.
     */
     msie: browser === 'msie' ? version : 0,
-    /**
-        Property: O.UA.iemobile
-        Type: Number
-
-        If running Mobile Internet Explorer, this will be the version number
-        running. Otherwise 0.
-    */
-    iemobile: browser === 'iemobile' ? version : 0,
-    /**
-        Property: O.UA.opera
-        Type: Number
-
-        If running Opera, this will be the version number running. Otherwise 0.
-    */
-    opera: browser === 'opera' ? version : 0,
-    /**
-        Property: O.UA.operaMobile
-        Type: Number
-
-        If running Opera Mobile, this will be the version number running.
-        Otherwise 0.
-    */
-    operaMobile: /opera mobi/.test( ua ) ? version : 0,
 
     /**
         Property: O.UA.operaMini
