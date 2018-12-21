@@ -2,7 +2,7 @@ import { Class, meta } from '../../core/Core';
 import '../../core/Array';  // For Array#erase
 import ObservableArray from '../../foundation/ObservableArray';
 
-import RecordAttribute from './RecordAttribute';
+import { RecordAttribute } from './attr';
 import Record from './Record';
 
 const slice = Array.prototype.slice;
@@ -188,8 +188,9 @@ const ToManyAttribute = Class({
     },
 });
 
-export default ToManyAttribute;
-
-Record.toMany = function ( mixin ) {
+const toMany = function ( mixin ) {
     return new ToManyAttribute( mixin );
 };
+
+export default toMany;
+export { toMany, ToManyAttribute };

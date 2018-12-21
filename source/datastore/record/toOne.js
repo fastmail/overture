@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core';
 
-import RecordAttribute from './RecordAttribute';
+import { RecordAttribute } from './attr';
 
 const ToOneAttribute = Class({
 
@@ -33,4 +33,9 @@ const ToOneAttribute = Class({
     },
 });
 
-export default ToOneAttribute;
+const toOne = function ( mixin ) {
+    return new ToOneAttribute( mixin );
+};
+
+export default toOne;
+export { toOne, ToOneAttribute };

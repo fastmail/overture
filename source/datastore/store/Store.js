@@ -24,8 +24,8 @@ import {
 } from '../record/Status';
 // eslint-disable-next-line no-duplicate-imports
 import * as Status from '../record/Status';
-import ToOneAttribute from '../record/ToOneAttribute';
-import ToManyAttribute from '../record/ToManyAttribute';
+import { ToOneAttribute } from '../record/toOne';
+import { ToManyAttribute } from '../record/toMany';
 
 /**
     Module: DataStore

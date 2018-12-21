@@ -333,4 +333,36 @@ const RecordAttribute = Class({
     },
 });
 
-export default RecordAttribute;
+/**
+    Function: O.Record.attr
+
+    A factory function for creating a new <O.RecordAttribute> instance. This
+    will set an assert function to verify the correct type is being set whenever
+    the value is set, and that the correct type is used to serialise to/from
+    primitive types.
+
+    When subclassing O.Record, use this function to create a value for any
+    properties on the record which correspond to properties on the underlying
+    data object. This will automatically set things up so they are fetched from
+    the store and synced to the source.
+
+    Parameters:
+        Type    - {Constructor} The type of the property.
+        mixin - {Object} Properties to pass to the <O.RecordAttribute>
+                constructor.
+
+    Returns:
+        {O.RecordAttribute} Getter/setter for that record attribute.
+*/
+const attr = function ( Type, mixin ) {
+    if ( !mixin ) {
+        mixin = {};
+    }
+    if ( Type && !mixin.Type ) {
+        mixin.Type = Type;
+    }
+    return new RecordAttribute( mixin );
+};
+
+export default attr;
+export { attr, RecordAttribute };

@@ -2,7 +2,7 @@ import { Class, meta } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import '../../foundation/ObservableProps';  // For Function#observes
 
-import RecordAttribute from './RecordAttribute';
+import { RecordAttribute } from './attr';
 
 /**
     Class: O.AttributeErrors
