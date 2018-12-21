@@ -80,37 +80,6 @@ const nextFrame = function () {
     <O.Animation#prepare> and <O.Animation#drawFrame> methods.
 */
 export default class Animation {
-    constructor ( mixin ) {
-        this.isRunning = false;
-        this.startTime = 0;
-
-        this.startValue = null;
-        this.endValue = null;
-        this.deltaValue = null;
-
-        Object.assign( this, mixin );
-    }
-}
-
-Object.assign( Animation.prototype, {
-    /**
-        Property: O.Animation#duration
-        Type: Number
-        Default: 300
-
-        The length, in milliseconds, that the animation should last.
-    */
-    duration: 300,
-
-    /**
-        Property: O.Animation#ease
-        Type: Function
-        Default: O.Easing.ease
-
-        The easing function to use for the animation.
-    */
-    ease: Easing.ease,
-
     /**
         Property: O.Animation#isRunning
         Type: Boolean
@@ -138,6 +107,17 @@ Object.assign( Animation.prototype, {
 
         The name of the property to set on the object being animated.
     */
+
+    constructor ( mixin ) {
+        this.isRunning = false;
+        this.startTime = 0;
+
+        this.startValue = null;
+        this.endValue = null;
+        this.deltaValue = null;
+
+        Object.assign( this, mixin );
+    }
 
     /**
         Method: O.Animation#animate
@@ -195,7 +175,7 @@ Object.assign( Animation.prototype, {
             object.willAnimate( this );
         }
         return this;
-    },
+    }
 
     /**
         Method (protected): O.Animation#prepare
@@ -221,7 +201,7 @@ Object.assign( Animation.prototype, {
         this.deltaValue = this.endValue - this.startValue;
 
         return !!this.deltaValue;
-    },
+    }
 
     /**
         Method (protected): O.Animation#drawFrame
@@ -246,7 +226,7 @@ Object.assign( Animation.prototype, {
             this.startValue + ( position * this.deltaValue );
 
         this.object.set( this.property, value );
-    },
+    }
 
     /**
         Method: O.Animation#stop
@@ -275,5 +255,23 @@ Object.assign( Animation.prototype, {
         }
 
         return this;
-    },
-});
+    }
+}
+
+/**
+    Property: O.Animation#duration
+    Type: Number
+    Default: 300
+
+    The length, in milliseconds, that the animation should last.
+*/
+Animation.prototype.duration = 300;
+
+/**
+    Property: O.Animation#ease
+    Type: Function
+    Default: O.Easing.ease
+
+    The easing function to use for the animation.
+*/
+Animation.prototype.ease = Easing.ease;
