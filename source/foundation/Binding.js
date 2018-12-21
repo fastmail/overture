@@ -147,6 +147,10 @@ class Binding {
         this.isNotInSync = true;
         this.willSyncForward = true;
 
+        // If the to or from object cannot be resolved, should the binding delay
+        // the connection until the end of the run loop?
+        this._doNotDelayConnection = false;
+
         this._fromPath = null;
         this._fromRoot = null;
         this._toPath = null;
@@ -528,15 +532,6 @@ class Binding {
         return true;
     }
 }
-
-/**
-    Property (private): O.Binding#_doNotDelayConnection
-    Type: Boolean
-
-    If the to or from object cannot be resolved, should the binding delay
-    the connection until the end of the run loop?
-*/
-Binding.prototype._doNotDelayConnection = false;
 
 /**
     Function: O.bind
