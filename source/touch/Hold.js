@@ -19,18 +19,21 @@ const fireHoldEvent = function () {
     }
 };
 
-const TrackedTouch = function ( touch ) {
-    this.touch = touch;
-    this.x = touch.screenX;
-    this.y = touch.screenY;
-    this.target = touch.target;
-    this._ignore = false;
-    RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
-};
+class TrackedTouch {
+    constructor ( touch ) {
+        this.touch = touch;
+        this.x = touch.screenX;
+        this.y = touch.screenY;
+        this.target = touch.target;
+        this._ignore = false;
+        RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
+    }
 
-TrackedTouch.prototype.done = function () {
-    this._ignore = true;
-};
+    done () {
+        this._ignore = true;
+    }
+}
+
 
 /*  A hold is defined as a touch which:
 

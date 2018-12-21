@@ -104,22 +104,6 @@
         {Object} The metadata for the object.
 */
 
-const Metadata = function ( object ) {
-    this.object = object;
-    this.dependents = {};
-    this.allDependents = {};
-    this.cache = {};
-    this.observers = {};
-    this.changed = null;
-    this.depth = 0;
-    this.pathObservers = {};
-    this.bindings = {};
-    this.inits = {};
-    this.isInitialised = false;
-
-    object.__meta__ = this;
-};
-
 const isIdentical = function ( a, b ) {
     return a === b;
 };
@@ -130,48 +114,66 @@ const isSameObserver = function ( a, b ) {
         a.path === b.path;
 };
 
-Metadata.prototype.addObserver = function ( key, observer ) {
-    const observers = this.observers;
-    let keyObservers = observers[ key ];
-    if ( !keyObservers ) {
-        keyObservers = observers[ key ] = [];
-    } else if ( !observers.hasOwnProperty( key ) ) {
-        keyObservers = observers[ key ] = keyObservers.slice();
-    }
-    const isSame = typeof observer === 'function' ?
-        isIdentical : isSameObserver;
-    let i = 0;
-    for ( const l = keyObservers.length; i < l; i += 1 ) {
-        if ( isSame( keyObservers[i], observer ) ) {
-            return this;
-        }
-    }
-    keyObservers[i] = observer;
-    return this;
-};
+class Metadata {
+    constructor ( object ) {
+        this.object = object;
+        this.dependents = {};
+        this.allDependents = {};
+        this.cache = {};
+        this.observers = {};
+        this.changed = null;
+        this.depth = 0;
+        this.pathObservers = {};
+        this.bindings = {};
+        this.inits = {};
+        this.isInitialised = false;
 
-Metadata.prototype.removeObserver = function ( key, observer ) {
-    const observers = this.observers;
-    let keyObservers = observers[ key ];
-    if ( keyObservers ) {
-        if ( !observers.hasOwnProperty( key ) ) {
+        object.__meta__ = this;
+    }
+
+    addObserver ( key, observer ) {
+        const observers = this.observers;
+        let keyObservers = observers[ key ];
+        if ( !keyObservers ) {
+            keyObservers = observers[ key ] = [];
+        } else if ( !observers.hasOwnProperty( key ) ) {
             keyObservers = observers[ key ] = keyObservers.slice();
         }
         const isSame = typeof observer === 'function' ?
             isIdentical : isSameObserver;
-        let l = keyObservers.length;
-        while ( l-- ) {
-            if ( isSame( keyObservers[l], observer ) ) {
-                keyObservers.splice( l, 1 );
-                break;
+        let i = 0;
+        for ( const l = keyObservers.length; i < l; i += 1 ) {
+            if ( isSame( keyObservers[i], observer ) ) {
+                return this;
             }
         }
-        if ( !keyObservers.length ) {
-            observers[ key ] = null;
-        }
+        keyObservers[i] = observer;
+        return this;
     }
-    return this;
-};
+
+    removeObserver ( key, observer ) {
+        const observers = this.observers;
+        let keyObservers = observers[ key ];
+        if ( keyObservers ) {
+            if ( !observers.hasOwnProperty( key ) ) {
+                keyObservers = observers[ key ] = keyObservers.slice();
+            }
+            const isSame = typeof observer === 'function' ?
+                isIdentical : isSameObserver;
+            let l = keyObservers.length;
+            while ( l-- ) {
+                if ( isSame( keyObservers[l], observer ) ) {
+                    keyObservers.splice( l, 1 );
+                    break;
+                }
+            }
+            if ( !keyObservers.length ) {
+                observers[ key ] = null;
+            }
+        }
+        return this;
+    }
+}
 
 const meta = function ( object ) {
     let data = object.__meta__;
