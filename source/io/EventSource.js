@@ -278,7 +278,7 @@ const EventSource = NativeEventSource ? Class({
     _processData ( text ) {
         // Look for a new line character since the last processed
         let lastIndex = this._lastNewLineIndex;
-        const newLine = /\u000d\u000a?|\u000a/g;
+        const newLine = /\r\n?|\n/g;
 
         // One leading U+FEFF BYTE ORDER MARK character must be ignored if any
         // are present.
