@@ -202,6 +202,13 @@ const getDelta = function ( Type, data, changed ) {
 
 // ---
 
+const mapToTrue = ( object, uri ) => {
+    object[ uri ] = true;
+    return object;
+};
+
+// ---
+
 /**
     Class: O.Store
 
@@ -415,14 +422,30 @@ const Store = Class({
 
     addAccount ( accountId, data ) {
         const _accounts = this._accounts;
-        let account = _accounts[ accountId ];
-        if ( !account ) {
+        // replaceAccountId is intended for situations where you wish to
+        // retrieve a record that should be broadly considered a global, before
+        // you have loaded the accounts. This way, you can add a dummy account,
+        // get those records from the dummy account, and then when you have the
+        // accounts, silently update the accountId to the real value. That way
+        // you can still handle all of your bindings declaratively, rather than
+        // having to wait until you have loaded the accounts.
+        const replaceAccountId = data.replaceAccountId;
+        let account;
+        if ( replaceAccountId && ( account = _accounts[ replaceAccountId ] ) ) {
+            if ( data.hasDataFor ) {
+                account.hasDataFor = data.hasDataFor.reduce( mapToTrue, {} );
+            }
+            const skToAccountId = this._skToAccountId;
+            for ( const sk in skToAccountId ) {
+                if ( skToAccountId[ sk ] === replaceAccountId ) {
+                    skToAccountId[ sk ] = accountId;
+                }
+            }
+            delete _accounts[ replaceAccountId ];
+        } else if ( !( account = _accounts[ accountId ] ) ) {
             account = {
                 // Transform [ ...uri ] into { ...uri: true } for fast access
-                hasDataFor: data.hasDataFor.reduce( ( object, uri ) => {
-                    object[ uri ] = true;
-                    return object;
-                }, {} ),
+                hasDataFor: data.hasDataFor.reduce( mapToTrue, {} ),
                 // Type -> status
                 // READY      - Some records of type loaded
                 // LOADING    - Loading or refreshing ALL records of type
