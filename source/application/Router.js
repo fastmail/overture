@@ -188,11 +188,15 @@ const Router = Class({
             }.property( ...Object.keys( this.knownGlobalQueryParams ) ),
         });
 
+        this._knownGlobalQueryParamNames = new Set(
+            Object.values( this.knownGlobalQueryParams )
+        );
+
         if ( !win ) {
             win = window;
         }
         this._win = win;
-        this.doRouting();
+        this.doRouting( true );
         win.addEventListener( 'popstate', this, false );
     },
 
@@ -217,7 +221,10 @@ const Router = Class({
         may lead to confusion with the noun “route”, referring to the current
         route. Hence the clumsy name doRouting.)
     */
-    doRouting: doRouting = function () {
+    // The applyGlobalParams argument only takes effect if it is exactly `true`,
+    // because of how this function observes routes, and so it may have `this`
+    // passed as its first argument.
+    doRouting: doRouting = function ( applyGlobalParams ) {
         const baseUrl = this.baseUrl;
         const href = this._win.location.href;
         if ( !href.startsWith( baseUrl ) ) {
@@ -225,7 +232,8 @@ const Router = Class({
             error.details = { href, baseUrl };
             throw error;
         }
-        this.restoreEncodedState( href.slice( baseUrl.length ) );
+        this.restoreEncodedState( href.slice( baseUrl.length ),
+            applyGlobalParams === true );
     }.observes( 'routes' ),
 
     /**
@@ -250,35 +258,46 @@ const Router = Class({
         Returns:
             {O.Router} Returns self.
     */
-    restoreEncodedState ( encodedState ) {
+    restoreEncodedState ( encodedState, applyGlobalParams ) {
         this.beginPropertyChanges();
 
         // Firstly, parse the query string and set the global params on this.
         const queryStringStart = encodedState.indexOf( '?' );
         let queryString;
         let encodedStateSansQueryString;
-        if ( queryStringStart  !== -1 ) {
+        if ( queryStringStart !== -1 ) {
             // Parse the query string
+            const globalNames = this._knownGlobalQueryParamNames;
             queryString = encodedState.slice( queryStringStart + 1 )
                 .split( '&' )
                 .map( entry => entry.split( '=', 2 ).map( decodeURIComponent ) )
                 .reduce( ( obj, [ name, value ]) => {
-                    obj[ name ] = value;
+                    // If not applying global params, we skip adding them to the
+                    // object, which is probably more efficient than adding them
+                    // (though at the cost of having created the Set of names in
+                    // the first place), only to remove them immediately. But if
+                    // applying them, we *do* add them, so that we can iterate
+                    // through all the parameters, setting missing ones to null,
+                    // which we couldn’t readily do if we applied them in this
+                    // reducer function).
+                    if ( applyGlobalParams || globalNames.has( name ) ) {
+                        obj[ name ] = value;
+                    }
                     return obj;
                 }, {} );
 
-            // Consume global query string parameters, applying them to `this`
-            // and deleting them from the object that will be passed to the
-            // route handler.
-            const { knownGlobalQueryParams } = this;
-            for ( const property in knownGlobalQueryParams ) {
-                if ( hasOwnProperty.call( knownGlobalQueryParams, property ) ) {
-                    const name = knownGlobalQueryParams[ property ];
-                    if ( hasOwnProperty.call( queryString, name ) ) {
-                        this.set( property, queryString[ name ] );
-                        delete queryString[ name ];
-                    } else {
-                        this.set( property, null );
+            // And if appropriate, consume the global params fully.
+            if ( applyGlobalParams ) {
+                const globals = this.knownGlobalQueryParams;
+                for ( const property in globals ) {
+                    if ( hasOwnProperty.call( globals, property ) ) {
+                        const name = globals[ property ];
+                        if ( hasOwnProperty.call( queryString, name ) ) {
+                            this.set( property, queryString[ name ] );
+                            delete queryString[ name ];
+                        } else {
+                            this.set( property, null );
+                        }
                     }
                 }
             }
