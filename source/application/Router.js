@@ -206,15 +206,22 @@ const Router = Class({
     init: function ( mixin_, win ) {
         Router.parent.constructor.call( this, mixin_ );
 
+        const globalQueryProps = Object.keys( this.knownGlobalQueryParams );
         mixin( this, {
             globalQueryStringPart: function () {
                 return globalQueryStringPart.call( this );
-            }.property( ...Object.keys( this.knownGlobalQueryParams ) ),
+            }.property( ...globalQueryProps ),
         });
 
         this._knownGlobalQueryParamNames = new Set(
             Object.values( this.knownGlobalQueryParams )
         );
+
+        // And null them all to begin with. Deliberately not using .set() here.
+        const len = globalQueryProps.length;
+        for ( let i = 0; i < len; i++ ) {
+            this[ globalQueryProps[i] ] = null;
+        }
 
         if ( !win ) {
             win = window;
