@@ -15,7 +15,7 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let doRouting;
 
-const _globalQueryStringPart = function () {
+const globalQueryStringPart = function () {
     // We don’t actually *depend* on a stable order here, but it’s desirable.
     // The specs don’t quite guarantee us that, but all current browsers provide
     // it. See https://stackoverflow.com/q/30076219/30919039 for details.
@@ -72,6 +72,8 @@ const Router = Class({
         There’s also a different default for the file: scheme, using the hash,
         but realise that it may have issues if you have links that use the hash,
         or if you try loading the page without “#/” added on the end.
+
+        This property must not be modified after router construction time.
     */
     baseUrl: location.protocol === 'file:' ?
         location.href.replace(/#.*/, '') + '#/' :
@@ -101,10 +103,9 @@ const Router = Class({
         Although this knownGlobalQueryParams property is read-only after
         construction, the properties it causes to exist may be modified,
         and the URL will be updated when that happens. But beware: any links
-        generated will be not be updated unless they depend on… something.
-        Hmm, I wonder then whether we need an observable property that
-        encompasses baseUrl and _globalQueryStringPart. Probably, in theory, but
-        in practice I doubt much would use it. ☹ TODO.
+        generated will be not be updated unless they depend on
+        globalQueryStringPart. (They also depend on baseUrl, but it’s not
+        permitted to change after construction time.)
 
         Example:
 
@@ -127,8 +128,31 @@ const Router = Class({
     */
     knownGlobalQueryParams: {},
 
+    /**
+        Property: O.Router#globalQueryStringPart
+        Type: String
+
+        The current values of the global query parameters, encoded for inclusion
+        in the query string by such methods as getUrlForEncodedState. This value
+        will be of little direct value to you, but if you have links that must
+        contain the current values of global query parameters, create a binding
+        to this as in this example:
+
+            el( 'a', {
+                href: bind( router, 'globalQueryStringPart',
+                    () => router.getUrlForEncodedState( 'foo' ) ),
+            }, [
+                'Foo',
+            ]),
+
+        If the URL needs to depend on other properties, I’m sure you can figure
+        it out from here.
+
+        This property is read-only to user code. To effect change in it, modify
+        the underlying global parameter values directly instead.
+    */
     // Constructor replaces this with a property with the correct dependencies.
-    _globalQueryStringPart: '',
+    globalQueryStringPart: '',
 
     /**
         Property: O.Router#encodedState
@@ -183,8 +207,8 @@ const Router = Class({
         Router.parent.constructor.call( this, mixin_ );
 
         mixin( this, {
-            _globalQueryStringPart: function () {
-                return _globalQueryStringPart.call( this );
+            globalQueryStringPart: function () {
+                return globalQueryStringPart.call( this );
             }.property( ...Object.keys( this.knownGlobalQueryParams ) ),
         });
 
@@ -371,11 +395,11 @@ const Router = Class({
         } else {
             history.pushState( null, title, url );
         }
-    }.queue( 'after' ).observes( 'encodedState', '_globalQueryStringPart' ),
+    }.queue( 'after' ).observes( 'encodedState', 'globalQueryStringPart' ),
 
     getUrlForEncodedState ( state ) {
-        let url = this.get( 'baseUrl' ) + state;
-        const globalQueryStringPart = this.get( '_globalQueryStringPart' );
+        let url = this.baseUrl + state;
+        const globalQueryStringPart = this.get( 'globalQueryStringPart' );
         if ( globalQueryStringPart ) {
             url += ( url.includes( '?' ) ? '&' : '?' ) + globalQueryStringPart;
         }
