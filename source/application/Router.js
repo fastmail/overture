@@ -232,7 +232,7 @@ const Router = Class({
             error.details = { href, baseUrl };
             throw error;
         }
-        this.restoreEncodedState( href.slice( baseUrl.length ),
+        this.restoreEncodedState( href.slice( baseUrl.length ), null,
             applyGlobalParams === true );
     }.observes( 'routes' ),
 
@@ -252,74 +252,90 @@ const Router = Class({
         uses that to decode the state. Called automatically whenever the URL
         changes, via <O.Router#doRouting>.
 
+        The parameters queryString and applyGlobalParameters are mutually
+        exclusive: if you pass an already-parsed queryString, it is assumed not
+        to contain any global parameters. This may sound weird, but our use case
+        for an already-parsed queryString is nested routers, and only the root
+        router actually concerns itself with routes. (Nested routers aren’t even
+        true routers in our case.)
+
         Parameters:
-            encodedState - {String} The encodedState to restore state from.
+            encodedState - {String} The encodedState to restore state from, with
+                           or without query string
+            queryString - {(Object|null)} (optional) The already-decoded query
+                          string; passing a value for this requires that
+                          encodedState not contain a query string
+            applyGlobalParams - {Boolean} (optional) True to update the global
+                                query parameters based on the query string in
+                                encodedState; false by default.
 
         Returns:
             {O.Router} Returns self.
     */
-    restoreEncodedState ( encodedState, applyGlobalParams ) {
+    restoreEncodedState ( encodedState, queryString, applyGlobalParams ) {
         this.beginPropertyChanges();
 
-        // Firstly, parse the query string and set the global params on this.
-        const queryStringStart = encodedState.indexOf( '?' );
-        let queryString;
-        let encodedStateSansQueryString;
-        if ( queryStringStart !== -1 ) {
-            // Parse the query string
-            const globalNames = this._knownGlobalQueryParamNames;
-            queryString = encodedState.slice( queryStringStart + 1 )
-                .split( '&' )
-                .map( entry => entry.split( '=', 2 ).map( decodeURIComponent ) )
-                .reduce( ( obj, [ name, value ]) => {
-                    // If not applying global params, we skip adding them to the
-                    // object, which is probably more efficient than adding them
-                    // (though at the cost of having created the Set of names in
-                    // the first place), only to remove them immediately. But if
-                    // applying them, we *do* add them, so that we can iterate
-                    // through all the parameters, setting missing ones to null,
-                    // which we couldn’t readily do if we applied them in this
-                    // reducer function).
-                    if ( applyGlobalParams || globalNames.has( name ) ) {
-                        obj[ name ] = value;
-                    }
-                    return obj;
-                }, {} );
+        if ( !queryString ) {
+            const queryStringStart = encodedState.indexOf( '?' );
+            if ( queryStringStart !== -1 ) {
+                // Parse the query string
+                const globalNames = this._knownGlobalQueryParamNames;
+                queryString = encodedState.slice( queryStringStart + 1 )
+                    .split( '&' )
+                    .map( entry => entry.split( '=', 2 )
+                                        .map( decodeURIComponent ) )
+                    .reduce( ( obj, [ name, value ]) => {
+                        // If not applying global params, we skip adding them to
+                        // the object, which despite the cost of creating the
+                        // Set of names in the constructor is probably more
+                        // efficient than adding them, only to remove them
+                        // immediately. But if applying them, we must add them,
+                        // so we can iterate through all the parameters, setting
+                        // missing ones to null, which we couldn’t readily do if
+                        // we applied them in this reducer function).
+                        // The !globalNames check: sub-routers aren’t formally
+                        // supported, but in practice you can just borrow the
+                        // restoreEncodedState method from this type and drop it
+                        // on another type—so long as we include this check.
+                        if ( applyGlobalParams || !globalNames ||
+                                globalNames.has( name ) ) {
+                            obj[ name ] = value;
+                        }
+                        return obj;
+                    }, {} );
 
-            // And if appropriate, consume the global params fully.
-            if ( applyGlobalParams ) {
-                const globals = this.knownGlobalQueryParams;
-                for ( const property in globals ) {
-                    if ( hasOwnProperty.call( globals, property ) ) {
-                        const name = globals[ property ];
-                        if ( hasOwnProperty.call( queryString, name ) ) {
-                            this.set( property, queryString[ name ] );
-                            delete queryString[ name ];
-                        } else {
-                            this.set( property, null );
+                if ( applyGlobalParams ) {
+                    const globals = this.knownGlobalQueryParams;
+                    for ( const property in globals ) {
+                        if ( hasOwnProperty.call( globals, property ) ) {
+                            const name = globals[ property ];
+                            if ( hasOwnProperty.call( queryString, name ) ) {
+                                this.set( property, queryString[ name ] );
+                                delete queryString[ name ];
+                            } else {
+                                this.set( property, null );
+                            }
                         }
                     }
                 }
-            }
 
-            encodedStateSansQueryString =
-                encodedState.slice( 0, queryStringStart );
-        } else {
-            // We use {} rather than null for convenience in route handlers.
-            queryString = {};
-            encodedStateSansQueryString = encodedState;
+                encodedState = encodedState.slice( 0, queryStringStart );
+            } else {
+                // We use {} rather than null for convenience in route handlers.
+                queryString = {};
+            }
         }
 
-        // Then on to the actual routing.
+        // Now finally on to the actual routing.
         const routes = this.get( 'routes' );
         for ( let i = 0, l = routes.length; i < l; i += 1 ) {
             const route = routes[i];
-            const match = route.url.exec( encodedStateSansQueryString );
+            const match = route.url.exec( encodedState );
             if ( match ) {
                 // Example: encodedState is 'foo/bar?baz=quux',
                 // route.url is /^foo\/(.*)$/, → route.handle.call( this,
                 // 'foo/bar', { 'baz': 'quux' }, 'bar' )
-                route.handle.call( this, encodedStateSansQueryString,
+                route.handle.call( this, encodedState,
                     queryString, ...match.slice( 1 ) );
                 break;
             }
