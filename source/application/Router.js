@@ -397,11 +397,34 @@ const Router = Class({
         }
     }.queue( 'after' ).observes( 'encodedState', 'globalQueryStringPart' ),
 
+    // This method allows a hash to be in state, purely because in FastMail we
+    // have a few places where we want it so—we’re not quite dealing with
+    // “encoded state” there, but rather partial URLs. Still, it’s kinda nice to
+    // do it here. The rest of the router doesn’t really cope with a hash at
+    // present. I’d like it to, but there are some interesting considerations,
+    // like whether this.encodedState should include it, and whether it should
+    // be part of routing (i.e. trigger the theoretically idempotent
+    // restoreEncodedState on every hash change), and if so whether this means
+    // yet another new argument to the handler or whether we stow it somewhere
+    // else, or maybe we do the whole thing with events, and… and… yeah. I guess
+    // I have another TODO. Lots of interesting things to consider.
     getUrlForEncodedState ( state ) {
-        let url = this.baseUrl + state;
+        let url = this.baseUrl;
+        const hashIndex = state.indexOf( '#' );
+        let hash;
+        if ( hashIndex > -1 ) {
+            hash = state.slice( hashIndex );
+            url += state.slice( 0, hashIndex );
+        } else {
+            url += state;
+        }
         const globalQueryStringPart = this.get( 'globalQueryStringPart' );
         if ( globalQueryStringPart ) {
-            url += ( url.includes( '?' ) ? '&' : '?' ) + globalQueryStringPart;
+            url += ( state.includes( '?' ) ? '&' : '?' ) +
+                globalQueryStringPart;
+        }
+        if ( hash ) {
+            url += hash;
         }
         return url;
     },
