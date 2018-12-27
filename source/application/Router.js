@@ -252,17 +252,17 @@ const Router = Class({
         uses that to decode the state. Called automatically whenever the URL
         changes, via <O.Router#doRouting>.
 
-        The parameters queryString and applyGlobalParameters are mutually
-        exclusive: if you pass an already-parsed queryString, it is assumed not
-        to contain any global parameters. This may sound weird, but our use case
-        for an already-parsed queryString is nested routers, and only the root
-        router actually concerns itself with routes. (Nested routers aren’t even
-        true routers in our case.)
+        The parameters queryParams and applyGlobalParams are mutually exclusive:
+        if you pass an already-parsed queryParams, it is assumed not to contain
+        any global parameters. This may sound weird, but our use case for an
+        already-parsed queryParams is nested routers, and only the root router
+        actually concerns itself with routes. (Nested routers aren’t even true
+        routers in our case.)
 
         Parameters:
             encodedState - {String} The encodedState to restore state from, with
                            or without query string
-            queryString - {(Object|null)} (optional) The already-decoded query
+            queryParams - {(Object|null)} (optional) The already-decoded query
                           string; passing a value for this requires that
                           encodedState not contain a query string
             applyGlobalParams - {Boolean} (optional) True to update the global
@@ -272,15 +272,15 @@ const Router = Class({
         Returns:
             {O.Router} Returns self.
     */
-    restoreEncodedState ( encodedState, queryString, applyGlobalParams ) {
+    restoreEncodedState ( encodedState, queryParams, applyGlobalParams ) {
         this.beginPropertyChanges();
 
-        if ( !queryString ) {
+        if ( !queryParams ) {
             const queryStringStart = encodedState.indexOf( '?' );
             if ( queryStringStart !== -1 ) {
                 // Parse the query string
                 const globalNames = this._knownGlobalQueryParamNames;
-                queryString = encodedState.slice( queryStringStart + 1 )
+                queryParams = encodedState.slice( queryStringStart + 1 )
                     .split( '&' )
                     .map( entry => entry.split( '=', 2 )
                                         .map( decodeURIComponent ) )
@@ -309,9 +309,9 @@ const Router = Class({
                     for ( const property in globals ) {
                         if ( hasOwnProperty.call( globals, property ) ) {
                             const name = globals[ property ];
-                            if ( hasOwnProperty.call( queryString, name ) ) {
-                                this.set( property, queryString[ name ] );
-                                delete queryString[ name ];
+                            if ( hasOwnProperty.call( queryParams, name ) ) {
+                                this.set( property, queryParams[ name ] );
+                                delete queryParams[ name ];
                             } else {
                                 this.set( property, null );
                             }
@@ -322,7 +322,7 @@ const Router = Class({
                 encodedState = encodedState.slice( 0, queryStringStart );
             } else {
                 // We use {} rather than null for convenience in route handlers.
-                queryString = {};
+                queryParams = {};
             }
         }
 
@@ -336,7 +336,7 @@ const Router = Class({
                 // route.url is /^foo\/(.*)$/, → route.handle.call( this,
                 // 'foo/bar', { 'baz': 'quux' }, 'bar' )
                 route.handle.call( this, encodedState,
-                    queryString, ...match.slice( 1 ) );
+                    queryParams, ...match.slice( 1 ) );
                 break;
             }
         }
