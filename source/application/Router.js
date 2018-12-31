@@ -307,42 +307,42 @@ const Router = Class({
         this.beginPropertyChanges();
 
         if ( !queryParams ) {
+            // We pass {} even if there is no query string; null would be
+            // annoying for route handlers.
+            queryParams = {};
+
             const queryStringStart = encodedState.indexOf( '?' );
             if ( queryStringStart !== -1 ) {
                 // Parse the query string
                 const globalNames = this._knownGlobalQueryParamNames;
-                queryParams = encodedState.slice( queryStringStart + 1 )
+                // On checking globalNames: we casually support the notion of
+                // sub-routers by borrowing the restoreEncodedState method from
+                // Router; if that’s done, then globalNames will be undefined,
+                // signifying “there are no global parameters”.
+                const globalParams =
+                    globalNames && applyGlobalParams ? {} : null;
+                encodedState.slice( queryStringStart + 1 )
                     .split( '&' )
                     .map( entry => entry.split( '=', 2 )
                                         .map( decodeURIComponent ) )
-                    .reduce( ( obj, [ name, value ]) => {
-                        // If not applying global params, we skip adding them to
-                        // the object, which despite the cost of creating the
-                        // Set of names in the constructor is probably more
-                        // efficient than adding them, only to remove them
-                        // immediately. But if applying them, we must add them,
-                        // so we can iterate through all the parameters, setting
-                        // missing ones to null, which we couldn’t readily do if
-                        // we applied them in this reducer function).
-                        // The !globalNames check: sub-routers aren’t formally
-                        // supported, but in practice you can just borrow the
-                        // restoreEncodedState method from this type and drop it
-                        // on another type—so long as we include this check.
-                        if ( applyGlobalParams || !globalNames ||
-                                globalNames.has( name ) ) {
-                            obj[ name ] = value;
+                    .forEach( ([ name, value ]) => {
+                        if ( !globalNames || !globalNames.has( name ) ) {
+                            // It’s a local parameter.
+                            queryParams[ name ] = value;
+                        } else if ( applyGlobalParams ) {
+                            // It’s a global parameter, and we care about their
+                            // values for once.
+                            globalParams[ name ] = value;
                         }
-                        return obj;
-                    }, {} );
+                    });
 
-                if ( applyGlobalParams ) {
+                if ( globalParams ) {
                     const globals = this.knownGlobalQueryParams;
                     for ( const property in globals ) {
                         if ( hasOwnProperty.call( globals, property ) ) {
                             const name = globals[ property ];
-                            if ( hasOwnProperty.call( queryParams, name ) ) {
-                                this.set( property, queryParams[ name ] );
-                                delete queryParams[ name ];
+                            if ( hasOwnProperty.call( globalParams, name ) ) {
+                                this.set( property, globalParams[ name ] );
                             } else {
                                 this.set( property, null );
                             }
@@ -351,9 +351,6 @@ const Router = Class({
                 }
 
                 encodedState = encodedState.slice( 0, queryStringStart );
-            } else {
-                // We use {} rather than null for convenience in route handlers.
-                queryParams = {};
             }
         }
 
