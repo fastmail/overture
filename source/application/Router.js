@@ -373,6 +373,24 @@ const Router = Class({
         return this;
     },
 
+    stripGlobalParams ( encodedState ) {
+        const globalNames = this._knownGlobalQueryParamNames;
+        const match = /^([^?#]*)(?:\?([^#]*))?(#.*)?$/.exec( encodedState );
+        let queryString = match[2];
+        // As written, this will also strip an empty query string. 👍
+        if ( queryString ) {
+            queryString = queryString.split( '&' )
+                .filter( entry => !globalNames.has( decodeURIComponent(
+                    entry.split( '=', 1 )[0]
+                )))
+                .join( '&' );
+            if ( queryString ) {
+                queryString = '?' + queryString;
+            }
+        }
+        return match[1] + ( queryString || '' ) + ( match[3] || '' );
+    },
+
     /**
         Method (private): O.Router#_encodeStateToUrl
 
