@@ -2654,11 +2654,16 @@ const Store = Class({
     _notifyRecordOfError ( storeKey, error ) {
         const record = this._skToRecord[ storeKey ];
         let isDefaultPrevented = false;
+        const event = new Event( error.type || 'error', record, error );
         if ( record ) {
-            const event = new Event( error.type || 'error', record, error );
             record.fire( 'record:commit:error', event );
-            isDefaultPrevented = event.defaultPrevented;
+        } else {
+            // The event will normally bubble from the record to the store.
+            // If no record, fire directly on the store in case there are
+            // observers attached here.
+            this.fire( 'record:commit:error', event );
         }
+        isDefaultPrevented = event.defaultPrevented;
         this._nestedStores.forEach( function ( store ) {
             isDefaultPrevented =
                 store._notifyRecordOfError( storeKey, error ) ||
