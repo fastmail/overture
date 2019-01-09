@@ -1,6 +1,6 @@
 /*global document, window, history, location */
 
-import { Class, mixin } from '../core/Core';
+import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop, #queue
@@ -203,31 +203,69 @@ const Router = Class({
     routes: [],
 
     // eslint-disable-next-line object-shorthand
-    init: function ( mixin_, win ) {
-        Router.parent.constructor.call( this, mixin_ );
-
-        const globalQueryProps = Object.keys( this.knownGlobalQueryParams );
-        mixin( this, {
-            globalQueryStringPart: function () {
-                return globalQueryStringPart.call( this );
-            }.property( ...globalQueryProps ),
-        });
-
-        this._knownGlobalQueryParamNames = new Set(
-            Object.values( this.knownGlobalQueryParams )
-        );
-
-        // And null them all to begin with. Deliberately not using .set() here.
-        const len = globalQueryProps.length;
-        for ( let i = 0; i < len; i++ ) {
-            this[ globalQueryProps[i] ] = null;
-        }
-
+    init: function ( mixin, win ) {
         if ( !win ) {
             win = window;
         }
+
+        // Before we can call the constructor, we need to sort out the magic of
+        // global query parameters. We need to do this before calling super so
+        // that globalQueryStringPart and the global query properties are all
+        // initialised from the start, without causing unnecessary flap (which
+        // can be particularly severe on _encodeStateToUrl, triggering it
+        // prematurely, potentially before encodedState is correct).
+        // Dodgy requirement: knownGlobalQueryParams may not be defined in some
+        // Router subclass; it must be on Router, or mixin.
+        const knownGlobalQueryParams = mixin.knownGlobalQueryParams ||
+            Router.prototype.knownGlobalQueryParams;
+        const globalQueryPropsByName = {};
+        const globalQueryProps = Object.keys( knownGlobalQueryParams );
+        const globalQueryNames = new Set(
+            Object.values( knownGlobalQueryParams )
+        );
+
+        const globalQueryMixin = {
+            globalQueryStringPart: function () {
+                return globalQueryStringPart.call( this );
+            }.property( ...globalQueryProps ),
+
+            _knownGlobalQueryParamNames: globalQueryNames,
+        };
+
+        // null them all to begin with,
+        for ( let i = globalQueryProps.length; i--; ) {
+            const prop = globalQueryProps[i];
+            globalQueryPropsByName[ knownGlobalQueryParams[ prop ] ] = prop;
+            globalQueryMixin[ prop ] = null;
+        }
+
+        // then look through the query string, and set any global parameters.
+        // Subtle point: for this initial global query string read, we use
+        // location.search rather than the usual baseUrl-prefix remainder.
+        // As with knownGlobalQueryParams, we can’t safely use `this.baseUrl`.
+        // This has the side-effect that if you use the hash (for file:), global
+        // query string parameters will be duplicated into the hash. We consider
+        // this a feature, as the scenario won’t arise in production, and our
+        // code loader discerns differences in what code should load using
+        // location.search itself.
+        const queryString = win.location.search;
+        if ( queryString ) {
+            queryString
+                .slice( 1 )
+                .split( '&' )
+                .map( entry => entry.split( '=', 2 ).map( decodeURIComponent ) )
+                .forEach( ([ name, value ]) => {
+                    if ( globalQueryNames.has( name ) ) {
+                        globalQueryMixin[ globalQueryPropsByName[ name ] ] =
+                            value;
+                    }
+                });
+        }
+
+        Router.parent.constructor.call( this, mixin, globalQueryMixin );
+
         this._win = win;
-        this.doRouting( true );
+        this.doRouting();
         win.addEventListener( 'popstate', this, false );
     },
 
@@ -252,10 +290,7 @@ const Router = Class({
         may lead to confusion with the noun “route”, referring to the current
         route. Hence the clumsy name doRouting.)
     */
-    // The applyGlobalParams argument only takes effect if it is exactly `true`,
-    // because of how this function observes routes, and so it may have `this`
-    // passed as its first argument.
-    doRouting: doRouting = function ( applyGlobalParams ) {
+    doRouting: doRouting = function () {
         const baseUrl = this.baseUrl;
         const href = this._win.location.href;
         if ( !href.startsWith( baseUrl ) ) {
@@ -263,8 +298,7 @@ const Router = Class({
             error.details = { href, baseUrl };
             throw error;
         }
-        this.restoreEncodedState( href.slice( baseUrl.length ), null,
-            applyGlobalParams === true );
+        this.restoreEncodedState( href.slice( baseUrl.length ), null );
     }.observes( 'routes' ),
 
     /**
@@ -283,12 +317,10 @@ const Router = Class({
         uses that to decode the state. Called automatically whenever the URL
         changes, via <O.Router#doRouting>.
 
-        The parameters queryParams and applyGlobalParams are mutually exclusive:
-        if you pass an already-parsed queryParams, it is assumed not to contain
-        any global parameters. This may sound weird, but our use case for an
-        already-parsed queryParams is nested routers, and only the root router
-        actually concerns itself with routes. (Nested routers aren’t even true
-        routers in our case.)
+        The parameter queryParams is for the purpose of nested routers: routes
+        on this router can take the path and parsed query parameters, and pass
+        them on to a sub-router, which may just borrow this restoreEncodedState
+        method.
 
         Parameters:
             encodedState - {String} The encodedState to restore state from, with
@@ -296,14 +328,11 @@ const Router = Class({
             queryParams - {(Object|null)} (optional) The already-decoded query
                           string; passing a value for this requires that
                           encodedState not contain a query string
-            applyGlobalParams - {Boolean} (optional) True to update the global
-                                query parameters based on the query string in
-                                encodedState; false by default.
 
         Returns:
             {O.Router} Returns self.
     */
-    restoreEncodedState ( encodedState, queryParams, applyGlobalParams ) {
+    restoreEncodedState ( encodedState, queryParams ) {
         this.beginPropertyChanges();
 
         if ( !queryParams ) {
@@ -319,8 +348,6 @@ const Router = Class({
                 // sub-routers by borrowing the restoreEncodedState method from
                 // Router; if that’s done, then globalNames will be undefined,
                 // signifying “there are no global parameters”.
-                const globalParams =
-                    globalNames && applyGlobalParams ? {} : null;
                 encodedState.slice( queryStringStart + 1 )
                     .split( '&' )
                     .map( entry => entry.split( '=', 2 )
@@ -329,26 +356,8 @@ const Router = Class({
                         if ( !globalNames || !globalNames.has( name ) ) {
                             // It’s a local parameter.
                             queryParams[ name ] = value;
-                        } else if ( applyGlobalParams ) {
-                            // It’s a global parameter, and we care about their
-                            // values for once.
-                            globalParams[ name ] = value;
                         }
                     });
-
-                if ( globalParams ) {
-                    const globals = this.knownGlobalQueryParams;
-                    for ( const property in globals ) {
-                        if ( hasOwnProperty.call( globals, property ) ) {
-                            const name = globals[ property ];
-                            if ( hasOwnProperty.call( globalParams, name ) ) {
-                                this.set( property, globalParams[ name ] );
-                            } else {
-                                this.set( property, null );
-                            }
-                        }
-                    }
-                }
 
                 encodedState = encodedState.slice( 0, queryStringStart );
             }
