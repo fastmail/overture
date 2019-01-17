@@ -109,6 +109,10 @@ const FileButtonView = Class({
     activate () {
         this._setIgnoreUntil();
         this._domControl.click();
+        // On Edge, .click() blocks until the user closes the file picker. This
+        // negates the previous _setIgnoreUntil() call, and so we need another.
+        // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/20217742/
+        this._setIgnoreUntil();
     },
 
     /**
