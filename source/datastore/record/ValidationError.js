@@ -22,3 +22,9 @@ ValidationError.INVALID_CHAR = 8;
 ValidationError.FIRST_CUSTOM_ERROR = 16;
 
 export default ValidationError;
+
+export const REQUIRED = 1;
+export const TOO_SHORT = 2;
+export const TOO_LONG = 4;
+export const INVALID_CHAR = 8;
+export const FIRST_CUSTOM_ERROR = 16;
