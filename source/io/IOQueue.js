@@ -180,8 +180,9 @@ const IOQueue = Class({
     }.on( 'io:end' ),
 });
 
-IOQueue.QUEUE = 1;
-IOQueue.IGNORE = 2;
-IOQueue.ABORT = 3;
+IOQueue.QUEUE = QUEUE;
+IOQueue.IGNORE = IGNORE;
+IOQueue.ABORT = ABORT;
 
 export default IOQueue;
+export { QUEUE, IGNORE, ABORT };
