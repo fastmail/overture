@@ -15,7 +15,7 @@ const Parse = Class({
     },
 });
 
-Parse.define = function ( name, regexp, context ) {
+const define = function ( name, regexp, context ) {
     return function ( parse ) {
         const string = parse.string;
         const result = regexp.exec( string );
@@ -28,21 +28,21 @@ Parse.define = function ( name, regexp, context ) {
     };
 };
 
-Parse.optional = function ( pattern ) {
+const optional = function ( pattern ) {
     return function ( parse ) {
         pattern( parse );
         return true;
     };
 };
 
-Parse.not = function ( pattern ) {
+const not = function ( pattern ) {
     return function ( parse ) {
         const newParse = parse.clone();
         return !pattern( newParse );
     };
 };
 
-Parse.repeat = function ( pattern, min, max ) {
+const repeat = function ( pattern, min, max ) {
     // Max int: 2^31 - 1;
     if ( !max ) {
         max = 2147483647;
@@ -67,7 +67,7 @@ Parse.repeat = function ( pattern, min, max ) {
     };
 };
 
-Parse.sequence = function ( patterns ) {
+const sequence = function ( patterns ) {
     return function ( parse ) {
         const newParse = parse.clone();
         for ( let i = 0, l = patterns.length; i < l; i += 1 ) {
@@ -81,7 +81,7 @@ Parse.sequence = function ( patterns ) {
     };
 };
 
-Parse.firstMatch = function ( patterns ) {
+const firstMatch = function ( patterns ) {
     return function ( parse ) {
         for ( let i = 0, l = patterns.length; i < l; i += 1 ) {
             if ( patterns[i]( parse ) ) {
@@ -92,7 +92,7 @@ Parse.firstMatch = function ( patterns ) {
     };
 };
 
-Parse.longestMatch = function ( patterns ) {
+const longestMatch = function ( patterns ) {
     return function ( parse ) {
         const parses = [];
         let l = patterns.length;
@@ -123,3 +123,4 @@ Parse.longestMatch = function ( patterns ) {
 };
 
 export default Parse;
+export { define, optional, not, repeat, sequence, firstMatch, longestMatch };

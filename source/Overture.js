@@ -145,7 +145,9 @@ export { LocaleController, i18n, loc } from './localisation/LocaleController';
 import './localisation/RelativeDate';
 
 export { default as parse } from './parser/DateParser';
-export { default as Parse } from './parser/Parse';
+import Parse, { define, optional, not, repeat, sequence, firstMatch, longestMatch } from './parser/Parse';
+Object.assign( Parse, { define, optional, not, repeat, sequence, firstMatch, longestMatch });
+export { Parse };
 
 export { default as OptionsController } from './selection/OptionsController';
 export { default as SelectionController } from './selection/SelectionController';
