@@ -3,14 +3,6 @@ import Obj from '../../foundation/Object';
 import '../../foundation/EventTarget';  // For Function#on
 import ScrollView from '../containers/ScrollView';
 
-const inView = function ( view, event ) {
-    let targetView = event.targetView;
-    while ( targetView && targetView !== view ) {
-        targetView = targetView.get( 'parentView' );
-    }
-    return !!targetView;
-};
-
 const ModalEventHandler = Class({
 
     Extends: Obj,
@@ -18,6 +10,14 @@ const ModalEventHandler = Class({
     init (/* ...mixins */) {
         ModalEventHandler.parent.constructor.apply( this, arguments );
         this._seenMouseDown = false;
+    },
+
+    inView ( view, event ) {
+        let targetView = event.targetView;
+        while ( targetView && targetView !== view ) {
+            targetView = targetView.get( 'parentView' );
+        }
+        return !!targetView;
     },
 
     // If a user clicks outside the menu we want to close it. But we don't want
@@ -39,7 +39,7 @@ const ModalEventHandler = Class({
     handleMouse: function ( event ) {
         const view = this.get( 'view' );
         const type = event.type;
-        if ( !event.seenByModal && !inView( view, event ) ) {
+        if ( !event.seenByModal && !this.inView( view, event ) ) {
             event.stopPropagation();
             if ( type === 'mousedown' ) {
                 this._seenMouseDown = true;
@@ -52,7 +52,7 @@ const ModalEventHandler = Class({
                 }
             } else if ( type === 'wheel' ) {
                 const scrollView = this.get( 'view' ).getParent( ScrollView );
-                if ( !scrollView || !inView( scrollView, event ) ) {
+                if ( !scrollView || !this.inView( scrollView, event ) ) {
                     event.preventDefault();
                 }
             }
@@ -69,7 +69,7 @@ const ModalEventHandler = Class({
 
     handleKeys: function ( event ) {
         const view = this.get( 'view' );
-        if ( !event.seenByModal && !inView( view, event ) ) {
+        if ( !event.seenByModal && !this.inView( view, event ) ) {
             event.stopPropagation();
             // View may be interested in key events:
             if ( view.keyOutside ) {
@@ -81,7 +81,7 @@ const ModalEventHandler = Class({
 
     handleTouch: function ( event ) {
         const view = this.get( 'view' );
-        if ( !event.seenByModal && !inView( view, event ) ) {
+        if ( !event.seenByModal && !this.inView( view, event ) ) {
             event.preventDefault();
             event.stopPropagation();
             // Clicks outside should now close the modal.
