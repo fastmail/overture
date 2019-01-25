@@ -619,14 +619,6 @@ const dateTime = function ( string, locale, implicitPast ) {
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
 };
 
-export default {
-    tokeniseDateTime: parseDateTime,
-    interpretDateTime,
-    time,
-    date,
-    dateTime,
-};
-
 export {
     parseDateTime as tokeniseDateTime,
     interpretDateTime,
