@@ -2151,7 +2151,7 @@ const Store = Class({
         while ( l-- ) {
             const storeKey = this.getStoreKey( accountId, Type, ids[l] );
             const status = this.getStatus( storeKey );
-            if ( status & EMPTY ) {
+            if ( status & (EMPTY|NON_EXISTENT) ) {
                 this.setStatus( storeKey, NON_EXISTENT );
             } else {
                 if ( status & DIRTY ) {
