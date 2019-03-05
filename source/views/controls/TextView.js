@@ -5,7 +5,7 @@ import '../../foundation/ComputedProps';  // For Function#property, #nocache
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
 import { browser } from '../../ua/UA';
-import { nearest } from '../../dom/Element';
+import { nearest, create as el } from '../../dom/Element';
 import { lookupKey } from '../../dom/DOMEvent';
 import ScrollView from '../containers/ScrollView';
 import AbstractControlView from './AbstractControlView';
@@ -232,7 +232,7 @@ const TextView = Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         const isMultiline = this.get( 'isMultiline' );
         const control = this._domControl = el(
                 isMultiline ? 'textarea' : 'input', {

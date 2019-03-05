@@ -244,10 +244,10 @@ const ToolbarView = Class({
                 layerStyles: {},
                 childViews: Object.values( this._views )
                                   .filter( view => !view.get( 'parentView' ) ),
-                draw ( layer, Element, el ) {
+                draw ( layer ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),
-                        View.prototype.draw.call( this, layer, Element, el ),
+                        View.prototype.draw.call( this, layer ),
                     ];
                 },
             })
@@ -302,7 +302,7 @@ const ToolbarView = Class({
         return this;
     },
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         return [
             this.get( 'left' ),
             this._flex = el( 'div.v-Toolbar-flex' ),

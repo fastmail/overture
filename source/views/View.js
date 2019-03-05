@@ -4,7 +4,6 @@ import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property
-import * as Element from '../dom/Element';  // Circular but it's OK
 import {
     create as el,
     forView,
@@ -52,7 +51,7 @@ const POSITION_CONTAINED_BY = 0x10;
                 return 'v-Message' +
                     ( this.get( 'isImportant' ) ? ' is-important' : '' );
             }.property( 'isImportant' ),
-            draw( layer, Element, el ) {
+            draw( layer ) {
                 return [
                     el( 'h1#title', {
                         text: O.bind( this, 'title' )
@@ -115,7 +114,7 @@ const POSITION_CONTAINED_BY = 0x10;
     O.CheckboxView etc. For example:
 
         new O.View({
-            draw( layer, Element, el ) {
+            draw( layer ) {
                 const content = this.get( 'content' );
                 return [
                     el( 'h1#title', {
@@ -581,7 +580,7 @@ const View = Class({
             this.set( 'isRendered', true );
             const prevView = forView( this );
             const layer = this.get( 'layer' );
-            const children = this.draw( layer, Element, el );
+            const children = this.draw( layer );
             if ( children ) {
                 appendChildren( layer, children );
             }
@@ -599,10 +598,8 @@ const View = Class({
 
         Parameters:
             layer   - {Element} The root DOM node of the view.
-            Element - {Object} A reference to the O.Element object.
-            el      - {Function} A reference to the O.Element.create function.
     */
-    draw (/* layer, Element, el */) {
+    draw (/* layer */) {
         return this.get( 'childViews' ).map( renderView );
     },
 
@@ -702,7 +699,7 @@ const View = Class({
         }
 
         isRedrawingLayer = true;
-        appendChildren( layer, this.draw( layer, Element, el ) );
+        appendChildren( layer, this.draw( layer ) );
         isRedrawingLayer = false;
 
         if ( this.get( 'isInDocument' ) ) {

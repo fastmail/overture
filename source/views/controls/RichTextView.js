@@ -9,7 +9,7 @@ import { bind, bindTwoWay } from '../../foundation/Binding';
 import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import { getPosition, nearest } from '../../dom/Element';
+import { getPosition, nearest, create as el } from '../../dom/Element';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
@@ -77,7 +77,7 @@ const URLPickerView = Class({
 
     className: 'v-UrlPicker',
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         return [
             el( 'h3.u-bold', [
                 this.get( 'prompt' ),
@@ -286,7 +286,7 @@ const RichTextView = Class({
                 ' v-RichText--noToolbar' : '' );
     }.property( 'isFocused', 'isDisabled' ),
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         const editorClassName = this.get( 'editorClassName' );
         const editingLayer = this._editingLayer = el( 'div', {
             id: this.get( 'editorId' ),

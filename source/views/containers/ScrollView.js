@@ -480,13 +480,12 @@ if ( isIOS ) {
     const isOldOrSafari = version < 11 || browser === 'safari';
 
     Object.assign( ScrollView.prototype, {
-        draw ( layer, Element, el ) {
+        draw ( layer ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
             let scrollFixerHeight = 1;
 
             // Render the children.
-            const children = ScrollView.parent.draw.call( this,
-                layer, Element, el );
+            const children = ScrollView.parent.draw.call( this, layer );
 
             // Following platform conventions, we assume a fixed height
             // ScrollView should always scroll, regardless of whether the

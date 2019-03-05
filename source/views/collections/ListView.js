@@ -2,6 +2,7 @@ import { Class, guid } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
+import { appendChildren } from '../../dom/Element';
 import { browser } from '../../ua/UA';
 import View from '../View';
 
@@ -128,12 +129,12 @@ const ListView = Class({
         return itemHeight ? { height } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
-    draw ( layer, Element/*, el*/ ) {
+    draw ( layer ) {
         // Render any unmanaged child views first.
         const children = ListView.parent.draw.call( this, layer );
         const content = this.get( 'content' );
         if ( children ) {
-            Element.appendChildren( layer, children );
+            appendChildren( layer, children );
         }
         if ( content ) {
             content.addObserverForRange(

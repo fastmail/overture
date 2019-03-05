@@ -56,11 +56,11 @@ const SelectView = Class({
 
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         const control = this._domControl =
             this._drawSelect( this.get( 'options' ) );
         return [
-            SelectView.parent.draw.call( this, layer, Element, el ),
+            SelectView.parent.draw.call( this, layer ),
             control,
         ];
     },

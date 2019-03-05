@@ -1,7 +1,7 @@
 import { Class, meta } from '../../core/Core';
 import '../../foundation/EventTarget';  // For Function#on
 import { lookupKey } from '../../dom/DOMEvent';
-import { setStyle } from '../../dom/Element';
+import { setStyle, create as el } from '../../dom/Element';
 import RootView from '../RootView';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
@@ -36,7 +36,7 @@ const PopOverView = Class({
         modal: 'true',
     },
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         const children = [
             this._aFlex = el( 'div' ),
             this._popOver = el( 'div.v-PopOver', [

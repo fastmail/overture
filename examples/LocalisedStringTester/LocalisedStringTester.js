@@ -2,6 +2,8 @@
 
 "use strict";
 
+var el = O.Element.create;
+
 var view = new O.View({
 
     id: 'Application',
@@ -28,7 +30,7 @@ var view = new O.View({
         return result;
     }.property( 'string', 'arg1', 'arg2', 'arg3' ),
 
-    draw: function ( layer, Element, el ) {
+    draw: function ( layer ) {
         return [
             el( 'h1', [ 'Localised String Tester' ]),
             el( 'h2', [ 'Your localised string:' ]),

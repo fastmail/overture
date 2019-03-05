@@ -7,7 +7,7 @@ import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/LocaleController';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
 import { isIOS } from '../../ua/UA';
-import { appendChildren } from '../../dom/Element';
+import { appendChildren, create as el } from '../../dom/Element';
 
 /**
     Class: O.AbstractControlView
@@ -176,7 +176,7 @@ const AbstractControlView = Class({
 
         Overridden to set properties and add label. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         const control = this._domControl;
         const name = this.get( 'name' );
         const shortcut = this.get( 'shortcut' );

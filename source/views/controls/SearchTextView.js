@@ -15,9 +15,8 @@ const SearchTextView = Class({
     // Helps password managers know this is not a username input!
     name: 'search',
 
-    draw ( layer, Element, el ) {
-        const children =
-                SearchTextView.parent.draw.call( this, layer, Element, el );
+    draw ( layer ) {
+        const children = SearchTextView.parent.draw.call( this, layer );
         children.push(
             this.get( 'icon' ),
             when( this, 'value' ).show([

@@ -130,7 +130,7 @@ const MenuView = Class({
 
     ItemView: MenuOptionView,
 
-    draw (/* layer, Element, el */) {
+    draw (/* layer */) {
         const controller = this.get( 'controller' );
         return [
             this.filterView =

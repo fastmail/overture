@@ -1,5 +1,6 @@
 import { Class } from '../../core/Core';
 import '../../foundation/EventTarget';  // For Function#on
+import { create as el } from '../../dom/Element';
 
 import ButtonView from './ButtonView';
 import AbstractControlView from './AbstractControlView';
@@ -78,7 +79,7 @@ const FileButtonView = Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.FileButtonView> notes.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         let icon = this.get( 'icon' );
         if ( typeof icon === 'string' ) {
             icon = ButtonView.drawIcon( icon );
@@ -94,8 +95,7 @@ const FileButtonView = Class({
                 webkitdirectory: this.get( 'acceptFolder' ) || undefined,
             }),
             icon,
-            AbstractControlView.prototype.draw
-                .call( this, layer, Element, el ),
+            AbstractControlView.prototype.draw.call( this, layer ),
         ];
     },
 

@@ -10,6 +10,8 @@
 
 "use strict";
 
+var el = O.Element.create;
+
 /*  A factory function to create the necessary OvertureJS app state and views.
 */
 function overturePerf ( options ) {
@@ -46,7 +48,7 @@ function overturePerf ( options ) {
 
         /*  Display the item.
         */
-        draw: function ( layer, Element, el ) {
+        draw: function ( layer ) {
             var item = this.get( 'content' );
             return [
                 el( 'div.col-md-12.test-data', [
@@ -151,7 +153,7 @@ function overturePerf ( options ) {
 
         /*  Display the header, items, etc.
         */
-        draw: function ( layer, Element, el ) {
+        draw: function ( layer ) {
             return [
                 el( 'div.row', [
                     el( 'div.col-md-8', [
