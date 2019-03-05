@@ -4,8 +4,8 @@ import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property
+import * as Element from '../dom/Element';  // Circular but it's OK
 import {
-    default as Element,
     create as el,
     forView,
     appendChildren,

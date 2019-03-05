@@ -108,12 +108,8 @@ export { default as UndoManager } from './datastore/store/UndoManager';
 
 import * as DOMEvent from './dom/DOMEvent';
 export { DOMEvent };
-// Alas, Element should be purely a namespace, but View#draw depends on it being
-// an object. Note that importing SwitchView later modifies it. Ick, huh? So
-// `import * as Element from './dom/Element';` actually gets you a tangibly
-// different result from `import Element from './dom/Element';` in that the
-// latter lacks <O.Element#when> and <O.Element#unless>. Yep, very ick. Sorry.
-export { default as Element } from './dom/Element';
+import * as Element from './dom/Element';
+export { Element };
 import * as Stylesheet from './dom/Stylesheet';
 export { Stylesheet };
 
@@ -175,7 +171,7 @@ export { default as ListKBFocusView } from './views/collections/ListKBFocusView'
 export { default as ListView } from './views/collections/ListView';
 export { default as ProgressiveListView } from './views/collections/ProgressiveListView';
 export { default as OptionsListView } from './views/collections/OptionsListView';
-export { default as SwitchView } from './views/collections/SwitchView';
+export { default as SwitchView, when, unless } from './views/collections/SwitchView';
 export { default as ToolbarView } from './views/collections/ToolbarView';
 export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect';
 export { default as ScrollView } from './views/containers/ScrollView';

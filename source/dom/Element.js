@@ -574,22 +574,5 @@ export {
     getPosition,
 };
 
-// A gnarly historical detail: ① O.Element.when and O.Element.unless are
-// implemented in SwitchView.js; ② O.Element is treated as an object and passed
-// around (most notably, as the second argument in View#draw). Together, this
-// means that we must have an actual object for O.Element here, and that it
-// can’t just be a detail of the ../Overture.js export façade.
-export default {
-    forView,
-    create,
-    setAttributes,
-    appendChildren,
-    setStyle,
-    setStyles,
-    contains,
-    nearest,
-    getPosition,
-};
-
 // TODO(cmorgan/modulify): do something about these exports: Object.toCSSString
 // Element#get, Element#set

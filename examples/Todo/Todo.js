@@ -725,10 +725,10 @@ var TodoView = O.Class({
                 */
                 value: O.bindTwoWay( todo, 'isComplete' )
             }),
-            /* Element.when is a shortcut for creating an O.SwitchView
+            /* when is a shortcut for creating an O.SwitchView
                instance; essentially a live-updating if/else.
             */
-            Element.when( this, 'isEditing' ).show([
+            O.when( this, 'isEditing' ).show([
                 el( 'div.v-Todo-summary', [
                     new O.TextView({
                         value: O.bindTwoWay( todo, 'summary' ),

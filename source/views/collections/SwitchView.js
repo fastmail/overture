@@ -6,7 +6,7 @@ import RunLoop from '../../foundation/RunLoop';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import View from '../View';
-import { default as Element, forView } from '../../dom/Element';
+import { forView } from '../../dom/Element';
 
 const forEachView = function ( views, method, args ) {
     let l = views ? views.length : 0,
@@ -333,12 +333,6 @@ const unless = function ( object, property, transform ) {
     return createView( object, property, pickView );
 };
 
-// This is a historical detail. I look forward to killing it eventually once
-// nothing uses Element as an object, but only as something to import from.
-Element.when = when;
-Element.unless = unless;
-
-// This is the real way we want to export these two.
 export {
     when,
     unless,
