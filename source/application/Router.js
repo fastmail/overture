@@ -171,7 +171,7 @@ const Router = Class({
         Default: false
 
         If set to true, the next change of encodedState will cause the current
-        history entry to be relaced, rather than appending a new history entry.
+        history entry to be replaced, rather than appending a new history entry.
         The property will then automatically be set back to false. Set this to
         true if you decode an invalid URL path to ensure it doesn't remain in
         the browser history.
