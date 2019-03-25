@@ -1,7 +1,9 @@
 import '../core/Number';  // For Number#mod
 import '../core/String';  // For String#escapeRegExp
 import i18n from '../localisation/LocaleController';
-import Parse from './Parse';
+import Parse, {
+    define, optional, not, sequence, firstMatch, longestMatch,
+} from './Parse';
 
 // --- Date Grammar ---
 
@@ -10,13 +12,6 @@ const JUST_DATE = 2;
 const DATE_AND_TIME = 3;
 
 const generateLocalisedDateParser = function ( locale, mode ) {
-    const define = Parse.define;
-    const optional = Parse.optional;
-    const not = Parse.not;
-    const sequence = Parse.sequence;
-    const firstMatch = Parse.firstMatch;
-    const longestMatch = Parse.longestMatch;
-
     const datePatterns = locale.datePatterns;
 
     const anyInLocale = function ( type, names ) {
@@ -582,7 +577,7 @@ const interpreter = {
 
 // ---
 
-const unknown = Parse.define( 'unknown', /^[^\s]+/ );
+const unknown = define( 'unknown', /^[^\s]+/ );
 
 const dateParsers = {};
 const parseDateTime = function ( string, locale, mode ) {
@@ -622,14 +617,6 @@ const date = function ( string, locale, implicitPast ) {
 const dateTime = function ( string, locale, implicitPast ) {
     const tokens = parseDateTime( string, locale, DATE_AND_TIME );
     return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
-};
-
-export default {
-    tokeniseDateTime: parseDateTime,
-    interpretDateTime,
-    time,
-    date,
-    dateTime,
 };
 
 export {

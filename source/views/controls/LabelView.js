@@ -50,8 +50,11 @@ const LabelView = Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw ( layer/*, Element, el*/ ) {
-        layer.title = this.get( 'tooltip' );
+    draw ( layer ) {
+        const tooltip = this.get( 'tooltip' );
+        if ( tooltip ) {
+            layer.title = tooltip;
+        }
         layer.textContent = this.get( 'value' );
     },
 
@@ -75,7 +78,12 @@ const LabelView = Class({
         property of the view.
     */
     redrawTooltip ( layer ) {
-        layer.title = this.get( 'tooltip' );
+        const tooltip = this.get( 'tooltip' );
+        if ( tooltip ) {
+            layer.title = tooltip;
+        } else {
+            layer.removeAttribute( 'title' );
+        }
     },
 
     /**

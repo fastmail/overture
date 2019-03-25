@@ -1,5 +1,6 @@
 import { Class } from '../../core/Core';
 import { loc } from '../../localisation/LocaleController';
+import { when } from '../collections/SwitchView';
 import TextView from './TextView';
 import ClearSearchButtonView from './ClearSearchButtonView';
 
@@ -14,12 +15,11 @@ const SearchTextView = Class({
     // Helps password managers know this is not a username input!
     name: 'search',
 
-    draw ( layer, Element, el ) {
-        const children =
-                SearchTextView.parent.draw.call( this, layer, Element, el );
+    draw ( layer ) {
+        const children = SearchTextView.parent.draw.call( this, layer );
         children.push(
             this.get( 'icon' ),
-            Element.when( this, 'value' ).show([
+            when( this, 'value' ).show([
                 new ClearSearchButtonView({
                     label: loc( 'Clear Search' ),
                     target: this,

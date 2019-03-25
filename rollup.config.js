@@ -1,7 +1,12 @@
 import buble from 'rollup-plugin-buble';
 
 export default {
-    format: 'iife',
-    moduleName: 'O',
-    plugins: [buble()],
+    output: {
+        format: 'iife',
+        name: 'O',
+        extend: true,
+    },
+    plugins: [
+        buble(),
+    ],
 };

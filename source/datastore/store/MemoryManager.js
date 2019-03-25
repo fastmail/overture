@@ -67,7 +67,8 @@ const MemoryManager = Class({
                            function is called in milliseconds. Default is 30000,
                            i.e. every 30 seconds.
     */
-    init ( store, restrictions, frequency ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( store, restrictions, frequency ) {
         this._index = 0;
         this._store = store;
         this._restrictions = restrictions;

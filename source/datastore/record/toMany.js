@@ -2,7 +2,7 @@ import { Class, meta } from '../../core/Core';
 import '../../core/Array';  // For Array#erase
 import ObservableArray from '../../foundation/ObservableArray';
 
-import RecordAttribute from './RecordAttribute';
+import { RecordAttribute } from './attr';
 import Record from './Record';
 
 const slice = Array.prototype.slice;
@@ -39,7 +39,8 @@ const RecordArray = Class({
 
     Extends: ObservableArray,
 
-    init ( record, propKey, Type ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( record, propKey, Type ) {
         this.record = record;
         this.propKey = propKey;
         this.Type = Type;
@@ -187,8 +188,9 @@ const ToManyAttribute = Class({
     },
 });
 
-export default ToManyAttribute;
-
-Record.toMany = function ( mixin ) {
+const toMany = function ( mixin ) {
     return new ToManyAttribute( mixin );
 };
+
+export default toMany;
+export { toMany, ToManyAttribute };

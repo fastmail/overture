@@ -1,7 +1,7 @@
 import { Class } from '../core/Core';
 import '../foundation/EventTarget';  // For Function#on
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop
-import UA from '../ua/UA';
+import { isIOS } from '../ua/UA';
 
 import View from './View';
 import ViewEventsController from './ViewEventsController';
@@ -14,6 +14,7 @@ let passiveSupported = false;
 
 try {
     const options = Object.defineProperty( {}, 'passive', {
+        // eslint-disable-next-line getter-return
         get () {
             passiveSupported = true;
         },
@@ -49,7 +50,8 @@ const RootView = Class({
 
     layer: null,
 
-    init ( node /*, ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( node /*, ...mixins */) {
         RootView.parent.constructor.apply( this,
             Array.prototype.slice.call( arguments, 1 ) );
 
@@ -108,7 +110,7 @@ const RootView = Class({
         event.stopPropagation();
     }.on( 'scroll' ),
 
-    preventRootScroll: UA.isIOS ? function ( event ) {
+    preventRootScroll: isIOS ? function ( event ) {
         const view = event.targetView;
         let doc, win;
         if ( !( view instanceof ScrollView ) &&

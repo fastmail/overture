@@ -6,8 +6,8 @@ import '../core/String';  // For String#contains
 import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';  // Also Function#queue
 import '../foundation/ComputedProps';  // For Function#property
-import Element from '../dom/Element';
-import Stylesheet from '../dom/Stylesheet';
+import { create as el } from '../dom/Element';
+import { create as createStylesheet } from '../dom/Stylesheet';
 import ScrollView from '../views/containers/ScrollView';
 import { getViewFromNode } from '../views/activeViews';
 
@@ -63,7 +63,8 @@ const Drag = Class({
                     include an `event` property containing the event object that
                     triggered the drag.
     */
-    init ( mixin ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( mixin ) {
         const event = mixin.event;
 
         this._dragCursor = null;
@@ -215,7 +216,7 @@ const Drag = Class({
                     dragCursor.removeChild( oldImage );
                 }
             } else {
-                dragCursor = this._dragCursor = Element.create( 'div', {
+                dragCursor = this._dragCursor = el( 'div', {
                     style: 'position: fixed; z-index: 9999;',
                 });
                 this._updateDragImagePosition();
@@ -274,7 +275,7 @@ const Drag = Class({
                     break;
             }
 
-            stylesheet = Stylesheet.create( 'o-drag-cursor',
+            stylesheet = createStylesheet( 'o-drag-cursor',
                 '*{cursor:default !important;cursor:' + cursor + ' !important;}'
             );
         }

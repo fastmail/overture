@@ -6,7 +6,7 @@ import RunLoop from '../../foundation/RunLoop';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import View from '../View';
-import Element from '../../dom/Element';
+import { forView } from '../../dom/Element';
 
 const forEachView = function ( views, method, args ) {
     let l = views ? views.length : 0,
@@ -38,7 +38,8 @@ const SwitchView = Class({
 
     syncOnlyInDocument: false,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._oldView = null;
         // -1 => Not added views to parent
         // Otherwise => Index of view(s) currently in parent
@@ -296,7 +297,7 @@ const SwitchView = Class({
     },
 
     end () {
-        Element.forView( this._oldView );
+        forView( this._oldView );
         this._oldView = null;
         return this;
     },
@@ -315,19 +316,24 @@ const createView = function ( object, property, transform ) {
     const switchView = new SwitchView({
         index: bind( object, property, transform ),
     });
-    switchView._oldView = Element.forView( switchView );
+    switchView._oldView = forView( switchView );
     return switchView;
 };
 
-Element.when = function ( object, property, transform ) {
+const when = function ( object, property, transform ) {
     const pickView = transform ? function ( value, syncForward ) {
         return pickViewWhen( transform( value, syncForward ) );
     } : pickViewWhen;
     return createView( object, property, pickView );
 };
-Element.unless = function ( object, property, transform ) {
+const unless = function ( object, property, transform ) {
     const pickView = transform ? function ( value, syncForward ) {
         return pickViewUnless( transform( value, syncForward ) );
     } : pickViewUnless;
     return createView( object, property, pickView );
+};
+
+export {
+    when,
+    unless,
 };

@@ -1,12 +1,9 @@
-import { Class } from '../core/Core';
-
-export default Class({
-
-    init ( comparator ) {
+export default class Heap {
+    constructor ( comparator ) {
         this.data = [];
         this.length = 0;
         this.comparator = comparator;
-    },
+    }
 
     _up ( i ) {
         const data = this.data;
@@ -28,7 +25,7 @@ export default Class({
             i = j;
         }
         return i;
-    },
+    }
 
     _down ( i ) {
         const data = this.data;
@@ -63,7 +60,7 @@ export default Class({
         }
 
         return i;
-    },
+    }
 
     push ( node ) {
         if ( node != null ) {
@@ -73,7 +70,7 @@ export default Class({
             this._up( length );
         }
         return this;
-    },
+    }
 
     pop () {
         const data = this.data;
@@ -93,11 +90,11 @@ export default Class({
         this._down( 0 );
 
         return nodeToReturn;
-    },
+    }
 
     peek () {
         return this.data[0];
-    },
+    }
 
     remove ( node ) {
         const data = this.data;
@@ -123,5 +120,5 @@ export default Class({
         }
 
         return this;
-    },
-});
+    }
+}

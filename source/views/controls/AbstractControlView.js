@@ -6,8 +6,8 @@ import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/LocaleController';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import UA from '../../ua/UA';
-import Element from '../../dom/Element';
+import { isIOS } from '../../ua/UA';
+import { appendChildren, create as el } from '../../dom/Element';
 
 /**
     Class: O.AbstractControlView
@@ -139,7 +139,7 @@ const AbstractControlView = Class({
         }
         // iOS is very buggy if you remove a focused control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
-        if ( UA.isIOS && this.get( 'isFocused' ) ) {
+        if ( isIOS && this.get( 'isFocused' ) ) {
             this.blur();
         }
         return AbstractControlView.parent.willLeaveDocument.call(
@@ -176,7 +176,7 @@ const AbstractControlView = Class({
 
         Overridden to set properties and add label. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         const control = this._domControl;
         const name = this.get( 'name' );
         const shortcut = this.get( 'shortcut' );
@@ -231,7 +231,7 @@ const AbstractControlView = Class({
         while ( child = label.firstChild ) {
             label.removeChild( child );
         }
-        Element.appendChildren( label, [
+        appendChildren( label, [
             this.get( 'label' ),
         ]);
     },

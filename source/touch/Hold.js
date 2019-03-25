@@ -1,19 +1,15 @@
-import { Class } from '../core/Core';
 import Event from '../foundation/Event';
 import RunLoop from '../foundation/RunLoop';
 import ViewEventsController from '../views/ViewEventsController';
 import Tap from './Tap';
 import Gesture from './Gesture';
 
-const HoldEvent = Class({
-
-    Extends: Event,
-
-    init ( touch ) {
-        HoldEvent.parent.constructor.call( this, 'hold', touch.target );
+class HoldEvent extends Event {
+    constructor ( touch ) {
+        super( 'hold', touch.target );
         this.touch = touch;
-    },
-});
+    }
+}
 
 const fireHoldEvent = function () {
     if ( !this._ignore ) {
@@ -23,18 +19,21 @@ const fireHoldEvent = function () {
     }
 };
 
-const TrackedTouch = function ( touch ) {
-    this.touch = touch;
-    this.x = touch.screenX;
-    this.y = touch.screenY;
-    this.target = touch.target;
-    this._ignore = false;
-    RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
-};
+class TrackedTouch {
+    constructor ( touch ) {
+        this.touch = touch;
+        this.x = touch.screenX;
+        this.y = touch.screenY;
+        this.target = touch.target;
+        this._ignore = false;
+        RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
+    }
 
-TrackedTouch.prototype.done = function () {
-    this._ignore = true;
-};
+    done () {
+        this._ignore = true;
+    }
+}
+
 
 /*  A hold is defined as a touch which:
 

@@ -2,8 +2,11 @@ import { Class, guid } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
-import UA from '../../ua/UA';
+import { appendChildren } from '../../dom/Element';
+import { browser } from '../../ua/UA';
 import View from '../View';
+
+const isFirefox = browser === 'firefox';
 
 const byIndex = function ( a, b ) {
     return a.get( 'index' ) - b.get( 'index' );
@@ -40,7 +43,8 @@ const ListView = Class({
     ItemView: null,
     itemHeight: 0,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._added = null;
         this._removed = null;
         this._rendered = {};
@@ -119,18 +123,18 @@ const ListView = Class({
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
-        if ( UA.firefox && height > 16777216 ) {
+        if ( isFirefox && height > 16777216 ) {
             height = 16777216;
         }
         return itemHeight ? { height } : {};
     }.property( 'itemHeight', 'contentLength' ),
 
-    draw ( layer, Element/*, el*/ ) {
+    draw ( layer ) {
         // Render any unmanaged child views first.
         const children = ListView.parent.draw.call( this, layer );
         const content = this.get( 'content' );
         if ( children ) {
-            Element.appendChildren( layer, children );
+            appendChildren( layer, children );
         }
         if ( content ) {
             content.addObserverForRange(

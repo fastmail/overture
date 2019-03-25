@@ -1,5 +1,5 @@
 import '../foundation/ComputedProps';  // For Function#property
-import Element from '../dom/Element';
+import { setStyle } from '../dom/Element';
 import Easing from './Easing';
 import StyleAnimation from './StyleAnimation';
 
@@ -101,7 +101,6 @@ export default {
     redrawLayerStyles ( layer, oldStyles ) {
         const newStyles = this.get( 'layerStyles' );
         const layerAnimation = this.get( 'layerAnimation' );
-        const setStyle = Element.setStyle;
 
         if ( this.get( 'animateLayer' ) && this.get( 'isInDocument' ) ) {
             // Animate

@@ -341,7 +341,8 @@ const WindowedQuery = Class({
         return ( l < 0 );
     }.property().nocache(),
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._windows = [];
         this._indexOfRequested = [];
         this._waitingPackets = [];

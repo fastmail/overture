@@ -22,7 +22,7 @@ const MenuFilterView = Class({
             ( this.get( 'isFiltering' ) ? ' is-filtering' : '' );
     }.property( 'isFiltering' ),
 
-    draw (/* layer, Element, el */) {
+    draw (/* layer */) {
         const controller = this.get( 'controller' );
         const searchTextView = this._input = new SearchTextView({
             shortcut: this.get( 'shortcut' ),

@@ -24,7 +24,7 @@ const MenuOptionView = Class({
             ( this.get( 'isFocused' ) ? ' is-focused' : '' );
     }.property( 'isFocused' ),
 
-    draw (/* layer, Element, el */) {
+    draw (/* layer */) {
         return this.get( 'content' ).get( 'button' );
     },
 

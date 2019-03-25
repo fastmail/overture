@@ -4,131 +4,130 @@
     Holds a number of useful functions for transforming values, for use with
     <O.Binding>.
 */
-export default {
-    /**
-        Function: O.Transform.toBoolean
 
-        Converts the given value to a Boolean
+/**
+    Function: O.Transform.toBoolean
 
-        Parameter:
-            value - {*} The value to transform.
+    Converts the given value to a Boolean
 
-        Returns:
-            {Boolean} The numerical value.
-    */
-    toBoolean ( value ) {
-        return !!value;
-    },
+    Parameter:
+        value - {*} The value to transform.
 
-    /**
-        Function: O.Transform.toString
+    Returns:
+        {Boolean} The numerical value.
+*/
+export const toBoolean = function ( value ) {
+    return !!value;
+};
 
-        Converts the given value to a String
+/**
+    Function: O.Transform.toString
 
-        Parameter:
-            value - {*} The value to transform.
+    Converts the given value to a String
 
-        Returns:
-            {String} The string value.
-    */
-    toString ( value ) {
-        return value != null ? value + '' : '';
-    },
+    Parameter:
+        value - {*} The value to transform.
 
-    /**
-        Function: O.Transform.toInt
+    Returns:
+        {String} The string value.
+*/
+export const toString = function ( value ) {
+    return value != null ? value + '' : '';
+};
 
-        Converts the given value to an integer
+/**
+    Function: O.Transform.toInt
 
-        Parameter:
-            value - {*} The value to transform.
+    Converts the given value to an integer
 
-        Returns:
-            {Number} The integral numerical value.
-    */
-    toInt ( value ) {
-        return parseInt( value, 10 ) || 0;
-    },
+    Parameter:
+        value - {*} The value to transform.
 
-    /**
-        Function: O.Transform.toFloat
+    Returns:
+        {Number} The integral numerical value.
+*/
+export const toInt = function ( value ) {
+    return parseInt( value, 10 ) || 0;
+};
 
-        Converts the given value to a floating point Number.
+/**
+    Function: O.Transform.toFloat
 
-        Parameter:
-            value - {*} The value to transform.
+    Converts the given value to a floating point Number.
 
-        Returns:
-            {Number} The numerical value.
-    */
-    toFloat ( value ) {
-        return parseFloat( value );
-    },
+    Parameter:
+        value - {*} The value to transform.
 
-    /**
-        Function: O.Transform.invert
+    Returns:
+        {Number} The numerical value.
+*/
+export const toFloat = function ( value ) {
+    return parseFloat( value );
+};
 
-        Converts the given value to a Boolean then inverts it.
+/**
+    Function: O.Transform.invert
 
-        Parameter:
-            value - {*} The value to transform.
+    Converts the given value to a Boolean then inverts it.
 
-        Returns:
-            {Boolean} The inverse Boolean value.
-    */
-    invert ( value ) {
-        return !value;
-    },
+    Parameter:
+        value - {*} The value to transform.
 
-    /**
-        Function: O.Transform#defaultValue
+    Returns:
+        {Boolean} The inverse Boolean value.
+*/
+export const invert = function ( value ) {
+    return !value;
+};
 
-        Returns a function which will transform `undefined` into the default
-        value, but will pass through any other value untouched.
+/**
+    Function: O.Transform#defaultValue
 
-        Parameters:
-            value - {*} The default value to use.
-    */
-    defaultValue ( value ) {
-        return function ( v ) {
-            return v !== undefined ? v : value;
-        };
-    },
+    Returns a function which will transform `undefined` into the default
+    value, but will pass through any other value untouched.
 
-    /**
-        Function: O.Transform.undefinedToNull
+    Parameters:
+        value - {*} The default value to use.
+*/
+export const defaultValue = function ( value ) {
+    return function ( v ) {
+        return v !== undefined ? v : value;
+    };
+};
 
-        Converts an undefined value into null, passes others through unchanged.
+/**
+    Function: O.Transform.undefinedToNull
 
-        Parameter:
-            value - {*} The value to transform.
+    Converts an undefined value into null, passes others through unchanged.
 
-        Returns:
-            {*} The value or null if the value is undefined.
-    */
-    undefinedToNull ( value ) {
-        return value === undefined ? null : value;
-    },
+    Parameter:
+        value - {*} The value to transform.
 
-    /**
-        Function: O.Transform.isEqualToValue
+    Returns:
+        {*} The value or null if the value is undefined.
+*/
+export const undefinedToNull = function ( value ) {
+    return value === undefined ? null : value;
+};
 
-        Returns a function which will compare a given value to the value
+/**
+    Function: O.Transform.isEqualToValue
 
-        Parameter:
-            value - {*} The value to compare to.
+    Returns a function which will compare a given value to the value
 
-        Returns:
-            {Function} A function which compares its first argument to the value
-            given to this function, returning true if equal or false otherwise.
-            Or, if the sync is in reverse, returns the given value if true or
-            undefined if false.
-    */
-    isEqualToValue ( value ) {
-        return function ( syncValue, syncForward ) {
-            return syncForward ?
-                syncValue === value :
-                syncValue ? value : undefined;
-        };
-    },
+    Parameter:
+        value - {*} The value to compare to.
+
+    Returns:
+        {Function} A function which compares its first argument to the value
+        given to this function, returning true if equal or false otherwise.
+        Or, if the sync is in reverse, returns the given value if true or
+        undefined if false.
+*/
+export const isEqualToValue = function ( value ) {
+    return function ( syncValue, syncForward ) {
+        return syncForward ?
+            syncValue === value :
+            syncValue ? value : undefined;
+    };
 };

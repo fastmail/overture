@@ -1,12 +1,9 @@
-import { Class } from '../core/Core';
-
 /**
     Class: O.Event
 
     Represents a synthetic event.
 */
-export default Class({
-
+export default class Event {
     /**
         Constructor: O.Event
 
@@ -16,13 +13,13 @@ export default Class({
             mixin  - {Object} (optional) Any further properties to add to the
                      event.
     */
-    init ( type, target, mixin ) {
+    constructor ( type, target, mixin ) {
         this.type = type;
         this.target = target;
         this.defaultPrevented = false;
         this.propagationStopped = false;
         Object.assign( this, mixin );
-    },
+    }
 
     /**
         Method: O.Event#preventDefault
@@ -35,7 +32,7 @@ export default Class({
     preventDefault () {
         this.defaultPrevented = true;
         return this;
-    },
+    }
 
     /**
         Method: O.Event#stopPropagation
@@ -48,5 +45,5 @@ export default Class({
     stopPropagation () {
         this.propagationStopped = true;
         return this;
-    },
-});
+    }
+}

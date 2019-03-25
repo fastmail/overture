@@ -1,7 +1,6 @@
 /*global Element */
 
 import getFromPath from './getFromPath';
-import { Class } from '../core/Core';
 
 import RunLoop from './RunLoop';
 
@@ -76,16 +75,15 @@ const isNum = /^\d+$/;
 */
 const identity = v => v;
 
-const Binding = Class({
-
+class Binding {
     __setupProperty__ ( metadata, key ) {
         metadata.bindings[ key ] = this;
         metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
-    },
+    }
     __teardownProperty__ ( metadata, key ) {
         metadata.bindings[ key ] = null;
         metadata.inits.Bindings -= 1;
-    },
+    }
 
     /**
         Property: O.Binding#isConnected
@@ -143,11 +141,15 @@ const Binding = Class({
             mixin - {Object} (optional). Can set isTwoWay or the transform to
                     use on the binding.
     */
-    init ( mixin ) {
+    constructor ( mixin ) {
         this.isConnected = false;
         this.isSuspended = true;
         this.isNotInSync = true;
         this.willSyncForward = true;
+
+        // If the to or from object cannot be resolved, should the binding delay
+        // the connection until the end of the run loop?
+        this._doNotDelayConnection = false;
 
         this._fromPath = null;
         this._fromRoot = null;
@@ -168,10 +170,8 @@ const Binding = Class({
         this.transform = identity;
         this.queue = 'bindings';
 
-        for ( const key in mixin ) {
-            this[ key ] = mixin[ key ];
-        }
-    },
+        Object.assign( this, mixin );
+    }
 
     /**
         Method: O.Binding#destroy
@@ -182,7 +182,7 @@ const Binding = Class({
         this.disconnect();
         // Ignore any remaining queued connect() calls.
         this.isConnected = true;
-    },
+    }
 
     /**
         Method: O.Binding#from
@@ -207,7 +207,7 @@ const Binding = Class({
         this._fromRoot = rootIsPath ? path : root;
         this._fromPath = rootIsPath ? root : path;
         return this;
-    },
+    }
 
     /**
         Method: O.Binding#to
@@ -232,7 +232,7 @@ const Binding = Class({
         this._toRoot = rootIsPath ? path : root;
         this._toPath = rootIsPath ? root : path;
         return this;
-    },
+    }
 
     // ------------
 
@@ -297,15 +297,6 @@ const Binding = Class({
     // ------------
 
     /**
-        Property (private): O.Binding#_doNotDelayConnection
-        Type: Boolean
-
-        If the to or from object cannot be resolved, should the binding delay
-        the connection until the end of the run loop?
-    */
-    _doNotDelayConnection: false,
-
-    /**
         Method: O.Binding#connect
 
         Starts observing for changes and syncs the current value of the observed
@@ -364,7 +355,7 @@ const Binding = Class({
         }
         this.isConnected = true;
         return this;
-    },
+    }
 
     /**
         Method: O.Binding#disconnect
@@ -393,7 +384,7 @@ const Binding = Class({
         this.willSyncForward = true;
 
         return this;
-    },
+    }
 
     /**
         Method: O.Binding#suspend
@@ -408,7 +399,7 @@ const Binding = Class({
     suspend () {
         this.isSuspended = true;
         return this;
-    },
+    }
 
     /**
         Method: O.Binding#resume
@@ -425,7 +416,7 @@ const Binding = Class({
             this.sync();
         }
         return this;
-    },
+    }
 
     // ------------
 
@@ -450,7 +441,7 @@ const Binding = Class({
     */
     fromDidChange () {
         return this.needsSync( true );
-    },
+    }
 
     /**
         Method: O.Binding#toDidChange
@@ -464,7 +455,7 @@ const Binding = Class({
     */
     toDidChange () {
         return this.needsSync( false );
-    },
+    }
 
     /**
         Method: O.Binding#needsSync
@@ -491,7 +482,7 @@ const Binding = Class({
             }
         }
         return this;
-    },
+    }
 
     /**
         Method: O.Binding#sync
@@ -539,8 +530,8 @@ const Binding = Class({
             }
         }
         return true;
-    },
-});
+    }
+}
 
 /**
     Function: O.bind

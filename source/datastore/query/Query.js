@@ -132,7 +132,8 @@ const Query = Class({
                     initialisation (so you can pass it getter/setter functions
                     or observing methods).
     */
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._storeKeys = [];
         this._awaitingIdFetch = [];
         this._refresh = false;

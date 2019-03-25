@@ -2,7 +2,7 @@ import { Class, isEqual } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import Element from '../../dom/Element';
+import { create as el } from '../../dom/Element';
 import AbstractControlView from './AbstractControlView';
 
 /**
@@ -56,11 +56,11 @@ const SelectView = Class({
 
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         const control = this._domControl =
             this._drawSelect( this.get( 'options' ) );
         return [
-            SelectView.parent.draw.call( this, layer, Element, el ),
+            SelectView.parent.draw.call( this, layer ),
             control,
         ];
     },
@@ -78,7 +78,6 @@ const SelectView = Class({
     */
     _drawSelect ( options ) {
         const selected = this.get( 'value' );
-        const el = Element.create;
         const select = el( 'select', {
                 className: 'v-Select-input',
                 disabled: this.get( 'isDisabled' ),

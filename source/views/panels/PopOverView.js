@@ -1,7 +1,7 @@
 import { Class, meta } from '../../core/Core';
 import '../../foundation/EventTarget';  // For Function#on
 import { lookupKey } from '../../dom/DOMEvent';
-import Element from '../../dom/Element';
+import { setStyle, create as el } from '../../dom/Element';
 import RootView from '../RootView';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
@@ -12,7 +12,8 @@ const PopOverView = Class({
 
     Extends: View,
 
-    init () {
+    // eslint-disable-next-line object-shorthand
+    init: function () {
         this.parentPopOverView = null;
         this.isVisible = false;
         this.options = {};
@@ -35,7 +36,7 @@ const PopOverView = Class({
         modal: 'true',
     },
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         const children = [
             this._aFlex = el( 'div' ),
             this._popOver = el( 'div.v-PopOver', [
@@ -240,9 +241,9 @@ const PopOverView = Class({
             }
         }
 
-        Element.setStyle( this._popOver, 'transform',
+        setStyle( this._popOver, 'transform',
             'translate(' + deltaLeft + 'px,' + deltaTop + 'px)' );
-        Element.setStyle( this._callout, 'transform',
+        setStyle( this._callout, 'transform',
             'translate(' +
                 ( positionToTheLeftOrRight ? 0 : -deltaLeft ) + 'px,' +
                 ( positionToTheLeftOrRight ? -deltaTop : 0 ) + 'px)'

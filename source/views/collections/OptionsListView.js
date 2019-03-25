@@ -8,7 +8,8 @@ const OptionsListView = Class({
 
     Extends: ListView,
 
-    init () {
+    // eslint-disable-next-line object-shorthand
+    init: function () {
         this._focusedOption = null;
         this._selectedOption = null;
         this._views = {};

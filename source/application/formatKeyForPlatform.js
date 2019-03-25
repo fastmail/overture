@@ -1,7 +1,6 @@
 import '../core/String';  // For String#capitalise
-import UA from '../ua/UA';
+import { isMac } from '../ua/UA';
 
-const isMac = UA.isMac;
 const platformKeys = {
     ArrowUp: '↑',
     ArrowDown: '↓',

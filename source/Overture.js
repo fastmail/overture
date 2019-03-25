@@ -36,7 +36,7 @@
       core/Date: LocaleController uses Locale in the global scope
 */
 
-export * from './core/Core';
+export { meta, guid, mixin, extend, merge, clone, isEqual, Class } from './core/Core';
 export { default as sortByProperties } from './core/sortByProperties';
 import './core/Array';
 import './core/Date';
@@ -45,7 +45,7 @@ import './core/Object';
 import './core/RegExp';
 import './core/String';
 
-export * from './foundation/Binding';
+export { Binding, bind, bindTwoWay } from './foundation/Binding';
 export { default as BoundProps } from './foundation/BoundProps';
 export { default as ComputedProps } from './foundation/ComputedProps';
 export { default as Enumerable } from './foundation/Enumerable';
@@ -59,7 +59,8 @@ export { default as ObservableArray } from './foundation/ObservableArray';
 export { default as ObservableProps } from './foundation/ObservableProps';
 export { default as ObservableRange } from './foundation/ObservableRange';
 export { default as RunLoop } from './foundation/RunLoop';
-export { default as Transform } from './foundation/Transform';
+import * as Transform from './foundation/Transform';
+export { Transform };
 import Promise from './foundation/Promise';
 // Replace the global Promise with our RunLoop-enabled Promise
 self.Promise = Promise;
@@ -82,12 +83,19 @@ export { default as Query } from './datastore/query/Query';
 export { default as LocalQuery } from './datastore/query/LocalQuery';
 export { default as WindowedQuery } from './datastore/query/WindowedQuery';
 export { default as AttributeErrors } from './datastore/record/AttributeErrors';
-export { default as Record } from './datastore/record/Record';
-export { default as RecordAttribute } from './datastore/record/RecordAttribute';
+import Record from './datastore/record/Record';
+export { Record };
+import { attr, RecordAttribute } from './datastore/record/attr';
+Record.attr = attr;
+export { RecordAttribute };
 import * as Status from './datastore/record/Status';
 export { Status };
-export { default as ToManyAttribute } from './datastore/record/ToManyAttribute';
-export { default as ToOneAttribute } from './datastore/record/ToOneAttribute';
+import { toMany, ToManyAttribute } from './datastore/record/toMany';
+Record.toMany = toMany;
+export { ToManyAttribute };
+import { toOne, ToOneAttribute } from './datastore/record/toOne';
+Record.toOne = toOne;
+export { ToOneAttribute };
 export { default as RecordResult } from './datastore/record/RecordResult';
 export { default as ValidationError } from './datastore/record/ValidationError';
 export { default as AggregateSource } from './datastore/source/AggregateSource';
@@ -100,8 +108,10 @@ export { default as UndoManager } from './datastore/store/UndoManager';
 
 import * as DOMEvent from './dom/DOMEvent';
 export { DOMEvent };
-export { default as Element } from './dom/Element';
-export { default as Stylesheet } from './dom/Stylesheet';
+import * as Element from './dom/Element';
+export { Element };
+import * as Stylesheet from './dom/Stylesheet';
+export { Stylesheet };
 
 export { default as Drag } from './drag-drop/Drag';
 export { default as DragController } from './drag-drop/DragController';
@@ -127,11 +137,14 @@ export { default as XHR } from './io/XHR';
 // 3. Abolish the LocaleController export for good measure (O.i18n is nice,
 //    singletons with a capital first letter aren’t).
 export { default as Locale } from './localisation/Locale';
-export * from './localisation/LocaleController';
+export { LocaleController, i18n, loc } from './localisation/LocaleController';
 import './localisation/RelativeDate';
 
-export { default as parse } from './parser/DateParser';
-export { default as Parse } from './parser/Parse';
+import * as parse from './parser/DateParser';
+export { parse };
+import Parse, { define, optional, not, repeat, sequence, firstMatch, longestMatch } from './parser/Parse';
+Object.assign( Parse, { define, optional, not, repeat, sequence, firstMatch, longestMatch });
+export { Parse };
 
 export { default as OptionsController } from './selection/OptionsController';
 export { default as SelectionController } from './selection/SelectionController';
@@ -146,7 +159,8 @@ export { default as GestureManager } from './touch/GestureManager';
 export { default as Hold } from './touch/Hold';
 export { default as Tap } from './touch/Tap';
 
-export { default as UA } from './ua/UA';
+import * as UA from './ua/UA';
+export { UA };
 
 export { default as RootView } from './views/RootView';
 export { default as View } from './views/View';
@@ -157,7 +171,7 @@ export { default as ListKBFocusView } from './views/collections/ListKBFocusView'
 export { default as ListView } from './views/collections/ListView';
 export { default as ProgressiveListView } from './views/collections/ProgressiveListView';
 export { default as OptionsListView } from './views/collections/OptionsListView';
-export { default as SwitchView } from './views/collections/SwitchView';
+export { default as SwitchView, when, unless } from './views/collections/SwitchView';
 export { default as ToolbarView } from './views/collections/ToolbarView';
 export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect';
 export { default as ScrollView } from './views/containers/ScrollView';

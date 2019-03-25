@@ -30,7 +30,8 @@ export default Class({
                         you can pass it getter/setter functions or observing
                         methods).
     */
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this.isDestroyed = false;
 
         for ( let i = 0, l = arguments.length; i < l; i += 1 ) {

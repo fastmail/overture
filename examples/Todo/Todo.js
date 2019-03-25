@@ -20,6 +20,8 @@
 
 "use strict";
 
+var el = O.Element.create;
+
 // --- Namespace ---
 
 /*  There's no specific naming requirement for your app when using Overture,
@@ -714,7 +716,7 @@ var TodoView = O.Class({
 
        Note, we can append other view instances as well as DOM nodes.
     */
-    draw: function ( layer, Element, el ) {
+    draw: function ( layer ) {
         var todo = this.get( 'content' );
         return [
             new O.CheckboxView({
@@ -725,10 +727,10 @@ var TodoView = O.Class({
                 */
                 value: O.bindTwoWay( todo, 'isComplete' )
             }),
-            /* Element.when is a shortcut for creating an O.SwitchView
+            /* when is a shortcut for creating an O.SwitchView
                instance; essentially a live-updating if/else.
             */
-            Element.when( this, 'isEditing' ).show([
+            O.when( this, 'isEditing' ).show([
                 el( 'div.v-Todo-summary', [
                     new O.TextView({
                         value: O.bindTwoWay( todo, 'summary' ),
@@ -880,7 +882,7 @@ var appView = new O.View({
         }),
         new O.View({
             className: 'v-TodoList',
-            draw: function (/* layer, Element, el */) {
+            draw: function (/* layer */) {
                 return [
                     new O.ListView({
                         content: O.bind( App.state, 'todos' ),

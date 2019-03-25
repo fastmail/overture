@@ -4,17 +4,17 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property, #nocache
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import Transform from '../../foundation/Transform';
+import { isEqualToValue } from '../../foundation/Transform';
 import { bind, bindTwoWay } from '../../foundation/Binding';
 import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import Element from '../../dom/Element';
+import { getPosition, nearest, create as el } from '../../dom/Element';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
-import UA from '../../ua/UA';
+import { isIOS, isMac, isWinPhone, isWKWebView } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
@@ -53,8 +53,6 @@ const urlRegExp =
 
 const popOver = new PopOverView();
 
-const equalTo = Transform.isEqualToValue;
-
 const TOOLBAR_HIDDEN = 0;
 const TOOLBAR_INLINE = 1;
 const TOOLBAR_AT_SELECTION = 2;
@@ -79,7 +77,7 @@ const URLPickerView = Class({
 
     className: 'v-UrlPicker',
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         return [
             el( 'h3.u-bold', [
                 this.get( 'prompt' ),
@@ -147,7 +145,7 @@ const RichTextView = Class({
 
     // ---
 
-    showToolbar: UA.isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
+    showToolbar: isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
     fontFaceOptions: function () {
         return [
             [ loc( 'Default' ), null ],
@@ -288,7 +286,7 @@ const RichTextView = Class({
                 ' v-RichText--noToolbar' : '' );
     }.property( 'isFocused', 'isDisabled' ),
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         const editorClassName = this.get( 'editorClassName' );
         const editingLayer = this._editingLayer = el( 'div', {
             id: this.get( 'editorId' ),
@@ -368,7 +366,7 @@ const RichTextView = Class({
         const offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
         let scrollViewHeight = scrollView.get( 'pxHeight' );
         let scrollBy = 0;
-        if ( UA.isIOS ) {
+        if ( isIOS ) {
             scrollViewHeight -=
                 // Keyboard height (in WKWebView, but not Safari)
                 ( document.body.offsetHeight - window.innerHeight );
@@ -447,17 +445,17 @@ const RichTextView = Class({
             return;
         }
         const range = this.get( 'editor' ).getSelection();
-        let node = UA.isIOS ? range.endContainer : range.startContainer;
+        let node = isIOS ? range.endContainer : range.startContainer;
         if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
             node = node.parentNode;
         }
-        const position = Element.getPosition( node, this.get( 'layer' ) );
+        const position = getPosition( node, this.get( 'layer' ) );
         this.set( 'floatingToolbarLayout', {
             top: 0,
             left: 0,
             maxWidth: '100%',
             transform: 'translate3d(0,' + (
-                UA.isIOS ?
+                isIOS ?
                 position.top + position.height + 10 :
                 position.top -
                     this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
@@ -675,7 +673,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-left',
-                isActive: bind( this, 'alignment', equalTo( 'left' ) ),
+                isActive: bind( this, 'alignment', isEqualToValue( 'left' ) ),
                 label: loc( 'Left' ),
                 tooltip: loc( 'Left' ),
                 activate () {
@@ -687,7 +685,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-centre',
-                isActive: bind( this, 'alignment', equalTo( 'center' ) ),
+                isActive: bind( this, 'alignment', isEqualToValue( 'center' ) ),
                 label: loc( 'Center' ),
                 tooltip: loc( 'Center' ),
                 activate () {
@@ -699,7 +697,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-right',
-                isActive: bind( this, 'alignment', equalTo( 'right' ) ),
+                isActive: bind( this, 'alignment', isEqualToValue( 'right' ) ),
                 label: loc( 'Right' ),
                 tooltip: loc( 'Right' ),
                 activate () {
@@ -711,7 +709,8 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-paragraph-justify',
-                isActive: bind( this, 'alignment', equalTo( 'justify' ) ),
+                isActive: bind( this, 'alignment',
+                    isEqualToValue( 'justify' ) ),
                 label: loc( 'Justify' ),
                 tooltip: loc( 'Justify' ),
                 activate () {
@@ -723,7 +722,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-lefttoright',
-                isActive: bind( this, 'direction', equalTo( 'ltr' ) ),
+                isActive: bind( this, 'direction', isEqualToValue( 'ltr' ) ),
                 label: loc( 'Text Direction: Left to Right' ),
                 tooltip: loc( 'Text Direction: Left to Right' ),
                 activate () {
@@ -735,7 +734,7 @@ const RichTextView = Class({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
                 icon: 'icon-righttoleft',
-                isActive: bind( this, 'direction', equalTo( 'rtl' ) ),
+                isActive: bind( this, 'direction', isEqualToValue( 'rtl' ) ),
                 label: loc( 'Text Direction: Right to Left' ),
                 tooltip: loc( 'Text Direction: Right to Left' ),
                 activate () {
@@ -1107,7 +1106,6 @@ const RichTextView = Class({
     },
 
     kbShortcuts: function ( event ) {
-        const isMac = UA.isMac;
         switch ( lookupKey( event ) ) {
         case isMac ? 'Meta-k' : 'Ctrl-k':
             event.preventDefault();
@@ -1252,7 +1250,7 @@ const RichTextView = Class({
         const target = event.target;
         if ( !isClickModified( event ) &&
                 target.nodeName === 'IMG' &&
-                Element.nearest( target, 'A', this.get( 'layer' ) ) ) {
+                nearest( target, 'A', this.get( 'layer' ) ) ) {
             event.preventDefault();
         }
     }.on( 'click' ),
@@ -1281,13 +1279,11 @@ const RichTextView = Class({
 
 RichTextView.isSupported = (
     ( 'contentEditable' in document.body ) &&
-    // Opera Mobile. Yeh, no.
-    ( !UA.operaMobile ) &&
     // Windows Phone as of v8.1 (IE11) is still pretty buggy
-    ( !UA.isWinPhone ) &&
+    ( !isWinPhone ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous
     // bugs.
-    ( !UA.isIOS || UA.isWKWebView )
+    ( !isIOS || isWKWebView )
 );
 
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;

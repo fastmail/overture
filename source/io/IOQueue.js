@@ -85,7 +85,8 @@ const IOQueue = Class({
                         contain methods to override the normal methods to create
                         an anonymous subclass.
     */
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._queue = [];
         this._recent = null;
         this.activeConnections = 0;
@@ -179,8 +180,9 @@ const IOQueue = Class({
     }.on( 'io:end' ),
 });
 
-IOQueue.QUEUE = 1;
-IOQueue.IGNORE = 2;
-IOQueue.ABORT = 3;
+IOQueue.QUEUE = QUEUE;
+IOQueue.IGNORE = IGNORE;
+IOQueue.ABORT = ABORT;
 
 export default IOQueue;
+export { QUEUE, IGNORE, ABORT };

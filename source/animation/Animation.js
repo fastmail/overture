@@ -1,4 +1,4 @@
-import { Class, meta } from '../core/Core';
+import { meta } from '../core/Core';
 import '../core/Array';  // For Array#erase
 import RunLoop from '../foundation/RunLoop';
 import Easing from './Easing';
@@ -79,37 +79,7 @@ const nextFrame = function () {
     For animating something other than a numeric property, override
     <O.Animation#prepare> and <O.Animation#drawFrame> methods.
 */
-export default Class({
-
-    init ( mixin ) {
-        this.isRunning = false;
-        this.startTime = 0;
-
-        this.startValue = null;
-        this.endValue = null;
-        this.deltaValue = null;
-
-        Object.assign( this, mixin );
-    },
-
-    /**
-        Property: O.Animation#duration
-        Type: Number
-        Default: 300
-
-        The length, in milliseconds, that the animation should last.
-    */
-    duration: 300,
-
-    /**
-        Property: O.Animation#ease
-        Type: Function
-        Default: O.Easing.ease
-
-        The easing function to use for the animation.
-    */
-    ease: Easing.ease,
-
+export default class Animation {
     /**
         Property: O.Animation#isRunning
         Type: Boolean
@@ -137,6 +107,17 @@ export default Class({
 
         The name of the property to set on the object being animated.
     */
+
+    constructor ( mixin ) {
+        this.isRunning = false;
+        this.startTime = 0;
+
+        this.startValue = null;
+        this.endValue = null;
+        this.deltaValue = null;
+
+        Object.assign( this, mixin );
+    }
 
     /**
         Method: O.Animation#animate
@@ -194,7 +175,7 @@ export default Class({
             object.willAnimate( this );
         }
         return this;
-    },
+    }
 
     /**
         Method (protected): O.Animation#prepare
@@ -220,7 +201,7 @@ export default Class({
         this.deltaValue = this.endValue - this.startValue;
 
         return !!this.deltaValue;
-    },
+    }
 
     /**
         Method (protected): O.Animation#drawFrame
@@ -245,7 +226,7 @@ export default Class({
             this.startValue + ( position * this.deltaValue );
 
         this.object.set( this.property, value );
-    },
+    }
 
     /**
         Method: O.Animation#stop
@@ -274,5 +255,23 @@ export default Class({
         }
 
         return this;
-    },
-});
+    }
+}
+
+/**
+    Property: O.Animation#duration
+    Type: Number
+    Default: 300
+
+    The length, in milliseconds, that the animation should last.
+*/
+Animation.prototype.duration = 300;
+
+/**
+    Property: O.Animation#ease
+    Type: Function
+    Default: O.Easing.ease
+
+    The easing function to use for the animation.
+*/
+Animation.prototype.ease = Easing.ease;

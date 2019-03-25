@@ -2,7 +2,7 @@ import { Class, meta } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import '../../foundation/ObservableProps';  // For Function#observes
 
-import RecordAttribute from './RecordAttribute';
+import { RecordAttribute } from './attr';
 
 /**
     Class: O.AttributeErrors
@@ -28,7 +28,8 @@ const AttributeErrors = Class({
         Parameters:
             record - {O.Record} The record to manage attribute errors for.
     */
-    init ( record ) {
+    // eslint-disable-next-line object-shorthand
+    init: function ( record ) {
         AttributeErrors.parent.constructor.call( this );
 
         const attrs = meta( record ).attrs;

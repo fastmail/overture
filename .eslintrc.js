@@ -22,7 +22,7 @@ module.exports = {
         'callback-return': 'off',
         'camelcase': 'error',
         'capitalized-comments': 'off',
-        'class-methods-use-this': 'error',
+        'class-methods-use-this': 'off',
         'comma-dangle': [ 'error', 'always-multiline' ],
         'comma-spacing': [ 'error', { 'after': true, 'before': false } ],
         'comma-style': [ 'error', 'last' ],

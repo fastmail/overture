@@ -2,7 +2,7 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import { lookupKey } from '../../dom/DOMEvent';
-import Element from '../../dom/Element';
+import { create as el } from '../../dom/Element';
 import { loc } from '../../localisation/LocaleController';
 import View from '../View';
 import RootView from '../RootView';
@@ -12,7 +12,7 @@ import MenuButtonView from '../menu/MenuButtonView';
 import MenuView from '../menu/MenuView';
 
 const toView = function ( name ) {
-    return ( name === '-' ) ? Element.create( 'span.v-Toolbar-divider' ) :
+    return ( name === '-' ) ? el( 'span.v-Toolbar-divider' ) :
         ( name === '*' ) ? null :
         this._views[ name ];
 };
@@ -98,7 +98,8 @@ const ToolbarView = Class({
     preventOverlap: false,
     popOverOptions: null,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         ToolbarView.parent.constructor.apply( this, arguments );
         this._views = {
             overflow: new OverflowMenuView({
@@ -243,10 +244,10 @@ const ToolbarView = Class({
                 layerStyles: {},
                 childViews: Object.values( this._views )
                                   .filter( view => !view.get( 'parentView' ) ),
-                draw ( layer, Element, el ) {
+                draw ( layer ) {
                     return [
                         el( 'span.v-Toolbar-divider' ),
-                        View.prototype.draw.call( this, layer, Element, el ),
+                        View.prototype.draw.call( this, layer ),
                     ];
                 },
             })
@@ -301,7 +302,7 @@ const ToolbarView = Class({
         return this;
     },
 
-    draw ( layer, Element, el ) {
+    draw (/* layer */) {
         return [
             this.get( 'left' ),
             this._flex = el( 'div.v-Toolbar-flex' ),

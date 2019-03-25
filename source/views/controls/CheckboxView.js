@@ -2,6 +2,7 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
+import { create as el } from '../../dom/Element';
 
 import AbstractControlView from './AbstractControlView';
 
@@ -43,7 +44,7 @@ const CheckboxView = Class({
 
         Overridden to draw checkbox in layer. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         return [
             this._domControl = el( 'input', {
                 className: 'v-Checkbox-input',
@@ -51,7 +52,7 @@ const CheckboxView = Class({
                 checked: this.get( 'value' ),
                 indeterminate: this.get( 'isIndeterminate' ),
             }),
-            CheckboxView.parent.draw.call( this, layer, Element, el ),
+            CheckboxView.parent.draw.call( this, layer ),
         ];
     },
 

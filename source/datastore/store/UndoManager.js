@@ -9,7 +9,8 @@ const UndoManager = Class({
 
     Extends: Obj,
 
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         this._undoStack = [];
         this._redoStack = [];
 

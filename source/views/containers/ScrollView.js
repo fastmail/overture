@@ -3,23 +3,15 @@ import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
-import Element from '../../dom/Element';
+import { create as el, setStyle, appendChildren } from '../../dom/Element';
 import Animation from '../../animation/Animation';
 import Tap from '../../touch/Tap';
-import UA from '../../ua/UA';
+import { isIOS, browser, version } from '../../ua/UA';
 import View from '../View';
 import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
 
-const el = Element.create;
-const setStyle = Element.setStyle;
-
-const ScrollAnimation = Class({
-
-    Extends: Animation,
-
-    duration: 250,
-
+class ScrollAnimation extends Animation {
     prepare ( coordinates ) {
         const object = this.object;
         const startX = this.startX = object.get( 'scrollLeft' );
@@ -32,7 +24,7 @@ const ScrollAnimation = Class({
         setStyle( object.get( 'layer' ), 'will-change', 'scroll-position' );
 
         return !!( deltaX || deltaY );
-    },
+    }
 
     drawFrame ( position ) {
         const isRunning = position < 1;
@@ -45,8 +37,10 @@ const ScrollAnimation = Class({
         if ( !isRunning ) {
             setStyle( object.get( 'layer' ), 'will-change', 'auto' );
         }
-    },
-});
+    }
+}
+
+ScrollAnimation.prototype.duration = 250;
 
 /**
     Class: O.ScrollView
@@ -482,15 +476,16 @@ const ScrollView = Class({
     },
 });
 
-if ( UA.isIOS ) {
+if ( isIOS ) {
+    const isOldOrSafari = version < 11 || browser === 'safari';
+
     Object.assign( ScrollView.prototype, {
-        draw ( layer, Element, el ) {
+        draw ( layer ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
             let scrollFixerHeight = 1;
 
             // Render the children.
-            const children = ScrollView.parent.draw.call( this,
-                layer, Element, el );
+            const children = ScrollView.parent.draw.call( this, layer );
 
             // Following platform conventions, we assume a fixed height
             // ScrollView should always scroll, regardless of whether the
@@ -502,7 +497,7 @@ if ( UA.isIOS ) {
             // From iOS 11, if not in Safari, it appears that the view will
             // always be scrollable as long as the content is at longer; you
             // don't need to ensure you are not at the very top
-            if ( isFixedDimensions && ( UA.version < 11 || UA.safari ) ) {
+            if ( isFixedDimensions && isOldOrSafari ) {
                 scrollFixerHeight = 2;
                 layer.appendChild(
                     el( 'div', { style: 'height:1px' } )
@@ -510,7 +505,7 @@ if ( UA.isIOS ) {
             }
 
             // Append the actual children of the scroll view.
-            Element.appendChildren( layer, children );
+            appendChildren( layer, children );
 
             if ( isFixedDimensions ) {
                 layer.appendChild(
@@ -528,7 +523,7 @@ if ( UA.isIOS ) {
             if ( this.get( 'isInDocument' ) ) {
                 const scrollTop = this.get( 'scrollTop' );
                 const scrollLeft = this.get( 'scrollLeft' );
-                if ( !scrollTop && ( UA.version < 11 || UA.safari ) ) {
+                if ( !scrollTop && isOldOrSafari ) {
                     this.scrollTo( scrollLeft, 1 );
                 } else if ( scrollTop + this.get( 'pxHeight' ) ===
                         this.get( 'layer' ).scrollHeight ) {

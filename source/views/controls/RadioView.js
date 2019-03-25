@@ -1,6 +1,8 @@
 import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
+import { create as el } from '../../dom/Element';
+
 import AbstractControlView from './AbstractControlView';
 import CheckboxView from './CheckboxView';
 
@@ -40,14 +42,14 @@ const RadioView = Class({
 
         Overridden to draw radio button in layer. See <O.View#draw>.
     */
-    draw ( layer, Element, el ) {
+    draw ( layer ) {
         return [
             this._domControl = el( 'input', {
                 className: 'v-Radio-input',
                 type: 'radio',
                 checked: this.get( 'value' ),
             }),
-            RadioView.parent.draw.call( this, layer, Element, el ),
+            RadioView.parent.draw.call( this, layer ),
         ];
     },
 

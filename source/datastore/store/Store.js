@@ -24,8 +24,8 @@ import {
 } from '../record/Status';
 // eslint-disable-next-line no-duplicate-imports
 import * as Status from '../record/Status';
-import ToOneAttribute from '../record/ToOneAttribute';
-import ToManyAttribute from '../record/ToManyAttribute';
+import { ToOneAttribute } from '../record/toOne';
+import { ToManyAttribute } from '../record/toMany';
 
 /**
     Module: DataStore
@@ -202,6 +202,13 @@ const getDelta = function ( Type, data, changed ) {
 
 // ---
 
+const mapToTrue = ( object, uri ) => {
+    object[ uri ] = true;
+    return object;
+};
+
+// ---
+
 /**
     Class: O.Store
 
@@ -279,11 +286,11 @@ const Store = Class({
                         parameter named `source` of type {O.Source}, the source
                         for this store.
     */
-    init (/* ...mixins */) {
+    // eslint-disable-next-line object-shorthand
+    init: function (/* ...mixins */) {
         // Map Type -> store key -> id
         this._typeToSKToId = {};
         // Map store key -> accountId
-        // We don't add store keys that belong to the default account.
         this._skToAccountId = {};
         // Map store key -> Type
         this._skToType = {};
@@ -321,7 +328,6 @@ const Store = Class({
 
         // Map accountId -> { status, clientState, serverState }
         // (An account MUST be added before attempting to use the store.)
-        this._defaultAccountId = null;
         this._accounts = {};
 
         Store.parent.constructor.apply( this, arguments );
@@ -371,28 +377,75 @@ const Store = Class({
 
     // === Accounts ============================================================
 
-    getDefaultAccountId (/* Type */) {
-        return this._defaultAccountId;
+    /**
+        Method: O.Store#getPrimaryAccountIdForType
+
+        Get the default account ID for the specified type.
+
+        The default implementation of this method basically doesn’t support the
+        concept of a default accountId; accountId must always be specified, or
+        this method will be called and throw a TypeError. This method is
+        designed to be overridden, straight on the O.Store prototype. (Yes,
+        that’s nasty. Sorry; c’est la vie.)
+
+        Parameters:
+            Type - {class extending O.Record}
+
+        Returns:
+            {string} Returns the primary accountId for data of that type.
+    */
+    getPrimaryAccountIdForType (/* Type */) {
+        throw new TypeError( 'accountId cannot be inferred' );
     },
 
-    getAccount ( accountId ) {
-        if ( accountId === null || accountId === undefined ) {
-            accountId = this._defaultAccountId;
+    /**
+        Method: O.Store#getAccount
+
+        Get the account for the given account ID, or if it is not specified, the
+        primary account for the given type.
+
+        Parameters:
+            accountId - {(string|undefined|null)}
+            Type - {(class extending O.Record|undefined)}
+
+        Returns:
+            {(Object|undefined)} Returns the account data, or undefined if
+                                 there’s not enough to go by or the details
+                                 given don’t resolve to an account.
+    */
+    getAccount ( accountId, Type ) {
+        if ( !accountId ) {
+            accountId = this.getPrimaryAccountIdForType( Type );
         }
         return this._accounts[ accountId ];
     },
 
     addAccount ( accountId, data ) {
         const _accounts = this._accounts;
-        let account = _accounts[ accountId ];
-        if ( !account ) {
+        // replaceAccountId is intended for situations where you wish to
+        // retrieve a record that should be broadly considered a global, before
+        // you have loaded the accounts. This way, you can add a dummy account,
+        // get those records from the dummy account, and then when you have the
+        // accounts, silently update the accountId to the real value. That way
+        // you can still handle all of your bindings declaratively, rather than
+        // having to wait until you have loaded the accounts.
+        const replaceAccountId = data.replaceAccountId;
+        let account;
+        if ( replaceAccountId && ( account = _accounts[ replaceAccountId ] ) ) {
+            if ( data.hasDataFor ) {
+                account.hasDataFor = data.hasDataFor.reduce( mapToTrue, {} );
+            }
+            const skToAccountId = this._skToAccountId;
+            for ( const sk in skToAccountId ) {
+                if ( skToAccountId[ sk ] === replaceAccountId ) {
+                    skToAccountId[ sk ] = accountId;
+                }
+            }
+            delete _accounts[ replaceAccountId ];
+        } else if ( !( account = _accounts[ accountId ] ) ) {
             account = {
-                isDefault: data.isDefault,
                 // Transform [ ...uri ] into { ...uri: true } for fast access
-                hasDataFor: data.hasDataFor.reduce( ( object, uri ) => {
-                    object[ uri ] = true;
-                    return object;
-                }, {} ),
+                hasDataFor: data.hasDataFor.reduce( mapToTrue, {} ),
                 // Type -> status
                 // READY      - Some records of type loaded
                 // LOADING    - Loading or refreshing ALL records of type
@@ -409,16 +462,6 @@ const Store = Class({
                 // to avoid fetching updates to related types during the process
                 ignoreServerState: false,
             };
-        }
-        if ( data.isDefault ) {
-            this._defaultAccountId = accountId;
-            this._nestedStores.forEach( store => {
-                store._defaultAccountId = accountId;
-            });
-            if ( accountId && _accounts[ '' ] ) {
-                account.typeToIdToSK = _accounts[ '' ].typeToIdToSK;
-                delete _accounts[ '' ];
-            }
         }
         _accounts[ accountId ] = account;
 
@@ -444,6 +487,9 @@ const Store = Class({
             {String} Returns the store key for that record type and id.
     */
     getStoreKey ( accountId, Type, id ) {
+        if ( !accountId ) {
+            accountId = this.getPrimaryAccountIdForType( Type );
+        }
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
         const typeToIdToSK = account.typeToIdToSK;
@@ -457,9 +503,7 @@ const Store = Class({
         if ( !storeKey ) {
             storeKey = generateStoreKey();
             this._skToType[ storeKey ] = Type;
-            if ( !account.isDefault ) {
-                this._skToAccountId[ storeKey ] = accountId;
-            }
+            this._skToAccountId[ storeKey ] = accountId;
             const { _typeToSKToId } = this;
             const skToId = _typeToSKToId[ typeId ] ||
                 ( _typeToSKToId[ typeId ] = {} );
@@ -505,8 +549,7 @@ const Store = Class({
     */
     getAccountIdFromStoreKey ( storeKey ) {
         const data = this._skToData[ storeKey ];
-        return data ? data.accountId :
-            this._skToAccountId[ storeKey ] || this._defaultAccountId;
+        return data ? data.accountId : this._skToAccountId[ storeKey ];
     },
 
     // === Client API ==========================================================
@@ -525,7 +568,7 @@ const Store = Class({
             {O.Status} The status in this store of the given record.
     */
     getRecordStatus ( accountId, Type, id ) {
-        const idToSk = this.getAccount( accountId )
+        const idToSk = this.getAccount( accountId, Type )
                            .typeToIdToSK[ guid( Type ) ];
         return idToSk ? this.getStatus( idToSk[ id ] ) : EMPTY;
     },
@@ -935,7 +978,8 @@ const Store = Class({
             }
             return status;
         }
-        return this.getAccount( accountId ).status[ guid( Type ) ] || EMPTY;
+        return this.getAccount( accountId, Type )
+            .status[ guid( Type ) ] || EMPTY;
     },
 
     /**
@@ -951,7 +995,8 @@ const Store = Class({
             {String|null} The client's current state token for the type.
     */
     getTypeState ( accountId, Type ) {
-        return this.getAccount( accountId ).clientState[ guid( Type ) ] || null;
+        return this.getAccount( accountId, Type )
+            .clientState[ guid( Type ) ] || null;
     },
 
     /**
@@ -1331,6 +1376,9 @@ const Store = Class({
             Type      - {O.Class} The record type.
     */
     checkServerState ( accountId, Type ) {
+        if ( !accountId ) {
+            accountId = this.getPrimaryAccountIdForType( Type );
+        }
         const typeToServerState = this.getAccount( accountId ).serverState;
         const typeId = guid( Type );
         const serverState = typeToServerState[ typeId ];
@@ -1372,7 +1420,7 @@ const Store = Class({
         }
 
         if ( !accountId ) {
-            accountId = this._defaultAccountId;
+            accountId = this.getPrimaryAccountIdForType( Type );
         }
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
@@ -1564,16 +1612,7 @@ const Store = Class({
         // associated with the record.
         const accountId = data.accountId;
         if ( status === (READY|NEW|DIRTY) && accountId ) {
-            const oldAccount = this.getAccount(
-                this._skToAccountId[ storeKey ] || this._defaultAccountId
-            );
-            const newAccount = this.getAccount( accountId );
-            if ( !oldAccount.isDefault ) {
-                delete this._skToAccountId[ storeKey ];
-            }
-            if ( !newAccount.isDefault ) {
-                this._skToAccountId[ storeKey ] = accountId;
-            }
+            this._skToAccountId[ storeKey ] = accountId;
         }
 
         this._notifyRecordOfChanges( storeKey, changedKeys );
@@ -1880,7 +1919,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceStateDidChange ( accountId, Type, newState ) {
-        const account = this.getAccount( accountId );
+        const account = this.getAccount( accountId, Type );
         const typeId = guid( Type );
         const clientState = account.clientState[ typeId ];
 
@@ -1933,6 +1972,9 @@ const Store = Class({
     */
     sourceDidFetchRecords ( accountId, Type, records, state, isAll ) {
         const { _skToData, _skToLastAccess } = this;
+        if ( !accountId ) {
+            accountId = this.getPrimaryAccountIdForType( Type );
+        }
         const account = this.getAccount( accountId );
         const typeId = guid( Type );
         const idPropKey = Type.primaryKey || 'id';
@@ -1942,10 +1984,6 @@ const Store = Class({
         const updates = {};
         const foreignRefAttrs = getForeignRefAttrs( Type );
         let l = records.length;
-
-        if ( !accountId ) {
-            accountId = this._defaultAccountId;
-        }
 
         while ( l-- ) {
             const data = records[l];
@@ -2045,7 +2083,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidFetchPartialRecords ( accountId, Type, updates, _idsAreSKs ) {
-        const account = this.getAccount( accountId );
+        const account = this.getAccount( accountId, Type );
         const typeId = guid( Type );
         const { _skToData, _skToStatus, _skToChanged, _skToCommitted } = this;
         const _idToSk = account.typeToIdToSK[ typeId ] || {};
@@ -2190,7 +2228,7 @@ const Store = Class({
     */
     sourceDidFetchUpdates ( accountId, Type, changed, destroyed, oldState,
             newState ) {
-        const account = this.getAccount( accountId );
+        const account = this.getAccount( accountId, Type );
         const typeId = guid( Type );
         if ( oldState === account.clientState[ typeId ] ) {
             // Invalidate changed records
@@ -2288,7 +2326,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceCommitDidChangeState ( accountId, Type, oldState, newState ) {
-        const account = this.getAccount( accountId );
+        const account = this.getAccount( accountId, Type );
         const typeId = guid( Type );
 
         if ( account.clientState[ typeId ] === oldState ) {
