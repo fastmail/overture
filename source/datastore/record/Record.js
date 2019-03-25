@@ -341,6 +341,8 @@ const Record = Class({
             this.get( 'store' )
                 .destroyRecord( storeKey )
                 .fire( 'record:user:destroy', { record: this } );
+        } else if ( !storeKey ) {
+            this.storeWillUnload();
         }
     },
 
