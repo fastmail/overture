@@ -2300,9 +2300,17 @@ const Store = Class({
     sourceDidDestroyRecords ( accountId, Type, ids ) {
         let l = ids.length;
         while ( l-- ) {
-            const storeKey = this.getStoreKey( accountId, Type, ids[l] );
-            this.setStatus( storeKey, DESTROYED );
-            this.unloadRecord( storeKey );
+            const id = ids[l];
+            const storeKey = this.getStoreKey( accountId, Type, id );
+            // If we have an immutable record, an "update" may have actually
+            // been a destroy and create. We may have updated the old record,
+            // but the previous id => sk mapping stays to allow query changes
+            // to work. So we need to check the reverse mapping gives the
+            // original id before updating the store with the destroy.
+            if ( this.getIdFromStoreKey( storeKey ) === id ) {
+                this.setStatus( storeKey, DESTROYED );
+                this.unloadRecord( storeKey );
+            }
         }
         return this;
     },
