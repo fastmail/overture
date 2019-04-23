@@ -124,29 +124,38 @@ const MenuButtonView = Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             const buttonView = this;
-            let popOverView, menuOptionView, rootView, position;
+            let popOverView, menuOptionView;
             const popOverOptions = Object.assign({
-                    view: this.get( 'menuView' ),
-                    alignWithView: buttonView,
-                    alignEdge: this.get( 'alignMenu' ),
-                    onHide () {
-                        buttonView.set( 'isActive', false );
-                        if ( menuOptionView ) {
-                            menuOptionView.removeObserverForKey(
-                                'isFocused', popOverView, 'hide' );
-                        }
-                    },
-                }, this.get( 'popOverOptions' ) );
+                view: this.get( 'menuView' ),
+                alignWithView: buttonView,
+                alignEdge: this.get( 'alignMenu' ),
+                onHide () {
+                    buttonView.set( 'isActive', false );
+                    if ( menuOptionView ) {
+                        menuOptionView.removeObserverForKey(
+                            'isFocused', popOverView, 'hide' );
+                    }
+                },
+            }, this.get( 'popOverOptions' ) );
             if ( this.get( 'isInMenu' ) ) {
                 popOverView = this.getParent( PopOverView );
+                const preferLeft =
+                    popOverView.get( 'options' ).positionToThe === 'left';
+                const rootViewWidth =
+                    this.getParent( RootView ).get( 'pxWidth' );
+                const position = this.get( 'layer' ).getBoundingClientRect();
                 menuOptionView = this.get( 'parentView' );
-                rootView = this.getParent( RootView );
-                position = this.get( 'layer' ).getBoundingClientRect();
                 popOverOptions.alignWithView = popOverView;
                 popOverOptions.atNode = this.get( 'layer' );
                 popOverOptions.positionToThe =
-                    position.left < rootView.get( 'pxWidth' ) - position.right ?
-                            'right' : 'left';
+                    preferLeft &&
+                        position.left > position.width ?
+                        'left' :
+                    !preferLeft &&
+                        rootViewWidth - position.right > position.width ?
+                        'right' :
+                    position.left < rootViewWidth - position.right ?
+                        'right' : 'left';
                 popOverOptions.showCallout = false;
                 popOverOptions.alignEdge = 'top';
                 popOverOptions.offsetTop =
