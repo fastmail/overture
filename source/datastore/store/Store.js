@@ -68,7 +68,7 @@ const filter = function ( accept, storeKey ) {
 
 const sort = function ( compare, a, b ) {
     const { _skToData } = this;
-    const aIsFirst = compare( _skToData[ a ], _skToData[ b ], this );
+    const aIsFirst = compare( _skToData[ a ], _skToData[ b ], this, a, b );
     return aIsFirst || ( ~~a.slice( 1 ) - ~~b.slice( 1 ) );
 };
 
