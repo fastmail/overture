@@ -150,10 +150,10 @@ export default {
 
         while ( target ) {
             const handlers = meta( target ).observers[ typeKey ];
-            let length = handlers ? handlers.length : 0;
-            while ( length-- ) {
+            const l = handlers ? handlers.length : 0;
+            for ( let i = 0; i < l; i += 1 ) {
                 try {
-                    const handler = handlers[ length ];
+                    const handler = handlers[i];
                     if ( typeof handler === 'function' ) {
                         handler.call( target, event );
                     } else {

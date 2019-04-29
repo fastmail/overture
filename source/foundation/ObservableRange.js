@@ -40,11 +40,11 @@ export default {
                 }
             }
         }
-        const rangeObservers = metadata.rangeObservers;
-        let l = rangeObservers ? rangeObservers.length : 0;
         const enumerableLength = this.get( 'length' ) || 0;
-        while ( l-- ) {
-            const observer = rangeObservers[l];
+        const rangeObservers = metadata.rangeObservers;
+        const l = rangeObservers ? rangeObservers.length : 0;
+        for ( let i = 0; i < l; i += 1 ) {
+            const observer = rangeObservers[i];
             const range = observer.range;
             let observerStart = range.start || 0;
             let observerEnd = 'end' in range ?
@@ -118,15 +118,18 @@ export default {
             {O.ObservableRange} Returns self.
     */
     removeObserverForRange ( range, object, method ) {
-        const observers = meta( this ).rangeObservers;
-        let l = observers ? observers.length : 0;
-        while ( l-- ) {
-            const observer = observers[l];
-            if ( observer.range === range &&
-                 observer.object === object && observer.method === method ) {
-                    observers.splice( l, 1 );
-                    break;
-            }
+        const metadata = meta( this );
+        const rangeObservers = metadata.rangeObservers;
+        const newObservers = rangeObservers ? rangeObservers.filter(
+            item =>
+                item.range !== range ||
+                item.object !== object ||
+                item.method !== method
+        ) : [];
+        if ( !newObservers.length ) {
+            metadata.rangeObservers = null;
+        } else if ( newObservers.length !== rangeObservers.length ) {
+            metadata.rangeObservers = newObservers;
         }
         return this;
     },
@@ -140,10 +143,10 @@ export default {
             {Boolean} Does the object have any range observers?
     */
     hasRangeObservers () {
-        const observers = meta( this ).rangeObservers;
-        let l = observers ? observers.length : 0;
+        const rangeObservers = meta( this ).rangeObservers;
+        let l = rangeObservers ? rangeObservers.length : 0;
         while ( l-- ) {
-            const object = observers[l].object;
+            const object = rangeObservers[l].object;
             if ( object && object !== this ) {
                 return true;
             }

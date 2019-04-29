@@ -131,44 +131,47 @@ class Metadata {
         object.__meta__ = this;
     }
 
+    // When firing observers we always iterate forwards and cache the length
+    // before we start. This means we can use Array.push rather than replacing
+    // the whole array; the semantics are the same. We rewrite the array if we
+    // remove an observer, but this is less common and is more expensive
+    // regardless as you have to do a splice otherwise.
     addObserver ( key, observer ) {
         const observers = this.observers;
         let keyObservers = observers[ key ];
+        if ( keyObservers ) {
+            const isSame = typeof observer === 'function' ?
+                isIdentical : isSameObserver;
+            const l = keyObservers.length;
+            for ( let i = 0; i < l; i += 1 ) {
+                if ( isSame( keyObservers[i], observer ) ) {
+                    return this;
+                }
+            }
+        }
         if ( !keyObservers ) {
             keyObservers = observers[ key ] = [];
         } else if ( !observers.hasOwnProperty( key ) ) {
             keyObservers = observers[ key ] = keyObservers.slice();
         }
-        const isSame = typeof observer === 'function' ?
-            isIdentical : isSameObserver;
-        let i = 0;
-        for ( const l = keyObservers.length; i < l; i += 1 ) {
-            if ( isSame( keyObservers[i], observer ) ) {
-                return this;
-            }
-        }
-        keyObservers[i] = observer;
+        keyObservers.push( observer );
+
         return this;
     }
 
     removeObserver ( key, observer ) {
         const observers = this.observers;
-        let keyObservers = observers[ key ];
+        const keyObservers = observers[ key ];
         if ( keyObservers ) {
-            if ( !observers.hasOwnProperty( key ) ) {
-                keyObservers = observers[ key ] = keyObservers.slice();
-            }
             const isSame = typeof observer === 'function' ?
                 isIdentical : isSameObserver;
-            let l = keyObservers.length;
-            while ( l-- ) {
-                if ( isSame( keyObservers[l], observer ) ) {
-                    keyObservers.splice( l, 1 );
-                    break;
-                }
-            }
-            if ( !keyObservers.length ) {
+            const newObservers = keyObservers.filter(
+                item => !isSame( item, observer )
+            );
+            if ( !newObservers.length ) {
                 observers[ key ] = null;
+            } else if ( newObservers.length !== keyObservers.length ) {
+                observers[ key ] = newObservers;
             }
         }
         return this;

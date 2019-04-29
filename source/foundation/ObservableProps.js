@@ -118,61 +118,55 @@ const _setupTeardownPaths = function ( object, method ) {
 */
 const _notifyObserversOfKey =
         function ( that, metadata, key, oldValue, newValue ) {
-    let observers = metadata.observers[ key ];
-    let l;
-    if ( observers && ( l = observers.length ) ) {
-        const isInitialised = metadata.isInitialised;
-        let haveCheckedForNew = false;
-        // Remember, observers may be removed (or possibly added, but that's
-        // less likely) during the iterations. Clone array before iterating
-        // to avoid the problem.
-        observers = observers.slice();
-        while ( l-- ) {
-            const observer = observers[l];
-            const object = observer.object || that;
-            const method = observer.method;
-            // During initialisation, this method is only called when a
-            // binding syncs. We want to give the illusion of the bound
-            // properties being present on the object from the beginning, so
-            // they can be used interchangably with non-bound properties, so
-            // suppress notification of observers. However, if there is
-            // another binding that is bound to this one, we need to notify
-            // that to ensure it syncs the correct initial value.
-            // We also need to set up any path observers correctly.
-            let path;
-            if ( isInitialised ) {
-                if ( path = observer.path ) {
-                    // If it's a computed property we don't really want to call
-                    // it unless it's needed; could be expensive.
-                    if ( newValue === undefined && !haveCheckedForNew ) {
-                        newValue = /^\d+$/.test( key ) ?
-                            that.getObjectAt( parseInt( key, 10 ) ) :
-                            that.get( key );
-                        haveCheckedForNew = true;
-                    }
-                    // Either value could be null
-                    if ( oldValue ) {
-                        oldValue.removeObserverForPath( path, object, method );
-                    }
-                    if ( newValue ) {
-                        newValue.addObserverForPath( path, object, method );
-                    }
-                    object[ method ]( that, key,
-                        oldValue && oldValue.getFromPath( path ),
-                        newValue && newValue.getFromPath( path ) );
-                } else {
-                    object[ method ]( that, key, oldValue, newValue );
+    const isInitialised = metadata.isInitialised;
+    const observers = metadata.observers[ key ];
+    const l = observers ? observers.length : 0;
+    let haveCheckedForNew = false;
+    for ( let i = 0; i < l; i += 1 ) {
+        const observer = observers[i];
+        const object = observer.object || that;
+        const method = observer.method;
+        const path = observer.path;
+        // During initialisation, this method is only called when a
+        // binding syncs. We want to give the illusion of the bound
+        // properties being present on the object from the beginning, so
+        // they can be used interchangably with non-bound properties, so
+        // suppress notification of observers. However, if there is
+        // another binding that is bound to this one, we need to notify
+        // that to ensure it syncs the correct initial value.
+        // We also need to set up any path observers correctly.
+        if ( isInitialised ) {
+            if ( path ) {
+                // If it's a computed property we don't really want to call
+                // it unless it's needed; could be expensive.
+                if ( newValue === undefined && !haveCheckedForNew ) {
+                    newValue = /^\d+$/.test( key ) ?
+                        that.getObjectAt( parseInt( key, 10 ) ) :
+                        that.get( key );
+                    haveCheckedForNew = true;
                 }
-            } else {
-                // Setup path observers on initial value.
-                if ( newValue && ( path = observer.path ) ) {
+                // Either value could be null
+                if ( oldValue ) {
+                    oldValue.removeObserverForPath( path, object, method );
+                }
+                if ( newValue ) {
                     newValue.addObserverForPath( path, object, method );
                 }
-                // Sync binding immediately
-                if ( object instanceof Binding ) {
-                    object[ method ]();
-                    object.sync();
-                }
+                object[ method ]( that, key,
+                    oldValue && oldValue.getFromPath( path ),
+                    newValue && newValue.getFromPath( path ) );
+            } else {
+                object[ method ]( that, key, oldValue, newValue );
+            }
+        } else {
+            // Setup path observers on initial value.
+            if ( newValue && path ) {
+                newValue.addObserverForPath( path, object, method );
+            }
+            // Sync binding immediately
+            if ( object instanceof Binding ) {
+                object[ method ]();
+                object.sync();
             }
         }
     }
@@ -193,12 +187,9 @@ const _notifyObserversOfKey =
 */
 const _notifyGenericObservers = function ( that, metadata, changed ) {
     const observers = metadata.observers[ '*' ];
-    if ( observers ) {
-        let l = observers.length;
-        while ( l-- ) {
-            const observer = observers[l];
-            ( observer.object || that )[ observer.method ]( that, changed );
-        }
+    for ( let i = 0, l = observers ? observers.length : 0; i < l; i += 1 ) {
+        const observer = observers[i];
+        ( observer.object || that )[ observer.method ]( that, changed );
     }
 };
 
