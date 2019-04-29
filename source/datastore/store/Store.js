@@ -490,7 +490,7 @@ const Store = Class({
         if ( !accountId ) {
             accountId = this.getPrimaryAccountIdForType( Type );
         }
-        const account = this.getAccount( accountId );
+        const account = this._accounts[ accountId ];
         const typeId = guid( Type );
         const typeToIdToSK = account.typeToIdToSK;
         const idToSk = typeToIdToSK[ typeId ] ||
@@ -1379,7 +1379,7 @@ const Store = Class({
         if ( !accountId ) {
             accountId = this.getPrimaryAccountIdForType( Type );
         }
-        const typeToServerState = this.getAccount( accountId ).serverState;
+        const typeToServerState = this._accounts[ accountId ].serverState;
         const typeId = guid( Type );
         const serverState = typeToServerState[ typeId ];
         if ( serverState ) {
@@ -1422,7 +1422,7 @@ const Store = Class({
         if ( !accountId ) {
             accountId = this.getPrimaryAccountIdForType( Type );
         }
-        const account = this.getAccount( accountId );
+        const account = this._accounts[ accountId ];
         const typeId = guid( Type );
         const typeToStatus = account.status;
         const status = typeToStatus[ typeId ];
@@ -1975,7 +1975,7 @@ const Store = Class({
         if ( !accountId ) {
             accountId = this.getPrimaryAccountIdForType( Type );
         }
-        const account = this.getAccount( accountId );
+        const account = this._accounts[ accountId ];
         const typeId = guid( Type );
         const idPropKey = Type.primaryKey || 'id';
         const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
@@ -2367,7 +2367,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidCommitCreate ( skToPartialData ) {
-        const { _skToType, _skToData, _typeToSKToId } = this;
+        const { _skToType, _skToData, _typeToSKToId, _accounts } = this;
         for ( const storeKey in skToPartialData ) {
             const status = this.getStatus( storeKey );
             if ( status & NEW ) {
@@ -2379,7 +2379,7 @@ const Store = Class({
                 const idAttrKey = Type.prototype[ idPropKey ].key || idPropKey;
                 const accountId = _skToData[ storeKey ].accountId;
                 const id = data[ idAttrKey ];
-                const typeToIdToSK = this.getAccount( accountId ).typeToIdToSK;
+                const typeToIdToSK = _accounts[ accountId ].typeToIdToSK;
                 const skToId = _typeToSKToId[ typeId ] ||
                     ( _typeToSKToId[ typeId ] = {} );
                 const idToSK = typeToIdToSK[ typeId ] ||
