@@ -913,7 +913,22 @@ const WindowedQuery = Class({
             index: item.index,
             storeKey: toStoreKey( item.id ),
         }));
-        const removed = update.removed.map( toStoreKey );
+        const seenStorekey = {};
+        const removed = update.removed.reduce( ( removed, id ) => {
+            // Need to deduplicate removed; if an id is rewritten, we keep the
+            // old id => store key mapping so we can remove it from a query.
+            // However, the server may return both the old id and the new id
+            // as "removed" in the update (along with the new id being "added"
+            // in the correct position), which results in it being removed from
+            // the query rather than moved to the correct place if we don't
+            // deduplicate.
+            const storeKey = toStoreKey( id );
+            if ( !seenStorekey[ storeKey ] ) {
+                seenStorekey[ storeKey ] = true;
+                removed.push( storeKey );
+            }
+            return removed;
+        }, [] );
         const upToId = update.upToId && toStoreKey( update.upToId );
         const total = update.total;
 
