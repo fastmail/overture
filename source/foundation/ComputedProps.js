@@ -276,22 +276,6 @@ export default {
     },
 
     /**
-        Method: O.ComputedProps#clearPropertyCache
-
-        Deletes the cache of computed property values.
-
-        Parameters:
-            key - {String} The name of the property to fetch.
-
-        Returns:
-            {O.ComputedProps} Returns self.
-    */
-    clearPropertyCache () {
-        meta( this ).cache = {};
-        return this;
-    },
-
-    /**
         Method: O.ComputedProps#set
 
         Sets the value of the named property on this object to the value given.

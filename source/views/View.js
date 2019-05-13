@@ -237,7 +237,6 @@ const View = Class({
         if ( this.get( 'isRendered' ) ) {
             this.willDestroyLayer( this.get( 'layer' ) );
         }
-        this.clearPropertyCache();
         View.parent.destroy.call( this );
     },
 
