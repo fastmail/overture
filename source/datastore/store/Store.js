@@ -451,6 +451,12 @@ const Store = Class({
                 // LOADING    - Loading or refreshing ALL records of type
                 // COMMITTING - Committing some records of type
                 status: {},
+                // Type -> Promise. Resolved (and cleared) when
+                // type becomes READY.
+                awaitingReadyPromise: {},
+                // Type -> Function (promise resolver). Called when
+                // type becomes READY.
+                awaitingReadyResolve: {},
                 // Type -> state string for type in client
                 clientState: {},
                 // Type -> latest known state string for type on server
@@ -980,6 +986,25 @@ const Store = Class({
         }
         return this.getAccount( accountId, Type )
             .status[ guid( Type ) ] || EMPTY;
+    },
+
+    whenTypeReady ( accountId, Type ) {
+        if ( !Type ) {
+            Type = accountId;
+            accountId = this.getPrimaryAccountIdForType( Type );
+        }
+        if ( this.getTypeStatus( accountId, Type ) & READY ) {
+            return Promise.resolve();
+        } else {
+            const account = this._accounts[ accountId ];
+            const awaitingReadyPromise = account.awaitingReadyPromise;
+            const typeId = guid( Type );
+            return awaitingReadyPromise[ typeId ] || (
+                awaitingReadyPromise[ typeId ] = new Promise( resolve => {
+                    account.awaitingReadyResolve[ typeId ] = resolve;
+                })
+            );
+        }
     },
 
     /**
@@ -2056,6 +2081,13 @@ const Store = Class({
             }
         }
         account.status[ typeId ] |= READY;
+
+        const resolve = account.awaitingReadyResolve[ typeId ];
+        if ( resolve ) {
+            resolve();
+            delete account.awaitingReadyResolve[ typeId ];
+            delete account.awaitingReadyPromise[ typeId ];
+        }
 
         // Notify LocalQuery we're now ready even if no records loaded.
         this._changedTypes[ typeId ] = true;
