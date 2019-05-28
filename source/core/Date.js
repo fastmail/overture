@@ -205,9 +205,13 @@ Object.assign( Date.prototype, {
     /**
         Method: Date#getWeekNumber
 
-        Returns the week of the year for this date, in the range [00,53], given
+        Returns the week of the year for this date, in the range [01,54], given
         the day of the week on which a week starts (default -> Sunday). The
-        first instance of that day in the year is the start of week 1.
+        1st January is always in week 1.
+
+        References:
+        https://en.wikipedia.org/wiki/Week#Week_numbering
+        https://devblogs.microsoft.com/oldnewthing/20160311-00/?p=93144
 
         Parameters:
             firstDayOfWeek - {Number} (optional) The day of the week that should
@@ -218,13 +222,24 @@ Object.assign( Date.prototype, {
                              date object will be used when determining the day.
 
         Returns:
-            {Number} The week of the year (0--53).
+            {Number} The week of the year (1--54).
     */
     getWeekNumber ( firstDayOfWeek, utc ) {
         const day = utc ? this.getUTCDay() : this.getDay();
-        const dayOfYear = this.getDayOfYear( utc ) - 1; // 0-indexed
-        const daysToNext = ( ( firstDayOfWeek || 0 ) - day ).mod( 7 ) || 7;
-        return Math.floor( ( dayOfYear + daysToNext ) / 7 );
+        // 1-indexed day of the year. e.g. 1 Jan => 1
+        const dayOfYear = this.getDayOfYear( utc );
+        // How many days until the last day of the week. e.g. if the week starts
+        // on a Sunday, then Saturday is the last day of the week, so if we
+        // are on a Sunday there are 6 days until Saturday, whereas if we are
+        // on a Saturday there are 0 days until Saturday.
+        const daysUntilEndOfWeek = ( 6 - day + firstDayOfWeek ).mod( 7 );
+        // Week number:
+        // 1st Jan => 1 + [0-6] => [1-7] => so divide by 7 and round up for 1.
+        // 2nd Jan => 2 + [0-6] => [2-8] => so divide by 7 and round up and will
+        // go to 2 only if it is the first day of the week (and so 6 days until)
+        // the weekend.
+        // etc.
+        return Math.ceil( ( dayOfYear + daysUntilEndOfWeek ) / 7 );
     },
 
     /**
