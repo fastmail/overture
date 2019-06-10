@@ -48,6 +48,14 @@ var parseDB = function ( text ) {
     return db;
 };
 
+var stringifyDB = function ( db ) {
+    return db.map( item =>
+        item.id + '\n' +
+        JSON.stringify( item.string ) + '\n' +
+        '[' + item.description + ']\n'
+    ).join( '\n' );
+};
+
 var indexDB = function ( db, property ) {
     var output = {},
         obj, i, l;
@@ -752,6 +760,13 @@ var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
     fs.writeFileSync( outputPoPath, output );
 };
 
+var removeUnusedDB = function ( dbPath, usagePath, outputPath ) {
+    var db = parseDB( fs.readFileSync( dbPath, 'utf8' ) );
+    var usage = JSON.parse( fs.readFileSync( usagePath, 'utf8' ) );
+    db = db.filter( item => !!usage[ item.id ] );
+    fs.writeFileSync( outputPath, stringifyDB( db ) );
+};
+
 ( function () {
     var args = process.argv.slice( 2 );
     switch ( args[0] ) {
@@ -800,6 +815,9 @@ var dbToPo = function ( englishDbPath, outputPoPath, makePot ) {
             break;
         case 'updatePo':
             updatePo( args[1], args[2], args[3], args[4] );
+            break;
+        case 'removeUnusedDB':
+            removeUnusedDB( args[1], args[2], args[3] );
             break;
     }
 }() );
