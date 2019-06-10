@@ -120,6 +120,17 @@ const ToolbarView = Class({
         this._flex = null;
     },
 
+    destroy () {
+        const views = this._views;
+        for ( const name in views ) {
+            const view = views[ name ];
+            if ( !view.get( 'parentView' ) ) {
+                view.destroy();
+            }
+        }
+        ToolbarView.parent.destroy.call( this );
+    },
+
     registerView ( name, view, _dontMeasure ) {
         this._views[ name ] = view;
         if ( !_dontMeasure && this.get( 'isInDocument' ) &&
