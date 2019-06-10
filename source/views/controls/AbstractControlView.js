@@ -179,7 +179,6 @@ const AbstractControlView = Class({
     draw ( layer ) {
         const control = this._domControl;
         const name = this.get( 'name' );
-        const shortcut = this.get( 'shortcut' );
         const tabIndex = this.get( 'tabIndex' );
 
         if ( !control.id ) {
@@ -195,10 +194,6 @@ const AbstractControlView = Class({
             control.tabIndex = tabIndex;
         }
 
-        if ( shortcut && /^\w$/.test( shortcut ) ) {
-            control.accessKey = shortcut;
-        }
-
         layer.title = this.get( 'tooltip' );
         return this._domLabel = el( 'span.label', [ this.get( 'label' ) ] );
     },
@@ -207,8 +202,7 @@ const AbstractControlView = Class({
 
     abstractControlNeedsRedraw: function ( self, property, oldValue ) {
         return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes(
-        'isDisabled', 'label', 'name', 'tooltip', 'tabIndex', 'shortcut' ),
+    }.observes( 'isDisabled', 'label', 'name', 'tooltip', 'tabIndex' ),
 
     /**
         Method: O.AbstractControlView#redrawIsDisabled
@@ -267,14 +261,6 @@ const AbstractControlView = Class({
     */
     redrawTabIndex () {
         this._domControl.tabIndex = this.get( 'tabIndex' );
-    },
-
-    redrawShortcut () {
-        let shortcut = this.get( 'shortcut' );
-        if ( shortcut && !/^\w$/.test( shortcut ) ) {
-            shortcut = '';
-        }
-        this._domControl.accessKey = shortcut;
     },
 
     // --- Focus ---
