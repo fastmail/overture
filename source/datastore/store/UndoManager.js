@@ -40,9 +40,11 @@ const UndoManager = Class({
             .fire( 'input' );
     },
 
-    saveUndoCheckpoint () {
-        if ( !this._isInUndoState ) {
-            const data = this.getUndoData();
+    saveUndoCheckpoint ( data ) {
+        if ( data || !this._isInUndoState ) {
+            if ( !data ) {
+                data = this.getUndoData();
+            }
             if ( data !== null ) {
                 this._pushState( this._undoStack, data );
             }
