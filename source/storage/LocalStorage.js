@@ -53,7 +53,9 @@ const LocalStorage = Class({
     setName ( name ) {
         this._name = name + '.';
         const keys = Object.keys( this ).filter( key =>
-            this.hasOwnProperty( key ) && key.charAt( 0 ) !== '_'
+            this.hasOwnProperty( key ) &&
+            key.charAt( 0 ) !== '_' &&
+            key !== 'isDestroyed'
         );
         this.beginPropertyChanges();
         keys.forEach( key => {
@@ -76,9 +78,9 @@ const LocalStorage = Class({
             try {
                 item = this._store.getItem( this._name + key );
             } catch ( error ) {}
-            return item ?
-                ( this[ key ] = JSON.parse( item ) ) :
-                defaults[ key ];
+            const value = item ? JSON.parse( item ) : defaults[ key ];
+            this[ key ] = value;
+            return value;
         }
         return LocalStorage.parent.get.call( this, key );
     },
