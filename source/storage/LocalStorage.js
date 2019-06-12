@@ -1,6 +1,6 @@
 /*global location, sessionStorage, localStorage */
 
-import { Class } from '../core/Core';
+import { Class, isEqual } from '../core/Core';
 import Obj from '../foundation/Object';
 
 /**
@@ -41,22 +41,44 @@ const LocalStorage = Class({
                           persisted for the session?
     */
     // eslint-disable-next-line object-shorthand
-    init: function ( name, sessionOnly ) {
+    init: function ( name, sessionOnly, defaults ) {
         this._name = name + '.';
         this._store = location.protocol === 'file:' ? dummyStorage :
             sessionOnly ? sessionStorage : localStorage;
+        this._defaults = defaults || {};
 
         LocalStorage.parent.constructor.call( this );
     },
 
+    setName ( name ) {
+        this._name = name + '.';
+        const keys = Object.keys( this ).filter( key =>
+            this.hasOwnProperty( key ) && key.charAt( 0 ) !== '_'
+        );
+        this.beginPropertyChanges();
+        keys.forEach( key => {
+            const oldValue = this[ key ];
+            delete this[ key ];
+            const newValue = this.get( key );
+            if ( !isEqual( oldValue, newValue ) ) {
+                this.propertyDidChange( key, oldValue, newValue );
+            }
+        });
+        return this.endPropertyChanges();
+    },
+
     get ( key ) {
         if ( !( key in this ) ) {
+            const defaults = this._defaults;
             let item;
-            // Firefox sometimes throws and error
+            // An error may be thrown if no permission, e.g. in private
+            // browsing
             try {
                 item = this._store.getItem( this._name + key );
             } catch ( error ) {}
-            return item ? ( this[ key ] = JSON.parse( item ) ) : undefined;
+            return item ?
+                ( this[ key ] = JSON.parse( item ) ) :
+                defaults[ key ];
         }
         return LocalStorage.parent.get.call( this, key );
     },
