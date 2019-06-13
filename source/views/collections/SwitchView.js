@@ -1,6 +1,6 @@
 /*global document */
 
-import { Class } from '../../core/Core';
+import { isDestroyed, Class } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import RunLoop from '../../foundation/RunLoop';
 import '../../foundation/ComputedProps';  // For Function#property
@@ -13,7 +13,7 @@ const forEachView = function ( views, method, args ) {
         view;
     while ( l-- ) {
         view = views[l];
-        if ( view instanceof View && !view.isDestroyed ) {
+        if ( view instanceof View && !isDestroyed( view ) ) {
             if ( args ) {
                 view[ method ].apply( view, args );
             } else {
@@ -114,7 +114,7 @@ const SwitchView = Class({
         const newIndex = this.get( 'index' );
         // If not yet added to parent, nothing to redraw; _add will be called
         // automatically soon.
-        if ( !this.isDestroyed && oldIndex > -1 && oldIndex !== newIndex ) {
+        if ( oldIndex > -1 && oldIndex !== newIndex && !isDestroyed( this ) ) {
             if ( this._suspendRedraw ) {
                 this._needsRedraw = [];
             } else {

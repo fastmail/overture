@@ -1,4 +1,4 @@
-import { guid, Class } from '../../core/Core';
+import { isDestroyed, guid, Class } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import { DESTROYED } from '../../datastore/record/Status';
 import ListView from './ListView';
@@ -67,7 +67,8 @@ const OptionsListView = Class({
 
     destroyItemView ( view ) {
         const item = view.get( 'content' );
-        if ( item.isDestroyed || ( item.is && item.is( DESTROYED ) ) ) {
+        if ( isDestroyed( item ) ||
+                ( item.is && item.is( DESTROYED ) ) ) {
             view.destroy();
             delete this._views[ guid( item ) ];
         }

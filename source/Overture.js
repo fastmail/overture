@@ -36,7 +36,7 @@
       core/Date: LocaleController uses Locale in the global scope
 */
 
-export { meta, guid, mixin, extend, merge, clone, isEqual, Class } from './core/Core';
+export { meta, isDestroyed, guid, mixin, extend, merge, clone, isEqual, Class } from './core/Core';
 export { default as sortByProperties } from './core/sortByProperties';
 import './core/Array';
 import './core/Date';

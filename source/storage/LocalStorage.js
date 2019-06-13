@@ -52,10 +52,8 @@ const LocalStorage = Class({
 
     setName ( name ) {
         this._name = name + '.';
-        const keys = Object.keys( this ).filter( key =>
-            this.hasOwnProperty( key ) &&
-            key.charAt( 0 ) !== '_' &&
-            key !== 'isDestroyed'
+        const keys = Object.keys( this ).filter(
+            key => this.hasOwnProperty( key ) && key.charAt( 0 ) !== '_'
         );
         this.beginPropertyChanges();
         keys.forEach( key => {

@@ -1,4 +1,4 @@
-import { meta } from '../core/Core';
+import { meta, OBJECT_INITIALISED } from '../core/Core';
 import Binding from './Binding';
 
 const setupObserver = function ( metadata, method ) {
@@ -118,7 +118,7 @@ const _setupTeardownPaths = function ( object, method ) {
 */
 const _notifyObserversOfKey =
         function ( that, metadata, key, oldValue, newValue ) {
-    const isInitialised = metadata.isInitialised;
+    const isInitialised = metadata.lifestage === OBJECT_INITIALISED;
     const observers = metadata.observers[ key ];
     const l = observers ? observers.length : 0;
     let haveCheckedForNew = false;
@@ -325,7 +325,7 @@ export default {
     */
     propertyDidChange ( key, oldValue, newValue ) {
         const metadata = meta( this );
-        const isInitialised = metadata.isInitialised;
+        const isInitialised = metadata.lifestage === OBJECT_INITIALISED;
         const dependents = isInitialised ?
                 this.propertiesDependentOnKey( key ) : [];
         let l = dependents.length;

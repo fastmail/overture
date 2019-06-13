@@ -49,7 +49,8 @@
     bindings      - A mapping of keys to Binding objects.
     inits         - A mapping of mixin names to a reference count of the number
                     of properties requiring a call to its init/destroy methods.
-    isInitialised - Boolean: have the necessary init methods been called?
+    lifestage     - One of: OBJECT_ALLOCATED, OBJECT_INITIALISED, or
+                    OBJECT_DESTROYED.
 
     For example:
 
@@ -94,7 +95,7 @@
                 Bindings: 1,
                 Observers: 1
             },
-            isInitialised: true
+            lifestage: 2
         }
 
     Parameters:
@@ -114,6 +115,10 @@ const isSameObserver = function ( a, b ) {
         a.path === b.path;
 };
 
+const OBJECT_ALLOCATED = 0;
+const OBJECT_INITIALISED = 1;
+const OBJECT_DESTROYED = 2;
+
 class Metadata {
     constructor ( object ) {
         this.object = object;
@@ -126,7 +131,7 @@ class Metadata {
         this.pathObservers = {};
         this.bindings = {};
         this.inits = {};
-        this.isInitialised = false;
+        this.lifestage = OBJECT_ALLOCATED;
 
         object.__meta__ = this;
     }
@@ -212,6 +217,10 @@ const meta = function ( object ) {
         object.__meta__ = data;
     }
     return data;
+};
+
+const isDestroyed = function ( object ) {
+    return meta( object ).lifestage === OBJECT_DESTROYED;
 };
 
 /**
@@ -598,7 +607,19 @@ Function.prototype.extend = function ( methods, force ) {
     return this;
 };
 
-export { meta, guid, mixin, extend, merge, clone, isEqual, Class };
+export {
+    meta,
+    isDestroyed,
+    guid,
+    mixin,
+    extend,
+    merge,
+    clone,
+    isEqual,
+    Class,
+    OBJECT_INITIALISED,
+    OBJECT_DESTROYED,
+};
 
 // TODO(cmorgan/modulify): do something about these exports: Function#implement,
 // Function#extend

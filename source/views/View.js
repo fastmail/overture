@@ -1,4 +1,4 @@
-import { Class } from '../core/Core';
+import { isDestroyed, Class } from '../core/Core';
 import '../core/String';  // For String#capitalise
 import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';
@@ -659,8 +659,10 @@ const View = Class({
     redraw () {
         const needsRedraw = this._needsRedraw;
         let layer, i, l, prop;
-        if ( needsRedraw && !this._suspendRedraw &&
-                !this.isDestroyed && this.get( 'isRendered' ) ) {
+        if ( needsRedraw &&
+                !this._suspendRedraw &&
+                !isDestroyed( this ) &&
+                this.get( 'isRendered' ) ) {
             layer = this.get( 'layer' );
             this._needsRedraw = null;
             for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
