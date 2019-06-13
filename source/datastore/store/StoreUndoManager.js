@@ -10,7 +10,7 @@ const StoreUndoManager = Class({
     init: function (/* ...mixins */) {
         StoreUndoManager.parent.constructor.apply( this, arguments );
         this.get( 'store' )
-            .on( 'willCommit', this, 'saveUndoCheckpoint' )
+            .on( 'willCommit', this, '_saveUndoCheckpoint' )
             .on( 'record:user:create', this, 'dataDidChange' )
             .on( 'record:user:update', this, 'dataDidChange' )
             .on( 'record:user:destroy', this, 'dataDidChange' );
@@ -18,11 +18,16 @@ const StoreUndoManager = Class({
 
     destroy () {
         this.get( 'store' )
-            .off( 'willCommit', this, 'saveUndoCheckpoint' )
+            .off( 'willCommit', this, '_saveUndoCheckpoint' )
             .off( 'record:user:create', this, 'dataDidChange' )
             .off( 'record:user:update', this, 'dataDidChange' )
             .off( 'record:user:destroy', this, 'dataDidChange' );
         StoreUndoManager.parent.destroy.call( this );
+    },
+
+    // Avoid passing event argument to saveUndoCheckpoint method
+    _saveUndoCheckpoint () {
+        this.saveUndoCheckpoint();
     },
 
     dataDidChange () {
