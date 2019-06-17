@@ -149,10 +149,21 @@ const HttpRequest = Class({
 
     // ---
 
+    // Send the request, immediately if possible, or if this.data is a promise,
+    // after it resolves. (Caution: if this.data is rejected, the send will
+    // never happen. Either ensure that it is never rejected, or handle that
+    // case yourself.)
     send () {
+        let data = this.get( 'data' ) || null;
+        if ( data instanceof Promise ) {
+            data.then( data => {
+                this.set( 'data', data );
+                this.send();
+            });
+            return this;
+        }
         const method = this.get( 'method' ).toUpperCase();
         let url = this.get( 'url' );
-        let data = this.get( 'data' ) || null;
         const headers = this.get( 'headers' );
         const withCredentials = this.get( 'withCredentials' );
         const responseType = this.get( 'responseType' );
