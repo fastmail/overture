@@ -124,6 +124,9 @@ const ListView = Class({
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
+        // (2019-07-03 update: in a test in the Fastmail message list on
+        // cmorgan’s 2× laptop on Windows, Firefox flat-out ignores a height
+        // value over 17895697px. log₂(that) is around 24.093.)
         if ( isFirefox && height > 16777216 ) {
             height = 16777216;
         }
