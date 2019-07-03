@@ -22,11 +22,10 @@ const other = [ 'other', '0' ];
     Type: String
 
     The operating system being run: "mac", "win", "linux", "android",
-    "ios", "webos" or "other.
+    "ios" or "other".
 */
-export const platform = /windows phone/.test( ua ) ? 'winphone' :
-    /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
-    /android|webos/.exec( ua ) ||
+export const platform = /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
+    /android/.exec( ua ) ||
     /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
     other
 )[0];
@@ -73,13 +72,6 @@ export const isWKWebView = platform === 'ios' && !!window.indexedDB;
     True if running on Android.
 */
 export const isAndroid = platform === 'android';
-/**
-    Property: O.UA.isWinPhone
-    Type: Boolean
-
-    True if running on Windows Phone.
-*/
-export const isWinPhone = platform === 'winphone';
 
 /**
     Property: O.UA.browser
@@ -106,17 +98,6 @@ export const version = parseFloat((
     /chrome\/(\d+\.\d+)/.exec( ua ) ||
     other
 )[1].replace( '_', '.' ) );
-
-/**
-    Property: O.UA.cssPrefix
-    Type: String
-
-    The CSS prefix to use for this browser.
-*/
-export const cssPrefix = {
-    firefox: '-moz-',
-    msie: '-ms-',
-}[ browser ] || '-webkit-';
 
 /**
     Property: O.UA.canTouch
