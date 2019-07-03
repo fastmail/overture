@@ -88,9 +88,9 @@ export const isWinPhone = platform === 'winphone';
     The browser being run. "chrome", "firefox", "msie", "edge" or "safari".
 */
 export const browser = (
-    /firefox|edge|msie/.exec( ua ) ||
+    /firefox|edge/.exec( ua ) ||
     /chrome|safari/.exec( ua ) ||
-    other
+    ( /trident/.exec( ua ) ? [ 'msie' ] : other )
 )[0];
 /**
     Property: O.UA.version
@@ -101,7 +101,7 @@ export const browser = (
     is running Opera 12.5, this will be `12.5`, not just `12`.
 */
 export const version = parseFloat((
-    /(?:; rv:|edge\/|version\/|firefox\/|msie\s|os )(\d+(?:[._]\d+)?)/
+    /(?:; rv:|edge\/|version\/|firefox\/|os )(\d+(?:[._]\d+)?)/
         .exec( ua ) ||
     /chrome\/(\d+\.\d+)/.exec( ua ) ||
     other
