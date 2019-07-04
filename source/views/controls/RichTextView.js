@@ -14,7 +14,7 @@ import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
-import { isIOS, isMac, isWinPhone, isWKWebView } from '../../ua/UA';
+import { isIOS, isMac, isWKWebView } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
@@ -1279,8 +1279,6 @@ const RichTextView = Class({
 
 RichTextView.isSupported = (
     ( 'contentEditable' in document.body ) &&
-    // Windows Phone as of v8.1 (IE11) is still pretty buggy
-    ( !isWinPhone ) &&
     // WKWebView (introduced in iOS8) finally supports RTV without horrendous
     // bugs.
     ( !isIOS || isWKWebView )
