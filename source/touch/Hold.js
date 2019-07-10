@@ -25,6 +25,7 @@ class TrackedTouch {
         this.x = touch.screenX;
         this.y = touch.screenY;
         this.target = touch.target;
+        this.cancelOnMove = true;
         this._ignore = false;
         RunLoop.invokeAfterDelay( fireHoldEvent, 750, this );
     }

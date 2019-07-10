@@ -1,4 +1,5 @@
 import Event from '../foundation/Event';
+import { getViewFromNode } from '../views/activeViews';
 import ViewEventsController from '../views/ViewEventsController';
 import Gesture from './Gesture';
 
@@ -33,11 +34,23 @@ class TapEvent extends Event { }
 TapEvent.prototype.originalType = 'tap';
 
 class TrackedTouch {
-    constructor ( x, y, time, target ) {
+    constructor ( x, y, target ) {
+        const activeEls = [];
+        let view = getViewFromNode( target );
+        let inScrollView = false;
+        while ( view ) {
+            if ( view.get( 'showScrollbarX' ) ||
+                    view.get( 'showScrollbarY' ) ) {
+                inScrollView = true;
+                break;
+            }
+            view = view.get( 'parentView' );
+        }
         this.x = x;
         this.y = y;
-        this.time = time;
-        const activeEls = this.activeEls = [];
+        this.target = target;
+        this.cancelOnMove = inScrollView;
+        this.activeEls = activeEls;
         do {
             if ( /^(?:A|BUTTON|INPUT|LABEL)$/.test( target.nodeName ) ) {
                 activeEls.push( target );
@@ -82,10 +95,31 @@ const isInputOrLink = function ( node ) {
     return seenLink;
 };
 
-/*  A tap is defined as a touch which:
+const getParents = function ( node ) {
+    const parents = [];
+    do {
+        parents.push( node );
+    } while (( node = node.parentNode ));
+    parents.reverse();
+    return parents;
+};
 
-    * Lasts less than 200ms.
-    * Moves less than 5px from the initial touch point.
+const getCommonAncestor = function  ( a, b ) {
+    const parentsA = getParents( a );
+    const parentsB = getParents( b );
+
+    let i = 0;
+    while ( true ) {
+        if ( parentsA[i] !== parentsB[i] ) {
+            return i ? parentsA[ i - 1 ] : null;
+        }
+        i += 1;
+    }
+};
+
+/*  A tap is defined as a touch which starts and finishes within the same node,
+    and either is not in a scroll view or moves less than 5px from the initial
+    touch point.
 
     There may be other touches occurring at the same time (e.g. you could be
     holding one button and tap another; the tap gesture will still be
@@ -106,14 +140,13 @@ export default new Gesture({
     start ( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
-        const now = Date.now();
         const l = touches.length;
         for ( let i = 0; i < l; i += 1 ) {
             const touch = touches[i];
             const id = touch.identifier;
             if ( !tracking[ id ] ) {
                 tracking[ id ] = new TrackedTouch(
-                    touch.screenX, touch.screenY, now, touch.target );
+                    touch.clientX, touch.clientY, touch.target );
             }
         }
     },
@@ -126,9 +159,9 @@ export default new Gesture({
             const touch = touches[i];
             const id = touch.identifier;
             const trackedTouch = tracking[ id ];
-            if ( trackedTouch ) {
-                const deltaX = touch.screenX - trackedTouch.x;
-                const deltaY = touch.screenY - trackedTouch.y;
+            if ( trackedTouch && trackedTouch.cancelOnMove ) {
+                const deltaX = touch.clientX - trackedTouch.x;
+                const deltaY = touch.clientY - trackedTouch.y;
                 if ( deltaX * deltaX + deltaY * deltaY > 25 ) {
                     trackedTouch.done();
                     delete tracking[ id ];
@@ -140,15 +173,19 @@ export default new Gesture({
     end ( event ) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
-        const now = Date.now();
         const l = touches.length;
         for ( let i = 0; i < l; i += 1 ) {
             const touch = touches[i];
             const id = touch.identifier;
             const trackedTouch = tracking[ id ];
             if ( trackedTouch ) {
-                if ( now - trackedTouch.time < 200 ) {
-                    const target = touch.target;
+                let target =
+                    document.elementFromPoint( touch.clientX, touch.clientY );
+                const initialTarget = trackedTouch.target;
+                if ( target !== initialTarget ) {
+                    target = getCommonAncestor( target, initialTarget );
+                }
+                if ( target ) {
                     const tapEvent = new TapEvent( 'tap', target );
                     ViewEventsController.handleEvent( tapEvent );
                     const clickEvent = new TapEvent( 'click', target );
