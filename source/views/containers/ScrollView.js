@@ -471,9 +471,29 @@ const ScrollView = Class({
             {O.ScrollView} Returns self.
     */
     focus () {
-        this.get( 'layer' ).focus();
+        const layer = this.get( 'layer' );
+        // Must have a tab index to be able to focus it
+        layer.tabIndex = -1;
+        layer.focus();
         return this;
     },
+
+    // This is a bit gnarly. When the focus is inside a node inside the scroll
+    // view we must not have a tab index, because when we have one the browser
+    // will blur the control and focus the scroll view if the user drags on the
+    // scrollbar, and the focus should remain in the control.
+    //
+    // However, when the focus is anywhere else, we do want the tab index, as
+    // without it the browser won't focus the scroll view when you click in it,
+    // which we want so that native keyboard shortcuts work correctly to scroll.
+    _setTabIndex: function ( event ) {
+        const layer = this.get( 'layer' );
+        if ( event.type === 'blur' || event.target === layer ) {
+            layer.tabIndex = -1;
+        } else {
+            layer.removeAttribute( 'tabIndex' );
+        }
+    }.on( 'focus', 'blur' ),
 });
 
 if ( isIOS ) {
