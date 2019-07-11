@@ -272,6 +272,9 @@ const LocaleController = {
         string "foo" is supplied, the regexp returned would match the string
         "Foøso".
 
+        Basic glob syntax is supported, so the user can type "*" to match zero
+        or more characters or "?" to match any single character.
+
         Parameters:
             string - {String} The string to search for.
 
@@ -280,8 +283,13 @@ const LocaleController = {
     makeSearchRegExp ( string ) {
         return new RegExp(
             '(?:^|\\W|_)' +
-            string.escapeRegExp().replace( /[A-Z]/gi,
-                letter => alternatives[ letter.toUpperCase() ] ),
+            string
+                .escapeRegExp()
+                .replace( /\\\*/g, '.*' )
+                .replace( /\\\?/g, '.' )
+                .replace( /[A-Z]/gi,
+                    letter => alternatives[ letter.toUpperCase() ]
+                ),
             'i'
         );
     },
