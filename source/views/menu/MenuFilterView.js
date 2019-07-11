@@ -26,6 +26,7 @@ const MenuFilterView = Class({
         const controller = this.get( 'controller' );
         const searchTextView = this._input = new SearchTextView({
             shortcut: this.get( 'shortcut' ),
+            placeholder: this.get( 'placeholder' ),
             tabIndex: -1,
             blurOnKeys: {},
             value: bindTwoWay( controller, 'search' ),
