@@ -108,13 +108,10 @@ const getParents = function ( node ) {
 const getCommonAncestor = function  ( a, b ) {
     const parentsA = getParents( a );
     const parentsB = getParents( b );
-
-    let i = 0;
-    while ( true ) {
+    for ( let i = 0; true; i += 1 ) {
         if ( parentsA[i] !== parentsB[i] ) {
             return i ? parentsA[ i - 1 ] : null;
         }
-        i += 1;
     }
 };
 
