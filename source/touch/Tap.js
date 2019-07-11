@@ -97,9 +97,10 @@ const isInputOrLink = function ( node ) {
 
 const getParents = function ( node ) {
     const parents = [];
-    do {
+    while ( node ) {
         parents.push( node );
-    } while (( node = node.parentNode ));
+        node = node.parentNode;
+    };
     parents.reverse();
     return parents;
 };
