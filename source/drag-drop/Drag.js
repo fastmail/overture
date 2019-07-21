@@ -705,6 +705,8 @@ const Drag = Class({
                     scroll.hr = scroll.r - deltaX;
                     scroll.ht = scroll.t + deltaY;
                     scroll.hb = scroll.b - deltaY;
+                    scroll.mayX = scrollView.get( 'showScrollbarX' );
+                    scroll.mayY = scrollView.get( 'showScrollbarY' );
                 }
                 this._scrollView = scrollView;
                 this._scrollBounds = scroll;
@@ -717,8 +719,16 @@ const Drag = Class({
         }
         // And set a new timer if we are currently in a hotspot.
         if ( scroll ) {
-            const deltaX = x < scroll.hl ? -10 : x > scroll.hr ? 10 : 0;
-            const deltaY = y < scroll.ht ? -10 : y > scroll.hb ? 10 : 0;
+            const deltaX =
+                !scroll.mayX ? 0 :
+                x < scroll.hl ? -10 :
+                x > scroll.hr ? 10 :
+                0;
+            const deltaY =
+                !scroll.mayY ? 0 :
+                y < scroll.ht ? -10 :
+                y > scroll.hb ? 10 :
+                0;
             if ( deltaX || deltaY ) {
                 this._scrollBy = { x: deltaX, y: deltaY };
                 this._scrollInterval =
