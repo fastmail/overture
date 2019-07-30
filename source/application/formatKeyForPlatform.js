@@ -8,6 +8,7 @@ const platformKeys = {
     ArrowLeft: '←',
     Alt: isMac ? '⌥' : 'Alt-',
     Cmd: isMac ? '⌘' : 'Ctrl-',
+    Ctrl: isMac ? '⌃' : 'Ctrl-',
     Meta: isMac ? '⌘' : 'Meta-',
     Shift: isMac ? '⇧' : 'Shift-',
     Escape: 'Esc',
