@@ -46,6 +46,7 @@ class TrackedTouch {
             }
             view = view.get( 'parentView' );
         }
+        this.timestamp = Date.now();
         this.x = x;
         this.y = y;
         this.target = target;
@@ -100,7 +101,7 @@ const getParents = function ( node ) {
     while ( node ) {
         parents.push( node );
         node = node.parentNode;
-    };
+    }
     parents.reverse();
     return parents;
 };
@@ -180,11 +181,14 @@ export default new Gesture({
                 let target =
                     document.elementFromPoint( touch.clientX, touch.clientY );
                 const initialTarget = trackedTouch.target;
+                const duration = Date.now() - trackedTouch.timestamp;
                 if ( target !== initialTarget ) {
                     target = getCommonAncestor( target, initialTarget );
                 }
                 if ( target ) {
-                    const tapEvent = new TapEvent( 'tap', target );
+                    const tapEvent = new TapEvent( 'tap', target, {
+                        duration,
+                    });
                     ViewEventsController.handleEvent( tapEvent );
                     const clickEvent = new TapEvent( 'click', target );
                     clickEvent.defaultPrevented = tapEvent.defaultPrevented;
