@@ -428,6 +428,10 @@ const interpreter = {
                     date.setMonth( month );
                     date.setDate( day );
                 }
+            } else if ( searchMethod === PAST && day > currentDay ) {
+                date.setMonth( month - 1 );
+            } else if ( searchMethod === FUTURE && day < currentDay ) {
+                date.setMonth( month + 1 );
             }
         } else if ( hasMonth ) {
             year = date.getFullYear();
