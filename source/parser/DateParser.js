@@ -313,7 +313,7 @@ const interpreter = {
         if ( !keys.length ) {
             return null;
         }
-        let date = new Date();
+        const date = new Date();
         const currentDay = date.getDate();
 
         // If we don't do this, setting month lower down could go wrong,
@@ -338,16 +338,16 @@ const interpreter = {
         const hasWeekday = !!( weekday || weekday === 0 );
 
         const dayInMs = 86400000;
-        let currentMonth, isFeb29, delta;
+        let currentMonth, isFeb29, delta, daysInMonth;
 
         if ( day && hasMonth && year ) {
-            if ( day > getDaysInMonth( month, year ) ) {
-                date = null;
-            } else {
-                date.setFullYear( year );
-                date.setMonth( month );
-                date.setDate( day );
+            daysInMonth = getDaysInMonth( month, year );
+            if ( day > daysInMonth ) {
+                day = daysInMonth;
             }
+            date.setFullYear( year );
+            date.setMonth( month );
+            date.setDate( day );
         } else if ( hasMonth && year ) {
             date.setFullYear( year );
             date.setMonth( month );
