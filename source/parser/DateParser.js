@@ -295,7 +295,7 @@ const PAST = -1;
 const FUTURE = 1;
 
 const interpreter = {
-    interpret ( tokens, implicitSearchMethod ) {
+    interpret ( tokens, expectedTense ) {
         const date = {};
         const l = tokens.length;
         for ( let i = 0; i < l; i += 1 ) {
@@ -305,7 +305,8 @@ const interpreter = {
                 this[ name ]( date, token[1], token[2], tokens );
             }
         }
-        return this.findDate( date, date.searchMethod || implicitSearchMethod );
+        return this.findDate(
+            date, date.searchMethod || expectedTense );
     },
     findDate ( constraints, searchMethod ) {
         const keys = Object.keys( constraints );
@@ -600,8 +601,8 @@ const parseDateTime = function ( string, locale, mode ) {
     return parse.tokens;
 };
 
-const interpretDateTime = function ( tokens, implicitSearchMethod ) {
-    return interpreter.interpret( tokens, implicitSearchMethod || NOW );
+const interpretDateTime = function ( tokens, expectedTense ) {
+    return interpreter.interpret( tokens, expectedTense || NOW );
 };
 
 const time = function ( string, locale ) {
@@ -609,14 +610,14 @@ const time = function ( string, locale ) {
     return interpreter.interpret( tokens );
 };
 
-const date = function ( string, locale, implicitPast ) {
+const date = function ( string, expectedTense, locale ) {
     const tokens = parseDateTime( string, locale, JUST_DATE );
-    return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
+    return interpreter.interpret( tokens, expectedTense || NOW );
 };
 
-const dateTime = function ( string, locale, implicitPast ) {
+const dateTime = function ( string, expectedTense, locale ) {
     const tokens = parseDateTime( string, locale, DATE_AND_TIME );
-    return interpreter.interpret( tokens, implicitPast ? PAST : NOW );
+    return interpreter.interpret( tokens, expectedTense || NOW );
 };
 
 export {
@@ -625,4 +626,10 @@ export {
     time,
     date,
     dateTime,
+    PAST,
+    NOW,
+    FUTURE,
+    JUST_TIME,
+    JUST_DATE,
+    DATE_AND_TIME,
 };
