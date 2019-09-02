@@ -74,6 +74,15 @@ const MenuButtonView = Class({
     menuView: null,
 
     /**
+        Property: O.MenuButtonView#destroyMenuViewOnClose
+        Type: Boolean
+
+        If the menu view is regenerated each time it is opened, set this to
+        true to destroy the view when the pop over is closed.
+    */
+    destroyMenuViewOnClose: false,
+
+    /**
         Property: O.MenuButtonView#alignMenu
         Type: String
         Default: 'left'
@@ -124,9 +133,10 @@ const MenuButtonView = Class({
         if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
             this.set( 'isActive', true );
             const buttonView = this;
+            const menuView = this.get( 'menuView' );
             let popOverView, menuOptionView;
             const popOverOptions = Object.assign({
-                view: this.get( 'menuView' ),
+                view: menuView,
                 alignWithView: buttonView,
                 alignEdge: this.get( 'alignMenu' ),
                 onHide () {
@@ -134,6 +144,9 @@ const MenuButtonView = Class({
                     if ( menuOptionView ) {
                         menuOptionView.removeObserverForKey(
                             'isFocused', popOverView, 'hide' );
+                    }
+                    if ( buttonView.get( 'destroyMenuViewOnClose' ) ) {
+                        menuView.destroy();
                     }
                 },
             }, this.get( 'popOverOptions' ) );
