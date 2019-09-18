@@ -247,11 +247,7 @@ var extract = function ( dbFilePath, filesToScanPaths, outputPath, allData ) {
             var fileName = filePath.slice( filePath.lastIndexOf( '/' ) + 1 );
             enumerate( fileName, stringToEntry, textToScan, seen, ids );
         });
-        ids.sort( function ( id1, id2 ) {
-            return seen[ id1 ].count > seen[ id2 ].count ? -1 :
-                seen[ id1 ].count < seen[ id2 ].count ? 1 :
-                id1 < id2 ? -1 : 1;
-        });
+        ids.sort();
         fs.writeFileSync( outputPath,
             JSON.stringify( allData ? seen : ids )
         );
