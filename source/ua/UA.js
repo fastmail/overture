@@ -24,11 +24,14 @@ const other = [ 'other', '0' ];
     The operating system being run: "mac", "win", "linux", "android",
     "ios" or "other".
 */
-export const platform = /ip(?:ad|hone|od)/.test( ua ) ? 'ios' : (
-    /android/.exec( ua ) ||
-    /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
-    other
-)[0];
+export const platform =
+    /ip(?:ad|hone|od)/.test( ua ) ||
+        ( navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 ) ?
+    'ios' :
+    ( /android/.exec( ua ) ||
+      /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
+      other
+    )[0];
 
 /**
     Property: O.UA.isMac
