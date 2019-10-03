@@ -1,0 +1,27 @@
+{
+  "name": "eslint-plugin-overture",
+  "version": "0.0.0",
+  "description": "ESLint rules for Overture",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin"
+  ],
+  "author": "Chris Morgan",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint lib tests",
+    "test": "mocha tests --recursive"
+  },
+  "devDependencies": {
+    "eslint": ">=3, <7",
+    "mocha": ">=5, <7"
+  },
+  "peerDependencies": {
+    "eslint": ">=3, <7"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "license": "MIT"
+}

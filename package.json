@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "eslint": "^5",
+    "eslint-plugin-overture": "file:./eslint-plugin-overture",
     "rollup": "^1",
     "rollup-plugin-buble": "^0.19",
     "uglify-js": "^3"

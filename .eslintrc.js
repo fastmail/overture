@@ -3,7 +3,13 @@ module.exports = {
         'browser': true,
         'es6': true,
     },
-    'extends': 'eslint:recommended',
+    'plugins': [
+        'overture',
+    ],
+    'extends': [
+        'eslint:recommended',
+        'plugin:overture/recommended',
+    ],
     'parserOptions': {
         'sourceType': 'module',
     },
