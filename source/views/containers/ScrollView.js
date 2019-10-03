@@ -496,7 +496,7 @@ const ScrollView = Class({
     }.on( 'focus', 'blur' ),
 });
 
-if ( isIOS ) {
+if ( isIOS && version < 13 ) {
     const isOldOrSafari = version < 11 || browser === 'safari';
 
     Object.assign( ScrollView.prototype, {
