@@ -202,7 +202,6 @@ const Router = Class({
     */
     routes: [],
 
-    // eslint-disable-next-line object-shorthand
     init: function ( mixin, win ) {
         if ( !win ) {
             win = window;

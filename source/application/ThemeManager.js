@@ -18,7 +18,6 @@ const ThemeManager = Class({
 
     Extends: Obj,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this._images = { all: {} };
         this._styles = { all: {} };

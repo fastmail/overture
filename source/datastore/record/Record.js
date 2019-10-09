@@ -31,7 +31,6 @@ const Record = Class({
                        can then be committed to the store using the
                        <O.Record#saveToStore> method.
     */
-    // eslint-disable-next-line object-shorthand
     init: function ( store, storeKey ) {
         this._noSync = false;
         this._data = storeKey ? null : {

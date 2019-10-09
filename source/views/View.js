@@ -199,7 +199,6 @@ const View = Class({
     */
     syncOnlyInDocument: true,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this._suspendRedraw = false;
         this._needsRedraw = null;

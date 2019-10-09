@@ -38,7 +38,6 @@ const NestedStore = Class({
             store - {O.Store} The parent store (this may be another nested
                     store).
     */
-    // eslint-disable-next-line object-shorthand
     init: function ( store ) {
         NestedStore.parent.constructor.call( this );
 

@@ -28,7 +28,6 @@ const AttributeErrors = Class({
         Parameters:
             record - {O.Record} The record to manage attribute errors for.
     */
-    // eslint-disable-next-line object-shorthand
     init: function ( record ) {
         AttributeErrors.parent.constructor.call( this );
 

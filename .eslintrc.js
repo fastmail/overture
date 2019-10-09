@@ -180,7 +180,6 @@ module.exports = {
         'object-property-newline': [ 'error', {
             'allowMultiplePropertiesPerLine': true,
         }],
-        'object-shorthand': 'error',
         'one-var': 'off',
         'one-var-declaration-per-line': 'off',
         'operator-assignment': 'off',

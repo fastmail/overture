@@ -10,7 +10,6 @@ const SingleSelectionController = Class({
 
     allowNoSelection: true,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this._ignore = false;
         this._range = { start: -1, end: 0 };

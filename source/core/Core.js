@@ -518,7 +518,6 @@ const Class = function ( params ) {
     // because everywhere *else* you should still prefer shorthand):
     //
     //     Class({
-    //         // eslint-disable-next-line object-shorthand
     //         init: function () { },
     //         foo () { },
     //         bar () { },

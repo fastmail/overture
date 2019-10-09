@@ -71,7 +71,6 @@ const WindowController = Class({
         other open window.
     */
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
         this.isMaster = false;

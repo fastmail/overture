@@ -94,7 +94,6 @@ const HttpRequest = Class({
 
     // ---
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this._transport = null;
         this._timer = null;

@@ -85,7 +85,6 @@ const IOQueue = Class({
                         contain methods to override the normal methods to create
                         an anonymous subclass.
     */
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this._queue = [];
         this._recent = null;

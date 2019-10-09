@@ -6,7 +6,6 @@ const StoreUndoManager = Class({
 
     Extends: UndoManager,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         StoreUndoManager.parent.constructor.apply( this, arguments );
         this.get( 'store' )

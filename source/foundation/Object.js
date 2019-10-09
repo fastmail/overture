@@ -35,7 +35,6 @@ export default Class({
                         you can pass it getter/setter functions or observing
                         methods).
     */
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         for ( let i = 0, l = arguments.length; i < l; i += 1 ) {
             mixin( this, arguments[i] );

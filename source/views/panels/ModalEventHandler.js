@@ -7,7 +7,6 @@ const ModalEventHandler = Class({
 
     Extends: Obj,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         ModalEventHandler.parent.constructor.apply( this, arguments );
         this._seenMouseDown = false;

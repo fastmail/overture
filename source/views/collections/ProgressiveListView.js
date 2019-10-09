@@ -14,7 +14,6 @@ const ProgressiveListView = Class({
     batchSize: 10,
     triggerInPx: 200,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         ProgressiveListView.parent.constructor.apply( this, arguments );
         this.firstVisible = 0;

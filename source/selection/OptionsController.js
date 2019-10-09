@@ -10,7 +10,6 @@ const OptionsController = Class({
 
     Extends: Obj,
 
-    // eslint-disable-next-line object-shorthand
     init: function () {
         this.isFiltering = false;
         this.focused = null;

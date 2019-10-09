@@ -98,7 +98,6 @@ const ToolbarView = Class({
     preventOverlap: false,
     popOverOptions: null,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         ToolbarView.parent.constructor.apply( this, arguments );
         this._views = {

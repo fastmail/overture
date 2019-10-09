@@ -130,7 +130,6 @@ const switchSign = function ( string ) {
 };
 
 const TimeZone = Class({
-    // eslint-disable-next-line object-shorthand
     init: function ( id, periods ) {
         let name = id.replace( /_/g, ' ' );
         // The IANA ids have the +/- the wrong way round for historical reasons.

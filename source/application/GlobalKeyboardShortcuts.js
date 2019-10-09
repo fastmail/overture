@@ -64,7 +64,6 @@ const GlobalKeyboardShortcuts = Class({
     /**
         Constructor: O.GlobalKeyboardShortcuts
     */
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this.isEnabled = true;
         this._shortcuts = {};

@@ -24,7 +24,6 @@ const TextView = Class({
 
     Extends: AbstractControlView,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         TextView.parent.constructor.apply( this, arguments );
         this._settingFromInput = false;

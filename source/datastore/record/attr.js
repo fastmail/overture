@@ -93,7 +93,6 @@ const RecordAttribute = Class({
         Parameters:
             mixin - {Object} (optional) Override the default properties.
     */
-    // eslint-disable-next-line object-shorthand
     init: function ( mixin ) {
         Object.assign( this, mixin );
     },

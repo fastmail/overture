@@ -21,7 +21,6 @@ export default {
             dragData - {Object} An object with data types as keys and the data
                        itself as the values.
     */
-    // eslint-disable-next-line object-shorthand
     init: function ( dragData ) {
         if ( !dragData ) {
             dragData = {};

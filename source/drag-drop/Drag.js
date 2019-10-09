@@ -63,7 +63,6 @@ const Drag = Class({
                     include an `event` property containing the event object that
                     triggered the drag.
     */
-    // eslint-disable-next-line object-shorthand
     init: function ( mixin ) {
         const event = mixin.event;
 

@@ -38,7 +38,6 @@ const SwitchView = Class({
 
     syncOnlyInDocument: false,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this._oldView = null;
         // -1 => Not added views to parent

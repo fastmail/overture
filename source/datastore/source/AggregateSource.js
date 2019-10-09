@@ -16,7 +16,6 @@ const AggregateSource = Class({
 
     Extends: Source,
 
-    // eslint-disable-next-line object-shorthand
     init: function (/* ...mixins */) {
         this.sources = [];
         AggregateSource.parent.constructor.apply( this, arguments );
