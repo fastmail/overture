@@ -14,6 +14,7 @@ const platformKeys = {
     Escape: 'Esc',
     Enter: isMac ? '↵' : 'Enter',
     Backspace: isMac ? '⌫' : 'Backspace',
+    Delete: isMac ? '⌦' : 'Delete',
 };
 
 /**
