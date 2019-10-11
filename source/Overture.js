@@ -72,6 +72,8 @@ export { default as Animation } from './animation/Animation';
 export { default as Easing } from './animation/Easing';
 export { default as StyleAnimation } from './animation/StyleAnimation';
 
+import * as keyboardShortcuts from './application/keyboardShortcuts';
+export { keyboardShortcuts };
 export { default as formatKeyForPlatform } from './application/formatKeyForPlatform';
 export { default as GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts';
 export { default as Router } from './application/Router';
