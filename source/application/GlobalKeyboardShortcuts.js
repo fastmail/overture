@@ -1,7 +1,7 @@
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import '../foundation/EventTarget';  // For Function#on
-import { isMac } from '../ua/UA';
+import { isApple } from '../ua/UA';
 import { lookupKey } from '../dom/DOMEvent';
 import RichTextView from '../views/controls/RichTextView';
 import ViewEventsController from '../views/ViewEventsController';
@@ -21,8 +21,8 @@ const handleOnDown = {};
 
 const toPlatformKey = function ( key ) {
     if ( key.contains( 'Cmd-' ) ) {
-        key = key.replace( 'Cmd-', isMac ? 'Meta-' : 'Ctrl-' );
-        if ( !isMac &&
+        key = key.replace( 'Cmd-', isApple ? 'Meta-' : 'Ctrl-' );
+        if ( !isApple &&
                 key.contains( 'Shift-' ) &&
                 key.charAt( key.length - 2 ) === '-' ) {
             // The shift modifier is applied to the key returned (so it is

@@ -1,20 +1,20 @@
 import '../core/String';  // For String#capitalise
-import { isMac } from '../ua/UA';
+import { isApple } from '../ua/UA';
 
 const platformKeys = {
     ArrowUp: '↑',
     ArrowDown: '↓',
     ArrowRight: '→',
     ArrowLeft: '←',
-    Alt: isMac ? '⌥' : 'Alt-',
-    Cmd: isMac ? '⌘' : 'Ctrl-',
-    Ctrl: isMac ? '⌃' : 'Ctrl-',
-    Meta: isMac ? '⌘' : 'Meta-',
-    Shift: isMac ? '⇧' : 'Shift-',
+    Alt: isApple ? '⌥' : 'Alt-',
+    Cmd: isApple ? '⌘' : 'Ctrl-',
+    Ctrl: isApple ? '⌃' : 'Ctrl-',
+    Meta: isApple ? '⌘' : 'Meta-',
+    Shift: isApple ? '⇧' : 'Shift-',
     Escape: 'Esc',
-    Enter: isMac ? '↵' : 'Enter',
-    Backspace: isMac ? '⌫' : 'Backspace',
-    Delete: isMac ? '⌦' : 'Delete',
+    Enter: isApple ? '↵' : 'Enter',
+    Backspace: isApple ? '⌫' : 'Backspace',
+    Delete: isApple ? '⌦' : 'Delete',
 };
 
 /**

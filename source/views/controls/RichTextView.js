@@ -14,7 +14,7 @@ import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
-import { isIOS, isMac, isWKWebView } from '../../ua/UA';
+import { isIOS, isApple, isWKWebView } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
@@ -1107,14 +1107,14 @@ const RichTextView = Class({
 
     kbShortcuts: function ( event ) {
         switch ( lookupKey( event ) ) {
-        case isMac ? 'Meta-k' : 'Ctrl-k':
+        case isApple ? 'Meta-k' : 'Ctrl-k':
             event.preventDefault();
             this.showLinkOverlay(
                 this.get( 'toolbarView' ).getView( 'link' )
             );
             break;
         case 'PageDown':
-            if ( !isMac ) {
+            if ( !isApple ) {
                 const scrollView = this.getParent( ScrollView );
                 if ( scrollView ) {
                     scrollView.scrollToView( this, {
