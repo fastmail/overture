@@ -75,6 +75,13 @@ export const isWKWebView = platform === 'ios' && !!window.indexedDB;
     True if running on Android.
 */
 export const isAndroid = platform === 'android';
+/**
+    Property: O.UA.isApple
+    Type: Boolean
+
+    True if running on an Apple platform (macOS, iPadOS or iOS).
+*/
+export const isApple = isMac || isIOS;
 
 /**
     Property: O.UA.browser
