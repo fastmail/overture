@@ -21,8 +21,8 @@ const other = [ 'other', '0' ];
     Property: O.UA.platform
     Type: String
 
-    The operating system being run: "mac", "win", "linux", "android",
-    "ios" or "other".
+    The operating system being run: "mac" (macOS), "win" (Windows), "linux"
+    (varying Linuxes), "android" (Android), "ios" (iOS or iPadOS) or "other".
 */
 export const platform =
     /ip(?:ad|hone|od)/.test( ua ) ||
@@ -58,14 +58,14 @@ export const isLinux = platform === 'linux';
     Property: O.UA.isIOS
     Type: Boolean
 
-    True if running on iOS.
+    True if running on iOS (or iPadOS).
 */
 export const isIOS = platform === 'ios';
 /**
     Property: O.UA.isWKWebView
     Type: Boolean
 
-    True if running on WKWebView in iOS.
+    True if running on WKWebView in iOS (or iPadOS).
 */
 export const isWKWebView = platform === 'ios' && !!window.indexedDB;
 /**
