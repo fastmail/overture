@@ -1,5 +1,6 @@
 module.exports = {
     rules: {
+        'get-and-get-from-path-usage': require('./rules/get-and-get-from-path-usage'),
         'no-new-class': require('./rules/no-new-class'),
         'object-shorthand': require('./rules/object-shorthand'),
         'when-and-unless-usage': require('./rules/when-and-unless-usage'),
@@ -21,6 +22,7 @@ module.exports = {
                     }
                 ],
 
+                'overture/get-and-get-from-path-usage': 'error',
                 'overture/no-new-class': 'error',
                 'overture/when-and-unless-usage': 'error',
             },
