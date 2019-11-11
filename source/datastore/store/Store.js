@@ -202,13 +202,6 @@ const getDelta = function ( Type, data, changed ) {
 
 // ---
 
-const mapToTrue = ( object, uri ) => {
-    object[ uri ] = true;
-    return object;
-};
-
-// ---
-
 /**
     Class: O.Store
 
@@ -431,8 +424,8 @@ const Store = Class({
         const replaceAccountId = data.replaceAccountId;
         let account;
         if ( replaceAccountId && ( account = _accounts[ replaceAccountId ] ) ) {
-            if ( data.hasDataFor ) {
-                account.hasDataFor = data.hasDataFor.reduce( mapToTrue, {} );
+            if ( data.accountCapabilities ) {
+                account.accountCapabilities = data.accountCapabilities;
             }
             const skToAccountId = this._skToAccountId;
             for ( const sk in skToAccountId ) {
@@ -443,8 +436,7 @@ const Store = Class({
             delete _accounts[ replaceAccountId ];
         } else if ( !( account = _accounts[ accountId ] ) ) {
             account = {
-                // Transform [ ...uri ] into { ...uri: true } for fast access
-                hasDataFor: data.hasDataFor.reduce( mapToTrue, {} ),
+                accountCapabilities: data.accountCapabilities,
                 // Type -> status
                 // READY      - Some records of type loaded
                 // LOADING    - Loading or refreshing ALL records of type
@@ -1435,8 +1427,10 @@ const Store = Class({
 
             const _accounts = this._accounts;
             for ( accountId in _accounts ) {
-                if ( accountId &&
-                        _accounts[ accountId ].hasDataFor[ Type.dataGroup ] ) {
+                if (
+                    accountId &&
+                    Type.dataGroup in _accounts[ accountId ].accountCapabilities
+                ) {
                     this.fetchAll( accountId, Type, force );
                 }
             }
