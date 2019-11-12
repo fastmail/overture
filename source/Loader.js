@@ -16,11 +16,6 @@ const LS_PREFIX = 'OResource-';
 const LS_V_PREFIX = 'OResource-v-';
 
 const moduleInfo = {};
-// We get the choice of whether we offend no-use-before-define or prefer-const.
-// Frankly no-use-before-define would probably be better, but this way we only
-// have to twiddle the switch once…
-let require;  // eslint-disable-line prefer-const
-let loader;  // eslint-disable-line prefer-const
 
 const getFile = function ( src, callback ) {
     const xhr = new XMLHttpRequest();
@@ -198,7 +193,7 @@ const load = function ( name, executeOnLoad ) {
     }
 };
 
-require = function ( modules, fn, bind ) {
+const require = function ( modules, fn, bind ) {
     if ( !( modules instanceof Array ) ) {
         modules = [ modules ];
     }
@@ -266,7 +261,7 @@ require = function ( modules, fn, bind ) {
     This event is fired immediately after a new module finishes
     loading, before any waiting require() functions are called.
 */
-loader = {
+const loader = {
     debug: false,
     cacheModules: false,
     modules: moduleInfo,
