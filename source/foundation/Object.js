@@ -19,6 +19,7 @@ import {
     It adds support for computed properties, bound properties, observable
     properties and subscribing/firing events.
 */
+/* eslint-disable-next-line overture/class-extends */
 export default Class({
 
     Mixin: [

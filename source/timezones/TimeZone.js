@@ -1,4 +1,3 @@
-import { Class } from '../core/Core';
 import '../core/Date';  // For Date#add
 import '../core/String';  // For String#format
 
@@ -129,8 +128,8 @@ const switchSign = function ( string ) {
     return string.replace( /[+-]/, sign => ( sign === '+' ? '-' : '+' ) );
 };
 
-const TimeZone = Class({
-    init: function ( id, periods ) {
+class TimeZone {
+    constructor ( id, periods ) {
         let name = id.replace( /_/g, ' ' );
         // The IANA ids have the +/- the wrong way round for historical reasons.
         // Display correctly for the user.
@@ -141,7 +140,7 @@ const TimeZone = Class({
         this.id = id;
         this.name = name;
         this.periods = periods;
-    },
+    }
 
     convert ( date, toTimeZone ) {
         const period = getPeriod( this.periods, date );
@@ -155,13 +154,13 @@ const TimeZone = Class({
             offset = -offset;
         }
         return new Date( +date + offset * 1000 );
-    },
+    }
     convertDateToUTC ( date ) {
         return this.convert( date, false );
-    },
+    }
     convertDateToTimeZone ( date ) {
         return this.convert( date, true );
-    },
+    }
     getSuffix ( date ) {
         const period = getPeriod( this.periods, date, false );
         const offset = period[1];
@@ -177,19 +176,39 @@ const TimeZone = Class({
             rule = null;
         }
         return suffix.format( rule ? rule[10] : '' );
-    },
+    }
     toJSON () {
         return this.id;
-    },
-});
+    }
 
-TimeZone.fromJSON = function ( id ) {
-    return TimeZone[ id ] || null;
-};
+    static fromJSON ( id ) {
+        return TimeZone[ id ] || null;
+    }
 
-TimeZone.isEqual = function ( a, b ) {
-    return a.id === b.id;
-};
+    static isEqual ( a, b ) {
+        return a.id === b.id;
+    }
+
+    static load ( json ) {
+        const zones = json.zones;
+        const link = json.link;
+        const alias = json.alias;
+
+        for ( const id in zones ) {
+            addTimeZone( new TimeZone( id, zones[ id ] ) );
+        }
+        for ( const id in link ) {
+            addTimeZone( new TimeZone(
+                id,
+                zones[ link[ id ] ] || TimeZone[ link[ id ] ].periods
+            ));
+        }
+        for ( const id in alias ) {
+            TimeZone[ id ] = TimeZone[ alias[ id ] ];
+        }
+        Object.assign( TimeZone.rules, json.rules );
+    }
+}
 
 const addTimeZone = function ( timeZone ) {
     let area = TimeZone.areas;
@@ -208,25 +227,5 @@ TimeZone.rules = {
     '-': [],
 };
 TimeZone.areas = {};
-
-TimeZone.load = function ( json ) {
-    const zones = json.zones;
-    const link = json.link;
-    const alias = json.alias;
-
-    for ( const id in zones ) {
-        addTimeZone( new TimeZone( id, zones[ id ] ) );
-    }
-    for ( const id in link ) {
-        addTimeZone( new TimeZone(
-            id,
-            zones[ link[ id ] ] || TimeZone[ link[ id ] ].periods
-        ));
-    }
-    for ( const id in alias ) {
-        TimeZone[ id ] = TimeZone[ alias[ id ] ];
-    }
-    Object.assign( TimeZone.rules, json.rules );
-};
 
 export default TimeZone;

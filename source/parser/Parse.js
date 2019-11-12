@@ -1,18 +1,16 @@
-import { Class } from '../core/Core';
-
-const Parse = Class({
-    init: function ( string, tokens ) {
+class Parse {
+    constructor ( string, tokens ) {
         this.string = string;
         this.tokens = tokens || [];
-    },
+    }
     clone () {
         return new Parse( this.string, this.tokens.slice() );
-    },
+    }
     assimilate ( parse ) {
         this.string = parse.string;
         this.tokens = parse.tokens;
-    },
-});
+    }
+}
 
 const define = function ( name, regexp, context ) {
     return function ( parse ) {

@@ -1,4 +1,3 @@
-import { Class } from '../../core/Core';
 import { EMPTY, NEW, DIRTY, COMMITTING, NON_EXISTENT } from './Status';
 import Record from './Record';
 
@@ -23,8 +22,7 @@ const HANDLE_NO_ERRORS = [];
     When an error is “caught” (that is, error propagation is stopped), the
     changes in the store are not reverted.
 */
-const RecordResult = Class({
-
+class RecordResult {
     /**
         Property: O.RecordResult#error
         Type: {O.Event|null}
@@ -39,7 +37,7 @@ const RecordResult = Class({
         The record being observed
     */
 
-    init: function ( record, callback, mixin ) {
+    constructor ( record, callback, mixin ) {
         this._callback = callback;
 
         this.record = record;
@@ -51,20 +49,20 @@ const RecordResult = Class({
 
         Object.assign( this, mixin );
         this.statusDidChange( record, 'status', 0, record.get( 'status' ) );
-    },
+    }
 
     done () {
         this.record
             .removeObserverForKey( 'status', this, 'statusDidChange' )
             .off( 'record:commit:error', this, 'onError' );
         this._callback( this );
-    },
+    }
 
     statusDidChange ( record, key, _, newStatus ) {
         if ( !( newStatus & (EMPTY|NEW|DIRTY|COMMITTING) ) ) {
             this.done();
         }
-    },
+    }
 
     onError ( event ) {
         this.error = event;
@@ -72,18 +70,7 @@ const RecordResult = Class({
             event.stopPropagation();
         }
         this.done();
-    },
-
-    /**
-        Property: O.RecordResult#handledErrorTypes
-        Type: {Array<string>|HANDLE_NO_ERRORS|HANDLE_ALL_ERRORS}
-        Default: HANDLE_NO_ERRORS
-
-        Either one of the two constants (available on the RecordResult
-        constructor), or an array of error types to handle, e.g.
-        `[ 'alreadyExists' ]`. (Where “handle” means “stop propagation on”.)
-    */
-    handledErrorTypes: HANDLE_NO_ERRORS,
+    }
 
     /**
         Method: O.RecordResult#shouldStopErrorPropagation
@@ -107,8 +94,20 @@ const RecordResult = Class({
         return handledErrorTypes !== HANDLE_NO_ERRORS &&
             ( handledErrorTypes === HANDLE_ALL_ERRORS ||
                 handledErrorTypes.indexOf( event.type ) !== -1 );
-    },
-});
+    }
+}
+
+/**
+    Property: O.RecordResult#handledErrorTypes
+    Type: {Array<string>|HANDLE_NO_ERRORS|HANDLE_ALL_ERRORS}
+    Default: HANDLE_NO_ERRORS
+
+    Either one of the two constants (available on the RecordResult
+    constructor), or an array of error types to handle, e.g.
+    `[ 'alreadyExists' ]`. (Where “handle” means “stop propagation on”.)
+*/
+RecordResult.prototype.handledErrorTypes = HANDLE_NO_ERRORS;
+
 RecordResult.HANDLE_ALL_ERRORS = HANDLE_ALL_ERRORS;
 RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
 

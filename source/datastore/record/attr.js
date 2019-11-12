@@ -22,8 +22,7 @@ const attributeErrorsObserver = {
 
     Represents an attribute on a record.
 */
-const RecordAttribute = Class({
-
+class RecordAttribute {
     __setupProperty__ ( metadata, propKey, object ) {
         const constructor = object.constructor;
         let attrs = metadata.attrs;
@@ -76,7 +75,7 @@ const RecordAttribute = Class({
                 }
             }
         }
-    },
+    }
 
     __teardownProperty__ ( metadata, propKey, object ) {
         let attrs = metadata.attrs;
@@ -85,7 +84,7 @@ const RecordAttribute = Class({
         }
         attrs[ this.key || propKey ] = null;
         object.constructor.clientSettableAttributes = null;
-    },
+    }
 
     /**
         Constructor: O.RecordAttribute
@@ -93,10 +92,12 @@ const RecordAttribute = Class({
         Parameters:
             mixin - {Object} (optional) Override the default properties.
     */
-    init: function ( mixin ) {
+    constructor ( mixin ) {
         Object.assign( this, mixin );
-    },
+    }
+}
 
+Object.assign( RecordAttribute.prototype, {
     /**
         Property (private): O.RecordAttribute#isProperty
         Type: Boolean

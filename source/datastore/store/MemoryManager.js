@@ -1,4 +1,4 @@
-import { Class, guid } from '../../core/Core';
+import { guid } from '../../core/Core';
 import RunLoop from '../../foundation/RunLoop';
 
 import Record from '../record/Record';
@@ -13,8 +13,7 @@ import Query from '../query/Query';
     breached.
 */
 
-const MemoryManager = Class({
-
+class MemoryManager {
     /**
         Property (private): O.MemoryManager#_index
         Type: Number
@@ -67,7 +66,7 @@ const MemoryManager = Class({
                            function is called in milliseconds. Default is 30000,
                            i.e. every 30 seconds.
     */
-    init: function ( store, restrictions, frequency ) {
+    constructor ( store, restrictions, frequency ) {
         this._index = 0;
         this._store = store;
         this._restrictions = restrictions;
@@ -76,7 +75,7 @@ const MemoryManager = Class({
         this.frequency = frequency || 30000;
 
         RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
-    },
+    }
 
     /**
         Method: O.MemoryManager#addRestriction
@@ -93,7 +92,7 @@ const MemoryManager = Class({
     addRestriction ( restriction ) {
         this._restrictions.push( restriction );
         return this;
-    },
+    }
 
     /**
         Method: O.MemoryManager#cleanup
@@ -139,7 +138,7 @@ const MemoryManager = Class({
         } else {
             RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
         }
-    },
+    }
 
     /**
         Method: O.MemoryManager#cleanupRecordType
@@ -175,7 +174,7 @@ const MemoryManager = Class({
             }
         }
         return deleted;
-    },
+    }
 
     /**
         Method: O.MemoryManager#cleanupQueryType
@@ -206,7 +205,7 @@ const MemoryManager = Class({
             }
         }
         return deleted;
-    },
-});
+    }
+}
 
 export default MemoryManager;

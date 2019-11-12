@@ -49,6 +49,8 @@ const parseHeaders = function ( allHeaders ) {
     into the more fully featured <O.HttpRequest> class; you should use that
     class for most things.
 */
+// Doesn’t *need* to use Class, but is a rare case where it’s prettier so.
+/* eslint-disable-next-line overture/class-extends */
 const XHR = Class({
     /**
         Property: O.XHR#io
