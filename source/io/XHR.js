@@ -1,6 +1,5 @@
 /*global XMLHttpRequest, FormData, location */
 
-import { Class } from '../core/Core';
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop
 
 const parseHeaders = function ( allHeaders ) {
@@ -49,9 +48,22 @@ const parseHeaders = function ( allHeaders ) {
     into the more fully featured <O.HttpRequest> class; you should use that
     class for most things.
 */
-// Doesn’t *need* to use Class, but is a rare case where it’s prettier so.
-/* eslint-disable-next-line overture/class-extends */
-const XHR = Class({
+class XHR {
+    /**
+        Constructor: O.XHR
+
+        Parameters:
+            io - {O.Object} (optional).
+    */
+    constructor ( io ) {
+        this._isRunning = false;
+        this._status = 0;
+        this.io = io || null;
+        this.xhr = null;
+    }
+}
+
+Object.assign( XHR.prototype, {
     /**
         Property: O.XHR#io
         Type: (O.Object|null)
@@ -77,19 +89,6 @@ const XHR = Class({
         before the tab process is killed.
     */
     makeAsyncRequests: true,
-
-    /**
-        Constructor: O.XHR
-
-        Parameters:
-            io - {O.Object} (optional).
-    */
-    init: function ( io ) {
-        this._isRunning = false;
-        this._status = 0;
-        this.io = io || null;
-        this.xhr = null;
-    },
 
     destroy () {
         this.abort();
