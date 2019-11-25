@@ -469,10 +469,22 @@ const isEqual = function ( a, b ) {
 /**
     Function: O.Class
 
-    The Class function takes an object containing the instance functions for a
+    The Class function is for creating classes with Overture magic properties.
+
+    The Class function takes an object containing the prototype members for a
     new class and returns a constructor function with each of these methods in
-    its prototype. It also supports inheritance and mixins, via the special
-    Extends and Mixin properties respectively.
+    its prototype.
+
+    There are three special parameters:
+
+    - `Extends` is mandatory and declares the parent class to use. Reminder: all
+      classes created with `O.Class` are expected to extend `O.Object`. If you
+      don’t want that, use ECMAScript class syntax instead.
+
+    - `Mixin` is optional, being an object or an array of objects to mix into
+      the class prototype.
+
+    - `init`, if present, is used as the constructor.
 
     The returned constructor function will be the init method passed in the
     params. If the prototype has no function with the name 'init', an empty
@@ -481,9 +493,14 @@ const isEqual = function ( a, b ) {
 
     For example:
 
-        > const MyClass = O.Class({ sayBoo: function (){ alert( 'boo' ); } });
-        > let instance = new MyClass();
-        > instance.sayBoo(); // Alerts 'boo'.
+        const MyClass = O.Class({
+            Extends: O.Object,
+            sayBoo () {
+                alert( 'boo' );
+            },
+        });
+        let instance = new MyClass();
+        instance.sayBoo(); // Alerts 'boo'.
 
     Parameters:
         params - {Object} An object containing methods or properties
@@ -491,13 +508,70 @@ const isEqual = function ( a, b ) {
 
     Returns:
         {Constructor} The constructor function for the new class.
+
+    ## `O.Class` versus ECMAScript class syntax
+
+    This function is not *necessary*, and may well eventually fall out of use,
+    but currently provides a measurable ergonomic advantage for three reasons:
+
+    - Special Overture functionality (bindings, computed properties, &c.)
+      must currently be added to any object using O.mixin() because it’s done
+      eagerly rather than lazily;
+    - ECMAScript class syntax doesn’t provide a way of adding non-methods to the
+      prototype;
+    - Overture uses a form of function decorators which don’t translate to
+      ECMAScript class syntax yet (Function.prototype.property et al.)
+
+    (In practical terms, these three reasons are facets of the one thing.)
+
+    The following two examples are *roughly* equivalent. (These are the
+    differences for the ECMAScript class syntax variant: property name
+    collisions are handled differently, `Foo.prototype.init` and `Foo.parent`
+    won’t be set, the class won’t be extendable with O.Class due to differences
+    in `[[Call]]` and `[[Construct]]` handling, and exactly what happens if
+    there are name collisions in members.)
+
+    The O.Class way:
+
+        const Foo = Class({
+            Extends: Bar,
+            Mixin: [ Baz, Quux ],
+
+            init: function ( … ) {
+                Foo.parent.call( this, … );
+                …
+            },
+
+            foo () {
+                …
+            },
+
+            bar: function () {
+                …
+            }.property(),
+        });
+
+    And the ES6 classes way:
+
+        class Foo extends Bar {
+            constructor ( … ) {
+                super( … );
+                …
+            }
+
+            foo () {
+                …
+            }
+        }
+        mixin( Foo.prototype, Baz );
+        mixin( Foo.prototype, Quux );
+        mixin( Foo.prototype, {
+            bar: function () {
+                …
+            }.property(),
+        });
 */
 const Class = function ( params ) {
-    const parent = params.Extends;
-    if ( 'Extends' in params && typeof parent !== 'function' ) {
-        throw new Error( 'Bad O.Class definition: Extends is ' + parent );
-    }
-    let mixins = params.Mixin;
     // Here’s a fine implementation detail: init must be a constructor, not just
     // a function. Oh, you thought all functions were constructors? Not any more
     // in ES6, because of new efficiency possibilities. Specifically, methods
@@ -514,8 +588,7 @@ const Class = function ( params ) {
     //         baz: 42,
     //     })
     //
-    // But rather, this, unshorthanding init (plus a recommended eslint line,
-    // because everywhere *else* you should still prefer shorthand):
+    // But rather, this, unshorthanding init:
     //
     //     Class({
     //         init: function () { },
@@ -523,20 +596,18 @@ const Class = function ( params ) {
     //         bar () { },
     //         baz: 42,
     //     })
-    const init = params.init || ( parent ?
-            function () {
-                parent.apply( this, arguments );
-            } :
-            function () {} );
+    const parent = params.Extends;
+    const init = params.init || function () {
+        parent.apply( this, arguments );
+    };
 
-    if ( parent ) {
-        const proto = parent.prototype;
-        init.parent = proto;
-        init.prototype = Object.create( proto );
-        init.prototype.constructor = init;
-        delete params.Extends;
-    }
+    const proto = parent.prototype;
+    init.parent = proto;
+    init.prototype = Object.create( proto );
+    init.prototype.constructor = init;
+    delete params.Extends;
 
+    let mixins = params.Mixin;
     if ( mixins ) {
         if ( !( mixins instanceof Array ) ) {
             mixins = [ mixins ];
