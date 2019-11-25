@@ -1277,8 +1277,6 @@ const RichTextView = Class({
     },
 });
 
-RichTextView.isSupported = 'contentEditable' in document.body;
-
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_INLINE = TOOLBAR_INLINE;
 RichTextView.TOOLBAR_AT_SELECTION = TOOLBAR_AT_SELECTION;
