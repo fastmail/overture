@@ -14,7 +14,7 @@ import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
-import { isIOS, isApple, isWKWebView } from '../../ua/UA';
+import { isIOS, isApple } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
@@ -1277,12 +1277,7 @@ const RichTextView = Class({
     },
 });
 
-RichTextView.isSupported = (
-    ( 'contentEditable' in document.body ) &&
-    // WKWebView (introduced in iOS8) finally supports RTV without horrendous
-    // bugs.
-    ( !isIOS || isWKWebView )
-);
+RichTextView.isSupported = 'contentEditable' in document.body;
 
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_INLINE = TOOLBAR_INLINE;

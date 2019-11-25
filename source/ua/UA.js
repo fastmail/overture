@@ -62,13 +62,6 @@ export const isLinux = platform === 'linux';
 */
 export const isIOS = platform === 'ios';
 /**
-    Property: O.UA.isWKWebView
-    Type: Boolean
-
-    True if running on WKWebView in iOS (or iPadOS).
-*/
-export const isWKWebView = platform === 'ios' && !!window.indexedDB;
-/**
     Property: O.UA.isAndroid
     Type: Boolean
 
