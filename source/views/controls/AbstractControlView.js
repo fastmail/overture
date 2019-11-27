@@ -312,7 +312,10 @@ const AbstractControlView = Class({
             event - {Event} The focus event.
     */
     _updateIsFocused: function ( event ) {
-        this.set( 'isFocused', event.type === 'focus' );
+        this.set(
+            'isFocused',
+            event.type === 'focus' && event.target === this._domControl
+        );
     }.on( 'focus', 'blur' ),
 
     // --- Activate ---
