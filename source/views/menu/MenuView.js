@@ -197,8 +197,8 @@ const MenuView = Class({
             break;
         default:
             if ( !this.get( 'showFilter' ) ) {
-                const handler = ViewEventsController
-                    .kbShortcuts.getHandlerForKey( key );
+                const kbShortcuts = ViewEventsController.kbShortcuts;
+                const handler = kbShortcuts.getHandlerForKey( key );
                 let parent, object, method;
                 if ( handler ) {
                     parent = object = handler[0];

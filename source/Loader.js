@@ -296,7 +296,8 @@ const loader = {
         if ( status === 502 || status === 503 || status === 504 ) {
             return 'retry';
         }
-        const reloadPage = confirm(  // eslint-disable-line no-alert
+        // eslint-disable-next-line no-alert
+        const reloadPage = confirm(
             'Loading code failed (reason: ' + status + ' ' + statusText +
             '). Reloading the page is probably necessary. Shall we try that?' );
         if ( reloadPage ) {

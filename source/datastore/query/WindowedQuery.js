@@ -353,9 +353,9 @@ const WindowedQuery = Class({
     },
 
     reset () {
-        this._windows.length =
-        this._indexOfRequested.length =
-        this._waitingPackets.length =
+        this._windows.length = 0;
+        this._indexOfRequested.length = 0;
+        this._waitingPackets.length = 0;
         this._preemptiveUpdates.length = 0;
 
         this._isAnExplicitIdFetch = false;

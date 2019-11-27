@@ -109,8 +109,8 @@ const EventSource = NativeEventSource ? Class({
             this._then = now;
             this._tick =
                 RunLoop.invokeAfterDelay( this._check, 60000, this );
-            // Chrome occasionally closes the event source without firing an
-            // event. Resync readyState here to work around.
+            // Chrome occasionally closes the event source without firing
+            // an event. Resync readyState here to work around.
             this.set( 'readyState', this._eventSource.readyState );
         }
     },
@@ -145,13 +145,11 @@ const EventSource = NativeEventSource ? Class({
     */
     open () {
         if ( this.get( 'readyState' ) === CLOSED ) {
-            const eventSource = this._eventSource =
-                new NativeEventSource( this.get( 'url' ) );
-
+            const eventSource = new NativeEventSource( this.get( 'url' ) );
+            this._eventSource = eventSource;
             this._eventTypes.forEach(
                 type => eventSource.addEventListener( type, this, false )
             );
-
             this.set( 'readyState', eventSource.readyState );
         }
         return this;
@@ -233,8 +231,8 @@ const EventSource = NativeEventSource ? Class({
         const xhr = this._xhr;
         // Must start with text/event-stream (i.e. indexOf must === 0)
         // If it doesn't, fail the connection.
-        // IE doesn't let you read headers in the loading phase, so if we don't
-        // know the response type, we'll just presume it's correct.
+        // IE doesn't let you read headers in the loading phase, so if we
+        // don't know the response type, we'll just presume it's correct.
         const contentType = xhr.getHeader( 'Content-type' );
         if ( contentType && contentType.indexOf( 'text/event-stream' ) !== 0 ) {
             this._failConnection();
@@ -278,8 +276,8 @@ const EventSource = NativeEventSource ? Class({
         let lastIndex = this._lastNewLineIndex;
         const newLine = /\r\n?|\n/g;
 
-        // One leading U+FEFF BYTE ORDER MARK character must be ignored if any
-        // are present.
+        // One leading U+FEFF BYTE ORDER MARK character must be ignored if
+        // any are present.
         if ( !lastIndex && text.charAt( 0 ) === '\ufeff' ) {
             lastIndex = 1;
         }
