@@ -209,6 +209,7 @@ const TextView = Class({
         const type = this.get( 'type' );
         return 'v-Text' +
             ( this.get( 'isExpanding' ) ? ' v-Text--expanding' : '' ) +
+            ( this.get( 'isMultiline' ) ? ' v-Text--multiline' : '' ) +
             ( this.get( 'isHighlighted' ) ? ' is-highlighted' : '' ) +
             ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
             ( this.get( 'isValid' ) ? '' : ' is-invalid' ) +
@@ -216,15 +217,6 @@ const TextView = Class({
             ( type ? ' ' + type : '' );
     }.property( 'type', 'isExpanding', 'isHighlighted',
         'isFocused', 'isValid', 'isDisabled' ),
-
-    layerStyles: function () {
-        return Object.assign({
-            position: this.get( 'positioning' ),
-            display: this.get( 'isMultiline' ) ? 'block' : 'inline-block',
-            cursor: 'text',
-            userSelect: 'text',
-        }, this.get( 'layout' ) );
-    }.property( 'layout', 'positioning' ),
 
     /**
         Method: O.TextView#draw
