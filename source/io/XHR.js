@@ -78,18 +78,6 @@ Object.assign( XHR.prototype, {
         Is a request in progress?
     */
 
-    /**
-        Property: O.XHR#makeAsyncRequests
-        Type: Boolean
-        Default: true
-
-        If changed to false, the connections will be synchronous rather than
-        async. This should *only* ever be set during the onunload event,
-        where you need to make a request synchronous to ensure it completes
-        before the tab process is killed.
-    */
-    makeAsyncRequests: true,
-
     destroy () {
         this.abort();
     },
@@ -197,7 +185,7 @@ Object.assign( XHR.prototype, {
             io.fire( 'io:begin' );
         }
 
-        xhr.open( method, url, this.makeAsyncRequests );
+        xhr.open( method, url, true );
         xhr.withCredentials = !!withCredentials;
         responseType = responseType || '';
         xhr.responseType = responseType;
