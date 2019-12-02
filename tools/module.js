@@ -222,7 +222,7 @@ var makeModule = function ( themeManager, theme, inputs, output ) {
         module += '", "';
         css.forEach( function ( input ) {
             var data = fs.readFileSync( input, 'utf8' );
-            data = data.replace( /url\(\s*["']?([^\/].*?)["']?\s*\)/g,
+            data = data.replace( /url\(\s*["']?([^\/"'].*?)["']?\s*\)/g,
                         function ( original, img ) {
                    return /data:|\.eot/.test( img ) ?
                         original :
