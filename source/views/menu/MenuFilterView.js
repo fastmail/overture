@@ -53,6 +53,7 @@ const MenuFilterView = Class({
             controller.on( 'done', this, 'blur' );
         } else {
             controller.off( 'done', this, 'blur' );
+            controller.set( 'isFiltering', false );
         }
     }.observes( 'isInDocument' ),
 
