@@ -32,7 +32,7 @@ const SearchTextView = Class({
 
     reset () {
         this.set( 'value', '' )
-            .blur();
+            .focus();
     },
 });
 
