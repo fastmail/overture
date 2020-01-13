@@ -538,7 +538,7 @@ const isEqual = function ( a, b ) {
             Mixin: [ Baz, Quux ],
 
             init: function ( … ) {
-                Foo.parent.call( this, … );
+                Foo.parent.constructor.call( this, … );
                 …
             },
 
