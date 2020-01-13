@@ -1,18 +1,8 @@
-import { Class } from '../../core/Core';
-
 import { RecordAttribute } from './attr';
 
-const ToOneAttribute = Class({
-
-    Extends: RecordAttribute,
-
-    // Referenced record may be garbage collected independently of this record,
-    // so always ask store for the value.
-    isVolatile: true,
-
+class ToOneAttribute extends RecordAttribute {
     willSet ( propValue, propKey, record ) {
-        if ( ToOneAttribute.parent.willSet.call(
-                this, propValue, propKey, record ) ) {
+        if ( super.willSet( propValue, propKey, record ) ) {
             if ( record.get( 'storeKey' ) &&
                     propValue && !propValue.get( 'storeKey' ) ) {
                 throw new Error( 'O.ToOneAttribute: ' +
@@ -21,17 +11,20 @@ const ToOneAttribute = Class({
             return true;
         }
         return false;
-    },
+    }
 
     call ( record, propValue, propKey ) {
-        let result = ToOneAttribute.parent.call.call(
-            this, record, propValue, propKey );
+        let result = super.call( record, propValue, propKey );
         if ( result && typeof result === 'string' ) {
             result = record.get( 'store' ).getRecordFromStoreKey( result );
         }
         return result || null;
-    },
-});
+    }
+}
+
+// Referenced record may be garbage collected independently of this record,
+// so always ask store for the value.
+ToOneAttribute.prototype.isVolatile = true;
 
 const toOne = function ( mixin ) {
     return new ToOneAttribute( mixin );

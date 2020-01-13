@@ -137,24 +137,16 @@ const notifyRecordArrayObserver = {
     method: 'notifyRecordArray',
 };
 
-const ToManyAttribute = Class({
-
-    Extends: RecordAttribute,
-
+class ToManyAttribute extends RecordAttribute {
     __setupProperty__ ( metadata, propKey, object ) {
-        ToManyAttribute.parent
-            .__setupProperty__.call( this, metadata, propKey, object );
+        super.__setupProperty__( metadata, propKey, object );
         metadata.addObserver( propKey, notifyRecordArrayObserver );
-    },
+    }
 
     __teardownProperty__ ( metadata, propKey, object ) {
-        ToManyAttribute.parent
-            .__teardownProperty__.call( this, metadata, propKey, object );
+        super.__teardownProperty__( metadata, propKey, object );
         metadata.removeObserver( propKey, notifyRecordArrayObserver );
-    },
-
-    Type: Array,
-    recordType: null,
+    }
 
     call ( record, propValue, propKey ) {
         const arrayKey = '_' + propKey + 'RecordArray';
@@ -174,18 +166,19 @@ const ToManyAttribute = Class({
                 );
         }
         return recordArray;
-    },
+    }
 
     getRaw ( record, propKey ) {
-        return ToManyAttribute.parent.call.call(
-            this, record, undefined, propKey );
-    },
+        return super.call( record, undefined, propKey );
+    }
 
     setRaw ( record, propKey, data ) {
-        return ToManyAttribute.parent.call.call(
-            this, record, data, propKey );
-    },
-});
+        return super.call( record, data, propKey );
+    }
+}
+
+ToManyAttribute.prototype.Type = Array;
+ToManyAttribute.prototype.recordType = null;
 
 const toMany = function ( mixin ) {
     return new ToManyAttribute( mixin );
