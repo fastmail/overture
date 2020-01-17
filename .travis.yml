@@ -5,3 +5,7 @@ cache: yarn
 script:
     - yarn
     - yarn run lint
+    - cd eslint-plugin-overture
+    - yarn
+    - yarn run test
+    - yarn run lint

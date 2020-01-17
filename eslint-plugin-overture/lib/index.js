@@ -1,7 +1,8 @@
 module.exports = {
     rules: {
         'class-extends': require('./rules/class-extends'),
-        'get-and-get-from-path-usage': require('./rules/get-and-get-from-path-usage'),
+        'get-and-get-from-path-usage':
+            require('./rules/get-and-get-from-path-usage'),
         'no-new-class': require('./rules/no-new-class'),
         'object-shorthand': require('./rules/object-shorthand'),
         'switch-view-usage': require('./rules/switch-view-usage'),
@@ -18,9 +19,9 @@ module.exports = {
                     'always',
                     {
                         constructors: {
-                            pattern: '^(?:init|constructor)$'
-                        }
-                    }
+                            pattern: '^(?:init|constructor)$',
+                        },
+                    },
                 ],
 
                 'overture/class-extends': 'error',

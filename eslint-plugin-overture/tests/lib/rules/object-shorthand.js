@@ -1,3 +1,5 @@
+/* eslint-disable comma-dangle,max-len,quotes,strict */
+
 /**
  * @fileoverview Tests for concise-object rule
  * @author Jamund Ferguson <http://www.jamund.com>

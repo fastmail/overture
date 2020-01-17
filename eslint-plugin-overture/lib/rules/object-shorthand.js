@@ -2,6 +2,7 @@
 // so that the function is a constructor. Hence this variant of eslint’s
 // object-shorthand rule, forked from eslint 6.5.1, to implement what I had in
 // mind for https://github.com/eslint/eslint/issues/11686.
+/* eslint-disable comma-dangle,max-len,padded-blocks,quotes,strict */
 
 /**
  * @fileoverview Rule to enforce concise object methods and properties.
@@ -121,7 +122,6 @@ module.exports = {
         const APPLY_CONSISTENT_AS_NEEDED = APPLY === OPTIONS.consistentAsNeeded;
 
         const PARAMS = context.options[1] || {};
-        const IGNORE_CONSTRUCTORS = PARAMS.ignoreConstructors;
         const CONSTRUCTORS = PARAMS.constructors || (PARAMS.ignoreConstructors ? { ignore: true } : null);
         const AVOID_QUOTES = PARAMS.avoidQuotes;
         const AVOID_EXPLICIT_RETURN_ARROWS = !!PARAMS.avoidExplicitReturnArrows;

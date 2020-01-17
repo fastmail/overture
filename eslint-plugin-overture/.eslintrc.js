@@ -12,6 +12,8 @@ Object.assign(config, {
         ...config.rules,
 
         'global-require': 'off',
+        // They’re probably not actually useless.
+        'no-useless-return': 'off',
 
         // Experimenting with a code style closer to what autoformatters suggest.
 

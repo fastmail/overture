@@ -18,7 +18,7 @@ ruleTester.run('switch-view-usage', rule, {
     ],
 
     invalid: [
-        ['unless("property").show(a).end()', "unless() expects two or three arguments, got 1"],
+        ['unless("property").show(a).end()', 'unless() expects two or three arguments, got 1'],
         ['when(this, "property").somethingWeird()', "expected 'when' call to be followed by .show()"],
         ['unless(this, "property", invert).show([]).somethingWeird()', "expected .end() or .otherwise(...) on 'unless' construct, not .somethingWeird"],
         ['when(this, "property").show([]).otherwise([]).somethingWeird()', "expected .end() on 'when' construct, not .somethingWeird"],

@@ -1,5 +1,6 @@
 // Subset of eslint/lib/rules/utils/ast-utils from eslint 6.5.1, for our forked
 // object-shorthand to use, since not all supported versions of eslint have it.
+/* eslint-disable quotes */
 
 function isArrowToken(token) {
     return token.value === "=>" && token.type === "Punctuator";
