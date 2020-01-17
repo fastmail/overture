@@ -4,7 +4,7 @@ module.exports = {
         'get-and-get-from-path-usage': require('./rules/get-and-get-from-path-usage'),
         'no-new-class': require('./rules/no-new-class'),
         'object-shorthand': require('./rules/object-shorthand'),
-        'when-and-unless-usage': require('./rules/when-and-unless-usage'),
+        'switch-view-usage': require('./rules/switch-view-usage'),
     },
     configs: {
         recommended: {
@@ -26,7 +26,7 @@ module.exports = {
                 'overture/class-extends': 'error',
                 'overture/get-and-get-from-path-usage': 'error',
                 'overture/no-new-class': 'error',
-                'overture/when-and-unless-usage': 'error',
+                'overture/switch-view-usage': 'error',
             },
         },
     },

@@ -272,7 +272,7 @@ const SwitchView = Class({
         return this;
     },
 
-    _addCondition ( view, index ) {
+    case ( index, view ) {
         view = view ?
             view instanceof Array ?
                 view :
@@ -288,11 +288,11 @@ const SwitchView = Class({
     },
 
     show ( view ) {
-        return this._addCondition( view, 0 );
+        return this.case( 0, view );
     },
 
     otherwise ( view ) {
-        return this._addCondition( view, 1 );
+        return this.case( 1, view );
     },
 
     end () {
@@ -311,7 +311,7 @@ const pickViewUnless = function ( bool ) {
     return bool ? 1 : 0;
 };
 
-const createView = function ( object, property, transform ) {
+const choose = function ( object, property, transform ) {
     const switchView = new SwitchView({
         index: bind( object, property, transform ),
     });
@@ -323,16 +323,21 @@ const when = function ( object, property, transform ) {
     const pickView = transform ? function ( value, syncForward ) {
         return pickViewWhen( transform( value, syncForward ) );
     } : pickViewWhen;
-    return createView( object, property, pickView );
+    // (The lint would complain that it expected .case().)
+    // eslint-disable-next-line overture/switch-view-usage
+    return choose( object, property, pickView );
 };
 const unless = function ( object, property, transform ) {
     const pickView = transform ? function ( value, syncForward ) {
         return pickViewUnless( transform( value, syncForward ) );
     } : pickViewUnless;
-    return createView( object, property, pickView );
+    // (The lint would complain that it expected .case().)
+    // eslint-disable-next-line overture/switch-view-usage
+    return choose( object, property, pickView );
 };
 
 export {
     when,
     unless,
+    choose,
 };

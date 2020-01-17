@@ -173,7 +173,7 @@ export { default as ListKBFocusView } from './views/collections/ListKBFocusView'
 export { default as ListView } from './views/collections/ListView';
 export { default as ProgressiveListView } from './views/collections/ProgressiveListView';
 export { default as OptionsListView } from './views/collections/OptionsListView';
-export { default as SwitchView, when, unless } from './views/collections/SwitchView';
+export { default as SwitchView, when, unless, choose } from './views/collections/SwitchView';
 export { default as ToolbarView } from './views/collections/ToolbarView';
 export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect';
 export { default as ScrollView } from './views/containers/ScrollView';
