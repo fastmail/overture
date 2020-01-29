@@ -46,7 +46,9 @@ class RecordAttribute {
         constructor.clientSettableAttributes = null;
 
         if ( this.validate ) {
-            metadata.addObserver( propKey, attributeErrorsObserver );
+            if ( !metadata.hasObserver( propKey, attributeErrorsObserver ) ) {
+                metadata.addObserver( propKey, attributeErrorsObserver );
+            }
             dependencies = this.validityDependencies;
             if ( dependencies ) {
                 AttributeErrorsType = object.AttributeErrorsType;
@@ -68,8 +70,11 @@ class RecordAttribute {
                     key = dependencies[l];
                     if ( !dependents[ key ] ) {
                         dependents[ key ] = [];
-                        metadata
-                            .addObserver( key, attributeErrorsObserver );
+                        if ( !metadata
+                                .hasObserver( key, attributeErrorsObserver ) ) {
+                            metadata
+                                .addObserver( key, attributeErrorsObserver );
+                        }
                     }
                     dependents[ key ].push( propKey );
                 }

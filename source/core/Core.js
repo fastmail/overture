@@ -144,16 +144,6 @@ class Metadata {
     addObserver ( key, observer ) {
         const observers = this.observers;
         let keyObservers = observers[ key ];
-        if ( keyObservers ) {
-            const isSame = typeof observer === 'function' ?
-                isIdentical : isSameObserver;
-            const l = keyObservers.length;
-            for ( let i = 0; i < l; i += 1 ) {
-                if ( isSame( keyObservers[i], observer ) ) {
-                    return this;
-                }
-            }
-        }
         if ( !keyObservers ) {
             keyObservers = observers[ key ] = [];
         } else if ( !observers.hasOwnProperty( key ) ) {
@@ -162,6 +152,22 @@ class Metadata {
         keyObservers.push( observer );
 
         return this;
+    }
+
+    hasObserver ( key, observer ) {
+        const observers = this.observers;
+        const keyObservers = observers[ key ];
+        if ( keyObservers ) {
+            const isSame = typeof observer === 'function' ?
+                isIdentical : isSameObserver;
+            const l = keyObservers.length;
+            for ( let i = 0; i < l; i += 1 ) {
+                if ( isSame( keyObservers[i], observer ) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     removeObserver ( key, observer ) {
