@@ -142,8 +142,7 @@ const AbstractControlView = Class({
         if ( isIOS && this.get( 'isFocused' ) ) {
             this.blur();
         }
-        return AbstractControlView.parent.willLeaveDocument.call(
-            this );
+        return AbstractControlView.parent.willLeaveDocument.call( this );
     },
 
     /**

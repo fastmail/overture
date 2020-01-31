@@ -89,7 +89,7 @@ const AggregateSource = Class({
         let callbackAfterAll;
         if ( callback ) {
             callbackAfterAll = function () {
-                if ( !( waiting-= 1 ) ) {
+                if ( !( waiting -= 1 ) ) {
                     callback();
                 }
             };

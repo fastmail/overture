@@ -36,7 +36,7 @@
     cache         - A mapping of keys to the last returned value of cacheable
                     computed properties.
     observers     - A mapping of keys to an array of observers for that key.
-                    Event listeners are also in  here, mapped from a key of
+                    Event listeners are also in here, mapped from a key of
                     '__event__' + the event type.
     changed       - Null, or if the depth property is >1, an object mapping keys
                     or properties that have changed value, to an object holding
@@ -190,10 +190,10 @@ const meta = function ( object ) {
     } else if ( data.object !== object ) {
         // Until the set of computed properties on the object changes, the
         // 'dependents' information is identical to that of the parent so
-        // can be shared. The computed 'allDependents will be calculated
-        // when needed and stored in the parent meta object, so be available
-        // to all other objects of the same type. The dependents property
-        // is copied on write (and the allDependents then reset and
+        // can be shared. The computed allDependents will be calculated
+        // when needed and stored in the parent meta object, so as to be
+        // available to all other objects of the same type. The dependents
+        // property is copied on write (and the allDependents then reset and
         // calculated separately for the object).
         data = Object.create( data );
         data.object = object;

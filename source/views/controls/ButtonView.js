@@ -15,7 +15,7 @@ import AbstractControlView from './AbstractControlView';
 
     A ButtonView represents an interactive rectangle in your user interface
     which the user can click/tap to perform an action. The ButtonView uses a
-    <button> element in the DOM by default. If the action being perfomed is
+    <button> element in the DOM by default. If the action being performed is
     actually a navigation and just shows/hides content and does not change any
     state, semantically you should change the layer tag to an <a>.
 
