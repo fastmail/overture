@@ -59,7 +59,6 @@ const ListKBFocusView = Class({
         for ( const key in keys ) {
             shortcuts.register( key, this, keys[ key ] );
         }
-        this.checkInitialScroll();
         return ListKBFocusView.parent.didEnterDocument.call( this );
     },
     willLeaveDocument () {
@@ -72,18 +71,21 @@ const ListKBFocusView = Class({
     },
 
     // Scroll to centre widget on screen with no animation
-    checkInitialScroll: function () {
-        if ( this.get( 'distanceFromVisRect' ) ) {
-            this.scrollIntoView( 0, false );
-        }
-    }.queue( 'after' ),
+    recordDidChange: function () {
+        this._animateIntoView = this.get( 'isInDocument' );
+        this.checkScroll();
+    }.observes( 'record' ),
 
     checkScroll: function () {
         const distance = this.get( 'distanceFromVisRect' );
+        const animateIntoView = this._animateIntoView;
         if ( distance ) {
-            this.scrollIntoView( distance < 0 ? -0.6 : 0.6, true );
+            this.scrollIntoView(
+                !animateIntoView ? 0 : distance < 0 ? -0.6 : 0.6,
+                animateIntoView
+            );
         }
-    }.queue( 'after' ).observes( 'record' ),
+    }.queue( 'after' ),
 
     distanceFromVisRect: function () {
         const layoutIndex = this.get( 'layoutIndex' );
