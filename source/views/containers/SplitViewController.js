@@ -64,7 +64,7 @@ const SplitViewController = Class({
     /**
         Property: O.SplitViewController#maxStaticPaneLength
         Type: Number
-        Default: 0
+        Default: 32767
 
         The maximum width/height (in pixels) that the static pane may be resized
         to.
