@@ -24,9 +24,11 @@ const PopOverView = Class({
         const options = this.get( 'options' );
         const positionToThe = options && options.positionToThe || 'bottom';
         const alignEdge = options && options.alignEdge || 'left';
+        const extra = options.className || '';
         return 'v-PopOverContainer' +
             ' v-PopOverContainer--p' + positionToThe.charAt( 0 ) +
-            ' v-PopOverContainer--a' + alignEdge.charAt( 0 );
+            ' v-PopOverContainer--a' + alignEdge.charAt( 0 ) +
+            ( extra ? ' ' + extra : '' );
     }.property( 'options' ),
 
     positioning: 'absolute',
