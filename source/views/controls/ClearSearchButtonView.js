@@ -1,5 +1,6 @@
 import { Class } from '../../core/Core';
 import ButtonView from './ButtonView';
+import { ACTIVE_IN_INPUT } from '../../application/keyboardShortcuts.js';
 
 const ClearSearchButtonView = Class({
 
@@ -7,6 +8,7 @@ const ClearSearchButtonView = Class({
 
     className: 'v-ClearSearchButton',
     shortcut: 'Ctrl-/',
+    shortcutWhenInputFocused: ACTIVE_IN_INPUT,
 });
 
 export default ClearSearchButtonView;

@@ -6,6 +6,7 @@ import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/LocaleController';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
+import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';
 import { isIOS } from '../../ua/UA';
 import { appendChildren, create as el } from '../../dom/Element';
 
@@ -87,6 +88,15 @@ const AbstractControlView = Class({
     shortcut: '',
 
     /**
+        Property: O.AbstractControlView#shortcutWhenInputFocused
+        Type: Enum
+        Default: GlobalKeyboardShortcuts.DEFAULT_IN_INPUT
+
+        If a shortcut is set, should it be active when an input is focused?
+    */
+    shortcutWhenInputFocused: DEFAULT_IN_INPUT,
+
+    /**
         Property: O.AbstractControlView#tooltip
         Type: String
         Default: '' or 'Shortcut: <shortcut>'
@@ -116,8 +126,12 @@ const AbstractControlView = Class({
         const shortcut = this.get( 'shortcut' );
         if ( shortcut ) {
             shortcut.split( ' ' ).forEach( key => {
-                ViewEventsController.kbShortcuts
-                    .register( key, this, 'activate' );
+                ViewEventsController.kbShortcuts.register(
+                    key,
+                    this,
+                    'activate',
+                    this.get( 'shortcutWhenInputFocused' )
+                );
             });
         }
         return this;

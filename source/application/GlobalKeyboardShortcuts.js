@@ -5,6 +5,7 @@ import { isApple } from '../ua/UA';
 import { lookupKey } from '../dom/DOMEvent';
 import RichTextView from '../views/controls/RichTextView';
 import ViewEventsController from '../views/ViewEventsController';
+import { DEFAULT_IN_INPUT, ACTIVE_IN_INPUT, DISABLE_IN_INPUT } from './keyboardShortcuts.js';
 
 const allowedInputs = {
     checkbox: 1,
@@ -12,10 +13,6 @@ const allowedInputs = {
     file: 1,
     submit: 1,
 };
-
-const DEFAULT_IN_INPUT = 0;
-const ACTIVE_IN_INPUT = 1;
-const DISABLE_IN_INPUT = 2;
 
 const handleOnDown = {};
 
@@ -189,14 +186,16 @@ const GlobalKeyboardShortcuts = Class({
     trigger: function ( event ) {
         const target = event.target;
         const nodeName = target.nodeName;
-        const isSpecialKey = event.ctrlKey || event.metaKey;
+        const key = lookupKey( event );
+        const allowedInInput =
+            ( isApple ? event.metaKey : event.ctrlKey ) &&
+            /-(?:.|Enter)$/.test( key );
         const inputIsFocused = (
             nodeName === 'TEXTAREA' ||
             nodeName === 'SELECT' ||
             ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
             ( event.targetView instanceof RichTextView )
         );
-        const key = lookupKey( event );
         if ( event.type === 'keydown' ) {
             handleOnDown[ key ] = true;
         } else if ( handleOnDown[ key ] ) {
@@ -206,7 +205,7 @@ const GlobalKeyboardShortcuts = Class({
         if ( handler ) {
             const ifInput = handler[2];
             if ( inputIsFocused && ifInput !== ACTIVE_IN_INPUT &&
-                    ( !isSpecialKey || ifInput === DISABLE_IN_INPUT ) ) {
+                    ( !allowedInInput || ifInput === DISABLE_IN_INPUT ) ) {
                 return;
             }
             handler[0][ handler[1] ]( event );
