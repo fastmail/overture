@@ -372,6 +372,13 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
         decimalPoint: getString( 'S_FORMAT_DECIMAL_POINT' ),
         thousandsSeparator: getString( 'S_FORMAT_THOUSANDS_SEPARATOR' ),
 
+        fileSizeUnits: [
+            getString( 'SIZE_BYTES' ),
+            getString( 'SIZE_KILOBYTES' ),
+            getString( 'SIZE_MEGABYTES' ),
+            getString( 'SIZE_GIGABYTES' ),
+        ],
+
         getFormattedOrdinal:
         /^en/.test( code ) ?
             function ( number ) {
