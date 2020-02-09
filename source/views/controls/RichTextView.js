@@ -88,7 +88,7 @@ const URLPickerView = Class({
             }),
             el( 'p.u-alignRight', [
                 new ButtonView({
-                    type: 'v-Button--destructive v-Button--size13',
+                    type: 'v-Button--standard v-Button--size13',
                     label: loc( 'Cancel' ),
                     target: popOver,
                     method: 'hide',
