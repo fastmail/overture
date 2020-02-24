@@ -67,6 +67,8 @@ self.Promise = Promise;
 // … as well as as `O.Promise`.
 export { Promise };
 
+export { default as Color } from './color/Color.js';
+
 export { default as AnimatableView } from './animation/AnimatableView';
 export { default as Animation } from './animation/Animation';
 export { default as Easing } from './animation/Easing';
