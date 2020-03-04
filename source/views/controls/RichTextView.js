@@ -477,6 +477,10 @@ const RichTextView = Class({
 
     // ---
 
+    getIcon () {
+        return null;
+    },
+
     toolbarConfig: {
         left: [
             'bold', 'italic', 'underline', 'strikethrough', '-',
@@ -514,7 +518,7 @@ const RichTextView = Class({
             bold: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-bold',
+                icon: this.getIcon( 'bold' ),
                 isActive: bind( this, 'isBold' ),
                 label: loc( 'Bold' ),
                 tooltip: loc( 'Bold' ) + '\n' +
@@ -531,7 +535,7 @@ const RichTextView = Class({
             italic: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-italic',
+                icon: this.getIcon( 'italic' ),
                 isActive: bind( this, 'isItalic' ),
                 label: loc( 'Italic' ),
                 tooltip: loc( 'Italic' ) + '\n' +
@@ -548,7 +552,7 @@ const RichTextView = Class({
             underline: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-underline',
+                icon: this.getIcon( 'underline' ),
                 isActive: bind( this, 'isUnderlined' ),
                 label: loc( 'Underline' ),
                 tooltip: loc( 'Underline' ) + '\n' +
@@ -565,7 +569,7 @@ const RichTextView = Class({
             strikethrough: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-strikethrough',
+                icon: this.getIcon( 'strikethrough' ),
                 isActive: bind( this, 'isStriked' ),
                 label: loc( 'Strikethrough' ),
                 tooltip: loc( 'Strikethrough' ) + '\n' +
@@ -582,7 +586,7 @@ const RichTextView = Class({
             size: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-font-size',
+                icon: this.getIcon( 'size' ),
                 label: loc( 'Font Size' ),
                 tooltip: loc( 'Font Size' ),
                 target: this,
@@ -591,7 +595,7 @@ const RichTextView = Class({
             font: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-font',
+                icon: this.getIcon( 'font' ),
                 label: loc( 'Font Face' ),
                 tooltip: loc( 'Font Face' ),
                 target: this,
@@ -600,7 +604,7 @@ const RichTextView = Class({
             color: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-palette',
+                icon: this.getIcon( 'color' ),
                 label: loc( 'Text Color' ),
                 tooltip: loc( 'Text Color' ),
                 target: this,
@@ -609,7 +613,7 @@ const RichTextView = Class({
             bgcolor: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-highlight',
+                icon: this.getIcon( 'bgcolor' ),
                 label: loc( 'Text Highlight' ),
                 tooltip: loc( 'Text Highlight' ),
                 target: this,
@@ -618,7 +622,7 @@ const RichTextView = Class({
             link: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-link',
+                icon: this.getIcon( 'link' ),
                 isActive: bind( this, 'isLink' ),
                 label: loc( 'Link' ),
                 tooltip: loc( 'Link' ) + '\n' +
@@ -635,7 +639,7 @@ const RichTextView = Class({
             code: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-code',
+                icon: this.getIcon( 'code' ),
                 isActive: bind( this, 'isCode' ),
                 label: loc( 'Preformatted Text' ),
                 tooltip: loc( 'Preformatted Text' ) + '\n' +
@@ -652,7 +656,7 @@ const RichTextView = Class({
             image: new FileButtonView({
                 tabIndex: -1,
                 type: 'v-FileButton v-Button--iconOnly',
-                icon: 'icon-image',
+                icon: this.getIcon( 'image' ),
                 label: loc( 'Insert Image' ),
                 tooltip: loc( 'Insert Image' ),
                 acceptMultiple: true,
@@ -663,7 +667,7 @@ const RichTextView = Class({
             remoteImage: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-image',
+                icon: this.getIcon( 'image' ),
                 label: loc( 'Insert Image' ),
                 tooltip: loc( 'Insert Image' ),
                 target: this,
@@ -672,7 +676,7 @@ const RichTextView = Class({
             left: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-paragraph-left',
+                icon: this.getIcon( 'left' ),
                 isActive: bind( this, 'alignment', isEqualToValue( 'left' ) ),
                 label: loc( 'Left' ),
                 tooltip: loc( 'Left' ),
@@ -684,7 +688,7 @@ const RichTextView = Class({
             centre: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-paragraph-centre',
+                icon: this.getIcon( 'centre' ),
                 isActive: bind( this, 'alignment', isEqualToValue( 'center' ) ),
                 label: loc( 'Center' ),
                 tooltip: loc( 'Center' ),
@@ -696,7 +700,7 @@ const RichTextView = Class({
             right: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-paragraph-right',
+                icon: this.getIcon( 'right' ),
                 isActive: bind( this, 'alignment', isEqualToValue( 'right' ) ),
                 label: loc( 'Right' ),
                 tooltip: loc( 'Right' ),
@@ -708,7 +712,7 @@ const RichTextView = Class({
             justify: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-paragraph-justify',
+                icon: this.getIcon( 'justify' ),
                 isActive: bind( this, 'alignment',
                     isEqualToValue( 'justify' ) ),
                 label: loc( 'Justify' ),
@@ -721,7 +725,7 @@ const RichTextView = Class({
             ltr: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-lefttoright',
+                icon: this.getIcon( 'ltr' ),
                 isActive: bind( this, 'direction', isEqualToValue( 'ltr' ) ),
                 label: loc( 'Text Direction: Left to Right' ),
                 tooltip: loc( 'Text Direction: Left to Right' ),
@@ -733,7 +737,7 @@ const RichTextView = Class({
             rtl: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-righttoleft',
+                icon: this.getIcon( 'rtl' ),
                 isActive: bind( this, 'direction', isEqualToValue( 'rtl' ) ),
                 label: loc( 'Text Direction: Right to Left' ),
                 tooltip: loc( 'Text Direction: Right to Left' ),
@@ -745,7 +749,7 @@ const RichTextView = Class({
             quote: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-quotes-left',
+                icon: this.getIcon( 'quote' ),
                 label: loc( 'Quote' ),
                 tooltip: loc( 'Quote' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-]' ),
@@ -755,7 +759,7 @@ const RichTextView = Class({
             unquote: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-quotes-right',
+                icon: this.getIcon( 'unquote' ),
                 label: loc( 'Unquote' ),
                 tooltip: loc( 'Unquote' ) + '\n' +
                     formatKeyForPlatform( 'Cmd-[' ),
@@ -765,7 +769,7 @@ const RichTextView = Class({
             ul: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-list',
+                icon: this.getIcon( 'ul' ),
                 isActive: bind( this, 'isUnorderedList' ),
                 label: loc( 'Unordered List' ),
                 tooltip: loc( 'Unordered List' ) + '\n' +
@@ -782,7 +786,7 @@ const RichTextView = Class({
             ol: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-numbered-list',
+                icon: this.getIcon( 'ol' ),
                 isActive: bind( this, 'isOrderedList' ),
                 label: loc( 'Ordered List' ),
                 tooltip: loc( 'Ordered List' ) + '\n' +
@@ -799,7 +803,7 @@ const RichTextView = Class({
             unformat: new ButtonView({
                 tabIndex: -1,
                 type: 'v-Button--iconOnly',
-                icon: 'icon-clear-formatting',
+                icon: this.getIcon( 'unformat' ),
                 label: loc( 'Clear Formatting' ),
                 tooltip: loc( 'Clear Formatting' ),
                 activate () {
