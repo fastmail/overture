@@ -120,12 +120,23 @@ const ThemeManager = Class({
 
         if ( data ) {
             // Substitute in images.
-            data = data.replace( /url\(([^)]+)\)/g, ( url, src ) => {
+            data = data.replace( /url\("?([^)"]+)"?\)/g, ( url, src ) => {
+                const colon = src.indexOf( ':' );
+                let currentColor = '';
+                if ( colon > -1 && src.slice( colon - 4, colon ) === '.svg' ) {
+                    currentColor = src.slice( colon + 1 );
+                    src = src.slice( 0, colon );
+                }
+
                 let imageData =
                         images[ src ] ||
                         themeIndependentImages[ src ] ||
                         loc( src );
-                if ( /\.svg$/.test( src ) ) {
+                if ( imageData && /\.svg$/.test( src ) ) {
+                    if ( currentColor ) {
+                        imageData =
+                            imageData.replace( /currentColor/g, currentColor );
+                    }
                     imageData = 'data:image/svg+xml;charset=UTF-8,' +
                         encodeURIComponent( imageData );
                 }
