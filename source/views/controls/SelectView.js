@@ -32,6 +32,14 @@ const SelectView = Class({
     */
     options: [],
 
+    /**
+        Property: O.SelectView#inputAttributes
+        Type: Object|null
+
+        Extra attributes to add to the <select> element, if provided.
+    */
+   inputAttributes: null,
+
     // --- Render ---
 
     type: '',
@@ -59,6 +67,10 @@ const SelectView = Class({
     draw ( layer ) {
         const control = this._domControl =
             this._drawSelect( this.get( 'options' ) );
+        const inputAttributes = this.get( 'inputAttributes' );
+        if ( inputAttributes ) {
+            this.redrawInputAttributes();
+        }
         return [
             SelectView.parent.draw.call( this, layer ),
             control,
@@ -104,7 +116,20 @@ const SelectView = Class({
     */
     selectNeedsRedraw: function ( self, property, oldValue ) {
         return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'options', 'value' ),
+    }.observes( 'options', 'value', 'inputAttributes' ),
+
+    /**
+        Method: O.TextView#redrawInputAttributes
+
+        Updates any other properties of the `<input>` element.
+    */
+    redrawInputAttributes () {
+        const inputAttributes = this.get( 'inputAttributes' );
+        const control = this._domControl;
+        for ( const property in inputAttributes ) {
+            control.set( property, inputAttributes[ property ] );
+        }
+    },
 
     /**
         Method: O.SelectView#redrawOptions
