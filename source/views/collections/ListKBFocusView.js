@@ -48,7 +48,7 @@ const ListKBFocusView = Class({
         const index = this.get( 'layoutIndex' );
         return {
             visibility: index < 0 ? 'hidden' : 'visible',
-            top: index < 0 ? 0 : itemHeight * index,
+            marginTop: index < 0 ? 0 : itemHeight * index,
             height: itemHeight,
         };
     }.property( 'itemHeight', 'layoutIndex' ),
