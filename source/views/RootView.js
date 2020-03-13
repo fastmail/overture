@@ -55,6 +55,7 @@ const RootView = Class({
             Array.prototype.slice.call( arguments, 1 ) );
 
         // Node.DOCUMENT_NODE => 9.
+        const className = this.get( 'className' );
         const nodeIsDocument = ( node.nodeType === 9 );
         const doc = nodeIsDocument ? node : node.ownerDocument;
         const win = doc.defaultView;
@@ -91,6 +92,9 @@ const RootView = Class({
         this.isRendered = true;
         this.isInDocument = true;
         this.layer = nodeIsDocument ? node.body : node;
+        if ( className ) {
+            this.layer.className = className;
+        }
     },
 
     safeAreaInsetBottom: 0,
