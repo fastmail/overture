@@ -1,6 +1,6 @@
 /*  Todo – OvertureJS Example App
 
-    © 2014 FastMail Pty Ltd. MIT Licensed.
+    © 2014 Fastmail Pty Ltd. MIT Licensed.
 
     General styling and background image from TodoMVC – http://todomvc.com
 

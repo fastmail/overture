@@ -3,7 +3,7 @@
     It is based on the comparison app from:
     https://www.codementor.io/reactjs/tutorial/reactjs-vs-angular-js-performance-comparison-knockout
 
-    © 2015 FastMail Pty Ltd. MIT Licensed.
+    © 2015 Fastmail Pty Ltd. MIT Licensed.
 */
 
 /*global O */
