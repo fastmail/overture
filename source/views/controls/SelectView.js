@@ -119,7 +119,7 @@ const SelectView = Class({
     }.observes( 'options', 'value', 'inputAttributes' ),
 
     /**
-        Method: O.TextView#redrawInputAttributes
+        Method: O.SelectView#redrawInputAttributes
 
         Updates any other properties of the `<input>` element.
     */
