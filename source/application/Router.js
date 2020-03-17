@@ -427,7 +427,7 @@ const Router = Class({
         }
     }.queue( 'after' ).observes( 'encodedState', 'globalQueryStringPart' ),
 
-    // This method allows a hash to be in state, purely because in FastMail we
+    // This method allows a hash to be in state, purely because in Fastmail we
     // have a few places where we want it so—we’re not quite dealing with
     // “encoded state” there, but rather partial URLs. Still, it’s kinda nice to
     // do it here. The rest of the router doesn’t really cope with a hash at
