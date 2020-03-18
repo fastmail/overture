@@ -288,7 +288,9 @@ const AbstractControlView = Class({
     */
     focus () {
         if ( this.get( 'isInDocument' ) ) {
-            this._domControl.focus();
+            this._domControl.focus({
+                preventScroll: true,
+            });
             // Fire event synchronously.
             if ( !this.get( 'isFocused' ) ) {
                 this.fire( 'focus' );
