@@ -87,7 +87,7 @@ const OptionsListView = Class({
             }
             if ( newView ) {
                 newView.set( 'isFocused', true );
-                this.scrollIntoView( newView );
+                this.scrollIntoView();
             }
             this._focusedOption = newView;
         }
@@ -103,29 +103,44 @@ const OptionsListView = Class({
             }
             if ( newView ) {
                 newView.set( 'isSelected', true );
-                this.scrollIntoView( newView );
+                this.scrollIntoView();
             }
             this._selectedOption = newView;
         }
     }.observes( 'selectedOption' ),
 
-    scrollIntoView ( view ) {
+    // 1. after    => Trigger after the list redraws, which sets new index on
+    //                ListItemView.
+    // 2. nextLoop => Trigger after ListItemView#layoutWillChange, which happens
+    //                in the next loop after the item's index changes.
+    // 3. after    => Trigger after that ListItemView has redrawn in its new
+    //                position so we scroll to the right place.
+    scrollIntoView: function () {
+        const item =
+            this.get( 'focusedOption' ) || this.get( 'selectedOption' );
+        const view = item && this.getView( item );
         const scrollView = this.getParent( ScrollView );
-        if ( !scrollView || !this.get( 'isInDocument' ) ) {
+        if ( !view || !scrollView || !this.get( 'isInDocument' ) ) {
             return;
         }
-        const scrollHeight = scrollView.get( 'pxHeight' );
-        const scrollTop = scrollView.get( 'scrollTop' );
-        const top = view.getPositionRelativeTo( scrollView ).top;
+        const top = view.get( 'index' ) ?
+            view.getPositionRelativeTo( scrollView ).top :
+            0;
         const height = view.get( 'pxHeight' );
+        const scrollTop = scrollView.get( 'scrollTop' );
+        const scrollHeight = scrollView.get( 'pxHeight' );
 
         if ( top < scrollTop ) {
-            scrollView.scrollTo( 0, top - ( height >> 1 ), true );
+            scrollView.scrollTo(
+                0,
+                top - ( height >> 1 ),
+                true
+            );
         } else if ( top + height > scrollTop + scrollHeight ) {
             scrollView.scrollTo( 0,
                 top + height - scrollHeight + ( height >> 1 ), true );
         }
-    },
+    }.queue( 'after' ).nextLoop().queue( 'after' ),
 });
 
 export default OptionsListView;
