@@ -4,6 +4,7 @@ import '../../foundation/EventTarget';  // For Function#on
 import { bind, bindTwoWay } from '../../foundation/Binding';
 import { lookupKey } from '../../dom/DOMEvent';
 import View from '../View';
+import ScrollView from '../containers/ScrollView';
 import ViewEventsController from '../ViewEventsController';
 import SearchTextView from '../controls/SearchTextView';
 
@@ -88,6 +89,7 @@ const MenuFilterView = Class({
 
     keydown: function ( event ) {
         const controller = this.get( 'controller' );
+        let scrollView;
         switch ( lookupKey( event ) ) {
         case 'Escape':
             if ( controller.get( 'search' ) ) {
@@ -116,6 +118,10 @@ const MenuFilterView = Class({
             }
             break;
         default:
+            scrollView = this.getParent( ScrollView );
+            if ( scrollView ) {
+                scrollView.scrollTo( 0, 0, false );
+            }
             return;
         }
         event.stopPropagation();
