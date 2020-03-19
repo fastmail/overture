@@ -133,6 +133,9 @@ export default {
         for ( const property in oldStyles ) {
             if ( !( property in newStyles ) ) {
                 setStyle( layer, property, null );
+                if ( layerAnimation.current ) {
+                    delete layerAnimation.current[ property ];
+                }
             }
         }
     },
