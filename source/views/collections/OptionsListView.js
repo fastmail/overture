@@ -123,9 +123,7 @@ const OptionsListView = Class({
         if ( !view || !scrollView || !this.get( 'isInDocument' ) ) {
             return;
         }
-        const top = view.get( 'index' ) ?
-            view.getPositionRelativeTo( scrollView ).top :
-            0;
+        const top = view.getPositionRelativeTo( scrollView ).top;
         const height = view.get( 'pxHeight' );
         const scrollTop = scrollView.get( 'scrollTop' );
         const scrollHeight = scrollView.get( 'pxHeight' );

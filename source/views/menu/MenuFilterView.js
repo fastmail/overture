@@ -62,6 +62,10 @@ const MenuFilterView = Class({
 
     didFocus: function () {
         this.get( 'controller' ).set( 'isFiltering', true );
+        const scrollView = this.getParent( ScrollView );
+        if ( scrollView ) {
+            scrollView.scrollTo( 0, 0, false );
+        }
     }.on( 'focus' ),
 
     handler: function () {
