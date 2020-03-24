@@ -107,6 +107,10 @@ const MenuView = Class({
         layer.addEventListener( 'mousemove', this, false );
         layer.addEventListener( 'mouseout', this, false );
 
+        if ( !this.showFilter ) {
+            this.scrollView.focus();
+        }
+
         return this;
     },
 
