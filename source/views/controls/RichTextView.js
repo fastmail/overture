@@ -111,8 +111,6 @@ const URLPickerView = Class({
                 start: 0,
                 end: this.get( 'value' ).length,
             }).focus();
-            // IE8 and Safari 6 don't fire this event for some reason.
-            this._input.fire( 'focus' );
         }
     }.nextFrame().observes( 'isInDocument' ),
 
