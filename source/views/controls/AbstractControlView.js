@@ -293,7 +293,10 @@ const AbstractControlView = Class({
             });
             // Fire event synchronously.
             if ( !this.get( 'isFocused' ) ) {
-                this.fire( 'focus' );
+                this.fire( 'focus', {
+                    target: this._domControl,
+                    targetView: this,
+                });
             }
         }
         return this;
@@ -312,7 +315,10 @@ const AbstractControlView = Class({
             this._domControl.blur();
             // Fire event synchronously.
             if ( this.get( 'isFocused' ) ) {
-                this.fire( 'blur' );
+                this.fire( 'blur', {
+                    target: this._domControl,
+                    targetView: this,
+                });
             }
         }
         return this;
