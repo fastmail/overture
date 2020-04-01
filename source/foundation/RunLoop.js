@@ -193,30 +193,26 @@ const RunLoop = {
         Calls O.RunLoop#flushQueue on each queue in the order specified in
         _queueOrder, starting at the first queue again whenever the queue
         indicates something has changed.
-
-        Parameters:
-            queue - {String} name of the queue to flush.
-
-        Returns:
-            {Boolean} Were any functions actually invoked?
     */
     flushAllQueues () {
+        const queues = this._queues;
         const order = this._queueOrder;
         const l = order.length;
         let i = 0;
         while ( i < l ) {
-            // "Render" waits for next frame, except if in bg, since
-            // animation frames don't fire while in the background and we want
-            // to flush queues in a reasonable time, as they may redraw the tab
-            // name, favicon etc.
-            if ( !document.hidden && (
-                    ( i === 3 && !this.mayRedraw ) ) ) {
-                if ( !this._queues.nextFrame.length ) {
-                    requestAnimFrame( nextFrame );
+            const queueName = order[i];
+            if ( queues[ queueName ].length ) {
+                // "Render" waits for next frame, except if in bg, since
+                // animation frames don't fire while in the background and we
+                // want to flush queues in a reasonable time, as they may
+                // redraw the tab name, favicon etc.
+                if ( ( i > 2 && !this.mayRedraw ) && !document.hidden ) {
+                    if ( !queues.nextFrame.length ) {
+                        requestAnimFrame( nextFrame );
+                    }
+                    return;
                 }
-                return;
-            }
-            if ( this.flushQueue( order[i] ) ) {
+                this.flushQueue( queueName );
                 i = 0;
             } else {
                 i = i + 1;
