@@ -119,6 +119,9 @@ export default {
         } else {
             // Or just set.
             layerAnimation.stop();
+            if ( layerAnimation.current ) {
+                oldStyles = layerAnimation.current;
+            }
             layerAnimation.current = newStyles;
             for ( const property in newStyles ) {
                 const value = newStyles[ property ];
