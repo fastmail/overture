@@ -39,12 +39,28 @@ const SingleSelectionController = Class({
     },
 
     recordAtIndexDidChange: function () {
-        if ( !this.get( 'record' ) ) {
-            const content = this.get( 'content' );
-            this.set( 'record', content &&
-                content.getObjectAt( this.get( 'index' ) ) ||
-                null
-            );
+        const record = this.get( 'record' );
+        const content = this.get( 'content' );
+        const recordAtIndex = content &&
+            content.getObjectAt( this.get( 'index' ) ) ||
+            null;
+        if ( !record ) {
+            this.set( 'record', recordAtIndex );
+        } else if ( recordAtIndex !== record ) {
+            // See if we have the new index if list did not fire query:updated
+            // We don't do `this._recordDidChange()` because this will ask the
+            // server for the index if it's not there, which gets expensive in
+            // some common use cases, like an unread filter where everytime you
+            // open a message it disappears from the list. And we don't set it
+            // if the index is -1, because we might be delaying processing a
+            // query update and this will lose the information we need… it's
+            // all a bit messy.
+            const index = content.indexOfStoreKey( record.get( 'storeKey' ) );
+            if ( index > -1 ) {
+                this._ignore = true;
+                this.set( 'index', index );
+                this._ignore = false;
+            }
         }
     }.queue( 'before' ),
 
