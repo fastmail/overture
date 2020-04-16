@@ -293,12 +293,12 @@ const DragController = new Obj({
         const touchEvent = new TouchDragEvent( touch );
         const view = this.getNearestDragView( touchEvent.targetView );
         if ( view && !isControl[ touchEvent.target.nodeName ] ) {
-            this.set( 'drag', new Drag({
+            this._touchId = touch.identifier;
+            new Drag({
                 pointerType: 'touch',
                 dragSource: view,
                 event: touchEvent,
-            }));
-            this._touchId = touch.identifier;
+            });
         }
     }.on( 'hold' ),
 
