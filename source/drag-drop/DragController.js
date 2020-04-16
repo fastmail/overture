@@ -248,6 +248,7 @@ const DragController = new Obj({
                 const view = this.getNearestDragView( this._targetView );
                 if ( view ) {
                     new Drag({
+                        pointerType: 'mouse',
                         dragSource: view,
                         event,
                         startPosition: {
@@ -293,6 +294,7 @@ const DragController = new Obj({
         const view = this.getNearestDragView( touchEvent.targetView );
         if ( view && !isControl[ touchEvent.target.nodeName ] ) {
             this.set( 'drag', new Drag({
+                pointerType: 'touch',
                 dragSource: view,
                 event: touchEvent,
             }));
@@ -378,6 +380,7 @@ const DragController = new Obj({
             event.preventDefault();
         } else {
             new Drag({
+                pointerType: 'unknown',
                 event,
                 isNative: true,
             });
@@ -411,6 +414,7 @@ const DragController = new Obj({
             }
             // Drag from external source
             drag = new Drag({
+                pointerType: 'unknown',
                 event,
                 isNative: true,
                 allowedEffects: effectToString.indexOf( effectAllowed ),
