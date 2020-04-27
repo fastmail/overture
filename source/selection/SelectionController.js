@@ -1,4 +1,4 @@
-import { Class } from '../core/Core';
+import { isDestroyed, Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property, #nocache
@@ -24,6 +24,14 @@ const SelectionController = Class({
         if ( content ) {
             content.on( 'query:updated', this, 'contentWasUpdated' );
         }
+    },
+
+    destroy () {
+        const content = this.get( 'content' );
+        if ( content ) {
+            content.off( 'query:updated', this, 'contentWasUpdated' );
+        }
+        SelectionController.parent.destroy.call( this );
     },
 
     contentDidChange: function ( _, __, oldContent, newContent ) {
@@ -84,7 +92,8 @@ const SelectionController = Class({
     // ---
 
     selectStoreKeys ( storeKeys, isSelected, _selectionId ) {
-        if ( _selectionId && _selectionId !== this._selectionId ) {
+        if ( _selectionId && _selectionId !== this._selectionId ||
+                isDestroyed( this ) ) {
             return;
         }
         // Make sure we've got a boolean
