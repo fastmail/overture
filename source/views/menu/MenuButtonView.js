@@ -169,6 +169,7 @@ const MenuButtonView = Class({
                         'right' :
                     position.left < rootViewWidth - position.right ?
                         'right' : 'left';
+                popOverOptions.keepInHorizontalBounds = true;
                 popOverOptions.showCallout = false;
                 popOverOptions.alignEdge = 'top';
                 popOverOptions.offsetTop =
