@@ -67,9 +67,25 @@ const RecordArray = Class({
             } else {
                 list = list.slice();
             }
-
-            this.set( '[]', list );
+            RecordArray.parent[ '[]' ].call( this, list );
         }
+    },
+
+    updateRecord () {
+        const record = this.get( 'record' );
+        const propKey = this.get( 'propKey' );
+        const attr = record[ propKey ];
+        let value = this._array;
+        this._updatingStore = true;
+        if ( !value.length && attr.isNullable ) {
+            value = null;
+        } else if ( attr.Type === Object ) {
+            value = value.reduce( mapToTrue, {} );
+        } else {
+            value = value.slice();
+        }
+        record[ propKey ].setRaw( record, propKey, value );
+        this._updatingStore = false;
     },
 
     getObjectAt ( index ) {
@@ -86,28 +102,13 @@ const RecordArray = Class({
 
     replaceObjectsAt ( index, numberRemoved, newItems ) {
         newItems = newItems ? slice.call( newItems ) : [];
-
-        const record = this.get( 'record' );
-        const propKey = this.get( 'propKey' );
         const store = this.get( 'store' );
         const oldItems = RecordArray.parent.replaceObjectsAt.call(
-                this, index, numberRemoved, newItems.map( function ( record ) {
-                    return record.get( 'storeKey' );
-                })
-            ).map( function ( storeKey ) {
-                return store.getRecordFromStoreKey( storeKey );
-            });
-        let value = this._array;
-
-        this._updatingStore = true;
-        if ( record[ propKey ].Type === Object ) {
-            value = value.reduce( mapToTrue, {} );
-        } else {
-            value = value.slice();
-        }
-        record[ propKey ].setRaw( record, propKey, value );
-        this._updatingStore = false;
-
+            this, index, numberRemoved, newItems.map( x => x.get( 'storeKey' ) )
+        ).map(
+            storeKey => store.getRecordFromStoreKey( storeKey )
+        );
+        this.updateRecord();
         return oldItems;
     },
 
