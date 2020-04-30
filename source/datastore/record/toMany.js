@@ -88,6 +88,19 @@ const RecordArray = Class({
         this._updatingStore = false;
     },
 
+    '[]': function ( array ) {
+        if ( array ) {
+            RecordArray.parent[ '[]' ].call(
+                this,
+                array.map( x => x.get( 'storeKey' ) )
+            );
+            this.updateRecord();
+        } else {
+            array = this.map( x => x );
+        }
+        return array;
+    }.property(),
+
     getObjectAt ( index ) {
         const storeKey = RecordArray.parent.getObjectAt.call( this, index );
         return storeKey ?
