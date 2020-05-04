@@ -240,7 +240,8 @@ const getDoubleByte = function ( number, offsetFromEnd ) {
 const splitColor = function ( color ) {
     const first = color.indexOf( '(' ) + 1;
     const last = color.lastIndexOf( ')' );
-    return color.slice( first, last ).trim().split( /[, /]+/ );
+    const parts = color.slice( first, last ).trim().split( /[, /]+/ );
+    return parts.length >= 3 ? parts : null;
 };
 
 const parseNumber = function ( string, max ) {
@@ -439,16 +440,16 @@ Object.assign( Color, {
             r = getChannel( number, alphaOffset + 2 );
             g = getChannel( number, alphaOffset + 1 );
             b = getChannel( number, alphaOffset + 0 );
-        } else if ( /^rgb/i.test( color ) ) {
-            parts = splitColor( color );
+        } else if ( /^rgb/i.test( color ) &&
+                ( parts = splitColor( color ) ) ) {
             r = parseNumber( parts[0], 255 );
             g = parseNumber( parts[1], 255 );
             b = parseNumber( parts[2], 255 );
             if ( parts.length > 3 ) {
                 opacity = parseNumber( parts[3], 1 );
             }
-        } else if ( /^hsl/i.test( color ) ) {
-            parts = splitColor( color );
+        } else if ( /^hsl/i.test( color ) &&
+                ( parts = splitColor( color ) ) ) {
             const h = parseNumber( parts[0], 360 );
             const s = parseNumber( parts[1], 1 );
             const l = parseNumber( parts[2], 1 );
