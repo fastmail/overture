@@ -12,6 +12,8 @@
                    committed to the source.
     OBSOLETE     - Changes may have been made to the record in the source which
                    have not yet loaded.
+    UNSAVED      - Sugar for READY|NEW|DIRTY - the record has not yet been
+                   committed to the store.
 */
 
 // Core states:
@@ -26,3 +28,6 @@ export const COMMITTING   =  32;
 export const NEW          =  64;
 export const DIRTY        = 128;
 export const OBSOLETE     = 256;
+
+// Sugar
+export const UNSAVED      = READY|NEW|DIRTY;
