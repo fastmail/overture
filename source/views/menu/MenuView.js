@@ -108,7 +108,8 @@ const MenuView = Class({
         layer.addEventListener( 'mouseout', this, false );
 
         if ( !this.showFilter ) {
-            this.scrollView.focus();
+            const scrollView = this.scrollView;
+            RunLoop.queueFn( 'after', scrollView.focus, scrollView );
         }
 
         return this;
