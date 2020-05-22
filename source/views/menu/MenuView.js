@@ -216,6 +216,7 @@ const MenuView = Class({
                         if ( parent ) {
                             object[ method ]( event );
                             event.preventDefault();
+                            event.stopPropagation();
                         }
                     }
                 }
@@ -223,6 +224,7 @@ const MenuView = Class({
             return;
         }
         event.preventDefault();
+        event.stopPropagation();
     }.on( 'keydown' ),
 });
 
