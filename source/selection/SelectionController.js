@@ -154,6 +154,21 @@ const SelectionController = Class({
         return this;
     },
 
+    selectIndexWithFocusedItem ( index, isSelected,
+            includeRangeFromLastSelected, focusedIndex ) {
+        if ( includeRangeFromLastSelected &&
+                typeof focusedIndex === 'number' && focusedIndex > -1 &&
+                !this.get( 'length' ) ) {
+            this._lastSelectedIndex = focusedIndex;
+        }
+
+        return this.selectIndex(
+            index,
+            isSelected,
+            includeRangeFromLastSelected
+        );
+    },
+
     selectAll () {
         const query = this.get( 'visible' ) || this.get( 'content' );
         const selectionId = ( this._selectionId += 1 );
