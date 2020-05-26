@@ -62,8 +62,17 @@ App.source = new JMAP.Connection({
 */
 App.store = new O.Store({
     source: App.source,
-    autoCommit: false
+    autoCommit: false,
+    getPrimaryAccountIdForType: function (/* Type */) {
+        return 'todo';
+    },
 });
+
+App.store.addAccount ( 'todo', {
+    accountCapabilities: {
+        'https://overturejs.com/Todo/': {}
+    },
+})
 /* A StoreUndoManager hooks into the store to provide automatic undo support.
    Each time the store commits changes to the source, the UndoManager
    automatically records an undo checkpoint.
@@ -100,19 +109,21 @@ var TodoList = O.Class({
         }
     })
 });
+TodoList.dataGroup = 'https://overturejs.com/Todo/';
 
 /*
     We tell the source how to fetch, create, modify etc. TodoLists.
 */
 App.source.handle( TodoList, {
     precedence: 1,
-    fetch: 'getTodoLists',
-    commit: 'setTodoLists',
+    fetch: 'TodoList',
+    commit: 'TodoList',
     // Response handlers
-    todoLists: function ( args ) {
-        this.didFetch( TodoList, args, true );
+    'TodoList/get': function ( args, _, reqArgs ) {
+        const isAll = ( reqArgs.ids === null );
+        this.didFetch( TodoList, args, isAll );
     },
-    todoListsSet: function ( args ) {
+    'TodoList/set': function ( args ) {
         this.didCommit( TodoList, args );
     }
 });
@@ -154,16 +165,18 @@ var Todo = O.Class({
         }
     }.observes( 'isComplete' )
 });
+Todo.dataGroup = 'https://overturejs.com/Todo/';
 
 App.source.handle( Todo, {
     precedence: 2,
-    fetch: 'getTodos',
-    commit: 'setTodos',
+    fetch: 'Todo',
+    commit: 'Todo',
     // Response handlers
-    todos: function ( args ) {
-        this.didFetch( Todo, args, true );
+    'Todo/get': function ( args, _, reqArgs ) {
+        const isAll = ( reqArgs.ids === null );
+        this.didFetch( Todo, args, isAll );
     },
-    todosSet: function ( args ) {
+    'Todo/set': function ( args ) {
         this.didCommit( Todo, args );
     }
 });
@@ -231,15 +244,14 @@ var normaliseBinaryOp = function ( type, children, newChildren ) {
     return newChildren;
 };
 
-var SearchTreeNode = O.Class({
-
-    init: function ( type, value, children ) {
+class SearchTreeNode {
+    constructor ( type, value, children ) {
         this.type = type;
         this.value = value;
         this.children = children || null;
-    },
+    }
 
-    normalise: function () {
+    normalise () {
         var node = this,
             children = node.children,
             type = node.type,
@@ -271,9 +283,9 @@ var SearchTreeNode = O.Class({
             }
         }
         return node;
-    },
+    }
 
-    toFunctionString: function () {
+    toFunctionString () {
         var type = this.type,
             value = this.value,
             children = this.children;
@@ -295,7 +307,7 @@ var SearchTreeNode = O.Class({
         }
         return '';
     }
-});
+}
 
 SearchTreeNode.fromTokens = function ( tokens ) {
     var parents = [],
@@ -371,7 +383,8 @@ App.state = new O.Router({
        lists.
     */
     list: function () {
-        return App.store.getRecord( TodoList, this.get( 'listId' ) );
+        const listId = this.get( 'listId' );
+        return App.store.getRecord( null, TodoList, listId );
     }.property( 'listId' ),
 
     /* An observable collection of Todo instances that belong to the currently
@@ -386,7 +399,7 @@ App.state = new O.Router({
             filter;
 
         if ( listId ) {
-            listId = App.store.getStoreKey( TodoList, listId );
+            listId = App.store.getStoreKey( null, TodoList, listId );
         }
 
         filter = new Function( 'data', 'return' +
@@ -401,7 +414,7 @@ App.state = new O.Router({
                 return ( a.precedence - b.precedence ) ||
                     ( a.id < b.id ? -1 : a.id > b.id ? 1 : 0 );
             },
-            filter: filter
+            where: filter
         });
     }.property( 'listId', 'search' ),
 
@@ -466,10 +479,6 @@ App.state = new O.Router({
 
     // URL routing (state encoding/decoding)
 
-    /* To use HTML5 URL rewriting, the router needs to know where the app is
-       located relative to the root of the domain. */
-    baseUrl: '/examples/Todo/',
-
     /* This is the URL the browser should show. This is dependent on the current
        selected TodoList, but I've decided not to encode any search in the URL.
     */
@@ -486,7 +495,7 @@ App.state = new O.Router({
     routes: [
         {
             url: /^(.*?)\/$/,
-            handle: function ( _, listId ) {
+            handle: function ( _, queryParams, listId ) {
                 this.set( 'listId', listId );
             }
         },
@@ -618,7 +627,7 @@ App.keyboardShortcuts = new O.GlobalKeyboardShortcuts()
     .register( 'ArrowUp', App.actions, 'selectPrevious' )
     .register( 'j', App.actions, 'selectNext' )
     .register( 'k', App.actions, 'selectPrevious' )
-    .register( 'Cmd-Shift-z', App.undoManager, 'redo' )
+    .register( 'Cmd-Shift-Z', App.undoManager, 'redo' )
     .register( 'Space', App.actions, 'toggleComplete' )
     .register( 'Tab', App.actions, 'edit' )
     .register( 'Backspace', App.actions, 'destroy' );

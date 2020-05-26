@@ -3,9 +3,36 @@
 
 ( function () {
 
+var confirmCommit = function ( args, extras ) {
+    var result = {};
+    if ( args.create ) {
+        result.created = Object.zip(
+            Object.keys( args.create ),
+            Object.keys( args.create ).map( function ( id ) {
+                return Object.assign(
+                    { id: 'committed' + id.slice( 1 ) }, extras );
+            })
+        );
+    }
+    if ( args.update )  {
+        result.updated = Object.zip(
+            Object.keys( args.update ),
+            Object.keys( args.update ).map( function () {
+                return null;
+            })
+        );
+    }
+    if ( args.destroy ) {
+        result.destroyed = args.destroy;
+    }
+    result.fromAccountId = args.fromAccountId;
+    result.toAccountId = args.toAccountId;
+    return result;
+};
+
 var API = {
-    getTodoLists: function ( results/*, args*/ ) {
-        results.push([ 'todoLists', {
+    'TodoList/get': function ( results/*, args*/ ) {
+        results.push([ 'TodoList/get', {
             state: 'foo',
             list: [{
                 id: 'inbox',
@@ -16,15 +43,11 @@ var API = {
             }]
         }]);
     },
-    setTodoLists: function ( results, args ) {
-        results.push([ 'todoListsSet', {
-            created: Object.zip( Object.keys( args.create ), Object.keys( args.create ) ),
-            updated: Object.keys( args.update ),
-            destroyed: Object.keys( args.destroy )
-        }]);
+    'TodoList/set': function ( results, args ) {
+        results.push([ 'TodoList/set', confirmCommit( args ) ]);
     },
-    getTodos: function ( results/*, args*/ ) {
-        results.push([ 'todos', {
+    'Todo/get': function ( results/*, args*/ ) {
+        results.push([ 'Todo/get', {
             state: 'foo',
             list: [{
                 id: 't1',
@@ -79,12 +102,8 @@ var API = {
             }]
         }]);
     },
-    setTodos: function ( results, args ) {
-        results.push([ 'todosSet', {
-            created: Object.zip( Object.keys( args.create ), Object.keys( args.create ) ),
-            updated: Object.keys( args.update ),
-            destroyed: Object.keys( args.destroy )
-        }]);
+    'Todo/set': function ( results, args ) {
+        results.push([ 'Todo/set', confirmCommit( args ) ]);
     },
 };
 
@@ -130,7 +149,7 @@ XMLHttpRequest.prototype.getAllResponseHeaders = function () {
 XMLHttpRequest.prototype._returnResultForData = function ( data ) {
     var methods = [];
     try {
-        methods = JSON.parse( data ) || [];
+        methods = JSON.parse( data ).methodCalls || [];
     } catch ( error ) {}
     var result = [],
         k = 0, kk;
@@ -145,7 +164,7 @@ XMLHttpRequest.prototype._returnResultForData = function ( data ) {
     }
     this.readyState = 4;
     this.status = 200;
-    this.response = result;
+    this.response = { methodResponses: result };
     this.onreadystatechange();
 };
 
