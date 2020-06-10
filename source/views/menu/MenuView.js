@@ -31,7 +31,8 @@ const MenuOption = Class({
     }.property().nocache(),
 
     name: function () {
-        return this.get( 'button' ).get( 'label' );
+        const button = this.get( 'button' );
+        return button.get( 'filterName' ) || button.get( 'label' );
     }.property().nocache(),
 });
 
