@@ -189,7 +189,7 @@ const GlobalKeyboardShortcuts = Class({
         const key = lookupKey( event );
         const allowedInInput =
             ( isApple ? event.metaKey : event.ctrlKey ) &&
-            /-(?:.|Enter)$/.test( key );
+            ( event.altKey || /-(?:.|Enter)$/.test( key ) );
         const inputIsFocused = (
             nodeName === 'TEXTAREA' ||
             nodeName === 'SELECT' ||
