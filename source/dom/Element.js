@@ -305,6 +305,22 @@ const create = function ( tag, props, children ) {
 };
 
 /**
+    Function: O.Element.getStyle
+
+    Gets the value of a CSS style on the element.
+
+    Parameters:
+        el    - {Element} The element to get the style from.
+        style - {String} The name of the style to get.
+
+    Returns:
+        {String} Returns the style value.
+*/
+const getStyle = function ( el, style ) {
+    return window.getComputedStyle( el ).getPropertyValue( style );
+};
+
+/**
     Function: O.Element.setStyle
 
     Sets a CSS style on the element.
@@ -567,6 +583,7 @@ export {
     create,
     setAttributes,
     appendChildren,
+    getStyle,
     setStyle,
     setStyles,
     contains,
