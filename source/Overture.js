@@ -77,6 +77,7 @@ export { default as StyleAnimation } from './animation/StyleAnimation';
 import * as keyboardShortcuts from './application/keyboardShortcuts';
 export { keyboardShortcuts };
 export { default as formatKeyForPlatform } from './application/formatKeyForPlatform';
+export { default as toPlatformKey } from './application/toPlatformKey';
 export { default as GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts';
 export { default as Router } from './application/Router';
 export { default as ThemeManager } from './application/ThemeManager';

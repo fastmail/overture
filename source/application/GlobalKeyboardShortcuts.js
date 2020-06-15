@@ -6,6 +6,7 @@ import { lookupKey } from '../dom/DOMEvent';
 import RichTextView from '../views/controls/RichTextView';
 import ViewEventsController from '../views/ViewEventsController';
 import { DEFAULT_IN_INPUT, ACTIVE_IN_INPUT, DISABLE_IN_INPUT } from './keyboardShortcuts.js';
+import toPlatformKey from './toPlatformKey';
 
 const allowedInputs = {
     checkbox: 1,
@@ -15,21 +16,6 @@ const allowedInputs = {
 };
 
 const handleOnDown = {};
-
-const toPlatformKey = function ( key ) {
-    if ( key.contains( 'Cmd-' ) ) {
-        key = key.replace( 'Cmd-', isApple ? 'Meta-' : 'Ctrl-' );
-        if ( !isApple &&
-                key.contains( 'Shift-' ) &&
-                key.charAt( key.length - 2 ) === '-' ) {
-            // The shift modifier is applied to the key returned (so it is
-            // uppercase) if the Ctrl key is pressed, but not if Meta is
-            // pressed
-            key = key.slice( 0, -1 ) + key.slice( -1 ).toUpperCase();
-        }
-    }
-    return key;
-};
 
 /**
     Class: O.GlobalKeyboardShortcuts
