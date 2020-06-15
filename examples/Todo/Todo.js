@@ -900,7 +900,7 @@ var appView = new O.View({
                     })
                 ];
             }
-        })
+        }),
     ],
     newTodo: function ( event ) {
         if ( event.targetView === this ) {
@@ -911,6 +911,18 @@ var appView = new O.View({
 
 /* Insert the view we've constructred into the document */
 App.views.mainWindow.insertView( appView );
+
+/* Create and insert the shortcut overlay */
+const shortcutOverlayController = new O.KeyDownController({
+    delay: 400,
+});
+
+const shortcutOverlayView = O.when( shortcutOverlayController, 'isKeyDown' )
+    .show([
+        new O.ShortcutOverlayView({ shortcuts: App.keyboardShortcuts }),
+    ]).end();
+
+App.views.mainWindow.insertView( shortcutOverlayView );
 
 /*  Because this setup code is not being run inside a run loop, we now need to
     flush all queues. Other than this, the queues will be managed completely
