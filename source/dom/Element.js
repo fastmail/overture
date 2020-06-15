@@ -578,6 +578,26 @@ Object.toCSSString = function ( object ) {
     return result;
 };
 
+/**
+    Function: O.Element.getAncestors
+
+    Gets an array of all the elements ancestors, including itself.
+
+    Parameters:
+        el - {Element} The element whose ancestors will be returned.
+
+    Returns:
+        {Element[]} An array of elements.
+*/
+const getAncestors = function ( el ) {
+    const ancestors = [];
+    while ( el ) {
+        ancestors.push( el );
+        el = el.parentElement;
+    }
+    return ancestors.reverse();
+};
+
 export {
     forView,
     create,
@@ -589,6 +609,7 @@ export {
     contains,
     nearest,
     getPosition,
+    getAncestors,
 };
 
 // TODO(cmorgan/modulify): do something about these exports: Object.toCSSString
