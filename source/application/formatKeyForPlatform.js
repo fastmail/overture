@@ -17,6 +17,18 @@ const platformKeys = {
     Delete: isApple ? '⌦' : 'Delete',
 };
 
+const modifierOrder = ( isApple ?
+    [ 'Ctrl', 'Alt', 'Shift', 'Cmd', 'Meta' ] :
+    [ 'Meta', 'Cmd', 'Ctrl', 'Alt', 'Shift' ]
+).reduce( ( order, x, index ) => {
+    order[x] = index + 1;
+    return order;
+}, {} );
+
+const sortModifierKeys = function ( a, b ) {
+    return ( modifierOrder[a] || 9 ) - ( modifierOrder[b] || 9 );
+};
+
 /**
     Function: O.formatKeyForPlatform
 
@@ -28,7 +40,7 @@ const platformKeys = {
         {String} The shortcut formatted for display on the user's platform.
 */
 export default function formatKeyForPlatform ( shortcut ) {
-    return shortcut.split( '-' ).map(
+    return shortcut.split( '-' ).sort( sortModifierKeys ).map(
         key => platformKeys[ key ] || key.capitalise()
     ).join( '' );
 }
