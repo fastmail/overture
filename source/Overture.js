@@ -189,6 +189,7 @@ export { default as ClearSearchButtonView } from './views/controls/ClearSearchBu
 export { default as FileButtonView } from './views/controls/FileButtonView';
 export { default as LabelView } from './views/controls/LabelView';
 export { default as KeyDownController } from './views/controls/KeyDownController';
+export { ShortcutView, ShortcutOverlayView } from './views/controls/ShortcutOverlayView';
 export { default as MenuOptionView } from './views/menu/MenuOptionView';
 export { default as MenuFilterView } from './views/menu/MenuFilterView';
 export { default as MenuButtonView } from './views/menu/MenuButtonView';

@@ -6,6 +6,7 @@ import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/LocaleController';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
+import toPlatformKey from '../../application/toPlatformKey';
 import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';
 import { isIOS } from '../../ua/UA';
 import { appendChildren, create as el } from '../../dom/Element';
@@ -114,6 +115,15 @@ const AbstractControlView = Class({
                     .join( ' ' + loc( 'or' ) + ' ' )
             ) : '';
     }.property( 'shortcut' ),
+
+    getShortcutTarget ( key ) {
+        const shortcut = this.get( 'shortcut' ).split( ' ' )[0];
+        if ( shortcut === '' ) {
+            return null;
+        }
+
+        return toPlatformKey( shortcut ) === key ? this.get( 'layer' ) : null;
+    },
 
     /**
         Method: O.AbstractControlView#didEnterDocument

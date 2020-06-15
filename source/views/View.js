@@ -1275,6 +1275,25 @@ const View = Class({
         } while ( parent && !condition( parent ) );
         return parent || null;
     },
+
+    /**
+        Method: O.View#getShortcutTarget
+
+        Get the DOM node that should be targeted when drawing the tooltip
+        for this shortcut.
+
+        Parameters:
+            key - {String} The key combination for the shortcut whose
+            tooltip will be drawn.
+
+        Returns:
+            {Element[]|null} The DOM nodes that the tooltip should be drawn
+            above or null if no tooltip should be displayed.
+    */
+
+    getShortcutTarget (/*  key  */) {
+        return null;
+    },
 });
 
 // Expose Globals:
