@@ -5,7 +5,11 @@ import { isApple } from '../ua/UA';
 import { lookupKey } from '../dom/DOMEvent';
 import RichTextView from '../views/controls/RichTextView';
 import ViewEventsController from '../views/ViewEventsController';
-import { DEFAULT_IN_INPUT, ACTIVE_IN_INPUT, DISABLE_IN_INPUT } from './keyboardShortcuts.js';
+import {
+    DEFAULT_IN_INPUT,
+    ACTIVE_IN_INPUT,
+    DISABLE_IN_INPUT,
+} from './keyboardShortcuts.js';
 import toPlatformKey from './toPlatformKey';
 
 const allowedInputs = {
