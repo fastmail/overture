@@ -226,31 +226,10 @@ const RichTextView = Class({
             editor.moveCursorToStart();
         }
 
-        const scrollView = this.getParent( ScrollView );
-        if ( scrollView && this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
-            scrollView.addObserverForKey(
-                'scrollTop', this, '_calcToolbarPosition' );
-            // Need to queue rather than call immediately because the toolbar
-            // will be in the rich text view and if we need to make it sticky
-            // we need to shift it round. But we're in the middle of the
-            // will/did enter callbacks, so we might end up in an inconsistent
-            // state.
-            RunLoop.queueFn( 'after', this._calcToolbarPosition.bind( this,
-                scrollView, '', 0, scrollView.get( 'scrollTop' ) ) );
-        }
-
         return this;
     },
 
     willLeaveDocument () {
-        const scrollView = this.getParent( ScrollView );
-        if ( scrollView && this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ) {
-            scrollView.removeObserverForKey(
-                'scrollTop', this, '_calcToolbarPosition' );
-            this._setToolbarPosition(
-                scrollView, this.get( 'toolbarView' ), false );
-        }
-
         // If focused, save cursor position
         if ( this.get( 'isFocused' ) ) {
             const selection = this.get( 'editor' ).getSelection();
@@ -363,6 +342,8 @@ const RichTextView = Class({
         const offsetTop = cursorPosition.top - scrollViewOffsetTop;
         const offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
         let scrollViewHeight = scrollView.get( 'pxHeight' );
+        const toolbarHeight = this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ?
+            this.getFromPath( 'toolbarView.pxHeight' ) : 0;
         let scrollBy = 0;
         if ( isIOS ) {
             scrollViewHeight -=
@@ -370,7 +351,7 @@ const RichTextView = Class({
                 ( document.body.offsetHeight - window.innerHeight );
         }
         if ( offsetTop - 15 < 0 ) {
-            scrollBy = offsetTop - 15;
+            scrollBy = offsetTop - 15 - toolbarHeight;
         } else if ( offsetBottom + 15 > scrollViewHeight ) {
             scrollBy = offsetBottom + 15 - scrollViewHeight;
         }
@@ -378,57 +359,6 @@ const RichTextView = Class({
             scrollView.scrollBy( 0, Math.round( scrollBy ), true );
         }
     }.queue( 'after' ).on( 'cursor' ),
-
-    _calcToolbarPosition ( scrollView, _, __, scrollTop ) {
-        const toolbarView = this.get( 'toolbarView' );
-        let offsetHeight = this._offsetHeight;
-        let offsetTop = this._offsetTop;
-        const now = Date.now();
-        const wasSticky = toolbarView.get( 'parentView' ) !== this;
-
-        // For performance, cache the size and position for 1/2 second from last
-        // use.
-        if ( !offsetTop || this._offsetExpiry < now ) {
-            this._offsetHeight = offsetHeight =
-                this.get( 'layer' ).offsetHeight;
-            this._offsetTop = offsetTop =
-                Math.floor( this.getPositionRelativeTo( scrollView ).top );
-        }
-        this._offsetExpiry = now + 500;
-
-        const isSticky =
-            scrollTop > offsetTop &&
-            scrollTop < offsetTop + offsetHeight -
-                ( scrollView.get( 'pxHeight' ) >> 2 );
-
-        if ( isSticky !== wasSticky ) {
-            this._setToolbarPosition( scrollView, toolbarView, isSticky );
-        }
-    },
-
-    _setToolbarPosition ( scrollView, toolbarView, isSticky ) {
-        if ( isSticky ) {
-            const newParent = scrollView.get( 'parentView' );
-            const position = toolbarView.getPositionRelativeTo( newParent );
-            // Need to account separately for any border in the new parent.
-            const borders = scrollView.getPositionRelativeTo( newParent );
-            toolbarView
-                .set( 'layout', {
-                    top: scrollView.get( 'pxTop' ),
-                    left: position.left - borders.left,
-                    width: toolbarView.get( 'pxWidth' ),
-                });
-            newParent.insertView( toolbarView );
-        } else {
-            toolbarView
-                .set( 'layout', {
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                });
-            this.insertView( toolbarView, null, 'top' );
-        }
-    },
 
     // ---
 
@@ -501,16 +431,7 @@ const RichTextView = Class({
 
         return new ToolbarView({
             className: 'v-Toolbar v-RichText-toolbar',
-            positioning: 'absolute',
-            layout: showToolbar === TOOLBAR_AT_SELECTION ?
-                bind( this, 'floatingToolbarLayout' ) :
-                {
-                    overflow: 'hidden',
-                    zIndex: 1,
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                },
+            positioning: 'sticky',
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
         }).registerViews({
             bold: new ButtonView({
