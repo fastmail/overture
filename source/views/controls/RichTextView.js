@@ -14,7 +14,7 @@ import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
 import { loc } from '../../localisation/LocaleController';
-import { isIOS, isApple } from '../../ua/UA';
+import { isIOS, isApple, isAndroid } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import ScrollView from '../containers/ScrollView';
@@ -54,16 +54,7 @@ const urlRegExp =
 const popOver = new PopOverView();
 
 const TOOLBAR_HIDDEN = 0;
-const TOOLBAR_INLINE = 1;
-const TOOLBAR_AT_SELECTION = 2;
-const TOOLBAR_AT_TOP = 3;
-
-const hiddenFloatingToolbarLayout = {
-    top: 0,
-    left: 0,
-    maxWidth: '100%',
-    transform: 'translate3d(-100vw,0,0)',
-};
+const TOOLBAR_AT_TOP = 1;
 
 const URLPickerView = Class({
 
@@ -143,7 +134,7 @@ const RichTextView = Class({
 
     // ---
 
-    showToolbar: isIOS ? TOOLBAR_AT_SELECTION : TOOLBAR_AT_TOP,
+    showToolbar: isIOS || isAndroid ? TOOLBAR_HIDDEN : TOOLBAR_AT_TOP,
     fontFaceOptions: function () {
         return [
             [ loc( 'Default' ), null ],
@@ -359,49 +350,6 @@ const RichTextView = Class({
             scrollView.scrollBy( 0, Math.round( scrollBy ), true );
         }
     }.queue( 'after' ).on( 'cursor' ),
-
-    // ---
-
-    floatingToolbarLayout: hiddenFloatingToolbarLayout,
-
-    hideFloatingToolbar: function () {
-        this.set( 'floatingToolbarLayout', hiddenFloatingToolbarLayout );
-    }.on( 'cursor' ),
-
-    showFloatingToolbar () {
-        if ( this.get( 'showToolbar' ) !== TOOLBAR_AT_SELECTION ) {
-            return;
-        }
-        const range = this.get( 'editor' ).getSelection();
-        let node = isIOS ? range.endContainer : range.startContainer;
-        if ( node.nodeType !== 1 /* Node.ELEMENT_NODE */ ) {
-            node = node.parentNode;
-        }
-        const position = getPosition( node, this.get( 'layer' ) );
-        this.set( 'floatingToolbarLayout', {
-            top: 0,
-            left: 0,
-            maxWidth: '100%',
-            transform: 'translate3d(0,' + (
-                isIOS ?
-                position.top + position.height + 10 :
-                position.top -
-                    this.get( 'toolbarView' ).get( 'pxHeight' ) - 10
-            ) + 'px,0)',
-        });
-    },
-
-    showFloatingToolbarIfSelection: function () {
-        const toolbarIsVisible =
-                this.get( 'floatingToolbarLayout' ) !==
-                    hiddenFloatingToolbarLayout;
-        if ( !toolbarIsVisible && this.get( 'isTextSelected' ) ) {
-            this.showFloatingToolbar();
-        }
-    // (You might think 'select' was the right event to hook onto, but that
-    // causes trouble as it shows the toolbar while the mouse is still down,
-    // which gets in the way of the selection. So mouseup it is.)
-    }.on( 'mouseup', 'keyup' ),
 
     // ---
 
@@ -1201,8 +1149,6 @@ const RichTextView = Class({
 });
 
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
-RichTextView.TOOLBAR_INLINE = TOOLBAR_INLINE;
-RichTextView.TOOLBAR_AT_SELECTION = TOOLBAR_AT_SELECTION;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 
 export default RichTextView;
