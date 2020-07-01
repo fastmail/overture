@@ -336,15 +336,16 @@ const RichTextView = Class({
         const toolbarHeight = this.get( 'showToolbar' ) === TOOLBAR_AT_TOP ?
             this.getFromPath( 'toolbarView.pxHeight' ) : 0;
         let scrollBy = 0;
+        const minimumGapToScrollEdge = 15;
         if ( isIOS ) {
             scrollViewHeight -=
                 // Keyboard height (in WKWebView, but not Safari)
                 ( document.body.offsetHeight - window.innerHeight );
         }
-        if ( offsetTop - 15 < 0 ) {
-            scrollBy = offsetTop - 15 - toolbarHeight;
-        } else if ( offsetBottom + 15 > scrollViewHeight ) {
-            scrollBy = offsetBottom + 15 - scrollViewHeight;
+        if ( offsetTop < toolbarHeight + minimumGapToScrollEdge ) {
+            scrollBy = offsetTop - toolbarHeight - minimumGapToScrollEdge;
+        } else if ( offsetBottom > scrollViewHeight - minimumGapToScrollEdge ) {
+            scrollBy = offsetBottom + minimumGapToScrollEdge - scrollViewHeight;
         }
         if ( scrollBy ) {
             scrollView.scrollBy( 0, Math.round( scrollBy ), true );
