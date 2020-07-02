@@ -27,6 +27,7 @@ const etSearch = function ( candidate, b ) {
     40  - MouseEventRemover
     30  - GestureManager
     20  - DragController
+    15  - MenuFilterView
     10  - ModalViewHandler
     -10 - GlobalKeyboardShortcuts
 

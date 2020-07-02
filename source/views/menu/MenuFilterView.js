@@ -76,14 +76,14 @@ const MenuFilterView = Class({
                 if ( !this.view.get( 'isFocused' ) ) {
                     this.controller.set( 'isFiltering', false );
                 }
-            }.on( 'click', 'keydown' ),
+            }.queue( 'after' ).on( 'click', 'keydown' ),
         });
     }.property(),
 
     captureEvents: function ( _, __, ___, isFiltering ) {
         const handler = this.get( 'handler' );
         if ( isFiltering ) {
-            ViewEventsController.addEventTarget( handler, -5 );
+            ViewEventsController.addEventTarget( handler, 15 );
         } else {
             ViewEventsController.removeEventTarget( handler );
         }
