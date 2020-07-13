@@ -9,7 +9,7 @@ import { bind, bindTwoWay } from '../../foundation/Binding';
 import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import { getPosition, nearest, create as el } from '../../dom/Element';
+import { nearest, create as el } from '../../dom/Element';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
