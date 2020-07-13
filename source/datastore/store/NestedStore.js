@@ -66,6 +66,7 @@ const NestedStore = Class({
     */
     destroy () {
         this._parentStore.removeNested( this );
+        NestedStore.parent.destroy.call( this );
     },
 
     // === Client API ==========================================================
