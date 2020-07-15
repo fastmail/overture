@@ -3,6 +3,14 @@ import '../core/Array';  // For Array#erase
 import RunLoop from '../foundation/RunLoop';
 import Easing from './Easing';
 
+// Does the used prefer reduced motion?
+const reduceMotionQuery = window.matchMedia(
+    '(prefers-reduced-motion:reduce)'
+);
+
+let reduceMotion = reduceMotionQuery.matches;
+reduceMotionQuery.addListener( ev => reduceMotion = ev.matches );
+
 // List of currently active animations
 const animations = [];
 
@@ -43,7 +51,7 @@ const nextFrame = function () {
                 }
                 animTime = time - animTime;
                 const duration = animation.duration;
-                if ( animTime < duration ) {
+                if ( animTime < duration && !reduceMotion ) {
                     animation.drawFrame(
                         // Normalised position along timeline [0..1].
                         animation.ease( animTime / duration ),
