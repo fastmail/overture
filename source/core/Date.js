@@ -549,7 +549,7 @@ Object.assign( Date.prototype, {
                 return utc ? date.getUTCFullYear() : date.getFullYear();
             case 'z':
                 // Timezone offset
-                offset = date.getTimezoneOffset();
+                offset = Math.round( date.getTimezoneOffset() );
                 sign = ( offset > 0 ? '-' : '+' );
                 offset = Math.abs( offset );
                 hoursOffset = ~~( offset / 60 );
