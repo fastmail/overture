@@ -4,6 +4,7 @@ import Obj from '../foundation/Object';
 import RunLoop from '../foundation/RunLoop';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property
+import { setView } from '../_codependent/_View';
 import {
     create as el,
     forView,
@@ -1295,6 +1296,9 @@ const View = Class({
         return null;
     },
 });
+
+// Removes circular dependency
+setView( View );
 
 // Expose Globals:
 

@@ -4,7 +4,7 @@ import '../core/String';  // For String#camelCase, #contains, #hyphenate
 import { browser } from '../ua/UA';
 import Binding from '../foundation/Binding';
 import RunLoop from '../foundation/RunLoop';
-import View from '../views/View';  // Circular but it's OK
+import { View } from '../_codependent/_View';
 
 /**
     Module: DOM
@@ -226,7 +226,7 @@ const appendChildren = function ( el, children ) {
         if ( node ) {
             if ( node instanceof Array ) {
                 appendChildren( el, node );
-            } else if ( node instanceof View ) {
+            } else if ( View && ( node instanceof View ) ) {
                 view.insertView( node, el );
             } else {
                 if ( typeof node !== 'object' ) {
