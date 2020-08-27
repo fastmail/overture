@@ -129,18 +129,19 @@ const Enumerable = {
     },
 
     /**
-        Method: O.Enumerable#contains
+        Method: O.Enumerable#includes
 
         Tests whether the item is in the enumerable.
 
         Parameters:
             item - {*} The item to check.
+            from - {Number} (optional) The index to start searching from.
 
         Returns:
             {Boolean} True if the item is present.
     */
-    contains ( item ) {
-        return this.indexOf( item ) > -1;
+    includes ( item, from ) {
+        return this.indexOf( item, from ) > -1;
     },
 
     /**
@@ -356,8 +357,7 @@ const Enumerable = {
 };
 
 // Copy the Enumerable methods to `Array.prototype`. This should be only the
-// following: first last, binarySearch and contains.
-// TODO: replace `contains` completely with the standardised method `includes`.
+// following: first, last and binarySearch.
 for ( const key in Enumerable ) {
     if ( !Array.prototype.hasOwnProperty( key ) ) {
         Array.prototype[ key ] = Enumerable[ key ];

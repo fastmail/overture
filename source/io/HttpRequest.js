@@ -169,7 +169,7 @@ const HttpRequest = Class({
         const transport = new XHR();
 
         if ( data && method === 'GET' ) {
-            url += ( url.contains( '?' ) ? '&' : '?' ) + data;
+            url += ( url.includes( '?' ) ? '&' : '?' ) + data;
             data = null;
         }
         const contentType = headers[ 'Content-type' ];

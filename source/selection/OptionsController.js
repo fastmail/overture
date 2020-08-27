@@ -107,7 +107,7 @@ const OptionsController = Class({
         if ( !this.get( 'isFiltering' ) ) {
             this.focus( null );
         } else if ( !focused || !this.mayFocus( focused ) ||
-                !this.get( 'options' ).contains( focused ) ) {
+                !this.get( 'options' ).includes( focused ) ) {
             this.focus( null ).focusNext();
         }
     }.observes( 'isFiltering' ),

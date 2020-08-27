@@ -12,10 +12,10 @@ import { isApple } from '../ua/UA';
         {String} The corresponding key mapped for the user's platform.
 */
 export default function toPlatformKey ( key ) {
-    if ( key.contains( 'Cmd-' ) ) {
+    if ( key.includes( 'Cmd-' ) ) {
         key = key.replace( 'Cmd-', isApple ? 'Meta-' : 'Ctrl-' );
         if ( !isApple &&
-                key.contains( 'Shift-' ) &&
+                key.includes( 'Shift-' ) &&
                 key.charAt( key.length - 2 ) === '-' ) {
             // The shift modifier is applied to the key returned (so it is
             // uppercase) if the Ctrl key is pressed, but not if Meta is

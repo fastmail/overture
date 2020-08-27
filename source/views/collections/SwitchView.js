@@ -144,7 +144,7 @@ const SwitchView = Class({
             this._remove( oldParent );
         }
         if ( newParent ) {
-            if ( newParent.get( 'childViews' ).contains( this ) ) {
+            if ( newParent.get( 'childViews' ).includes( this ) ) {
                 // If we already know where we are in the parent view, we can
                 // add our real views immediately.
                 this._add();
