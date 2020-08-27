@@ -4,7 +4,7 @@ import { Class } from '../core/Core';
 import '../core/Array';  // For Array#include
 import '../core/String';  // For String#contains
 import Obj from '../foundation/Object';
-import RunLoop from '../foundation/RunLoop';  // Also Function#queue
+import * as RunLoop from '../foundation/RunLoop';  // Also Function#queue
 import '../foundation/ComputedProps';  // For Function#property
 import { create as el } from '../dom/Element';
 import { create as createStylesheet } from '../dom/Stylesheet';

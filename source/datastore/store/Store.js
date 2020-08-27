@@ -3,7 +3,7 @@
 import { Class, meta, isEqual, guid, clone } from '../../core/Core';
 import '../../core/Object';  // For Object.filter and Object.keyOf
 import '../../core/Array';  // For Array#erase
-import RunLoop from '../../foundation/RunLoop';
+import * as RunLoop from '../../foundation/RunLoop';
 import Obj from '../../foundation/Object';
 import Event from '../../foundation/Event';
 import EventTarget from '../../foundation/EventTarget';

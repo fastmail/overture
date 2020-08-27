@@ -2,7 +2,7 @@ import { meta } from '../core/Core';
 import '../core/Array';  // For Array#erase
 
 import Event from './Event';
-import RunLoop from './RunLoop';
+import * as RunLoop from './RunLoop';
 
 const slice = Array.prototype.slice;
 const eventPrefix = '__event__';

@@ -1,5 +1,5 @@
 import Event from '../foundation/Event';
-import RunLoop from '../foundation/RunLoop';
+import * as RunLoop from '../foundation/RunLoop';
 import ViewEventsController from '../views/ViewEventsController';
 import Tap from './Tap';
 import Gesture from './Gesture';

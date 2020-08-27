@@ -2,7 +2,7 @@ import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import '../../foundation/EventTarget';  // For Function#on
-import RunLoop from '../../foundation/RunLoop';
+import * as RunLoop from '../../foundation/RunLoop';
 import { lookupKey } from '../../dom/DOMEvent';
 import { create as el } from '../../dom/Element';
 

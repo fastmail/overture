@@ -1,6 +1,6 @@
 import { meta } from '../core/Core';
 import '../core/Array';  // For Array#erase
-import RunLoop from '../foundation/RunLoop';
+import * as RunLoop from '../foundation/RunLoop';
 import Easing from './Easing';
 
 // Does the used prefer reduced motion?

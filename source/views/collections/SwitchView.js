@@ -2,7 +2,7 @@
 
 import { isDestroyed, Class } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
-import RunLoop from '../../foundation/RunLoop';
+import * as RunLoop from '../../foundation/RunLoop';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import View from '../View';

@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core';
 import '../../foundation/ObservableProps';  // For Function#observes
-import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
+import * as RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import ScrollView from '../containers/ScrollView';
 import ListView from './ListView';
 import TrueVisibleRect from './TrueVisibleRect';

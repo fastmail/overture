@@ -77,408 +77,410 @@ const parentsBeforeChildren = function ( a, b ) {
     To use, wrap the entry point functions in a call to <O.RunLoop.invoke>.
 */
 
-// eslint-disable-next-line prefer-const
-let nextLoop, processTimeouts, nextFrame;
-// (Because of a false positive. TODO(cmorgan): report this as a bug in eslint.)
+let frameStartTime = 0;
+let mayRedraw = false;
 
-const RunLoop = {
+/**
+    Property (private): O.RunLoop._queueOrder
+    Type: String[]
 
-    mayRedraw: false,
+    The order in which to flush the queues.
+*/
+const _queueOrder = [ 'before', 'bindings', 'middle', 'render', 'after' ];
 
-    /**
-        Property (private): O.RunLoop._queueOrder
-        Type: String[]
+/**
+    Property (private): O.RunLoop._queues
+    Type: Object
 
-        The order in which to flush the queues.
-    */
-    _queueOrder: [ 'before', 'bindings', 'middle', 'render', 'after' ],
-
-    /**
-        Property (private): O.RunLoop._queues
-        Type: Object
-
-        Collection of queues. Each queue contains [fn, bind] tuples to call at
-        <O.RunLoop.end>.
-    */
-    _queues: {
-        before: [],
-        bindings: [],
-        middle: [],
-        render: [],
-        after: [],
-        nextLoop: [],
-        nextFrame: [],
-    },
-
-    /**
-        Property (private): O.RunLoop._timeouts
-        Type: O.Heap
-
-        A priority queue of timeouts.
-    */
-    _timeouts: new Heap( function ( a, b ) {
-        return a.time - b.time;
-    }),
-
-    /**
-        Property (private): O.RunLoop._nextTimeout
-        Type: Number
-
-        Epoch time that the next browser timeout is scheduled for.
-    */
-    _nextTimeout: 0,
-
-    /**
-        Property (private): O.RunLoop._timer
-        Type: Number
-
-        The browser timer id (response from setTimeout), which you need if
-        you want to cancel the timeout.
-    */
-    _timer: null,
-
-    /**
-        Property (private): O.RunLoop._depth
-        Type: Number
-
-        Number of calls to <O.RunLoop.invoke> currently in stack.
-    */
-    _depth: 0,
-
-    /**
-        Method: O.RunLoop.flushQueue
-
-        Invokes each function in an array of [function, object] tuples, binding
-        the this parameter of the function to the object, and empties the array.
-
-        Parameters:
-            queue - {String} name of the queue to flush.
-
-        Returns:
-            {Boolean} Were any functions actually invoked?
-    */
-    flushQueue ( queue ) {
-        const toInvoke = this._queues[ queue ];
-        const l = toInvoke.length;
-
-        if ( l ) {
-            this._queues[ queue ] = [];
-
-            if ( queue === 'render' ) {
-                toInvoke.sort( parentsBeforeChildren );
-            }
-
-            for ( let i = 0; i < l; i += 1 ) {
-                const tuple = toInvoke[i];
-                const fn = tuple[0];
-                const bind = tuple[1];
-                try {
-                    if ( bind ) {
-                        fn.call( bind );
-                    } else {
-                        fn();
-                    }
-                } catch ( error ) {
-                    RunLoop.didError( error );
-                }
-            }
-            return true;
-        }
-        return false;
-    },
-
-    /**
-        Method: O.RunLoop.flushAllQueues
-
-        Calls O.RunLoop#flushQueue on each queue in the order specified in
-        _queueOrder, starting at the first queue again whenever the queue
-        indicates something has changed.
-    */
-    flushAllQueues () {
-        const queues = this._queues;
-        const order = this._queueOrder;
-        const l = order.length;
-        let i = 0;
-        while ( i < l ) {
-            const queueName = order[i];
-            if ( queues[ queueName ].length ) {
-                // "Render" waits for next frame, except if in bg, since
-                // animation frames don't fire while in the background and we
-                // want to flush queues in a reasonable time, as they may
-                // redraw the tab name, favicon etc.
-                if ( ( i > 2 && !this.mayRedraw ) && !document.hidden ) {
-                    if ( !queues.nextFrame.length ) {
-                        requestAnimFrame( nextFrame );
-                    }
-                    return;
-                }
-                this.flushQueue( queueName );
-                i = 0;
-            } else {
-                i = i + 1;
-            }
-        }
-    },
-
-    /**
-        Method: O.RunLoop.queueFn
-
-        Add a [function, object] tuple to a queue, ensuring it is not added
-        again if it is already there.
-
-        Parameters:
-            queue     - {String} The name of the queue to add the tuple to.
-            fn        - {Function} The function to add to the array.
-            bind      - {(Object|undefined)} The object the function will be
-                        bound to when called.
-            allowDups - {Boolean} (optional) If not true, will search queue to
-                        check this fn/bind combination is not already present.
-
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    queueFn ( queue, fn, bind, allowDups ) {
-        const toInvoke = this._queues[ queue ];
-        const l = toInvoke.length;
-        // Log error here, as the stack trace is useless inside flushQueue.
-        if ( !fn ) {
-            try {
-                fn();
-            } catch ( error ) {
-                RunLoop.didError( error );
-            }
-        } else {
-            if ( !allowDups ) {
-                for ( let i = 0; i < l; i += 1 ) {
-                    const tuple = toInvoke[i];
-                    if ( tuple[0] === fn && tuple[1] === bind ) {
-                        return this;
-                    }
-                }
-            }
-            toInvoke[l] = [ fn, bind ];
-        }
-        return this;
-    },
-
-    /**
-        Method: O.RunLoop.invoke
-
-        Invoke a function inside the run loop. Note, to pass arguments you must
-        supply a bind; use `null` if you would like the global scope.
-
-        Parameters:
-            fn   - {Function} The function to invoke
-            bind - {Object} (optional) The object to bind `this` to when calling
-                   the function.
-            args - {Array} (optional) The arguments to pass to the function.
-
-        Returns:
-            {*} The return value of the invoked function, or `undefined` if it
-                throws an exception.
-    */
-    invoke ( fn, bind, args ) {
-        let returnValue;
-        this._depth += 1;
-        try {
-            // Avoiding apply/call when not needed is faster
-            if ( args ) {
-                returnValue = fn.apply( bind, args );
-            } else if ( bind ) {
-                returnValue = fn.call( bind );
-            } else {
-                returnValue = fn();
-            }
-        } catch ( error ) {
-            RunLoop.didError( error );
-        }
-        if ( this._depth === 1 ) {
-            this.flushAllQueues();
-        }
-        this._depth -= 1;
-        if ( !this._depth ) {
-            this.processTimeouts();
-        }
-        return returnValue;
-    },
-
-    /**
-        Method: O.RunLoop.invokeInNextEventLoop
-
-        Use this to invoke a function in a new browser event loop, immediately
-        after this event loop has finished.
-
-        Parameters:
-            fn   - {Function} The function to invoke.
-            bind - {Object} (optional) The object to make the 'this' parameter
-                   when the function is invoked.
-            allowDups - {Boolean} (optional) If not true, will search queue to
-                        check this fn/bind combination is not already present.
-
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    invokeInNextEventLoop ( fn, bind, allowDups ) {
-        if ( !this._queues.nextLoop.length ) {
-            setImmediate( nextLoop );
-        }
-        return this.queueFn( 'nextLoop', fn, bind, allowDups );
-    },
-
-    /**
-        Method: O.RunLoop.invokeInNextFrame
-
-        Use this to invoke a function just before the browser next redraws.
-
-        Parameters:
-            fn   - {Function} The function to invoke.
-            bind - {Object} (optional) The object to make the 'this' parameter
-                   when the function is invoked.
-            allowDups - {Boolean} (optional) If not true, will search queue to
-                        check this fn/bind combination is not already present.
-
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    invokeInNextFrame ( fn, bind, allowDups ) {
-        if ( !this._queues.nextFrame.length ) {
-            requestAnimFrame( nextFrame );
-        }
-        return this.queueFn( 'nextFrame', fn, bind, allowDups );
-    },
-
-    /**
-        Method: O.RunLoop.invokeAfterDelay
-
-        Use this to invoke a function after a specified delay. The function will
-        be called inside a new RunLoop, and optionally bound to a supplied
-        object.
-
-        Parameters:
-            fn    - {Function} The function to invoke after a delay.
-            delay - {Number} The delay in milliseconds.
-            bind  - {Object} (optional) The object to make the 'this' parameter
-                    when the function is invoked.
-
-        Returns:
-            {InvocationToken} Returns a token that can be passed to the
-            <O.RunLoop.cancel> method before the function is invoked, in order
-            to cancel the scheduled invocation.
-    */
-    invokeAfterDelay ( fn, delay, bind ) {
-        const timeout = new Timeout( Date.now() + delay, 0, fn, bind );
-        this._timeouts.push( timeout );
-        this._scheduleTimeout();
-        return timeout;
-    },
-
-    /**
-        Method: O.RunLoop.invokePeriodically
-
-        Use this to invoke a function periodically, with a set time between
-        invocations.
-
-        Parameters:
-            fn     - {Function} The function to invoke periodically.
-            period - {Number} The period in milliseconds between invocations.
-            bind   - {Object} (optional) The object to make the 'this' parameter
-                     when the function is invoked.
-
-        Returns:
-            {InvocationToken} Returns a token that can be passed to the
-            <O.RunLoop.cancel> method to cancel all future invocations scheduled
-            by this call.
-    */
-    invokePeriodically ( fn, period, bind ) {
-        const timeout = new Timeout( Date.now() + period, period, fn, bind );
-        this._timeouts.push( timeout );
-        this._scheduleTimeout();
-        return timeout;
-    },
-
-    /**
-        Method (private): O.RunLoop._scheduleTimeout
-
-        Sets the browser timer if necessary to trigger at the time of the next
-        timeout in the priority queue.
-    */
-    _scheduleTimeout () {
-        const timeout = this._timeouts.peek();
-        const time = timeout ? timeout.time : 0;
-        if ( time && time !== this._nextTimeout ) {
-            clearTimeout( this._timer );
-            const delay = time - Date.now();
-            if ( delay > 0 ) {
-                this._timer = setTimeout( processTimeouts, time - Date.now() );
-                this._nextTimeout = time;
-            } else {
-                this._nextTimeout = 0;
-            }
-        }
-    },
-
-    /**
-        Method: O.RunLoop.processTimeouts
-
-        Invokes all functions in the timeout queue that were scheduled to
-        trigger on or before "now".
-
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    processTimeouts () {
-        const timeouts = this._timeouts;
-        while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
-            const timeout = timeouts.pop();
-            let period;
-            if ( period = timeout.period ) {
-                timeout.time = Date.now() + period;
-                timeouts.push( timeout );
-            }
-            this.invoke( timeout.fn, timeout.bind );
-        }
-        this._scheduleTimeout();
-        return this;
-    },
-
-    /**
-        Method: O.RunLoop.cancel
-
-        Use this to cancel the future invocations of functions scheduled with
-        the <O.RunLoop.invokeAfterDelay> or <O.RunLoop.invokePeriodically>
-        methods.
-
-        Parameters:
-            token - {InvocationToken} The InvocationToken returned by the
-                    call to invokeAfterDelay or invokePeriodically that you wish
-                    to cancel.
-
-        Returns:
-            {O.RunLoop} Returns self.
-    */
-    cancel ( token ) {
-        this._timeouts.remove( token );
-        return this;
-    },
-
-    /**
-        Method: O.RunLoop.didError
-
-        This method is invoked if an uncaught error is thrown in a run loop.
-        Overwrite this method to do something more useful then just log the
-        error to the console.
-
-        Parameters:
-            error - {Error} The error object.
-    */
-    didError ( error ) {
-        if ( window.console ) {
-            console.log( error.name, error.message, error.stack );
-        }
-    },
+    Collection of queues. Each queue contains [fn, bind] tuples to call at
+    <O.RunLoop.end>.
+*/
+const _queues = {
+    before: [],
+    bindings: [],
+    middle: [],
+    render: [],
+    after: [],
+    nextLoop: [],
+    nextFrame: [],
 };
 
-export default RunLoop;
+/**
+    Property (private): O.RunLoop._timeouts
+    Type: O.Heap
+
+    A priority queue of timeouts.
+*/
+const _timeouts = new Heap( function ( a, b ) {
+    return a.time - b.time;
+});
+
+/**
+    Property (private): O.RunLoop._nextTimeout
+    Type: Number
+
+    Epoch time that the next browser timeout is scheduled for.
+*/
+let _nextTimeout = 0;
+
+/**
+    Property (private): O.RunLoop._timer
+    Type: Number
+
+    The browser timer id (response from setTimeout), which you need if
+    you want to cancel the timeout.
+*/
+let _timer = null;
+
+/**
+    Property (private): O.RunLoop._depth
+    Type: Number
+
+    Number of calls to <O.RunLoop.invoke> currently in stack.
+*/
+let _depth = 0;
+
+/**
+    Method: O.RunLoop.flushQueue
+
+    Invokes each function in an array of [function, object] tuples, binding
+    the this parameter of the function to the object, and empties the array.
+
+    Parameters:
+        queue - {String} name of the queue to flush.
+
+    Returns:
+        {Boolean} Were any functions actually invoked?
+*/
+const flushQueue = function ( queue ) {
+    const toInvoke = _queues[ queue ];
+    const l = toInvoke.length;
+
+    if ( l ) {
+        _queues[ queue ] = [];
+
+        if ( queue === 'render' ) {
+            toInvoke.sort( parentsBeforeChildren );
+        }
+
+        for ( let i = 0; i < l; i += 1 ) {
+            const tuple = toInvoke[i];
+            const fn = tuple[0];
+            const bind = tuple[1];
+            try {
+                if ( bind ) {
+                    fn.call( bind );
+                } else {
+                    fn();
+                }
+            } catch ( error ) {
+                didError( error );
+            }
+        }
+        return true;
+    }
+    return false;
+};
+
+/**
+    Method: O.RunLoop.flushAllQueues
+
+    Calls O.RunLoop#flushQueue on each queue in the order specified in
+    _queueOrder, starting at the first queue again whenever the queue
+    indicates something has changed.
+*/
+const flushAllQueues = function () {
+    const queues = _queues;
+    const order = _queueOrder;
+    const l = order.length;
+    let i = 0;
+    while ( i < l ) {
+        const queueName = order[i];
+        if ( queues[ queueName ].length ) {
+            // "Render" waits for next frame, except if in bg, since
+            // animation frames don't fire while in the background and we
+            // want to flush queues in a reasonable time, as they may
+            // redraw the tab name, favicon etc.
+            if ( ( i > 2 && !mayRedraw ) && !document.hidden ) {
+                if ( !queues.nextFrame.length ) {
+                    requestAnimFrame( nextFrame );
+                }
+                return;
+            }
+            flushQueue( queueName );
+            i = 0;
+        } else {
+            i = i + 1;
+        }
+    }
+};
+
+/**
+    Method: O.RunLoop.queueFn
+
+    Add a [function, object] tuple to a queue, ensuring it is not added
+    again if it is already there.
+
+    Parameters:
+        queue     - {String} The name of the queue to add the tuple to.
+        fn        - {Function} The function to add to the array.
+        bind      - {(Object|undefined)} The object the function will be
+                    bound to when called.
+        allowDups - {Boolean} (optional) If not true, will search queue to
+                    check this fn/bind combination is not already present.
+
+    Returns:
+        {O.RunLoop} Returns self.
+*/
+const queueFn = function ( queue, fn, bind, allowDups ) {
+    const toInvoke = _queues[ queue ];
+    const l = toInvoke.length;
+    // Log error here, as the stack trace is useless inside flushQueue.
+    if ( !fn ) {
+        try {
+            fn();
+        } catch ( error ) {
+            didError( error );
+        }
+    } else {
+        if ( !allowDups ) {
+            for ( let i = 0; i < l; i += 1 ) {
+                const tuple = toInvoke[i];
+                if ( tuple[0] === fn && tuple[1] === bind ) {
+                    return;
+                }
+            }
+        }
+        toInvoke[l] = [ fn, bind ];
+    }
+};
+
+/**
+    Method: O.RunLoop.invoke
+
+    Invoke a function inside the run loop. Note, to pass arguments you must
+    supply a bind; use `null` if you would like the global scope.
+
+    Parameters:
+        fn   - {Function} The function to invoke
+        bind - {Object} (optional) The object to bind `this` to when calling
+                the function.
+        args - {Array} (optional) The arguments to pass to the function.
+
+    Returns:
+        {*} The return value of the invoked function, or `undefined` if it
+            throws an exception.
+*/
+const invoke = function ( fn, bind, args ) {
+    let returnValue;
+    _depth += 1;
+    try {
+        // Avoiding apply/call when not needed is faster
+        if ( args ) {
+            returnValue = fn.apply( bind, args );
+        } else if ( bind ) {
+            returnValue = fn.call( bind );
+        } else {
+            returnValue = fn();
+        }
+    } catch ( error ) {
+        didError( error );
+    }
+    if ( _depth === 1 ) {
+        flushAllQueues();
+    }
+    _depth -= 1;
+    if ( !_depth ) {
+        processTimeouts();
+    }
+    return returnValue;
+};
+
+/**
+    Method: O.RunLoop.invokeInNextEventLoop
+
+    Use this to invoke a function in a new browser event loop, immediately
+    after this event loop has finished.
+
+    Parameters:
+        fn   - {Function} The function to invoke.
+        bind - {Object} (optional) The object to make the 'this' parameter
+                when the function is invoked.
+        allowDups - {Boolean} (optional) If not true, will search queue to
+                    check this fn/bind combination is not already present.
+
+    Returns:
+        {O.RunLoop} Returns self.
+*/
+const invokeInNextEventLoop = function ( fn, bind, allowDups ) {
+    if ( !_queues.nextLoop.length ) {
+        setImmediate( nextLoop );
+    }
+    return queueFn( 'nextLoop', fn, bind, allowDups );
+};
+
+/**
+    Method: O.RunLoop.invokeInNextFrame
+
+    Use this to invoke a function just before the browser next redraws.
+
+    Parameters:
+        fn   - {Function} The function to invoke.
+        bind - {Object} (optional) The object to make the 'this' parameter
+                when the function is invoked.
+        allowDups - {Boolean} (optional) If not true, will search queue to
+                    check this fn/bind combination is not already present.
+
+    Returns:
+        {O.RunLoop} Returns self.
+*/
+const invokeInNextFrame = function ( fn, bind, allowDups ) {
+    if ( !_queues.nextFrame.length ) {
+        requestAnimFrame( nextFrame );
+    }
+    return queueFn( 'nextFrame', fn, bind, allowDups );
+};
+
+/**
+    Method: O.RunLoop.invokeAfterDelay
+
+    Use this to invoke a function after a specified delay. The function will
+    be called inside a new RunLoop, and optionally bound to a supplied
+    object.
+
+    Parameters:
+        fn    - {Function} The function to invoke after a delay.
+        delay - {Number} The delay in milliseconds.
+        bind  - {Object} (optional) The object to make the 'this' parameter
+                when the function is invoked.
+
+    Returns:
+        {InvocationToken} Returns a token that can be passed to the
+        <O.RunLoop.cancel> method before the function is invoked, in order
+        to cancel the scheduled invocation.
+*/
+const invokeAfterDelay = function ( fn, delay, bind ) {
+    const timeout = new Timeout( Date.now() + delay, 0, fn, bind );
+    _timeouts.push( timeout );
+    _scheduleTimeout();
+    return timeout;
+};
+
+/**
+    Method: O.RunLoop.invokePeriodically
+
+    Use this to invoke a function periodically, with a set time between
+    invocations.
+
+    Parameters:
+        fn     - {Function} The function to invoke periodically.
+        period - {Number} The period in milliseconds between invocations.
+        bind   - {Object} (optional) The object to make the 'this' parameter
+                    when the function is invoked.
+
+    Returns:
+        {InvocationToken} Returns a token that can be passed to the
+        <O.RunLoop.cancel> method to cancel all future invocations scheduled
+        by this call.
+*/
+const invokePeriodically = function ( fn, period, bind ) {
+    const timeout = new Timeout( Date.now() + period, period, fn, bind );
+    _timeouts.push( timeout );
+    _scheduleTimeout();
+    return timeout;
+};
+
+/**
+    Method (private): O.RunLoop._scheduleTimeout
+
+    Sets the browser timer if necessary to trigger at the time of the next
+    timeout in the priority queue.
+*/
+const _scheduleTimeout = function () {
+    const timeout = _timeouts.peek();
+    const time = timeout ? timeout.time : 0;
+    if ( time && time !== _nextTimeout ) {
+        clearTimeout( _timer );
+        const delay = time - Date.now();
+        if ( delay > 0 ) {
+            _timer = setTimeout( processTimeouts, time - Date.now() );
+            _nextTimeout = time;
+        } else {
+            _nextTimeout = 0;
+        }
+    }
+};
+
+/**
+    Method: O.RunLoop.processTimeouts
+
+    Invokes all functions in the timeout queue that were scheduled to
+    trigger on or before "now".
+
+    Returns:
+        {O.RunLoop} Returns self.
+*/
+const processTimeouts = function () {
+    const timeouts = _timeouts;
+    while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
+        const timeout = timeouts.pop();
+        let period;
+        if ( period = timeout.period ) {
+            timeout.time = Date.now() + period;
+            timeouts.push( timeout );
+        }
+        invoke( timeout.fn, timeout.bind );
+    }
+    _scheduleTimeout();
+};
+
+/**
+    Method: O.RunLoop.cancel
+
+    Use this to cancel the future invocations of functions scheduled with
+    the <O.RunLoop.invokeAfterDelay> or <O.RunLoop.invokePeriodically>
+    methods.
+
+    Parameters:
+        token - {InvocationToken} The InvocationToken returned by the
+                call to invokeAfterDelay or invokePeriodically that you wish
+                to cancel.
+
+    Returns:
+        {O.RunLoop} Returns self.
+*/
+const cancel = function ( token ) {
+    _timeouts.remove( token );
+};
+
+/**
+    Method: O.RunLoop.didError
+
+    This method is invoked if an uncaught error is thrown in a run loop.
+    Overwrite this method to do something more useful then just log the
+    error to the console.
+
+    Parameters:
+        error - {Error} The error object.
+*/
+let didError = function ( error ) {
+    if ( window.console ) {
+        console.log( error.name, error.message, error.stack );
+    }
+};
+
+/**
+    Method: O.RunLoop.setDidError
+
+    Overwrite the O.RunLoop.didError method to do something more useful then
+    logging the error to the console.
+
+    Parameters:
+        fn - {Function} The new didError function.
+*/
+const setDidError = function ( fn ) {
+    didError = fn;
+};
 
 Object.assign( Function.prototype, {
     /**
@@ -495,7 +497,7 @@ Object.assign( Function.prototype, {
     queue ( queue ) {
         const fn = this;
         return function () {
-            RunLoop.queueFn( queue, fn, this );
+            queueFn( queue, fn, this );
             return this;
         };
     },
@@ -510,7 +512,7 @@ Object.assign( Function.prototype, {
     nextLoop () {
         const fn = this;
         return function () {
-            RunLoop.invokeInNextEventLoop( fn, this );
+            invokeInNextEventLoop( fn, this );
             return this;
         };
     },
@@ -525,7 +527,7 @@ Object.assign( Function.prototype, {
     nextFrame () {
         const fn = this;
         return function () {
-            RunLoop.invokeInNextFrame( fn, this );
+            invokeInNextFrame( fn, this );
             return this;
         };
     },
@@ -541,22 +543,35 @@ Object.assign( Function.prototype, {
     invokeInRunLoop () {
         const fn = this;
         return function () {
-            return RunLoop.invoke( fn, this, arguments );
+            return invoke( fn, this, arguments );
         };
     },
 });
 
-nextLoop = RunLoop.invoke.bind( RunLoop,
-    RunLoop.flushQueue, RunLoop, [ 'nextLoop' ]
-);
-processTimeouts = RunLoop.processTimeouts.bind( RunLoop );
+const nextLoop = invoke.bind( null, flushQueue, null, [ 'nextLoop' ] );
 
-nextFrame = function ( time ) {
-    RunLoop.frameStartTime = time;
-    RunLoop.mayRedraw = true;
-    RunLoop.invoke( RunLoop.flushQueue, RunLoop, [ 'nextFrame' ] );
-    RunLoop.mayRedraw = false;
+const nextFrame = function ( time ) {
+    frameStartTime = time;
+    mayRedraw = true;
+    invoke( flushQueue, null, [ 'nextFrame' ] );
+    mayRedraw = false;
 };
 
 // TODO(cmorgan/modulify): do something about these exports: Function#queue,
 // Function#nextLoop, Function#nextFrame, Function#invokeInRunLoop
+export {
+    frameStartTime,
+    mayRedraw,
+    flushQueue,
+    flushAllQueues,
+    queueFn,
+    invoke,
+    invokeInNextEventLoop,
+    invokeInNextFrame,
+    invokeAfterDelay,
+    invokePeriodically,
+    processTimeouts,
+    cancel,
+    didError,
+    setDidError,
+};

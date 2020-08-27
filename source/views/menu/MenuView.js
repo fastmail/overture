@@ -5,7 +5,7 @@ import '../../foundation/ObservableProps';  // For Function#observes
 import Obj from '../../foundation/Object';
 import { bind } from '../../foundation/Binding';
 import ObservableArray from '../../foundation/ObservableArray';
-import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
+import * as RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import { lookupKey } from '../../dom/DOMEvent';
 import OptionsController from '../../selection/OptionsController';
 import View from '../View';

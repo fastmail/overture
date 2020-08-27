@@ -1,6 +1,6 @@
 import { Class, isEqual, clone } from '../../core/Core';
 import '../../core/Object';  // For Object.filter
-import RunLoop from '../../foundation/RunLoop';
+import * as RunLoop from '../../foundation/RunLoop';
 
 import {
     // Core states:

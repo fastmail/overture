@@ -3,7 +3,7 @@
 import { Class } from '../core/Core';
 import '../core/String';  // For String#contains
 import Obj from '../foundation/Object';
-import RunLoop from '../foundation/RunLoop';
+import * as RunLoop from '../foundation/RunLoop';
 import '../foundation/EventTarget';  // For Function#on
 import XHR from './XHR';
 

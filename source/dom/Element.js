@@ -3,7 +3,7 @@
 import '../core/String';  // For String#camelCase, #contains, #hyphenate
 import { browser } from '../ua/UA';
 import { Binding } from '../_codependent/_Binding';
-import RunLoop from '../foundation/RunLoop';
+import * as RunLoop from '../foundation/RunLoop';
 import { View } from '../_codependent/_View';
 
 /**

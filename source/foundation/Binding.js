@@ -3,7 +3,7 @@
 import { setBinding } from '../_codependent/_Binding';
 import getFromPath from './getFromPath';
 
-import RunLoop from './RunLoop';
+import * as RunLoop from './RunLoop';
 
 /**
     Class: O.Binding

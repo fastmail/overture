@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core';
 import Obj from '../../foundation/Object';
-import RunLoop from '../../foundation/RunLoop';
+import * as RunLoop from '../../foundation/RunLoop';
 import { isApple } from '../../ua/UA';
 import ViewEventsController from '../ViewEventsController';
 

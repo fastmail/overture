@@ -1,7 +1,7 @@
 import { isDestroyed, Class } from '../core/Core';
 import '../core/String';  // For String#capitalise
 import Obj from '../foundation/Object';
-import RunLoop from '../foundation/RunLoop';
+import * as RunLoop from '../foundation/RunLoop';
 import '../foundation/ObservableProps';  // For Function#observes
 import '../foundation/ComputedProps';  // For Function#property
 import { setView } from '../_codependent/_View';

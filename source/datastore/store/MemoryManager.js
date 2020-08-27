@@ -1,5 +1,5 @@
 import { guid } from '../../core/Core';
-import RunLoop from '../../foundation/RunLoop';
+import * as RunLoop from '../../foundation/RunLoop';
 
 import Record from '../record/Record';
 import Query from '../query/Query';

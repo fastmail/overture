@@ -1,4 +1,5 @@
 import { Class, mixin } from '../../core/Core';
+import * as RunLoop from '../../foundation/RunLoop';  // Also Function#queue
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes

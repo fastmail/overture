@@ -6,7 +6,7 @@ import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
 import { isEqualToValue } from '../../foundation/Transform';
 import { bind, bindTwoWay } from '../../foundation/Binding';
-import RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
+import * as RunLoop from '../../foundation/RunLoop';  // Also Function#nextFrame
                                                     // and Function#queue
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
 import { nearest, create as el } from '../../dom/Element';

@@ -5,7 +5,7 @@ import '../core/Date';  // For Date#format
 import '../core/String';  // For String#escapeHTML
 import Obj from '../foundation/Object';
 import '../foundation/EventTarget';  // For Function#on
-import RunLoop from '../foundation/RunLoop';  // + Function#invokeInRunLoop
+import * as RunLoop from '../foundation/RunLoop';  // + Function#invokeInRunLoop
 
 /**
     Class: O.WindowController
@@ -117,8 +117,8 @@ const WindowController = Class({
     },
 
     end ( broadcastKey ) {
-        RunLoop.cancel( this._pingTimeout )
-               .cancel( this._checkTimeout );
+        RunLoop.cancel( this._pingTimeout );
+        RunLoop.cancel( this._checkTimeout );
 
         this.broadcast( 'wc:bye', null, broadcastKey );
     },
