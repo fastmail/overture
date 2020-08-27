@@ -1,7 +1,6 @@
 /*global Intl */
 
 import '../core/String';  // For String#escapeRegExp
-import Locale from './Locale'; // FIXME(circular-imports)
 
 /**
     Module: Localisation
@@ -24,9 +23,7 @@ import Locale from './Locale'; // FIXME(circular-imports)
 
     Stores the loaded <O.Locale> instances.
 */
-const locales = {
-    xx: new Locale({ code: 'xx' }),
-};
+const locales = {};
 
 /* eslint-disable max-len */
 const alternatives = {
@@ -65,16 +62,15 @@ const alternatives = {
 
     The active locale.
 */
-let active = locales.xx;
+let active = null;
 
-const LocaleController = {
     /**
         Property: O.LocaleController.activeLocaleCode
         Type: String
 
         The locale code for the active locale.
     */
-    activeLocaleCode: 'xx',
+    activeLocaleCode: '',
 
     /**
         Method: O.LocaleController.addLocale
