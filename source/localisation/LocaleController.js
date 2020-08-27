@@ -64,248 +64,252 @@ const alternatives = {
 */
 let active = null;
 
-    /**
-        Property: O.LocaleController.activeLocaleCode
-        Type: String
+/**
+    Property: O.LocaleController.activeLocaleCode
+    Type: String
 
-        The locale code for the active locale.
-    */
-    activeLocaleCode: '',
+    The locale code for the active locale.
+*/
+let activeLocaleCode = '';
 
-    /**
-        Method: O.LocaleController.addLocale
+/**
+    Method: O.LocaleController.addLocale
 
-        Registers a resource bundle with the class.
+    Registers a resource bundle with the class.
 
-        Parameters:
-            locale - {O.Locale} The locale instance containing translated
-                     strings, date formats etc.
+    Parameters:
+        locale - {O.Locale} The locale instance containing translated
+                    strings, date formats etc.
 
-        Returns:
-            {O.LocaleController} Returns self.
-    */
-    addLocale ( locale ) {
-        locales[ locale.code ] = locale;
-        return this;
-    },
-
-    /**
-        Method: O.LocaleController.setLocale
-
-        Sets a different locale as the active one. Will only have an effect if
-        the resource bundle for this locale has already been loaded and
-        registered with a call to addLocale. Future calls to localise() etc.
-        will now use the resources from this locale.
-
-        Parameters:
-            localeCode - {String} The code for the locale to make active.
-
-        Returns:
-            {O.LocaleController} Returns self.
-    */
-    setLocale ( localeCode ) {
-        if ( locales[ localeCode ] ) {
-            active = locales[ localeCode ];
-            this.activeLocaleCode = localeCode;
-            if ( typeof Intl !== 'undefined' ) {
-                this.compare = new Intl.Collator( localeCode, {
-                    sensitivity: 'base',
-                }).compare;
-            }
-        }
-        return this;
-    },
-
-    /**
-        Method: O.LocaleController.getLocale
-
-        Returns a previously added locale object.
-
-        Parameters:
-            localeCode - {String} (optional) The code for the locale to return.
-                       If not specified, the currently active locale will be
-                       returned.
-
-        Returns:
-            {Locale|null} Returns the locale object (null if not present).
-    */
-    getLocale ( localeCode ) {
-        return localeCode ? locales[ localeCode ] || null : active;
-    },
-
-    /**
-        Function: O.LocaleController.get
-
-        Gets a property from the active locale.
-
-        Parameters:
-            key - {String} The name of the property to fetch.
-
-        Returns:
-            {*} The value for that key.
-    */
-    get ( key ) {
-        return active[ key ];
-    },
-
-    /**
-        Function: O.LocaleController.localise
-
-        Get a localised version of a string.
-
-        Alias: O.loc
-
-        Parameters:
-            text     - {String} The string to localise.
-            var_args - {...(String|Number)} The arguments to interpolate.
-
-        Returns:
-            {String} The localised string.
-    */
-    localise ( text ) {
-        if ( arguments.length === 1 ) {
-            const translation = active.translations[ text ];
-            return translation !== undefined ? translation : text;
-        } else {
-            return active.translate.apply( active, arguments );
-        }
-    },
-
-    /**
-        Function: O.LocaleController.date
-
-        Get a date or time formatted according to local conventions.
-
-        Parameters:
-            date - {...(String|Number|Object)} The arguments to interpolate.
-            type - {String} The type of result you want, e.g. 'shortDate',
-                   'time', 'fullDateAndTime'.
-            utc  - {Boolean} (optional) If true, the UTC time of this date
-                   object will be used when determining the day.
-
-        Returns:
-            {String} The localised date.
-    */
-    date ( date, type, utc ) {
-        return active.getFormattedDate( date, type, utc );
-    },
-
-    /**
-        Function: O.LocaleController.number
-
-        Format a number according to local conventions. Ensures the correct
-        symbol is used for a decimal point, and inserts thousands separators if
-        used in the locale.
-
-        Parameters:
-            n - {(Number|String)} The number to format.
-
-        Returns:
-            {String} The localised number.
-    */
-    number ( n ) {
-        return active.getFormattedNumber( n );
-    },
-
-    /**
-        Function: O.LocaleController.ordinal
-
-        Format an ordinal number according to local conventions, e.g. "1st",
-        "42nd" or "53rd".
-
-        Parameters:
-            n - {Number} The number to format.
-
-        Returns:
-            {String} The localised ordinal.
-    */
-    ordinal ( n ) {
-        return active.getFormattedOrdinal( n );
-    },
-
-    /**
-        Function: O.LocaleController.fileSize
-
-        Format a number of bytes into a locale-specific file size string.
-
-        Parameters:
-            bytes         - {Number} The number of bytes.
-            decimalPlaces - {Number} (optional) The number of decimal places to
-                            use in the result, if in MB or GB.
-
-        Returns:
-            {String} The localised, human-readable file size.
-    */
-    fileSize ( bytes, decimalPlaces ) {
-        return active.getFormattedFileSize( bytes, decimalPlaces );
-    },
-
-    /**
-        Function: O.LocaleController.compare
-
-        Compares two strings in a case-insensitive manner in the custom of the
-        current localisation.
-
-        Parameters:
-            a - {String} The first string.
-            b - {String} The second string.
-
-        Returns:
-            {Number}
-            `-1` => a is before b,
-            `1`  => a is after b,
-            `0`  => they are the same as far as this fn is concerned.
-    */
-    compare ( a, b ) {
-        return a.toLowerCase().localeCompare( b.toLowerCase() );
-    },
-
-    /**
-        Function: O.LocaleController.makeSearchRegExp
-
-        Returns a regular expression that tests if another string starts with
-        the given string, ignoring case and diacritic differences. e.g. if a
-        string "foo" is supplied, the regexp returned would match the string
-        "Foøso".
-
-        Basic glob syntax is supported, so the user can type "*" to match zero
-        or more characters or "?" to match any single character.
-
-        Parameters:
-            string - {String} The string to search for.
-
-        Returns: {RegExp} A regular expression that will search for the string.
-    */
-    makeSearchRegExp ( string ) {
-        return new RegExp(
-            '(?:^|\\W|_)' +
-            string
-                .escapeRegExp()
-                .replace( /\\\*/g, '.*' )
-                .replace( /\\\?/g, '.' )
-                .replace( /[A-Z]/gi,
-                    letter => alternatives[ letter.toUpperCase() ]
-                ),
-            'i'
-        );
-    },
-
-    /**
-        Property: O.LocaleController.letterAlternatives
-        Type: String[String]
-
-        Maps upper-case A-Z to a character class string containing all unicode
-        alternatives that resemble that letter.
-    */
-    letterAlternatives: alternatives,
+    Returns:
+        {O.LocaleController} Returns self.
+*/
+const addLocale = function ( locale ) {
+    locales[ locale.code ] = locale;
 };
 
-const loc = LocaleController.localise;
+/**
+    Method: O.LocaleController.setLocale
 
-export default LocaleController;
-// TODO(cmorgan/modulify): change these in some way
+    Sets a different locale as the active one. Will only have an effect if
+    the resource bundle for this locale has already been loaded and
+    registered with a call to addLocale. Future calls to localise() etc.
+    will now use the resources from this locale.
+
+    Parameters:
+        localeCode - {String} The code for the locale to make active.
+
+    Returns:
+        {O.LocaleController} Returns self.
+*/
+const setLocale = function ( localeCode ) {
+    if ( locales[ localeCode ] ) {
+        active = locales[ localeCode ];
+        activeLocaleCode = localeCode;
+        if ( typeof Intl !== 'undefined' ) {
+            compare = new Intl.Collator( localeCode, {
+                sensitivity: 'base',
+            }).compare;
+        }
+    }
+};
+
+/**
+    Method: O.LocaleController.getLocale
+
+    Returns a previously added locale object.
+
+    Parameters:
+        localeCode - {String} (optional) The code for the locale to return.
+                    If not specified, the currently active locale will be
+                    returned.
+
+    Returns:
+        {Locale|null} Returns the locale object (null if not present).
+*/
+const getLocale = function ( localeCode ) {
+    return localeCode ? locales[ localeCode ] || null : active;
+};
+
+/**
+    Function: O.LocaleController.get
+
+    Gets a property from the active locale.
+
+    Parameters:
+        key - {String} The name of the property to fetch.
+
+    Returns:
+        {*} The value for that key.
+*/
+const get = function ( key ) {
+    return active[ key ];
+};
+
+/**
+    Function: O.LocaleController.localise
+
+    Get a localised version of a string.
+
+    Alias: O.loc
+
+    Parameters:
+        text     - {String} The string to localise.
+        var_args - {...(String|Number)} The arguments to interpolate.
+
+    Returns:
+        {String} The localised string.
+*/
+const localise = function ( text ) {
+    if ( arguments.length === 1 ) {
+        const translation = active.translations[ text ];
+        return translation !== undefined ? translation : text;
+    } else {
+        return active.translate.apply( active, arguments );
+    }
+};
+
+/**
+    Function: O.LocaleController.date
+
+    Get a date or time formatted according to local conventions.
+
+    Parameters:
+        date - {...(String|Number|Object)} The arguments to interpolate.
+        type - {String} The type of result you want, e.g. 'shortDate',
+                'time', 'fullDateAndTime'.
+        utc  - {Boolean} (optional) If true, the UTC time of this date
+                object will be used when determining the day.
+
+    Returns:
+        {String} The localised date.
+*/
+const date = function ( date, type, utc ) {
+    return active.getFormattedDate( date, type, utc );
+};
+
+/**
+    Function: O.LocaleController.number
+
+    Format a number according to local conventions. Ensures the correct
+    symbol is used for a decimal point, and inserts thousands separators if
+    used in the locale.
+
+    Parameters:
+        n - {(Number|String)} The number to format.
+
+    Returns:
+        {String} The localised number.
+*/
+const number = function ( n ) {
+    return active.getFormattedNumber( n );
+};
+
+/**
+    Function: O.LocaleController.ordinal
+
+    Format an ordinal number according to local conventions, e.g. "1st",
+    "42nd" or "53rd".
+
+    Parameters:
+        n - {Number} The number to format.
+
+    Returns:
+        {String} The localised ordinal.
+*/
+const ordinal = function ( n ) {
+    return active.getFormattedOrdinal( n );
+};
+
+/**
+    Function: O.LocaleController.fileSize
+
+    Format a number of bytes into a locale-specific file size string.
+
+    Parameters:
+        bytes         - {Number} The number of bytes.
+        decimalPlaces - {Number} (optional) The number of decimal places to
+                        use in the result, if in MB or GB.
+
+    Returns:
+        {String} The localised, human-readable file size.
+*/
+const fileSize = function ( bytes, decimalPlaces ) {
+    return active.getFormattedFileSize( bytes, decimalPlaces );
+};
+
+/**
+    Function: O.LocaleController.compare
+
+    Compares two strings in a case-insensitive manner in the custom of the
+    current localisation.
+
+    Parameters:
+        a - {String} The first string.
+        b - {String} The second string.
+
+    Returns:
+        {Number}
+        `-1` => a is before b,
+        `1`  => a is after b,
+        `0`  => they are the same as far as this fn is concerned.
+*/
+let compare = function ( a, b ) {
+    return a.toLowerCase().localeCompare( b.toLowerCase() );
+};
+
+/**
+    Function: O.LocaleController.makeSearchRegExp
+
+    Returns a regular expression that tests if another string starts with
+    the given string, ignoring case and diacritic differences. e.g. if a
+    string "foo" is supplied, the regexp returned would match the string
+    "Foøso".
+
+    Basic glob syntax is supported, so the user can type "*" to match zero
+    or more characters or "?" to match any single character.
+
+    Parameters:
+        string - {String} The string to search for.
+
+    Returns: {RegExp} A regular expression that will search for the string.
+*/
+const makeSearchRegExp = function ( string ) {
+    return new RegExp(
+        '(?:^|\\W|_)' +
+        string
+            .escapeRegExp()
+            .replace( /\\\*/g, '.*' )
+            .replace( /\\\?/g, '.' )
+            .replace( /[A-Z]/gi,
+                letter => alternatives[ letter.toUpperCase() ]
+            ),
+        'i'
+    );
+};
+
+/**
+    Property: O.LocaleController.letterAlternatives
+    Type: String[String]
+
+    Maps upper-case A-Z to a character class string containing all unicode
+    alternatives that resemble that letter.
+*/
+const letterAlternatives = alternatives;
+
 export {
-    LocaleController,
-    LocaleController as i18n,
-    loc,
+    activeLocaleCode,
+    addLocale,
+    setLocale,
+    getLocale,
+    get,
+    localise,
+    localise as loc,
+    date,
+    number,
+    ordinal,
+    fileSize,
+    compare,
+    makeSearchRegExp,
+    letterAlternatives,
 };

@@ -131,18 +131,10 @@ export { default as HttpRequest } from './io/HttpRequest';
 export { default as IOQueue } from './io/IOQueue';
 export { default as XHR } from './io/XHR';
 
-// FIXME(circular-imports): core/Date → localisation/LocaleController →
-// localisation/Locale → core/Date, but LocaleController uses Locale
-// immediately, so Locale must not be the first one imported. For now, core/Date
-// is imported first and the crisis averted. Chris’s proposal to resolve this:
-//
-// 1. Do *something* with localisation/RelativeDate.js
-//    (which is all side-effects on the global Date object, ick);
-// 2. Merge localisation/{Locale, LocaleController}.js to just i18n.js;
-// 3. Abolish the LocaleController export for good measure (O.i18n is nice,
-//    singletons with a capital first letter aren’t).
 export { default as Locale } from './localisation/Locale';
-export { LocaleController, i18n, loc } from './localisation/LocaleController';
+import * as i18n from './localisation/LocaleController';
+export { i18n };
+export { loc } from './localisation/LocaleController';
 import './localisation/RelativeDate';
 
 import * as parse from './parser/DateParser';

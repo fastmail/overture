@@ -607,7 +607,7 @@ var _makeLangModule = function ( code, idList, idToEntry ) {
                 .replace( /"(function[\s\S]*?})"/g, function ( _, fn ) {
                     return fn.replace( /\\n/g, '\n' );
                 }) +
-        ');\nO.i18n.addLocale( x ).setLocale("' + code + '")}() );';
+        ');\nO.i18n.addLocale( x );\nO.i18n.setLocale("' + code + '")}() );';
 };
 
 var makeLangModule = function ( idListPath, poPath, outputPath ) {
