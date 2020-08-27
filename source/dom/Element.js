@@ -2,7 +2,7 @@
 
 import '../core/String';  // For String#camelCase, #contains, #hyphenate
 import { browser } from '../ua/UA';
-import Binding from '../foundation/Binding';
+import { Binding } from '../_codependent/_Binding';
 import RunLoop from '../foundation/RunLoop';
 import { View } from '../_codependent/_View';
 
@@ -192,7 +192,7 @@ const setAttributes = function ( el, props ) {
     for ( const prop in props ) {
         const value = props[ prop ];
         if ( value !== undefined ) {
-            if ( value instanceof Binding ) {
+            if ( Binding && ( value instanceof Binding ) ) {
                 value.to( prop, el ).connect();
                 if ( view ) {
                     view.registerBinding( value );

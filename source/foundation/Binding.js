@@ -1,5 +1,6 @@
 /*global Element */
 
+import { setBinding } from '../_codependent/_Binding';
 import getFromPath from './getFromPath';
 
 import RunLoop from './RunLoop';
@@ -532,6 +533,8 @@ class Binding {
         return true;
     }
 }
+
+setBinding( Binding );
 
 /**
     Function: O.bind
