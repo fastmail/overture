@@ -1,41 +1,5 @@
 /* eslint-disable max-len */
 
-/*
-    NOTE(circular-imports): there are several circular imports in the Overture
-    codebase still. Provided the circular references don’t get hit immediately
-    (that is, provided the circularly-referenced names are only used inside
-    functions which are not invoked until after all of the loop has been
-    loaded), this is very mildly undesirable, but OK. (Such imports should be
-    marked by a comment as circular but OK.)
-
-    HOWEVER, in places where the name is used in the code executed immediately
-    (e.g. as a superclass for a class constructed in the module root), we have a
-    problem. The referred-to name must *not* be imported first: something else
-    from the circular import loop must be instead. For now, we can work around
-    this by ordering our imports carefully in this file, but it’s not good
-    enough; we desire to be able to import anything from Overture directly, thus
-    enabling further dead-code removal.
-
-    To list circular imports, install madge (from npm) and run this command:
-
-        madge source/Overture --circular
-
-    If it does not list exactly the five below, we’re in trouble and you’ll have
-    to assess it all over again.
-
-    Safe cycles that exist:
-
-    - drag-drop/{Drag ↔ DragController}: not used in the global scope
-
-    - dom/Element ↔ views/View: not used in the global scope
-
-    Bad cycles that exist and are dependent on import order (marked elsewhere in
-    this file by FIXME notes):
-
-    - core/Date → localisation/LocaleController → localisation/Locale →
-      core/Date: LocaleController uses Locale in the global scope
-*/
-
 export { meta, isDestroyed, guid, mixin, extend, merge, clone, isEqual, Class } from './core/Core';
 export { default as sortByProperties } from './core/sortByProperties';
 import './core/Array';

@@ -10,7 +10,7 @@ import {
     forView,
     appendChildren,
     getPosition,
-} from '../dom/Element';  // Circular but it's OK
+} from '../dom/Element';
 
 import ViewEventsController from './ViewEventsController';
 import activeViews from './activeViews';
