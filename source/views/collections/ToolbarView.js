@@ -3,7 +3,7 @@ import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/ObservableProps';  // For Function#observes
 import { lookupKey } from '../../dom/DOMEvent';
 import { create as el } from '../../dom/Element';
-import { loc } from '../../localisation/LocaleController';
+import { loc } from '../../localisation/i18n';
 import View from '../View';
 import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';

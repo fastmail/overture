@@ -4,7 +4,7 @@ import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
-import { loc } from '../../localisation/LocaleController';
+import { loc } from '../../localisation/i18n';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform';
 import toPlatformKey from '../../application/toPlatformKey';
 import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';

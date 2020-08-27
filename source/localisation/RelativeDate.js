@@ -1,4 +1,4 @@
-import { loc } from './LocaleController';
+import { loc } from './i18n';
 
 /**
     Function: Date.formatDuration

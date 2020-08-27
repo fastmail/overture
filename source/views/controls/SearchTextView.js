@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core';
-import { loc } from '../../localisation/LocaleController';
+import { loc } from '../../localisation/i18n';
 import { when } from '../collections/SwitchView';
 import TextView from './TextView';
 import ClearSearchButtonView from './ClearSearchButtonView';

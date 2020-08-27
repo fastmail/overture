@@ -132,9 +132,9 @@ export { default as IOQueue } from './io/IOQueue';
 export { default as XHR } from './io/XHR';
 
 export { default as Locale } from './localisation/Locale';
-import * as i18n from './localisation/LocaleController';
+import * as i18n from './localisation/i18n';
 export { i18n };
-export { loc } from './localisation/LocaleController';
+export { loc } from './localisation/i18n';
 import './localisation/RelativeDate';
 
 import * as parse from './parser/DateParser';

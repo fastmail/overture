@@ -4,7 +4,7 @@ import Obj from '../foundation/Object';
 import '../foundation/EventTarget';  // For Function#on
 import '../foundation/ObservableProps';  // For Function#observes
 import ObservableArray from '../foundation/ObservableArray';
-import * as i18n from '../localisation/LocaleController';
+import * as i18n from '../localisation/i18n';
 
 const OptionsController = Class({
 

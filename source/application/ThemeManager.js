@@ -3,7 +3,7 @@
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import { create as createStylesheet } from '../dom/Stylesheet';
-import { loc } from '../localisation/LocaleController';
+import { loc } from '../localisation/i18n';
 
 /**
     Class: O.ThemeManager

@@ -13,7 +13,7 @@ import { nearest, create as el } from '../../dom/Element';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent';
 import DropTarget from '../../drag-drop/DropTarget';
 import * as DragEffect from '../../drag-drop/DragEffect';
-import { loc } from '../../localisation/LocaleController';
+import { loc } from '../../localisation/i18n';
 import { isIOS, isApple, isAndroid } from '../../ua/UA';
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';

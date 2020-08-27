@@ -9,16 +9,14 @@ import '../core/String';  // For String#escapeRegExp
 */
 
 /**
-    Class: O.LocaleController
-
-    Alias: O.i18n
+    Class: O.i18n
 
     This static class has methods for localising strings or dates and for
     registering and setting the user interface locale.
 */
 
 /**
-    Property (private): O.LocaleController-locales
+    Property (private): O.i18n-locales
     Type: Object
 
     Stores the loaded <O.Locale> instances.
@@ -57,7 +55,7 @@ const alternatives = {
 /* eslint-enable max-len */
 
 /**
-    Property (private): O.LocaleController-active
+    Property (private): O.i18n-active
     Type: O.Locale
 
     The active locale.
@@ -65,7 +63,7 @@ const alternatives = {
 let active = null;
 
 /**
-    Property: O.LocaleController.activeLocaleCode
+    Property: O.i18n.activeLocaleCode
     Type: String
 
     The locale code for the active locale.
@@ -73,7 +71,7 @@ let active = null;
 let activeLocaleCode = '';
 
 /**
-    Method: O.LocaleController.addLocale
+    Method: O.i18n.addLocale
 
     Registers a resource bundle with the class.
 
@@ -82,14 +80,14 @@ let activeLocaleCode = '';
                     strings, date formats etc.
 
     Returns:
-        {O.LocaleController} Returns self.
+        {O.i18n} Returns self.
 */
 const addLocale = function ( locale ) {
     locales[ locale.code ] = locale;
 };
 
 /**
-    Method: O.LocaleController.setLocale
+    Method: O.i18n.setLocale
 
     Sets a different locale as the active one. Will only have an effect if
     the resource bundle for this locale has already been loaded and
@@ -100,7 +98,7 @@ const addLocale = function ( locale ) {
         localeCode - {String} The code for the locale to make active.
 
     Returns:
-        {O.LocaleController} Returns self.
+        {O.i18n} Returns self.
 */
 const setLocale = function ( localeCode ) {
     if ( locales[ localeCode ] ) {
@@ -115,7 +113,7 @@ const setLocale = function ( localeCode ) {
 };
 
 /**
-    Method: O.LocaleController.getLocale
+    Method: O.i18n.getLocale
 
     Returns a previously added locale object.
 
@@ -132,7 +130,7 @@ const getLocale = function ( localeCode ) {
 };
 
 /**
-    Function: O.LocaleController.get
+    Function: O.i18n.get
 
     Gets a property from the active locale.
 
@@ -147,7 +145,7 @@ const get = function ( key ) {
 };
 
 /**
-    Function: O.LocaleController.localise
+    Function: O.i18n.localise
 
     Get a localised version of a string.
 
@@ -170,7 +168,7 @@ const localise = function ( text ) {
 };
 
 /**
-    Function: O.LocaleController.date
+    Function: O.i18n.date
 
     Get a date or time formatted according to local conventions.
 
@@ -189,7 +187,7 @@ const date = function ( date, type, utc ) {
 };
 
 /**
-    Function: O.LocaleController.number
+    Function: O.i18n.number
 
     Format a number according to local conventions. Ensures the correct
     symbol is used for a decimal point, and inserts thousands separators if
@@ -206,7 +204,7 @@ const number = function ( n ) {
 };
 
 /**
-    Function: O.LocaleController.ordinal
+    Function: O.i18n.ordinal
 
     Format an ordinal number according to local conventions, e.g. "1st",
     "42nd" or "53rd".
@@ -222,7 +220,7 @@ const ordinal = function ( n ) {
 };
 
 /**
-    Function: O.LocaleController.fileSize
+    Function: O.i18n.fileSize
 
     Format a number of bytes into a locale-specific file size string.
 
@@ -239,7 +237,7 @@ const fileSize = function ( bytes, decimalPlaces ) {
 };
 
 /**
-    Function: O.LocaleController.compare
+    Function: O.i18n.compare
 
     Compares two strings in a case-insensitive manner in the custom of the
     current localisation.
@@ -259,7 +257,7 @@ let compare = function ( a, b ) {
 };
 
 /**
-    Function: O.LocaleController.makeSearchRegExp
+    Function: O.i18n.makeSearchRegExp
 
     Returns a regular expression that tests if another string starts with
     the given string, ignoring case and diacritic differences. e.g. if a
@@ -289,7 +287,7 @@ const makeSearchRegExp = function ( string ) {
 };
 
 /**
-    Property: O.LocaleController.letterAlternatives
+    Property: O.i18n.letterAlternatives
     Type: String[String]
 
     Maps upper-case A-Z to a character class string containing all unicode
