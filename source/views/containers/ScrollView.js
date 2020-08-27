@@ -1,5 +1,4 @@
-import { Class } from '../../core/Core';
-import RunLoop from '../../foundation/RunLoop';  // Also Function#queue
+import { Class, mixin } from '../../core/Core';
 import '../../foundation/ComputedProps';  // For Function#property
 import '../../foundation/EventTarget';  // For Function#on
 import '../../foundation/ObservableProps';  // For Function#observes
@@ -496,10 +495,29 @@ const ScrollView = Class({
     }.on( 'focus', 'blur' ),
 });
 
+if ( isIOS ) {
+    mixin( RootView.prototype, {
+        preventRootScroll: function ( event ) {
+            const view = event.targetView;
+            let doc, win;
+            if ( !( view instanceof ScrollView ) &&
+                    !view.getParent( ScrollView ) ) {
+                doc = this.layer.ownerDocument;
+                win = doc.defaultView;
+                if ( this.get( 'pxHeight' ) <= win.innerHeight &&
+                        !/^(?:INPUT|TEXTAREA)$/.test(
+                            doc.activeElement.nodeName ) ) {
+                    event.preventDefault();
+                }
+            }
+        }.on( 'touchmove' ),
+    });
+}
+
 if ( isIOS && version < 13 ) {
     const isOldOrSafari = version < 11 || browser === 'safari';
 
-    Object.assign( ScrollView.prototype, {
+    mixin( ScrollView.prototype, {
         draw ( layer ) {
             const isFixedDimensions = this.get( 'isFixedDimensions' );
             let scrollFixerHeight = 1;

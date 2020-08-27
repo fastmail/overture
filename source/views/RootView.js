@@ -1,14 +1,11 @@
 import { Class } from '../core/Core';
 import '../foundation/EventTarget';  // For Function#on
 import '../foundation/RunLoop';  // For Function#invokeInRunLoop
-import { isIOS } from '../ua/UA';
 
 import View from './View';
 import ViewEventsController from './ViewEventsController';
 import { getViewFromNode } from './activeViews';
-import ScrollView from './containers/ScrollView';
 import AbstractControlView from './controls/AbstractControlView';
-
 
 let passiveSupported = false;
 
@@ -112,21 +109,6 @@ const RootView = Class({
             .endPropertyChanges();
         event.stopPropagation();
     }.on( 'scroll' ),
-
-    preventRootScroll: isIOS ? function ( event ) {
-        const view = event.targetView;
-        let doc, win;
-        if ( !( view instanceof ScrollView ) &&
-                !view.getParent( ScrollView ) ) {
-            doc = this.layer.ownerDocument;
-            win = doc.defaultView;
-            if ( this.get( 'pxHeight' ) <= win.innerHeight &&
-                    !/^(?:INPUT|TEXTAREA)$/.test(
-                        doc.activeElement.nodeName ) ) {
-                event.preventDefault();
-            }
-        }
-    }.on( 'touchmove' ) : null,
 
     focus () {
         const layer = this.get( 'layer' );
