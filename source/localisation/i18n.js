@@ -183,13 +183,12 @@ const get = function (key) {
     Returns:
         {String} The localised string.
 */
-const localise = function ( text ) {
-    if ( arguments.length === 1 ) {
-        const translation = active.translations[ text ];
-        return translation !== undefined ? translation : text;
-    } else {
-        return active.translate.apply( active, arguments );
+const localise = function (text, ...args) {
+    const translation = active.translations[text];
+    if (translation === undefined) {
+        return text;
     }
+    return translation.call(this, active, args);
 };
 
 /**
