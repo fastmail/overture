@@ -23,10 +23,12 @@
     "url": "https://github.com/fastmail/overture/issues"
   },
   "devDependencies": {
-    "eslint": "^5",
-    "eslint-plugin-overture": "file:./eslint-plugin-overture",
-    "rollup": "^1",
-    "rollup-plugin-buble": "^0.19",
-    "uglify-js": "^3"
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-overture": "file:eslint-plugin-overture",
+    "rollup": "^1.32.1",
+    "rollup-plugin-buble": "^0.19.8",
+    "uglify-js": "^3.10.4"
   }
 }
