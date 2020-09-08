@@ -315,44 +315,6 @@ const mixin = function (object, extras, doNotOverwrite) {
 };
 
 /**
-    Function: O.extend
-
-    Add all properties of one object to another, overwriting any existing
-    properties with the same name, unless the doNotOverwrite parameter is set.
-    Only adds properties actually on the object, not any properties on the
-    prototype chain.
-
-    DEPRECATED. Use {Object.assign( base, extras )} instead. Caution: there is
-    a difference in semantics: `Object.assign` essentially has `doNotOverride`
-    turned off. But frankly, this is what you need in most cases.
-
-    Parameters:
-        base           - {Object} The object to be extended.
-        extras         - {Object} The object whose properties are to be added to
-                         base.
-        doNotOverwrite - {Boolan} (optional) If true, will not overwrite a
-                         property on the base object with the property of the
-                         same name on the extras object.
-
-    Returns:
-        {Object} Returns base.
-*/
-const extend = function (base, extras, doNotOverwrite) {
-    if (window.console && console.warn) {
-        console.warn('O.extend is deprecated');
-    }
-    for (const key in extras) {
-        if (
-            extras.hasOwnProperty(key) &&
-            (!doNotOverwrite || !base.hasOwnProperty(key))
-        ) {
-            base[key] = extras[key];
-        }
-    }
-    return base;
-};
-
-/**
     Function: O.merge
 
     Add all properties of one object to another, recursively merging if a key
@@ -662,37 +624,11 @@ Function.prototype.implement = function (methods, force) {
     return this;
 };
 
-/**
-    Method: Function#extend
-
-    Adds a set of static methods/properties to the function.
-
-    DEPRECATED. Use {Object.assign( this, methods )} instead.
-    Caution: there is a difference in semantics: `Object.assign` essentially
-    has `force` turned on. But frankly, this is what you need in most cases.
-
-    Parameters:
-        methods - {Object} The methods/properties to add.
-        force   - {Boolean} Unless this is true, existing methods/properties
-                  will not be overwritten.
-
-    Returns:
-        {Function} Returns self.
-*/
-Function.prototype.extend = function (methods, force) {
-    if (window.console && console.warn) {
-        console.warn('Function#extend is deprecated');
-    }
-    extend(this, methods, !force);
-    return this;
-};
-
 export {
     meta,
     isDestroyed,
     guid,
     mixin,
-    extend,
     merge,
     clone,
     isEqual,
@@ -701,5 +637,4 @@ export {
     OBJECT_DESTROYED,
 };
 
-// TODO(cmorgan/modulify): do something about these exports: Function#implement,
-// Function#extend
+// TODO(cmorgan/modulify): do something about these exports: Function#implement

@@ -5,7 +5,6 @@ export {
     isDestroyed,
     guid,
     mixin,
-    extend,
     merge,
     clone,
     isEqual,
