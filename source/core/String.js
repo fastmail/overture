@@ -543,5 +543,5 @@ Object.assign(String.prototype, {
 });
 
 // TODO(cmorgan/modulify): do something about these exports: String#format,
-// String#repeat, String#escapeHTML, String#escapeRegExp, String#capitalise,
+// String#escapeHTML, String#escapeRegExp, String#capitalise,
 // String#camelCase, String#hyphenate, String#hash, String#md5
