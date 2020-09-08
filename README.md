@@ -12,12 +12,8 @@ Overture is MIT licensed. No animals were harmed in the making of this code.
 Building from Source
 --------------------
 
-Prerequisites: just Node 6
+Prerequisites: just Node
 
     git clone https://github.com/fastmail/overture.git
     cd overture
-    npm install
-
-If you want to build the parbroken documentation as well:
-
-    make docs
+    make
