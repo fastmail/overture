@@ -295,8 +295,6 @@ const SwitchView = Class({
     },
 });
 
-export default SwitchView;
-
 const pickViewWhen = function (bool) {
     return bool ? 0 : 1;
 };
@@ -333,4 +331,5 @@ const unless = function (object, property, transform) {
     return choose(object, property, pickView);
 };
 
+export default SwitchView;
 export { when, unless, choose };
