@@ -9,10 +9,10 @@
     "npm": ">=4"
   },
   "scripts": {
-    "prepare": "npm run build:overture && npm run build:loader",
-    "build:overture": "rollup source/Overture.js -o build/Overture.js -c",
-    "build:loader": "rollup source/Loader.js -o build/Loader.js -c",
-    "lint": "eslint source"
+    "prepare": "npm run build",
+    "build": "rollup source/Overture.js -o build/Overture.js -c",
+    "lint": "eslint source",
+    "fix": "eslint --fix source"
   },
   "license": "MIT",
   "repository": {

@@ -4,7 +4,7 @@
 
 all: compile docs
 
-compile: build/Loader-raw.js build/Overture-raw.js
+compile: build/Overture-raw.js
 
 node_modules: package-lock.json
 	npm ci $(NPM_INSTALL_FLAGS)
