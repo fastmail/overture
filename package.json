@@ -12,7 +12,8 @@
     "prepare": "npm run build",
     "build": "rollup -c",
     "lint": "eslint source",
-    "fix": "eslint --fix source"
+    "lintfix": "eslint --fix source",
+    "fix": "prettier --write source && eslint --fix source"
   },
   "license": "MIT",
   "repository": {
