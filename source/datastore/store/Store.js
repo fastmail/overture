@@ -1,5 +1,3 @@
-/*global JSON */
-
 import { Class, meta, isEqual, guid, clone } from '../../core/Core';
 import '../../core/Object'; // For Object.filter and Object.keyOf
 import '../../core/Array'; // For Array#erase
@@ -1080,7 +1078,7 @@ const Store = Class({
             if (record) {
                 record.propertyDidChange('status', previousStatus, status);
             }
-            this._nestedStores.forEach(function (store) {
+            this._nestedStores.forEach((store) => {
                 store.parentDidChangeStatus(storeKey, previousStatus, status);
             });
         }
@@ -1178,7 +1176,7 @@ const Store = Class({
         ) {
             return false;
         }
-        return this._nestedStores.every(function (store) {
+        return this._nestedStores.every((store) => {
             return store.mayUnloadRecord(storeKey);
         });
     },
@@ -1201,7 +1199,7 @@ const Store = Class({
         if (record) {
             record.storeWillUnload();
         }
-        this._nestedStores.forEach(function (store) {
+        this._nestedStores.forEach((store) => {
             store.willUnloadRecord(storeKey);
         });
         return this;
@@ -1331,7 +1329,7 @@ const Store = Class({
                 .set('storeKey', newStoreKey)
                 .computedPropertyDidChange('accountId');
         }
-        this._nestedStores.forEach(function (store) {
+        this._nestedStores.forEach((store) => {
             store._changeRecordStoreKey(oldStoreKey, newStoreKey);
         });
     },
@@ -1562,7 +1560,7 @@ const Store = Class({
             const changedKeys = Object.keys(data);
             this._skToData[storeKey] = data;
             this._notifyRecordOfChanges(storeKey, changedKeys);
-            this._nestedStores.forEach(function (store) {
+            this._nestedStores.forEach((store) => {
                 store.parentDidSetData(storeKey, changedKeys);
             });
         }
@@ -1672,7 +1670,7 @@ const Store = Class({
         }
 
         this._notifyRecordOfChanges(storeKey, changedKeys);
-        this._nestedStores.forEach(function (store) {
+        this._nestedStores.forEach((store) => {
             store.parentDidUpdateData(storeKey, changedKeys);
         });
         this._recordDidChange(storeKey);
@@ -2811,7 +2809,7 @@ const Store = Class({
             this.fire('record:commit:error', event);
         }
         isDefaultPrevented = event.defaultPrevented;
-        this._nestedStores.forEach(function (store) {
+        this._nestedStores.forEach((store) => {
             isDefaultPrevented =
                 store._notifyRecordOfError(storeKey, error) ||
                 isDefaultPrevented;
@@ -2820,7 +2818,7 @@ const Store = Class({
     },
 });
 
-['on', 'once', 'off'].forEach(function (property) {
+['on', 'once', 'off'].forEach((property) => {
     Store.prototype[property] = function (type, object, method) {
         if (typeof type !== 'string') {
             type = guid(type);

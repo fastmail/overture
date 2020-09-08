@@ -1,4 +1,4 @@
-/*global XMLHttpRequest, FormData, location */
+/*global XMLHttpRequest, FormData */
 
 import '../foundation/RunLoop'; // For Function#invokeInRunLoop
 

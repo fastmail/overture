@@ -52,7 +52,7 @@ import AbstractControlView from './AbstractControlView';
 
     new O.ButtonView
 
-    ### Styling O.ButtonView ###
+    ### Styling O.ButtonView ###
 
     The underlying DOM structure is:
 

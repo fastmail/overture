@@ -38,7 +38,7 @@ import * as Transform from './foundation/Transform';
 export { Transform };
 import Promise from './foundation/Promise';
 // Replace the global Promise with our RunLoop-enabled Promise
-self.Promise = Promise;
+window.Promise = Promise;
 // … as well as as `O.Promise`.
 export { Promise };
 

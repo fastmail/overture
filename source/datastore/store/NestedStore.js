@@ -228,7 +228,7 @@ const NestedStore = Class({
             if (record) {
                 record.propertyDidChange('status', previous, status);
             }
-            this._nestedStores.forEach(function (store) {
+            this._nestedStores.forEach((store) => {
                 store.parentDidChangeStatus(storeKey, previous, status);
             });
         }
@@ -248,7 +248,7 @@ const NestedStore = Class({
     */
     parentDidSetData(storeKey, changedKeys) {
         this._notifyRecordOfChanges(storeKey, changedKeys);
-        this._nestedStores.forEach(function (store) {
+        this._nestedStores.forEach((store) => {
             store.parentDidSetData(storeKey, changedKeys);
         });
     },
@@ -312,7 +312,7 @@ const NestedStore = Class({
             delete this._skToStatus[storeKey];
         }
         this._notifyRecordOfChanges(storeKey, changedKeys);
-        this._nestedStores.forEach(function (store) {
+        this._nestedStores.forEach((store) => {
             store.parentDidUpdateData(storeKey, changedKeys);
         });
         this._recordDidChange(storeKey);

@@ -53,9 +53,9 @@ const OptionsController = Class({
             ? search.split(/\s+/).map(i18n.makeSearchRegExp)
             : null;
         return patterns
-            ? content.filter(function (option) {
+            ? content.filter((option) => {
                   const name = option.get('name');
-                  return patterns.every(function (pattern) {
+                  return patterns.every((pattern) => {
                       return pattern.test(name);
                   });
               })
@@ -71,6 +71,10 @@ const OptionsController = Class({
         const l = options.get('length');
         let i = options.indexOf(this.get('focused'));
 
+        if (!l) {
+            return undefined;
+        }
+
         if (i < 0 && step < 0) {
             i = l;
         }
@@ -78,7 +82,7 @@ const OptionsController = Class({
 
         do {
             i = (i + step).mod(l);
-        } while (l && !this.mayFocus(options.getObjectAt(i)) && i !== current);
+        } while (!this.mayFocus(options.getObjectAt(i)) && i !== current);
 
         return options.getObjectAt(i);
     },

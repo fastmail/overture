@@ -10,8 +10,8 @@ Object.assign(Object, {
             value  - {*} The value to search for.
 
         Returns:
-            {String|undefined} The key for that value in the object.
-            Undefined is returned if the value is not found.
+            {String|null} The key for that value in the object.
+            Null is returned if the value is not found.
     */
     keyOf(object, value) {
         for (const key in object) {
@@ -19,6 +19,7 @@ Object.assign(Object, {
                 return key;
             }
         }
+        return null;
     },
 
     /**
@@ -82,7 +83,7 @@ Object.assign(Object, {
     */
     fromQueryString(query) {
         const result = {};
-        query.split('&').forEach(function (pair) {
+        query.split('&').forEach((pair) => {
             const parts = pair.split('=').map(decodeURIComponent);
             result[parts[0]] = parts[1];
         });

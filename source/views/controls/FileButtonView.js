@@ -17,7 +17,7 @@ import AbstractControlView from './AbstractControlView';
     In general, FileButtonview is designed to be used just like an
     <O.ButtonView> instance, including styling.
 
-    ### Styling O.FileButtonView ###
+    ### Styling O.FileButtonView ###
 
     The underlying DOM structure is:
 

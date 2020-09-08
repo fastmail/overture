@@ -1,5 +1,3 @@
-/*global document */
-
 import { isDestroyed, Class } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import * as RunLoop from '../../foundation/RunLoop';

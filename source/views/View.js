@@ -31,7 +31,7 @@ const POSITION_CONTAINED_BY = 0x10;
 
     The O.View class is the basis for any graphical part of an application.
 
-    ### Using the View system ###
+    ### Using the View system ###
 
     The View class is likely to be the most commonly subclassed class in your
     application. In the same way that an HTML document consists of a tree of
@@ -135,7 +135,7 @@ const POSITION_CONTAINED_BY = 0x10;
 
     The other approach is to observe events and manually update the DOM.
 
-    ### Events ###
+    ### Events ###
 
     All events are handled very efficiently by delegation. You can register
     methods that should be invoked on certain events by calling the

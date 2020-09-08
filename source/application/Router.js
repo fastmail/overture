@@ -1,5 +1,3 @@
-/*global document, window, history, location */
-
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import '../foundation/ObservableProps'; // For Function#observes

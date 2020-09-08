@@ -1,5 +1,3 @@
-/*global document */
-
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
 import { create as createStylesheet } from '../dom/Stylesheet';

@@ -60,25 +60,25 @@ const AggregateSource = Class({
 
     storeWasSet: function () {
         const store = this.get('store');
-        this.sources.forEach(function (source) {
+        this.sources.forEach((source) => {
             source.set('store', store);
         });
     }.observes('store'),
 
     fetchRecord(accountId, Type, id, callback) {
-        return this.get('sources').some(function (source) {
+        return this.get('sources').some((source) => {
             return source.fetchRecord(accountId, Type, id, callback);
         });
     },
 
     fetchAllRecords(accountId, Type, state, callback) {
-        return this.get('sources').some(function (source) {
+        return this.get('sources').some((source) => {
             return source.fetchAllRecords(accountId, Type, state, callback);
         });
     },
 
     refreshRecord(accountId, Type, id, callback) {
-        return this.get('sources').some(function (source) {
+        return this.get('sources').some((source) => {
             return source.refreshRecord(accountId, Type, id, callback);
         });
     },
@@ -93,7 +93,7 @@ const AggregateSource = Class({
                 }
             };
         }
-        this.get('sources').forEach(function (source) {
+        this.get('sources').forEach((source) => {
             if (source.commitChanges(changes, callbackAfterAll)) {
                 waiting += 1;
             }
@@ -102,7 +102,7 @@ const AggregateSource = Class({
     },
 
     fetchQuery(query, callback) {
-        return this.get('sources').some(function (source) {
+        return this.get('sources').some((source) => {
             return source.fetchQuery(query, callback);
         });
     },

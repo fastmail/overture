@@ -1,5 +1,3 @@
-/*global document */
-
 import { create as el } from './Element';
 
 /**

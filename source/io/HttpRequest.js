@@ -1,5 +1,3 @@
-/*global location */
-
 import { Class } from '../core/Core';
 import '../core/String'; // For String#contains
 import Obj from '../foundation/Object';

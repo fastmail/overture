@@ -24,7 +24,7 @@ const eventPrefix = '__event__';
 Function.prototype.on = function () {
     return this.observes.apply(
         this,
-        slice.call(arguments).map(function (type) {
+        slice.call(arguments).map((type) => {
             return eventPrefix + type;
         }),
     );

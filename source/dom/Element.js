@@ -1,4 +1,4 @@
-/*global Element, document */
+/*global Element, SVGAnimatedString */
 
 import '../core/String'; // For String#camelCase, #contains, #hyphenate
 import { browser } from '../ua/UA';

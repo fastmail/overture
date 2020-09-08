@@ -1,5 +1,3 @@
-/*global document */
-
 import { Class } from '../core/Core';
 import '../core/Array'; // For Array#include
 import '../core/String'; // For String#contains

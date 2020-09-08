@@ -1,5 +1,3 @@
-/*global document */
-
 import '../core/Array'; // For Array#erase
 import Obj from '../foundation/Object';
 import ViewEventsController from '../views/ViewEventsController';

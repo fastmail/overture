@@ -373,6 +373,8 @@ const interpreter = {
                 while (date.getDay() !== weekday) {
                     do {
                         year += delta;
+                        // We only need to loop if looking for a leap year
+                        // eslint-disable-next-line no-unmodified-loop-condition
                     } while (isFeb29 && !isLeapYear(year));
                     date.setFullYear(year);
                 }

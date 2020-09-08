@@ -51,6 +51,7 @@ const RecordArray = Class({
         if (storeKey) {
             return this.get('store').materialiseRecord(storeKey);
         }
+        return undefined;
     },
 });
 

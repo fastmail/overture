@@ -1,3 +1,4 @@
+/*global console */
 /**
     Module: Core
 

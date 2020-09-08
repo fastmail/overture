@@ -1,5 +1,3 @@
-/*global document */
-
 import Obj from '../foundation/Object';
 import '../foundation/EventTarget'; // For Function#on
 import '../foundation/RunLoop'; // For Function#invokeInRunLoop

@@ -1,5 +1,3 @@
-/*global JSON, window, document, localStorage */
-
 import { Class } from '../core/Core';
 import '../core/Date'; // For Date#format
 import '../core/String'; // For String#escapeHTML
@@ -24,7 +22,7 @@ import * as RunLoop from '../foundation/RunLoop'; // + Function#invokeInRunLoop
     released, so your application cannot perform any other I/O and will appear
     to mysteriously fail.
 
-    The WindowController class automatically coordinates between windows to
+    The WindowController class automatically coordinates between windows to
     elect a single tab to be "master". You can connect just this one to your
     push server, then broadcast any push events received to the other tabs via
     this controller as well. It also monitors whether the window currently has

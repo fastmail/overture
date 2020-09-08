@@ -211,7 +211,7 @@ Object.assign(String.prototype, {
             {String} The camel-cased string.
     */
     camelCase() {
-        return this.replace(/-([a-z])/g, function (_, letter) {
+        return this.replace(/-([a-z])/g, (_, letter) => {
             return letter.toUpperCase();
         });
     },
@@ -226,7 +226,7 @@ Object.assign(String.prototype, {
             {String} The hyphenated string.
     */
     hyphenate() {
-        return this.replace(/[A-Z]/g, function (letter) {
+        return this.replace(/[A-Z]/g, (letter) => {
             return '-' + letter.toLowerCase();
         });
     },

@@ -1,5 +1,3 @@
-/*global document */
-
 import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps'; // For Function#property, #nocache
 import '../../foundation/EventTarget'; // For Function#on

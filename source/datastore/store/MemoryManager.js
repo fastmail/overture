@@ -158,7 +158,7 @@ class MemoryManager {
         let numberToDelete = l - max;
         const deleted = [];
 
-        storeKeys.sort(function (a, b) {
+        storeKeys.sort((a, b) => {
             return _skToLastAccess[b] - _skToLastAccess[a];
         });
 
@@ -185,14 +185,14 @@ class MemoryManager {
         Removes excess remote queries from the store.
     */
     cleanupQueryType(Type, max) {
-        const queries = this._store.getAllQueries().filter(function (query) {
+        const queries = this._store.getAllQueries().filter((query) => {
             return query instanceof Type;
         });
         let l = queries.length;
         let numberToDelete = l - max;
         const deleted = [];
 
-        queries.sort(function (a, b) {
+        queries.sort((a, b) => {
             return b.lastAccess - a.lastAccess;
         });
         while (numberToDelete > 0 && l--) {

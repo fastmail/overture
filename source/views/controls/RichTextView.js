@@ -1,4 +1,4 @@
-/*global window, document, FileReader, Squire */
+/*global FileReader, Squire */
 
 import { Class } from '../../core/Core';
 import '../../foundation/ComputedProps'; // For Function#property, #nocache
@@ -1117,7 +1117,7 @@ const RichTextView = Class({
     isStriked: queryCommandState('S'),
     isLink: queryCommandState('A'),
     isCode: function () {
-        const regexp = new RegExp('(?:^|>)(?:PRE|CODE)\\b');
+        const regexp = /(?:^|>)(?:PRE|CODE)\b/;
         const editor = this.get('editor');
         const path = this.get('path');
         return path === '(selection)'

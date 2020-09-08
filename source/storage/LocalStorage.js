@@ -1,5 +1,3 @@
-/*global location, sessionStorage, localStorage */
-
 import { Class, isEqual } from '../core/Core';
 import Obj from '../foundation/Object';
 

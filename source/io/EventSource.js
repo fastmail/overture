@@ -1,5 +1,3 @@
-/*global EventSource */
-
 import { Class, meta } from '../core/Core';
 import '../core/Array'; // For Array#include
 import Obj from '../foundation/Object';

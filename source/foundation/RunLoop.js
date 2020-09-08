@@ -22,7 +22,7 @@ const requestAnimFrame =
             const time = Date.now();
             const timeToNextCall = Math.max(0, 16 - (time - lastTime));
             lastTime = time;
-            win.setTimeout(function () {
+            win.setTimeout(() => {
                 callback(time + timeToNextCall);
             }, timeToNextCall);
         };
@@ -113,7 +113,7 @@ const _queues = {
 
     A priority queue of timeouts.
 */
-const _timeouts = new Heap(function (a, b) {
+const _timeouts = new Heap((a, b) => {
     return a.time - b.time;
 });
 
