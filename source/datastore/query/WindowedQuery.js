@@ -1,7 +1,7 @@
 import { Class, meta, isEqual } from '../../core/Core';
-import '../../foundation/Enumerable';  // For Array#binarySearch
-import '../../foundation/ObservableProps';  // For Function#observes
-import '../../foundation/ComputedProps';  // For Function#property, #nocache
+import '../../foundation/Enumerable'; // For Array#binarySearch
+import '../../foundation/ObservableProps'; // For Function#observes
+import '../../foundation/ComputedProps'; // For Function#property, #nocache
 import {
     EMPTY,
     READY,
@@ -54,16 +54,16 @@ const WINDOW_RECORDS_READY = 32;
         a1 - {Array} The array to sort.
         a2 - {Array} The array to perform the same swaps on.
 */
-const sortLinkedArrays = function ( a1, a2 ) {
-    const zipped = a1.map( ( item, i ) => [ item, a2[i] ] );
-    zipped.sort( ( a, b ) => a[0] - b[0] );
-    zipped.forEach( ( item, i ) => {
+const sortLinkedArrays = function (a1, a2) {
+    const zipped = a1.map((item, i) => [item, a2[i]]);
+    zipped.sort((a, b) => a[0] - b[0]);
+    zipped.forEach((item, i) => {
         a1[i] = item[0];
         a2[i] = item[1];
     });
 };
 
-const mapIndexes = function ( list, storeKeys ) {
+const mapIndexes = function (list, storeKeys) {
     const indexOf = {};
     const indexes = [];
     const listLength = list.length;
@@ -74,20 +74,20 @@ const mapIndexes = function ( list, storeKeys ) {
     // where storeKeysLength == 0, we never bother building the map
     // When listLength == 0, Math.log( 0 ) == -Infinity, which is converted to 0
     // by ~~ integer conversion.
-    if ( storeKeysLength < ~~Math.log( listLength ) + 1 ) {
-        for ( let i = 0; i < storeKeysLength; i += 1 ) {
-            indexes.push( list.indexOf( storeKeys[i] ) );
+    if (storeKeysLength < ~~Math.log(listLength) + 1) {
+        for (let i = 0; i < storeKeysLength; i += 1) {
+            indexes.push(list.indexOf(storeKeys[i]));
         }
     } else {
-        for ( let i = 0; i < listLength; i += 1 ) {
+        for (let i = 0; i < listLength; i += 1) {
             const id = list[i];
-            if ( id ) {
-                indexOf[ id ] = i;
+            if (id) {
+                indexOf[id] = i;
             }
         }
-        for ( let i = 0; i < storeKeysLength; i += 1 ) {
-            const index = indexOf[ storeKeys[i] ];
-            indexes.push( index === undefined ? -1 : index );
+        for (let i = 0; i < storeKeysLength; i += 1) {
+            const index = indexOf[storeKeys[i]];
+            indexes.push(index === undefined ? -1 : index);
         }
     }
     return indexes;
@@ -105,7 +105,7 @@ const mapIndexes = function ( list, storeKeys ) {
     Returns:
         {[Array,Array]} A tuple of two arrays.
 */
-const mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
+const mergeSortedLinkedArrays = function (a1, a2, b1, b2) {
     const rA = [];
     const rB = [];
     let i = 0;
@@ -114,35 +114,40 @@ const mergeSortedLinkedArrays = function ( a1, a2, b1, b2 ) {
     const l2 = a2.length;
 
     // Take the smallest head element each time.
-    while ( i < l1 || j < l2 ) {
-        if ( j >= l2 || ( i < l1 && a1[i] < a2[j] ) ) {
-            rA.push( a1[i] );
-            rB.push( b1[i] );
+    while (i < l1 || j < l2) {
+        if (j >= l2 || (i < l1 && a1[i] < a2[j])) {
+            rA.push(a1[i]);
+            rB.push(b1[i]);
             i += 1;
         } else {
-            rA.push( a2[j] );
-            rB.push( b2[j] );
+            rA.push(a2[j]);
+            rB.push(b2[j]);
             j += 1;
         }
     }
-    return [ rA, rB ];
+    return [rA, rB];
 };
 
-const adjustIndexes = function ( removed, added, removedBefore, storeKeys,
-        removedBeforeStoreKeys ) {
+const adjustIndexes = function (
+    removed,
+    added,
+    removedBefore,
+    storeKeys,
+    removedBeforeStoreKeys,
+) {
     const resultIndexes = [];
     const resultStoreKeys = [];
-    for ( let i = 0, l = removed.length; i < l; i += 1 ) {
+    for (let i = 0, l = removed.length; i < l; i += 1) {
         // Take the item removed in the second update
         let index = removed[i];
         // And see how many items were added in the first update
         // before it
-        const position = added.binarySearch( index );
+        const position = added.binarySearch(index);
         // If there was an item added in the first update at the exact same
         // position, we don't need to do anything as they cancel each other out.
         // Since update 2 is from the state left by update 1, the storeKeys
         // MUST be the same.
-        if ( index === added[ position ] ) {
+        if (index === added[position]) {
             continue;
         }
         // Otherwise, subtract the number of items added before it, as
@@ -151,39 +156,53 @@ const adjustIndexes = function ( removed, added, removedBefore, storeKeys,
         // Now consider the indexes that were removed in the first
         // update. We need to increment the index for all indexes
         // before or equal to the index we're considering.
-        for ( let j = 0, ll = removedBefore.length;
-                j < ll && index >= removedBefore[j]; j += 1 ) {
+        for (
+            let j = 0, ll = removedBefore.length;
+            j < ll && index >= removedBefore[j];
+            j += 1
+        ) {
             index += 1;
         }
         // Now we have the correct index.
-        resultIndexes.push( index );
-        resultStoreKeys.push( storeKeys[i] );
+        resultIndexes.push(index);
+        resultStoreKeys.push(storeKeys[i]);
     }
     return mergeSortedLinkedArrays(
-        removedBefore, resultIndexes, removedBeforeStoreKeys, resultStoreKeys );
+        removedBefore,
+        resultIndexes,
+        removedBeforeStoreKeys,
+        resultStoreKeys,
+    );
 };
 
-const composeUpdates = function ( u1, u2 ) {
+const composeUpdates = function (u1, u2) {
     const removed = adjustIndexes(
-            u2.removedIndexes, u1.addedIndexes,  u1.removedIndexes,
-            u2.removedStoreKeys, u1.removedStoreKeys );
+        u2.removedIndexes,
+        u1.addedIndexes,
+        u1.removedIndexes,
+        u2.removedStoreKeys,
+        u1.removedStoreKeys,
+    );
     const added = adjustIndexes(
-            u1.addedIndexes, u2.removedIndexes, u2.addedIndexes,
-            u1.addedStoreKeys, u2.addedStoreKeys );
+        u1.addedIndexes,
+        u2.removedIndexes,
+        u2.addedIndexes,
+        u1.addedStoreKeys,
+        u2.addedStoreKeys,
+    );
 
     return {
         removedIndexes: removed[0],
         removedStoreKeys: removed[1],
         addedIndexes: added[0],
         addedStoreKeys: added[1],
-        truncateAtFirstGap:
-            u1.truncateAtFirstGap || u2.truncateAtFirstGap,
+        truncateAtFirstGap: u1.truncateAtFirstGap || u2.truncateAtFirstGap,
         total: u2.total,
         upToId: u2.upToId,
     };
 };
 
-const invertUpdate = function ( u ) {
+const invertUpdate = function (u) {
     let array = u.removedIndexes;
     u.removedIndexes = u.addedIndexes;
     u.addedIndexes = array;
@@ -199,29 +218,31 @@ const invertUpdate = function ( u ) {
 
 // Where (a,b) and (c,d) are ranges.
 // and a < b and c < d.
-const intersect = function ( a, b, c, d ) {
+const intersect = function (a, b, c, d) {
     return a < c ? c < b : a < d;
 };
 
-const updateIsEqual = function ( u1, u2 ) {
-    return u1.total === u2.total &&
-        isEqual( u1.addedIndexes, u2.addedIndexes ) &&
-        isEqual( u1.addedStoreKeys, u2.addedStoreKeys ) &&
-        isEqual( u1.removedIndexes, u2.removedIndexes ) &&
-        isEqual( u1.removedStoreKeys, u2.removedStoreKeys );
+const updateIsEqual = function (u1, u2) {
+    return (
+        u1.total === u2.total &&
+        isEqual(u1.addedIndexes, u2.addedIndexes) &&
+        isEqual(u1.addedStoreKeys, u2.addedStoreKeys) &&
+        isEqual(u1.removedIndexes, u2.removedIndexes) &&
+        isEqual(u1.removedStoreKeys, u2.removedStoreKeys)
+    );
 };
 
 // A window is determined to be still required if there is a range observer that
 // intersects with any part of the window. The prefetch distance is added to the
 // observer range.
-const windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
+const windowIsStillInUse = function (index, windowSize, prefetch, ranges) {
     const start = index * windowSize;
     const margin = prefetch * windowSize;
     let j = ranges.length;
-    while ( j-- ) {
+    while (j--) {
         const range = ranges[j];
         const rangeStart = range.start || 0;
-        if ( !( 'end' in range ) ) {
+        if (!('end' in range)) {
             break;
         }
         const rangeEnd = range.end;
@@ -229,13 +250,13 @@ const windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
             start,
             start + windowSize,
             rangeStart - margin,
-            rangeEnd + margin
+            rangeEnd + margin,
         );
-        if ( rangeIntersectsWindow ) {
+        if (rangeIntersectsWindow) {
             break;
         }
     }
-    return ( j !== -1 );
+    return j !== -1;
 };
 
 /**
@@ -254,7 +275,6 @@ const windowIsStillInUse = function ( index, windowSize, prefetch, ranges ) {
     query changes.
 */
 const WindowedQuery = Class({
-
     Extends: Query,
 
     /**
@@ -266,10 +286,11 @@ const WindowedQuery = Class({
     windowSize: 30,
 
     windowCount: function () {
-        const length = this.get( 'length' );
-        return ( length === null ) ? length :
-            Math.floor( ( length - 1 ) / this.get( 'windowSize' ) ) + 1;
-    }.property( 'length' ),
+        const length = this.get('length');
+        return length === null
+            ? length
+            : Math.floor((length - 1) / this.get('windowSize')) + 1;
+    }.property('length'),
 
     /**
         Property: O.WindowedQuery#triggerPoint
@@ -328,18 +349,20 @@ const WindowedQuery = Class({
         This is *not* currently observable.
     */
     allIdsAreLoaded: function () {
-        let l = this.get( 'windowCount' );
+        let l = this.get('windowCount');
         const windows = this._windows;
-        if ( l === null ) {
+        if (l === null) {
             return false;
         }
-        while ( l-- ) {
-            if ( !( windows[l] & WINDOW_READY ) ) {
+        while (l--) {
+            if (!(windows[l] & WINDOW_READY)) {
                 break;
             }
         }
-        return ( l < 0 );
-    }.property().nocache(),
+        return l < 0;
+    }
+        .property()
+        .nocache(),
 
     init: function (/* ...mixins */) {
         this._windows = [];
@@ -349,10 +372,10 @@ const WindowedQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedQuery.parent.constructor.apply( this, arguments );
+        WindowedQuery.parent.constructor.apply(this, arguments);
     },
 
-    reset () {
+    reset() {
         this._windows.length = 0;
         this._indexOfRequested.length = 0;
         this._waitingPackets.length = 0;
@@ -360,80 +383,80 @@ const WindowedQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedQuery.parent.reset.call( this );
+        WindowedQuery.parent.reset.call(this);
     },
 
     _toStoreKey: function () {
-        const store = this.get( 'store' );
-        const accountId = this.get( 'accountId' );
-        const Type = this.get( 'Type' );
-        return id => store.getStoreKey( accountId, Type, id );
+        const store = this.get('store');
+        const accountId = this.get('accountId');
+        const Type = this.get('Type');
+        return (id) => store.getStoreKey(accountId, Type, id);
     }.property(),
 
-    indexOfStoreKey ( storeKey, from, callback ) {
-        const index = this._storeKeys.indexOf( storeKey, from );
-        if ( callback ) {
+    indexOfStoreKey(storeKey, from, callback) {
+        const index = this._storeKeys.indexOf(storeKey, from);
+        if (callback) {
             // If we have a callback and haven't found it yet, we need to keep
             // searching.
-            if ( index < 0 ) {
+            if (index < 0) {
                 // First check if the list is loaded
-                if ( this.get( 'allIdsAreLoaded' ) ) {
+                if (this.get('allIdsAreLoaded')) {
                     // Everything loaded; the id simply isn't in it.
                     // index is -1.
-                    callback( index );
+                    callback(index);
                     return index;
                 }
                 // We're missing part of the list, so it may be in the missing
                 // bit.
-                const store = this.get( 'store' );
-                const id = store.getIdFromStoreKey( storeKey );
+                const store = this.get('store');
+                const id = store.getIdFromStoreKey(storeKey);
                 this._indexOfRequested.push([
                     id,
                     () => {
-                        callback( this._storeKeys.indexOf( storeKey, from ) );
+                        callback(this._storeKeys.indexOf(storeKey, from));
                     },
                 ]);
-                this.get( 'source' ).fetchQuery( this );
+                this.get('source').fetchQuery(this);
             } else {
-                callback( index );
+                callback(index);
             }
         }
         return index;
     },
 
-    getStoreKeysForObjectsInRange ( start, end, callback ) {
-        const length = this.get( 'length' );
+    getStoreKeysForObjectsInRange(start, end, callback) {
+        const length = this.get('length');
         let isComplete = true;
         let windows, windowSize;
 
-        if ( length !== null ) {
-            if ( start < 0 ) {
+        if (length !== null) {
+            if (start < 0) {
                 start = 0;
             }
-            if ( end > length ) {
+            if (end > length) {
                 end = length;
             }
 
             windows = this._windows;
-            windowSize = this.get( 'windowSize' );
-            let i = Math.floor( start / windowSize );
-            const l = Math.floor( ( end - 1 ) / windowSize ) + 1;
+            windowSize = this.get('windowSize');
+            let i = Math.floor(start / windowSize);
+            const l = Math.floor((end - 1) / windowSize) + 1;
 
-            for ( ; i < l; i += 1 ) {
-                if ( !( windows[i] & WINDOW_READY ) ) {
+            for (; i < l; i += 1) {
+                if (!(windows[i] & WINDOW_READY)) {
                     isComplete = false;
                     this._isAnExplicitIdFetch = true;
-                    this.fetchWindow( i, false, 0 );
+                    this.fetchWindow(i, false, 0);
                 }
             }
         } else {
             isComplete = false;
         }
 
-        if ( isComplete ) {
-            callback( this._storeKeys.slice( start, end ), start, end );
+        if (isComplete) {
+            callback(this._storeKeys.slice(start, end), start, end);
         } else {
-            this._awaitingIdFetch.push([ start, end, callback ]);
+            this._awaitingIdFetch.push([start, end, callback]);
         }
         return !isComplete;
     },
@@ -441,22 +464,22 @@ const WindowedQuery = Class({
     // Fetches all ids and records in window.
     // If within trigger distance of window edge, fetches adjacent window as
     // well.
-    fetchDataForObjectAt ( index ) {
+    fetchDataForObjectAt(index) {
         // Load all headers in window containing index.
-        const windowSize = this.get( 'windowSize' );
-        const trigger = this.get( 'triggerPoint' );
-        const windowIndex = Math.floor( index / windowSize );
+        const windowSize = this.get('windowSize');
+        const trigger = this.get('triggerPoint');
+        const windowIndex = Math.floor(index / windowSize);
         const withinWindowIndex = index % windowSize;
 
-        this.fetchWindow( windowIndex, true );
+        this.fetchWindow(windowIndex, true);
 
         // If within trigger distance of end of window, load next window
         // Otherwise, just fetch ids for the next window.
-        if ( withinWindowIndex < trigger ) {
-            this.fetchWindow( windowIndex - 1, true );
+        if (withinWindowIndex < trigger) {
+            this.fetchWindow(windowIndex - 1, true);
         }
-        if ( withinWindowIndex + trigger >= windowSize ) {
-            this.fetchWindow( windowIndex + 1, true );
+        if (withinWindowIndex + trigger >= windowSize) {
+            this.fetchWindow(windowIndex + 1, true);
         }
         return true;
     },
@@ -478,34 +501,35 @@ const WindowedQuery = Class({
         Returns:
             {O.WindowedQuery} Returns self.
     */
-    fetchWindow ( index, fetchRecords, prefetch ) {
-        let status = this.get( 'status' );
+    fetchWindow(index, fetchRecords, prefetch) {
+        let status = this.get('status');
         const windows = this._windows;
         let doFetch = false;
 
-        if ( status & OBSOLETE ) {
+        if (status & OBSOLETE) {
             this.fetch();
         }
 
-        if ( prefetch === undefined ) {
-            prefetch = this.get( 'prefetch' );
+        if (prefetch === undefined) {
+            prefetch = this.get('prefetch');
         }
 
-        let i = Math.max( 0, index - prefetch );
-        const l = Math.min( index + prefetch + 1,
-            this.get( 'windowCount' ) || 0 );
+        let i = Math.max(0, index - prefetch);
+        const l = Math.min(index + prefetch + 1, this.get('windowCount') || 0);
 
-        for ( ; i < l; i += 1 ) {
+        for (; i < l; i += 1) {
             status = windows[i] || 0;
-            if ( status === WINDOW_EMPTY ) {
+            if (status === WINDOW_EMPTY) {
                 status = WINDOW_REQUESTED;
                 doFetch = true;
             }
-            if ( i === index && fetchRecords &&
-                    status < WINDOW_RECORDS_REQUESTED ) {
-                if ( ( status & WINDOW_READY ) &&
-                        this.checkIfWindowIsFetched( i ) ) {
-                    status = (WINDOW_READY|WINDOW_RECORDS_READY);
+            if (
+                i === index &&
+                fetchRecords &&
+                status < WINDOW_RECORDS_REQUESTED
+            ) {
+                if (status & WINDOW_READY && this.checkIfWindowIsFetched(i)) {
+                    status = WINDOW_READY | WINDOW_RECORDS_READY;
                 } else {
                     status = status | WINDOW_RECORDS_REQUESTED;
                     doFetch = true;
@@ -513,24 +537,26 @@ const WindowedQuery = Class({
             }
             windows[i] = status;
         }
-        if ( doFetch ) {
-            this.get( 'source' ).fetchQuery( this );
+        if (doFetch) {
+            this.get('source').fetchQuery(this);
         }
         return this;
     },
 
     // Precondition: all ids are known
-    checkIfWindowIsFetched ( index ) {
-        const store = this.get( 'store' );
-        const windowSize = this.get( 'windowSize' );
+    checkIfWindowIsFetched(index) {
+        const store = this.get('store');
+        const windowSize = this.get('windowSize');
         const list = this._storeKeys;
         let i = index * windowSize;
-        const l = Math.min( i + windowSize, this.get( 'length' ) );
+        const l = Math.min(i + windowSize, this.get('length'));
         let status;
-        for ( ; i < l; i += 1 ) {
-            status = store.getStatus( list[i] );
-            if ( !( status & READY ) ||
-                    ( ( status & OBSOLETE ) && !( status & LOADING ) ) ) {
+        for (; i < l; i += 1) {
+            status = store.getStatus(list[i]);
+            if (
+                !(status & READY) ||
+                (status & OBSOLETE && !(status & LOADING))
+            ) {
                 return false;
             }
         }
@@ -554,25 +580,25 @@ const WindowedQuery = Class({
                     containing this index).
             length - {Number} The new length of the list.
     */
-    recalculateFetchedWindows ( start, length ) {
-        if ( !start ) {
+    recalculateFetchedWindows(start, length) {
+        if (!start) {
             start = 0;
         }
-        if ( length === undefined ) {
-            length = this.get( 'length' );
+        if (length === undefined) {
+            length = this.get('length');
         }
 
-        const windowSize = this.get( 'windowSize' );
+        const windowSize = this.get('windowSize');
         const windows = this._windows;
         const list = this._storeKeys;
         // Start at last window index
-        let windowIndex = Math.floor( ( length - 1 ) / windowSize );
+        let windowIndex = Math.floor((length - 1) / windowSize);
         // And last list index
         let listIndex = length - 1;
         let target, status;
 
         // Convert start from list index to window index.
-        start = Math.floor( start / windowSize );
+        start = Math.floor(start / windowSize);
 
         // Truncate any non-existant windows.
         windows.length = windowIndex + 1;
@@ -581,23 +607,23 @@ const WindowedQuery = Class({
         // listIndex and windowIndex we must remove the WINDOW_READY flag.
         // We always remove WINDOWS_RECORDS_READY flag, and calculate this when
         // the window is requested.
-        while ( windowIndex >= start ) {
+        while (windowIndex >= start) {
             target = windowIndex * windowSize;
             // Always remove WINDOWS_RECORDS_READY flag; this is recalculated
             // lazily when the window is fetched.
-            status = ( windows[ windowIndex ] || 0 ) & ~WINDOW_RECORDS_READY;
+            status = (windows[windowIndex] || 0) & ~WINDOW_RECORDS_READY;
             // But the window might be ready, so add the WINDOW_READY flag and
             // then remove it if we find a gap in the window.
             status |= WINDOW_READY;
-            while ( listIndex >= target ) {
-                if ( !list[ listIndex ] ) {
+            while (listIndex >= target) {
+                if (!list[listIndex]) {
                     status = status & ~WINDOW_READY;
                     break;
                 }
                 listIndex -= 1;
             }
             // Set the new status
-            windows[ windowIndex ] = status;
+            windows[windowIndex] = status;
             listIndex = target - 1;
             windowIndex -= 1;
         }
@@ -606,40 +632,42 @@ const WindowedQuery = Class({
 
     // ---- Updates ---
 
-    _normaliseUpdate ( update ) {
+    _normaliseUpdate(update) {
         const list = this._storeKeys;
         let removedStoreKeys = update.removed;
-        let removedIndexes = mapIndexes( list, removedStoreKeys );
+        let removedIndexes = mapIndexes(list, removedStoreKeys);
         const addedStoreKeys = [];
         const addedIndexes = [];
         const added = update.added;
         let i, j, l;
 
-        sortLinkedArrays( removedIndexes, removedStoreKeys );
-        for ( i = 0; removedIndexes[i] === -1; i += 1 ) {
+        sortLinkedArrays(removedIndexes, removedStoreKeys);
+        for (i = 0; removedIndexes[i] === -1; i += 1) {
             // Do nothing (we just want to find the first index of known
             // position).
         }
         // If we have some ids we don't know the index of.
-        if ( i ) {
+        if (i) {
             // Ignore them.
-            removedIndexes = removedIndexes.slice( i );
-            removedStoreKeys = removedStoreKeys.slice( i );
+            removedIndexes = removedIndexes.slice(i);
+            removedStoreKeys = removedStoreKeys.slice(i);
         }
         // But truncate at first gap.
         const truncateAtFirstGap = !!i;
 
-        for ( i = 0, l = added.length; i < l; i += 1 ) {
+        for (i = 0, l = added.length; i < l; i += 1) {
             const { index, storeKey } = added[i];
-            j = removedStoreKeys.indexOf( storeKey );
+            j = removedStoreKeys.indexOf(storeKey);
 
-            if ( j > -1 &&
-                    removedIndexes[j] - j + addedIndexes.length === index ) {
-                removedIndexes.splice( j, 1 );
-                removedStoreKeys.splice( j, 1 );
+            if (
+                j > -1 &&
+                removedIndexes[j] - j + addedIndexes.length === index
+            ) {
+                removedIndexes.splice(j, 1);
+                removedStoreKeys.splice(j, 1);
             } else {
-                addedIndexes.push( index );
-                addedStoreKeys.push( storeKey );
+                addedIndexes.push(index);
+                addedStoreKeys.push(storeKey);
             }
         }
 
@@ -649,16 +677,17 @@ const WindowedQuery = Class({
             addedIndexes,
             addedStoreKeys,
             truncateAtFirstGap,
-            total: update.total !== undefined ?
-                update.total :
-                this.get( 'length' ) -
-                    removedIndexes.length +
-                    addedIndexes.length,
+            total:
+                update.total !== undefined
+                    ? update.total
+                    : this.get('length') -
+                      removedIndexes.length +
+                      addedIndexes.length,
             upToId: update.upToId,
         };
     },
 
-    _applyUpdate ( args ) {
+    _applyUpdate(args) {
         const removedIndexes = args.removedIndexes;
         const removedStoreKeys = args.removedStoreKeys;
         const removedLength = removedStoreKeys.length;
@@ -666,8 +695,8 @@ const WindowedQuery = Class({
         const addedStoreKeys = args.addedStoreKeys;
         const addedLength = addedStoreKeys.length;
         const list = this._storeKeys;
-        let recalculateFetchedWindows = !!( addedLength || removedLength );
-        const oldLength = this.get( 'length' );
+        let recalculateFetchedWindows = !!(addedLength || removedLength);
+        const oldLength = this.get('length');
         const newLength = args.total;
         let firstChange = oldLength;
         let index, storeKey, listLength;
@@ -675,24 +704,24 @@ const WindowedQuery = Class({
         // --- Remove items from list ---
 
         let l = removedLength;
-        while ( l-- ) {
+        while (l--) {
             index = removedIndexes[l];
-            list.splice( index, 1 );
-            if ( index < firstChange ) {
+            list.splice(index, 1);
+            if (index < firstChange) {
                 firstChange = index;
             }
         }
 
-        if ( args.truncateAtFirstGap ) {
+        if (args.truncateAtFirstGap) {
             // Truncate the list so it does not contain any gaps; anything after
             // the first gap may be incorrect as a record may have been removed
             // from that gap.
             let i = 0;
-            while ( list[i] ) {
+            while (list[i]) {
                 i += 1;
             }
             list.length = i;
-            if ( i < firstChange ) {
+            if (i < firstChange) {
                 firstChange = i;
             }
         }
@@ -703,17 +732,17 @@ const WindowedQuery = Class({
         // (unless you set the length of the array first), so use standard
         // assignment.
         listLength = list.length;
-        for ( let i = 0, l = addedLength; i < l; i += 1 ) {
+        for (let i = 0, l = addedLength; i < l; i += 1) {
             index = addedIndexes[i];
             storeKey = addedStoreKeys[i];
-            if ( index >= listLength ) {
-                list[ index ] = storeKey;
+            if (index >= listLength) {
+                list[index] = storeKey;
                 listLength = index + 1;
             } else {
-                list.splice( index, 0, storeKey );
+                list.splice(index, 0, storeKey);
                 listLength += 1;
             }
-            if ( index < firstChange ) {
+            if (index < firstChange) {
                 firstChange = index;
             }
         }
@@ -724,10 +753,10 @@ const WindowedQuery = Class({
         // may have changed, but won't be in the updates, so we need to truncate
         // the list to ensure it doesn't get into an inconsistent state.
         // If we can't find the id, we have to reset.
-        if ( args.upToId ) {
-            l = list.lastIndexOf( args.upToId ) + 1;
-            if ( l ) {
-                if ( l !== listLength ) {
+        if (args.upToId) {
+            l = list.lastIndexOf(args.upToId) + 1;
+            if (l) {
+                if (l !== listLength) {
                     recalculateFetchedWindows = true;
                     list.length = l;
                 }
@@ -744,19 +773,21 @@ const WindowedQuery = Class({
         // have a complete set of ids; if the window needs an update or does
         // not have all records in memory, this will be recalculated when it is
         // accessed.
-        if ( recalculateFetchedWindows ) {
-            this.recalculateFetchedWindows( firstChange, newLength );
+        if (recalculateFetchedWindows) {
+            this.recalculateFetchedWindows(firstChange, newLength);
         }
 
         // --- Broadcast changes ---
 
-        this.set( 'length', newLength )
-            .rangeDidChange( firstChange, Math.max( oldLength, newLength ) );
+        this.set('length', newLength).rangeDidChange(
+            firstChange,
+            Math.max(oldLength, newLength),
+        );
 
         // For selection purposes, list view will need to know the ids of those
         // which were removed. Also, keyboard indicator will need to know the
         // indexes of those removed or added.
-        this.fire( 'query:updated', {
+        this.fire('query:updated', {
             query: this,
             removed: removedStoreKeys,
             removedIndexes,
@@ -771,51 +802,51 @@ const WindowedQuery = Class({
         return this;
     },
 
-    _applyWaitingPackets () {
+    _applyWaitingPackets() {
         let didDropPackets = false;
         const waitingPackets = this._waitingPackets;
         let l = waitingPackets.length;
-        const queryState = this.get( 'queryState' );
+        const queryState = this.get('queryState');
         let packet;
 
-        while ( l-- ) {
+        while (l--) {
             packet = waitingPackets.shift();
             // If these values aren't now the same, the packet must
             // be OLDER than our current queryState, so just discard.
-            if ( packet.queryState !== queryState ) {
+            if (packet.queryState !== queryState) {
                 // But also fetch everything missing in observed range, to
                 // ensure we have the required data
                 didDropPackets = true;
             } else {
-                this.sourceDidFetchIds( packet );
+                this.sourceDidFetchIds(packet);
             }
         }
-        if ( didDropPackets ) {
+        if (didDropPackets) {
             this._fetchObservedWindows();
         }
     },
 
-    _fetchObservedWindows () {
-        const ranges = meta( this ).rangeObservers;
-        const length = this.get( 'length' );
-        const windowSize = this.get( 'windowSize' );
+    _fetchObservedWindows() {
+        const ranges = meta(this).rangeObservers;
+        const length = this.get('length');
+        const windowSize = this.get('windowSize');
         let observerStart, observerEnd, firstWindow, lastWindow, range, l;
-        if ( ranges ) {
+        if (ranges) {
             l = ranges.length;
-            while ( l-- ) {
+            while (l--) {
                 range = ranges[l].range;
                 observerStart = range.start || 0;
                 observerEnd = 'end' in range ? range.end : length;
-                if ( observerStart < 0 ) {
+                if (observerStart < 0) {
                     observerStart += length;
                 }
-                if ( observerEnd < 0 ) {
+                if (observerEnd < 0) {
                     observerEnd += length;
                 }
-                firstWindow = Math.floor( observerStart / windowSize );
-                lastWindow = Math.floor( ( observerEnd - 1 ) / windowSize );
-                for ( ; firstWindow <= lastWindow; firstWindow += 1 ) {
-                    this.fetchWindow( firstWindow, true );
+                firstWindow = Math.floor(observerStart / windowSize);
+                lastWindow = Math.floor((observerEnd - 1) / windowSize);
+                for (; firstWindow <= lastWindow; firstWindow += 1) {
+                    this.fetchWindow(firstWindow, true);
                 }
             }
         }
@@ -841,13 +872,13 @@ const WindowedQuery = Class({
         Returns:
             {O.WindowedQuery} Returns self.
     */
-    clientDidGenerateUpdate ( update ) {
-        update = this._normaliseUpdate( update );
+    clientDidGenerateUpdate(update) {
+        update = this._normaliseUpdate(update);
         // Ignore completely any ids we don't have.
         update.truncateAtFirstGap = false;
-        this._applyUpdate( update );
-        this._preemptiveUpdates.push( update );
-        this.set( 'status', this.get( 'status' ) | DIRTY );
+        this._applyUpdate(update);
+        this._preemptiveUpdates.push(update);
+        this.set('status', this.get('status') | DIRTY);
         this.setObsolete();
         return this;
     },
@@ -880,40 +911,40 @@ const WindowedQuery = Class({
         Returns:
             {O.WindowedQuery} Returns self.
     */
-    sourceDidFetchUpdate ( update ) {
-        const queryState = this.get( 'queryState' );
-        const status = this.get( 'status' );
+    sourceDidFetchUpdate(update) {
+        const queryState = this.get('queryState');
+        const status = this.get('status');
         const preemptives = this._preemptiveUpdates;
         const preemptivesLength = preemptives.length;
         let allPreemptives, composed;
 
         // We've got an update, so we're no longer in the LOADING state.
-        this.set( 'status', status & ~LOADING );
+        this.set('status', status & ~LOADING);
 
         // Check we've not already got this update.
-        if ( queryState === update.newQueryState ) {
-            if ( preemptivesLength && !( status & DIRTY ) ) {
-                allPreemptives = preemptives.reduce( composeUpdates );
-                this._applyUpdate( invertUpdate( allPreemptives ) );
+        if (queryState === update.newQueryState) {
+            if (preemptivesLength && !(status & DIRTY)) {
+                allPreemptives = preemptives.reduce(composeUpdates);
+                this._applyUpdate(invertUpdate(allPreemptives));
                 preemptives.length = 0;
             }
             return this;
         }
         // We can only update from our old query state.
-        if ( queryState !== update.oldQueryState ) {
+        if (queryState !== update.oldQueryState) {
             return this.setObsolete();
         }
         // Set new query state
-        this.set( 'queryState', update.newQueryState );
+        this.set('queryState', update.newQueryState);
 
         // Map ids to store keys
-        const toStoreKey = this.get( '_toStoreKey' );
-        const added = update.added.map( item => ({
+        const toStoreKey = this.get('_toStoreKey');
+        const added = update.added.map((item) => ({
             index: item.index,
-            storeKey: toStoreKey( item.id ),
+            storeKey: toStoreKey(item.id),
         }));
         const seenStorekey = {};
-        const removed = update.removed.reduce( ( removed, id ) => {
+        const removed = update.removed.reduce((removed, id) => {
             // Need to deduplicate removed; if an id is rewritten, we keep the
             // old id => store key mapping so we can remove it from a query.
             // However, the server may return both the old id and the new id
@@ -921,30 +952,31 @@ const WindowedQuery = Class({
             // in the correct position), which results in it being removed from
             // the query rather than moved to the correct place if we don't
             // deduplicate.
-            const storeKey = toStoreKey( id );
-            if ( !seenStorekey[ storeKey ] ) {
-                seenStorekey[ storeKey ] = true;
-                removed.push( storeKey );
+            const storeKey = toStoreKey(id);
+            if (!seenStorekey[storeKey]) {
+                seenStorekey[storeKey] = true;
+                removed.push(storeKey);
             }
             return removed;
-        }, [] );
-        const upToId = update.upToId && toStoreKey( update.upToId );
+        }, []);
+        const upToId = update.upToId && toStoreKey(update.upToId);
         const total = update.total;
 
-        if ( !preemptivesLength ) {
-            this._applyUpdate( this._normaliseUpdate({
-                removed,
-                added,
-                total,
-                upToId,
-            }));
+        if (!preemptivesLength) {
+            this._applyUpdate(
+                this._normaliseUpdate({
+                    removed,
+                    added,
+                    total,
+                    upToId,
+                }),
+            );
         } else {
             // 1. Compose all preemptives:
             // [p1, p2, p3] -> [p1, p1 + p2, p1 + p2 + p3 ]
-            composed = [ preemptives[0] ];
-            for ( let i = 1; i < preemptivesLength; i += 1 ) {
-                composed[i] = composeUpdates(
-                    composed[ i - 1 ], preemptives[i] );
+            composed = [preemptives[0]];
+            for (let i = 1; i < preemptivesLength; i += 1) {
+                composed[i] = composeUpdates(composed[i - 1], preemptives[i]);
             }
 
             // 2. Normalise the update from the server. This is trickier
@@ -953,8 +985,8 @@ const WindowedQuery = Class({
             const normalisedUpdate = {
                 removedIndexes: [],
                 removedStoreKeys: [],
-                addedIndexes: added.map( item => item.index ),
-                addedStoreKeys: added.map( item => item.storeKey ),
+                addedIndexes: added.map((item) => item.index),
+                addedStoreKeys: added.map((item) => item.storeKey),
                 truncateAtFirstGap: false,
                 total,
                 upToId,
@@ -973,26 +1005,25 @@ const WindowedQuery = Class({
             let wasSuccessfulPreemptive = false;
             let storeKey, index;
 
-            allPreemptives = composed[ preemptivesLength - 1 ];
-            for ( let i = 0, l = removed.length; i < l; i += 1 ) {
+            allPreemptives = composed[preemptivesLength - 1];
+            for (let i = 0, l = removed.length; i < l; i += 1) {
                 storeKey = removed[i];
-                index = allPreemptives.removedStoreKeys.indexOf( storeKey );
-                if ( index > -1 ) {
-                    removedIndexes.push(
-                        allPreemptives.removedIndexes[ index ] );
-                    removedStoreKeys.push( storeKey );
+                index = allPreemptives.removedStoreKeys.indexOf(storeKey);
+                if (index > -1) {
+                    removedIndexes.push(allPreemptives.removedIndexes[index]);
+                    removedStoreKeys.push(storeKey);
                 } else {
-                    index = list.indexOf( storeKey );
-                    if ( index > -1 ) {
-                        _indexes.push( index );
-                        _storeKeys.push( storeKey );
+                    index = list.indexOf(storeKey);
+                    if (index > -1) {
+                        _indexes.push(index);
+                        _storeKeys.push(storeKey);
                     } else {
                         normalisedUpdate.truncateAtFirstGap = true;
                     }
                 }
             }
-            if ( _indexes.length ) {
-                const x = composeUpdates( allPreemptives, {
+            if (_indexes.length) {
+                const x = composeUpdates(allPreemptives, {
                     removedIndexes: _indexes,
                     removedStoreKeys: _storeKeys,
                     addedIndexes: [],
@@ -1001,28 +1032,27 @@ const WindowedQuery = Class({
                 _indexes = x.removedIndexes;
                 _storeKeys = x.removedStoreKeys;
                 let ll = removedIndexes.length;
-                for ( let i = 0, l = _indexes.length; i < l; i += 1 ) {
-                    removedIndexes[ ll ] = _indexes[i];
-                    removedStoreKeys[ ll ] = _storeKeys[i];
+                for (let i = 0, l = _indexes.length; i < l; i += 1) {
+                    removedIndexes[ll] = _indexes[i];
+                    removedStoreKeys[ll] = _storeKeys[i];
                     ll += 1;
                 }
             }
-            sortLinkedArrays( removedIndexes, removedStoreKeys );
+            sortLinkedArrays(removedIndexes, removedStoreKeys);
 
             // Now remove any idempotent operations
             const addedIndexes = normalisedUpdate.addedIndexes;
             const addedStoreKeys = normalisedUpdate.addedStoreKeys;
             let l = addedIndexes.length;
 
-            while ( l-- ) {
+            while (l--) {
                 storeKey = addedStoreKeys[l];
-                const i = removedStoreKeys.indexOf( storeKey );
-                if ( i > -1 &&
-                        removedIndexes[i] - i + l === addedIndexes[l] ) {
-                    removedIndexes.splice( i, 1 );
-                    removedStoreKeys.splice( i, 1 );
-                    addedIndexes.splice( l, 1 );
-                    addedStoreKeys.splice( l, 1 );
+                const i = removedStoreKeys.indexOf(storeKey);
+                if (i > -1 && removedIndexes[i] - i + l === addedIndexes[l]) {
+                    removedIndexes.splice(i, 1);
+                    removedStoreKeys.splice(i, 1);
+                    addedIndexes.splice(l, 1);
+                    addedStoreKeys.splice(l, 1);
                 }
             }
 
@@ -1037,38 +1067,37 @@ const WindowedQuery = Class({
 
             // If nothing actually changed in this update, we're done,
             // but we can apply any waiting packets.
-            if ( !removedStoreKeys.length && !addedStoreKeys.length ) {
+            if (!removedStoreKeys.length && !addedStoreKeys.length) {
                 wasSuccessfulPreemptive = true;
             } else {
                 let l = composed.length;
-                while ( l-- ) {
-                    if ( updateIsEqual(
-                            normalisedUpdate, composed[l] ) ) {
+                while (l--) {
+                    if (updateIsEqual(normalisedUpdate, composed[l])) {
                         // Remove the preemptives that have now been
                         // confirmed by the server
-                        preemptives.splice( 0, l + 1 );
+                        preemptives.splice(0, l + 1);
                         wasSuccessfulPreemptive = true;
                         break;
                     }
                 }
             }
-            if ( wasSuccessfulPreemptive ) {
+            if (wasSuccessfulPreemptive) {
                 // Truncate if needed
-                if ( normalisedUpdate.truncateAtFirstGap ) {
+                if (normalisedUpdate.truncateAtFirstGap) {
                     let i = 0;
-                    while ( list[i] ) {
+                    while (list[i]) {
                         i += 1;
                     }
-                    if ( list.length !== i ) {
+                    if (list.length !== i) {
                         list.length = i;
-                        this.recalculateFetchedWindows( i );
+                        this.recalculateFetchedWindows(i);
                     }
                 }
                 // If we aren't in the dirty state, we shouldn't have any
                 // preemptive updates left. If we do, remove them.
-                if ( !( status & DIRTY ) && preemptives.length ) {
-                    allPreemptives = preemptives.reduce( composeUpdates );
-                    this._applyUpdate( invertUpdate( allPreemptives ) );
+                if (!(status & DIRTY) && preemptives.length) {
+                    allPreemptives = preemptives.reduce(composeUpdates);
+                    this._applyUpdate(invertUpdate(allPreemptives));
                     preemptives.length = 0;
                 } else {
                     this._applyWaitingPackets();
@@ -1079,9 +1108,9 @@ const WindowedQuery = Class({
                 preemptives.length = 0;
                 this._applyUpdate(
                     composeUpdates(
-                        invertUpdate( allPreemptives ),
-                        normalisedUpdate
-                    )
+                        invertUpdate(allPreemptives),
+                        normalisedUpdate,
+                    ),
                 );
             }
         }
@@ -1107,11 +1136,11 @@ const WindowedQuery = Class({
         Returns:
             {O.WindowedQuery} Returns self.
     */
-    sourceDidFetchIds ( args ) {
-        const queryState = this.get( 'queryState' );
-        const status = this.get( 'status' );
-        const oldLength = this.get( 'length' ) || 0;
-        const canGetDeltaUpdates = this.get( 'canGetDeltaUpdates' );
+    sourceDidFetchIds(args) {
+        const queryState = this.get('queryState');
+        const status = this.get('status');
+        const oldLength = this.get('length') || 0;
+        const canGetDeltaUpdates = this.get('canGetDeltaUpdates');
         let position = args.position;
         let total = args.total;
         const ids = args.ids;
@@ -1124,48 +1153,48 @@ const WindowedQuery = Class({
 
         // If the query state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
-        if ( queryState && queryState !== args.queryState ) {
-            if ( canGetDeltaUpdates ) {
-                this._waitingPackets.push( args );
+        if (queryState && queryState !== args.queryState) {
+            if (canGetDeltaUpdates) {
+                this._waitingPackets.push(args);
                 return this.setObsolete().fetch();
             } else {
                 list.length = windows.length = preemptives.length = 0;
                 informAllRangeObservers = true;
             }
         }
-        this.set( 'queryState', args.queryState );
+        this.set('queryState', args.queryState);
 
         // Map ids to store keys
-        const toStoreKey = this.get( '_toStoreKey' );
-        const storeKeys = ids.map( toStoreKey );
+        const toStoreKey = this.get('_toStoreKey');
+        const storeKeys = ids.map(toStoreKey);
 
         // Need to adjust for preemptive updates
-        if ( preemptives.length ) {
+        if (preemptives.length) {
             // Adjust store keys, position, length
-            const allPreemptives = preemptives.reduce( composeUpdates );
+            const allPreemptives = preemptives.reduce(composeUpdates);
             const addedIndexes = allPreemptives.addedIndexes;
             const addedStoreKeys = allPreemptives.addedStoreKeys;
             const removedIndexes = allPreemptives.removedIndexes;
 
-            if ( canGetDeltaUpdates ) {
+            if (canGetDeltaUpdates) {
                 let l = removedIndexes.length;
-                while ( l-- ) {
+                while (l--) {
                     const index = removedIndexes[l] - position;
-                    if ( index < length ) {
-                        if ( index >= 0 ) {
-                            storeKeys.splice( index, 1 );
+                    if (index < length) {
+                        if (index >= 0) {
+                            storeKeys.splice(index, 1);
                             length -= 1;
                         } else {
                             position -= 1;
                         }
                     }
                 }
-                for ( let i = 0, l = addedIndexes.length; i < l; i += 1 ) {
+                for (let i = 0, l = addedIndexes.length; i < l; i += 1) {
                     const index = addedIndexes[i] - position;
-                    if ( index <= 0 ) {
+                    if (index <= 0) {
                         position += 1;
-                    } else if ( index < length ) {
-                        storeKeys.splice( index, 0, addedStoreKeys[i] );
+                    } else if (index < length) {
+                        storeKeys.splice(index, 0, addedStoreKeys[i]);
                         length += 1;
                     } else {
                         break;
@@ -1175,7 +1204,7 @@ const WindowedQuery = Class({
             } else {
                 // The preemptive change we made was clearly incorrect as no
                 // change has actually occurred, so we need to unwind it.
-                this._applyUpdate( invertUpdate( allPreemptives ) );
+                this._applyUpdate(invertUpdate(allPreemptives));
                 preemptives.length = 0;
             }
         }
@@ -1184,140 +1213,150 @@ const WindowedQuery = Class({
         const end = position + length;
 
         // Insert store keys into list
-        for ( let i = 0; i < length; i += 1 ) {
-            list[ position + i ] = storeKeys[i];
+        for (let i = 0; i < length; i += 1) {
+            list[position + i] = storeKeys[i];
         }
 
         // Have we fetched any windows?
-        const windowSize = this.get( 'windowSize' );
-        let windowIndex = Math.floor( position / windowSize );
+        const windowSize = this.get('windowSize');
+        let windowIndex = Math.floor(position / windowSize);
         const withinWindowIndex = position % windowSize;
-        if ( withinWindowIndex ) {
-            for ( let i = windowIndex * windowSize, l = i + withinWindowIndex;
-                    i < l; i += 1  ) {
-                if ( !list[i] ) {
+        if (withinWindowIndex) {
+            for (
+                let i = windowIndex * windowSize, l = i + withinWindowIndex;
+                i < l;
+                i += 1
+            ) {
+                if (!list[i]) {
                     beginningOfWindowIsFetched = false;
                     break;
                 }
             }
-            if ( beginningOfWindowIsFetched ) {
+            if (beginningOfWindowIsFetched) {
                 length += withinWindowIndex;
             } else {
                 windowIndex += 1;
-                length -= ( windowSize - withinWindowIndex );
+                length -= windowSize - withinWindowIndex;
             }
         }
         // Now, for each set of windowSize records, we have a complete window.
-        while ( ( length -= windowSize ) >= 0 ) {
-            windows[ windowIndex ] |= WINDOW_READY;
+        while ((length -= windowSize) >= 0) {
+            windows[windowIndex] |= WINDOW_READY;
             windowIndex += 1;
         }
         // Need to check if the final window was loaded (may not be full-sized).
         length += windowSize;
-        if ( length && end === total && length === ( total % windowSize ) ) {
-            windows[ windowIndex ] |= WINDOW_READY;
+        if (length && end === total && length === total % windowSize) {
+            windows[windowIndex] |= WINDOW_READY;
         }
 
         // All that's left is to inform observers of the changes.
-        return this
-            .beginPropertyChanges()
-                .set( 'length', total )
-                .set( 'status', (status & EMPTY) ? READY : status )
+        return this.beginPropertyChanges()
+            .set('length', total)
+            .set('status', status & EMPTY ? READY : status)
             .endPropertyChanges()
             .rangeDidChange(
                 informAllRangeObservers ? 0 : position,
-                informAllRangeObservers ?
-                    Math.max( oldLength, end ) : end
+                informAllRangeObservers ? Math.max(oldLength, end) : end,
             )
-            .fire( 'query:idsLoaded' );
+            .fire('query:idsLoaded');
     },
 
-    sourceWillFetchQuery () {
+    sourceWillFetchQuery() {
         // If optimise and no longer observed -> remove request
         // Move from requested -> loading
-        const windowSize = this.get( 'windowSize' );
+        const windowSize = this.get('windowSize');
         const windows = this._windows;
         const isAnExplicitIdFetch = this._isAnExplicitIdFetch;
         const indexOfRequested = this._indexOfRequested;
         const refreshRequested = this._refresh;
         const recordRequests = [];
         const idRequests = [];
-        const optimiseFetching = this.get( 'optimiseFetching' );
-        const ranges = ( meta( this ).rangeObservers || [] )
-            .map( observer => observer.range );
-        const fetchAllObservedIds = refreshRequested &&
-                !this.get( 'canGetDeltaUpdates' );
-        const prefetch = this.get( 'prefetch' );
+        const optimiseFetching = this.get('optimiseFetching');
+        const ranges = (meta(this).rangeObservers || []).map(
+            (observer) => observer.range,
+        );
+        const fetchAllObservedIds =
+            refreshRequested && !this.get('canGetDeltaUpdates');
+        const prefetch = this.get('prefetch');
         let status, inUse, rPrev, iPrev, start;
 
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];
         this._refresh = false;
 
-        for ( let i = 0, l = windows.length; i < l; i += 1 ) {
+        for (let i = 0, l = windows.length; i < l; i += 1) {
             status = windows[i];
-            if ( status & (WINDOW_REQUESTED|WINDOW_RECORDS_REQUESTED) ) {
-                inUse = !optimiseFetching ||
-                    windowIsStillInUse( i, windowSize, prefetch, ranges );
-                if ( status & WINDOW_RECORDS_REQUESTED ) {
-                    status &= ~(WINDOW_RECORDS_REQUESTED);
-                    if ( inUse ) {
+            if (status & (WINDOW_REQUESTED | WINDOW_RECORDS_REQUESTED)) {
+                inUse =
+                    !optimiseFetching ||
+                    windowIsStillInUse(i, windowSize, prefetch, ranges);
+                if (status & WINDOW_RECORDS_REQUESTED) {
+                    status &= ~WINDOW_RECORDS_REQUESTED;
+                    if (inUse) {
                         start = i * windowSize;
-                        if ( rPrev &&
-                                rPrev.start + rPrev.count === start ) {
+                        if (rPrev && rPrev.start + rPrev.count === start) {
                             rPrev.count += windowSize;
                         } else {
-                            recordRequests.push( rPrev = {
-                                start,
-                                count: windowSize,
-                            });
+                            recordRequests.push(
+                                (rPrev = {
+                                    start,
+                                    count: windowSize,
+                                }),
+                            );
                         }
                         status |= WINDOW_LOADING;
                         status |= WINDOW_RECORDS_LOADING;
                     }
                     // If not requesting records and an explicit id fetch, leave
                     // WINDOW_REQUESTED flag set the ids are still requested.
-                    if ( inUse || !isAnExplicitIdFetch ) {
+                    if (inUse || !isAnExplicitIdFetch) {
                         status &= ~WINDOW_REQUESTED;
                     } else {
                         status |= WINDOW_REQUESTED;
                     }
                 }
-                if ( status & WINDOW_REQUESTED ) {
-                    if ( inUse || isAnExplicitIdFetch ) {
+                if (status & WINDOW_REQUESTED) {
+                    if (inUse || isAnExplicitIdFetch) {
                         start = i * windowSize;
-                        if ( iPrev && iPrev.start + iPrev.count === start ) {
+                        if (iPrev && iPrev.start + iPrev.count === start) {
                             iPrev.count += windowSize;
                         } else {
-                            idRequests.push( iPrev = {
-                                start,
-                                count: windowSize,
-                            });
+                            idRequests.push(
+                                (iPrev = {
+                                    start,
+                                    count: windowSize,
+                                }),
+                            );
                         }
                         status |= WINDOW_LOADING;
                     }
                     status &= ~WINDOW_REQUESTED;
                 }
-            } else if ( fetchAllObservedIds ) {
-                inUse = windowIsStillInUse( i, windowSize, prefetch, ranges );
-                if ( inUse ) {
+            } else if (fetchAllObservedIds) {
+                inUse = windowIsStillInUse(i, windowSize, prefetch, ranges);
+                if (inUse) {
                     start = i * windowSize;
-                    if ( iPrev && iPrev.start + iPrev.count === start ) {
+                    if (iPrev && iPrev.start + iPrev.count === start) {
                         iPrev.count += windowSize;
                     } else {
-                        idRequests.push( iPrev = {
-                            start,
-                            count: windowSize,
-                        });
+                        idRequests.push(
+                            (iPrev = {
+                                start,
+                                count: windowSize,
+                            }),
+                        );
                     }
                 }
             }
             windows[i] = status;
         }
 
-        if ( refreshRequested || this.is( EMPTY ) ) {
-            this.set( 'status',
-                ( this.get( 'status' )|LOADING ) & ~(OBSOLETE|DIRTY) );
+        if (refreshRequested || this.is(EMPTY)) {
+            this.set(
+                'status',
+                (this.get('status') | LOADING) & ~(OBSOLETE | DIRTY),
+            );
         }
 
         return {
@@ -1327,9 +1366,10 @@ const WindowedQuery = Class({
             refresh: refreshRequested,
             callback: () => {
                 this._windows = this._windows.map(
-                    status => status & ~(WINDOW_LOADING|WINDOW_RECORDS_LOADING)
+                    (status) =>
+                        status & ~(WINDOW_LOADING | WINDOW_RECORDS_LOADING),
                 );
-                this.set( 'status', this.get( 'status' ) & ~LOADING );
+                this.set('status', this.get('status') & ~LOADING);
             },
         };
     },

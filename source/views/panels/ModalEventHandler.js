@@ -1,21 +1,20 @@
 import { Class } from '../../core/Core';
 import Obj from '../../foundation/Object';
-import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/EventTarget'; // For Function#on
 import ScrollView from '../containers/ScrollView';
 
 const ModalEventHandler = Class({
-
     Extends: Obj,
 
     init: function (/* ...mixins */) {
-        ModalEventHandler.parent.constructor.apply( this, arguments );
+        ModalEventHandler.parent.constructor.apply(this, arguments);
         this._seenMouseDown = false;
     },
 
-    inView ( view, event ) {
+    inView(view, event) {
         let targetView = event.targetView;
-        while ( targetView && targetView !== view ) {
-            targetView = targetView.get( 'parentView' );
+        while (targetView && targetView !== view) {
+            targetView = targetView.get('parentView');
         }
         return !!targetView;
     },
@@ -36,59 +35,59 @@ const ModalEventHandler = Class({
     // we've seen at least one mousedown event after the popOver view shows
     // before hiding on click. On Android/iOS, we will not see a mousedown
     // event, so we also count a touchstart event.
-    handleMouse: function ( event ) {
-        const view = this.get( 'view' );
+    handleMouse: function (event) {
+        const view = this.get('view');
         const type = event.type;
-        if ( !event.seenByModal && !this.inView( view, event ) ) {
+        if (!event.seenByModal && !this.inView(view, event)) {
             event.stopPropagation();
-            if ( type === 'mousedown' ) {
+            if (type === 'mousedown') {
                 this._seenMouseDown = true;
-            } else if ( type === 'click' ) {
+            } else if (type === 'click') {
                 event.preventDefault();
-                if ( this._seenMouseDown ) {
-                    if ( view.clickedOutside ) {
-                        view.clickedOutside( event );
+                if (this._seenMouseDown) {
+                    if (view.clickedOutside) {
+                        view.clickedOutside(event);
                     }
                 }
-            } else if ( type === 'wheel' ) {
-                const scrollView = this.get( 'view' ).getParent( ScrollView );
-                if ( !scrollView || !this.inView( scrollView, event ) ) {
+            } else if (type === 'wheel') {
+                const scrollView = this.get('view').getParent(ScrollView);
+                if (!scrollView || !this.inView(scrollView, event)) {
                     event.preventDefault();
                 }
             }
         }
         event.seenByModal = true;
-    }.on( 'click', 'mousedown', 'mouseup', 'tap', 'wheel' ),
+    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel'),
 
     // If the user clicks on a scroll bar to scroll (I know, who does that
     // these days right?), we don't want to count that as a click. So cancel
     // the seen mousedown on scroll events.
     handleScroll: function () {
         this._seenMouseDown = false;
-    }.on( 'scroll' ),
+    }.on('scroll'),
 
-    handleKeys: function ( event ) {
-        const view = this.get( 'view' );
-        if ( !event.seenByModal && !this.inView( view, event ) ) {
+    handleKeys: function (event) {
+        const view = this.get('view');
+        if (!event.seenByModal && !this.inView(view, event)) {
             event.stopPropagation();
             // View may be interested in key events:
-            if ( view.keyOutside ) {
-                view.keyOutside( event );
+            if (view.keyOutside) {
+                view.keyOutside(event);
             }
         }
         event.seenByModal = true;
-    }.on( 'keypress', 'keydown', 'keyup' ),
+    }.on('keypress', 'keydown', 'keyup'),
 
-    handleTouch: function ( event ) {
-        const view = this.get( 'view' );
-        if ( !event.seenByModal && !this.inView( view, event ) ) {
+    handleTouch: function (event) {
+        const view = this.get('view');
+        if (!event.seenByModal && !this.inView(view, event)) {
             event.preventDefault();
             event.stopPropagation();
             // Clicks outside should now close the modal.
             this._seenMouseDown = true;
         }
         event.seenByModal = true;
-    }.on( 'touchstart' ),
+    }.on('touchstart'),
 });
 
 export default ModalEventHandler;

@@ -1,4 +1,4 @@
-import './RunLoop';  // For Function#invokeInRunLoop
+import './RunLoop'; // For Function#invokeInRunLoop
 
 const NativePromise = Promise;
 const NativePromisePrototype = NativePromise.prototype;
@@ -32,41 +32,44 @@ const NativePromisePrototype = NativePromise.prototype;
     which is incompatible with class syntax, and so the entire thing stops
     working as a class. ☹
 */
-const OPromise = Object.setPrototypeOf( function OPromise ( executor ) {
-    return Object.setPrototypeOf( new NativePromise( executor ),
-        OPromise.prototype );
-}, NativePromise );
+const OPromise = Object.setPrototypeOf(function OPromise(executor) {
+    return Object.setPrototypeOf(
+        new NativePromise(executor),
+        OPromise.prototype,
+    );
+}, NativePromise);
 
-Object.assign( OPromise, {
-    prototype: Object.assign( Object.create( NativePromisePrototype ), {
+Object.assign(OPromise, {
+    prototype: Object.assign(Object.create(NativePromisePrototype), {
         constructor: OPromise,
 
-        then ( onFulfilled, onRejected ) {
-            return NativePromisePrototype.then.call( this,
-                typeof onFulfilled === 'function' ?
-                    onFulfilled.invokeInRunLoop() :
-                    onFulfilled,
-                typeof onRejected === 'function' ?
-                    onRejected.invokeInRunLoop() :
-                    onRejected );
+        then(onFulfilled, onRejected) {
+            return NativePromisePrototype.then.call(
+                this,
+                typeof onFulfilled === 'function'
+                    ? onFulfilled.invokeInRunLoop()
+                    : onFulfilled,
+                typeof onRejected === 'function'
+                    ? onRejected.invokeInRunLoop()
+                    : onRejected,
+            );
         },
     }),
 
-
-    all ( iterable ) {
-        return NativePromise.all.call( this, iterable );
+    all(iterable) {
+        return NativePromise.all.call(this, iterable);
     },
 
-    race ( iterable ) {
-        return NativePromise.race.call( this, iterable );
+    race(iterable) {
+        return NativePromise.race.call(this, iterable);
     },
 
-    reject ( reason ) {
-        return NativePromise.reject.call( this, reason );
+    reject(reason) {
+        return NativePromise.reject.call(this, reason);
     },
 
-    resolve ( value ) {
-        return NativePromise.resolve.call( this, value );
+    resolve(value) {
+        return NativePromise.resolve.call(this, value);
     },
 });
 

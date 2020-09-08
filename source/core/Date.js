@@ -1,20 +1,18 @@
-import './Number';  // For Number#mod
+import './Number'; // For Number#mod
 
 // Circular but it's… mostly OK. See Overture.js for explanation.
 import * as i18n from '../localisation/i18n';
 
-const isLeapYear = function ( year ) {
-    return (
-        ( ( year % 4 === 0 ) && ( year % 100 !== 0 ) ) || ( year % 400 === 0 )
-    );
+const isLeapYear = function (year) {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 };
-const daysInMonths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 // eslint-disable-next-line max-len
 const dateFormat = /^(\d{4}|[+-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:Z|(?:([+-])(\d{2})(?::(\d{2}))?)?)?)?$/;
 
-Object.assign( Date, {
-    fromJSON ( value ) {
+Object.assign(Date, {
+    fromJSON(value) {
         /*
             /^
             (\d{4}|[+-]\d{6})       // 1. Year
@@ -44,39 +42,41 @@ Object.assign( Date, {
                 )?
             )?$/;
         */
-        const results = value ? dateFormat.exec( value ) : null;
-        return results ?
-            new Date( Date.UTC(
-                +results[1] || 0,            // Year
-                ( +results[2] || 1 ) - 1,    // Month
-                +results[3] || 1,            // Day
-                +results[4] || 0,            // Hours
-                +results[5] || 0,            // Minutes
-                +results[6] || 0,            // Seconds
-                +results[7] || 0             // MS
-            ) + ( results[8] ?               // Has offset?
-                // +- 1 minute in ms
-                ( results[8] === '+' ? -1 : 1 ) * 60000 *
-                // Offset in minutes
-                ( ( ( +results[9] || 0 ) * 60 ) + ( +results[10] || 0 ) ) :
-                // No offset
-                0
-            )) :
-            null;
+        const results = value ? dateFormat.exec(value) : null;
+        return results
+            ? new Date(
+                  Date.UTC(
+                      +results[1] || 0, // Year
+                      (+results[2] || 1) - 1, // Month
+                      +results[3] || 1, // Day
+                      +results[4] || 0, // Hours
+                      +results[5] || 0, // Minutes
+                      +results[6] || 0, // Seconds
+                      +results[7] || 0, // MS
+                  ) +
+                      (results[8] // Has offset?
+                          ? // +- 1 minute in ms
+                            (results[8] === '+' ? -1 : 1) *
+                            60000 *
+                            // Offset in minutes
+                            ((+results[9] || 0) * 60 + (+results[10] || 0))
+                          : // No offset
+                            0),
+              )
+            : null;
     },
 
-    getDaysInMonth ( month, year ) {
-        return ( month === 1 && isLeapYear( year ) ) ?
-            29 : daysInMonths[ month ];
+    getDaysInMonth(month, year) {
+        return month === 1 && isLeapYear(year) ? 29 : daysInMonths[month];
     },
-    getDaysInYear ( year ) {
-        return isLeapYear( year ) ? 366 : 365;
+    getDaysInYear(year) {
+        return isLeapYear(year) ? 366 : 365;
     },
     isLeapYear,
 });
 
-const pad = function ( num, nopad, character ) {
-    return ( nopad || num > 9 ? '' : ( character || '0' ) ) + num;
+const pad = function (num, nopad, character) {
+    return (nopad || num > 9 ? '' : character || '0') + num;
 };
 
 const aDay = 86400000; // milliseconds in a day
@@ -89,7 +89,7 @@ const duration = {
     week: 604800000,
 };
 
-Object.assign( Date.prototype, {
+Object.assign(Date.prototype, {
     /**
         Method: Date#isToday
 
@@ -99,18 +99,18 @@ Object.assign( Date.prototype, {
         Returns:
             {Boolean} Is the date today?
     */
-    isToday ( utc ) {
+    isToday(utc) {
         const now = new Date();
         const date = now.getDate();
         const month = now.getMonth();
         const year = now.getFullYear();
-        return utc ?
-            this.getUTCFullYear() === year &&
-            this.getUTCMonth() === month &&
-            this.getUTCDate() === date :
-            this.getFullYear() === year &&
-            this.getMonth() === month &&
-            this.getDate() === date;
+        return utc
+            ? this.getUTCFullYear() === year &&
+                  this.getUTCMonth() === month &&
+                  this.getUTCDate() === date
+            : this.getFullYear() === year &&
+                  this.getMonth() === month &&
+                  this.getDate() === date;
     },
 
     /**
@@ -127,14 +127,14 @@ Object.assign( Date.prototype, {
         Returns:
             {Boolean} Are the dates on the same day?
     */
-    isOnSameDayAs ( date, utc ) {
-        return utc ?
-            date.getUTCFullYear() === this.getUTCFullYear() &&
-            date.getUTCMonth() === this.getUTCMonth() &&
-            date.getUTCDate() === this.getUTCDate() :
-            date.getFullYear() === this.getFullYear() &&
-            date.getMonth() === this.getMonth() &&
-            date.getDate() === this.getDate();
+    isOnSameDayAs(date, utc) {
+        return utc
+            ? date.getUTCFullYear() === this.getUTCFullYear() &&
+                  date.getUTCMonth() === this.getUTCMonth() &&
+                  date.getUTCDate() === this.getUTCDate()
+            : date.getFullYear() === this.getFullYear() &&
+                  date.getMonth() === this.getMonth() &&
+                  date.getDate() === this.getDate();
     },
 
     /**
@@ -153,11 +153,11 @@ Object.assign( Date.prototype, {
         Returns:
             {String} Localised day name.
     */
-    getDayName ( abbreviate, utc ) {
-        const names = i18n && i18n.get(
-                ( abbreviate ? 'abbreviatedD' : 'd' ) + 'ayNames' );
+    getDayName(abbreviate, utc) {
+        const names =
+            i18n && i18n.get((abbreviate ? 'abbreviatedD' : 'd') + 'ayNames');
         const day = utc ? this.getUTCDay() : this.getDay();
-        return names ? names[ day ] : day;
+        return names ? names[day] : day;
     },
 
     /**
@@ -176,11 +176,11 @@ Object.assign( Date.prototype, {
         Returns:
             {String} Localised month name.
     */
-    getMonthName ( abbreviate, utc ) {
-        const names = i18n && i18n.get(
-                ( abbreviate ? 'abbreviatedM' : 'm' ) + 'onthNames' );
+    getMonthName(abbreviate, utc) {
+        const names =
+            i18n && i18n.get((abbreviate ? 'abbreviatedM' : 'm') + 'onthNames');
         const day = utc ? this.getUTCMonth() : this.getMonth();
-        return names ? names[ day ] : day;
+        return names ? names[day] : day;
     },
 
     /**
@@ -195,11 +195,11 @@ Object.assign( Date.prototype, {
         Returns:
             {Number} The day of the year (1--366).
     */
-    getDayOfYear ( utc ) {
-        const beginningOfYear = utc ?
-            Date.UTC( this.getUTCFullYear(), 0, 1 ) :
-            +new Date( this.getFullYear(), 0, 1 );
-        return ~~( ( this.getTime() - beginningOfYear ) / aDay ) + 1;
+    getDayOfYear(utc) {
+        const beginningOfYear = utc
+            ? Date.UTC(this.getUTCFullYear(), 0, 1)
+            : +new Date(this.getFullYear(), 0, 1);
+        return ~~((this.getTime() - beginningOfYear) / aDay) + 1;
     },
 
     /**
@@ -224,22 +224,22 @@ Object.assign( Date.prototype, {
         Returns:
             {Number} The week of the year (1--54).
     */
-    getWeekNumber ( firstDayOfWeek, utc ) {
+    getWeekNumber(firstDayOfWeek, utc) {
         const day = utc ? this.getUTCDay() : this.getDay();
         // 1-indexed day of the year. e.g. 1 Jan => 1
-        const dayOfYear = this.getDayOfYear( utc );
+        const dayOfYear = this.getDayOfYear(utc);
         // How many days until the last day of the week. e.g. if the week starts
         // on a Sunday, then Saturday is the last day of the week, so if we
         // are on a Sunday there are 6 days until Saturday, whereas if we are
         // on a Saturday there are 0 days until Saturday.
-        const daysUntilEndOfWeek = ( 6 - day + firstDayOfWeek ).mod( 7 );
+        const daysUntilEndOfWeek = (6 - day + firstDayOfWeek).mod(7);
         // Week number:
         // 1st Jan => 1 + [0-6] => [1-7] => so divide by 7 and round up for 1.
         // 2nd Jan => 2 + [0-6] => [2-8] => so divide by 7 and round up and will
         // go to 2 only if it is the first day of the week (and so 6 days until)
         // the weekend.
         // etc.
-        return Math.ceil( ( dayOfYear + daysUntilEndOfWeek ) / 7 );
+        return Math.ceil((dayOfYear + daysUntilEndOfWeek) / 7);
     },
 
     /**
@@ -265,37 +265,42 @@ Object.assign( Date.prototype, {
         Returns:
             {Number} The week of the year (1--53).
     */
-    getISOWeekNumber ( firstDayOfWeek, utc ) {
+    getISOWeekNumber(firstDayOfWeek, utc) {
         // The week number of the year (Monday as the first day of
         // the week) as a decimal number [01,53]. If the week containing
         // 1 January has four or more days in the new year, then it is
         // considered week 1. Otherwise, it is the last week of the
         // previous year, and the next week is week 1.
-        if ( firstDayOfWeek == null ) {
+        if (firstDayOfWeek == null) {
             firstDayOfWeek = 1;
         }
 
         // 4th January is always in week 1.
-        const jan4 = utc ?
-                new Date( Date.UTC( this.getUTCFullYear(), 0, 4 ) ) :
-                new Date( this.getFullYear(), 0, 4 );
+        const jan4 = utc
+            ? new Date(Date.UTC(this.getUTCFullYear(), 0, 4))
+            : new Date(this.getFullYear(), 0, 4);
         const jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay();
         // Find Monday before 4th Jan
-        const wk1Start = jan4 - ( jan4WeekDay - firstDayOfWeek )
-                .mod( 7 ) * aDay;
+        const wk1Start = jan4 - (jan4WeekDay - firstDayOfWeek).mod(7) * aDay;
         // Week No == How many weeks have past since then, + 1.
-        let week = Math.floor( ( this - wk1Start ) / 604800000 ) + 1;
-        if ( week === 53 ) {
+        let week = Math.floor((this - wk1Start) / 604800000) + 1;
+        if (week === 53) {
             const date = utc ? this.getUTCDate() : this.getDate();
             const day = utc ? this.getUTCDay() : this.getDay();
             // First day of week must be no greater than 28th December
-            if ( date - ( day - firstDayOfWeek ).mod( 7 ) > 28 ) {
+            if (date - (day - firstDayOfWeek).mod(7) > 28) {
                 week = 1;
             }
         }
-        return week || new Date(
-            ( utc ? this.getUTCFullYear() : this.getFullYear() ) - 1, 11, 31, 12
-        ).getISOWeekNumber( firstDayOfWeek, false );
+        return (
+            week ||
+            new Date(
+                (utc ? this.getUTCFullYear() : this.getFullYear()) - 1,
+                11,
+                31,
+                12,
+            ).getISOWeekNumber(firstDayOfWeek, false)
+        );
     },
 
     /**
@@ -312,14 +317,15 @@ Object.assign( Date.prototype, {
         Returns:
             {Date} Returns self.
     */
-    add ( number, unit ) {
-        if ( unit === 'year' ) {
-            this.setFullYear( this.getFullYear() + number );
-        } else if ( unit === 'month' ) {
-            this.setMonth( this.getMonth() + number );
+    add(number, unit) {
+        if (unit === 'year') {
+            this.setFullYear(this.getFullYear() + number);
+        } else if (unit === 'month') {
+            this.setMonth(this.getMonth() + number);
         } else {
             this.setTime(
-                this.getTime() + number * ( duration[ unit || 'day' ] || 0 ) );
+                this.getTime() + number * (duration[unit || 'day'] || 0),
+            );
         }
         return this;
     },
@@ -338,8 +344,8 @@ Object.assign( Date.prototype, {
         Returns:
             {Date} Returns self.
     */
-    subtract ( number, unit ) {
-        return this.add( -number, unit );
+    subtract(number, unit) {
+        return this.add(-number, unit);
     },
 
     /**
@@ -406,167 +412,211 @@ Object.assign( Date.prototype, {
         Returns:
             {String} The formatted date string.
     */
-    format ( format, utc ) {
+    format(format, utc) {
         const date = this;
-        return format ?
-            format.replace(/%(-)?([%A-Za-z])/g,
-                function ( string, nopad, character ) {
-            let num, str, offset, sign, hoursOffset, minutesOffset;
-            switch ( character ) {
-            case 'a':
-                // Abbreviated day of the week, e.g. 'Mon'.
-                return date.getDayName( true, utc );
-            case 'A':
-                // Full day of the week, e.g. 'Monday'.
-                return date.getDayName( false, utc );
-            case 'b':
-                // Abbreviated month name, e.g. 'Jan'.
-                return date.getMonthName( true, utc );
-            case 'B':
-                // Full month name, e.g. 'January'.
-                return date.getMonthName( false, utc );
-            case 'c':
-                // The locale's appropriate date and time representation.
-                return i18n ?
-                    i18n.date( date, 'fullDateAndTime' ) :
-                    date.toLocaleString();
-            case 'C':
-                // Century number (00-99).
-                return pad( ~~(
-                    ( utc ? date.getUTCFullYear() : date.getFullYear() ) / 100
-                ), nopad );
-            case 'd':
-                // Day of the month (01-31).
-                return pad( utc ? date.getUTCDate() : date.getDate(), nopad );
-            case 'D':
-                // Same as '%m/%d/%y'
-                return date.format( '%m/%d/%y', utc );
-            case 'e':
-                // Day of the month (' 1'-'31'), padded with a space if single
-                // digit.
-                return pad(
-                    utc ? date.getUTCDate() : date.getDate(), nopad, ' ' );
-            case 'h':
-                // Same as '%b'.
-                return date.getMonthName( true, utc );
-            case 'H':
-                // Hour of the day in 24h clock (00-23).
-                return pad( utc ? date.getUTCHours() : date.getHours(), nopad );
-            case 'I':
-                // Hour of the day in 12h clock (01-12).
-                num = utc ? date.getUTCHours() : date.getHours();
-                return num ? pad( num < 13 ? num : num - 12, nopad ) : '12';
-            case 'j':
-                // Day of the year as a decimal number (001-366).
-                num = date.getDayOfYear( utc );
-                return nopad ?
-                    num + '' :
-                    num < 100 ? '0' + pad( num ) : pad( num );
-            case 'k':
-                // Hour of the day in 12h clock (0-23), padded with a space if
-                // single digit.
-                return pad(
-                    utc ? date.getUTCHours() : date.getHours(), nopad, ' ' );
-            case 'l':
-                // Hour of the day in 12h clock (1-12), padded with a space if
-                // single digit.
-                num = utc ? date.getUTCHours() : date.getHours();
-                return num ?
-                    pad( num < 13 ? num : num - 12, nopad, ' ' ) :
-                    '12';
-            case 'm':
-                // Month of the year (01-12).
-                return pad(
-                    ( utc ? date.getUTCMonth() : date.getMonth() ) + 1, nopad );
-            case 'M':
-                // Minute of the hour (00-59).
-                return pad(
-                    ( utc ? date.getUTCMinutes() : date.getMinutes() ), nopad );
-            case 'n':
-                // Newline character.
-                return '\n';
-            case 'p':
-                // Localised equivalent of AM or PM.
-                str = ( utc ? date.getUTCHours() : date.getHours() ) < 12 ?
-                    'am' : 'pm';
-                return i18n ?
-                    i18n.get( str + 'Designator' ) : str.toUpperCase();
-            case 'r':
-                // The time in AM/PM notation: '%I:%M:%S %p'.
-                return date.format( '%I:%M:%S %p', utc );
-            case 'R':
-                // The time in 24h notation: '%H:%M'.
-                return date.format( '%H:%M', utc );
-            case 'S':
-                // The second of the minute (00-61)
-                return pad(
-                    utc ? date.getUTCSeconds() : date.getSeconds(), nopad );
-            case 't':
-                // Tab character.
-                return '\t';
-            case 'T':
-                // The time: '%H:%M:%S'.
-                return date.format( '%H:%M:%S', utc );
-            case 'u':
-                // Weekday (1-7) where Monday is 1.
-                return ( utc ? date.getUTCDay() : date.getDay() ) || 7;
-            case 'U':
-                // The week number of the year (Sunday as the first day of
-                // the week) as a decimal number [00,53]. First Sunday in the
-                // year is the start of week 1.
-                return pad( this.getWeekNumber( 0, utc ), nopad );
-            case 'V':
-                // The week number of the year (Monday as the first day of
-                // the week) as a decimal number [01,53]. If the week containing
-                // 1 January has four or more days in the new year, then it is
-                // considered week 1. Otherwise, it is the last week of the
-                // previous year, and the next week is week 1.
-                return pad( this.getISOWeekNumber( 1, utc ), nopad );
-            case 'w':
-                // Weekday (0-6) where Sunday is 0.
-                return utc ? date.getUTCDay() : date.getDay();
-            case 'W':
-                // The week number of the year (Monday as the first day of
-                // the week) as a decimal number [00,53]. All days in a new year
-                // preceding the first Monday are considered to be in week 0.
-                return pad( this.getWeekNumber( 1, utc ), nopad );
-            case 'x':
-                // The locale's appropriate date representation.
-                return i18n ?
-                    i18n.date( date, 'date' ) :
-                    date.format( '%d/%m/%y', utc );
-            case 'X':
-                // The locale's appropriate time representation.
-                return i18n ?
-                    i18n.date( date, 'time' ) : date.format( '%H:%M', utc );
-            case 'y':
-                // Year without century (00-99).
-                return ( utc ?
-                    date.getUTCFullYear() : date.getFullYear()
-                ).toString().slice( 2 );
-            case 'Y':
-                // Year with century (0-9999).
-                return utc ? date.getUTCFullYear() : date.getFullYear();
-            case 'z':
-                // Timezone offset
-                offset = Math.round( date.getTimezoneOffset() );
-                sign = ( offset > 0 ? '-' : '+' );
-                offset = Math.abs( offset );
-                hoursOffset = ~~( offset / 60 );
-                minutesOffset = offset - ( 60 * hoursOffset );
-                return sign +
-                    '%\'02n'.format( hoursOffset ) +
-                    ':%\'02n'.format( minutesOffset );
-            case 'Z':
-                // Timezone name or abbreviation.
-                return ( /\((.*)\)/.exec( date.toString() ) || [ '' ] ).pop();
-            case '%':
-                // A '%' character.
-                return character;
-            default:
-                return string;
-            }
-        }) : this.toString();
+        return format
+            ? format.replace(/%(-)?([%A-Za-z])/g, function (
+                  string,
+                  nopad,
+                  character,
+              ) {
+                  let num, str, offset, sign, hoursOffset, minutesOffset;
+                  switch (character) {
+                      case 'a':
+                          // Abbreviated day of the week, e.g. 'Mon'.
+                          return date.getDayName(true, utc);
+                      case 'A':
+                          // Full day of the week, e.g. 'Monday'.
+                          return date.getDayName(false, utc);
+                      case 'b':
+                          // Abbreviated month name, e.g. 'Jan'.
+                          return date.getMonthName(true, utc);
+                      case 'B':
+                          // Full month name, e.g. 'January'.
+                          return date.getMonthName(false, utc);
+                      case 'c':
+                          // The locale's appropriate date and time representation.
+                          return i18n
+                              ? i18n.date(date, 'fullDateAndTime')
+                              : date.toLocaleString();
+                      case 'C':
+                          // Century number (00-99).
+                          return pad(
+                              ~~(
+                                  (utc
+                                      ? date.getUTCFullYear()
+                                      : date.getFullYear()) / 100
+                              ),
+                              nopad,
+                          );
+                      case 'd':
+                          // Day of the month (01-31).
+                          return pad(
+                              utc ? date.getUTCDate() : date.getDate(),
+                              nopad,
+                          );
+                      case 'D':
+                          // Same as '%m/%d/%y'
+                          return date.format('%m/%d/%y', utc);
+                      case 'e':
+                          // Day of the month (' 1'-'31'), padded with a space if single
+                          // digit.
+                          return pad(
+                              utc ? date.getUTCDate() : date.getDate(),
+                              nopad,
+                              ' ',
+                          );
+                      case 'h':
+                          // Same as '%b'.
+                          return date.getMonthName(true, utc);
+                      case 'H':
+                          // Hour of the day in 24h clock (00-23).
+                          return pad(
+                              utc ? date.getUTCHours() : date.getHours(),
+                              nopad,
+                          );
+                      case 'I':
+                          // Hour of the day in 12h clock (01-12).
+                          num = utc ? date.getUTCHours() : date.getHours();
+                          return num
+                              ? pad(num < 13 ? num : num - 12, nopad)
+                              : '12';
+                      case 'j':
+                          // Day of the year as a decimal number (001-366).
+                          num = date.getDayOfYear(utc);
+                          return nopad
+                              ? num + ''
+                              : num < 100
+                              ? '0' + pad(num)
+                              : pad(num);
+                      case 'k':
+                          // Hour of the day in 12h clock (0-23), padded with a space if
+                          // single digit.
+                          return pad(
+                              utc ? date.getUTCHours() : date.getHours(),
+                              nopad,
+                              ' ',
+                          );
+                      case 'l':
+                          // Hour of the day in 12h clock (1-12), padded with a space if
+                          // single digit.
+                          num = utc ? date.getUTCHours() : date.getHours();
+                          return num
+                              ? pad(num < 13 ? num : num - 12, nopad, ' ')
+                              : '12';
+                      case 'm':
+                          // Month of the year (01-12).
+                          return pad(
+                              (utc ? date.getUTCMonth() : date.getMonth()) + 1,
+                              nopad,
+                          );
+                      case 'M':
+                          // Minute of the hour (00-59).
+                          return pad(
+                              utc ? date.getUTCMinutes() : date.getMinutes(),
+                              nopad,
+                          );
+                      case 'n':
+                          // Newline character.
+                          return '\n';
+                      case 'p':
+                          // Localised equivalent of AM or PM.
+                          str =
+                              (utc ? date.getUTCHours() : date.getHours()) < 12
+                                  ? 'am'
+                                  : 'pm';
+                          return i18n
+                              ? i18n.get(str + 'Designator')
+                              : str.toUpperCase();
+                      case 'r':
+                          // The time in AM/PM notation: '%I:%M:%S %p'.
+                          return date.format('%I:%M:%S %p', utc);
+                      case 'R':
+                          // The time in 24h notation: '%H:%M'.
+                          return date.format('%H:%M', utc);
+                      case 'S':
+                          // The second of the minute (00-61)
+                          return pad(
+                              utc ? date.getUTCSeconds() : date.getSeconds(),
+                              nopad,
+                          );
+                      case 't':
+                          // Tab character.
+                          return '\t';
+                      case 'T':
+                          // The time: '%H:%M:%S'.
+                          return date.format('%H:%M:%S', utc);
+                      case 'u':
+                          // Weekday (1-7) where Monday is 1.
+                          return (utc ? date.getUTCDay() : date.getDay()) || 7;
+                      case 'U':
+                          // The week number of the year (Sunday as the first day of
+                          // the week) as a decimal number [00,53]. First Sunday in the
+                          // year is the start of week 1.
+                          return pad(this.getWeekNumber(0, utc), nopad);
+                      case 'V':
+                          // The week number of the year (Monday as the first day of
+                          // the week) as a decimal number [01,53]. If the week containing
+                          // 1 January has four or more days in the new year, then it is
+                          // considered week 1. Otherwise, it is the last week of the
+                          // previous year, and the next week is week 1.
+                          return pad(this.getISOWeekNumber(1, utc), nopad);
+                      case 'w':
+                          // Weekday (0-6) where Sunday is 0.
+                          return utc ? date.getUTCDay() : date.getDay();
+                      case 'W':
+                          // The week number of the year (Monday as the first day of
+                          // the week) as a decimal number [00,53]. All days in a new year
+                          // preceding the first Monday are considered to be in week 0.
+                          return pad(this.getWeekNumber(1, utc), nopad);
+                      case 'x':
+                          // The locale's appropriate date representation.
+                          return i18n
+                              ? i18n.date(date, 'date')
+                              : date.format('%d/%m/%y', utc);
+                      case 'X':
+                          // The locale's appropriate time representation.
+                          return i18n
+                              ? i18n.date(date, 'time')
+                              : date.format('%H:%M', utc);
+                      case 'y':
+                          // Year without century (00-99).
+                          return (utc
+                              ? date.getUTCFullYear()
+                              : date.getFullYear()
+                          )
+                              .toString()
+                              .slice(2);
+                      case 'Y':
+                          // Year with century (0-9999).
+                          return utc
+                              ? date.getUTCFullYear()
+                              : date.getFullYear();
+                      case 'z':
+                          // Timezone offset
+                          offset = Math.round(date.getTimezoneOffset());
+                          sign = offset > 0 ? '-' : '+';
+                          offset = Math.abs(offset);
+                          hoursOffset = ~~(offset / 60);
+                          minutesOffset = offset - 60 * hoursOffset;
+                          return (
+                              sign +
+                              "%'02n".format(hoursOffset) +
+                              ":%'02n".format(minutesOffset)
+                          );
+                      case 'Z':
+                          // Timezone name or abbreviation.
+                          return (
+                              /\((.*)\)/.exec(date.toString()) || ['']
+                          ).pop();
+                      case '%':
+                          // A '%' character.
+                          return character;
+                      default:
+                          return string;
+                  }
+              })
+            : this.toString();
     },
 });
 

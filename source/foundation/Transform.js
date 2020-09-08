@@ -16,7 +16,7 @@
     Returns:
         {Boolean} The numerical value.
 */
-export const toBoolean = function ( value ) {
+export const toBoolean = function (value) {
     return !!value;
 };
 
@@ -31,7 +31,7 @@ export const toBoolean = function ( value ) {
     Returns:
         {String} The string value.
 */
-export const toString = function ( value ) {
+export const toString = function (value) {
     return value != null ? value + '' : '';
 };
 
@@ -46,8 +46,8 @@ export const toString = function ( value ) {
     Returns:
         {Number} The integral numerical value.
 */
-export const toInt = function ( value ) {
-    return parseInt( value, 10 ) || 0;
+export const toInt = function (value) {
+    return parseInt(value, 10) || 0;
 };
 
 /**
@@ -61,8 +61,8 @@ export const toInt = function ( value ) {
     Returns:
         {Number} The numerical value.
 */
-export const toFloat = function ( value ) {
-    return parseFloat( value );
+export const toFloat = function (value) {
+    return parseFloat(value);
 };
 
 /**
@@ -76,7 +76,7 @@ export const toFloat = function ( value ) {
     Returns:
         {Boolean} The inverse Boolean value.
 */
-export const invert = function ( value ) {
+export const invert = function (value) {
     return !value;
 };
 
@@ -89,8 +89,8 @@ export const invert = function ( value ) {
     Parameters:
         value - {*} The default value to use.
 */
-export const defaultValue = function ( value ) {
-    return function ( v ) {
+export const defaultValue = function (value) {
+    return function (v) {
         return v !== undefined ? v : value;
     };
 };
@@ -106,7 +106,7 @@ export const defaultValue = function ( value ) {
     Returns:
         {*} The value or null if the value is undefined.
 */
-export const undefinedToNull = function ( value ) {
+export const undefinedToNull = function (value) {
     return value === undefined ? null : value;
 };
 
@@ -124,10 +124,12 @@ export const undefinedToNull = function ( value ) {
         Or, if the sync is in reverse, returns the given value if true or
         undefined if false.
 */
-export const isEqualToValue = function ( value ) {
-    return function ( syncValue, syncForward ) {
-        return syncForward ?
-            syncValue === value :
-            syncValue ? value : undefined;
+export const isEqualToValue = function (value) {
+    return function (syncValue, syncForward) {
+        return syncForward
+            ? syncValue === value
+            : syncValue
+            ? value
+            : undefined;
     };
 };

@@ -105,14 +105,12 @@
         {Object} The metadata for the object.
 */
 
-const isIdentical = function ( a, b ) {
+const isIdentical = function (a, b) {
     return a === b;
 };
 
-const isSameObserver = function ( a, b ) {
-    return a.object === b.object &&
-        a.method === b.method &&
-        a.path === b.path;
+const isSameObserver = function (a, b) {
+    return a.object === b.object && a.method === b.method && a.path === b.path;
 };
 
 const OBJECT_ALLOCATED = 0;
@@ -120,7 +118,7 @@ const OBJECT_INITIALISED = 1;
 const OBJECT_DESTROYED = 2;
 
 class Metadata {
-    constructor ( object ) {
+    constructor(object) {
         this.object = object;
         this.dependents = {};
         this.allDependents = {};
@@ -141,28 +139,28 @@ class Metadata {
     // the whole array; the semantics are the same. We rewrite the array if we
     // remove an observer, but this is less common and is more expensive
     // regardless as you have to do a splice otherwise.
-    addObserver ( key, observer ) {
+    addObserver(key, observer) {
         const observers = this.observers;
-        let keyObservers = observers[ key ];
-        if ( !keyObservers ) {
-            keyObservers = observers[ key ] = [];
-        } else if ( !observers.hasOwnProperty( key ) ) {
-            keyObservers = observers[ key ] = keyObservers.slice();
+        let keyObservers = observers[key];
+        if (!keyObservers) {
+            keyObservers = observers[key] = [];
+        } else if (!observers.hasOwnProperty(key)) {
+            keyObservers = observers[key] = keyObservers.slice();
         }
-        keyObservers.push( observer );
+        keyObservers.push(observer);
 
         return this;
     }
 
-    hasObserver ( key, observer ) {
+    hasObserver(key, observer) {
         const observers = this.observers;
-        const keyObservers = observers[ key ];
-        if ( keyObservers ) {
-            const isSame = typeof observer === 'function' ?
-                isIdentical : isSameObserver;
+        const keyObservers = observers[key];
+        if (keyObservers) {
+            const isSame =
+                typeof observer === 'function' ? isIdentical : isSameObserver;
             const l = keyObservers.length;
-            for ( let i = 0; i < l; i += 1 ) {
-                if ( isSame( keyObservers[i], observer ) ) {
+            for (let i = 0; i < l; i += 1) {
+                if (isSame(keyObservers[i], observer)) {
                     return true;
                 }
             }
@@ -170,30 +168,30 @@ class Metadata {
         return false;
     }
 
-    removeObserver ( key, observer ) {
+    removeObserver(key, observer) {
         const observers = this.observers;
-        const keyObservers = observers[ key ];
-        if ( keyObservers ) {
-            const isSame = typeof observer === 'function' ?
-                isIdentical : isSameObserver;
+        const keyObservers = observers[key];
+        if (keyObservers) {
+            const isSame =
+                typeof observer === 'function' ? isIdentical : isSameObserver;
             const newObservers = keyObservers.filter(
-                item => !isSame( item, observer )
+                (item) => !isSame(item, observer),
             );
-            if ( !newObservers.length ) {
-                observers[ key ] = null;
-            } else if ( newObservers.length !== keyObservers.length ) {
-                observers[ key ] = newObservers;
+            if (!newObservers.length) {
+                observers[key] = null;
+            } else if (newObservers.length !== keyObservers.length) {
+                observers[key] = newObservers;
             }
         }
         return this;
     }
 }
 
-const meta = function ( object ) {
+const meta = function (object) {
     let data = object.__meta__;
-    if ( !data ) {
-        data = new Metadata( object );
-    } else if ( data.object !== object ) {
+    if (!data) {
+        data = new Metadata(object);
+    } else if (data.object !== object) {
         // Until the set of computed properties on the object changes, the
         // 'dependents' information is identical to that of the parent so
         // can be shared. The computed allDependents will be calculated
@@ -201,7 +199,7 @@ const meta = function ( object ) {
         // available to all other objects of the same type. The dependents
         // property is copied on write (and the allDependents then reset and
         // calculated separately for the object).
-        data = Object.create( data );
+        data = Object.create(data);
         data.object = object;
 
         // The cache should always be separate.
@@ -214,19 +212,19 @@ const meta = function ( object ) {
         // creating a new object here, but rather wait until a write is made
         // to data.pathObservers, at which point the inheriting object is
         // created.
-        data.observers = Object.create( data.observers );
+        data.observers = Object.create(data.observers);
         data.changed = null;
         data.depth = 0;
-        data.bindings = Object.create( data.bindings );
-        data.inits = Object.create( data.inits );
+        data.bindings = Object.create(data.bindings);
+        data.inits = Object.create(data.inits);
 
         object.__meta__ = data;
     }
     return data;
 };
 
-const isDestroyed = function ( object ) {
-    return meta( object ).lifestage === OBJECT_DESTROYED;
+const isDestroyed = function (object) {
+    return meta(object).lifestage === OBJECT_DESTROYED;
 };
 
 /**
@@ -243,29 +241,29 @@ const isDestroyed = function ( object ) {
 */
 const guids = new WeakMap();
 let nextGuid = 0;
-const guid = function ( item ) {
-    if ( item === null ) {
+const guid = function (item) {
+    if (item === null) {
         return 'null';
     }
-    switch ( typeof item ) {
+    switch (typeof item) {
         case 'boolean':
             return item ? 'true' : 'false';
         case 'number':
-            return 'num:' + item.toString( 36 );
+            return 'num:' + item.toString(36);
         case 'string':
             return 'str:' + item;
         case 'undefined':
             return 'undefined';
     }
-    if ( item instanceof Date ) {
-        return 'date:' + (+item);
+    if (item instanceof Date) {
+        return 'date:' + +item;
     }
 
-    let guid = item.__guid__ || guids.get( item );
-    if ( !guid ) {
-        guid = 'id:' + nextGuid.toString( 36 );
+    let guid = item.__guid__ || guids.get(item);
+    if (!guid) {
+        guid = 'id:' + nextGuid.toString(36);
         nextGuid += 1;
-        guids.set( item, guid );
+        guids.set(item, guid);
     }
     return guid;
 };
@@ -287,29 +285,28 @@ const guid = function ( item ) {
     Returns:
         {Object} Returns the object parameter.
 */
-const mixin = function ( object, extras, doNotOverwrite ) {
-    if ( extras ) {
+const mixin = function (object, extras, doNotOverwrite) {
+    if (extras) {
         const force = !doNotOverwrite;
         let metadata;
 
-        for ( const key in extras ) {
-            if ( key !== '__meta__' &&
-                    ( force || !object.hasOwnProperty( key ) ) ) {
-                const old = object[ key ];
-                const value = extras[ key ];
-                if ( old && old.__teardownProperty__ ) {
-                    if ( !metadata ) {
-                        metadata = meta( object );
+        for (const key in extras) {
+            if (key !== '__meta__' && (force || !object.hasOwnProperty(key))) {
+                const old = object[key];
+                const value = extras[key];
+                if (old && old.__teardownProperty__) {
+                    if (!metadata) {
+                        metadata = meta(object);
                     }
-                    old.__teardownProperty__( metadata, key, object );
+                    old.__teardownProperty__(metadata, key, object);
                 }
-                if ( value && value.__setupProperty__ ) {
-                    if ( !metadata ) {
-                        metadata = meta( object );
+                if (value && value.__setupProperty__) {
+                    if (!metadata) {
+                        metadata = meta(object);
                     }
-                    value.__setupProperty__( metadata, key, object );
+                    value.__setupProperty__(metadata, key, object);
                 }
-                object[ key ] = value;
+                object[key] = value;
             }
         }
     }
@@ -339,14 +336,16 @@ const mixin = function ( object, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-const extend = function ( base, extras, doNotOverwrite ) {
-    if ( window.console && console.warn ) {
-        console.warn( 'O.extend is deprecated' );
+const extend = function (base, extras, doNotOverwrite) {
+    if (window.console && console.warn) {
+        console.warn('O.extend is deprecated');
     }
-    for ( const key in extras ) {
-        if ( extras.hasOwnProperty( key ) &&
-                ( !doNotOverwrite || !base.hasOwnProperty( key ) ) ) {
-            base[ key ] = extras[ key ];
+    for (const key in extras) {
+        if (
+            extras.hasOwnProperty(key) &&
+            (!doNotOverwrite || !base.hasOwnProperty(key))
+        ) {
+            base[key] = extras[key];
         }
     }
     return base;
@@ -368,16 +367,19 @@ const extend = function ( base, extras, doNotOverwrite ) {
     Returns:
         {Object} Returns base.
 */
-const merge = function ( base, extras ) {
-    for ( const key in extras ) {
-        if ( extras.hasOwnProperty( key ) ) {
-            if ( base.hasOwnProperty( key ) &&
-                    base[ key ] && extras[ key ] &&
-                    typeof base[ key ] === 'object' &&
-                    typeof extras[ key ] === 'object' ) {
-                merge( base[ key ], extras[ key ] );
+const merge = function (base, extras) {
+    for (const key in extras) {
+        if (extras.hasOwnProperty(key)) {
+            if (
+                base.hasOwnProperty(key) &&
+                base[key] &&
+                extras[key] &&
+                typeof base[key] === 'object' &&
+                typeof extras[key] === 'object'
+            ) {
+                merge(base[key], extras[key]);
             } else {
-                base[ key ] = extras[ key ];
+                base[key] = extras[key];
             }
         }
     }
@@ -396,21 +398,21 @@ const merge = function ( base, extras ) {
     Returns:
         {*} The clone of the value.
 */
-const clone = function ( value ) {
+const clone = function (value) {
     let cloned = value;
-    if ( value && typeof value === 'object' ) {
-        if ( value instanceof Array ) {
+    if (value && typeof value === 'object') {
+        if (value instanceof Array) {
             cloned = [];
             let l = value.length;
-            while ( l-- ) {
-                cloned[l] = clone( value[l] );
+            while (l--) {
+                cloned[l] = clone(value[l]);
             }
-        } else if ( value instanceof Date ) {
-            cloned = new Date( value );
+        } else if (value instanceof Date) {
+            cloned = new Date(value);
         } else {
             cloned = {};
-            for ( const key in value ) {
-                cloned[ key ] = clone( value[ key ] );
+            for (const key in value) {
+                cloned[key] = clone(value[key]);
             }
         }
     }
@@ -431,38 +433,38 @@ const clone = function ( value ) {
         {Boolean} Are the values equal, i.e. are they identical primitives, or
         are the both arrays or objects with equal members?
 */
-const isEqual = function ( a, b ) {
+const isEqual = function (a, b) {
     let i, l, key, constructor;
-    if ( a === b ) {
+    if (a === b) {
         return true;
     }
-    if ( a && b && typeof a === 'object' && typeof b === 'object' ) {
-        if ( a instanceof Array ) {
-            if ( b instanceof Array && a.length === b.length ) {
-                for ( i = 0, l = a.length; i < l; i += 1 ) {
-                    if ( !isEqual( a[i], b[i] ) ) {
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+        if (a instanceof Array) {
+            if (b instanceof Array && a.length === b.length) {
+                for (i = 0, l = a.length; i < l; i += 1) {
+                    if (!isEqual(a[i], b[i])) {
                         return false;
                     }
                 }
                 return true;
             }
-        } else if ( a instanceof Date ) {
-            return ( +a === +b );
+        } else if (a instanceof Date) {
+            return +a === +b;
         } else {
             constructor = a.constructor;
-            if ( a.constructor !== b.constructor ) {
+            if (a.constructor !== b.constructor) {
                 return false;
             }
-            if ( constructor.isEqual ) {
-                return constructor.isEqual( a, b );
+            if (constructor.isEqual) {
+                return constructor.isEqual(a, b);
             }
-            for ( key in a ) {
-                if ( !isEqual( a[ key ], b[ key ] ) ) {
+            for (key in a) {
+                if (!isEqual(a[key], b[key])) {
                     return false;
                 }
             }
-            for ( key in b ) {
-                if ( !isEqual( a[ key ], b[ key ] ) ) {
+            for (key in b) {
+                if (!isEqual(a[key], b[key])) {
                     return false;
                 }
             }
@@ -577,7 +579,7 @@ const isEqual = function ( a, b ) {
             }.property(),
         });
 */
-const Class = function ( params ) {
+const Class = function (params) {
     // Here’s a fine implementation detail: init must be a constructor, not just
     // a function. Oh, you thought all functions were constructors? Not any more
     // in ES6, because of new efficiency possibilities. Specifically, methods
@@ -603,28 +605,30 @@ const Class = function ( params ) {
     //         baz: 42,
     //     })
     const parent = params.Extends;
-    const init = params.init || function () {
-        parent.apply( this, arguments );
-    };
+    const init =
+        params.init ||
+        function () {
+            parent.apply(this, arguments);
+        };
 
     const proto = parent.prototype;
     init.parent = proto;
-    init.prototype = Object.create( proto );
+    init.prototype = Object.create(proto);
     init.prototype.constructor = init;
     delete params.Extends;
 
     let mixins = params.Mixin;
-    if ( mixins ) {
-        if ( !( mixins instanceof Array ) ) {
-            mixins = [ mixins ];
+    if (mixins) {
+        if (!(mixins instanceof Array)) {
+            mixins = [mixins];
         }
-        for ( let i = 0, l = mixins.length; i < l; i += 1 ) {
-            mixin( init.prototype, mixins[i], false );
+        for (let i = 0, l = mixins.length; i < l; i += 1) {
+            mixin(init.prototype, mixins[i], false);
         }
         delete params.Mixin;
     }
 
-    mixin( init.prototype, params, false );
+    mixin(init.prototype, params, false);
 
     return init;
 };
@@ -650,11 +654,11 @@ const Class = function ( params ) {
     Returns:
         {Function} Returns self.
 */
-Function.prototype.implement = function ( methods, force ) {
-    if ( window.console && console.warn ) {
-        console.warn( 'Function#implement is deprecated' );
+Function.prototype.implement = function (methods, force) {
+    if (window.console && console.warn) {
+        console.warn('Function#implement is deprecated');
     }
-    mixin( this.prototype, methods, !force );
+    mixin(this.prototype, methods, !force);
     return this;
 };
 
@@ -675,11 +679,11 @@ Function.prototype.implement = function ( methods, force ) {
     Returns:
         {Function} Returns self.
 */
-Function.prototype.extend = function ( methods, force ) {
-    if ( window.console && console.warn ) {
-        console.warn( 'Function#extend is deprecated' );
+Function.prototype.extend = function (methods, force) {
+    if (window.console && console.warn) {
+        console.warn('Function#extend is deprecated');
     }
-    extend( this, methods, !force );
+    extend(this, methods, !force);
     return this;
 };
 

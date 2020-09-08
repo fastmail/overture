@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core';
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ObservableProps'; // For Function#observes
 import View from '../View';
 
 /**
@@ -15,7 +15,6 @@ import View from '../View';
     Although you may often want to change the layer tag (e.g. to an `h1` etc.)
 */
 const LabelView = Class({
-
     Extends: View,
 
     /**
@@ -50,12 +49,12 @@ const LabelView = Class({
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw ( layer ) {
-        const tooltip = this.get( 'tooltip' );
-        if ( tooltip ) {
+    draw(layer) {
+        const tooltip = this.get('tooltip');
+        if (tooltip) {
             layer.title = tooltip;
         }
-        layer.textContent = this.get( 'value' );
+        layer.textContent = this.get('value');
     },
 
     /**
@@ -64,9 +63,9 @@ const LabelView = Class({
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    labelNeedsRedraw: function ( self, property, oldValue ) {
-        return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'tooltip', 'value' ),
+    labelNeedsRedraw: function (self, property, oldValue) {
+        return this.propertyNeedsRedraw(self, property, oldValue);
+    }.observes('tooltip', 'value'),
 
     /**
         Method: O.LabelView#redrawTooltip
@@ -77,12 +76,12 @@ const LabelView = Class({
         Updates the title attribute on the DOM layer to match the tooltip
         property of the view.
     */
-    redrawTooltip ( layer ) {
-        const tooltip = this.get( 'tooltip' );
-        if ( tooltip ) {
+    redrawTooltip(layer) {
+        const tooltip = this.get('tooltip');
+        if (tooltip) {
             layer.title = tooltip;
         } else {
-            layer.removeAttribute( 'title' );
+            layer.removeAttribute('title');
         }
     },
 
@@ -95,8 +94,8 @@ const LabelView = Class({
         Updates the text content of the DOM layer to match the value property of
         the view.
     */
-    redrawValue ( layer ) {
-        layer.textContent = this.get( 'value' );
+    redrawValue(layer) {
+        layer.textContent = this.get('value');
     },
 });
 

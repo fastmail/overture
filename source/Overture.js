@@ -1,6 +1,16 @@
 /* eslint-disable max-len */
 
-export { meta, isDestroyed, guid, mixin, extend, merge, clone, isEqual, Class } from './core/Core';
+export {
+    meta,
+    isDestroyed,
+    guid,
+    mixin,
+    extend,
+    merge,
+    clone,
+    isEqual,
+    Class,
+} from './core/Core';
 export { default as sortByProperties } from './core/sortByProperties';
 import './core/Array';
 import './core/Date';
@@ -104,8 +114,24 @@ import './localisation/RelativeDate';
 
 import * as parse from './parser/DateParser';
 export { parse };
-import Parse, { define, optional, not, repeat, sequence, firstMatch, longestMatch } from './parser/Parse';
-Object.assign( Parse, { define, optional, not, repeat, sequence, firstMatch, longestMatch });
+import Parse, {
+    define,
+    optional,
+    not,
+    repeat,
+    sequence,
+    firstMatch,
+    longestMatch,
+} from './parser/Parse';
+Object.assign(Parse, {
+    define,
+    optional,
+    not,
+    repeat,
+    sequence,
+    firstMatch,
+    longestMatch,
+});
 export { Parse };
 
 export { default as OptionsController } from './selection/OptionsController';
@@ -133,7 +159,12 @@ export { default as ListKBFocusView } from './views/collections/ListKBFocusView'
 export { default as ListView } from './views/collections/ListView';
 export { default as ProgressiveListView } from './views/collections/ProgressiveListView';
 export { default as OptionsListView } from './views/collections/OptionsListView';
-export { default as SwitchView, when, unless, choose } from './views/collections/SwitchView';
+export {
+    default as SwitchView,
+    when,
+    unless,
+    choose,
+} from './views/collections/SwitchView';
 export { default as ToolbarView } from './views/collections/ToolbarView';
 export { default as TrueVisibleRect } from './views/collections/TrueVisibleRect';
 export { default as ScrollView } from './views/containers/ScrollView';
@@ -146,7 +177,10 @@ export { default as ClearSearchButtonView } from './views/controls/ClearSearchBu
 export { default as FileButtonView } from './views/controls/FileButtonView';
 export { default as LabelView } from './views/controls/LabelView';
 export { default as KeyDownController } from './views/controls/KeyDownController';
-export { ShortcutView, ShortcutOverlayView } from './views/controls/ShortcutOverlayView';
+export {
+    ShortcutView,
+    ShortcutOverlayView,
+} from './views/controls/ShortcutOverlayView';
 export { default as MenuOptionView } from './views/menu/MenuOptionView';
 export { default as MenuFilterView } from './views/menu/MenuFilterView';
 export { default as MenuButtonView } from './views/menu/MenuButtonView';

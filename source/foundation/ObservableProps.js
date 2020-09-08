@@ -1,53 +1,54 @@
 import { meta, OBJECT_INITIALISED } from '../core/Core';
 import Binding from './Binding';
 
-const setupObserver = function ( metadata, method ) {
+const setupObserver = function (metadata, method) {
     const observes = this.observedProperties;
     let l = observes.length;
     let pathObservers;
 
-    while ( l-- ) {
+    while (l--) {
         const key = observes[l];
-        if ( key.indexOf( '.' ) === -1 ) {
-            metadata.addObserver( key, { object: null, method } );
+        if (key.indexOf('.') === -1) {
+            metadata.addObserver(key, { object: null, method });
         } else {
-            if ( !pathObservers ) {
+            if (!pathObservers) {
                 pathObservers = metadata.pathObservers;
-                if ( !metadata.hasOwnProperty( 'pathObservers' ) ) {
-                    pathObservers =
-                        metadata.pathObservers = Object.create( pathObservers );
+                if (!metadata.hasOwnProperty('pathObservers')) {
+                    pathObservers = metadata.pathObservers = Object.create(
+                        pathObservers,
+                    );
                 }
                 // There can't be any existing path observers for this method,
                 // as we're only just adding it (and if we're overriding a
                 // previous method, we should have removed all of their path
                 // observers first anyway).
-                pathObservers = pathObservers[ method ] = [];
-                metadata.inits.Observers =
-                    ( metadata.inits.Observers || 0 ) + 1;
+                pathObservers = pathObservers[method] = [];
+                metadata.inits.Observers = (metadata.inits.Observers || 0) + 1;
             }
-            pathObservers.push( key );
+            pathObservers.push(key);
         }
     }
 };
 
-const teardownObserver = function ( metadata, method ) {
+const teardownObserver = function (metadata, method) {
     const observes = this.observedProperties;
     let l = observes.length;
     let pathObservers;
 
-    while ( l-- ) {
+    while (l--) {
         const key = observes[l];
-        if ( key.indexOf( '.' ) === -1 ) {
-            metadata.removeObserver( key, { object: null, method } );
-        } else if ( !pathObservers ) {
+        if (key.indexOf('.') === -1) {
+            metadata.removeObserver(key, { object: null, method });
+        } else if (!pathObservers) {
             pathObservers = metadata.pathObservers;
-            if ( !metadata.hasOwnProperty( 'pathObservers' ) ) {
-                pathObservers =
-                    metadata.pathObservers = Object.create( pathObservers );
+            if (!metadata.hasOwnProperty('pathObservers')) {
+                pathObservers = metadata.pathObservers = Object.create(
+                    pathObservers,
+                );
             }
             // We want to remove all path observers. Can't just delete though,
             // as it may be defined on the prototype object.
-            pathObservers[ method ] = null;
+            pathObservers[method] = null;
             metadata.inits.Observers -= 1;
         }
     }
@@ -68,11 +69,11 @@ const teardownObserver = function ( metadata, method ) {
         {Function} Returns self.
  */
 Function.prototype.observes = function () {
-    const properties = ( this.observedProperties ||
-        ( this.observedProperties = [] ) );
+    const properties =
+        this.observedProperties || (this.observedProperties = []);
     let l = arguments.length;
-    while ( l-- ) {
-        properties.push( arguments[l] );
+    while (l--) {
+        properties.push(arguments[l]);
     }
     this.__setupProperty__ = setupObserver;
     this.__teardownProperty__ = teardownObserver;
@@ -88,14 +89,14 @@ Function.prototype.observes = function () {
         object - {Object} The object to setup/teardown path observers for.
         method - {String} Either 'addObserverForPath' or 'removeObserverForPath'
 */
-const _setupTeardownPaths = function ( object, method ) {
-    const pathObservers = meta( object ).pathObservers;
-    for ( const key in pathObservers ) {
-        const paths = pathObservers[ key ];
-        if ( paths ) {
+const _setupTeardownPaths = function (object, method) {
+    const pathObservers = meta(object).pathObservers;
+    for (const key in pathObservers) {
+        const paths = pathObservers[key];
+        if (paths) {
             let l = paths.length;
-            while ( l-- ) {
-                object[ method ]( paths[l], object, key );
+            while (l--) {
+                object[method](paths[l], object, key);
             }
         }
     }
@@ -116,13 +117,18 @@ const _setupTeardownPaths = function ( object, method ) {
         oldValue - {*} The old value for the property.
         newValue - {*} The new value for the property.
 */
-const _notifyObserversOfKey =
-        function ( that, metadata, key, oldValue, newValue ) {
+const _notifyObserversOfKey = function (
+    that,
+    metadata,
+    key,
+    oldValue,
+    newValue,
+) {
     const isInitialised = metadata.lifestage === OBJECT_INITIALISED;
-    const observers = metadata.observers[ key ];
+    const observers = metadata.observers[key];
     const l = observers ? observers.length : 0;
     let haveCheckedForNew = false;
-    for ( let i = 0; i < l; i += 1 ) {
+    for (let i = 0; i < l; i += 1) {
         const observer = observers[i];
         const object = observer.object || that;
         const method = observer.method;
@@ -135,37 +141,40 @@ const _notifyObserversOfKey =
         // another binding that is bound to this one, we need to notify
         // that to ensure it syncs the correct initial value.
         // We also need to set up any path observers correctly.
-        if ( isInitialised ) {
-            if ( path ) {
+        if (isInitialised) {
+            if (path) {
                 // If it's a computed property we don't really want to call
                 // it unless it's needed; could be expensive.
-                if ( newValue === undefined && !haveCheckedForNew ) {
-                    newValue = /^\d+$/.test( key ) ?
-                        that.getObjectAt( parseInt( key, 10 ) ) :
-                        that.get( key );
+                if (newValue === undefined && !haveCheckedForNew) {
+                    newValue = /^\d+$/.test(key)
+                        ? that.getObjectAt(parseInt(key, 10))
+                        : that.get(key);
                     haveCheckedForNew = true;
                 }
                 // Either value could be null
-                if ( oldValue ) {
-                    oldValue.removeObserverForPath( path, object, method );
+                if (oldValue) {
+                    oldValue.removeObserverForPath(path, object, method);
                 }
-                if ( newValue ) {
-                    newValue.addObserverForPath( path, object, method );
+                if (newValue) {
+                    newValue.addObserverForPath(path, object, method);
                 }
-                object[ method ]( that, key,
-                    oldValue && oldValue.getFromPath( path ),
-                    newValue && newValue.getFromPath( path ) );
+                object[method](
+                    that,
+                    key,
+                    oldValue && oldValue.getFromPath(path),
+                    newValue && newValue.getFromPath(path),
+                );
             } else {
-                object[ method ]( that, key, oldValue, newValue );
+                object[method](that, key, oldValue, newValue);
             }
         } else {
             // Setup path observers on initial value.
-            if ( newValue && path ) {
-                newValue.addObserverForPath( path, object, method );
+            if (newValue && path) {
+                newValue.addObserverForPath(path, object, method);
             }
             // Sync binding immediately
-            if ( object instanceof Binding ) {
-                object[ method ]();
+            if (object instanceof Binding) {
+                object[method]();
                 object.sync();
             }
         }
@@ -185,11 +194,11 @@ const _notifyObserversOfKey =
         changed  - {Object} A map of property names to another object. This
                    object has an oldValue and possibly a newValue property.
 */
-const _notifyGenericObservers = function ( that, metadata, changed ) {
-    const observers = metadata.observers[ '*' ];
-    for ( let i = 0, l = observers ? observers.length : 0; i < l; i += 1 ) {
+const _notifyGenericObservers = function (that, metadata, changed) {
+    const observers = metadata.observers['*'];
+    for (let i = 0, l = observers ? observers.length : 0; i < l; i += 1) {
         const observer = observers[i];
-        ( observer.object || that )[ observer.method ]( that, changed );
+        (observer.object || that)[observer.method](that, changed);
     }
 };
 
@@ -202,7 +211,6 @@ const _notifyGenericObservers = function ( that, metadata, changed ) {
 */
 
 export default {
-
     /**
         Method: O.Observable#initObservers
 
@@ -211,8 +219,8 @@ export default {
         iterate through the keys of `O.meta( this ).inits`, calling
         `this[ 'init' + key ]()` for all keys which map to truthy values.
     */
-    initObservers () {
-        _setupTeardownPaths( this, 'addObserverForPath' );
+    initObservers() {
+        _setupTeardownPaths(this, 'addObserverForPath');
     },
 
     /**
@@ -223,8 +231,8 @@ export default {
         through the keys of `O.meta( this ).inits`, calling
         `this[ 'destroy' + key ]()` for all keys which map to a truthy value.
     */
-    destroyObservers () {
-        _setupTeardownPaths( this, 'removeObserverForPath' );
+    destroyObservers() {
+        _setupTeardownPaths(this, 'removeObserverForPath');
     },
 
     /**
@@ -236,17 +244,19 @@ export default {
         Returns:
             {Boolean} Does the object have any observers?
     */
-    hasObservers () {
-        const observers = meta( this ).observers;
-        for ( const key in observers ) {
-            const keyObservers = observers[ key ];
+    hasObservers() {
+        const observers = meta(this).observers;
+        for (const key in observers) {
+            const keyObservers = observers[key];
             let l = keyObservers ? keyObservers.length : 0;
-            while ( l-- ) {
+            while (l--) {
                 const object = keyObservers[l].object;
-                if ( object && object !== this &&
-                        // Ignore bindings that belong to the object.
-                        !( ( object instanceof Binding ) &&
-                             object.toObject === this ) ) {
+                if (
+                    object &&
+                    object !== this &&
+                    // Ignore bindings that belong to the object.
+                    !(object instanceof Binding && object.toObject === this)
+                ) {
                     return true;
                 }
             }
@@ -266,8 +276,8 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    beginPropertyChanges () {
-        meta( this ).depth += 1;
+    beginPropertyChanges() {
+        meta(this).depth += 1;
         return this;
     },
 
@@ -282,20 +292,25 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    endPropertyChanges () {
-        const metadata = meta( this );
-        if ( metadata.depth === 1 ) {
+    endPropertyChanges() {
+        const metadata = meta(this);
+        if (metadata.depth === 1) {
             // Notify observers.
             let changed;
-            while ( changed = metadata.changed ) {
+            while ((changed = metadata.changed)) {
                 metadata.changed = null;
-                for ( const key in changed ) {
-                    _notifyObserversOfKey( this, metadata,
-                        key, changed[ key ].oldValue, changed[ key ].newValue );
+                for (const key in changed) {
+                    _notifyObserversOfKey(
+                        this,
+                        metadata,
+                        key,
+                        changed[key].oldValue,
+                        changed[key].newValue,
+                    );
                 }
                 // Notify observers interested in any property change
-                if ( metadata.observers[ '*' ] ) {
-                    _notifyGenericObservers( this, metadata, changed );
+                if (metadata.observers['*']) {
+                    _notifyGenericObservers(this, metadata, changed);
                 }
             }
         }
@@ -323,48 +338,54 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    propertyDidChange ( key, oldValue, newValue ) {
-        const metadata = meta( this );
+    propertyDidChange(key, oldValue, newValue) {
+        const metadata = meta(this);
         const isInitialised = metadata.lifestage === OBJECT_INITIALISED;
-        const dependents = isInitialised ?
-                this.propertiesDependentOnKey( key ) : [];
+        const dependents = isInitialised
+            ? this.propertiesDependentOnKey(key)
+            : [];
         let l = dependents.length;
         const depth = metadata.depth;
-        const hasGenericObservers = !!metadata.observers[ '*' ];
+        const hasGenericObservers = !!metadata.observers['*'];
         const fastPath = !l && !depth && !hasGenericObservers;
         const changed = fastPath ? null : metadata.changed || {};
         const cache = metadata.cache;
 
-        if ( fastPath ) {
-            _notifyObserversOfKey( this, metadata, key, oldValue, newValue );
+        if (fastPath) {
+            _notifyObserversOfKey(this, metadata, key, oldValue, newValue);
         } else {
-            while ( l-- ) {
+            while (l--) {
                 const prop = dependents[l];
-                if ( !changed[ prop ] ) {
-                    changed[ prop ] = {
-                        oldValue: cache[ prop ],
+                if (!changed[prop]) {
+                    changed[prop] = {
+                        oldValue: cache[prop],
                     };
                 }
-                delete cache[ prop ];
+                delete cache[prop];
             }
 
-            changed[ key ] = {
-                oldValue: changed[ key ] ? changed[ key ].oldValue : oldValue,
+            changed[key] = {
+                oldValue: changed[key] ? changed[key].oldValue : oldValue,
                 newValue,
             };
 
-            if ( metadata.depth ) {
+            if (metadata.depth) {
                 metadata.changed = changed;
             } else {
                 // Notify observers of dependent keys.
-                for ( const prop in changed ) {
-                    _notifyObserversOfKey( this, metadata, prop,
-                        changed[ prop ].oldValue, changed[ prop ].newValue );
+                for (const prop in changed) {
+                    _notifyObserversOfKey(
+                        this,
+                        metadata,
+                        prop,
+                        changed[prop].oldValue,
+                        changed[prop].newValue,
+                    );
                 }
 
                 // Notify observers interested in any property change
-                if ( isInitialised && hasGenericObservers ) {
-                    _notifyGenericObservers( this, metadata, changed );
+                if (isInitialised && hasGenericObservers) {
+                    _notifyGenericObservers(this, metadata, changed);
                 }
             }
         }
@@ -391,8 +412,8 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    addObserverForKey ( key, object, method ) {
-        meta( this ).addObserver( key, { object, method } );
+    addObserverForKey(key, object, method) {
+        meta(this).addObserver(key, { object, method });
         return this;
     },
 
@@ -412,8 +433,8 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    removeObserverForKey ( key, object, method ) {
-        meta( this ).removeObserver( key, { object, method } );
+    removeObserverForKey(key, object, method) {
+        meta(this).removeObserver(key, { object, method });
         return this;
     },
 
@@ -434,23 +455,23 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    addObserverForPath ( path, object, method ) {
-        const nextDot = path.indexOf( '.' );
-        if ( nextDot === -1 ) {
-            this.addObserverForKey( path, object, method );
+    addObserverForPath(path, object, method) {
+        const nextDot = path.indexOf('.');
+        if (nextDot === -1) {
+            this.addObserverForKey(path, object, method);
         } else {
-            const key = path.slice( 0, nextDot );
-            const value = this.get( key );
-            const restOfPath = path.slice( nextDot + 1 );
+            const key = path.slice(0, nextDot);
+            const value = this.get(key);
+            const restOfPath = path.slice(nextDot + 1);
 
-            meta( this ).addObserver( key, {
+            meta(this).addObserver(key, {
                 path: restOfPath,
                 object,
                 method,
             });
 
-            if ( value && !( value instanceof Binding ) ) {
-                value.addObserverForPath( restOfPath, object, method );
+            if (value && !(value instanceof Binding)) {
+                value.addObserverForPath(restOfPath, object, method);
             }
         }
         return this;
@@ -470,23 +491,23 @@ export default {
         Returns:
             {O.ObservableProps} Returns self.
     */
-    removeObserverForPath ( path, object, method ) {
-        const nextDot = path.indexOf( '.' );
-        if ( nextDot === -1 ) {
-            this.removeObserverForKey( path, object, method );
+    removeObserverForPath(path, object, method) {
+        const nextDot = path.indexOf('.');
+        if (nextDot === -1) {
+            this.removeObserverForKey(path, object, method);
         } else {
-            const key = path.slice( 0, nextDot );
-            const value = this.get( key );
-            const restOfPath = path.slice( nextDot + 1 );
+            const key = path.slice(0, nextDot);
+            const value = this.get(key);
+            const restOfPath = path.slice(nextDot + 1);
 
-            meta( this ).removeObserver( key, {
+            meta(this).removeObserver(key, {
                 path: restOfPath,
                 object,
                 method,
             });
 
-            if ( value ) {
-                value.removeObserverForPath( restOfPath, object, method );
+            if (value) {
+                value.removeObserverForPath(restOfPath, object, method);
             }
         }
         return this;

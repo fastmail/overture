@@ -10,7 +10,6 @@ import Obj from '../../foundation/Object';
     and commited back to here by an instance of <O.Store>.
 */
 const Source = Class({
-
     Extends: Obj,
 
     // ---
@@ -30,7 +29,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchRecord (/* accountId, Type, id, callback */) {
+    fetchRecord(/* accountId, Type, id, callback */) {
         return false;
     },
 
@@ -51,7 +50,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords (/* accountId, Type, state, callback */) {
+    fetchAllRecords(/* accountId, Type, state, callback */) {
         return false;
     },
 
@@ -72,8 +71,8 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
-    refreshRecord ( accountId, Type, id, callback ) {
-        return this.fetchRecord( accountId, Type, id, callback );
+    refreshRecord(accountId, Type, id, callback) {
+        return this.fetchRecord(accountId, Type, id, callback);
     },
 
     /**
@@ -87,7 +86,7 @@ const Source = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchQuery (/* query, callback */) {
+    fetchQuery(/* query, callback */) {
         return false;
     },
 
@@ -143,7 +142,7 @@ const Source = Class({
             callback will only be called if the source is handling at least one
             of the types being committed.
     */
-    commitChanges (/* changes, callback */) {
+    commitChanges(/* changes, callback */) {
         return false;
     },
 });

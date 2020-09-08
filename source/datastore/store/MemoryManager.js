@@ -66,7 +66,7 @@ class MemoryManager {
                            function is called in milliseconds. Default is 30000,
                            i.e. every 30 seconds.
     */
-    constructor ( store, restrictions, frequency ) {
+    constructor(store, restrictions, frequency) {
         this._index = 0;
         this._store = store;
         this._restrictions = restrictions;
@@ -74,7 +74,7 @@ class MemoryManager {
         this.isPaused = false;
         this.frequency = frequency || 30000;
 
-        RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+        RunLoop.invokeAfterDelay(this.cleanup, this.frequency, this);
     }
 
     /**
@@ -89,8 +89,8 @@ class MemoryManager {
         Returns:
             {O.MemoryManager} Returns self.
     */
-    addRestriction ( restriction ) {
-        this._restrictions.push( restriction );
+    addRestriction(restriction) {
+        this._restrictions.push(restriction);
         return this;
     }
 
@@ -102,41 +102,41 @@ class MemoryManager {
         until the number is under the set limit for that type. This is
         automatically called periodically by the memory manager.
     */
-    cleanup () {
+    cleanup() {
         let index = this._index;
-        const restrictions = this._restrictions[ index ];
+        const restrictions = this._restrictions[index];
         const Type = restrictions.Type;
         let ParentType = Type;
         const max = restrictions.max;
         const afterFn = restrictions.afterCleanup;
         let deleted;
 
-        if ( this.isPaused ) {
-            RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+        if (this.isPaused) {
+            RunLoop.invokeAfterDelay(this.cleanup, this.frequency, this);
             return;
         }
 
         do {
-            if ( ParentType === Record ) {
-                deleted = this.cleanupRecordType( Type, max );
+            if (ParentType === Record) {
+                deleted = this.cleanupRecordType(Type, max);
                 break;
-            } else if ( ParentType === Query ) {
-                deleted = this.cleanupQueryType( Type, max );
+            } else if (ParentType === Query) {
+                deleted = this.cleanupQueryType(Type, max);
                 break;
             }
-        } while ( ParentType = ParentType.parent.constructor );
+        } while ((ParentType = ParentType.parent.constructor));
 
-        if ( afterFn ) {
-            afterFn( deleted );
+        if (afterFn) {
+            afterFn(deleted);
         }
 
-        this._index = index = ( index + 1 ) % this._restrictions.length;
+        this._index = index = (index + 1) % this._restrictions.length;
 
         // Yield between examining types so we don't hog the event queue.
-        if ( index ) {
-            RunLoop.invokeInNextEventLoop( this.cleanup, this );
+        if (index) {
+            RunLoop.invokeInNextEventLoop(this.cleanup, this);
         } else {
-            RunLoop.invokeAfterDelay( this.cleanup, this.frequency, this );
+            RunLoop.invokeAfterDelay(this.cleanup, this.frequency, this);
         }
     }
 
@@ -149,27 +149,26 @@ class MemoryManager {
 
         Removes excess records from the store.
     */
-    cleanupRecordType ( Type, max ) {
+    cleanupRecordType(Type, max) {
         const store = this._store;
         const _skToLastAccess = store._skToLastAccess;
         const _skToData = store._skToData;
-        const storeKeys =
-            Object.keys( store._typeToSKToId[ guid( Type ) ] || {} );
+        const storeKeys = Object.keys(store._typeToSKToId[guid(Type)] || {});
         let l = storeKeys.length;
         let numberToDelete = l - max;
         const deleted = [];
 
-        storeKeys.sort( function ( a, b ) {
+        storeKeys.sort(function (a, b) {
             return _skToLastAccess[b] - _skToLastAccess[a];
         });
 
-        while ( numberToDelete > 0 && l-- ) {
+        while (numberToDelete > 0 && l--) {
             const storeKey = storeKeys[l];
-            const data = _skToData[ storeKey ];
-            if ( store.unloadRecord( storeKey ) ) {
+            const data = _skToData[storeKey];
+            if (store.unloadRecord(storeKey)) {
                 numberToDelete -= 1;
-                if ( data ) {
-                    deleted.push( data );
+                if (data) {
+                    deleted.push(data);
                 }
             }
         }
@@ -185,22 +184,22 @@ class MemoryManager {
 
         Removes excess remote queries from the store.
     */
-    cleanupQueryType ( Type, max ) {
-        const queries = this._store.getAllQueries().filter( function ( query ) {
+    cleanupQueryType(Type, max) {
+        const queries = this._store.getAllQueries().filter(function (query) {
             return query instanceof Type;
         });
         let l = queries.length;
         let numberToDelete = l - max;
         const deleted = [];
 
-        queries.sort( function ( a, b ) {
+        queries.sort(function (a, b) {
             return b.lastAccess - a.lastAccess;
         });
-        while ( numberToDelete > 0 && l-- ) {
+        while (numberToDelete > 0 && l--) {
             const query = queries[l];
-            if ( !query.hasObservers() && !query.hasRangeObservers() ) {
+            if (!query.hasObservers() && !query.hasRangeObservers()) {
                 query.destroy();
-                deleted.push( query );
+                deleted.push(query);
                 numberToDelete -= 1;
             }
         }

@@ -3,7 +3,6 @@ import ButtonView from './ButtonView';
 import { ACTIVE_IN_INPUT } from '../../application/keyboardShortcuts.js';
 
 const ClearSearchButtonView = Class({
-
     Extends: ButtonView,
 
     className: 'v-ClearSearchButton',

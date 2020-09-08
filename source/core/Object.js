@@ -1,4 +1,4 @@
-Object.assign( Object, {
+Object.assign(Object, {
     /**
         Function: Object.keyOf
 
@@ -13,9 +13,9 @@ Object.assign( Object, {
             {String|undefined} The key for that value in the object.
             Undefined is returned if the value is not found.
     */
-    keyOf ( object, value ) {
-        for ( const key in object ) {
-            if ( object[ key ] === value ) {
+    keyOf(object, value) {
+        for (const key in object) {
+            if (object[key] === value) {
                 return key;
             }
         }
@@ -36,11 +36,11 @@ Object.assign( Object, {
         Returns:
             {Object} The filtered object.
     */
-    filter ( object, include ) {
+    filter(object, include) {
         const result = {};
-        for ( const key in object ) {
-            if ( include[ key ] ) {
-                result[ key ] = object[ key ];
+        for (const key in object) {
+            if (include[key]) {
+                result[key] = object[key];
             }
         }
         return result;
@@ -59,11 +59,11 @@ Object.assign( Object, {
         Returns:
             {Object} The object mapping keys to values.
     */
-    zip ( keys, values ) {
-        let l = Math.min( keys.length, values.length );
+    zip(keys, values) {
+        let l = Math.min(keys.length, values.length);
         const object = {};
-        while ( l-- ) {
-            object[ keys[l] ] = values[l];
+        while (l--) {
+            object[keys[l]] = values[l];
         }
         return object;
     },
@@ -80,11 +80,11 @@ Object.assign( Object, {
         Returns:
             {Object} The key/value pairs in object form.
     */
-    fromQueryString ( query ) {
+    fromQueryString(query) {
         const result = {};
-        query.split( '&' ).forEach( function ( pair ) {
-            const parts = pair.split( '=' ).map( decodeURIComponent );
-            result[ parts[0] ] = parts[1];
+        query.split('&').forEach(function (pair) {
+            const parts = pair.split('=').map(decodeURIComponent);
+            result[parts[0]] = parts[1];
         });
         return result;
     },

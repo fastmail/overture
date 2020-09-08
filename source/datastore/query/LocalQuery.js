@@ -17,7 +17,6 @@ import { EMPTY, READY, OBSOLETE } from '../record/Status';
     retrieving the query from the store.
  */
 const LocalQuery = Class({
-
     Extends: Query,
 
     autoRefresh: Query.AUTO_REFRESH_ALWAYS,
@@ -44,52 +43,51 @@ const LocalQuery = Class({
         Parameters:
             mixin - {Object} The properties for the query.
     */
-    init: function ( mixin ) {
+    init: function (mixin) {
         this.dependsOn = null;
         this.where = null;
         this.sort = null;
 
         const sort = mixin.sort;
-        if ( sort && typeof sort !== 'function' ) {
-            mixin.sort = sortByProperties( sort );
+        if (sort && typeof sort !== 'function') {
+            mixin.sort = sortByProperties(sort);
         }
 
-        LocalQuery.parent.constructor.apply( this, arguments );
+        LocalQuery.parent.constructor.apply(this, arguments);
     },
 
-    monitorForChanges () {
-        const store = this.get( 'store' );
-        const types = this.get( 'dependsOn' ) || [ this.get( 'Type' ) ];
-        types.forEach( function ( Type ) {
-            store.on( Type, this, 'setObsolete' );
-        }, this );
+    monitorForChanges() {
+        const store = this.get('store');
+        const types = this.get('dependsOn') || [this.get('Type')];
+        types.forEach(function (Type) {
+            store.on(Type, this, 'setObsolete');
+        }, this);
     },
 
-    unmonitorForChanges () {
-        const store = this.get( 'store' );
-        const types = this.get( 'dependsOn' ) || [ this.get( 'Type' ) ];
-        types.forEach( function ( Type ) {
-            store.off( Type, this, 'setObsolete' );
-        }, this );
+    unmonitorForChanges() {
+        const store = this.get('store');
+        const types = this.get('dependsOn') || [this.get('Type')];
+        types.forEach(function (Type) {
+            store.off(Type, this, 'setObsolete');
+        }, this);
     },
 
-    fetch ( force, callback ) {
-        const status = this.get( 'status' );
+    fetch(force, callback) {
+        const status = this.get('status');
 
-        if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
-            const Type = this.get( 'Type' );
-            const store = this.get( 'store' );
-            store.fetchAll( Type );
-            if ( store.getTypeStatus( Type ) & READY ) {
+        if (force || status === EMPTY || status & OBSOLETE) {
+            const Type = this.get('Type');
+            const store = this.get('store');
+            store.fetchAll(Type);
+            if (store.getTypeStatus(Type) & READY) {
                 this.sourceWillFetchQuery();
                 this.sourceDidFetchQuery(
-                    store.findAll(
-                        Type, this.get( 'where' ), this.get( 'sort' ) )
+                    store.findAll(Type, this.get('where'), this.get('sort')),
                 );
             }
         }
 
-        if ( callback ) {
+        if (callback) {
             callback();
         }
 

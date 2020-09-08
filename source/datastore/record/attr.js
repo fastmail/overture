@@ -1,7 +1,7 @@
 import { Class, meta, clone, isEqual } from '../../core/Core';
 
-const instanceOf = function ( value, Type ) {
-    switch ( typeof value ) {
+const instanceOf = function (value, Type) {
+    switch (typeof value) {
         case 'string':
             return Type === String;
         case 'boolean':
@@ -23,71 +23,70 @@ const attributeErrorsObserver = {
     Represents an attribute on a record.
 */
 class RecordAttribute {
-    __setupProperty__ ( metadata, propKey, object ) {
+    __setupProperty__(metadata, propKey, object) {
         const constructor = object.constructor;
         let attrs = metadata.attrs;
         let dependents, dependencies, l, key, AttributeErrorsType;
         let attrErrorsMetadata;
-        if ( !metadata.hasOwnProperty( 'attrs' ) ) {
-            attrs = metadata.attrs = attrs ? Object.create( attrs ) : {};
+        if (!metadata.hasOwnProperty('attrs')) {
+            attrs = metadata.attrs = attrs ? Object.create(attrs) : {};
         }
-        if ( this.isPrimaryKey ) {
+        if (this.isPrimaryKey) {
             constructor.primaryKey = propKey;
             // Make the `id` property depend on the primary key.
             dependents = metadata.dependents;
-            if ( !metadata.hasOwnProperty( 'dependents' ) ) {
-                dependents = metadata.dependents = clone( dependents );
+            if (!metadata.hasOwnProperty('dependents')) {
+                dependents = metadata.dependents = clone(dependents);
                 metadata.allDependents = {};
             }
-            ( dependents[ propKey ] ||
-                ( dependents[ propKey ] = [] ) ).push( 'id' );
+            (dependents[propKey] || (dependents[propKey] = [])).push('id');
         }
-        attrs[ this.key || propKey ] = propKey;
+        attrs[this.key || propKey] = propKey;
         constructor.clientSettableAttributes = null;
 
-        if ( this.validate ) {
-            if ( !metadata.hasObserver( propKey, attributeErrorsObserver ) ) {
-                metadata.addObserver( propKey, attributeErrorsObserver );
+        if (this.validate) {
+            if (!metadata.hasObserver(propKey, attributeErrorsObserver)) {
+                metadata.addObserver(propKey, attributeErrorsObserver);
             }
             dependencies = this.validityDependencies;
-            if ( dependencies ) {
+            if (dependencies) {
                 AttributeErrorsType = object.AttributeErrorsType;
-                if ( AttributeErrorsType.forRecordType !== constructor ) {
-                    AttributeErrorsType = object.AttributeErrorsType =
-                        Class({
-                            Extends: AttributeErrorsType,
-                        });
+                if (AttributeErrorsType.forRecordType !== constructor) {
+                    AttributeErrorsType = object.AttributeErrorsType = Class({
+                        Extends: AttributeErrorsType,
+                    });
                     AttributeErrorsType.forRecordType = constructor;
-                    attrErrorsMetadata = meta( AttributeErrorsType.prototype );
-                    dependents = attrErrorsMetadata.dependents =
-                        clone( attrErrorsMetadata.dependents );
+                    attrErrorsMetadata = meta(AttributeErrorsType.prototype);
+                    dependents = attrErrorsMetadata.dependents = clone(
+                        attrErrorsMetadata.dependents,
+                    );
                 } else {
-                    attrErrorsMetadata = meta( AttributeErrorsType.prototype );
+                    attrErrorsMetadata = meta(AttributeErrorsType.prototype);
                     dependents = attrErrorsMetadata.dependents;
                 }
                 l = dependencies.length;
-                while ( l-- ) {
+                while (l--) {
                     key = dependencies[l];
-                    if ( !dependents[ key ] ) {
-                        dependents[ key ] = [];
-                        if ( !metadata
-                                .hasObserver( key, attributeErrorsObserver ) ) {
-                            metadata
-                                .addObserver( key, attributeErrorsObserver );
+                    if (!dependents[key]) {
+                        dependents[key] = [];
+                        if (
+                            !metadata.hasObserver(key, attributeErrorsObserver)
+                        ) {
+                            metadata.addObserver(key, attributeErrorsObserver);
                         }
                     }
-                    dependents[ key ].push( propKey );
+                    dependents[key].push(propKey);
                 }
             }
         }
     }
 
-    __teardownProperty__ ( metadata, propKey, object ) {
+    __teardownProperty__(metadata, propKey, object) {
         let attrs = metadata.attrs;
-        if ( !metadata.hasOwnProperty( 'attrs' ) ) {
-            attrs = metadata.attrs = Object.create( attrs );
+        if (!metadata.hasOwnProperty('attrs')) {
+            attrs = metadata.attrs = Object.create(attrs);
         }
-        attrs[ this.key || propKey ] = null;
+        attrs[this.key || propKey] = null;
         object.constructor.clientSettableAttributes = null;
     }
 
@@ -97,12 +96,12 @@ class RecordAttribute {
         Parameters:
             mixin - {Object} (optional) Override the default properties.
     */
-    constructor ( mixin ) {
-        Object.assign( this, mixin );
+    constructor(mixin) {
+        Object.assign(this, mixin);
     }
 }
 
-Object.assign( RecordAttribute.prototype, {
+Object.assign(RecordAttribute.prototype, {
     /**
         Property (private): O.RecordAttribute#isProperty
         Type: Boolean
@@ -195,19 +194,22 @@ Object.assign( RecordAttribute.prototype, {
         Returns:
             {Boolean} May the value be set?
     */
-    willSet ( propValue, propKey, record ) {
-        if ( !record.get( 'isEditable' ) ) {
+    willSet(propValue, propKey, record) {
+        if (!record.get('isEditable')) {
             return false;
         }
-        if ( propValue === null ) {
-            if ( !this.isNullable ) {
+        if (propValue === null) {
+            if (!this.isNullable) {
                 return false;
             }
-        } else if ( this.Type && !instanceOf( propValue, this.Type ) ) {
+        } else if (this.Type && !instanceOf(propValue, this.Type)) {
             throw new Error(
                 'Incorrect value type for record attribute: \n' +
-                'key: ' + propKey + '\n' +
-                'value: ' + propValue
+                    'key: ' +
+                    propKey +
+                    '\n' +
+                    'value: ' +
+                    propValue,
             );
         }
         return true;
@@ -292,40 +294,45 @@ Object.assign( RecordAttribute.prototype, {
         Returns:
             {*} The attribute.
     */
-    call ( record, propValue, propKey ) {
-        const store = record.get( 'store' );
-        let storeKey = record.get( 'storeKey' );
-        const data = storeKey ? store.getData( storeKey ) : record._data;
+    call(record, propValue, propKey) {
+        const store = record.get('store');
+        let storeKey = record.get('storeKey');
+        const data = storeKey ? store.getData(storeKey) : record._data;
         const attrKey = this.key || propKey;
         const Type = this.Type;
         let currentAttrValue, attrValue, update;
-        if ( data ) {
-            currentAttrValue = data[ attrKey ];
-            if ( currentAttrValue === undefined ) {
+        if (data) {
+            currentAttrValue = data[attrKey];
+            if (currentAttrValue === undefined) {
                 currentAttrValue = this.defaultValue;
             }
-            if ( propValue !== undefined &&
-                    this.willSet( propValue, propKey, record ) ) {
-                if ( this.toJSON ) {
-                    attrValue = this.toJSON( propValue, propKey, record );
-                } else if ( propValue && propValue.toJSON ) {
+            if (
+                propValue !== undefined &&
+                this.willSet(propValue, propKey, record)
+            ) {
+                if (this.toJSON) {
+                    attrValue = this.toJSON(propValue, propKey, record);
+                } else if (propValue && propValue.toJSON) {
                     attrValue = propValue.toJSON();
                 } else {
                     attrValue = propValue;
                 }
-                if ( !isEqual( attrValue, currentAttrValue ) ) {
+                if (!isEqual(attrValue, currentAttrValue)) {
                     // May have changed if willSet moved the account this record
                     // is in.
-                    storeKey = record.get( 'storeKey' );
-                    if ( storeKey ) {
+                    storeKey = record.get('storeKey');
+                    if (storeKey) {
                         update = {};
-                        update[ attrKey ] = attrValue;
-                        store.updateData( storeKey, update,
-                            !( this.noSync || record._noSync ) );
-                        store.fire( 'record:user:update', { record: this } );
+                        update[attrKey] = attrValue;
+                        store.updateData(
+                            storeKey,
+                            update,
+                            !(this.noSync || record._noSync),
+                        );
+                        store.fire('record:user:update', { record: this });
                     } else {
-                        data[ attrKey ] = attrValue;
-                        record.computedPropertyDidChange( propKey );
+                        data[attrKey] = attrValue;
+                        record.computedPropertyDidChange(propKey);
                     }
                 }
                 return propValue;
@@ -333,8 +340,9 @@ Object.assign( RecordAttribute.prototype, {
         } else {
             currentAttrValue = this.defaultValue;
         }
-        return currentAttrValue !== null && Type && Type.fromJSON ?
-            Type.fromJSON( currentAttrValue ) : currentAttrValue;
+        return currentAttrValue !== null && Type && Type.fromJSON
+            ? Type.fromJSON(currentAttrValue)
+            : currentAttrValue;
     },
 });
 
@@ -359,14 +367,14 @@ Object.assign( RecordAttribute.prototype, {
     Returns:
         {O.RecordAttribute} Getter/setter for that record attribute.
 */
-const attr = function ( Type, mixin ) {
-    if ( !mixin ) {
+const attr = function (Type, mixin) {
+    if (!mixin) {
         mixin = {};
     }
-    if ( Type && !mixin.Type ) {
+    if (Type && !mixin.Type) {
         mixin.Type = Type;
     }
-    return new RecordAttribute( mixin );
+    return new RecordAttribute(mixin);
 };
 
 export default attr;

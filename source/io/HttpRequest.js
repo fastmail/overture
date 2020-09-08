@@ -1,10 +1,10 @@
 /*global location */
 
 import { Class } from '../core/Core';
-import '../core/String';  // For String#contains
+import '../core/String'; // For String#contains
 import Obj from '../foundation/Object';
 import * as RunLoop from '../foundation/RunLoop';
-import '../foundation/EventTarget';  // For Function#on
+import '../foundation/EventTarget'; // For Function#on
 import XHR from './XHR';
 
 /**
@@ -18,7 +18,6 @@ import XHR from './XHR';
 */
 
 const HttpRequest = Class({
-
     Extends: Obj,
 
     /**
@@ -70,7 +69,7 @@ const HttpRequest = Class({
         `{headerName: headerValue}`.
     */
     headers: {
-        'Accept': 'application/json, */*',
+        Accept: 'application/json, */*',
     },
 
     /**
@@ -106,43 +105,48 @@ const HttpRequest = Class({
         this.responseHeaders = {};
         this.response = '';
 
-        HttpRequest.parent.constructor.apply( this, arguments );
+        HttpRequest.parent.constructor.apply(this, arguments);
     },
 
     // ---
 
     setTimeout: function () {
-        const timeout = this.get( 'timeout' );
-        if ( timeout ) {
+        const timeout = this.get('timeout');
+        if (timeout) {
             this._lastActivity = Date.now();
             this._timer = RunLoop.invokeAfterDelay(
-                this.didTimeout, timeout, this );
+                this.didTimeout,
+                timeout,
+                this,
+            );
         }
-    }.on( 'io:begin' ),
+    }.on('io:begin'),
 
     resetTimeout: function () {
         this._lastActivity = Date.now();
-    }.on( 'io:uploadProgress', 'io:loading', 'io:progress' ),
+    }.on('io:uploadProgress', 'io:loading', 'io:progress'),
 
     clearTimeout: function () {
         const timer = this._timer;
-        if ( timer ) {
-            RunLoop.cancel( timer );
+        if (timer) {
+            RunLoop.cancel(timer);
         }
-    }.on( 'io:end' ),
+    }.on('io:end'),
 
-    didTimeout () {
+    didTimeout() {
         this._timer = null;
-        const timeout = this.get( 'timeout' );
+        const timeout = this.get('timeout');
         const timeSinceLastReset = Date.now() - this._lastActivity;
         const timeToTimeout = timeout - timeSinceLastReset;
         // Allow for 10ms jitter
-        if ( timeToTimeout < 10 ) {
-            this.fire( 'io:timeout' )
-                .abort();
+        if (timeToTimeout < 10) {
+            this.fire('io:timeout').abort();
         } else {
             this._timer = RunLoop.invokeAfterDelay(
-                this.didTimeout, timeToTimeout, this );
+                this.didTimeout,
+                timeToTimeout,
+                this,
+            );
         }
     },
 
@@ -152,57 +156,67 @@ const HttpRequest = Class({
     // after it resolves. (Caution: if this.data is rejected, the send will
     // never happen. Either ensure that it is never rejected, or handle that
     // case yourself.)
-    send () {
-        let data = this.get( 'data' ) || null;
-        if ( data instanceof Promise ) {
-            data.then( data => {
-                this.set( 'data', data );
+    send() {
+        let data = this.get('data') || null;
+        if (data instanceof Promise) {
+            data.then((data) => {
+                this.set('data', data);
                 this.send();
             });
             return this;
         }
-        const method = this.get( 'method' ).toUpperCase();
-        let url = this.get( 'url' );
-        const headers = this.get( 'headers' );
-        const withCredentials = this.get( 'withCredentials' );
-        const responseType = this.get( 'responseType' );
+        const method = this.get('method').toUpperCase();
+        let url = this.get('url');
+        const headers = this.get('headers');
+        const withCredentials = this.get('withCredentials');
+        const responseType = this.get('responseType');
         const transport = new XHR();
 
-        if ( data && method === 'GET' ) {
-            url += ( url.includes( '?' ) ? '&' : '?' ) + data;
+        if (data && method === 'GET') {
+            url += (url.includes('?') ? '&' : '?') + data;
             data = null;
         }
-        const contentType = headers[ 'Content-type' ];
-        if ( contentType && method === 'POST' && typeof data === 'string' &&
-                contentType.indexOf( ';' ) === -1 ) {
+        const contentType = headers['Content-type'];
+        if (
+            contentType &&
+            method === 'POST' &&
+            typeof data === 'string' &&
+            contentType.indexOf(';') === -1
+        ) {
             // All string data is sent as UTF-8 by the browser.
             // This cannot be altered.
-            headers[ 'Content-type' ] += ';charset=utf-8';
+            headers['Content-type'] += ';charset=utf-8';
         }
 
         // Send the request
         this._transport = transport;
         transport.io = this;
-        transport.send( method, url, data, headers, withCredentials,
-            responseType );
+        transport.send(
+            method,
+            url,
+            data,
+            headers,
+            withCredentials,
+            responseType,
+        );
 
         return this;
     },
 
-    abort () {
+    abort() {
         const transport = this._transport;
-        if ( transport && transport.io === this ) {
+        if (transport && transport.io === this) {
             transport.abort();
         }
     },
 
     _releaseXhr: function () {
         const transport = this._transport;
-        if ( transport instanceof XHR ) {
+        if (transport instanceof XHR) {
             transport.io = null;
             this._transport = null;
         }
-    }.on( 'io:success', 'io:failure', 'io:abort' ),
+    }.on('io:success', 'io:failure', 'io:abort'),
 
     // ---
 

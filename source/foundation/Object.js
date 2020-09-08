@@ -29,14 +29,14 @@ import {
                     methods).
 */
 const Obj = function (/* ...mixins */) {
-    for ( let i = 0, l = arguments.length; i < l; i += 1 ) {
-        mixin( this, arguments[i] );
+    for (let i = 0, l = arguments.length; i < l; i += 1) {
+        mixin(this, arguments[i]);
     }
-    const metadata = meta( this );
+    const metadata = meta(this);
     const inits = metadata.inits;
-    for ( const method in inits ) {
-        if ( inits[ method ] ) {
-            this[ 'init' + method ]();
+    for (const method in inits) {
+        if (inits[method]) {
+            this['init' + method]();
         }
     }
     metadata.lifestage = OBJECT_INITIALISED;
@@ -45,10 +45,10 @@ const ObjPrototype = Obj.prototype;
 ObjPrototype.constructor = Obj;
 ObjPrototype.init = Obj;
 
-mixin( ObjPrototype, ComputedProps );
-mixin( ObjPrototype, BoundProps );
-mixin( ObjPrototype, ObservableProps );
-mixin( ObjPrototype, EventTarget );
+mixin(ObjPrototype, ComputedProps);
+mixin(ObjPrototype, BoundProps);
+mixin(ObjPrototype, ObservableProps);
+mixin(ObjPrototype, EventTarget);
 
 /**
     Method: O.Object#destroy
@@ -56,15 +56,15 @@ mixin( ObjPrototype, EventTarget );
     Removes any connections to other objects (e.g. path observers and
     bindings) so the object will be available for garbage collection.
 */
-mixin( ObjPrototype, {
+mixin(ObjPrototype, {
     constructor: Obj,
 
-    destroy () {
-        const metadata = meta( this );
+    destroy() {
+        const metadata = meta(this);
         const inits = metadata.inits;
-        for ( const method in inits ) {
-            if ( inits[ method ] ) {
-                this[ 'destroy' + method ]();
+        for (const method in inits) {
+            if (inits[method]) {
+                this['destroy' + method]();
             }
         }
         metadata.lifestage = OBJECT_DESTROYED;

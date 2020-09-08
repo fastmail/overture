@@ -1,9 +1,9 @@
 /*global document */
 
 import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps';  // For Function#property, #nocache
-import '../../foundation/EventTarget';  // For Function#on
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ComputedProps'; // For Function#property, #nocache
+import '../../foundation/EventTarget'; // For Function#on
+import '../../foundation/ObservableProps'; // For Function#observes
 import { browser } from '../../ua/UA';
 import { nearest, create as el } from '../../dom/Element';
 import { lookupKey } from '../../dom/DOMEvent';
@@ -21,11 +21,10 @@ const isFirefox = browser === 'firefox';
     the input text.
 */
 const TextView = Class({
-
     Extends: AbstractControlView,
 
     init: function (/* ...mixins */) {
-        TextView.parent.constructor.apply( this, arguments );
+        TextView.parent.constructor.apply(this, arguments);
         this._settingFromInput = false;
     },
 
@@ -138,14 +137,16 @@ const TextView = Class({
         changes in selection/cursor position.
 
     */
-    selection: function ( selection ) {
+    selection: function (selection) {
         const control = this._domControl;
-        const isNumber = ( typeof selection === 'number' );
-        let start = selection ? isNumber ?
-                    selection : selection.start : 0;
-        let end = selection ? isNumber ?
-                    selection : selection.end || start : start;
-        if ( selection !== undefined ) {
+        const isNumber = typeof selection === 'number';
+        let start = selection ? (isNumber ? selection : selection.start) : 0;
+        let end = selection
+            ? isNumber
+                ? selection
+                : selection.end || start
+            : start;
+        if (selection !== undefined) {
             // Ensure any value changes have been drawn.
             this.redraw();
             // Firefox will throw an error if the control is not actually in the
@@ -153,8 +154,8 @@ const TextView = Class({
             // situations where it does so as well, so just using a try/catch to
             // guard against all.
             try {
-                control.setSelectionRange( start, end );
-            } catch ( error ) {}
+                control.setSelectionRange(start, end);
+            } catch (error) {}
         } else {
             // Firefox sometimes throws an error if you try to read the
             // selection. Again, probably if the control is not actually in the
@@ -162,13 +163,17 @@ const TextView = Class({
             try {
                 start = control.selectionStart;
                 end = control.selectionEnd;
-            } catch ( error ) {}
+            } catch (error) {}
         }
-        return selection || {
-            start,
-            end,
-        };
-    }.property().nocache(),
+        return (
+            selection || {
+                start,
+                end,
+            }
+        );
+    }
+        .property()
+        .nocache(),
 
     /**
         Property: O.TextView#blurOnKeys
@@ -206,45 +211,53 @@ const TextView = Class({
         is-disabled  - The <#isDisabled> property is true.
     */
     className: function () {
-        const type = this.get( 'type' );
-        return 'v-Text' +
-            ( this.get( 'isExpanding' ) ? ' v-Text--expanding' : '' ) +
-            ( this.get( 'isMultiline' ) ? ' v-Text--multiline' : '' ) +
-            ( this.get( 'isHighlighted' ) ? ' is-highlighted' : '' ) +
-            ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
-            ( this.get( 'isValid' ) ? '' : ' is-invalid' ) +
-            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
-            ( type ? ' ' + type : '' );
-    }.property( 'type', 'isExpanding', 'isHighlighted',
-        'isFocused', 'isValid', 'isDisabled' ),
+        const type = this.get('type');
+        return (
+            'v-Text' +
+            (this.get('isExpanding') ? ' v-Text--expanding' : '') +
+            (this.get('isMultiline') ? ' v-Text--multiline' : '') +
+            (this.get('isHighlighted') ? ' is-highlighted' : '') +
+            (this.get('isFocused') ? ' is-focused' : '') +
+            (this.get('isValid') ? '' : ' is-invalid') +
+            (this.get('isDisabled') ? ' is-disabled' : '') +
+            (type ? ' ' + type : '')
+        );
+    }.property(
+        'type',
+        'isExpanding',
+        'isHighlighted',
+        'isFocused',
+        'isValid',
+        'isDisabled',
+    ),
 
     /**
         Method: O.TextView#draw
 
         Overridden to draw view. See <O.View#draw>.
     */
-    draw ( layer ) {
-        const isMultiline = this.get( 'isMultiline' );
-        const control = this._domControl = el(
-                isMultiline ? 'textarea' : 'input', {
-                    id: this.get( 'id' ) + '-input',
-                    className: 'v-Text-input',
-                    rows: isMultiline ? '1' : undefined,
-                    name: this.get( 'name' ),
-                    type: this.get( 'inputType' ),
-                    disabled: this.get( 'isDisabled' ),
-                    tabIndex: this.get( 'tabIndex' ),
-                    placeholder: this.get( 'placeholder' ) || undefined,
-                    value: this.get( 'value' ),
-                });
+    draw(layer) {
+        const isMultiline = this.get('isMultiline');
+        const control = (this._domControl = el(
+            isMultiline ? 'textarea' : 'input',
+            {
+                id: this.get('id') + '-input',
+                className: 'v-Text-input',
+                rows: isMultiline ? '1' : undefined,
+                name: this.get('name'),
+                type: this.get('inputType'),
+                disabled: this.get('isDisabled'),
+                tabIndex: this.get('tabIndex'),
+                placeholder: this.get('placeholder') || undefined,
+                value: this.get('value'),
+            },
+        ));
 
         this.redrawInputAttributes();
 
-        layer.title = this.get( 'tooltip' );
+        layer.title = this.get('tooltip');
 
-        return [
-            control,
-        ];
+        return [control];
     },
 
     // --- Keep render in sync with state ---
@@ -255,15 +268,15 @@ const TextView = Class({
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    textNeedsRedraw: function ( self, property, oldValue ) {
-        const isValue = ( property === 'value' );
-        if ( !isValue || !this._settingFromInput ) {
-            this.propertyNeedsRedraw( self, property, oldValue );
+    textNeedsRedraw: function (self, property, oldValue) {
+        const isValue = property === 'value';
+        if (!isValue || !this._settingFromInput) {
+            this.propertyNeedsRedraw(self, property, oldValue);
         }
-        if ( isValue && this.get( 'isExpanding' ) ) {
-            this.propertyNeedsRedraw( self, 'textHeight', oldValue );
+        if (isValue && this.get('isExpanding')) {
+            this.propertyNeedsRedraw(self, 'textHeight', oldValue);
         }
-    }.observes( 'isExpanding', 'value', 'placeholder', 'inputAttributes' ),
+    }.observes('isExpanding', 'value', 'placeholder', 'inputAttributes'),
 
     /**
         Method: O.TextView#redrawValue
@@ -271,8 +284,8 @@ const TextView = Class({
         Updates the content of the `<textarea>` or `<input>` to match the
         <#value> property.
     */
-    redrawValue () {
-        this._domControl.value = this.get( 'value' );
+    redrawValue() {
+        this._domControl.value = this.get('value');
     },
 
     /**
@@ -281,8 +294,8 @@ const TextView = Class({
         Updates the placeholder text in the DOM when the <#placeholder> property
         changes.
     */
-    redrawPlaceholder () {
-        this._domControl.placeholder = this.get( 'placeholder' );
+    redrawPlaceholder() {
+        this._domControl.placeholder = this.get('placeholder');
     },
 
     /**
@@ -290,54 +303,54 @@ const TextView = Class({
 
         Updates any other properties of the `<input>` element.
     */
-    redrawInputAttributes () {
-        const inputAttributes = this.get( 'inputAttributes' );
+    redrawInputAttributes() {
+        const inputAttributes = this.get('inputAttributes');
         const control = this._domControl;
-        for ( const property in inputAttributes ) {
-            control.set( property, inputAttributes[ property ] );
+        for (const property in inputAttributes) {
+            control.set(property, inputAttributes[property]);
         }
     },
 
-    redrawTextHeight () {
+    redrawTextHeight() {
         // Firefox gets pathologically slow when resizing really large text
         // areas, so automatically turn this off in such a case.
         // 2^13 chars is an arbitrary cut off point that seems to be reasonable
         // in practice
-        if ( isFirefox && ( this.get( 'value' ) || '' ).length > 8192 ) {
-            this.set( 'isExpanding', false );
+        if (isFirefox && (this.get('value') || '').length > 8192) {
+            this.set('isExpanding', false);
             return;
         }
         const control = this._domControl;
         const style = control.style;
-        const scrollView = this.getParent( ScrollView );
+        const scrollView = this.getParent(ScrollView);
         // Set to auto to collapse it back to one line, otherwise it would
         // never shrink if you delete text.
         style.height = 'auto';
         const scrollHeight = control.scrollHeight;
         // Presto returns 0 immediately after appending to doc.
-        if ( scrollHeight ) {
+        if (scrollHeight) {
             style.height = scrollHeight + 'px';
         }
         // Collapsing the height will mess with the scroll, so make sure we
         // reset the scroll position back to what it was.
-        if ( scrollView ) {
+        if (scrollView) {
             scrollView.redrawScroll();
         }
     },
 
-    redrawIsExpanding () {
-        if ( this.get( 'isExpanding' ) ) {
+    redrawIsExpanding() {
+        if (this.get('isExpanding')) {
             this.redrawTextHeight();
         } else {
             this._domControl.style.height = 'auto';
             // Scroll to cursor
-            if ( this.get( 'isFocused' ) ) {
+            if (this.get('isFocused')) {
                 this.blur().focus();
             }
         }
     },
 
-    redrawLabel () {},
+    redrawLabel() {},
 
     // --- Activate ---
 
@@ -346,28 +359,28 @@ const TextView = Class({
 
         Overridden to focus the text view. See <O.AbstractControlView#activate>.
     */
-    activate () {
+    activate() {
         this.focus();
     },
 
-    selectAll () {
-        return this.set( 'selection', {
+    selectAll() {
+        return this.set('selection', {
             start: 0,
-            end: this.get( 'value' ).length,
+            end: this.get('value').length,
         });
     },
 
-    copySelectionToClipboard () {
+    copySelectionToClipboard() {
         let focused = null;
-        if ( !this.get( 'isFocused' ) ) {
+        if (!this.get('isFocused')) {
             focused = document.activeElement;
             this.focus();
         }
         let didSucceed = false;
         try {
-            didSucceed = document.execCommand( 'copy' );
-        }  catch ( error ) {}
-        if ( focused ) {
+            didSucceed = document.execCommand('copy');
+        } catch (error) {}
+        if (focused) {
             focused.focus();
         }
         return didSucceed;
@@ -383,28 +396,28 @@ const TextView = Class({
         Overridden to restore scroll position and selection. See
         <O.View#didEnterDocument>.
     */
-    didEnterDocument () {
-        TextView.parent.didEnterDocument.call( this );
-        if ( this.get( 'isMultiline' ) ) {
-            if ( this.get( 'isExpanding' ) ) {
+    didEnterDocument() {
+        TextView.parent.didEnterDocument.call(this);
+        if (this.get('isMultiline')) {
+            if (this.get('isExpanding')) {
                 this.redrawTextHeight();
             }
             // Restore scroll positions:
             const control = this._domControl;
-            const left = this.get( 'scrollLeft' );
-            const top = this.get( 'scrollTop' );
-            if ( left ) {
+            const left = this.get('scrollLeft');
+            const top = this.get('scrollTop');
+            if (left) {
                 control.scrollLeft = left;
             }
-            if ( top ) {
+            if (top) {
                 control.scrollTop = top;
             }
-            control.addEventListener( 'scroll', this, false );
+            control.addEventListener('scroll', this, false);
         }
-        const selection = this.get( 'savedSelection' );
-        if ( selection ) {
-            this.set( 'selection', selection ).focus();
-            this.set( 'savedSelection', null );
+        const selection = this.get('savedSelection');
+        if (selection) {
+            this.set('selection', selection).focus();
+            this.set('savedSelection', null);
         }
         return this;
     },
@@ -415,17 +428,17 @@ const TextView = Class({
         Overridden to save scroll position and selection. See
         <O.View#willLeaveDocument>.
     */
-    willLeaveDocument () {
+    willLeaveDocument() {
         // If focused, save cursor position
-        if ( this.get( 'isFocused' ) ) {
-            this.set( 'savedSelection', this.get( 'selection' ) );
+        if (this.get('isFocused')) {
+            this.set('savedSelection', this.get('selection'));
             this.blur();
         }
         // Stop listening for scrolls:
-        if ( this.get( 'isMultiline' ) ) {
-            this._domControl.removeEventListener( 'scroll', this, false );
+        if (this.get('isMultiline')) {
+            this._domControl.removeEventListener('scroll', this, false);
         }
-        return TextView.parent.willLeaveDocument.call( this );
+        return TextView.parent.willLeaveDocument.call(this);
     },
 
     /**
@@ -437,18 +450,18 @@ const TextView = Class({
         Parameters:
             event - {Event} The scroll event.
     */
-    _syncBackScrolls: function ( event ) {
+    _syncBackScrolls: function (event) {
         const control = this._domControl;
         const left = control.scrollLeft;
         const top = control.scrollTop;
 
         this.beginPropertyChanges()
-            .set( 'scrollLeft', left )
-            .set( 'scrollTop', top )
-        .endPropertyChanges();
+            .set('scrollLeft', left)
+            .set('scrollTop', top)
+            .endPropertyChanges();
 
         event.stopPropagation();
-    }.on( 'scroll' ),
+    }.on('scroll'),
 
     // --- Keep state in sync with render ---
 
@@ -462,9 +475,9 @@ const TextView = Class({
     */
     syncBackValue: function () {
         this._settingFromInput = true;
-        this.set( 'value', this._domControl.value );
+        this.set('value', this._domControl.value);
         this._settingFromInput = false;
-    }.on( 'input' ),
+    }.on('input'),
 
     /**
         Method (private): O.TextView#_onClick
@@ -474,12 +487,11 @@ const TextView = Class({
         Parameters:
             event - {Event} The click event.
     */
-    _onClick: function ( event ) {
-        if ( event.target === this.get( 'layer' ) ) {
-            this.set( 'selection', this.get( 'value' ).length )
-                .focus();
+    _onClick: function (event) {
+        if (event.target === this.get('layer')) {
+            this.set('selection', this.get('value').length).focus();
         }
-    }.on( 'click' ),
+    }.on('click'),
 
     /**
         Method (private): O.TextView#_onKeypress
@@ -490,16 +502,18 @@ const TextView = Class({
         Parameters:
             event - {Event} The keypress event.
     */
-    _onKeypress: function ( event ) {
+    _onKeypress: function (event) {
         // If key == enter, IE will automatically focus the nearest button
         // (presumably as though it were submitting the form). Stop this
         // unless we're actually in a form.
-        if ( !this.get( 'isMultiline' ) &&
-                lookupKey( event, true ) === 'Enter' &&
-                !nearest( this.get( 'layer' ), 'FORM' ) ) {
+        if (
+            !this.get('isMultiline') &&
+            lookupKey(event, true) === 'Enter' &&
+            !nearest(this.get('layer'), 'FORM')
+        ) {
             event.preventDefault();
         }
-    }.on( 'keypress' ),
+    }.on('keypress'),
 
     /**
         Method (private): O.TextView#_blurOnKey
@@ -510,12 +524,12 @@ const TextView = Class({
         Parameters:
             event - {Event} The keyup event.
     */
-    _blurOnKey: function ( event ) {
-        const key = lookupKey( event, true );
-        if ( this.get( 'blurOnKeys' )[ key ] ) {
+    _blurOnKey: function (event) {
+        const key = lookupKey(event, true);
+        if (this.get('blurOnKeys')[key]) {
             this.blur();
         }
-    }.on( 'keyup' ),
+    }.on('keyup'),
 });
 
 export default TextView;

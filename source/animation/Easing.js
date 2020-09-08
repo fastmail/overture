@@ -1,40 +1,40 @@
-const cubicBezier = function ( p1x, p1y, p2x, p2y ) {
+const cubicBezier = function (p1x, p1y, p2x, p2y) {
     // Calculate constants in parametric bezier formular
     // http://www.moshplant.com/direct-or/bezier/math.html
     const cX = 3 * p1x;
-    const bX = 3 * ( p2x - p1x ) - cX;
+    const bX = 3 * (p2x - p1x) - cX;
     const aX = 1 - cX - bX;
 
     const cY = 3 * p1y;
-    const bY = 3 * ( p2y - p1y ) - cY;
+    const bY = 3 * (p2y - p1y) - cY;
     const aY = 1 - cY - bY;
 
     // Functions for calculating x, x', y for t
-    const bezierX = t => t * ( cX + t * ( bX + t * aX ) );
-    const bezierXDerivative = t => cX + t * ( 2 * bX + 3 * aX * t );
+    const bezierX = (t) => t * (cX + t * (bX + t * aX));
+    const bezierXDerivative = (t) => cX + t * (2 * bX + 3 * aX * t);
 
     // Use Newton-Raphson method to find t for a given x.
     // Since x = a*t^3 + b*t^2 + c*t, we find the root for
     // a*t^3 + b*t^2 + c*t - x = 0, and thus t.
-    const newtonRaphson = x => {
+    const newtonRaphson = (x) => {
         let prev;
         // Initial estimation is linear
         let t = x;
         do {
             prev = t;
-            t = t - ( ( bezierX( t ) - x ) / bezierXDerivative( t ) );
-        } while ( Math.abs( t - prev ) > 1e-4 );
+            t = t - (bezierX(t) - x) / bezierXDerivative(t);
+        } while (Math.abs(t - prev) > 1e-4);
 
         return t;
     };
 
-    const output = x => {
-        const t = newtonRaphson( x );
+    const output = (x) => {
+        const t = newtonRaphson(x);
         // This is y given t on the bezier curve.
-        return t * ( cY + t * ( bY + t * aY ) );
+        return t * (cY + t * (bY + t * aY));
     };
-    output.cssName = 'cubic-bezier(' + p1x + ',' + p1y + ',' +
-            p2x + ',' + p2y + ')';
+    output.cssName =
+        'cubic-bezier(' + p1x + ',' + p1y + ',' + p2x + ',' + p2y + ')';
     return output;
 };
 
@@ -76,7 +76,7 @@ const Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    ease: cubicBezier( 0.25, 0.1, 0.25, 1 ),
+    ease: cubicBezier(0.25, 0.1, 0.25, 1),
 
     /**
         Function: O.Easing#easeIn
@@ -91,7 +91,7 @@ const Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    easeIn: cubicBezier( 0.42, 0, 1, 1 ),
+    easeIn: cubicBezier(0.42, 0, 1, 1),
 
     /**
         Function: O.Easing#easeOut
@@ -106,7 +106,7 @@ const Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    easeOut: cubicBezier( 0, 0, 0.58, 1 ),
+    easeOut: cubicBezier(0, 0, 0.58, 1),
 
     /**
         Function: O.Easing#easeInOut
@@ -121,7 +121,7 @@ const Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    easeInOut: cubicBezier( 0.42, 0, 0.58, 1 ),
+    easeInOut: cubicBezier(0.42, 0, 0.58, 1),
 
     /**
         Function: O.Easing#linear
@@ -135,7 +135,7 @@ const Easing = {
         Returns:
             {Number} The position along the animation path (between 0 and 1).
     */
-    linear ( n ) {
+    linear(n) {
         return n;
     },
 };

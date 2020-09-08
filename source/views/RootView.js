@@ -1,6 +1,6 @@
 import { Class } from '../core/Core';
-import '../foundation/EventTarget';  // For Function#on
-import '../foundation/RunLoop';  // For Function#invokeInRunLoop
+import '../foundation/EventTarget'; // For Function#on
+import '../foundation/RunLoop'; // For Function#invokeInRunLoop
 
 import View from './View';
 import ViewEventsController from './ViewEventsController';
@@ -10,15 +10,15 @@ import AbstractControlView from './controls/AbstractControlView';
 let passiveSupported = false;
 
 try {
-    const options = Object.defineProperty( {}, 'passive', {
+    const options = Object.defineProperty({}, 'passive', {
         // eslint-disable-next-line getter-return
-        get () {
+        get() {
             passiveSupported = true;
         },
     });
-    window.addEventListener( 'test', options, options);
-    window.removeEventListener( 'test', options, options);
-} catch ( error ) {
+    window.addEventListener('test', options, options);
+    window.removeEventListener('test', options, options);
+} catch (error) {
     passiveSupported = false;
 }
 
@@ -40,83 +40,98 @@ try {
     document.
 */
 const RootView = Class({
-
     Extends: View,
 
     syncOnlyInDocument: false,
 
     layer: null,
 
-    init: function ( node /*, ...mixins */) {
-        RootView.parent.constructor.apply( this,
-            Array.prototype.slice.call( arguments, 1 ) );
+    init: function (node /*, ...mixins */) {
+        RootView.parent.constructor.apply(
+            this,
+            Array.prototype.slice.call(arguments, 1),
+        );
 
         // Node.DOCUMENT_NODE => 9.
-        const className = this.get( 'className' );
-        const nodeIsDocument = ( node.nodeType === 9 );
+        const className = this.get('className');
+        const nodeIsDocument = node.nodeType === 9;
         const doc = nodeIsDocument ? node : node.ownerDocument;
         const win = doc.defaultView;
         let events, l;
 
         events = [
-            'click', 'mousedown', 'mouseup', 'dblclick',
-            'keypress', 'keydown', 'keyup',
+            'click',
+            'mousedown',
+            'mouseup',
+            'dblclick',
+            'keypress',
+            'keydown',
+            'keyup',
             'dragstart',
-            'touchstart', 'touchmove', 'touchend', 'touchcancel',
+            'touchstart',
+            'touchmove',
+            'touchend',
+            'touchcancel',
             'wheel',
             'cut',
             'submit',
         ];
-        for ( l = events.length; l--; ) {
-            node.addEventListener( events[l], this, passiveSupported ? {
-                passive: false,
-            } : false );
+        for (l = events.length; l--; ) {
+            node.addEventListener(
+                events[l],
+                this,
+                passiveSupported
+                    ? {
+                          passive: false,
+                      }
+                    : false,
+            );
         }
         // These events don't bubble: have to capture.
         // In IE, we use a version of focus and blur which will bubble, but
         // there's no way of bubbling/capturing change and input.
         // These events are automatically added to all inputs when created
         // instead.
-        events = [ 'focus', 'blur', 'change', 'input' ];
-        for ( l = events.length; l--; ) {
-            node.addEventListener( events[l], this, true );
+        events = ['focus', 'blur', 'change', 'input'];
+        for (l = events.length; l--; ) {
+            node.addEventListener(events[l], this, true);
         }
-        events = [ 'resize', 'scroll' ];
-        for ( l = events.length; l--; ) {
-            win.addEventListener( events[l], this, false );
+        events = ['resize', 'scroll'];
+        for (l = events.length; l--; ) {
+            win.addEventListener(events[l], this, false);
         }
 
         this.isRendered = true;
         this.isInDocument = true;
         this.layer = nodeIsDocument ? node.body : node;
-        if ( className ) {
+        if (className) {
             this.layer.className = className;
         }
     },
 
     safeAreaInsetBottom: 0,
 
-    _onScroll: function ( event ) {
-        const layer = this.get( 'layer' );
-        const isBody = ( layer.nodeName === 'BODY' );
+    _onScroll: function (event) {
+        const layer = this.get('layer');
+        const isBody = layer.nodeName === 'BODY';
         const doc = layer.ownerDocument;
         const win = doc.defaultView;
         const left = isBody ? win.pageXOffset : layer.scrollLeft;
         const top = isBody ? win.pageYOffset : layer.scrollTop;
         this.beginPropertyChanges()
-                .set( 'scrollLeft', left )
-                .set( 'scrollTop', top )
+            .set('scrollLeft', left)
+            .set('scrollTop', top)
             .endPropertyChanges();
         event.stopPropagation();
-    }.on( 'scroll' ),
+    }.on('scroll'),
 
-    focus () {
-        const layer = this.get( 'layer' );
+    focus() {
+        const layer = this.get('layer');
         const activeElement = layer.ownerDocument.activeElement;
-        const view = getViewFromNode( activeElement );
-        if ( view instanceof AbstractControlView ) {
+        const view = getViewFromNode(activeElement);
+        if (view instanceof AbstractControlView) {
             view.blur();
-        } else if ( activeElement.blur ) {
+        } else if (activeElement.blur) {
             activeElement.blur();
         }
     },
@@ -124,27 +139,33 @@ const RootView = Class({
     pxTop: 0,
     pxLeft: 0,
 
-    handleEvent: function ( event ) {
-        switch ( event.type ) {
-        // We observe mousemove when mousedown.
-        case 'mousedown':
-            this.get( 'layer' ).ownerDocument
-                .addEventListener( 'mousemove', this, false );
-            break;
-        case 'mouseup':
-            this.get( 'layer' ).ownerDocument
-                .removeEventListener( 'mousemove', this, false );
-            break;
-        // Window resize events: just notify parent has resized.
-        case 'resize':
-            this.didResize();
-            return;
-        // Scroll events are special.
-        case 'scroll':
-            this._onScroll( event );
-            return;
+    handleEvent: function (event) {
+        switch (event.type) {
+            // We observe mousemove when mousedown.
+            case 'mousedown':
+                this.get('layer').ownerDocument.addEventListener(
+                    'mousemove',
+                    this,
+                    false,
+                );
+                break;
+            case 'mouseup':
+                this.get('layer').ownerDocument.removeEventListener(
+                    'mousemove',
+                    this,
+                    false,
+                );
+                break;
+            // Window resize events: just notify parent has resized.
+            case 'resize':
+                this.didResize();
+                return;
+            // Scroll events are special.
+            case 'scroll':
+                this._onScroll(event);
+                return;
         }
-        ViewEventsController.handleEvent( event, null, this );
+        ViewEventsController.handleEvent(event, null, this);
     }.invokeInRunLoop(),
 });
 

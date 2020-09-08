@@ -4,7 +4,6 @@ import { create as el, getAncestors, getStyle } from '../../dom/Element';
 import View from '../View';
 
 const ShortcutView = Class({
-
     Extends: View,
 
     key: null,
@@ -14,20 +13,17 @@ const ShortcutView = Class({
 
     positioning: 'absolute',
 
-    draw () {
-        const text = formatKeyForPlatform( this.get( 'key' ) );
-        return text.length > 1 ?
-            text.split( /(?![^a-z])\b/i ).map(
-                key => el( 'span.v-Shortcut-key', [
-                    key,
-                ])
-            ) :
-            [ text ];
+    draw() {
+        const text = formatKeyForPlatform(this.get('key'));
+        return text.length > 1
+            ? text
+                  .split(/(?![^a-z])\b/i)
+                  .map((key) => el('span.v-Shortcut-key', [key]))
+            : [text];
     },
 });
 
 const ShortcutOverlayView = Class({
-
     Extends: View,
 
     className: 'v-ShortcutOverlay',
@@ -38,51 +34,52 @@ const ShortcutOverlayView = Class({
 
     layout: View.LAYOUT_FILL_PARENT,
 
-    draw () {
-        const shortcuts = this.get( 'shortcuts' )._shortcuts;
+    draw() {
+        const shortcuts = this.get('shortcuts')._shortcuts;
 
         const styleCache = new Map();
-        const getEffectiveZIndex = function ( el ) {
-            const ancestors = getAncestors( el );
-            for ( let i = 0; i < ancestors.length; i++ ) {
-                const values = styleCache.get( ancestors[i] );
+        const getEffectiveZIndex = function (el) {
+            const ancestors = getAncestors(el);
+            for (let i = 0; i < ancestors.length; i++) {
+                const values = styleCache.get(ancestors[i]);
                 let position, zIndex;
-                if ( values ) {
+                if (values) {
                     position = values[0];
                     zIndex = values[1];
                 } else {
-                    position = getStyle( ancestors[i], 'position' );
-                    zIndex = getStyle( ancestors[i], 'z-index' );
-                    styleCache.set( ancestors[i], [position, zIndex] );
+                    position = getStyle(ancestors[i], 'position');
+                    zIndex = getStyle(ancestors[i], 'z-index');
+                    styleCache.set(ancestors[i], [position, zIndex]);
                 }
-                if ( position !== 'static' && zIndex !== 'auto' ) {
-                    return parseInt( zIndex, 10 );
+                if (position !== 'static' && zIndex !== 'auto') {
+                    return parseInt(zIndex, 10);
                 }
             }
             return 0;
         };
 
-        return Object.entries( shortcuts ).flatMap( ([key, value]) => {
+        return Object.entries(shortcuts).flatMap(([key, value]) => {
             const view = value.last()[0];
             // Check it's actually a view
-            if ( !( view instanceof View ) ) {
+            if (!(view instanceof View)) {
                 return null;
             }
 
             // Get target(s) and filter nulls
-            const target = view.getShortcutTarget( key );
-            const targets = ( Array.isArray( target ) ? target : [target] )
-                .filter( target => target !== null );
+            const target = view.getShortcutTarget(key);
+            const targets = (Array.isArray(target) ? target : [target]).filter(
+                (target) => target !== null,
+            );
 
-            return targets.map( target => {
+            return targets.map((target) => {
                 const bbox = target.getBoundingClientRect();
-                const zIndex = getEffectiveZIndex( target );
+                const zIndex = getEffectiveZIndex(target);
                 return new ShortcutView({
                     key,
                     target,
                     layout: {
                         left: bbox.right,
-                        top: bbox.bottom - ( bbox.height / 2 ),
+                        top: bbox.bottom - bbox.height / 2,
                         zIndex: zIndex + 1,
                     },
                 });
@@ -91,13 +88,10 @@ const ShortcutOverlayView = Class({
     },
 
     viewNeedsRedraw: function () {
-        if ( !this.get( 'isInDocument' ) ) {
-            this.propertyNeedsRedraw( this, 'layer' );
+        if (!this.get('isInDocument')) {
+            this.propertyNeedsRedraw(this, 'layer');
         }
-    }.observes( 'isInDocument' ),
+    }.observes('isInDocument'),
 });
 
-export {
-    ShortcutView,
-    ShortcutOverlayView,
-};
+export { ShortcutView, ShortcutOverlayView };

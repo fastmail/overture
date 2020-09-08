@@ -2,8 +2,8 @@
 
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
-import '../foundation/ObservableProps';  // For Function#observes
-import '../foundation/RunLoop';  // For Function#invokeInRunLoop, #queue
+import '../foundation/ObservableProps'; // For Function#observes
+import '../foundation/RunLoop'; // For Function#invokeInRunLoop, #queue
 
 /**
     Module: Application
@@ -21,15 +21,17 @@ const globalQueryStringPart = function () {
     // it. See https://stackoverflow.com/q/30076219/30919039 for details.
     const { knownGlobalQueryParams } = this;
     let returnValue = '';
-    for ( const property in knownGlobalQueryParams ) {
-        if ( hasOwnProperty.call( knownGlobalQueryParams, property ) ) {
-            const value = this.get( property );
-            if ( value !== null ) {
-                if ( returnValue ) {
+    for (const property in knownGlobalQueryParams) {
+        if (hasOwnProperty.call(knownGlobalQueryParams, property)) {
+            const value = this.get(property);
+            if (value !== null) {
+                if (returnValue) {
                     returnValue += '&';
                 }
-                returnValue += knownGlobalQueryParams[ property ] + '=' +
-                    encodeURIComponent( value );
+                returnValue +=
+                    knownGlobalQueryParams[property] +
+                    '=' +
+                    encodeURIComponent(value);
             }
         }
     }
@@ -52,7 +54,6 @@ const globalQueryStringPart = function () {
     probably clobber the hash.
 */
 const Router = Class({
-
     Extends: Obj,
 
     /**
@@ -75,9 +76,10 @@ const Router = Class({
 
         This property must not be modified after router construction time.
     */
-    baseUrl: location.protocol === 'file:' ?
-        location.href.replace(/#.*/, '') + '#/' :
-        location.protocol + '//' + location.host + '/',
+    baseUrl:
+        location.protocol === 'file:'
+            ? location.href.replace(/#.*/, '') + '#/'
+            : location.protocol + '//' + location.host + '/',
 
     /**
         Property: O.Router#knownGlobalQueryParams
@@ -202,8 +204,8 @@ const Router = Class({
     */
     routes: [],
 
-    init: function ( mixin, win ) {
-        if ( !win ) {
+    init: function (mixin, win) {
+        if (!win) {
             win = window;
         }
 
@@ -215,27 +217,26 @@ const Router = Class({
         // prematurely, potentially before encodedState is correct).
         // Dodgy requirement: knownGlobalQueryParams may not be defined in some
         // Router subclass; it must be on Router, or mixin.
-        const knownGlobalQueryParams = mixin.knownGlobalQueryParams ||
+        const knownGlobalQueryParams =
+            mixin.knownGlobalQueryParams ||
             Router.prototype.knownGlobalQueryParams;
         const globalQueryPropsByName = {};
-        const globalQueryProps = Object.keys( knownGlobalQueryParams );
-        const globalQueryNames = new Set(
-            Object.values( knownGlobalQueryParams )
-        );
+        const globalQueryProps = Object.keys(knownGlobalQueryParams);
+        const globalQueryNames = new Set(Object.values(knownGlobalQueryParams));
 
         const globalQueryMixin = {
             globalQueryStringPart: function () {
-                return globalQueryStringPart.call( this );
-            }.property( ...globalQueryProps ),
+                return globalQueryStringPart.call(this);
+            }.property(...globalQueryProps),
 
             _knownGlobalQueryParamNames: globalQueryNames,
         };
 
         // null them all to begin with,
-        for ( let i = globalQueryProps.length; i--; ) {
+        for (let i = globalQueryProps.length; i--; ) {
             const prop = globalQueryProps[i];
-            globalQueryPropsByName[ knownGlobalQueryParams[ prop ] ] = prop;
-            globalQueryMixin[ prop ] = null;
+            globalQueryPropsByName[knownGlobalQueryParams[prop]] = prop;
+            globalQueryMixin[prop] = null;
         }
 
         // then look through the query string, and set any global parameters.
@@ -248,24 +249,23 @@ const Router = Class({
         // code loader discerns differences in what code should load using
         // location.search itself.
         const queryString = win.location.search;
-        if ( queryString ) {
+        if (queryString) {
             queryString
-                .slice( 1 )
-                .split( '&' )
-                .map( entry => entry.split( '=', 2 ).map( decodeURIComponent ) )
-                .forEach( ([ name, value ]) => {
-                    if ( globalQueryNames.has( name ) ) {
-                        globalQueryMixin[ globalQueryPropsByName[ name ] ] =
-                            value;
+                .slice(1)
+                .split('&')
+                .map((entry) => entry.split('=', 2).map(decodeURIComponent))
+                .forEach(([name, value]) => {
+                    if (globalQueryNames.has(name)) {
+                        globalQueryMixin[globalQueryPropsByName[name]] = value;
                     }
                 });
         }
 
-        Router.parent.constructor.call( this, mixin, globalQueryMixin );
+        Router.parent.constructor.call(this, mixin, globalQueryMixin);
 
         this._win = win;
         this.doRouting();
-        win.addEventListener( 'popstate', this, false );
+        win.addEventListener('popstate', this, false);
     },
 
     /**
@@ -275,8 +275,8 @@ const Router = Class({
         <O.Router#title> property changes.
     */
     _setTitle: function () {
-        document.title = this.get( 'title' );
-    }.observes( 'title' ),
+        document.title = this.get('title');
+    }.observes('title'),
 
     /**
         Method: O.Router#doRouting
@@ -289,16 +289,16 @@ const Router = Class({
         may lead to confusion with the noun “route”, referring to the current
         route. Hence the clumsy name doRouting.)
     */
-    doRouting: doRouting = function () {
+    doRouting: (doRouting = function () {
         const baseUrl = this.baseUrl;
         const href = this._win.location.href;
-        if ( !href.startsWith( baseUrl ) ) {
-            const error = new Error( 'Bad Router.baseUrl' );
+        if (!href.startsWith(baseUrl)) {
+            const error = new Error('Bad Router.baseUrl');
             error.details = { href, baseUrl };
             throw error;
         }
-        this.restoreEncodedState( href.slice( baseUrl.length ), null );
-    }.observes( 'routes' ),
+        this.restoreEncodedState(href.slice(baseUrl.length), null);
+    }.observes('routes')),
 
     /**
         Method: O.Router#handleEvent
@@ -331,48 +331,52 @@ const Router = Class({
         Returns:
             {O.Router} Returns self.
     */
-    restoreEncodedState ( encodedState, queryParams ) {
+    restoreEncodedState(encodedState, queryParams) {
         this.beginPropertyChanges();
 
-        if ( !queryParams ) {
+        if (!queryParams) {
             // We pass {} even if there is no query string; null would be
             // annoying for route handlers.
             queryParams = {};
 
-            const queryStringStart = encodedState.indexOf( '?' );
-            if ( queryStringStart !== -1 ) {
+            const queryStringStart = encodedState.indexOf('?');
+            if (queryStringStart !== -1) {
                 // Parse the query string
                 const globalNames = this._knownGlobalQueryParamNames;
                 // On checking globalNames: we casually support the notion of
                 // sub-routers by borrowing the restoreEncodedState method from
                 // Router; if that’s done, then globalNames will be undefined,
                 // signifying “there are no global parameters”.
-                encodedState.slice( queryStringStart + 1 )
-                    .split( '&' )
-                    .map( entry => entry.split( '=', 2 )
-                                        .map( decodeURIComponent ) )
-                    .forEach( ([ name, value ]) => {
-                        if ( !globalNames || !globalNames.has( name ) ) {
+                encodedState
+                    .slice(queryStringStart + 1)
+                    .split('&')
+                    .map((entry) => entry.split('=', 2).map(decodeURIComponent))
+                    .forEach(([name, value]) => {
+                        if (!globalNames || !globalNames.has(name)) {
                             // It’s a local parameter.
-                            queryParams[ name ] = value;
+                            queryParams[name] = value;
                         }
                     });
 
-                encodedState = encodedState.slice( 0, queryStringStart );
+                encodedState = encodedState.slice(0, queryStringStart);
             }
         }
 
         // Now finally on to the actual routing.
-        const routes = this.get( 'routes' );
-        for ( let i = 0, l = routes.length; i < l; i += 1 ) {
+        const routes = this.get('routes');
+        for (let i = 0, l = routes.length; i < l; i += 1) {
             const route = routes[i];
-            const match = route.url.exec( encodedState );
-            if ( match ) {
+            const match = route.url.exec(encodedState);
+            if (match) {
                 // Example: encodedState is 'foo/bar?baz=quux',
                 // route.url is /^foo\/(.*)$/, → route.handle.call( this,
                 // 'foo/bar', { 'baz': 'quux' }, 'bar' )
-                route.handle.call( this, encodedState,
-                    queryParams, ...match.slice( 1 ) );
+                route.handle.call(
+                    this,
+                    encodedState,
+                    queryParams,
+                    ...match.slice(1),
+                );
                 break;
             }
         }
@@ -381,22 +385,26 @@ const Router = Class({
         return this;
     },
 
-    stripGlobalParams ( encodedState ) {
+    stripGlobalParams(encodedState) {
         const globalNames = this._knownGlobalQueryParamNames;
-        const match = /^([^?#]*)(?:\?([^#]*))?(#.*)?$/.exec( encodedState );
+        const match = /^([^?#]*)(?:\?([^#]*))?(#.*)?$/.exec(encodedState);
         let queryString = match[2];
         // As written, this will also strip an empty query string. 👍
-        if ( queryString ) {
-            queryString = queryString.split( '&' )
-                .filter( entry => !globalNames.has( decodeURIComponent(
-                    entry.split( '=', 1 )[0]
-                )))
-                .join( '&' );
-            if ( queryString ) {
+        if (queryString) {
+            queryString = queryString
+                .split('&')
+                .filter(
+                    (entry) =>
+                        !globalNames.has(
+                            decodeURIComponent(entry.split('=', 1)[0]),
+                        ),
+                )
+                .join('&');
+            if (queryString) {
                 queryString = '?' + queryString;
             }
         }
-        return match[1] + ( queryString || '' ) + ( match[3] || '' );
+        return match[1] + (queryString || '') + (match[3] || '');
     },
 
     /**
@@ -407,25 +415,30 @@ const Router = Class({
         whenever this property changes.
     */
     _encodeStateToUrl: function () {
-        const state = this.get( 'encodedState' );
-        const replaceState = this.get( 'replaceState' );
+        const state = this.get('encodedState');
+        const replaceState = this.get('replaceState');
         const win = this._win;
-        const url = this.getUrlForEncodedState( state );
+        const url = this.getUrlForEncodedState(state);
         const currentHref = win.location.href;
-        if ( currentHref === url || ( currentHref.startsWith( url ) &&
-                currentHref.charAt( url.length ) === '#' ) ) {
+        if (
+            currentHref === url ||
+            (currentHref.startsWith(url) &&
+                currentHref.charAt(url.length) === '#')
+        ) {
             // At the same path (possibly with an added hash); nothing to do.
             return;
         }
         const history = win.history;
-        const title = this.get( 'title' );
-        if ( replaceState ) {
-            history.replaceState( null, title, url );
-            this.set( 'replaceState', false );
+        const title = this.get('title');
+        if (replaceState) {
+            history.replaceState(null, title, url);
+            this.set('replaceState', false);
         } else {
-            history.pushState( null, title, url );
+            history.pushState(null, title, url);
         }
-    }.queue( 'after' ).observes( 'encodedState', 'globalQueryStringPart' ),
+    }
+        .queue('after')
+        .observes('encodedState', 'globalQueryStringPart'),
 
     // This method allows a hash to be in state, purely because in Fastmail we
     // have a few places where we want it so—we’re not quite dealing with
@@ -438,22 +451,21 @@ const Router = Class({
     // yet another new argument to the handler or whether we stow it somewhere
     // else, or maybe we do the whole thing with events, and… and… yeah. I guess
     // I have another TODO. Lots of interesting things to consider.
-    getUrlForEncodedState ( state ) {
+    getUrlForEncodedState(state) {
         let url = this.baseUrl;
-        const hashIndex = state.indexOf( '#' );
+        const hashIndex = state.indexOf('#');
         let hash;
-        if ( hashIndex > -1 ) {
-            hash = state.slice( hashIndex );
-            url += state.slice( 0, hashIndex );
+        if (hashIndex > -1) {
+            hash = state.slice(hashIndex);
+            url += state.slice(0, hashIndex);
         } else {
             url += state;
         }
-        const globalQueryStringPart = this.get( 'globalQueryStringPart' );
-        if ( globalQueryStringPart ) {
-            url += ( state.includes( '?' ) ? '&' : '?' ) +
-                globalQueryStringPart;
+        const globalQueryStringPart = this.get('globalQueryStringPart');
+        if (globalQueryStringPart) {
+            url += (state.includes('?') ? '&' : '?') + globalQueryStringPart;
         }
-        if ( hash ) {
+        if (hash) {
             url += hash;
         }
         return url;

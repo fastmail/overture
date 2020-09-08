@@ -11,7 +11,7 @@
         {Number} The nearest number to the current value within the allowed
         range.
 */
-Number.prototype.limit = function ( min, max ) {
+Number.prototype.limit = function (min, max) {
     // +0 is required to unbox 'this' back into a primitive number in IE.
     // Otherwise you get a boxed value, which amongst other things makes 0 a
     // truthy value, leading to all sorts of interesting behaviour...
@@ -29,7 +29,7 @@ Number.prototype.limit = function ( min, max ) {
     Returns:
         {Number} The number mod n.
 */
-Number.prototype.mod = function ( n ) {
+Number.prototype.mod = function (n) {
     const m = this % n;
     return m < 0 ? m + n : m;
 };

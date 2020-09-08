@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/EventTarget';  // For Function#on
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/EventTarget'; // For Function#on
+import '../../foundation/ObservableProps'; // For Function#observes
 import PopOverView from '../panels/PopOverView';
 import RootView from '../RootView';
 import ButtonView from '../controls/ButtonView';
@@ -37,7 +37,6 @@ import MenuOptionView from './MenuOptionView';
         });
 */
 const MenuButtonView = Class({
-
     Extends: ButtonView,
 
     /**
@@ -99,26 +98,25 @@ const MenuButtonView = Class({
         Is this a child view of an <O.MenuOptionView>?
     */
     isInMenu: function () {
-        return this.get( 'parentView' ) instanceof MenuOptionView;
-    }.property( 'parentView' ),
+        return this.get('parentView') instanceof MenuOptionView;
+    }.property('parentView'),
 
     // --- Accessibility ---
 
-    didCreateLayer ( layer ) {
-        layer.setAttribute( 'aria-expanded', 'false' );
+    didCreateLayer(layer) {
+        layer.setAttribute('aria-expanded', 'false');
     },
 
-    ariaNeedsRedraw: function ( self, property, oldValue ) {
-        return this.propertyNeedsRedraw( self, 'aria', oldValue );
-    }.observes( 'isActive' ),
+    ariaNeedsRedraw: function (self, property, oldValue) {
+        return this.propertyNeedsRedraw(self, 'aria', oldValue);
+    }.observes('isActive'),
 
-    redrawAria ( layer ) {
+    redrawAria(layer) {
         // Set ARIA attribute to link the menu DOM element to this
         // button, so screen readers know what has opened.
-        layer.setAttribute( 'aria-controls',
-            this.getFromPath( 'menuView.id' ) );
+        layer.setAttribute('aria-controls', this.getFromPath('menuView.id'));
         // And set ARIA attribute to say that the menu is now open
-        layer.setAttribute( 'aria-expanded', this.get( 'isActive' ) + '' );
+        layer.setAttribute('aria-expanded', this.get('isActive') + '');
     },
 
     // --- Activate ---
@@ -129,61 +127,68 @@ const MenuButtonView = Class({
         Overridden to show menu associated with button, if not already visible.
         Ignores target/method/action properties.
     */
-    activate () {
-        if ( !this.get( 'isActive' ) && !this.get( 'isDisabled' ) ) {
-            this.set( 'isActive', true );
+    activate() {
+        if (!this.get('isActive') && !this.get('isDisabled')) {
+            this.set('isActive', true);
             const buttonView = this;
-            const menuView = this.get( 'menuView' );
+            const menuView = this.get('menuView');
             let popOverView, menuOptionView;
-            const popOverOptions = Object.assign({
-                view: menuView,
-                alignWithView: buttonView,
-                alignEdge: this.get( 'alignMenu' ),
-                onHide () {
-                    buttonView.set( 'isActive', false );
-                    if ( menuOptionView ) {
-                        menuOptionView.removeObserverForKey(
-                            'isFocused', popOverView, 'hide' );
-                    }
-                    if ( buttonView.get( 'destroyMenuViewOnClose' ) ) {
-                        menuView.destroy();
-                    }
+            const popOverOptions = Object.assign(
+                {
+                    view: menuView,
+                    alignWithView: buttonView,
+                    alignEdge: this.get('alignMenu'),
+                    onHide() {
+                        buttonView.set('isActive', false);
+                        if (menuOptionView) {
+                            menuOptionView.removeObserverForKey(
+                                'isFocused',
+                                popOverView,
+                                'hide',
+                            );
+                        }
+                        if (buttonView.get('destroyMenuViewOnClose')) {
+                            menuView.destroy();
+                        }
+                    },
                 },
-            }, this.get( 'popOverOptions' ) );
-            if ( this.get( 'isInMenu' ) ) {
-                popOverView = this.getParent( PopOverView );
+                this.get('popOverOptions'),
+            );
+            if (this.get('isInMenu')) {
+                popOverView = this.getParent(PopOverView);
                 const preferLeft =
-                    popOverView.get( 'options' ).positionToThe === 'left';
-                const rootViewWidth =
-                    this.getParent( RootView ).get( 'pxWidth' );
-                const position = this.get( 'layer' ).getBoundingClientRect();
-                menuOptionView = this.get( 'parentView' );
+                    popOverView.get('options').positionToThe === 'left';
+                const rootViewWidth = this.getParent(RootView).get('pxWidth');
+                const position = this.get('layer').getBoundingClientRect();
+                menuOptionView = this.get('parentView');
                 popOverOptions.alignWithView = popOverView;
-                popOverOptions.atNode = this.get( 'layer' );
+                popOverOptions.atNode = this.get('layer');
                 popOverOptions.positionToThe =
-                    preferLeft &&
-                        position.left > position.width ?
-                        'left' :
-                    !preferLeft &&
-                        rootViewWidth - position.right > position.width ?
-                        'right' :
-                    position.left < rootViewWidth - position.right ?
-                        'right' : 'left';
+                    preferLeft && position.left > position.width
+                        ? 'left'
+                        : !preferLeft &&
+                          rootViewWidth - position.right > position.width
+                        ? 'right'
+                        : position.left < rootViewWidth - position.right
+                        ? 'right'
+                        : 'left';
                 popOverOptions.keepInHorizontalBounds = true;
                 popOverOptions.showCallout = false;
                 popOverOptions.alignEdge = 'top';
-                popOverOptions.offsetTop =
-                    popOverOptions.view.get( 'showFilter' ) ? -35 : -5;
+                popOverOptions.offsetTop = popOverOptions.view.get('showFilter')
+                    ? -35
+                    : -5;
                 popOverOptions.offsetLeft = 0;
             } else {
-                popOverView = this.get( 'popOverView' );
+                popOverView = this.get('popOverView');
             }
             // If the isInMenu, the popOverView used will actually be a subview
             // of this popOverView, and is returned from the show method.
-            popOverView = popOverView.show( popOverOptions );
-            if ( menuOptionView ) {
-                menuOptionView.get( 'controller' ).addObserverForKey(
-                    'focused', popOverView, 'hide' );
+            popOverView = popOverView.show(popOverOptions);
+            if (menuOptionView) {
+                menuOptionView
+                    .get('controller')
+                    .addObserverForKey('focused', popOverView, 'hide');
             }
         }
     },
@@ -197,12 +202,12 @@ const MenuButtonView = Class({
         user to press the mouse down on the button to show the menu, drag down
         to the option they want, then release the button to select it.
     */
-    _activateOnMousedown: function ( event ) {
-        if ( event.button || event.metaKey || event.ctrlKey ) {
+    _activateOnMousedown: function (event) {
+        if (event.button || event.metaKey || event.ctrlKey) {
             return;
         }
         this.activate();
-    }.on( 'mousedown' ),
+    }.on('mousedown'),
 });
 
 export default MenuButtonView;

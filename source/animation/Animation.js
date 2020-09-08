@@ -1,15 +1,13 @@
 import { meta } from '../core/Core';
-import '../core/Array';  // For Array#erase
+import '../core/Array'; // For Array#erase
 import * as RunLoop from '../foundation/RunLoop';
 import Easing from './Easing';
 
 // Does the used prefer reduced motion?
-const reduceMotionQuery = window.matchMedia(
-    '(prefers-reduced-motion:reduce)'
-);
+const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion:reduce)');
 
 let reduceMotion = reduceMotionQuery.matches;
-reduceMotionQuery.addListener( ev => reduceMotion = ev.matches );
+reduceMotionQuery.addListener((ev) => (reduceMotion = ev.matches));
 
 // List of currently active animations
 const animations = [];
@@ -21,20 +19,20 @@ const nextFrame = function () {
     let l = anims.length;
     const time = RunLoop.frameStartTime;
 
-    if ( l ) {
+    if (l) {
         // Request first to get in shortest time.
-        RunLoop.invokeInNextFrame( nextFrame );
+        RunLoop.invokeInNextFrame(nextFrame);
 
-        while ( l-- ) {
+        while (l--) {
             const objAnimations = anims[l];
             let i = objAnimations.length;
             const hasMultiple = i > 1;
             let object;
-            if ( hasMultiple ) {
+            if (hasMultiple) {
                 object = objAnimations[0].object;
                 object.beginPropertyChanges();
             }
-            while ( i-- ) {
+            while (i--) {
                 const animation = objAnimations[i];
                 let animTime = animation.startTime;
                 // We start the animation clock at the first frame *after* the
@@ -42,8 +40,8 @@ const nextFrame = function () {
                 // changes happening as well as the animation beginning, and
                 // it's better to start the animation a frame later than have
                 // a slow first frame and thus stuttery start to the animation
-                if ( animTime <= 0 ) {
-                    if ( !animTime ) {
+                if (animTime <= 0) {
+                    if (!animTime) {
                         animation.startTime = -1;
                         continue;
                     }
@@ -51,20 +49,20 @@ const nextFrame = function () {
                 }
                 animTime = time - animTime;
                 const duration = animation.duration;
-                if ( animTime < duration && !reduceMotion ) {
+                if (animTime < duration && !reduceMotion) {
                     animation.drawFrame(
                         // Normalised position along timeline [0..1].
-                        animation.ease( animTime / duration ),
+                        animation.ease(animTime / duration),
                         // Normalised time animation has been running.
                         animTime,
-                        false
+                        false,
                     );
                 } else {
-                    animation.drawFrame( 1, duration, true );
+                    animation.drawFrame(1, duration, true);
                     animation.stop();
                 }
             }
-            if ( hasMultiple ) {
+            if (hasMultiple) {
                 object.endPropertyChanges();
             }
         }
@@ -116,7 +114,7 @@ export default class Animation {
         The name of the property to set on the object being animated.
     */
 
-    constructor ( mixin ) {
+    constructor(mixin) {
         this.isRunning = false;
         this.startTime = 0;
 
@@ -124,7 +122,7 @@ export default class Animation {
         this.endValue = null;
         this.deltaValue = null;
 
-        Object.assign( this, mixin );
+        Object.assign(this, mixin);
     }
 
     /**
@@ -142,45 +140,44 @@ export default class Animation {
         Returns:
             {O.Animation} Returns self.
     */
-    animate ( value, duration, ease ) {
-        if ( this.isRunning ) {
+    animate(value, duration, ease) {
+        if (this.isRunning) {
             this.stop();
         }
-        if ( duration != null ) {
+        if (duration != null) {
             this.duration = duration;
         }
-        if ( ease != null ) {
+        if (ease != null) {
             this.ease = ease;
         }
 
         // Prepare any values. Check we've actually got something to animate.
-        if ( !this.prepare( value ) ) {
+        if (!this.prepare(value)) {
             return this;
         }
 
         const object = this.object;
-        const metadata = meta( object );
-        const objAnimations = metadata.animations ||
-            ( metadata.animations = [] );
+        const metadata = meta(object);
+        const objAnimations = metadata.animations || (metadata.animations = []);
 
         this.startTime = 0;
 
         // Start loop if no current animations
-        if ( !animations.length ) {
-            RunLoop.invokeInNextFrame( nextFrame );
+        if (!animations.length) {
+            RunLoop.invokeInNextFrame(nextFrame);
         }
 
         // And add objectAnimations to animation queue
-        if ( !objAnimations.length ) {
-            animations.push( objAnimations );
+        if (!objAnimations.length) {
+            animations.push(objAnimations);
         }
-        objAnimations.push( this );
+        objAnimations.push(this);
 
         // Now running
         this.isRunning = true;
         // Let object know animation has begun.
-        if ( object.willAnimate ) {
-            object.willAnimate( this );
+        if (object.willAnimate) {
+            object.willAnimate(this);
         }
         return this;
     }
@@ -198,12 +195,12 @@ export default class Animation {
             {Boolean} Is there anything to actually animate. Returns false if
             the value is already at the desired end point.
     */
-    prepare ( value ) {
-        if ( typeof value === 'object' ) {
+    prepare(value) {
+        if (typeof value === 'object') {
             this.startValue = value.startValue;
             this.endValue = value.endValue;
         } else {
-            this.startValue = this.object.get( this.property );
+            this.startValue = this.object.get(this.property);
             this.endValue = value;
         }
         this.deltaValue = this.endValue - this.startValue;
@@ -227,13 +224,13 @@ export default class Animation {
                        function (the easing function may cause the number to go
                        beyond 0 and 1).
     */
-    drawFrame ( position, time, isLastFrame ) {
+    drawFrame(position, time, isLastFrame) {
         // And interpolate to find new value.
-        const value = isLastFrame ?
-            this.endValue :
-            this.startValue + ( position * this.deltaValue );
+        const value = isLastFrame
+            ? this.endValue
+            : this.startValue + position * this.deltaValue;
 
-        this.object.set( this.property, value );
+        this.object.set(this.property, value);
     }
 
     /**
@@ -244,21 +241,21 @@ export default class Animation {
         Returns:
             {O.Animation} Returns self.
     */
-    stop () {
-        if ( this.isRunning ) {
+    stop() {
+        if (this.isRunning) {
             // Remove from animation lists.
             const object = this.object;
-            const objAnimations = meta( object ).animations;
-            objAnimations.erase( this );
+            const objAnimations = meta(object).animations;
+            objAnimations.erase(this);
 
-            if ( !objAnimations.length ) {
-                animations.erase( objAnimations );
+            if (!objAnimations.length) {
+                animations.erase(objAnimations);
             }
             // Not running any more
             this.isRunning = false;
             // Let object know animation has finished.
-            if ( object.didAnimate ) {
-                object.didAnimate( this );
+            if (object.didAnimate) {
+                object.didAnimate(this);
             }
         }
 

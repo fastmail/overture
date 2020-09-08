@@ -3,7 +3,7 @@ import Record from './Record';
 
 // ---
 
-const HANDLE_ALL_ERRORS = Symbol( 'HANDLE_ALL_ERRORS' );
+const HANDLE_ALL_ERRORS = Symbol('HANDLE_ALL_ERRORS');
 const HANDLE_NO_ERRORS = [];
 
 /**
@@ -37,36 +37,36 @@ class RecordResult {
         The record being observed
     */
 
-    constructor ( record, callback, mixin ) {
+    constructor(record, callback, mixin) {
         this._callback = callback;
 
         this.record = record;
         this.error = null;
 
         record
-            .on( 'record:commit:error', this, 'onError' )
-            .addObserverForKey( 'status', this, 'statusDidChange' );
+            .on('record:commit:error', this, 'onError')
+            .addObserverForKey('status', this, 'statusDidChange');
 
-        Object.assign( this, mixin );
-        this.statusDidChange( record, 'status', 0, record.get( 'status' ) );
+        Object.assign(this, mixin);
+        this.statusDidChange(record, 'status', 0, record.get('status'));
     }
 
-    done () {
+    done() {
         this.record
-            .removeObserverForKey( 'status', this, 'statusDidChange' )
-            .off( 'record:commit:error', this, 'onError' );
-        this._callback( this );
+            .removeObserverForKey('status', this, 'statusDidChange')
+            .off('record:commit:error', this, 'onError');
+        this._callback(this);
     }
 
-    statusDidChange ( record, key, _, newStatus ) {
-        if ( !( newStatus & (EMPTY|NEW|DIRTY|COMMITTING) ) ) {
+    statusDidChange(record, key, _, newStatus) {
+        if (!(newStatus & (EMPTY | NEW | DIRTY | COMMITTING))) {
             this.done();
         }
     }
 
-    onError ( event ) {
+    onError(event) {
         this.error = event;
-        if ( this.shouldStopErrorPropagation( event ) ) {
+        if (this.shouldStopErrorPropagation(event)) {
             event.stopPropagation();
         }
         this.done();
@@ -89,11 +89,13 @@ class RecordResult {
         Returns:
             {Boolean} Stop propagation of the event?
     */
-    shouldStopErrorPropagation ( event ) {
+    shouldStopErrorPropagation(event) {
         const handledErrorTypes = this.handledErrorTypes;
-        return handledErrorTypes !== HANDLE_NO_ERRORS &&
-            ( handledErrorTypes === HANDLE_ALL_ERRORS ||
-                handledErrorTypes.indexOf( event.type ) !== -1 );
+        return (
+            handledErrorTypes !== HANDLE_NO_ERRORS &&
+            (handledErrorTypes === HANDLE_ALL_ERRORS ||
+                handledErrorTypes.indexOf(event.type) !== -1)
+        );
     }
 }
 
@@ -113,7 +115,7 @@ RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
 
 // ---
 
-Object.assign( Record.prototype, {
+Object.assign(Record.prototype, {
     /*
         Function: O.Record#getResult
         Returns: {Promise<O.RecordResult>}
@@ -140,10 +142,8 @@ Object.assign( Record.prototype, {
                     }
                 });
     */
-    getResult ( mixin ) {
-        return new Promise( resolve =>
-            new RecordResult( this, resolve, mixin )
-        );
+    getResult(mixin) {
+        return new Promise((resolve) => new RecordResult(this, resolve, mixin));
     },
 
     /*
@@ -184,16 +184,21 @@ Object.assign( Record.prototype, {
                     })
 
     */
-    ifSuccess ( mixin ) {
-        return new Promise( ( resolve, reject ) =>
-            new RecordResult( this, result => {
-                const record = result.record;
-                if ( result.error || record.is( NON_EXISTENT ) ) {
-                    reject( result );
-                } else {
-                    resolve( record );
-                }
-            }, mixin )
+    ifSuccess(mixin) {
+        return new Promise(
+            (resolve, reject) =>
+                new RecordResult(
+                    this,
+                    (result) => {
+                        const record = result.record;
+                        if (result.error || record.is(NON_EXISTENT)) {
+                            reject(result);
+                        } else {
+                            resolve(record);
+                        }
+                    },
+                    mixin,
+                ),
         );
     },
 });

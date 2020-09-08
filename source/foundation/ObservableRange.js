@@ -26,40 +26,40 @@ export default {
         Returns:
             {O.ObservableRange} Returns self.
     */
-    rangeDidChange ( start, end ) {
-        if ( end === undefined ) {
+    rangeDidChange(start, end) {
+        if (end === undefined) {
             end = start + 1;
         }
-        const metadata = meta( this );
+        const metadata = meta(this);
         const observers = metadata.observers;
-        for ( const key in observers ) {
-            if ( observers[ key ] ) {
-                const index = parseInt( key, 10 );
-                if ( start <= index && index < end ) {
-                    this.propertyDidChange( key );
+        for (const key in observers) {
+            if (observers[key]) {
+                const index = parseInt(key, 10);
+                if (start <= index && index < end) {
+                    this.propertyDidChange(key);
                 }
             }
         }
-        const enumerableLength = this.get( 'length' ) || 0;
+        const enumerableLength = this.get('length') || 0;
         const rangeObservers = metadata.rangeObservers;
         const l = rangeObservers ? rangeObservers.length : 0;
-        for ( let i = 0; i < l; i += 1 ) {
+        for (let i = 0; i < l; i += 1) {
             const observer = rangeObservers[i];
             const range = observer.range;
             let observerStart = range.start || 0;
-            let observerEnd = 'end' in range ?
-                    range.end : Math.max( enumerableLength, end );
-            if ( observerStart < 0 ) {
+            let observerEnd =
+                'end' in range ? range.end : Math.max(enumerableLength, end);
+            if (observerStart < 0) {
                 observerStart += enumerableLength;
             }
-            if ( observerEnd < 0 ) {
+            if (observerEnd < 0) {
                 observerEnd += enumerableLength;
             }
-            if ( observerStart < end && observerEnd > start ) {
-                observer.object[ observer.method ]( this, start, end );
+            if (observerStart < end && observerEnd > start) {
+                observer.object[observer.method](this, start, end);
             }
         }
-        this.computedPropertyDidChange( '[]' );
+        this.computedPropertyDidChange('[]');
         return this;
     },
 
@@ -89,9 +89,9 @@ export default {
         Returns:
             {O.ObservableRange} Returns self.
     */
-    addObserverForRange ( range, object, method ) {
-        const metadata = meta( this );
-        ( metadata.rangeObservers || ( metadata.rangeObservers = [] ) ).push({
+    addObserverForRange(range, object, method) {
+        const metadata = meta(this);
+        (metadata.rangeObservers || (metadata.rangeObservers = [])).push({
             range,
             object,
             method,
@@ -117,18 +117,20 @@ export default {
         Returns:
             {O.ObservableRange} Returns self.
     */
-    removeObserverForRange ( range, object, method ) {
-        const metadata = meta( this );
+    removeObserverForRange(range, object, method) {
+        const metadata = meta(this);
         const rangeObservers = metadata.rangeObservers;
-        const newObservers = rangeObservers ? rangeObservers.filter(
-            item =>
-                item.range !== range ||
-                item.object !== object ||
-                item.method !== method
-        ) : [];
-        if ( !newObservers.length ) {
+        const newObservers = rangeObservers
+            ? rangeObservers.filter(
+                  (item) =>
+                      item.range !== range ||
+                      item.object !== object ||
+                      item.method !== method,
+              )
+            : [];
+        if (!newObservers.length) {
             metadata.rangeObservers = null;
-        } else if ( newObservers.length !== rangeObservers.length ) {
+        } else if (newObservers.length !== rangeObservers.length) {
             metadata.rangeObservers = newObservers;
         }
         return this;
@@ -142,12 +144,12 @@ export default {
         Returns:
             {Boolean} Does the object have any range observers?
     */
-    hasRangeObservers () {
-        const rangeObservers = meta( this ).rangeObservers;
+    hasRangeObservers() {
+        const rangeObservers = meta(this).rangeObservers;
         let l = rangeObservers ? rangeObservers.length : 0;
-        while ( l-- ) {
+        while (l--) {
             const object = rangeObservers[l].object;
-            if ( object && object !== this ) {
+            if (object && object !== this) {
                 return true;
             }
         }

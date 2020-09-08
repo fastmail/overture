@@ -12,7 +12,7 @@ export const NONE = 0;
 export const COPY = 1;
 export const MOVE = 2;
 export const LINK = 4;
-export const ALL = 1|2|4;
+export const ALL = 1 | 2 | 4;
 export const DEFAULT = 8;
 
 /**

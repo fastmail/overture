@@ -8,7 +8,7 @@
 */
 
 const ua = navigator.userAgent.toLowerCase();
-const other = [ 'other', '0' ];
+const other = ['other', '0'];
 
 /**
     Namespace: O.UA
@@ -25,13 +25,12 @@ const other = [ 'other', '0' ];
     (varying Linuxes), "android" (Android), "ios" (iOS or iPadOS) or "other".
 */
 export const platform =
-    /ip(?:ad|hone|od)/.test( ua ) ||
-        ( navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 ) ?
-    'ios' :
-    ( /android/.exec( ua ) ||
-      /mac|win|linux/.exec( navigator.platform.toLowerCase() ) ||
-      other
-    )[0];
+    /ip(?:ad|hone|od)/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+        ? 'ios'
+        : (/android/.exec(ua) ||
+              /mac|win|linux/.exec(navigator.platform.toLowerCase()) ||
+              other)[0];
 
 /**
     Property: O.UA.isMac
@@ -82,11 +81,9 @@ export const isApple = isMac || isIOS;
 
     The browser being run. "chrome", "firefox", "msie", "edge" or "safari".
 */
-export const browser = (
-    /firefox|edge/.exec( ua ) ||
-    /chrome|safari/.exec( ua ) ||
-    ( /trident/.exec( ua ) ? [ 'msie' ] : other )
-)[0];
+export const browser = (/firefox|edge/.exec(ua) ||
+    /chrome|safari/.exec(ua) ||
+    (/trident/.exec(ua) ? ['msie'] : other))[0];
 /**
     Property: O.UA.version
     Type: Number
@@ -95,12 +92,11 @@ export const browser = (
     minor revision as well as the major revision. For example, if the user
     is running Opera 12.5, this will be `12.5`, not just `12`.
 */
-export const version = parseFloat((
-    /(?:; rv:|edge\/|version\/|firefox\/|os )(\d+(?:[._]\d+)?)/
-        .exec( ua ) ||
-    /chrome\/(\d+\.\d+)/.exec( ua ) ||
-    other
-)[1].replace( '_', '.' ) );
+export const version = parseFloat(
+    (/(?:; rv:|edge\/|version\/|firefox\/|os )(\d+(?:[._]\d+)?)/.exec(ua) ||
+        /chrome\/(\d+\.\d+)/.exec(ua) ||
+        other)[1].replace('_', '.'),
+);
 
 /**
     Property: O.UA.canTouch
@@ -120,4 +116,4 @@ export const canTouch = 'ontouchstart' in document.documentElement;
 // Chrome 41+ supports it but exposes no obvious global; Firefox has it
 // disabled by default but if enabled by security.webauth.u2f exposes a
 // global called U2F.
-export const canU2F = ( browser === 'chrome' && version >= 41 ) || !!window.U2F;
+export const canU2F = (browser === 'chrome' && version >= 41) || !!window.U2F;

@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core';
-import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/EventTarget'; // For Function#on
 import { create as el } from '../../dom/Element';
 
 import ButtonView from './ButtonView';
@@ -29,7 +29,6 @@ import AbstractControlView from './AbstractControlView';
 
 */
 const FileButtonView = Class({
-
     Extends: ButtonView,
 
     /**
@@ -79,23 +78,23 @@ const FileButtonView = Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.FileButtonView> notes.
     */
-    draw ( layer ) {
-        let icon = this.get( 'icon' );
-        if ( typeof icon === 'string' ) {
-            icon = ButtonView.drawIcon( icon );
-        } else if ( !icon ) {
-            icon = document.createComment( 'icon' );
+    draw(layer) {
+        let icon = this.get('icon');
+        if (typeof icon === 'string') {
+            icon = ButtonView.drawIcon(icon);
+        } else if (!icon) {
+            icon = document.createComment('icon');
         }
         return [
-            this._domControl = el( 'input', {
+            (this._domControl = el('input', {
                 className: 'v-FileButton-input',
                 type: 'file',
-                accept: this.get( 'acceptOnlyTypes' ) || undefined,
-                multiple: this.get( 'acceptMultiple' ),
-                webkitdirectory: this.get( 'acceptFolder' ) || undefined,
-            }),
+                accept: this.get('acceptOnlyTypes') || undefined,
+                multiple: this.get('acceptMultiple'),
+                webkitdirectory: this.get('acceptFolder') || undefined,
+            })),
             icon,
-            AbstractControlView.prototype.draw.call( this, layer ),
+            AbstractControlView.prototype.draw.call(this, layer),
         ];
     },
 
@@ -106,7 +105,7 @@ const FileButtonView = Class({
 
         Opens the OS file chooser dialog.
     */
-    activate () {
+    activate() {
         this._setIgnoreUntil();
         this._domControl.click();
         // On Edge, .click() blocks until the user closes the file picker. This
@@ -125,27 +124,27 @@ const FileButtonView = Class({
         for description of these), with the files as the first argument or
         `files` property on the event object.
     */
-    _fileWasChosen: function ( event ) {
+    _fileWasChosen: function (event) {
         const input = this._domControl;
-        const files = Array.prototype.slice.call( input.files );
+        const files = Array.prototype.slice.call(input.files);
 
-        if ( event.target === input && files.length ) {
+        if (event.target === input && files.length) {
             let target, action;
-            if ( !this.get( 'isDisabled' ) ) {
-                target = this.get( 'target' ) || this;
-                if (( action = this.get( 'action' ) )) {
-                    target.fire( action, {
+            if (!this.get('isDisabled')) {
+                target = this.get('target') || this;
+                if ((action = this.get('action'))) {
+                    target.fire(action, {
                         originView: this,
                         files,
                     });
-                } else if (( action = this.get( 'method' ) )) {
-                    target[ action ]( files, this );
+                } else if ((action = this.get('method'))) {
+                    target[action](files, this);
                 }
             }
         }
         input.value = '';
-        this.fire( 'button:activate' );
-    }.on( 'change' ),
+        this.fire('button:activate');
+    }.on('change'),
 });
 
 export default FileButtonView;

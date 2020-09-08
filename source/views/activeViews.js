@@ -31,11 +31,11 @@ export default activeViews;
     Returns:
         {O.View|null} The view which owns the node.
 */
-export const getViewFromNode = function ( node ) {
+export const getViewFromNode = function (node) {
     const doc = node.ownerDocument;
     let view = null;
-    while ( !view && node && node !== doc ) {
-        view = activeViews[ node.id ] || null;
+    while (!view && node && node !== doc) {
+        view = activeViews[node.id] || null;
         node = node.parentNode;
     }
     return view;

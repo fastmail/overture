@@ -1,6 +1,6 @@
 import { Class } from '../core/Core';
 import Obj from '../foundation/Object';
-import '../foundation/EventTarget';  // For Function#on
+import '../foundation/EventTarget'; // For Function#on
 import { isApple } from '../ua/UA';
 import { lookupKey } from '../dom/DOMEvent';
 import RichTextView from '../views/controls/RichTextView';
@@ -29,7 +29,6 @@ const handleOnDown = {};
     This class facilitates adding keyboard shortcuts to your application.
 */
 const GlobalKeyboardShortcuts = Class({
-
     Extends: Obj,
 
     /**
@@ -55,10 +54,10 @@ const GlobalKeyboardShortcuts = Class({
         this.isEnabled = true;
         this._shortcuts = {};
 
-        GlobalKeyboardShortcuts.parent.constructor.apply( this, arguments );
+        GlobalKeyboardShortcuts.parent.constructor.apply(this, arguments);
 
         ViewEventsController.kbShortcuts = this;
-        ViewEventsController.addEventTarget( this, -10 );
+        ViewEventsController.addEventTarget(this, -10);
     },
 
     /**
@@ -66,12 +65,12 @@ const GlobalKeyboardShortcuts = Class({
 
         Destructor.
     */
-    destroy () {
-        if ( ViewEventsController.kbShortcuts === this ) {
+    destroy() {
+        if (ViewEventsController.kbShortcuts === this) {
             delete ViewEventsController.kbShortcuts;
         }
-        ViewEventsController.removeEventTarget( this );
-        GlobalKeyboardShortcuts.parent.destroy.call( this );
+        ViewEventsController.removeEventTarget(this);
+        GlobalKeyboardShortcuts.parent.destroy.call(this);
     },
 
     /**
@@ -104,11 +103,14 @@ const GlobalKeyboardShortcuts = Class({
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
     */
-    register ( key, object, method, ifInput ) {
-        key = toPlatformKey( key );
+    register(key, object, method, ifInput) {
+        key = toPlatformKey(key);
         const shortcuts = this._shortcuts;
-        ( shortcuts[ key ] || ( shortcuts[ key ] = [] ) )
-            .push([ object, method, ifInput || DEFAULT_IN_INPUT ]);
+        (shortcuts[key] || (shortcuts[key] = [])).push([
+            object,
+            method,
+            ifInput || DEFAULT_IN_INPUT,
+        ]);
         return this;
     },
 
@@ -126,18 +128,18 @@ const GlobalKeyboardShortcuts = Class({
         Returns:
             {O.GlobalKeyboardShortcuts} Returns self.
     */
-    deregister ( key, object, method ) {
-        key = toPlatformKey( key );
-        const current = this._shortcuts[ key ];
+    deregister(key, object, method) {
+        key = toPlatformKey(key);
+        const current = this._shortcuts[key];
         const length = current ? current.length : 0;
         let l = length;
-        while ( l-- ) {
+        while (l--) {
             const item = current[l];
-            if ( item[0] === object && item[1] === method ) {
-                if ( length === 1 ) {
-                    delete this._shortcuts[ key ];
+            if (item[0] === object && item[1] === method) {
+                if (length === 1) {
+                    delete this._shortcuts[key];
                 } else {
-                    current.splice( l, 1 );
+                    current.splice(l, 1);
                 }
             }
         }
@@ -157,10 +159,10 @@ const GlobalKeyboardShortcuts = Class({
             {Array|null} Returns the [ object, method ] tuple to be triggered by
             the event, or null if nothing is registered for this key press.
     */
-    getHandlerForKey ( key ) {
-        const shortcuts = this._shortcuts[ key ];
-        if ( shortcuts && this.get( 'isEnabled' ) ) {
-            return shortcuts[ shortcuts.length - 1 ];
+    getHandlerForKey(key) {
+        const shortcuts = this._shortcuts[key];
+        if (shortcuts && this.get('isEnabled')) {
+            return shortcuts[shortcuts.length - 1];
         }
         return null;
     },
@@ -173,37 +175,39 @@ const GlobalKeyboardShortcuts = Class({
         Parameters:
             event - {DOMEvent} The keydown/keypress event.
     */
-    trigger: function ( event ) {
+    trigger: function (event) {
         const target = event.target;
         const nodeName = target.nodeName;
-        const key = lookupKey( event );
+        const key = lookupKey(event);
         const allowedInInput =
-            ( isApple ? event.metaKey : event.ctrlKey ) &&
-            ( event.altKey || /-(?:.|Enter)$/.test( key ) );
-        const inputIsFocused = (
+            (isApple ? event.metaKey : event.ctrlKey) &&
+            (event.altKey || /-(?:.|Enter)$/.test(key));
+        const inputIsFocused =
             nodeName === 'TEXTAREA' ||
             nodeName === 'SELECT' ||
-            ( nodeName === 'INPUT' && !allowedInputs[ target.type ] ) ||
-            ( event.targetView instanceof RichTextView )
-        );
-        if ( event.type === 'keydown' ) {
-            handleOnDown[ key ] = true;
-        } else if ( handleOnDown[ key ] ) {
+            (nodeName === 'INPUT' && !allowedInputs[target.type]) ||
+            event.targetView instanceof RichTextView;
+        if (event.type === 'keydown') {
+            handleOnDown[key] = true;
+        } else if (handleOnDown[key]) {
             return;
         }
-        const handler = this.getHandlerForKey( key );
-        if ( handler ) {
+        const handler = this.getHandlerForKey(key);
+        if (handler) {
             const ifInput = handler[2];
-            if ( inputIsFocused && ifInput !== ACTIVE_IN_INPUT &&
-                    ( !allowedInInput || ifInput === DISABLE_IN_INPUT ) ) {
+            if (
+                inputIsFocused &&
+                ifInput !== ACTIVE_IN_INPUT &&
+                (!allowedInInput || ifInput === DISABLE_IN_INPUT)
+            ) {
                 return;
             }
-            handler[0][ handler[1] ]( event );
-            if ( !event.doDefault ) {
+            handler[0][handler[1]](event);
+            if (!event.doDefault) {
                 event.preventDefault();
             }
         }
-    }.on( 'keydown', 'keypress' ),
+    }.on('keydown', 'keypress'),
 });
 
 GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;

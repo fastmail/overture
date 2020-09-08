@@ -1,6 +1,6 @@
 import { Class, meta } from '../../core/Core';
 import Obj from '../../foundation/Object';
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ObservableProps'; // For Function#observes
 
 import { RecordAttribute } from './attr';
 
@@ -12,7 +12,6 @@ import { RecordAttribute } from './attr';
     Maintains the state of the validity of each attribute on a record.
 */
 const AttributeErrors = Class({
-
     Extends: Obj,
 
     /**
@@ -28,25 +27,24 @@ const AttributeErrors = Class({
         Parameters:
             record - {O.Record} The record to manage attribute errors for.
     */
-    init: function ( record ) {
-        AttributeErrors.parent.constructor.call( this );
+    init: function (record) {
+        AttributeErrors.parent.constructor.call(this);
 
-        const attrs = meta( record ).attrs;
+        const attrs = meta(record).attrs;
         let errorCount = 0;
         let attrKey, propKey, attribute, error;
 
-        for ( attrKey in attrs ) {
+        for (attrKey in attrs) {
             // Check if attribute has been removed (e.g. in a subclass).
-            if ( propKey = attrs[ attrKey ] ) {
+            if ((propKey = attrs[attrKey])) {
                 // Validate current value and set error on this object.
-                attribute = record[ propKey ];
-                error = this[ propKey ] = attribute.validate ?
-                    attribute
-                        .validate( record.get( propKey ), propKey, record ) :
-                    null;
+                attribute = record[propKey];
+                error = this[propKey] = attribute.validate
+                    ? attribute.validate(record.get(propKey), propKey, record)
+                    : null;
 
                 // Keep an error count
-                if ( error ) {
+                if (error) {
                     errorCount += 1;
                 }
             }
@@ -66,31 +64,30 @@ const AttributeErrors = Class({
             _    - {*} Unused.
             property - {String} The name of the property which has changed.
     */
-    recordPropertyDidChange ( _, property ) {
-        const metadata = meta( this );
-        const changed = metadata.changed = {};
-        const dependents = metadata.dependents[ property ];
+    recordPropertyDidChange(_, property) {
+        const metadata = meta(this);
+        const changed = (metadata.changed = {});
+        const dependents = metadata.dependents[property];
         const l = dependents ? dependents.length : 0;
         const record = this._record;
         let i, propKey, attribute;
 
         this.beginPropertyChanges();
-        for ( i = 0; i <= l; i += 1 ) {
-            if ( i === l ) {
+        for (i = 0; i <= l; i += 1) {
+            if (i === l) {
                 propKey = property;
             } else {
                 propKey = dependents[i];
             }
-            attribute = record[ propKey ];
-            if ( changed[ propKey ] ||
-                    !( attribute instanceof RecordAttribute ) ) {
+            attribute = record[propKey];
+            if (changed[propKey] || !(attribute instanceof RecordAttribute)) {
                 continue;
             }
-            changed[ propKey ] = {
-                oldValue: this[ propKey ],
-                newValue: this[ propKey ] = ( attribute.validate ?
-                  attribute.validate( record.get( propKey ), propKey, record ) :
-                  null ),
+            changed[propKey] = {
+                oldValue: this[propKey],
+                newValue: (this[propKey] = attribute.validate
+                    ? attribute.validate(record.get(propKey), propKey, record)
+                    : null),
             };
         }
         this.endPropertyChanges();
@@ -107,24 +104,26 @@ const AttributeErrors = Class({
             _       - {*} Unused.
             changed - {Object} A map of validity string changes.
     */
-    setRecordValidity: function ( _, changed ) {
-        let errorCount = this.get( 'errorCount' ),
-            key, vals, wasValid, isValid;
-        for ( key in changed ) {
-            if ( key !== 'errorCount' ) {
-                vals = changed[ key ];
+    setRecordValidity: function (_, changed) {
+        let errorCount = this.get('errorCount'),
+            key,
+            vals,
+            wasValid,
+            isValid;
+        for (key in changed) {
+            if (key !== 'errorCount') {
+                vals = changed[key];
                 wasValid = !vals.oldValue;
                 isValid = !vals.newValue;
-                if ( wasValid && !isValid ) {
+                if (wasValid && !isValid) {
                     errorCount += 1;
-                } else if ( isValid && !wasValid ) {
+                } else if (isValid && !wasValid) {
                     errorCount -= 1;
                 }
             }
         }
-        this.set( 'errorCount', errorCount )
-            ._record.set( 'isValid', !errorCount );
-    }.observes( '*' ),
+        this.set('errorCount', errorCount)._record.set('isValid', !errorCount);
+    }.observes('*'),
 });
 
 export default AttributeErrors;

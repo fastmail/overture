@@ -21,32 +21,32 @@ import * as i18n from '../localisation/i18n';
         {Function} This function may be passed to the Array#sort method to
         sort the array of objects by the properties specified.
 */
-export default function sortByProperties ( properties ) {
-    if ( !( properties instanceof Array ) ) {
-        properties = [ properties ];
+export default function sortByProperties(properties) {
+    if (!(properties instanceof Array)) {
+        properties = [properties];
     }
     const l = properties.length;
 
-    return function ( a, b ) {
+    return function (a, b) {
         const hasGet = !!a.get;
-        for ( let i = 0; i < l; i += 1 ) {
+        for (let i = 0; i < l; i += 1) {
             const prop = properties[i];
-            const aVal = hasGet ? a.get( prop ) : a[ prop ];
-            const bVal = hasGet ? b.get( prop ) : b[ prop ];
+            const aVal = hasGet ? a.get(prop) : a[prop];
+            const bVal = hasGet ? b.get(prop) : b[prop];
             const type = typeof aVal;
 
             // Must be the same type
-            if ( type === typeof bVal ) {
-                if ( type === 'boolean' && aVal !== bVal ) {
+            if (type === typeof bVal) {
+                if (type === 'boolean' && aVal !== bVal) {
                     return aVal ? -1 : 1;
                 }
-                if ( type === 'string' ) {
-                    return i18n.compare( aVal, bVal );
+                if (type === 'string') {
+                    return i18n.compare(aVal, bVal);
                 }
-                if ( aVal < bVal ) {
+                if (aVal < bVal) {
                     return -1;
                 }
-                if ( aVal > bVal ) {
+                if (aVal > bVal) {
                     return 1;
                 }
             }

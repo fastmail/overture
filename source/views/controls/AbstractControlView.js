@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/EventTarget';  // For Function#on
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/EventTarget'; // For Function#on
+import '../../foundation/ObservableProps'; // For Function#observes
 import View from '../View';
 import ViewEventsController from '../ViewEventsController';
 import { loc } from '../../localisation/i18n';
@@ -21,7 +21,6 @@ import { appendChildren, create as el } from '../../dom/Element';
     subclassed.
 */
 const AbstractControlView = Class({
-
     Extends: View,
 
     /**
@@ -106,23 +105,25 @@ const AbstractControlView = Class({
         informing the user of the keyboard shortcut for the control, if set.
     */
     tooltip: function () {
-        const shortcut = this.get( 'shortcut' );
-        return shortcut ?
-            loc( 'Shortcut: [_1]',
-                shortcut
-                    .split( ' ' )
-                    .map( formatKeyForPlatform )
-                    .join( ' ' + loc( 'or' ) + ' ' )
-            ) : '';
-    }.property( 'shortcut' ),
+        const shortcut = this.get('shortcut');
+        return shortcut
+            ? loc(
+                  'Shortcut: [_1]',
+                  shortcut
+                      .split(' ')
+                      .map(formatKeyForPlatform)
+                      .join(' ' + loc('or') + ' '),
+              )
+            : '';
+    }.property('shortcut'),
 
-    getShortcutTarget ( key ) {
-        const shortcut = this.get( 'shortcut' ).split( ' ' )[0];
-        if ( shortcut === '' ) {
+    getShortcutTarget(key) {
+        const shortcut = this.get('shortcut').split(' ')[0];
+        if (shortcut === '') {
             return null;
         }
 
-        return toPlatformKey( shortcut ) === key ? this.get( 'layer' ) : null;
+        return toPlatformKey(shortcut) === key ? this.get('layer') : null;
     },
 
     /**
@@ -131,16 +132,16 @@ const AbstractControlView = Class({
         Overridden to add keyboard shortcuts.
         See <O.View#didEnterDocument>.
     */
-    didEnterDocument () {
-        AbstractControlView.parent.didEnterDocument.call( this );
-        const shortcut = this.get( 'shortcut' );
-        if ( shortcut ) {
-            shortcut.split( ' ' ).forEach( key => {
+    didEnterDocument() {
+        AbstractControlView.parent.didEnterDocument.call(this);
+        const shortcut = this.get('shortcut');
+        if (shortcut) {
+            shortcut.split(' ').forEach((key) => {
                 ViewEventsController.kbShortcuts.register(
                     key,
                     this,
                     'activate',
-                    this.get( 'shortcutWhenInputFocused' )
+                    this.get('shortcutWhenInputFocused'),
                 );
             });
         }
@@ -153,20 +154,23 @@ const AbstractControlView = Class({
         Overridden to remove keyboard shortcuts.
         See <O.View#didEnterDocument>.
     */
-    willLeaveDocument () {
-        const shortcut = this.get( 'shortcut' );
-        if ( shortcut ) {
-            shortcut.split( ' ' ).forEach( key => {
-                ViewEventsController.kbShortcuts
-                    .deregister( key, this, 'activate' );
+    willLeaveDocument() {
+        const shortcut = this.get('shortcut');
+        if (shortcut) {
+            shortcut.split(' ').forEach((key) => {
+                ViewEventsController.kbShortcuts.deregister(
+                    key,
+                    this,
+                    'activate',
+                );
             });
         }
         // iOS is very buggy if you remove a focused control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
-        if ( isIOS && this.get( 'isFocused' ) ) {
+        if (isIOS && this.get('isFocused')) {
             this.blur();
         }
-        return AbstractControlView.parent.willLeaveDocument.call( this );
+        return AbstractControlView.parent.willLeaveDocument.call(this);
     },
 
     /**
@@ -199,33 +203,33 @@ const AbstractControlView = Class({
 
         Overridden to set properties and add label. See <O.View#draw>.
     */
-    draw ( layer ) {
+    draw(layer) {
         const control = this._domControl;
-        const name = this.get( 'name' );
-        const tabIndex = this.get( 'tabIndex' );
+        const name = this.get('name');
+        const tabIndex = this.get('tabIndex');
 
-        if ( !control.id ) {
-            control.id = this.get( 'id' ) + '-input';
+        if (!control.id) {
+            control.id = this.get('id') + '-input';
         }
-        control.disabled = this.get( 'isDisabled' );
+        control.disabled = this.get('isDisabled');
 
-        if ( name !== undefined ) {
+        if (name !== undefined) {
             control.name = name;
         }
 
-        if ( tabIndex !== undefined ) {
+        if (tabIndex !== undefined) {
             control.tabIndex = tabIndex;
         }
 
-        layer.title = this.get( 'tooltip' );
-        return this._domLabel = el( 'span.label', [ this.get( 'label' ) ] );
+        layer.title = this.get('tooltip');
+        return (this._domLabel = el('span.label', [this.get('label')]));
     },
 
     // --- Keep render in sync with state ---
 
-    abstractControlNeedsRedraw: function ( self, property, oldValue ) {
-        return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'isDisabled', 'label', 'name', 'tooltip', 'tabIndex' ),
+    abstractControlNeedsRedraw: function (self, property, oldValue) {
+        return this.propertyNeedsRedraw(self, property, oldValue);
+    }.observes('isDisabled', 'label', 'name', 'tooltip', 'tabIndex'),
 
     /**
         Method: O.AbstractControlView#redrawIsDisabled
@@ -233,8 +237,8 @@ const AbstractControlView = Class({
         Updates the disabled attribute on the DOM control to match the
         isDisabled property of the view.
     */
-    redrawIsDisabled () {
-        this._domControl.disabled = this.get( 'isDisabled' );
+    redrawIsDisabled() {
+        this._domControl.disabled = this.get('isDisabled');
     },
 
     /**
@@ -242,15 +246,13 @@ const AbstractControlView = Class({
 
         Updates the DOM label to match the label property of the view.
     */
-    redrawLabel () {
+    redrawLabel() {
         const label = this._domLabel;
         let child;
-        while ( child = label.firstChild ) {
-            label.removeChild( child );
+        while ((child = label.firstChild)) {
+            label.removeChild(child);
         }
-        appendChildren( label, [
-            this.get( 'label' ),
-        ]);
+        appendChildren(label, [this.get('label')]);
     },
 
     /**
@@ -259,8 +261,8 @@ const AbstractControlView = Class({
         Updates the name attribute on the DOM control to match the name
         property of the view.
     */
-    redrawName () {
-        this._domControl.name = this.get( 'name' );
+    redrawName() {
+        this._domControl.name = this.get('name');
     },
 
     /**
@@ -272,8 +274,8 @@ const AbstractControlView = Class({
         Updates the title attribute on the DOM layer to match the tooltip
         property of the view.
     */
-    redrawTooltip ( layer ) {
-        layer.title = this.get( 'tooltip' );
+    redrawTooltip(layer) {
+        layer.title = this.get('tooltip');
     },
 
     /**
@@ -282,8 +284,8 @@ const AbstractControlView = Class({
         Updates the tabIndex attribute on the DOM control to match the tabIndex
         property of the view.
     */
-    redrawTabIndex () {
-        this._domControl.tabIndex = this.get( 'tabIndex' );
+    redrawTabIndex() {
+        this._domControl.tabIndex = this.get('tabIndex');
     },
 
     // --- Focus ---
@@ -296,14 +298,14 @@ const AbstractControlView = Class({
         Returns:
             {O.AbstractControlView} Returns self.
     */
-    focus () {
-        if ( this.get( 'isInDocument' ) ) {
+    focus() {
+        if (this.get('isInDocument')) {
             this._domControl.focus({
                 preventScroll: true,
             });
             // Fire event synchronously.
-            if ( !this.get( 'isFocused' ) ) {
-                this.fire( 'focus', {
+            if (!this.get('isFocused')) {
+                this.fire('focus', {
                     target: this._domControl,
                     targetView: this,
                 });
@@ -320,12 +322,12 @@ const AbstractControlView = Class({
         Returns:
             {O.AbstractControlView} Returns self.
     */
-    blur () {
-        if ( this.get( 'isInDocument' ) ) {
+    blur() {
+        if (this.get('isInDocument')) {
             this._domControl.blur();
             // Fire event synchronously.
-            if ( this.get( 'isFocused' ) ) {
-                this.fire( 'blur', {
+            if (this.get('isFocused')) {
+                this.fire('blur', {
                     target: this._domControl,
                     targetView: this,
                 });
@@ -342,12 +344,12 @@ const AbstractControlView = Class({
         Parameters:
             event - {Event} The focus event.
     */
-    _updateIsFocused: function ( event ) {
+    _updateIsFocused: function (event) {
         this.set(
             'isFocused',
-            event.type === 'focus' && event.target === this._domControl
+            event.type === 'focus' && event.target === this._domControl,
         );
-    }.on( 'focus', 'blur' ),
+    }.on('focus', 'blur'),
 
     // --- Activate ---
 
@@ -358,8 +360,7 @@ const AbstractControlView = Class({
         performed when the control is activated, either by being clicked on or
         via a keyboard shortcut.
     */
-    activate () {},
-
+    activate() {},
 });
 
 export default AbstractControlView;

@@ -1,8 +1,8 @@
 import { Class, mixin } from '../../core/Core';
-import * as RunLoop from '../../foundation/RunLoop';  // Also Function#queue
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/EventTarget';  // For Function#on
-import '../../foundation/ObservableProps';  // For Function#observes
+import * as RunLoop from '../../foundation/RunLoop'; // Also Function#queue
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/EventTarget'; // For Function#on
+import '../../foundation/ObservableProps'; // For Function#observes
 import { create as el, setStyle, appendChildren } from '../../dom/Element';
 import Animation from '../../animation/Animation';
 import Tap from '../../touch/Tap';
@@ -12,30 +12,28 @@ import RootView from '../RootView';
 import ViewEventsController from '../ViewEventsController';
 
 class ScrollAnimation extends Animation {
-    prepare ( coordinates ) {
+    prepare(coordinates) {
         const object = this.object;
-        const startX = this.startX = object.get( 'scrollLeft' );
-        const startY = this.startY = object.get( 'scrollTop' );
-        const endX = this.endX = coordinates.x || 0;
-        const endY = this.endY = coordinates.y || 0;
-        const deltaX = this.deltaX = endX - startX;
-        const deltaY = this.deltaY = endY - startY;
+        const startX = (this.startX = object.get('scrollLeft'));
+        const startY = (this.startY = object.get('scrollTop'));
+        const endX = (this.endX = coordinates.x || 0);
+        const endY = (this.endY = coordinates.y || 0);
+        const deltaX = (this.deltaX = endX - startX);
+        const deltaY = (this.deltaY = endY - startY);
 
-        setStyle( object.get( 'layer' ), 'will-change', 'scroll-position' );
+        setStyle(object.get('layer'), 'will-change', 'scroll-position');
 
-        return !!( deltaX || deltaY );
+        return !!(deltaX || deltaY);
     }
 
-    drawFrame ( position ) {
+    drawFrame(position) {
         const isRunning = position < 1;
         const object = this.object;
-        const x = isRunning ?
-                this.startX + ( position * this.deltaX ) : this.endX;
-        const y = isRunning ?
-                this.startY + ( position * this.deltaY ) : this.endY;
-        object._scrollTo( x, y );
-        if ( !isRunning ) {
-            setStyle( object.get( 'layer' ), 'will-change', 'auto' );
+        const x = isRunning ? this.startX + position * this.deltaX : this.endX;
+        const y = isRunning ? this.startY + position * this.deltaY : this.endY;
+        object._scrollTo(x, y);
+        if (!isRunning) {
+            setStyle(object.get('layer'), 'will-change', 'auto');
         }
     }
 }
@@ -53,7 +51,6 @@ ScrollAnimation.prototype.duration = 250;
     property to `true` to show a scrollbar on horizontal overflow as well.
 */
 const ScrollView = Class({
-
     Extends: View,
 
     /**
@@ -107,17 +104,17 @@ const ScrollView = Class({
         Sets the overflow styles to show the scrollbars.
     */
     layerStyles: function () {
-        const styles = View.prototype.layerStyles.call( this );
-        styles.overflowX = this.get( 'showScrollbarX' ) ? 'auto' : 'hidden';
-        styles.overflowY = this.get( 'showScrollbarY' ) ? 'auto' : 'hidden';
+        const styles = View.prototype.layerStyles.call(this);
+        styles.overflowX = this.get('showScrollbarX') ? 'auto' : 'hidden';
+        styles.overflowY = this.get('showScrollbarY') ? 'auto' : 'hidden';
         styles.WebkitOverflowScrolling = 'touch';
         return styles;
-    }.property( 'layout', 'positioning', 'showScrollbarX', 'showScrollbarY' ),
+    }.property('layout', 'positioning', 'showScrollbarX', 'showScrollbarY'),
 
     isFixedDimensions: function () {
-        const positioning = this.get( 'positioning' );
+        const positioning = this.get('positioning');
         return positioning === 'absolute' || positioning === 'fixed';
-    }.property( 'positioning' ),
+    }.property('positioning'),
 
     /**
         Property: O.ScrollView#keys
@@ -142,75 +139,79 @@ const ScrollView = Class({
     */
     keys: {},
 
-    didCreateLayer ( layer ) {
+    didCreateLayer(layer) {
         layer.tabIndex = -1;
     },
 
-    willEnterDocument () {
-        ScrollView.parent.willEnterDocument.call( this );
-        if ( this.get( 'isFixedDimensions' ) ) {
-            const scrollContents = this._scrollContents || this.get( 'layer' );
+    willEnterDocument() {
+        ScrollView.parent.willEnterDocument.call(this);
+        if (this.get('isFixedDimensions')) {
+            const scrollContents = this._scrollContents || this.get('layer');
             scrollContents.appendChild(
-                this._safeAreaPadding = el( 'div.v-Scroll-safeAreaPadding' )
+                (this._safeAreaPadding = el('div.v-Scroll-safeAreaPadding')),
             );
-            this.getParent( RootView ).addObserverForKey(
-                'safeAreaInsetBottom', this, 'redrawSafeArea' );
+            this.getParent(RootView).addObserverForKey(
+                'safeAreaInsetBottom',
+                this,
+                'redrawSafeArea',
+            );
             this.redrawSafeArea();
         }
         return this;
     },
 
-    didEnterDocument () {
-        this.get( 'layer' ).addEventListener( 'scroll', this, false );
+    didEnterDocument() {
+        this.get('layer').addEventListener('scroll', this, false);
 
         // Add keyboard shortcuts:
-        const keys = this.get( 'keys' );
+        const keys = this.get('keys');
         const shortcuts = ViewEventsController.kbShortcuts;
-        for ( const key in keys ) {
-            shortcuts.register( key, this, keys[ key ] );
+        for (const key in keys) {
+            shortcuts.register(key, this, keys[key]);
         }
 
-        return ScrollView.parent.didEnterDocument.call( this );
+        return ScrollView.parent.didEnterDocument.call(this);
     },
 
-    willLeaveDocument () {
+    willLeaveDocument() {
         // Remove keyboard shortcuts:
-        const keys = this.get( 'keys' );
+        const keys = this.get('keys');
         const shortcuts = ViewEventsController.kbShortcuts;
-        for ( const key in keys ) {
-            shortcuts.deregister( key, this, keys[ key ] );
+        for (const key in keys) {
+            shortcuts.deregister(key, this, keys[key]);
         }
 
-        this.get( 'layer' ).removeEventListener( 'scroll', this, false );
+        this.get('layer').removeEventListener('scroll', this, false);
 
-        return ScrollView.parent.willLeaveDocument.call( this );
+        return ScrollView.parent.willLeaveDocument.call(this);
     },
 
-    didLeaveDocument () {
+    didLeaveDocument() {
         const safeAreaPadding = this._safeAreaPadding;
-        if ( safeAreaPadding ) {
-            this.getParent( RootView ).removeObserverForKey(
-                'safeAreaInsetBottom', this, 'redrawSafeArea' );
-            safeAreaPadding.parentNode.removeChild( safeAreaPadding );
+        if (safeAreaPadding) {
+            this.getParent(RootView).removeObserverForKey(
+                'safeAreaInsetBottom',
+                this,
+                'redrawSafeArea',
+            );
+            safeAreaPadding.parentNode.removeChild(safeAreaPadding);
             this._safeAreaPadding = null;
         }
-        return ScrollView.parent.didLeaveDocument.call( this );
+        return ScrollView.parent.didLeaveDocument.call(this);
     },
 
-    insertView ( view, relativeTo, where ) {
+    insertView(view, relativeTo, where) {
         const safeAreaPadding = this._safeAreaPadding;
-        if ( !relativeTo && safeAreaPadding &&
-                ( !where || where === 'bottom' ) ) {
+        if (!relativeTo && safeAreaPadding && (!where || where === 'bottom')) {
             relativeTo = safeAreaPadding;
             where = 'before';
         }
-        return ScrollView.parent.insertView.call(
-            this, view, relativeTo, where );
+        return ScrollView.parent.insertView.call(this, view, relativeTo, where);
     },
 
-    redrawSafeArea () {
+    redrawSafeArea() {
         this._safeAreaPadding.style.height =
-            this.getParent( RootView ).get( 'safeAreaInsetBottom' ) + 'px';
+            this.getParent(RootView).get('safeAreaInsetBottom') + 'px';
     },
 
     // ---
@@ -218,12 +219,14 @@ const ScrollView = Class({
     _restoreScroll: function () {
         // Scroll is reset to 0 in some browsers whenever it is removed from the
         // DOM, so we need to set it to what it should be.
-        if ( this.get( 'isInDocument' ) ) {
-            const layer = this.get( 'layer' );
-            layer.scrollLeft = this.get( 'scrollLeft' );
-            layer.scrollTop = this.get( 'scrollTop' );
+        if (this.get('isInDocument')) {
+            const layer = this.get('layer');
+            layer.scrollLeft = this.get('scrollLeft');
+            layer.scrollTop = this.get('scrollTop');
         }
-    }.queue( 'render' ).observes( 'isInDocument' ),
+    }
+        .queue('render')
+        .observes('isInDocument'),
 
     /**
         Property: O.ScrollView#scrollAnimation
@@ -235,7 +238,7 @@ const ScrollView = Class({
         However, if you wish to change the duration or easing method, you can do
         so by setting it on this object.
     */
-    scrollAnimation: function ( ) {
+    scrollAnimation: function () {
         return new ScrollAnimation({
             object: this,
         });
@@ -249,12 +252,12 @@ const ScrollView = Class({
     */
     isAnimating: false,
 
-    willAnimate () {
-        this.set( 'isAnimating', true );
+    willAnimate() {
+        this.set('isAnimating', true);
     },
 
-    didAnimate () {
-        this.set( 'isAnimating', false );
+    didAnimate() {
+        this.set('isAnimating', false);
     },
 
     /**
@@ -262,8 +265,8 @@ const ScrollView = Class({
 
         Scrolls the view to the top
     */
-    scrollToTop () {
-        return this.scrollTo( 0, 0, true );
+    scrollToTop() {
+        return this.scrollTo(0, 0, true);
     },
 
     /**
@@ -271,10 +274,11 @@ const ScrollView = Class({
 
         Scrolls the view to the bottom
     */
-    scrollToBottom () {
-        return this.scrollTo( 0,
-            this.get( 'layer' ).scrollHeight - this.get( 'pxHeight' ),
-            true
+    scrollToBottom() {
+        return this.scrollTo(
+            0,
+            this.get('layer').scrollHeight - this.get('pxHeight'),
+            true,
         );
     },
 
@@ -283,8 +287,8 @@ const ScrollView = Class({
 
         Scrolls the view down by the view height - 50px.
     */
-    scrollPage () {
-        return this.scrollBy( 0, this.get( 'pxHeight' ) - 50, true );
+    scrollPage() {
+        return this.scrollBy(0, this.get('pxHeight') - 50, true);
     },
 
     /**
@@ -292,8 +296,8 @@ const ScrollView = Class({
 
         Scrolls the view up by the view height - 50px.
     */
-    reverseScrollPage () {
-        return this.scrollBy( 0, 50 - this.get( 'pxHeight' ), true );
+    reverseScrollPage() {
+        return this.scrollBy(0, 50 - this.get('pxHeight'), true);
     },
 
     /**
@@ -301,8 +305,8 @@ const ScrollView = Class({
 
         Scrolls the view down by 40px.
     */
-    scrollLine () {
-        return this.scrollBy( 0, 40 );
+    scrollLine() {
+        return this.scrollBy(0, 40);
     },
 
     /**
@@ -310,8 +314,8 @@ const ScrollView = Class({
 
         Scrolls the view up by 40px.
     */
-    reverseScrollLine () {
-        return this.scrollBy( 0, -40 );
+    reverseScrollLine() {
+        return this.scrollBy(0, -40);
     },
 
     /**
@@ -328,16 +332,15 @@ const ScrollView = Class({
         Returns:
             {Boolean} Did the view actually scroll (false if already at end)?
     */
-    scrollBy ( x, y, withAnimation ) {
-        const left = this.get( 'scrollLeft' );
-        const top = this.get( 'scrollTop' );
+    scrollBy(x, y, withAnimation) {
+        const left = this.get('scrollLeft');
+        const top = this.get('scrollTop');
         x += left;
         y += top;
 
-        this.scrollTo( x, y, withAnimation );
+        this.scrollTo(x, y, withAnimation);
 
-        return top !== this.get( 'scrollTop' ) ||
-            left !== this.get( 'scrollLeft' );
+        return top !== this.get('scrollTop') || left !== this.get('scrollLeft');
     },
 
     /**
@@ -356,12 +359,12 @@ const ScrollView = Class({
         Returns:
             {O.ScrollView} Returns self.
     */
-    scrollToView ( view, offset, withAnimation ) {
-        const position = view.getPositionRelativeTo( this );
+    scrollToView(view, offset, withAnimation) {
+        const position = view.getPositionRelativeTo(this);
         return this.scrollTo(
-            position.left + ( offset && offset.x || 0 ),
-            position.top + ( offset && offset.y || 0 ),
-            withAnimation
+            position.left + ((offset && offset.x) || 0),
+            position.top + ((offset && offset.y) || 0),
+            withAnimation,
         );
     },
 
@@ -381,26 +384,26 @@ const ScrollView = Class({
         Returns:
             {O.ScrollView} Returns self.
     */
-    scrollTo ( x, y, withAnimation ) {
+    scrollTo(x, y, withAnimation) {
         // Can't have negative scroll values.
         // Can't scroll to fractional positions
-        x = x < 0 ? 0 : Math.round( x );
-        y = y < 0 ? 0 : Math.round( y );
+        x = x < 0 ? 0 : Math.round(x);
+        y = y < 0 ? 0 : Math.round(y);
 
-        const scrollAnimation = this.get( 'scrollAnimation' );
+        const scrollAnimation = this.get('scrollAnimation');
         scrollAnimation.stop();
 
-        if ( withAnimation && this.get( 'isInDocument' ) ) {
+        if (withAnimation && this.get('isInDocument')) {
             scrollAnimation.animate({
                 x,
                 y,
             });
         } else {
             this.beginPropertyChanges()
-                .set( 'scrollLeft', x )
-                .set( 'scrollTop', y )
-                .propertyNeedsRedraw( this, 'scroll' )
-            .endPropertyChanges();
+                .set('scrollLeft', x)
+                .set('scrollTop', y)
+                .propertyNeedsRedraw(this, 'scroll')
+                .endPropertyChanges();
         }
         return this;
     },
@@ -410,9 +413,8 @@ const ScrollView = Class({
 
         Set the new values and immediately redraw. Fast path for animation.
     */
-    _scrollTo ( x, y ) {
-        this.set( 'scrollLeft', x )
-            .set( 'scrollTop', y );
+    _scrollTo(x, y) {
+        this.set('scrollLeft', x).set('scrollTop', y);
         this.redrawScroll();
     },
 
@@ -421,15 +423,15 @@ const ScrollView = Class({
 
         Redraws the scroll position in the layer to match the view's state.
     */
-    redrawScroll () {
-        const layer = this.get( 'layer' );
-        const x = this.get( 'scrollLeft' );
-        const y = this.get( 'scrollTop' );
+    redrawScroll() {
+        const layer = this.get('layer');
+        const x = this.get('scrollLeft');
+        const y = this.get('scrollTop');
         layer.scrollLeft = x;
         layer.scrollTop = y;
         // In case we've gone past the end.
-        if ( x || y ) {
-            RunLoop.queueFn( 'after', this.syncBackScroll, this );
+        if (x || y) {
+            RunLoop.queueFn('after', this.syncBackScroll, this);
         }
     },
 
@@ -441,23 +443,23 @@ const ScrollView = Class({
 
         Updates the view properties when the layer scrolls.
     */
-    syncBackScroll: function ( event ) {
-        if ( this._needsRedraw ) {
+    syncBackScroll: function (event) {
+        if (this._needsRedraw) {
             return;
         }
-        const layer = this.get( 'layer' );
+        const layer = this.get('layer');
         const x = layer.scrollLeft;
         const y = layer.scrollTop;
         this.beginPropertyChanges()
-            .set( 'scrollLeft', x )
-            .set( 'scrollTop', y )
+            .set('scrollLeft', x)
+            .set('scrollTop', y)
             .endPropertyChanges();
-        if ( event ) {
+        if (event) {
             event.stopPropagation();
             // Don't interpret tap to stop scroll as a real tap.
             Tap.cancel();
         }
-    }.on( 'scroll' ),
+    }.on('scroll'),
 
     // ---
 
@@ -470,8 +472,8 @@ const ScrollView = Class({
         Returns:
             {O.ScrollView} Returns self.
     */
-    focus () {
-        const layer = this.get( 'layer' );
+    focus() {
+        const layer = this.get('layer');
         // Must have a tab index to be able to focus it
         layer.tabIndex = -1;
         layer.focus();
@@ -486,45 +488,45 @@ const ScrollView = Class({
     // However, when the focus is anywhere else, we do want the tab index, as
     // without it the browser won't focus the scroll view when you click in it,
     // which we want so that native keyboard shortcuts work correctly to scroll.
-    _setTabIndex: function ( event ) {
-        const layer = this.get( 'layer' );
-        if ( event.type === 'blur' || event.target === layer ) {
+    _setTabIndex: function (event) {
+        const layer = this.get('layer');
+        if (event.type === 'blur' || event.target === layer) {
             layer.tabIndex = -1;
         } else {
-            layer.removeAttribute( 'tabIndex' );
+            layer.removeAttribute('tabIndex');
         }
-    }.on( 'focus', 'blur' ),
+    }.on('focus', 'blur'),
 });
 
-if ( isIOS ) {
-    mixin( RootView.prototype, {
-        preventRootScroll: function ( event ) {
+if (isIOS) {
+    mixin(RootView.prototype, {
+        preventRootScroll: function (event) {
             const view = event.targetView;
             let doc, win;
-            if ( !( view instanceof ScrollView ) &&
-                    !view.getParent( ScrollView ) ) {
+            if (!(view instanceof ScrollView) && !view.getParent(ScrollView)) {
                 doc = this.layer.ownerDocument;
                 win = doc.defaultView;
-                if ( this.get( 'pxHeight' ) <= win.innerHeight &&
-                        !/^(?:INPUT|TEXTAREA)$/.test(
-                            doc.activeElement.nodeName ) ) {
+                if (
+                    this.get('pxHeight') <= win.innerHeight &&
+                    !/^(?:INPUT|TEXTAREA)$/.test(doc.activeElement.nodeName)
+                ) {
                     event.preventDefault();
                 }
             }
-        }.on( 'touchmove' ),
+        }.on('touchmove'),
     });
 }
 
-if ( isIOS && version < 13 ) {
+if (isIOS && version < 13) {
     const isOldOrSafari = version < 11 || browser === 'safari';
 
-    mixin( ScrollView.prototype, {
-        draw ( layer ) {
-            const isFixedDimensions = this.get( 'isFixedDimensions' );
+    mixin(ScrollView.prototype, {
+        draw(layer) {
+            const isFixedDimensions = this.get('isFixedDimensions');
             let scrollFixerHeight = 1;
 
             // Render the children.
-            const children = ScrollView.parent.draw.call( this, layer );
+            const children = ScrollView.parent.draw.call(this, layer);
 
             // Following platform conventions, we assume a fixed height
             // ScrollView should always scroll, regardless of whether the
@@ -536,66 +538,76 @@ if ( isIOS && version < 13 ) {
             // From iOS 11, if not in Safari, it appears that the view will
             // always be scrollable as long as the content is at longer; you
             // don't need to ensure you are not at the very top
-            if ( isFixedDimensions && isOldOrSafari ) {
+            if (isFixedDimensions && isOldOrSafari) {
                 scrollFixerHeight = 2;
-                layer.appendChild(
-                    el( 'div', { style: 'height:1px' } )
-                );
+                layer.appendChild(el('div', { style: 'height:1px' }));
             }
 
             // Append the actual children of the scroll view.
-            appendChildren( layer, children );
+            appendChildren(layer, children);
 
-            if ( isFixedDimensions ) {
+            if (isFixedDimensions) {
                 layer.appendChild(
-                    el( 'div', {
-                        style: 'position:absolute;top:100%;left:0px;' +
-                            'width:1px;height:' + scrollFixerHeight + 'px;',
-                    })
+                    el('div', {
+                        style:
+                            'position:absolute;top:100%;left:0px;' +
+                            'width:1px;height:' +
+                            scrollFixerHeight +
+                            'px;',
+                    }),
                 );
-                this.on( 'scroll', this, '_setNotAtEnd' )
-                    .addObserverForKey( 'isInDocument', this, '_setNotAtEnd' );
+                this.on('scroll', this, '_setNotAtEnd').addObserverForKey(
+                    'isInDocument',
+                    this,
+                    '_setNotAtEnd',
+                );
             }
         },
 
         _setNotAtEnd: function () {
-            if ( this.get( 'isInDocument' ) ) {
-                const scrollTop = this.get( 'scrollTop' );
-                const scrollLeft = this.get( 'scrollLeft' );
-                if ( !scrollTop && isOldOrSafari ) {
-                    this.scrollTo( scrollLeft, 1 );
-                } else if ( scrollTop + this.get( 'pxHeight' ) ===
-                        this.get( 'layer' ).scrollHeight ) {
-                    this.scrollTo( scrollLeft, scrollTop - 1 );
+            if (this.get('isInDocument')) {
+                const scrollTop = this.get('scrollTop');
+                const scrollLeft = this.get('scrollLeft');
+                if (!scrollTop && isOldOrSafari) {
+                    this.scrollTo(scrollLeft, 1);
+                } else if (
+                    scrollTop + this.get('pxHeight') ===
+                    this.get('layer').scrollHeight
+                ) {
+                    this.scrollTo(scrollLeft, scrollTop - 1);
                 }
             }
-        }.queue( 'after' ),
+        }.queue('after'),
 
-        preventRootScroll: function ( event ) {
-            if ( !this.get( 'isFixedDimensions' ) ) {
-                const layer = this.get( 'layer' );
-                if ( layer.scrollHeight <= layer.offsetHeight ) {
+        preventRootScroll: function (event) {
+            if (!this.get('isFixedDimensions')) {
+                const layer = this.get('layer');
+                if (layer.scrollHeight <= layer.offsetHeight) {
                     event.preventDefault();
                 }
             }
-        }.on( 'touchmove' ),
+        }.on('touchmove'),
 
-        insertView ( view, relativeTo, where ) {
+        insertView(view, relativeTo, where) {
             const safeAreaPadding = this._safeAreaPadding;
-            if ( !relativeTo && safeAreaPadding ) {
-                relativeTo = this.get( 'layer' );
-                if ( where === 'top' ) {
+            if (!relativeTo && safeAreaPadding) {
+                relativeTo = this.get('layer');
+                if (where === 'top') {
                     relativeTo = relativeTo.firstChild;
                     where = 'after';
-                } else if ( !where || where === 'bottom' ) {
-                    relativeTo = this.get( 'isFixedDimensions' ) ?
-                        safeAreaPadding.previousSibling :
-                        safeAreaPadding;
+                } else if (!where || where === 'bottom') {
+                    relativeTo = this.get('isFixedDimensions')
+                        ? safeAreaPadding.previousSibling
+                        : safeAreaPadding;
                     where = 'before';
                 }
             }
             return ScrollView.parent.insertView.call(
-                this, view, relativeTo, where );
+                this,
+                view,
+                relativeTo,
+                where,
+            );
         },
     });
 }

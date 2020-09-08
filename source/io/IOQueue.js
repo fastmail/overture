@@ -1,7 +1,7 @@
 import { Class } from '../core/Core';
-import '../core/Array';  // For Array#erase
+import '../core/Array'; // For Array#erase
 import Obj from '../foundation/Object';
-import '../foundation/EventTarget';  // For Function#on
+import '../foundation/EventTarget'; // For Function#on
 
 /**
     Module: IO
@@ -22,7 +22,6 @@ const IGNORE = 2;
 const ABORT = 3;
 
 const IOQueue = Class({
-
     Extends: Obj,
 
     /**
@@ -90,7 +89,7 @@ const IOQueue = Class({
         this._recent = null;
         this.activeConnections = 0;
 
-        IOQueue.parent.constructor.apply( this, arguments );
+        IOQueue.parent.constructor.apply(this, arguments);
     },
 
     /**
@@ -107,27 +106,27 @@ const IOQueue = Class({
         Returns:
             {O.IOQueue} Returns self.
     */
-    send ( request ) {
-        if ( this.get( 'activeConnections' ) >= this.get( 'maxConnections' ) ) {
-            switch ( this.get( 'link' ) ) {
+    send(request) {
+        if (this.get('activeConnections') >= this.get('maxConnections')) {
+            switch (this.get('link')) {
                 case QUEUE:
-                    this._queue.push( request );
-                    /* falls through */
+                    this._queue.push(request);
+                /* falls through */
                 case IGNORE:
                     return this;
                 case ABORT:
                     this._recent.abort();
                     break;
                 default:
-                    throw new Error( 'Invalid O.IOQueue link type.' );
+                    throw new Error('Invalid O.IOQueue link type.');
             }
         }
 
-        this.increment( 'activeConnections', 1 );
+        this.increment('activeConnections', 1);
 
         // If already set, presume it will bubble to us
-        if ( !request.get( 'nextEventTarget' ) ) {
-            request.set( 'nextEventTarget', this );
+        if (!request.get('nextEventTarget')) {
+            request.set('nextEventTarget', this);
         }
 
         // Store reference in case we need to abort a request.
@@ -148,8 +147,8 @@ const IOQueue = Class({
         Returns:
             {O.IOQueue} Returns self.
     */
-    abort ( request ) {
-        this._queue.erase( request );
+    abort(request) {
+        this._queue.erase(request);
         request.abort();
         return this;
     },
@@ -163,20 +162,20 @@ const IOQueue = Class({
         Parameters:
             transport - {Transport} The transport object.
     */
-    _complete: function ( event ) {
+    _complete: function (event) {
         const request = event.target;
-        if ( this._recent === request ) {
+        if (this._recent === request) {
             this._recent = null;
         }
-        if ( request.get( 'nextEventTarget' ) === this ) {
-            request.set( 'nextEventTarget', null );
+        if (request.get('nextEventTarget') === this) {
+            request.set('nextEventTarget', null);
         }
-        this.increment( 'activeConnections', -1 );
+        this.increment('activeConnections', -1);
 
-        if ( this._queue.length ) {
-            this.send( this._queue.shift() );
+        if (this._queue.length) {
+            this.send(this._queue.shift());
         }
-    }.on( 'io:end' ),
+    }.on('io:end'),
 });
 
 IOQueue.QUEUE = QUEUE;

@@ -2,10 +2,10 @@ import { Class, guid, meta } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import ObservableRange from '../../foundation/ObservableRange';
 import Enumerable from '../../foundation/Enumerable';
-import '../../foundation/EventTarget';  // For Function#on
-import '../../foundation/ObservableProps';  // For Function#observes
-import '../../foundation/RunLoop';  // For Function#queue
-import '../../foundation/ComputedProps';  // For Function#property, #nocache
+import '../../foundation/EventTarget'; // For Function#on
+import '../../foundation/ObservableProps'; // For Function#observes
+import '../../foundation/RunLoop'; // For Function#queue
+import '../../foundation/ComputedProps'; // For Function#property, #nocache
 
 import {
     EMPTY,
@@ -64,10 +64,9 @@ const AUTO_REFRESH_ALWAYS = 2;
 
 */
 const Query = Class({
-
     Extends: Obj,
 
-    Mixin: [ Enumerable, ObservableRange ],
+    Mixin: [Enumerable, ObservableRange],
 
     /**
         Property: O.Query#store
@@ -137,7 +136,7 @@ const Query = Class({
         this._awaitingIdFetch = [];
         this._refresh = false;
 
-        this.id = guid( this );
+        this.id = guid(this);
         this.source = null;
         this.store = null;
         this.accountId = null;
@@ -148,9 +147,9 @@ const Query = Class({
         this.length = null;
         this.lastAccess = Date.now();
 
-        Query.parent.constructor.apply( this, arguments );
+        Query.parent.constructor.apply(this, arguments);
 
-        this.get( 'store' ).addQuery( this );
+        this.get('store').addQuery(this);
         this.monitorForChanges();
         this.fetch();
     },
@@ -162,25 +161,25 @@ const Query = Class({
         removes bindings and path observers so the object may be garbage
         collected.
     */
-    destroy () {
+    destroy() {
         this.unmonitorForChanges();
-        this.set( 'status', this.is( EMPTY ) ? NON_EXISTENT : DESTROYED );
-        this.get( 'store' ).removeQuery( this );
-        Query.parent.destroy.call( this );
+        this.set('status', this.is(EMPTY) ? NON_EXISTENT : DESTROYED);
+        this.get('store').removeQuery(this);
+        Query.parent.destroy.call(this);
     },
 
-    monitorForChanges () {
-        const store = this.get( 'store' );
-        const typeId = guid( this.get( 'Type' ) );
-        const accountId = this.get( 'accountId' );
-        store.on( typeId + ':server:' + accountId, this, 'setObsolete' );
+    monitorForChanges() {
+        const store = this.get('store');
+        const typeId = guid(this.get('Type'));
+        const accountId = this.get('accountId');
+        store.on(typeId + ':server:' + accountId, this, 'setObsolete');
     },
 
-    unmonitorForChanges () {
-        const store = this.get( 'store' );
-        const typeId = guid( this.get( 'Type' ) );
-        const accountId = this.get( 'accountId' );
-        store.off( typeId + ':server:' + accountId, this, 'setObsolete' );
+    unmonitorForChanges() {
+        const store = this.get('store');
+        const typeId = guid(this.get('Type'));
+        const accountId = this.get('accountId');
+        store.off(typeId + ':server:' + accountId, this, 'setObsolete');
     },
 
     // ---
@@ -199,8 +198,8 @@ const Query = Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is ( status ) {
-        return !!( this.get( 'status' ) & status );
+    is(status) {
+        return !!(this.get('status') & status);
     },
 
     /**
@@ -211,25 +210,28 @@ const Query = Class({
         Returns:
             {O.Query} Returns self.
     */
-    setObsolete () {
-        this.set( 'status', this.get( 'status' ) | OBSOLETE );
-        switch ( this.get( 'autoRefresh' ) ) {
-        case AUTO_REFRESH_IF_OBSERVED: {
-            const metadata = meta( this );
-            const observers = metadata.observers;
-            const rangeObservers = metadata.rangeObservers;
-            // Refresh if any of:
-            // 1. Length is observed
-            // 2. Contents ([]) is observed
-            // 3. A range is observed
-            if ( !observers.length && !observers[ '[]' ] &&
-                    !( rangeObservers && rangeObservers.length ) ) {
-                break;
+    setObsolete() {
+        this.set('status', this.get('status') | OBSOLETE);
+        switch (this.get('autoRefresh')) {
+            case AUTO_REFRESH_IF_OBSERVED: {
+                const metadata = meta(this);
+                const observers = metadata.observers;
+                const rangeObservers = metadata.rangeObservers;
+                // Refresh if any of:
+                // 1. Length is observed
+                // 2. Contents ([]) is observed
+                // 3. A range is observed
+                if (
+                    !observers.length &&
+                    !observers['[]'] &&
+                    !(rangeObservers && rangeObservers.length)
+                ) {
+                    break;
+                }
             }
-        }
-        /* falls through */
-        case AUTO_REFRESH_ALWAYS:
-            this.fetch();
+            /* falls through */
+            case AUTO_REFRESH_ALWAYS:
+                this.fetch();
         }
         return this;
     },
@@ -242,8 +244,8 @@ const Query = Class({
         Returns:
             {O.Query} Returns self.
     */
-    setLoading () {
-        return this.set( 'status', this.get( 'status' ) | LOADING );
+    setLoading() {
+        return this.set('status', this.get('status') | LOADING);
     },
 
     // ---
@@ -263,14 +265,14 @@ const Query = Class({
         Returns:
             {O.Query} Returns self.
     */
-    fetch ( force, callback ) {
-        const status = this.get( 'status' );
-        if ( force || status === EMPTY || ( status & OBSOLETE ) ) {
-            if ( status & READY ) {
+    fetch(force, callback) {
+        const status = this.get('status');
+        if (force || status === EMPTY || status & OBSOLETE) {
+            if (status & READY) {
                 this._refresh = true;
             }
-            this.get( 'source' ).fetchQuery( this, callback );
-        } else if ( callback ) {
+            this.get('source').fetchQuery(this, callback);
+        } else if (callback) {
             callback();
         }
         return this;
@@ -285,18 +287,17 @@ const Query = Class({
         Returns:
             {O.Query} Returns self.
     */
-    reset () {
-        const length = this.get( 'length' );
+    reset() {
+        const length = this.get('length');
 
         this._storeKeys.length = 0;
         this._refresh = false;
 
-        return this
-            .set( 'queryState', '' )
-            .set( 'status', EMPTY )
-            .set( 'length', null )
-            .rangeDidChange( 0, length )
-            .fire( 'query:reset' );
+        return this.set('queryState', '')
+            .set('status', EMPTY)
+            .set('length', null)
+            .rangeDidChange(0, length)
+            .fire('query:reset');
     },
 
     // ---
@@ -308,10 +309,10 @@ const Query = Class({
         A standard array of record objects for the records in this query.
     */
     '[]': function () {
-        const store = this.get( 'store' );
-        return this._storeKeys.map( storeKey => (
-            storeKey ? store.getRecordFromStoreKey( storeKey ) : null
-        ));
+        const store = this.get('store');
+        return this._storeKeys.map((storeKey) =>
+            storeKey ? store.getRecordFromStoreKey(storeKey) : null,
+        );
     }.property(),
 
     /**
@@ -320,7 +321,7 @@ const Query = Class({
         Returns:
             {String[]} The store keys. You MUST NOT modify this.
     */
-    getStoreKeys () {
+    getStoreKeys() {
         return this._storeKeys;
     },
 
@@ -343,21 +344,21 @@ const Query = Class({
             past the end of the array, undefined will be returned. Otherwise the
             record will be returned, or null if the id is not yet loaded.
     */
-    getObjectAt ( index, doNotFetch ) {
-        const length = this.get( 'length' );
+    getObjectAt(index, doNotFetch) {
+        const length = this.get('length');
 
-        if ( length === null || index < 0 || index >= length ) {
+        if (length === null || index < 0 || index >= length) {
             return undefined;
         }
 
-        if ( !doNotFetch ) {
-            doNotFetch = this.fetchDataForObjectAt( index );
+        if (!doNotFetch) {
+            doNotFetch = this.fetchDataForObjectAt(index);
         }
 
-        const storeKey = this._storeKeys[ index ];
-        return storeKey ?
-            this.get( 'store' ).getRecordFromStoreKey( storeKey, doNotFetch ) :
-            null;
+        const storeKey = this._storeKeys[index];
+        return storeKey
+            ? this.get('store').getRecordFromStoreKey(storeKey, doNotFetch)
+            : null;
     },
 
     /**
@@ -376,7 +377,7 @@ const Query = Class({
             store will be explicitly told not to fetch the data, as the fetching
             is being handled by the query.
     */
-    fetchDataForObjectAt (/* index */) {
+    fetchDataForObjectAt(/* index */) {
         return false;
     },
 
@@ -398,15 +399,15 @@ const Query = Class({
         Returns:
             {Number} The index of the store key, or -1 if not found.
     */
-    indexOfStoreKey ( storeKey, from, callback ) {
-        const index = this._storeKeys.indexOf( storeKey, from );
-        if ( callback ) {
-            if ( this.get( 'length' ) === null ) {
-                this.fetch( false, () => {
-                    callback( this._storeKeys.indexOf( storeKey, from ) );
+    indexOfStoreKey(storeKey, from, callback) {
+        const index = this._storeKeys.indexOf(storeKey, from);
+        if (callback) {
+            if (this.get('length') === null) {
+                this.fetch(false, () => {
+                    callback(this._storeKeys.indexOf(storeKey, from));
                 });
             } else {
-                callback( index );
+                callback(index);
             }
         }
         return index;
@@ -440,22 +441,22 @@ const Query = Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getStoreKeysForObjectsInRange ( start, end, callback ) {
-        const length = this.get( 'length' );
+    getStoreKeysForObjectsInRange(start, end, callback) {
+        const length = this.get('length');
 
-        if ( length === null ) {
-            this._awaitingIdFetch.push([ start, end, callback ]);
+        if (length === null) {
+            this._awaitingIdFetch.push([start, end, callback]);
             this.fetch();
             return true;
         }
 
-        if ( start < 0 ) {
+        if (start < 0) {
             start = 0;
         }
-        if ( end > length ) {
+        if (end > length) {
             end = length;
         }
-        callback( this._storeKeys.slice( start, end ), start, end );
+        callback(this._storeKeys.slice(start, end), start, end);
 
         return false;
     },
@@ -477,9 +478,9 @@ const Query = Class({
             callback was not fired synchronously, but rather will be called
             asynchronously at a later point.)
     */
-    getStoreKeysForAllObjects ( callback ) {
+    getStoreKeysForAllObjects(callback) {
         // 0x7fffffff is the largest positive signed 32-bit number.
-        return this.getStoreKeysForObjectsInRange( 0, 0x7fffffff, callback );
+        return this.getStoreKeysForObjectsInRange(0, 0x7fffffff, callback);
     },
 
     // ---
@@ -503,32 +504,32 @@ const Query = Class({
             added   - {Number[]} The list of indexes where new records
                        were addded.
     */
-    _adjustIdFetches: function ( event ) {
+    _adjustIdFetches: function (event) {
         const added = event.addedIndexes;
         const removed = event.removedIndexes;
         const awaitingIdFetch = this._awaitingIdFetch;
         let i, l, call, start, end, j, ll, index;
-        for ( i = 0, l = awaitingIdFetch.length; i < l; i += 1 ) {
+        for (i = 0, l = awaitingIdFetch.length; i < l; i += 1) {
             call = awaitingIdFetch[i];
             start = call[0];
             end = call[1];
 
-            for ( j = 0, ll = removed.length; j < ll; j += 1 ) {
+            for (j = 0, ll = removed.length; j < ll; j += 1) {
                 index = removed[j];
-                if ( index < start ) {
+                if (index < start) {
                     start -= 1;
                 }
-                if ( index < end ) {
+                if (index < end) {
                     end -= 1;
                 }
             }
 
-            for ( j = 0, ll = added.length; j < ll; j += 1 ) {
+            for (j = 0, ll = added.length; j < ll; j += 1) {
                 index = added[j];
-                if ( index <= start ) {
+                if (index <= start) {
                     start += 1;
                 }
-                if ( index < end ) {
+                if (index < end) {
                     end += 1;
                 }
             }
@@ -537,7 +538,7 @@ const Query = Class({
             call[0] = start;
             call[1] = end;
         }
-    }.on( 'query:updated' ),
+    }.on('query:updated'),
 
     /**
         Method (private): O.Query#_idsWereFetched
@@ -549,13 +550,15 @@ const Query = Class({
     */
     _idsWereFetched: function () {
         const awaitingIdFetch = this._awaitingIdFetch;
-        if ( awaitingIdFetch.length ) {
+        if (awaitingIdFetch.length) {
             this._awaitingIdFetch = [];
-            awaitingIdFetch.forEach( call => {
-                this.getStoreKeysForObjectsInRange( call[0], call[1], call[2] );
+            awaitingIdFetch.forEach((call) => {
+                this.getStoreKeysForObjectsInRange(call[0], call[1], call[2]);
             });
         }
-    }.queue( 'before' ).on( 'query:idsLoaded' ),
+    }
+        .queue('before')
+        .on('query:idsLoaded'),
 
     // ---
 
@@ -573,11 +576,10 @@ const Query = Class({
             cases may be the same, but can be handled separately if the server
             has an efficient way of calculating changes from the queryState).
     */
-    sourceWillFetchQuery () {
+    sourceWillFetchQuery() {
         const refresh = this._refresh;
         this._refresh = false;
-        this.set( 'status',
-            ( this.get( 'status' )|LOADING ) & ~OBSOLETE );
+        this.set('status', (this.get('status') | LOADING) & ~OBSOLETE);
         return refresh;
     },
 
@@ -596,13 +598,13 @@ const Query = Class({
         Returns:
             {Query} Returns self.
     */
-    sourceDidFetchQuery ( storeKeys, queryState ) {
+    sourceDidFetchQuery(storeKeys, queryState) {
         // Could use a proper diffing algorithm to calculate added/removed
         // arrays, but probably not worth it.
         const oldStoreKeys = this._storeKeys;
-        const oldTotal = this.get( 'length' );
+        const oldTotal = this.get('length');
         const total = storeKeys.length;
-        const minTotal = Math.min( total, oldTotal || 0 );
+        const minTotal = Math.min(total, oldTotal || 0);
         const index = {};
         const removedIndexes = [];
         const removedStoreKeys = [];
@@ -610,62 +612,68 @@ const Query = Class({
         const addedStoreKeys = [];
         let firstChange = 0;
         let lastChangeNew = total - 1;
-        let lastChangeOld = ( oldTotal || 0 ) - 1;
+        let lastChangeOld = (oldTotal || 0) - 1;
         let i, storeKey;
 
         // Initial fetch, oldTotal === null
-        if ( oldTotal !== null ) {
-            while ( firstChange < minTotal &&
-                    storeKeys[ firstChange ] === oldStoreKeys[ firstChange ] ) {
+        if (oldTotal !== null) {
+            while (
+                firstChange < minTotal &&
+                storeKeys[firstChange] === oldStoreKeys[firstChange]
+            ) {
                 firstChange += 1;
             }
 
-            while ( lastChangeNew >= 0 && lastChangeOld >= 0 &&
-                    ( storeKeys[ lastChangeNew ] ===
-                        oldStoreKeys[ lastChangeOld ] ) ) {
+            while (
+                lastChangeNew >= 0 &&
+                lastChangeOld >= 0 &&
+                storeKeys[lastChangeNew] === oldStoreKeys[lastChangeOld]
+            ) {
                 lastChangeNew -= 1;
                 lastChangeOld -= 1;
             }
 
-            for ( i = firstChange; i <= lastChangeOld; i += 1 ) {
+            for (i = firstChange; i <= lastChangeOld; i += 1) {
                 storeKey = oldStoreKeys[i];
-                index[ storeKey ] = i;
+                index[storeKey] = i;
             }
 
-            for ( i = firstChange; i <= lastChangeNew; i += 1 ) {
+            for (i = firstChange; i <= lastChangeNew; i += 1) {
                 storeKey = storeKeys[i];
-                if ( index[ storeKey ] === i ) {
-                    index[ storeKey ] = -1;
+                if (index[storeKey] === i) {
+                    index[storeKey] = -1;
                 } else {
-                    addedIndexes.push( i );
-                    addedStoreKeys.push( storeKey );
+                    addedIndexes.push(i);
+                    addedStoreKeys.push(storeKey);
                 }
             }
 
-            for ( i = firstChange; i <= lastChangeOld; i += 1 ) {
+            for (i = firstChange; i <= lastChangeOld; i += 1) {
                 storeKey = oldStoreKeys[i];
-                if ( index[ storeKey ] !== -1 ) {
-                    removedIndexes.push( i );
-                    removedStoreKeys.push( storeKey );
+                if (index[storeKey] !== -1) {
+                    removedIndexes.push(i);
+                    removedStoreKeys.push(storeKey);
                 }
             }
         }
 
-        lastChangeNew = ( total === oldTotal ) ?
-            lastChangeNew + 1 : Math.max( oldTotal || 0, total );
+        lastChangeNew =
+            total === oldTotal
+                ? lastChangeNew + 1
+                : Math.max(oldTotal || 0, total);
 
         this._storeKeys = storeKeys;
         this.beginPropertyChanges()
-            .set( 'queryState', queryState || '' )
-            .set( 'status', READY|( this.is( OBSOLETE ) ? OBSOLETE : 0 ) )
-            .set( 'length', total );
-        if ( firstChange < lastChangeNew ) {
-            this.rangeDidChange( firstChange, lastChangeNew );
+            .set('queryState', queryState || '')
+            .set('status', READY | (this.is(OBSOLETE) ? OBSOLETE : 0))
+            .set('length', total);
+        if (firstChange < lastChangeNew) {
+            this.rangeDidChange(firstChange, lastChangeNew);
         }
         this.endPropertyChanges();
 
-        if ( oldTotal !== null && firstChange < lastChangeNew ) {
-            this.fire( 'query:updated', {
+        if (oldTotal !== null && firstChange < lastChangeNew) {
+            this.fire('query:updated', {
                 query: this,
                 removed: removedStoreKeys,
                 removedIndexes,
@@ -673,7 +681,7 @@ const Query = Class({
                 addedIndexes,
             });
         }
-        return this.fire( 'query:idsLoaded' );
+        return this.fire('query:idsLoaded');
     },
 });
 

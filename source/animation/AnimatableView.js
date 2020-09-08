@@ -1,4 +1,4 @@
-import '../foundation/ComputedProps';  // For Function#property
+import '../foundation/ComputedProps'; // For Function#property
 import { setStyle } from '../dom/Element';
 import Easing from './Easing';
 import StyleAnimation from './StyleAnimation';
@@ -10,7 +10,6 @@ import StyleAnimation from './StyleAnimation';
     view's <O.View#layerStyles> property.
 */
 export default {
-
     /**
         Property: O.AnimatableView#animateLayer
         Type: Boolean
@@ -56,8 +55,8 @@ export default {
         animating a property on the object. Increments the <#animating>
         property.
     */
-    willAnimate () {
-        this.increment( 'animating', 1 );
+    willAnimate() {
+        this.increment('animating', 1);
     },
 
     /**
@@ -67,9 +66,9 @@ export default {
         animating a property on the object. Decrements the <#animating>
         property.
     */
-    didAnimate ( animation ) {
-        this.increment( 'animating', -1 );
-        if ( !this.get( 'animating' ) && animation instanceof StyleAnimation ) {
+    didAnimate(animation) {
+        this.increment('animating', -1);
+        if (!this.get('animating') && animation instanceof StyleAnimation) {
             this.parentViewDidResize();
         }
     },
@@ -84,7 +83,7 @@ export default {
     layerAnimation: function () {
         return new StyleAnimation({
             object: this,
-            element: this.get( 'layer' ),
+            element: this.get('layer'),
         });
     }.property(),
 
@@ -98,46 +97,46 @@ export default {
             layer     - {Element} The view's layer.
             oldStyles - {Object|null} The previous layer styles for the view.
     */
-    redrawLayerStyles ( layer, oldStyles ) {
-        const newStyles = this.get( 'layerStyles' );
-        const layerAnimation = this.get( 'layerAnimation' );
+    redrawLayerStyles(layer, oldStyles) {
+        const newStyles = this.get('layerStyles');
+        const layerAnimation = this.get('layerAnimation');
 
-        if ( this.get( 'animateLayer' ) && this.get( 'isInDocument' ) ) {
+        if (this.get('animateLayer') && this.get('isInDocument')) {
             // Animate
-            if ( !layerAnimation.current ) {
+            if (!layerAnimation.current) {
                 layerAnimation.current = oldStyles || newStyles;
             }
             layerAnimation.animate(
                 newStyles,
-                this.get( 'animateLayerDuration' ),
-                this.get( 'animateLayerEasing' )
+                this.get('animateLayerDuration'),
+                this.get('animateLayerEasing'),
             );
-            if ( !layerAnimation.isRunning ) {
-                this.willAnimate( layerAnimation );
-                this.didAnimate( layerAnimation );
+            if (!layerAnimation.isRunning) {
+                this.willAnimate(layerAnimation);
+                this.didAnimate(layerAnimation);
             }
         } else {
             // Or just set.
             layerAnimation.stop();
-            if ( layerAnimation.current ) {
+            if (layerAnimation.current) {
                 oldStyles = layerAnimation.current;
             }
             layerAnimation.current = newStyles;
-            for ( const property in newStyles ) {
-                const value = newStyles[ property ];
-                if ( value !== oldStyles[ property ] ) {
-                    setStyle( layer, property, value );
+            for (const property in newStyles) {
+                const value = newStyles[property];
+                if (value !== oldStyles[property]) {
+                    setStyle(layer, property, value);
                 }
             }
             this.parentViewDidResize();
         }
         // Just remove styles that are not specified in the new styles, but were
         // in the old styles
-        for ( const property in oldStyles ) {
-            if ( !( property in newStyles ) ) {
-                setStyle( layer, property, null );
-                if ( layerAnimation.current ) {
-                    delete layerAnimation.current[ property ];
+        for (const property in oldStyles) {
+            if (!(property in newStyles)) {
+                setStyle(layer, property, null);
+                if (layerAnimation.current) {
+                    delete layerAnimation.current[property];
                 }
             }
         }

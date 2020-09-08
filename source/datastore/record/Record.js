@@ -1,13 +1,13 @@
 import { Class, meta, clone } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import * as RunLoop from '../../foundation/RunLoop';
-import '../../foundation/ComputedProps';  // For Function#property, #nocache
+import '../../foundation/ComputedProps'; // For Function#property, #nocache
 
 import { ToOneAttribute } from './toOne';
 import AttributeErrors from './AttributeErrors';
 import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status';
 
-const READY_NEW_DIRTY = (READY|NEW|DIRTY);
+const READY_NEW_DIRTY = READY | NEW | DIRTY;
 
 /**
     Class: O.Record
@@ -18,7 +18,6 @@ const READY_NEW_DIRTY = (READY|NEW|DIRTY);
     provides the basic status management for the attributes.
 */
 const Record = Class({
-
     Extends: Obj,
 
     /**
@@ -31,20 +30,24 @@ const Record = Class({
                        can then be committed to the store using the
                        <O.Record#saveToStore> method.
     */
-    init: function ( store, storeKey ) {
+    init: function (store, storeKey) {
         this._noSync = false;
-        this._data = storeKey ? null : {
-            accountId: store.getPrimaryAccountIdForType( this.constructor ),
-        };
+        this._data = storeKey
+            ? null
+            : {
+                  accountId: store.getPrimaryAccountIdForType(this.constructor),
+              };
         this.store = store;
         this.storeKey = storeKey;
 
-        Record.parent.constructor.call( this );
+        Record.parent.constructor.call(this);
     },
 
     nextEventTarget: function () {
-        return this.get( 'store' );
-    }.property().nocache(),
+        return this.get('store');
+    }
+        .property()
+        .nocache(),
 
     /**
         Method: O.Record#clone
@@ -58,24 +61,24 @@ const Record = Class({
         Returns:
             {O.Record} The new record.
     */
-    clone ( store ) {
+    clone(store) {
         const Type = this.constructor;
         const prototype = Type.prototype;
-        const clone = new Type( store );
-        const attrs = meta( this ).attrs;
+        const clone = new Type(store);
+        const attrs = meta(this).attrs;
         let attrKey, propKey, value;
-        clone.set( 'accountId', this.get( 'accountId' ) );
-        for ( attrKey in attrs ) {
-            propKey = attrs[ attrKey ];
-            if ( prototype[ propKey ].noSync ) {
+        clone.set('accountId', this.get('accountId'));
+        for (attrKey in attrs) {
+            propKey = attrs[attrKey];
+            if (prototype[propKey].noSync) {
                 continue;
             }
-            value = this.get( propKey );
-            if ( value instanceof Record ) {
-                value = value.getDoppelganger( store );
+            value = this.get(propKey);
+            if (value instanceof Record) {
+                value = value.getDoppelganger(store);
             }
-            if ( value !== undefined ) {
-                clone.set( propKey, value );
+            if (value !== undefined) {
+                clone.set(propKey, value);
             }
         }
 
@@ -112,11 +115,13 @@ const Record = Class({
         defined in <O.Status>.
     */
     status: function () {
-        const storeKey = this.get( 'storeKey' );
-        return storeKey ?
-            this.get( 'store' ).getStatus( storeKey ) :
-            READY_NEW_DIRTY;
-    }.property().nocache(),
+        const storeKey = this.get('storeKey');
+        return storeKey
+            ? this.get('store').getStatus(storeKey)
+            : READY_NEW_DIRTY;
+    }
+        .property()
+        .nocache(),
 
     /**
         Method: O.Record#is
@@ -132,8 +137,8 @@ const Record = Class({
         Returns:
             {Boolean} True if the record has the queried status.
     */
-    is ( state ) {
-        return !!( this.get( 'status' ) & state );
+    is(state) {
+        return !!(this.get('status') & state);
     },
 
     /**
@@ -144,11 +149,11 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    setObsolete () {
-        const storeKey = this.get( 'storeKey' );
-        const status = this.get( 'status' );
-        if ( storeKey ) {
-            this.get( 'store' ).setStatus( storeKey, status | OBSOLETE );
+    setObsolete() {
+        const storeKey = this.get('storeKey');
+        const status = this.get('status');
+        if (storeKey) {
+            this.get('store').setStatus(storeKey, status | OBSOLETE);
         }
         return this;
     },
@@ -161,11 +166,11 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    setLoading () {
-        const storeKey = this.get( 'storeKey' );
-        const status = this.get( 'status' );
-        if ( storeKey ) {
-            this.get( 'store' ).setStatus( storeKey, status | LOADING );
+    setLoading() {
+        const storeKey = this.get('storeKey');
+        const status = this.get('status');
+        if (storeKey) {
+            this.get('store').setStatus(storeKey, status | LOADING);
         }
         return this;
     },
@@ -180,54 +185,58 @@ const Record = Class({
         is the primary key. If the primary key for the record is not called
         'id', you must not override this property.
     */
-    id: function ( id ) {
-        const storeKey = this.get( 'storeKey' );
+    id: function (id) {
+        const storeKey = this.get('storeKey');
         const primaryKey = this.constructor.primaryKey || 'id';
-        if ( id !== undefined ) {
-            if ( storeKey ) {
+        if (id !== undefined) {
+            if (storeKey) {
                 RunLoop.didError({
                     name: 'O.Record#id',
                     message: 'Cannot change immutable property',
                 });
-            } else if ( primaryKey === 'id' ) {
+            } else if (primaryKey === 'id') {
                 this._data.id = id;
             } else {
-                this.set( primaryKey, id );
+                this.set(primaryKey, id);
             }
         }
-        return storeKey ?
-            this.get( 'store' ).getIdFromStoreKey( storeKey ) :
-            this._data[ primaryKey ];
-    }.property( 'accountId' ),
+        return storeKey
+            ? this.get('store').getIdFromStoreKey(storeKey)
+            : this._data[primaryKey];
+    }.property('accountId'),
 
-    toJSON () {
-        return this.get( 'storeKey' ) || this;
+    toJSON() {
+        return this.get('storeKey') || this;
     },
 
-    toIdOrStoreKey () {
-        return this.get( 'id' ) || ( '#' + this.get( 'storeKey' ) );
+    toIdOrStoreKey() {
+        return this.get('id') || '#' + this.get('storeKey');
     },
 
-    accountId: function ( toAccountId ) {
-        const storeKey = this.get( 'storeKey' );
-        const store = this.get( 'store' );
-        let accountId = storeKey ?
-                store.getAccountIdFromStoreKey( storeKey ) :
-                this._data.accountId;
-        if ( toAccountId !== undefined && toAccountId !== accountId ) {
-            if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
-                if ( storeKey ) {
-                    store.updateData( storeKey, {
-                        accountId: toAccountId,
-                    }, true );
+    accountId: function (toAccountId) {
+        const storeKey = this.get('storeKey');
+        const store = this.get('store');
+        let accountId = storeKey
+            ? store.getAccountIdFromStoreKey(storeKey)
+            : this._data.accountId;
+        if (toAccountId !== undefined && toAccountId !== accountId) {
+            if (this.get('status') === READY_NEW_DIRTY) {
+                if (storeKey) {
+                    store.updateData(
+                        storeKey,
+                        {
+                            accountId: toAccountId,
+                        },
+                        true,
+                    );
                 } else {
                     this._data.accountId = toAccountId;
                 }
             } else {
-                store.moveRecord( storeKey, toAccountId );
+                store.moveRecord(storeKey, toAccountId);
             }
             accountId = toAccountId;
-            store.fire( 'record:user:update', { record: this } );
+            store.fire('record:user:update', { record: this });
         }
         return accountId;
     }.property(),
@@ -243,49 +252,49 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    saveToStore () {
-        if ( this.get( 'storeKey' ) ) {
-            throw new Error( 'Record already created in store.' );
+    saveToStore() {
+        if (this.get('storeKey')) {
+            throw new Error('Record already created in store.');
         }
         const Type = this.constructor;
         const data = this._data;
-        const store = this.get( 'store' );
-        const accountId = this.get( 'accountId' );
+        const store = this.get('store');
+        const accountId = this.get('accountId');
         const idPropKey = Type.primaryKey || 'id';
-        const idAttrKey = this[ idPropKey ].key || idPropKey;
-        const storeKey =
-            store.getStoreKey( accountId, Type, data[ idAttrKey ] );
-        const attrs = meta( this ).attrs;
+        const idAttrKey = this[idPropKey].key || idPropKey;
+        const storeKey = store.getStoreKey(accountId, Type, data[idAttrKey]);
+        const attrs = meta(this).attrs;
 
         this._data = null;
 
         // Fill in any missing defaults + toOne attributes to previously
         // uncreated records
-        for ( const attrKey in attrs ) {
-            const propKey = attrs[ attrKey ];
-            if ( propKey ) {
-                const attribute = this[ propKey ];
-                if ( !( attrKey in data ) ) {
+        for (const attrKey in attrs) {
+            const propKey = attrs[attrKey];
+            if (propKey) {
+                const attribute = this[propKey];
+                if (!(attrKey in data)) {
                     const defaultValue = attribute.defaultValue;
-                    if ( defaultValue !== undefined ) {
-                        data[ attrKey ] = clone( defaultValue );
+                    if (defaultValue !== undefined) {
+                        data[attrKey] = clone(defaultValue);
                     }
-                } else if ( ( attribute instanceof ToOneAttribute ) &&
-                        ( data[ attrKey ] instanceof Record ) ) {
-                    data[ attrKey ] = data[ attrKey ].toJSON();
+                } else if (
+                    attribute instanceof ToOneAttribute &&
+                    data[attrKey] instanceof Record
+                ) {
+                    data[attrKey] = data[attrKey].toJSON();
                 }
             }
         }
 
         // Save to store
-        store.createRecord( storeKey, data )
-             .setRecordForStoreKey( storeKey, this );
+        store.createRecord(storeKey, data).setRecordForStoreKey(storeKey, this);
 
         // And save store reference on record instance.
-        this.set( 'storeKey', storeKey );
+        this.set('storeKey', storeKey);
 
         // Fire event
-        store.fire( 'record:user:create', { record: this } );
+        store.fire('record:user:create', { record: this });
 
         return this;
     },
@@ -299,13 +308,13 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    discardChanges () {
-        if ( this.get( 'status' ) === READY_NEW_DIRTY ) {
+    discardChanges() {
+        if (this.get('status') === READY_NEW_DIRTY) {
             this.destroy();
         } else {
-            const storeKey = this.get( 'storeKey' );
-            if ( storeKey ) {
-                this.get( 'store' ).revertData( storeKey );
+            const storeKey = this.get('storeKey');
+            if (storeKey) {
+                this.get('store').revertData(storeKey);
             }
         }
         return this;
@@ -320,10 +329,10 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    fetch () {
-        const storeKey = this.get( 'storeKey' );
-        if ( storeKey ) {
-            this.get( 'store' ).fetchData( storeKey );
+    fetch() {
+        const storeKey = this.get('storeKey');
+        if (storeKey) {
+            this.get('store').fetchData(storeKey);
         }
         return this;
     },
@@ -334,13 +343,13 @@ const Record = Class({
         Destroy the record. This will inform the store, which will commit it to
         the source.
     */
-    destroy () {
-        const storeKey = this.get( 'storeKey' );
-        if ( storeKey && this.get( 'isEditable' ) ) {
-            this.get( 'store' )
-                .destroyRecord( storeKey )
-                .fire( 'record:user:destroy', { record: this } );
-        } else if ( !storeKey ) {
+    destroy() {
+        const storeKey = this.get('storeKey');
+        if (storeKey && this.get('isEditable')) {
+            this.get('store')
+                .destroyRecord(storeKey)
+                .fire('record:user:destroy', { record: this });
+        } else if (!storeKey) {
             this.storeWillUnload();
         }
     },
@@ -355,11 +364,11 @@ const Record = Class({
             {O.Record} Returns the record instance for the same record in the
             given store.
     */
-    getDoppelganger ( store ) {
-        if ( this.get( 'store' ) === store ) {
+    getDoppelganger(store) {
+        if (this.get('store') === store) {
             return this;
         }
-        return store.materialiseRecord( this.get( 'storeKey' ) );
+        return store.materialiseRecord(this.get('storeKey'));
     },
 
     /**
@@ -368,9 +377,8 @@ const Record = Class({
         Returns:
             {Object} The raw data hash in the store for this object.
     */
-    getData () {
-        return this._data ||
-            this.get( 'store' ).getData( this.get( 'storeKey' ) );
+    getData() {
+        return this._data || this.get('store').getData(this.get('storeKey'));
     },
 
     /**
@@ -379,8 +387,8 @@ const Record = Class({
         This should only be called by the store, when it unloads the record's
         data to free up memory.
     */
-    storeWillUnload () {
-        Record.parent.destroy.call( this );
+    storeWillUnload() {
+        Record.parent.destroy.call(this);
     },
 
     /**
@@ -399,7 +407,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    stopSync () {
+    stopSync() {
         this._noSync = true;
         return this;
     },
@@ -413,7 +421,7 @@ const Record = Class({
         Returns:
             {O.Record} Returns self.
     */
-    startSync () {
+    startSync() {
         this._noSync = false;
         return this;
     },
@@ -437,9 +445,10 @@ const Record = Class({
 
         Are all the attributes are in a valid state?
     */
-    isValid: function ( value ) {
-        return ( value !== undefined ) ? value :
-            !this.get( 'errorForAttribute' ).get( 'errorCount' );
+    isValid: function (value) {
+        return value !== undefined
+            ? value
+            : !this.get('errorForAttribute').get('errorCount');
     }.property(),
 
     /**
@@ -457,9 +466,9 @@ const Record = Class({
             {O.ValidationError|null} The error, or null if the assignment would
             be valid.
     */
-    errorToSet ( key, value ) {
-        const attr = this[ key ];
-        return attr.validate ? attr.validate( value, key, this ) : null;
+    errorToSet(key, value) {
+        const attr = this[key];
+        return attr.validate ? attr.validate(value, key, this) : null;
     },
 
     /**
@@ -472,34 +481,34 @@ const Record = Class({
         properties on this object.
     */
     errorForAttribute: function () {
-        const AttributeErrorsType = this.get( 'AttributeErrorsType' );
-        return new AttributeErrorsType( this );
+        const AttributeErrorsType = this.get('AttributeErrorsType');
+        return new AttributeErrorsType(this);
     }.property(),
 
     /**
         Method: O.Record#notifyAttributeErrors
     */
-    notifyAttributeErrors ( _, propKey ) {
-        const attributeErrors = meta( this ).cache.errorForAttribute;
-        if ( attributeErrors ) {
-            attributeErrors.recordPropertyDidChange( this, propKey );
+    notifyAttributeErrors(_, propKey) {
+        const attributeErrors = meta(this).cache.errorForAttribute;
+        if (attributeErrors) {
+            attributeErrors.recordPropertyDidChange(this, propKey);
         }
     },
 });
 
-Record.getClientSettableAttributes = function ( Type ) {
+Record.getClientSettableAttributes = function (Type) {
     let clientSettableAttributes = Type.clientSettableAttributes;
     let prototype, attrs, attrKey, propKey, attribute;
-    if ( !clientSettableAttributes ) {
+    if (!clientSettableAttributes) {
         prototype = Type.prototype;
-        attrs = meta( prototype ).attrs;
+        attrs = meta(prototype).attrs;
         clientSettableAttributes = {};
-        for ( attrKey in attrs ) {
-            propKey = attrs[ attrKey ];
-            if ( propKey ) {
-                attribute = prototype[ propKey ];
-                if ( !attribute.noSync ) {
-                    clientSettableAttributes[ attrKey ] = true;
+        for (attrKey in attrs) {
+            propKey = attrs[attrKey];
+            if (propKey) {
+                attribute = prototype[propKey];
+                if (!attribute.noSync) {
+                    clientSettableAttributes[attrKey] = true;
                 }
             }
         }

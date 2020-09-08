@@ -9,7 +9,7 @@
                       present to the user).
 */
 class ValidationError {
-    constructor ( type, explanation ) {
+    constructor(type, explanation) {
         this.type = type;
         this.explanation = explanation;
     }

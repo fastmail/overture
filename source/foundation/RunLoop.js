@@ -4,55 +4,57 @@ import Heap from './Heap';
 
 const win = window;
 
-const setImmediate = window.setImmediate || function ( fn ) {
-        return setTimeout( fn, 0 );
+const setImmediate =
+    window.setImmediate ||
+    function (fn) {
+        return setTimeout(fn, 0);
     };
 
 const requestAnimFrame =
-    win.requestAnimationFrame       ||
-    win.oRequestAnimationFrame      ||
+    win.requestAnimationFrame ||
+    win.oRequestAnimationFrame ||
     win.webkitRequestAnimationFrame ||
-    win.mozRequestAnimationFrame    ||
-    win.msRequestAnimationFrame     ||
-    ( function () {
+    win.mozRequestAnimationFrame ||
+    win.msRequestAnimationFrame ||
+    (function () {
         let lastTime = 0;
-        return function ( callback ) {
+        return function (callback) {
             const time = Date.now();
-            const timeToNextCall = Math.max( 0, 16 - ( time - lastTime ) );
+            const timeToNextCall = Math.max(0, 16 - (time - lastTime));
             lastTime = time;
-            win.setTimeout( function () {
-                callback( time + timeToNextCall );
-            }, timeToNextCall );
+            win.setTimeout(function () {
+                callback(time + timeToNextCall);
+            }, timeToNextCall);
         };
-    }() );
+    })();
 
-const Timeout = function ( time, period, fn, bind ) {
+const Timeout = function (time, period, fn, bind) {
     this.time = time;
     this.period = period;
     this.fn = fn;
     this.bind = bind;
 };
 
-const parentsBeforeChildren = function ( a, b ) {
+const parentsBeforeChildren = function (a, b) {
     let aView = a[1];
     let bView = b[1];
 
     // Cheap test for ( x instanceof View )
-    if ( !aView || !aView.parentView ) {
+    if (!aView || !aView.parentView) {
         aView = null;
     }
-    if ( !bView || !bView.parentView ) {
+    if (!bView || !bView.parentView) {
         bView = null;
     }
 
     // If equal, order doesn't matter
-    if ( aView === bView ) {
+    if (aView === bView) {
         return 0;
     }
 
     // Redraw views before bindings directly to DOM nodes; it may remove
     // the view from the DOM so the update is cheaper
-    if ( !aView || !bView ) {
+    if (!aView || !bView) {
         return !aView ? 1 : -1;
     }
 
@@ -60,10 +62,10 @@ const parentsBeforeChildren = function ( a, b ) {
     // the need to redraw.
     let aDepth = 0;
     let bDepth = 0;
-    while (( aView = aView.get( 'parentView' ) )) {
+    while ((aView = aView.get('parentView'))) {
         aDepth += 1;
     }
-    while (( bView = bView.get( 'parentView' ) )) {
+    while ((bView = bView.get('parentView'))) {
         bDepth += 1;
     }
     return aDepth - bDepth;
@@ -86,7 +88,7 @@ let mayRedraw = false;
 
     The order in which to flush the queues.
 */
-const _queueOrder = [ 'before', 'bindings', 'middle', 'render', 'after' ];
+const _queueOrder = ['before', 'bindings', 'middle', 'render', 'after'];
 
 /**
     Property (private): O.RunLoop._queues
@@ -111,7 +113,7 @@ const _queues = {
 
     A priority queue of timeouts.
 */
-const _timeouts = new Heap( function ( a, b ) {
+const _timeouts = new Heap(function (a, b) {
     return a.time - b.time;
 });
 
@@ -152,29 +154,29 @@ let _depth = 0;
     Returns:
         {Boolean} Were any functions actually invoked?
 */
-const flushQueue = function ( queue ) {
-    const toInvoke = _queues[ queue ];
+const flushQueue = function (queue) {
+    const toInvoke = _queues[queue];
     const l = toInvoke.length;
 
-    if ( l ) {
-        _queues[ queue ] = [];
+    if (l) {
+        _queues[queue] = [];
 
-        if ( queue === 'render' ) {
-            toInvoke.sort( parentsBeforeChildren );
+        if (queue === 'render') {
+            toInvoke.sort(parentsBeforeChildren);
         }
 
-        for ( let i = 0; i < l; i += 1 ) {
+        for (let i = 0; i < l; i += 1) {
             const tuple = toInvoke[i];
             const fn = tuple[0];
             const bind = tuple[1];
             try {
-                if ( bind ) {
-                    fn.call( bind );
+                if (bind) {
+                    fn.call(bind);
                 } else {
                     fn();
                 }
-            } catch ( error ) {
-                didError( error );
+            } catch (error) {
+                didError(error);
             }
         }
         return true;
@@ -194,20 +196,20 @@ const flushAllQueues = function () {
     const order = _queueOrder;
     const l = order.length;
     let i = 0;
-    while ( i < l ) {
+    while (i < l) {
         const queueName = order[i];
-        if ( queues[ queueName ].length ) {
+        if (queues[queueName].length) {
             // "Render" waits for next frame, except if in bg, since
             // animation frames don't fire while in the background and we
             // want to flush queues in a reasonable time, as they may
             // redraw the tab name, favicon etc.
-            if ( ( i > 2 && !mayRedraw ) && !document.hidden ) {
-                if ( !queues.nextFrame.length ) {
-                    requestAnimFrame( nextFrame );
+            if (i > 2 && !mayRedraw && !document.hidden) {
+                if (!queues.nextFrame.length) {
+                    requestAnimFrame(nextFrame);
                 }
                 return;
             }
-            flushQueue( queueName );
+            flushQueue(queueName);
             i = 0;
         } else {
             i = i + 1;
@@ -232,26 +234,26 @@ const flushAllQueues = function () {
     Returns:
         {O.RunLoop} Returns self.
 */
-const queueFn = function ( queue, fn, bind, allowDups ) {
-    const toInvoke = _queues[ queue ];
+const queueFn = function (queue, fn, bind, allowDups) {
+    const toInvoke = _queues[queue];
     const l = toInvoke.length;
     // Log error here, as the stack trace is useless inside flushQueue.
-    if ( !fn ) {
+    if (!fn) {
         try {
             fn();
-        } catch ( error ) {
-            didError( error );
+        } catch (error) {
+            didError(error);
         }
     } else {
-        if ( !allowDups ) {
-            for ( let i = 0; i < l; i += 1 ) {
+        if (!allowDups) {
+            for (let i = 0; i < l; i += 1) {
                 const tuple = toInvoke[i];
-                if ( tuple[0] === fn && tuple[1] === bind ) {
+                if (tuple[0] === fn && tuple[1] === bind) {
                     return;
                 }
             }
         }
-        toInvoke[l] = [ fn, bind ];
+        toInvoke[l] = [fn, bind];
     }
 };
 
@@ -271,26 +273,26 @@ const queueFn = function ( queue, fn, bind, allowDups ) {
         {*} The return value of the invoked function, or `undefined` if it
             throws an exception.
 */
-const invoke = function ( fn, bind, args ) {
+const invoke = function (fn, bind, args) {
     let returnValue;
     _depth += 1;
     try {
         // Avoiding apply/call when not needed is faster
-        if ( args ) {
-            returnValue = fn.apply( bind, args );
-        } else if ( bind ) {
-            returnValue = fn.call( bind );
+        if (args) {
+            returnValue = fn.apply(bind, args);
+        } else if (bind) {
+            returnValue = fn.call(bind);
         } else {
             returnValue = fn();
         }
-    } catch ( error ) {
-        didError( error );
+    } catch (error) {
+        didError(error);
     }
-    if ( _depth === 1 ) {
+    if (_depth === 1) {
         flushAllQueues();
     }
     _depth -= 1;
-    if ( !_depth ) {
+    if (!_depth) {
         processTimeouts();
     }
     return returnValue;
@@ -312,11 +314,11 @@ const invoke = function ( fn, bind, args ) {
     Returns:
         {O.RunLoop} Returns self.
 */
-const invokeInNextEventLoop = function ( fn, bind, allowDups ) {
-    if ( !_queues.nextLoop.length ) {
-        setImmediate( nextLoop );
+const invokeInNextEventLoop = function (fn, bind, allowDups) {
+    if (!_queues.nextLoop.length) {
+        setImmediate(nextLoop);
     }
-    return queueFn( 'nextLoop', fn, bind, allowDups );
+    return queueFn('nextLoop', fn, bind, allowDups);
 };
 
 /**
@@ -334,11 +336,11 @@ const invokeInNextEventLoop = function ( fn, bind, allowDups ) {
     Returns:
         {O.RunLoop} Returns self.
 */
-const invokeInNextFrame = function ( fn, bind, allowDups ) {
-    if ( !_queues.nextFrame.length ) {
-        requestAnimFrame( nextFrame );
+const invokeInNextFrame = function (fn, bind, allowDups) {
+    if (!_queues.nextFrame.length) {
+        requestAnimFrame(nextFrame);
     }
-    return queueFn( 'nextFrame', fn, bind, allowDups );
+    return queueFn('nextFrame', fn, bind, allowDups);
 };
 
 /**
@@ -359,9 +361,9 @@ const invokeInNextFrame = function ( fn, bind, allowDups ) {
         <O.RunLoop.cancel> method before the function is invoked, in order
         to cancel the scheduled invocation.
 */
-const invokeAfterDelay = function ( fn, delay, bind ) {
-    const timeout = new Timeout( Date.now() + delay, 0, fn, bind );
-    _timeouts.push( timeout );
+const invokeAfterDelay = function (fn, delay, bind) {
+    const timeout = new Timeout(Date.now() + delay, 0, fn, bind);
+    _timeouts.push(timeout);
     _scheduleTimeout();
     return timeout;
 };
@@ -383,9 +385,9 @@ const invokeAfterDelay = function ( fn, delay, bind ) {
         <O.RunLoop.cancel> method to cancel all future invocations scheduled
         by this call.
 */
-const invokePeriodically = function ( fn, period, bind ) {
-    const timeout = new Timeout( Date.now() + period, period, fn, bind );
-    _timeouts.push( timeout );
+const invokePeriodically = function (fn, period, bind) {
+    const timeout = new Timeout(Date.now() + period, period, fn, bind);
+    _timeouts.push(timeout);
     _scheduleTimeout();
     return timeout;
 };
@@ -399,11 +401,11 @@ const invokePeriodically = function ( fn, period, bind ) {
 const _scheduleTimeout = function () {
     const timeout = _timeouts.peek();
     const time = timeout ? timeout.time : 0;
-    if ( time && time !== _nextTimeout ) {
-        clearTimeout( _timer );
+    if (time && time !== _nextTimeout) {
+        clearTimeout(_timer);
         const delay = time - Date.now();
-        if ( delay > 0 ) {
-            _timer = setTimeout( processTimeouts, time - Date.now() );
+        if (delay > 0) {
+            _timer = setTimeout(processTimeouts, time - Date.now());
             _nextTimeout = time;
         } else {
             _nextTimeout = 0;
@@ -422,14 +424,14 @@ const _scheduleTimeout = function () {
 */
 const processTimeouts = function () {
     const timeouts = _timeouts;
-    while ( timeouts.length && timeouts.peek().time <= Date.now() ) {
+    while (timeouts.length && timeouts.peek().time <= Date.now()) {
         const timeout = timeouts.pop();
         let period;
-        if ( period = timeout.period ) {
+        if ((period = timeout.period)) {
             timeout.time = Date.now() + period;
-            timeouts.push( timeout );
+            timeouts.push(timeout);
         }
-        invoke( timeout.fn, timeout.bind );
+        invoke(timeout.fn, timeout.bind);
     }
     _scheduleTimeout();
 };
@@ -449,8 +451,8 @@ const processTimeouts = function () {
     Returns:
         {O.RunLoop} Returns self.
 */
-const cancel = function ( token ) {
-    _timeouts.remove( token );
+const cancel = function (token) {
+    _timeouts.remove(token);
 };
 
 /**
@@ -463,9 +465,9 @@ const cancel = function ( token ) {
     Parameters:
         error - {Error} The error object.
 */
-let didError = function ( error ) {
-    if ( window.console ) {
-        console.log( error.name, error.message, error.stack );
+let didError = function (error) {
+    if (window.console) {
+        console.log(error.name, error.message, error.stack);
     }
 };
 
@@ -478,11 +480,11 @@ let didError = function ( error ) {
     Parameters:
         fn - {Function} The new didError function.
 */
-const setDidError = function ( fn ) {
+const setDidError = function (fn) {
     didError = fn;
 };
 
-Object.assign( Function.prototype, {
+Object.assign(Function.prototype, {
     /**
         Method: Function#queue
 
@@ -494,10 +496,10 @@ Object.assign( Function.prototype, {
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.queueFn>.
     */
-    queue ( queue ) {
+    queue(queue) {
         const fn = this;
         return function () {
-            queueFn( queue, fn, this );
+            queueFn(queue, fn, this);
             return this;
         };
     },
@@ -509,10 +511,10 @@ Object.assign( Function.prototype, {
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextEventLoop>.
     */
-    nextLoop () {
+    nextLoop() {
         const fn = this;
         return function () {
-            invokeInNextEventLoop( fn, this );
+            invokeInNextEventLoop(fn, this);
             return this;
         };
     },
@@ -524,10 +526,10 @@ Object.assign( Function.prototype, {
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextFrame>.
     */
-    nextFrame () {
+    nextFrame() {
         const fn = this;
         return function () {
-            invokeInNextFrame( fn, this );
+            invokeInNextFrame(fn, this);
             return this;
         };
     },
@@ -540,20 +542,20 @@ Object.assign( Function.prototype, {
         Returns:
             {Function} Returns wrapped function.
     */
-    invokeInRunLoop () {
+    invokeInRunLoop() {
         const fn = this;
         return function () {
-            return invoke( fn, this, arguments );
+            return invoke(fn, this, arguments);
         };
     },
 });
 
-const nextLoop = invoke.bind( null, flushQueue, null, [ 'nextLoop' ] );
+const nextLoop = invoke.bind(null, flushQueue, null, ['nextLoop']);
 
-const nextFrame = function ( time ) {
+const nextFrame = function (time) {
     frameStartTime = time;
     mayRedraw = true;
-    invoke( flushQueue, null, [ 'nextFrame' ] );
+    invoke(flushQueue, null, ['nextFrame']);
     mayRedraw = false;
 };
 

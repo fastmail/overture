@@ -1,40 +1,40 @@
 /*global XMLHttpRequest, FormData, location */
 
-import '../foundation/RunLoop';  // For Function#invokeInRunLoop
+import '../foundation/RunLoop'; // For Function#invokeInRunLoop
 
-const parseHeaders = function ( allHeaders ) {
+const parseHeaders = function (allHeaders) {
     const headers = {};
     let start = 0;
-    while ( true ) {
+    while (true) {
         // Ignore any leading white space
-        while ( /\s/.test( allHeaders.charAt( start ) ) ) {
+        while (/\s/.test(allHeaders.charAt(start))) {
             start += 1;
         }
         // Look for ":"
-        let end = allHeaders.indexOf( ':', start );
-        if ( end < 0 ) {
+        let end = allHeaders.indexOf(':', start);
+        if (end < 0) {
             break;
         }
         // Slice out the header name.
         // Convert to lower-case: HTTP2 will always be lower case, but HTTP1
         // may be mixed case, which causes bugs!
-        const name = allHeaders.slice( start, end ).toLowerCase();
+        const name = allHeaders.slice(start, end).toLowerCase();
         // Trim off any spaces after the colon.
         start = end + 1;
-        while ( allHeaders.charAt( start ) === ' ' ) {
+        while (allHeaders.charAt(start) === ' ') {
             start += 1;
         }
         // And find the end of the header
-        end = allHeaders.indexOf( '\n', start );
-        if ( end < 0 ) {
+        end = allHeaders.indexOf('\n', start);
+        if (end < 0) {
             end = allHeaders.length;
         }
         // Trim any trailing white space
-        while ( end > start && /\s/.test( allHeaders.charAt( end - 1 ) ) ) {
+        while (end > start && /\s/.test(allHeaders.charAt(end - 1))) {
             end -= 1;
         }
         // Add to the headers object
-        headers[ name ] = allHeaders.slice( start, end );
+        headers[name] = allHeaders.slice(start, end);
         // And start looking for the next header
         start = end + 1;
     }
@@ -55,7 +55,7 @@ class XHR {
         Parameters:
             io - {O.Object} (optional).
     */
-    constructor ( io ) {
+    constructor(io) {
         this._isRunning = false;
         this._status = 0;
         this.io = io || null;
@@ -63,7 +63,7 @@ class XHR {
     }
 }
 
-Object.assign( XHR.prototype, {
+Object.assign(XHR.prototype, {
     /**
         Property: O.XHR#io
         Type: (O.Object|null)
@@ -78,7 +78,7 @@ Object.assign( XHR.prototype, {
         Is a request in progress?
     */
 
-    destroy () {
+    destroy() {
         this.abort();
     },
 
@@ -90,7 +90,7 @@ Object.assign( XHR.prototype, {
         Returns:
             {Boolean} Is there a request still in progress?
     */
-    isRunning () {
+    isRunning() {
         return !!this._isRunning;
     },
 
@@ -106,10 +106,10 @@ Object.assign( XHR.prototype, {
         Returns:
             {String} The text of the header or the empty string if not found.
     */
-    getHeader ( name ) {
+    getHeader(name) {
         try {
-            return this.xhr.getResponseHeader( name ) || '';
-        } catch ( error ) {
+            return this.xhr.getResponseHeader(name) || '';
+        } catch (error) {
             return '';
         }
     },
@@ -123,10 +123,10 @@ Object.assign( XHR.prototype, {
             {String|ArrayBuffer|Blob|Document|Object|null} The response.
             (The type is determined by the responseType parameter to #send.)
     */
-    getResponse () {
+    getResponse() {
         try {
             return this.xhr.response;
-        } catch ( error ) {
+        } catch (error) {
             return null;
         }
     },
@@ -140,7 +140,7 @@ Object.assign( XHR.prototype, {
         Returns:
             {Number} The HTTP status code
     */
-    getStatus () {
+    getStatus() {
         return this._status;
     },
 
@@ -171,21 +171,21 @@ Object.assign( XHR.prototype, {
         Returns:
             {O.XHR} Returns self.
     */
-    send ( method, url, data, headers, withCredentials, responseType ) {
-        if ( this._isRunning ) {
+    send(method, url, data, headers, withCredentials, responseType) {
+        if (this._isRunning) {
             this.abort();
         }
         this._isRunning = true;
 
-        const xhr = this.xhr = new XMLHttpRequest();
+        const xhr = (this.xhr = new XMLHttpRequest());
         const io = this.io;
         const that = this;
 
-        if ( io ) {
-            io.fire( 'io:begin' );
+        if (io) {
+            io.fire('io:begin');
         }
 
-        xhr.open( method, url, true );
+        xhr.open(method, url, true);
         xhr.withCredentials = !!withCredentials;
         responseType = responseType || '';
         xhr.responseType = responseType;
@@ -193,35 +193,35 @@ Object.assign( XHR.prototype, {
         // xhr.responseType becomes an empty string, and we will need to
         // simulate it ourselves later. (We don’t support IE≤9 which don’t do
         // responseType at all. We assume all the other values will work fine.)
-        this._actualResponseType = xhr.responseType !== responseType ?
-            responseType : '';
-        for ( const name in headers || {} ) {
+        this._actualResponseType =
+            xhr.responseType !== responseType ? responseType : '';
+        for (const name in headers || {}) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
-            if ( name !== 'Content-type' || !( data instanceof FormData ) ) {
-                xhr.setRequestHeader( name, headers[ name ] );
+            if (name !== 'Content-type' || !(data instanceof FormData)) {
+                xhr.setRequestHeader(name, headers[name]);
             }
         }
         xhr.onreadystatechange = function () {
-            that._xhrStateDidChange( this );
+            that._xhrStateDidChange(this);
         };
 
-        if ( xhr.upload ) {
+        if (xhr.upload) {
             // FF will force a preflight on simple cross-origin requests if
             // there is an upload handler set. This follows the spec, but the
             // spec is clearly wrong here and Blink/Webkit do not follow it.
             // See https://bugzilla.mozilla.org/show_bug.cgi?id=727412
             // Workaround by not bothering registering an upload progress
             // handler for GET requests, as it's not needed in this case anyway.
-            if ( method !== 'GET' ) {
-                xhr.upload.addEventListener( 'progress', this, false );
+            if (method !== 'GET') {
+                xhr.upload.addEventListener('progress', this, false);
             }
-            xhr.addEventListener( 'progress', this, false );
+            xhr.addEventListener('progress', this, false);
         }
 
         try {
-            xhr.send( data );
-        } catch ( error ) {
+            xhr.send(data);
+        } catch (error) {
             // Some browsers can throw a NetworkError under certain conditions
             // for example if this is a synchronous request and there's no
             // network. Treat as an abort.
@@ -240,40 +240,39 @@ Object.assign( XHR.prototype, {
         Parameters:
             xhr - {XMLHttpRequest} The object whose state has changed.
     */
-    _xhrStateDidChange: function ( xhr ) {
+    _xhrStateDidChange: function (xhr) {
         const state = xhr.readyState;
         const io = this.io;
 
-        if ( state < 3 || !this._isRunning ) {
+        if (state < 3 || !this._isRunning) {
             return;
         }
 
-        if ( state === 3 ) {
-            if ( io ) {
-                io.set( 'uploadProgress', 100 )
-                  .fire( 'io:loading' );
+        if (state === 3) {
+            if (io) {
+                io.set('uploadProgress', 100).fire('io:loading');
             }
             return;
         }
 
         this._isRunning = false;
         xhr.onreadystatechange = function () {};
-        if ( xhr.upload ) {
-            xhr.upload.removeEventListener( 'progress', this, false );
-            xhr.removeEventListener( 'progress', this, false );
+        if (xhr.upload) {
+            xhr.upload.removeEventListener('progress', this, false);
+            xhr.removeEventListener('progress', this, false);
         }
 
         const status = xhr.status;
         this._status = status;
 
-        if ( io ) {
+        if (io) {
             const allHeaders = xhr.getAllResponseHeaders();
-            const responseHeaders = parseHeaders( allHeaders );
+            const responseHeaders = parseHeaders(allHeaders);
             let response = this.getResponse();
-            if ( this._actualResponseType === 'json' ) {
+            if (this._actualResponseType === 'json') {
                 try {
-                    response = JSON.parse( response );
-                } catch ( error ) {
+                    response = JSON.parse(response);
+                } catch (error) {
                     response = null;
                 }
             }
@@ -281,33 +280,34 @@ Object.assign( XHR.prototype, {
             // real connection there must have been at least one header, so
             // check that's not empty. Except for cross-domain requests no
             // headers may be returned, so also check for a body
-            const isSuccess = ( status >= 200 && status < 300 ) &&
-                ( !!allHeaders || !!response );
-            io.set( 'uploadProgress', 100 )
-              .set( 'progress', 100 )
-              .set( 'status', status )
-              .set( 'responseHeaders', responseHeaders )
-              .set( 'response', response )
-              .fire( isSuccess ? 'io:success' : 'io:failure', {
-                status,
-                headers: responseHeaders,
-                data: response,
-              })
-              .fire( 'io:end' );
+            const isSuccess =
+                status >= 200 && status < 300 && (!!allHeaders || !!response);
+            io.set('uploadProgress', 100)
+                .set('progress', 100)
+                .set('status', status)
+                .set('responseHeaders', responseHeaders)
+                .set('response', response)
+                .fire(isSuccess ? 'io:success' : 'io:failure', {
+                    status,
+                    headers: responseHeaders,
+                    data: response,
+                })
+                .fire('io:end');
         }
     }.invokeInRunLoop(),
 
-    handleEvent: function ( event ) {
+    handleEvent: function (event) {
         const io = this.io;
-        if ( io && event.type === 'progress' ) {
-            const type = event.target === this.xhr ? 'progress' :
-                                                     'uploadProgress';
+        if (io && event.type === 'progress') {
+            const type =
+                event.target === this.xhr ? 'progress' : 'uploadProgress';
             // CORE-47058. Limit to 99% on progress events, as Opera can report
             // event.loaded > event.total! Will be set to 100 in onSuccess
             // handler.
-            io.set( type, Math.min( 99,
-                    ~~( ( event.loaded / event.total ) * 100 ) ) )
-              .fire( 'io:' + type, event );
+            io.set(
+                type,
+                Math.min(99, ~~((event.loaded / event.total) * 100)),
+            ).fire('io:' + type, event);
         }
     }.invokeInRunLoop(),
 
@@ -321,20 +321,19 @@ Object.assign( XHR.prototype, {
         Returns:
             {O.XHR} Returns self.
     */
-    abort () {
-        if ( this._isRunning ) {
+    abort() {
+        if (this._isRunning) {
             this._isRunning = false;
             const xhr = this.xhr;
             const io = this.io;
             xhr.abort();
             xhr.onreadystatechange = function () {};
-            if ( xhr.upload ) {
-                xhr.upload.removeEventListener( 'progress', this, false );
-                xhr.removeEventListener( 'progress', this, false );
+            if (xhr.upload) {
+                xhr.upload.removeEventListener('progress', this, false);
+                xhr.removeEventListener('progress', this, false);
             }
-            if ( io ) {
-                io.fire( 'io:abort' )
-                  .fire( 'io:end' );
+            if (io) {
+                io.fire('io:abort').fire('io:end');
             }
         }
         return this;

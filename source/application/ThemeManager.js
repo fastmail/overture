@@ -15,7 +15,6 @@ import { loc } from '../localisation/i18n';
     hotswapped if themes are changed.
 */
 const ThemeManager = Class({
-
     Extends: Obj,
 
     init: function (/* ...mixins */) {
@@ -25,7 +24,7 @@ const ThemeManager = Class({
 
         this.theme = '';
 
-        ThemeManager.parent.constructor.apply( this, arguments );
+        ThemeManager.parent.constructor.apply(this, arguments);
     },
 
     /**
@@ -45,12 +44,12 @@ const ThemeManager = Class({
             oldTheme - {String} The name of the theme being deactivated.
             newTheme - {String} The name of the newly active theme.
     */
-    changeTheme ( oldTheme, newTheme ) {
+    changeTheme(oldTheme, newTheme) {
         const active = this._activeStylesheets;
-        for ( const id in active ) {
-            if ( active[ id ] ) {
-                this.addStylesheet( id, newTheme );
-                this.removeStylesheet( id, oldTheme );
+        for (const id in active) {
+            if (active[id]) {
+                this.addStylesheet(id, newTheme);
+                this.removeStylesheet(id, oldTheme);
             }
         }
     },
@@ -67,10 +66,9 @@ const ThemeManager = Class({
             id    - {String} An id for the image.
             data  - {String} The base64 encoded data for the image.
     */
-    imageDidLoad ( theme, id, data ) {
-        const themeImages = this._images[ theme ] ||
-            ( this._images[ theme ] = {} );
-        themeImages[ id ] = data;
+    imageDidLoad(theme, id, data) {
+        const themeImages = this._images[theme] || (this._images[theme] = {});
+        themeImages[id] = data;
         return this;
     },
 
@@ -86,10 +84,9 @@ const ThemeManager = Class({
             id    - {String} An id for the image.
             data  - {String} The base64 encoded data for the image.
     */
-    stylesheetDidLoad ( theme, id, data ) {
-        const themeStyles = this._styles[ theme ] ||
-            ( this._styles[ theme ] = {} );
-        themeStyles[ id ] = data;
+    stylesheetDidLoad(theme, id, data) {
+        const themeStyles = this._styles[theme] || (this._styles[theme] = {});
+        themeStyles[id] = data;
         return this;
     },
 
@@ -107,47 +104,48 @@ const ThemeManager = Class({
         Returns:
             {O.ThemeManager} Returns self.
     */
-    addStylesheet ( id, theme ) {
-        if ( !theme ) {
-            theme = this.get( 'theme' );
+    addStylesheet(id, theme) {
+        if (!theme) {
+            theme = this.get('theme');
         }
 
-        const styles = this._styles[ theme ] || {};
-        const images = this._images[ theme ] || {};
+        const styles = this._styles[theme] || {};
+        const images = this._images[theme] || {};
         const themeIndependentImages = this._images.all;
-        let data = styles[ id ] || this._styles.all[ id ] || '';
+        let data = styles[id] || this._styles.all[id] || '';
         const active = this._activeStylesheets;
 
-        if ( data ) {
+        if (data) {
             // Substitute in images.
-            data = data.replace( /url\("?([^)"]+)"?\)/g, ( url, src ) => {
-                const colon = src.indexOf( ':' );
+            data = data.replace(/url\("?([^)"]+)"?\)/g, (url, src) => {
+                const colon = src.indexOf(':');
                 let currentColor = '';
-                if ( colon > -1 && src.slice( colon - 4, colon ) === '.svg' ) {
-                    currentColor = src.slice( colon + 1 );
-                    src = src.slice( 0, colon );
+                if (colon > -1 && src.slice(colon - 4, colon) === '.svg') {
+                    currentColor = src.slice(colon + 1);
+                    src = src.slice(0, colon);
                 }
 
                 let imageData =
-                        images[ src ] ||
-                        themeIndependentImages[ src ] ||
-                        loc( src );
-                if ( imageData && /\.svg$/.test( src ) ) {
-                    if ( currentColor ) {
-                        imageData =
-                            imageData.replace( /currentColor/g, currentColor );
+                    images[src] || themeIndependentImages[src] || loc(src);
+                if (imageData && /\.svg$/.test(src)) {
+                    if (currentColor) {
+                        imageData = imageData.replace(
+                            /currentColor/g,
+                            currentColor,
+                        );
                     }
-                    imageData = 'data:image/svg+xml;charset=UTF-8,' +
-                        encodeURIComponent( imageData );
+                    imageData =
+                        'data:image/svg+xml;charset=UTF-8,' +
+                        encodeURIComponent(imageData);
                 }
-                return 'url(' + ( imageData || src ) + ')';
+                return 'url(' + (imageData || src) + ')';
             });
         }
 
         // Even if no data, create the stylesheet as we'll probably change it
         // for a different theme that's currently loading.
-        createStylesheet( theme + '-' + id, data );
-        active[ id ] = ( active[ id ] || 0 ) + 1;
+        createStylesheet(theme + '-' + id, data);
+        active[id] = (active[id] || 0) + 1;
 
         return this;
     },
@@ -163,15 +161,15 @@ const ThemeManager = Class({
         Returns:
             {O.ThemeManager} Returns self.
     */
-    removeStylesheet ( id, theme ) {
-        if ( !theme ) {
-            theme = this.get( 'theme' );
+    removeStylesheet(id, theme) {
+        if (!theme) {
+            theme = this.get('theme');
         }
 
-        const sheet = document.getElementById( theme + '-' + id );
-        if ( sheet ) {
-            sheet.parentNode.removeChild( sheet );
-            this._activeStylesheets[ id ] -= 1;
+        const sheet = document.getElementById(theme + '-' + id);
+        if (sheet) {
+            sheet.parentNode.removeChild(sheet);
+            this._activeStylesheets[id] -= 1;
         }
 
         return this;
@@ -189,11 +187,11 @@ const ThemeManager = Class({
             {(String|null)} A data URI for the requested image if the data is
             available, otherwise null.
     */
-    getImageSrc ( id ) {
+    getImageSrc(id) {
         const _images = this._images;
-        const themeImages = _images[ this.get( 'theme' ) ] || {};
+        const themeImages = _images[this.get('theme')] || {};
         const themeIndependentImages = _images.all;
-        return themeImages[ id ] || themeIndependentImages[ id ] || null;
+        return themeImages[id] || themeIndependentImages[id] || null;
     },
 });
 

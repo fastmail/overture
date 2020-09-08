@@ -1,9 +1,9 @@
 import { isDestroyed, Class } from '../core/Core';
-import '../core/String';  // For String#capitalise
+import '../core/String'; // For String#capitalise
 import Obj from '../foundation/Object';
 import * as RunLoop from '../foundation/RunLoop';
-import '../foundation/ObservableProps';  // For Function#observes
-import '../foundation/ComputedProps';  // For Function#property
+import '../foundation/ObservableProps'; // For Function#observes
+import '../foundation/ComputedProps'; // For Function#property
 import { setView } from '../_codependent/_View';
 import {
     create as el,
@@ -165,14 +165,13 @@ const POSITION_CONTAINED_BY = 0x10;
     state of the view.
 */
 
-const renderView = function ( view ) {
-    return view.render().get( 'layer' );
+const renderView = function (view) {
+    return view.render().get('layer');
 };
 
 let isRedrawingLayer = false;
 
 const View = Class({
-
     Extends: Obj,
 
     /**
@@ -208,52 +207,52 @@ const View = Class({
         this.isRendered = false;
         this.isInDocument = false;
 
-        View.parent.constructor.apply( this, arguments );
+        View.parent.constructor.apply(this, arguments);
 
-        if ( ( this._autoID = !this.get( 'id' ) ) ) {
-            this.set( 'id', 'v' + UID++ );
+        if ((this._autoID = !this.get('id'))) {
+            this.set('id', 'v' + UID++);
         }
 
-        const children = this.get( 'childViews' ) || ( this.childViews = [] );
+        const children = this.get('childViews') || (this.childViews = []);
         let l = children.length;
-        while ( l-- ) {
-            children[l].set( 'parentView', this );
+        while (l--) {
+            children[l].set('parentView', this);
         }
-        if ( this.get( 'syncOnlyInDocument' ) ) {
+        if (this.get('syncOnlyInDocument')) {
             this.suspendBindings();
         }
     },
 
-    destroy () {
-        if ( this.get( 'isInDocument' ) ) {
-            throw new Error( 'Cannot destroy a view in the document' );
+    destroy() {
+        if (this.get('isInDocument')) {
+            throw new Error('Cannot destroy a view in the document');
         }
 
-        const children = this.get( 'childViews' );
+        const children = this.get('childViews');
         let l = children.length;
-        while ( l-- ) {
+        while (l--) {
             children[l].destroy();
         }
-        if ( this.get( 'isRendered' ) ) {
-            this.willDestroyLayer( this.get( 'layer' ) );
+        if (this.get('isRendered')) {
+            this.willDestroyLayer(this.get('layer'));
         }
-        View.parent.destroy.call( this );
+        View.parent.destroy.call(this);
     },
 
-    suspend () {
-        if ( !this._suspendRedraw ) {
+    suspend() {
+        if (!this._suspendRedraw) {
             this.suspendBindings();
             this._suspendRedraw = true;
         }
         return this;
     },
 
-    resume () {
-        if ( this._suspendRedraw ) {
+    resume() {
+        if (this._suspendRedraw) {
             this._suspendRedraw = false;
             this.resumeBindings();
-            if ( this._needsRedraw && this.get( 'isInDocument' ) ) {
-                RunLoop.queueFn( 'render', this.redraw, this );
+            if (this._needsRedraw && this.get('isInDocument')) {
+                RunLoop.queueFn('render', this.redraw, this);
             }
         }
         return this;
@@ -333,14 +332,14 @@ const View = Class({
         The underlying DOM node for this layer.
     */
     layer: function () {
-        const layer = el( this.get( 'layerTag' ), {
-            id: this.get( 'id' ),
-            className: this.get( 'className' ),
+        const layer = el(this.get('layerTag'), {
+            id: this.get('id'),
+            className: this.get('className'),
             // (`|| undefined` to omit the attribute rather than leaving empty.)
-            style: Object.toCSSString( this.get( 'layerStyles' ) ) || undefined,
+            style: Object.toCSSString(this.get('layerStyles')) || undefined,
         });
-        this.didCreateLayer( layer );
-        this.redrawAriaAttributes( layer );
+        this.didCreateLayer(layer);
+        this.redrawAriaAttributes(layer);
         return layer;
     }.property(),
 
@@ -352,7 +351,7 @@ const View = Class({
         Parameters:
             layer - {Element} The DOM node.
     */
-    didCreateLayer (/* layer */) {},
+    didCreateLayer(/* layer */) {},
 
     /**
         Method: O.View#willDestroyLayer
@@ -362,8 +361,8 @@ const View = Class({
         Parameters:
             layer - {Element} The DOM node.
     */
-    willDestroyLayer (/* layer */) {
-        this.set( 'isRendered', false );
+    willDestroyLayer(/* layer */) {
+        this.set('isRendered', false);
     },
 
     /**
@@ -374,19 +373,19 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    willEnterDocument () {
-        if ( this.get( 'syncOnlyInDocument' ) ) {
+    willEnterDocument() {
+        if (this.get('syncOnlyInDocument')) {
             this.resume();
         }
 
-        if ( this._needsRedraw ) {
+        if (this._needsRedraw) {
             this.redraw();
         }
 
         // Must iterate forward and not cache childViews or length.
         // Switch views may append extra child views when they are rendered.
-        const childViews = this.get( 'childViews' );
-        for ( let i = 0; i < childViews.length; i += 1 ) {
+        const childViews = this.get('childViews');
+        for (let i = 0; i < childViews.length; i += 1) {
             childViews[i].willEnterDocument();
         }
 
@@ -401,26 +400,26 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    didEnterDocument () {
+    didEnterDocument() {
         // If change was made since willEnterDocument, will not be
         // flushed, so add redraw to render queue.
-        if ( this._needsRedraw ) {
-            RunLoop.queueFn( 'render', this.redraw, this );
+        if (this._needsRedraw) {
+            RunLoop.queueFn('render', this.redraw, this);
         }
-        this.set( 'isInDocument', true );
+        this.set('isInDocument', true);
 
-        const id = this.get( 'id' );
-        if ( this._autoID ) {
+        const id = this.get('id');
+        if (this._autoID) {
             // Automatically-generated ID: bypass `set` for performance.
-            activeViews[ id ] = this;
+            activeViews[id] = this;
         } else {
-            activeViews.set( id, this );
+            activeViews.set(id, this);
         }
 
-        this.computedPropertyDidChange( 'pxLayout' );
+        this.computedPropertyDidChange('pxLayout');
 
-        const childViews = this.get( 'childViews' );
-        for ( let i = 0; i < childViews.length; i += 1 ) {
+        const childViews = this.get('childViews');
+        for (let i = 0; i < childViews.length; i += 1) {
             childViews[i].didEnterDocument();
         }
 
@@ -435,20 +434,20 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    willLeaveDocument () {
-        this.set( 'isInDocument', false );
+    willLeaveDocument() {
+        this.set('isInDocument', false);
 
-        const id = this.get( 'id' );
-        if ( this._autoID ) {
+        const id = this.get('id');
+        if (this._autoID) {
             // Automatically-generated ID: bypass `set` for performance.
-            delete activeViews[ id ];
+            delete activeViews[id];
         } else {
-            activeViews.set( id, null );
+            activeViews.set(id, null);
         }
 
-        const children = this.get( 'childViews' );
+        const children = this.get('childViews');
         let l = children.length;
-        while ( l-- ) {
+        while (l--) {
             children[l].willLeaveDocument();
         }
 
@@ -463,13 +462,13 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    didLeaveDocument () {
-        const children = this.get( 'childViews' );
+    didLeaveDocument() {
+        const children = this.get('childViews');
         let l = children.length;
-        while ( l-- ) {
+        while (l--) {
             children[l].didLeaveDocument();
         }
-        if ( this.get( 'syncOnlyInDocument' ) ) {
+        if (this.get('syncOnlyInDocument')) {
             this.suspend();
         }
         return this;
@@ -485,8 +484,8 @@ const View = Class({
         parent view of this view.
     */
     nextEventTarget: function () {
-        return this.get( 'parentView' );
-    }.property( 'parentView' ),
+        return this.get('parentView');
+    }.property('parentView'),
 
     /**
         Method: O.View#handleEvent
@@ -505,8 +504,8 @@ const View = Class({
         Parameters:
             event - {Event} The DOM event object.
     */
-    handleEvent ( event ) {
-        ViewEventsController.handleEvent( event );
+    handleEvent(event) {
+        ViewEventsController.handleEvent(event);
     },
 
     // --- Behaviour ---
@@ -555,10 +554,13 @@ const View = Class({
         properties change.
     */
     layerStyles: function () {
-        return Object.assign({
-            position: this.get( 'positioning' ),
-        }, this.get( 'layout' ) );
-    }.property( 'layout', 'positioning' ),
+        return Object.assign(
+            {
+                position: this.get('positioning'),
+            },
+            this.get('layout'),
+        );
+    }.property('layout', 'positioning'),
 
     /**
         Method: O.View#render
@@ -569,21 +571,21 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    render () {
-        if ( !this.get( 'isRendered' ) ) {
+    render() {
+        if (!this.get('isRendered')) {
             // render() called just before inserting in doc, so should
             // resume bindings early to ensure initial render is correct.
-            if ( this.get( 'syncOnlyInDocument' ) ) {
+            if (this.get('syncOnlyInDocument')) {
                 this.resumeBindings();
             }
-            this.set( 'isRendered', true );
-            const prevView = forView( this );
-            const layer = this.get( 'layer' );
-            const children = this.draw( layer );
-            if ( children ) {
-                appendChildren( layer, children );
+            this.set('isRendered', true);
+            const prevView = forView(this);
+            const layer = this.get('layer');
+            const children = this.draw(layer);
+            if (children) {
+                appendChildren(layer, children);
             }
-            forView( prevView );
+            forView(prevView);
         }
         return this;
     },
@@ -598,8 +600,8 @@ const View = Class({
         Parameters:
             layer   - {Element} The root DOM node of the view.
     */
-    draw (/* layer */) {
-        return this.get( 'childViews' ).map( renderView );
+    draw(/* layer */) {
+        return this.get('childViews').map(renderView);
     },
 
     /**
@@ -625,25 +627,22 @@ const View = Class({
             layerProperty - {String} The name of the property needing a redraw
             oldProp       - {*} The previous value of the property
     */
-    propertyNeedsRedraw: function ( _, layerProperty, oldProp ) {
-        if ( this.get( 'isRendered' ) ) {
-            const needsRedraw = this._needsRedraw || ( this._needsRedraw = [] );
+    propertyNeedsRedraw: function (_, layerProperty, oldProp) {
+        if (this.get('isRendered')) {
+            const needsRedraw = this._needsRedraw || (this._needsRedraw = []);
             let i, l;
-            for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
-                if ( needsRedraw[i][0] === layerProperty ) {
+            for (i = 0, l = needsRedraw.length; i < l; i += 1) {
+                if (needsRedraw[i][0] === layerProperty) {
                     return this;
                 }
             }
-            needsRedraw[l] = [
-                layerProperty,
-                oldProp,
-            ];
-            if ( !this._suspendRedraw && this.get( 'isInDocument' ) ) {
-                RunLoop.queueFn( 'render', this.redraw, this );
+            needsRedraw[l] = [layerProperty, oldProp];
+            if (!this._suspendRedraw && this.get('isInDocument')) {
+                RunLoop.queueFn('render', this.redraw, this);
             }
         }
         return this;
-    }.observes( 'className', 'layerStyles', 'ariaAttributes' ),
+    }.observes('className', 'layerStyles', 'ariaAttributes'),
 
     /**
         Method: O.View#redraw
@@ -656,18 +655,20 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    redraw () {
+    redraw() {
         const needsRedraw = this._needsRedraw;
         let layer, i, l, prop;
-        if ( needsRedraw &&
-                !this._suspendRedraw &&
-                !isDestroyed( this ) &&
-                this.get( 'isRendered' ) ) {
-            layer = this.get( 'layer' );
+        if (
+            needsRedraw &&
+            !this._suspendRedraw &&
+            !isDestroyed(this) &&
+            this.get('isRendered')
+        ) {
+            layer = this.get('layer');
             this._needsRedraw = null;
-            for ( i = 0, l = needsRedraw.length; i < l; i += 1 ) {
+            for (i = 0, l = needsRedraw.length; i < l; i += 1) {
                 prop = needsRedraw[i];
-                this[ 'redraw' + prop[0].capitalise() ]( layer, prop[1] );
+                this['redraw' + prop[0].capitalise()](layer, prop[1]);
             }
         }
         return this;
@@ -684,33 +685,33 @@ const View = Class({
         Parameters:
             layer - {Element} The view's layer.
     */
-    redrawLayer ( layer ) {
-        const prevView = forView( this );
-        let childViews = this.get( 'childViews' );
+    redrawLayer(layer) {
+        const prevView = forView(this);
+        let childViews = this.get('childViews');
         let l = childViews.length;
         let node, view;
 
-        while ( l-- ) {
+        while (l--) {
             view = childViews[l];
-            this.removeView( view );
+            this.removeView(view);
             view.destroy();
         }
-        while (( node = layer.lastChild )) {
-            layer.removeChild( node );
+        while ((node = layer.lastChild)) {
+            layer.removeChild(node);
         }
 
         isRedrawingLayer = true;
-        appendChildren( layer, this.draw( layer ) );
+        appendChildren(layer, this.draw(layer));
         isRedrawingLayer = false;
 
-        if ( this.get( 'isInDocument' ) ) {
-            childViews = this.get( 'childViews' );
-            for ( let i = 0; i < childViews.length; i += 1 ) {
+        if (this.get('isInDocument')) {
+            childViews = this.get('childViews');
+            for (let i = 0; i < childViews.length; i += 1) {
                 childViews[i].didEnterDocument();
             }
         }
 
-        forView( prevView );
+        forView(prevView);
     },
 
     /**
@@ -722,9 +723,9 @@ const View = Class({
         Parameters:
             layer - {Element} The view's layer.
     */
-    redrawClassName ( layer ) {
-        const className = this.get( 'className' );
-        if ( className !== undefined ) {
+    redrawClassName(layer) {
+        const className = this.get('className');
+        if (className !== undefined) {
             layer.className = className;
         }
     },
@@ -738,9 +739,9 @@ const View = Class({
         Parameters:
             layer - {Element} The view's layer.
     */
-    redrawLayerStyles ( layer ) {
-        layer.style.cssText = Object.toCSSString( this.get( 'layerStyles' ) );
-        if ( this.get( 'isInDocument' ) ) {
+    redrawLayerStyles(layer) {
+        layer.style.cssText = Object.toCSSString(this.get('layerStyles'));
+        if (this.get('isInDocument')) {
             this.didResize();
         }
     },
@@ -756,24 +757,24 @@ const View = Class({
             layer - {Element} The view's layer.
             oldAriaAttributes - {undefined|null|Object} The previous value.
     */
-    redrawAriaAttributes ( layer, oldAriaAttributes ) {
-        const ariaAttributes = this.get( 'ariaAttributes' );
+    redrawAriaAttributes(layer, oldAriaAttributes) {
+        const ariaAttributes = this.get('ariaAttributes');
         // Step one: remove any now-excluded ARIA attributes from the layer.
-        for ( let attribute in oldAriaAttributes ) {
-            if ( !ariaAttributes || !( attribute in ariaAttributes ) ) {
-                if ( attribute !== 'role' ) {
+        for (let attribute in oldAriaAttributes) {
+            if (!ariaAttributes || !(attribute in ariaAttributes)) {
+                if (attribute !== 'role') {
                     attribute = 'aria-' + attribute;
                 }
-                layer.removeAttribute( attribute );
+                layer.removeAttribute(attribute);
             }
         }
         // Step two: now set (adding or replacing) the attributes we want.
-        for ( let attribute in ariaAttributes ) {
-            const value = ariaAttributes[ attribute ];
-            if ( attribute !== 'role' ) {
+        for (let attribute in ariaAttributes) {
+            const value = ariaAttributes[attribute];
+            if (attribute !== 'role') {
                 attribute = 'aria-' + attribute;
             }
-            layer.setAttribute( attribute, value );
+            layer.setAttribute(attribute, value);
         }
     },
 
@@ -786,10 +787,10 @@ const View = Class({
         override this method, you should normally observe the <O.View#pxLayout>
         property if you're interested in changes to the view size.
     */
-    parentViewDidResize () {
+    parentViewDidResize() {
         // px dimensions only have a defined value when part of the document,
         // so if we're not visible, let's just ignore the change.
-        if ( this.get( 'isInDocument' ) ) {
+        if (this.get('isInDocument')) {
             this.didResize();
         }
     },
@@ -800,11 +801,11 @@ const View = Class({
         Called when the view may have resized. This will invalidate the pxLayout
         properties and inform child views.
     */
-    didResize () {
-        this.computedPropertyDidChange( 'pxLayout' );
-        const children = this.get( 'childViews' );
+    didResize() {
+        this.computedPropertyDidChange('pxLayout');
+        const children = this.get('childViews');
         let l = children.length;
-        while ( l-- ) {
+        while (l--) {
             children[l].parentViewDidResize();
         }
     },
@@ -838,11 +839,11 @@ const View = Class({
         - height: The height of the view in pixels.
     */
     pxLayout: function () {
-        return  {
-            top: this.get( 'pxTop' ),
-            left: this.get( 'pxLeft' ),
-            width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' ),
+        return {
+            top: this.get('pxTop'),
+            left: this.get('pxLeft'),
+            width: this.get('pxWidth'),
+            height: this.get('pxHeight'),
         };
     }.property(),
 
@@ -854,22 +855,22 @@ const View = Class({
         the parent view's layer.
     */
     pxTop: function () {
-        if ( !this.get( 'isInDocument' ) ) {
+        if (!this.get('isInDocument')) {
             return 0;
         }
-        const parent = this.get( 'parentView' ).get( 'layer' );
+        const parent = this.get('parentView').get('layer');
         const parentOffsetParent = parent.offsetParent;
-        let layer = this.get( 'layer' );
+        let layer = this.get('layer');
         let offset = 0;
         do {
-            if ( layer === parentOffsetParent ) {
+            if (layer === parentOffsetParent) {
                 offset -= parent.offsetTop;
                 break;
             }
             offset += layer.offsetTop;
-        } while ( ( layer = layer.offsetParent ) && ( layer !== parent ) );
+        } while ((layer = layer.offsetParent) && layer !== parent);
         return offset;
-    }.property( 'pxLayout' ),
+    }.property('pxLayout'),
 
     /**
         Property: O.View#pxLeft
@@ -879,22 +880,22 @@ const View = Class({
         of the parent view's layer.
     */
     pxLeft: function () {
-        if ( !this.get( 'isInDocument' ) ) {
+        if (!this.get('isInDocument')) {
             return 0;
         }
-        const parent = this.get( 'parentView' ).get( 'layer' );
+        const parent = this.get('parentView').get('layer');
         const parentOffsetParent = parent.offsetParent;
-        let layer = this.get( 'layer' );
+        let layer = this.get('layer');
         let offset = 0;
         do {
-            if ( layer === parentOffsetParent ) {
+            if (layer === parentOffsetParent) {
                 offset -= parent.offsetLeft;
                 break;
             }
             offset += layer.offsetLeft;
-        } while ( ( layer = layer.offsetParent ) && ( layer !== parent ) );
+        } while ((layer = layer.offsetParent) && layer !== parent);
         return offset;
-    }.property( 'pxLayout' ),
+    }.property('pxLayout'),
 
     /**
         Property: O.View#pxWidth
@@ -903,9 +904,8 @@ const View = Class({
         The width of the view's layer in pixels.
     */
     pxWidth: function () {
-        return this.get( 'isInDocument' ) ?
-            this.get( 'layer' ).offsetWidth : 0;
-    }.property( 'pxLayout' ),
+        return this.get('isInDocument') ? this.get('layer').offsetWidth : 0;
+    }.property('pxLayout'),
 
     /**
         Property: O.View#pxHeight
@@ -914,9 +914,8 @@ const View = Class({
         The height of the view's layer in pixels.
     */
     pxHeight: function () {
-        return this.get( 'isInDocument' ) ?
-            this.get( 'layer' ).offsetHeight : 0;
-    }.property( 'pxLayout' ),
+        return this.get('isInDocument') ? this.get('layer').offsetHeight : 0;
+    }.property('pxLayout'),
 
     /**
         Property: O.View#visibleRect
@@ -932,12 +931,12 @@ const View = Class({
     */
     visibleRect: function () {
         return {
-            x: this.get( 'scrollLeft' ),
-            y: this.get( 'scrollTop' ),
-            width: this.get( 'pxWidth' ),
-            height: this.get( 'pxHeight' ),
+            x: this.get('scrollLeft'),
+            y: this.get('scrollTop'),
+            width: this.get('pxWidth'),
+            height: this.get('pxHeight'),
         };
-    }.property( 'scrollLeft', 'scrollTop', 'pxLayout' ),
+    }.property('scrollLeft', 'scrollTop', 'pxLayout'),
 
     /**
         Method: O.View#getPositionRelativeTo
@@ -953,20 +952,20 @@ const View = Class({
             number of pixels this view is offset from the given view, and
             'width' and 'height' properties for the dimensions of this view.
     */
-    getPositionRelativeTo ( view ) {
+    getPositionRelativeTo(view) {
         // If it's a scroll view, it may not have synced the current scroll
         // positions yet. Force this.
         // We also need to force a redraw in case the reverse is true:
         // scroll(Top|Left) properties have changed but DOM not yet updated.
-        if ( view.syncBackScroll ) {
+        if (view.syncBackScroll) {
             view.syncBackScroll();
             view.redraw();
         }
         this.redraw();
-        const selfPosition = getPosition( this.get( 'layer' ) );
-        const viewPosition = getPosition( view.get( 'layer' ) );
-        selfPosition.top -= viewPosition.top - view.get( 'scrollTop' );
-        selfPosition.left -= viewPosition.left - view.get( 'scrollLeft' );
+        const selfPosition = getPosition(this.get('layer'));
+        const viewPosition = getPosition(view.get('layer'));
+        selfPosition.top -= viewPosition.top - view.get('scrollTop');
+        selfPosition.left -= viewPosition.left - view.get('scrollLeft');
         return selfPosition;
     },
 
@@ -992,67 +991,75 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    insertView ( view, relativeTo, where ) {
-        const oldParent = view.get( 'parentView' );
-        const childViews = this.get( 'childViews' );
+    insertView(view, relativeTo, where) {
+        const oldParent = view.get('parentView');
+        const childViews = this.get('childViews');
         let index, isInDocument, layer, parent, before;
 
-        if ( oldParent === this ) {
+        if (oldParent === this) {
             return this;
         }
 
-        if ( !relativeTo && ( where === 'before' || where === 'after' ) ) {
-            this.get( 'parentView' ).insertView( view, this, where );
+        if (!relativeTo && (where === 'before' || where === 'after')) {
+            this.get('parentView').insertView(view, this, where);
             return this;
         }
 
-        if ( oldParent ) {
-            oldParent.removeView( view );
+        if (oldParent) {
+            oldParent.removeView(view);
         }
-        view.set( 'parentView', this );
+        view.set('parentView', this);
 
-        if ( relativeTo instanceof View ) {
-            index = childViews.indexOf( relativeTo );
-            index = ( index > -1 ) ?
-                where === 'before' ?
-                    index :
-                    index + 1 :
-                childViews.length;
-            childViews.splice( index, 0, view );
-            relativeTo = relativeTo.get( 'layer' );
-        } else if ( where === 'top' ) {
-            childViews.unshift( view );
+        if (relativeTo instanceof View) {
+            index = childViews.indexOf(relativeTo);
+            index =
+                index > -1
+                    ? where === 'before'
+                        ? index
+                        : index + 1
+                    : childViews.length;
+            childViews.splice(index, 0, view);
+            relativeTo = relativeTo.get('layer');
+        } else if (where === 'top') {
+            childViews.unshift(view);
         } else {
-            childViews.push( view );
+            childViews.push(view);
         }
 
-        if ( this.get( 'isRendered' ) ) {
-            if ( !relativeTo ) {
-                relativeTo = this.get( 'layer' );
-                if ( where === 'before' || where === 'after' ) {
+        if (this.get('isRendered')) {
+            if (!relativeTo) {
+                relativeTo = this.get('layer');
+                if (where === 'before' || where === 'after') {
                     where = '';
                 }
             }
-            isInDocument = this.get( 'isInDocument' );
-            parent = ( where === 'before' || where === 'after' ) ?
-                relativeTo.parentNode : relativeTo;
-            before = ( where === 'before' ) ? relativeTo :
-                ( where === 'top' ) ? relativeTo.firstChild :
-                ( where === 'after' ) ? relativeTo.nextSibling : null;
-            layer = view.render().get( 'layer' );
-            if ( isInDocument ) {
+            isInDocument = this.get('isInDocument');
+            parent =
+                where === 'before' || where === 'after'
+                    ? relativeTo.parentNode
+                    : relativeTo;
+            before =
+                where === 'before'
+                    ? relativeTo
+                    : where === 'top'
+                    ? relativeTo.firstChild
+                    : where === 'after'
+                    ? relativeTo.nextSibling
+                    : null;
+            layer = view.render().get('layer');
+            if (isInDocument) {
                 view.willEnterDocument();
             }
-            if ( before ) {
-                parent.insertBefore( layer, before );
+            if (before) {
+                parent.insertBefore(layer, before);
             } else {
-                parent.appendChild( layer );
+                parent.appendChild(layer);
             }
-            if ( isInDocument && !isRedrawingLayer ) {
+            if (isInDocument && !isRedrawingLayer) {
                 view.didEnterDocument();
             }
         }
-        this.propertyDidChange( 'childViews' );
+        this.propertyDidChange('childViews');
         return this;
     },
 
@@ -1072,40 +1079,40 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    replaceView ( view, oldView ) {
-        if ( view === oldView ) {
+    replaceView(view, oldView) {
+        if (view === oldView) {
             return this;
         }
-        const children = this.get( 'childViews' );
-        const i = children.indexOf( oldView );
-        const oldParent = view.get( 'parentView' );
-        if ( i === -1 ) {
+        const children = this.get('childViews');
+        const i = children.indexOf(oldView);
+        const oldParent = view.get('parentView');
+        if (i === -1) {
             return this;
         }
 
-        if ( oldParent ) {
-            oldParent.removeView( view );
+        if (oldParent) {
+            oldParent.removeView(view);
         }
-        view.set( 'parentView', this );
-        children.setObjectAt( i, view );
+        view.set('parentView', this);
+        children.setObjectAt(i, view);
 
-        if ( this.get( 'isRendered' ) ) {
-            const isInDocument = this.get( 'isInDocument' );
-            const oldLayer = oldView.get( 'layer' );
+        if (this.get('isRendered')) {
+            const isInDocument = this.get('isInDocument');
+            const oldLayer = oldView.get('layer');
             view.render();
-            if ( isInDocument ) {
+            if (isInDocument) {
                 oldView.willLeaveDocument();
                 view.willEnterDocument();
             }
-            oldLayer.parentNode.replaceChild( view.get( 'layer' ), oldLayer );
-            if ( isInDocument ) {
+            oldLayer.parentNode.replaceChild(view.get('layer'), oldLayer);
+            if (isInDocument) {
                 view.didEnterDocument();
                 oldView.didLeaveDocument();
             }
         }
 
-        oldView.set( 'parentView', null );
-        this.propertyDidChange( 'childViews' );
+        oldView.set('parentView', null);
+        this.propertyDidChange('childViews');
         return this;
     },
 
@@ -1121,36 +1128,36 @@ const View = Class({
         Returns:
             {O.View} Returns self.
     */
-    removeView ( view ) {
-        const children = this.get( 'childViews' );
-        const i = children.lastIndexOf( view );
+    removeView(view) {
+        const children = this.get('childViews');
+        const i = children.lastIndexOf(view);
         let isInDocument, layer;
 
-        if ( i === -1 ) {
+        if (i === -1) {
             return this;
         }
 
-        if ( this.get( 'isRendered' ) ) {
-            isInDocument = this.get( 'isInDocument' );
-            layer = view.get( 'layer' );
-            if ( isInDocument ) {
+        if (this.get('isRendered')) {
+            isInDocument = this.get('isInDocument');
+            layer = view.get('layer');
+            if (isInDocument) {
                 view.willLeaveDocument();
             }
-            layer.parentNode.removeChild( layer );
-            if ( isInDocument ) {
+            layer.parentNode.removeChild(layer);
+            if (isInDocument) {
                 view.didLeaveDocument();
             }
         }
-        children.splice( i, 1 );
-        view.set( 'parentView', null );
-        this.propertyDidChange( 'childViews' );
+        children.splice(i, 1);
+        view.set('parentView', null);
+        this.propertyDidChange('childViews');
         return this;
     },
 
-    detach () {
-        const parentView = this.get( 'parentView' );
-        if ( parentView ) {
-            parentView.removeView( this );
+    detach() {
+        const parentView = this.get('parentView');
+        if (parentView) {
+            parentView.removeView(this);
         }
         return this;
     },
@@ -1181,8 +1188,8 @@ const View = Class({
         Returns:
             {Number} Relative position.
     */
-    compareViewTreePosition ( b ) {
-        if ( this === b ) {
+    compareViewTreePosition(b) {
+        if (this === b) {
             return POSITION_SAME;
         }
 
@@ -1192,36 +1199,36 @@ const View = Class({
         let parent = a;
         let al, bl, children, l, view;
 
-        while ( ( parent = parent.get( 'parentView' ) ) ) {
-            if ( parent === b ) {
+        while ((parent = parent.get('parentView'))) {
+            if (parent === b) {
                 return POSITION_CONTAINED_BY;
             }
-            aParents.push( parent );
+            aParents.push(parent);
         }
         parent = b;
-        while ( ( parent = parent.get( 'parentView' ) ) ) {
-            if ( parent === a ) {
+        while ((parent = parent.get('parentView'))) {
+            if (parent === a) {
                 return POSITION_CONTAINS;
             }
-            bParents.push( parent );
+            bParents.push(parent);
         }
 
         al = aParents.length;
         bl = bParents.length;
-        while ( al-- && bl-- ) {
-            if ( ( a = aParents[ al ] ) !== ( b = bParents[ bl ] ) ) {
-                parent = aParents[ al + 1 ];
-                if ( !parent ) {
+        while (al-- && bl--) {
+            if ((a = aParents[al]) !== (b = bParents[bl])) {
+                parent = aParents[al + 1];
+                if (!parent) {
                     return POSITION_DISCONNECTED;
                 }
-                children = parent.get( 'childViews' );
+                children = parent.get('childViews');
                 l = children.length;
-                while ( l-- ) {
+                while (l--) {
                     view = children[l];
-                    if ( view === b ) {
+                    if (view === b) {
                         return POSITION_PRECEDING;
                     }
-                    if ( view === a ) {
+                    if (view === a) {
                         return POSITION_FOLLOWING;
                     }
                 }
@@ -1245,11 +1252,11 @@ const View = Class({
             {(O.View|null)} Returns the nearest parent view of the given type or
             null if none of the view's ancestors are of the required type.
     */
-    getParent ( Type ) {
+    getParent(Type) {
         let parent = this;
         do {
-            parent = parent.get( 'parentView' );
-        } while ( parent && !( parent instanceof Type ) );
+            parent = parent.get('parentView');
+        } while (parent && !(parent instanceof Type));
         return parent || null;
     },
 
@@ -1269,11 +1276,11 @@ const View = Class({
             condition function returns true, or null if the condition function
             never returns true.
     */
-    getParentWhere ( condition ) {
+    getParentWhere(condition) {
         let parent = this;
         do {
-            parent = parent.get( 'parentView' );
-        } while ( parent && !condition( parent ) );
+            parent = parent.get('parentView');
+        } while (parent && !condition(parent));
         return parent || null;
     },
 
@@ -1292,13 +1299,13 @@ const View = Class({
             above or null if no tooltip should be displayed.
     */
 
-    getShortcutTarget (/*  key  */) {
+    getShortcutTarget(/*  key  */) {
         return null;
     },
 });
 
 // Removes circular dependency
-setView( View );
+setView(View);
 
 // Expose Globals:
 

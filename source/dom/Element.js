@@ -1,6 +1,6 @@
 /*global Element, document */
 
-import '../core/String';  // For String#camelCase, #contains, #hyphenate
+import '../core/String'; // For String#camelCase, #contains, #hyphenate
 import { browser } from '../ua/UA';
 import { Binding } from '../_codependent/_Binding';
 import * as RunLoop from '../foundation/RunLoop';
@@ -29,10 +29,10 @@ import { View } from '../_codependent/_View';
 */
 const directProperties = {
     // Note: SVGElement#className is an SVGAnimatedString.
-    'class': 'className',
+    class: 'className',
     className: 'className',
     defaultValue: 'defaultValue',
-    'for': 'htmlFor',
+    for: 'htmlFor',
     html: 'innerHTML',
     text: 'textContent',
     unselectable: 'unselectable',
@@ -54,20 +54,83 @@ const directProperties = {
 */
 // I took this list from html.vim; it probably covers SVG 1.1 completely.
 const svgTagNames = new Set([
-    'svg', 'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor',
-    'animateMotion', 'animateTransform', 'circle', 'ellipse', 'rect', 'line',
-    'polyline', 'polygon', 'image', 'path', 'clipPath', 'color-profile',
-    'cursor', 'defs', 'desc', 'g', 'symbol', 'view', 'use', 'switch',
-    'foreignObject', 'filter', 'feBlend', 'feColorMatrix',
-    'feComponentTransfer', 'feComposite', 'feConvolveMatrix',
-    'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feFlood',
-    'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage',
-    'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight',
-    'feSpecularLighting', 'feSpotLight', 'feTile', 'feTurbulence', 'font',
-    'font-face', 'font-face-format', 'font-face-name', 'font-face-src',
-    'font-face-uri', 'glyph', 'glyphRef', 'hkern', 'linearGradient', 'marker',
-    'mask', 'pattern', 'radialGradient', 'set', 'stop', 'missing-glyph',
-    'mpath', 'text', 'textPath', 'tref', 'tspan', 'vkern', 'metadata', 'title',
+    'svg',
+    'altGlyph',
+    'altGlyphDef',
+    'altGlyphItem',
+    'animate',
+    'animateColor',
+    'animateMotion',
+    'animateTransform',
+    'circle',
+    'ellipse',
+    'rect',
+    'line',
+    'polyline',
+    'polygon',
+    'image',
+    'path',
+    'clipPath',
+    'color-profile',
+    'cursor',
+    'defs',
+    'desc',
+    'g',
+    'symbol',
+    'view',
+    'use',
+    'switch',
+    'foreignObject',
+    'filter',
+    'feBlend',
+    'feColorMatrix',
+    'feComponentTransfer',
+    'feComposite',
+    'feConvolveMatrix',
+    'feDiffuseLighting',
+    'feDisplacementMap',
+    'feDistantLight',
+    'feFlood',
+    'feFuncA',
+    'feFuncB',
+    'feFuncG',
+    'feFuncR',
+    'feGaussianBlur',
+    'feImage',
+    'feMerge',
+    'feMergeNode',
+    'feMorphology',
+    'feOffset',
+    'fePointLight',
+    'feSpecularLighting',
+    'feSpotLight',
+    'feTile',
+    'feTurbulence',
+    'font',
+    'font-face',
+    'font-face-format',
+    'font-face-name',
+    'font-face-src',
+    'font-face-uri',
+    'glyph',
+    'glyphRef',
+    'hkern',
+    'linearGradient',
+    'marker',
+    'mask',
+    'pattern',
+    'radialGradient',
+    'set',
+    'stop',
+    'missing-glyph',
+    'mpath',
+    'text',
+    'textPath',
+    'tref',
+    'tspan',
+    'vkern',
+    'metadata',
+    'title',
 ]);
 
 /**
@@ -116,19 +179,19 @@ const cssNoPx = {
     Map of normal CSS names to the name used on the style object.
 */
 const styleNames = {
-    'float': 'cssFloat',
+    float: 'cssFloat',
 };
 
 // In times gone by, we had various properties that needed to be prefixed; now
 // it’s down to just user-select. This makes me happy. Hence no for loop.
-const style = document.createElement( 'div' ).style;
+const style = document.createElement('div').style;
 style.cssText = 'user-select:none';
 let userSelectProperty = 'user-select';
-if ( !style.length ) {
-    if ( browser === 'firefox' ) {
+if (!style.length) {
+    if (browser === 'firefox') {
         userSelectProperty = '-moz-user-select';
         styleNames.userSelect = 'MozUserSelect';
-    } else if ( browser === 'msie' ) {
+    } else if (browser === 'msie') {
         userSelectProperty = '-ms-user-select';
         styleNames.userSelect = 'msUserSelect';
     } else {
@@ -167,7 +230,7 @@ let view = null;
     Returns:
         {(O.View|null)} The previous view DOM elements were associated with.
 */
-const forView = function ( newView ) {
+const forView = function (newView) {
     const oldView = view;
     view = newView;
     return oldView;
@@ -188,17 +251,17 @@ const forView = function ( newView ) {
     Returns:
         {Element} The element.
 */
-const setAttributes = function ( el, props ) {
-    for ( const prop in props ) {
-        const value = props[ prop ];
-        if ( value !== undefined ) {
-            if ( Binding && ( value instanceof Binding ) ) {
-                value.to( prop, el ).connect();
-                if ( view ) {
-                    view.registerBinding( value );
+const setAttributes = function (el, props) {
+    for (const prop in props) {
+        const value = props[prop];
+        if (value !== undefined) {
+            if (Binding && value instanceof Binding) {
+                value.to(prop, el).connect();
+                if (view) {
+                    view.registerBinding(value);
                 }
             } else {
-                el.set( prop, value );
+                el.set(prop, value);
             }
         }
     }
@@ -217,22 +280,22 @@ const setAttributes = function ( el, props ) {
     Returns:
         {Element} The element.
 */
-const appendChildren = function ( el, children ) {
-    if ( !( children instanceof Array ) ) {
-        children = [ children ];
+const appendChildren = function (el, children) {
+    if (!(children instanceof Array)) {
+        children = [children];
     }
-    for ( let i = 0, l = children.length; i < l; i += 1 ) {
+    for (let i = 0, l = children.length; i < l; i += 1) {
         let node = children[i];
-        if ( node ) {
-            if ( node instanceof Array ) {
-                appendChildren( el, node );
-            } else if ( View && ( node instanceof View ) ) {
-                view.insertView( node, el );
+        if (node) {
+            if (node instanceof Array) {
+                appendChildren(el, node);
+            } else if (View && node instanceof View) {
+                view.insertView(node, el);
             } else {
-                if ( typeof node !== 'object' ) {
-                    node = doc.createTextNode( node );
+                if (typeof node !== 'object') {
+                    node = doc.createTextNode(node);
                 }
-                el.appendChild( node );
+                el.appendChild(node);
             }
         }
     }
@@ -265,41 +328,42 @@ const appendChildren = function ( el, children ) {
     Returns:
         {Element} The new element.
 */
-const create = function ( tag, props, children ) {
-    if ( props instanceof Array ) {
+const create = function (tag, props, children) {
+    if (props instanceof Array) {
         children = props;
         props = null;
     }
 
     // Parse id/class names out of tag.
-    if ( /[#.]/.test( tag ) ) {
-        const parts = tag.split( /([#.])/ );
+    if (/[#.]/.test(tag)) {
+        const parts = tag.split(/([#.])/);
         tag = parts[0];
-        if ( !props ) {
+        if (!props) {
             props = {};
         }
         const l = parts.length;
-        for ( let i = 1; i + 1 < l; i += 2 ) {
-            const name = parts[ i + 1 ];
-            if ( parts[i] === '#' ) {
+        for (let i = 1; i + 1 < l; i += 2) {
+            const name = parts[i + 1];
+            if (parts[i] === '#') {
                 props.id = name;
             } else {
-                props.className = props.className ?
-                    props.className + ' ' + name : name;
+                props.className = props.className
+                    ? props.className + ' ' + name
+                    : name;
             }
         }
     }
 
     // Create element with default or SVG namespace, as appropriate.
-    const el = svgTagNames.has( tag ) ?
-        doc.createElementNS( svgNS, tag ) :
-        doc.createElement( tag );
+    const el = svgTagNames.has(tag)
+        ? doc.createElementNS(svgNS, tag)
+        : doc.createElement(tag);
 
-    if ( props ) {
-        setAttributes( el, props );
+    if (props) {
+        setAttributes(el, props);
     }
-    if ( children ) {
-        appendChildren( el, children );
+    if (children) {
+        appendChildren(el, children);
     }
     return el;
 };
@@ -316,8 +380,8 @@ const create = function ( tag, props, children ) {
     Returns:
         {String} Returns the style value.
 */
-const getStyle = function ( el, style ) {
-    return window.getComputedStyle( el ).getPropertyValue( style );
+const getStyle = function (el, style) {
+    return window.getComputedStyle(el).getPropertyValue(style);
 };
 
 /**
@@ -333,26 +397,30 @@ const getStyle = function ( el, style ) {
     Returns:
         {O.Element} Returns self.
 */
-const setStyle = function ( el, style, value ) {
-    if ( value !== undefined ) {
+const setStyle = function (el, style, value) {
+    if (value !== undefined) {
         style = style.camelCase();
-        style = styleNames[ style ] || style;
-        if ( typeof value === 'number' && !cssNoPx[ style ] ) {
+        style = styleNames[style] || style;
+        if (typeof value === 'number' && !cssNoPx[style]) {
             value += 'px';
         }
         // IE will throw an error if you try to set an invalid value for a
         // style.
         try {
-            el.style[ style ] = value;
-        } catch ( error ) {
+            el.style[style] = value;
+        } catch (error) {
             RunLoop.didError({
                 name: 'Element#setStyle',
                 message: 'Invalid value set',
                 details:
-                    'Style: ' + style +
-                  '\nValue: ' + value +
-                  '\nEl id: ' + el.id +
-                  '\nEl class: ' + el.className,
+                    'Style: ' +
+                    style +
+                    '\nValue: ' +
+                    value +
+                    '\nEl id: ' +
+                    el.id +
+                    '\nEl class: ' +
+                    el.className,
             });
         }
     }
@@ -371,9 +439,9 @@ const setStyle = function ( el, style, value ) {
     Returns:
         {O.Element} Returns self.
 */
-const setStyles = function ( el, styles ) {
-    for ( const prop in styles ) {
-        setStyle( el, prop, styles[ prop ] );
+const setStyles = function (el, styles) {
+    for (const prop in styles) {
+        setStyle(el, prop, styles[prop]);
     }
     return this;
 };
@@ -394,9 +462,9 @@ const setStyles = function ( el, styles ) {
         {Boolean} Is the second element equal to or a descendent of the
         first element?
 */
-const contains = function ( el, potentialChild ) {
-    const relation = el.compareDocumentPosition( potentialChild );
-    return !relation || !!( relation & DOCUMENT_POSITION_CONTAINED_BY );
+const contains = function (el, potentialChild) {
+    const relation = el.compareDocumentPosition(potentialChild);
+    return !relation || !!(relation & DOCUMENT_POSITION_CONTAINED_BY);
 };
 
 /**
@@ -421,16 +489,16 @@ const contains = function ( el, potentialChild ) {
         {(Element|null)} The nearest matching element, or null if none
         matched.
 */
-const nearest = function ( el, test, limit ) {
-    if ( !limit ) {
+const nearest = function (el, test, limit) {
+    if (!limit) {
         limit = el.ownerDocument.documentElement;
     }
-    if ( typeof test === 'string' ) {
+    if (typeof test === 'string') {
         const nodeName = test.toUpperCase();
-        test = el => el.nodeName === nodeName;
+        test = (el) => el.nodeName === nodeName;
     }
-    while ( el && !test( el ) ) {
-        if ( !el || el === limit ) {
+    while (el && !test(el)) {
+        if (!el || el === limit) {
             return null;
         }
         el = el.parentNode;
@@ -461,7 +529,7 @@ const nearest = function ( el, test, limit ) {
         - width: `Number`
         - height: `Number`
 */
-const getPosition = function ( el, ancestor ) {
+const getPosition = function (el, ancestor) {
     let rect = el.getBoundingClientRect();
     const position = {
         top: rect.top,
@@ -469,9 +537,9 @@ const getPosition = function ( el, ancestor ) {
         width: rect.width,
         height: rect.height,
     };
-    if ( ancestor ) {
-        rect = getPosition( ancestor );
-        if ( ancestor.nodeName === 'BODY' ) {
+    if (ancestor) {
+        rect = getPosition(ancestor);
+        if (ancestor.nodeName === 'BODY') {
             // document.documentElement - use of
             // body.scroll(Top|Left) is deprecated.
             ancestor = ancestor.parentNode;
@@ -493,15 +561,13 @@ const getPosition = function ( el, ancestor ) {
     Returns:
         {String|Boolean} The attribute or property.
 */
-Element.prototype.get = function ( key ) {
-    const prop = directProperties[ key ];
-    if ( prop ) {
-        const value = this[ prop ];
-        return ( value instanceof SVGAnimatedString ) ? value.animVal : value;
+Element.prototype.get = function (key) {
+    const prop = directProperties[key];
+    if (prop) {
+        const value = this[prop];
+        return value instanceof SVGAnimatedString ? value.animVal : value;
     }
-    return booleanProperties[ key ] ?
-        !!this[ key ] :
-        this.getAttribute( key );
+    return booleanProperties[key] ? !!this[key] : this.getAttribute(key);
 };
 
 /**
@@ -516,30 +582,30 @@ Element.prototype.get = function ( key ) {
     Returns:
         {Element} Returns self.
 */
-Element.prototype.set = function ( key, value ) {
-    const prop = directProperties[ key ];
-    if ( prop ) {
-        const currentValue = this[ prop ];
+Element.prototype.set = function (key, value) {
+    const prop = directProperties[key];
+    if (prop) {
+        const currentValue = this[prop];
         value = value == null ? '' : '' + value;
-        if ( currentValue instanceof SVGAnimatedString ) {
+        if (currentValue instanceof SVGAnimatedString) {
             currentValue.baseVal = value;
         } else {
-            this[ prop ] = value;
+            this[prop] = value;
         }
-    } else if ( booleanProperties[ key ] ) {
-        this[ key ] = !!value;
-    } else if ( key === 'styles' ) {
-        setStyles( this, value );
-    } else if ( key === 'children' ) {
+    } else if (booleanProperties[key]) {
+        this[key] = !!value;
+    } else if (key === 'styles') {
+        setStyles(this, value);
+    } else if (key === 'children') {
         let child;
-        while ( child = this.lastChild ) {
-            this.removeChild( child );
+        while ((child = this.lastChild)) {
+            this.removeChild(child);
         }
-        appendChildren( this, value );
-    } else if ( value == null ) {
-        this.removeAttribute( key );
+        appendChildren(this, value);
+    } else if (value == null) {
+        this.removeAttribute(key);
     } else {
-        this.setAttribute( key, '' + value );
+        this.setAttribute(key, '' + value);
     }
     return this;
 };
@@ -557,16 +623,16 @@ Element.prototype.set = function ( key, value ) {
     Returns:
         {String} The CSS string.
 */
-Object.toCSSString = function ( object ) {
+Object.toCSSString = function (object) {
     let result = '';
-    for ( let key in object ) {
-        let value = object[ key ];
-        if ( value !== undefined ) {
-            if ( typeof value === 'number' && !cssNoPx[ key ] ) {
+    for (let key in object) {
+        let value = object[key];
+        if (value !== undefined) {
+            if (typeof value === 'number' && !cssNoPx[key]) {
                 value += 'px';
             }
             key = key.hyphenate();
-            if ( key === 'user-select' ) {
+            if (key === 'user-select') {
                 key = userSelectProperty;
             }
             result += key;
@@ -589,10 +655,10 @@ Object.toCSSString = function ( object ) {
     Returns:
         {Element[]} An array of elements.
 */
-const getAncestors = function ( el ) {
+const getAncestors = function (el) {
     const ancestors = [];
-    while ( el ) {
-        ancestors.push( el );
+    while (el) {
+        ancestors.push(el);
         el = el.parentElement;
     }
     return ancestors.reverse();

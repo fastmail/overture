@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core';
-import '../../core/Array';  // For Array#erase
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../core/Array'; // For Array#erase
+import '../../foundation/ObservableProps'; // For Function#observes
 
 import Source from './Source';
 
@@ -13,12 +13,11 @@ import Source from './Source';
     finds one that can handle it.
 */
 const AggregateSource = Class({
-
     Extends: Source,
 
     init: function (/* ...mixins */) {
         this.sources = [];
-        AggregateSource.parent.constructor.apply( this, arguments );
+        AggregateSource.parent.constructor.apply(this, arguments);
     },
 
     /**
@@ -38,9 +37,9 @@ const AggregateSource = Class({
         Returns:
             {O.AggregateSource} Returns self.
     */
-    addSource ( source ) {
-        source.set( 'store', this.get( 'store' ) );
-        this.get( 'sources' ).push( source );
+    addSource(source) {
+        source.set('store', this.get('store'));
+        this.get('sources').push(source);
         return this;
     },
 
@@ -54,57 +53,57 @@ const AggregateSource = Class({
         Returns:
             {O.AggregateSource} Returns self.
     */
-    removeSource ( source ) {
-        this.get( 'sources' ).erase( source );
+    removeSource(source) {
+        this.get('sources').erase(source);
         return this;
     },
 
     storeWasSet: function () {
-        const store = this.get( 'store' );
-        this.sources.forEach( function ( source ) {
-            source.set( 'store', store );
+        const store = this.get('store');
+        this.sources.forEach(function (source) {
+            source.set('store', store);
         });
-    }.observes( 'store' ),
+    }.observes('store'),
 
-    fetchRecord ( accountId, Type, id, callback ) {
-        return this.get( 'sources' ).some( function ( source ) {
-            return source.fetchRecord( accountId, Type, id, callback );
-        });
-    },
-
-    fetchAllRecords ( accountId, Type, state, callback ) {
-        return this.get( 'sources' ).some( function ( source ) {
-            return source.fetchAllRecords( accountId, Type, state, callback );
+    fetchRecord(accountId, Type, id, callback) {
+        return this.get('sources').some(function (source) {
+            return source.fetchRecord(accountId, Type, id, callback);
         });
     },
 
-    refreshRecord ( accountId, Type, id, callback ) {
-        return this.get( 'sources' ).some( function ( source ) {
-            return source.refreshRecord( accountId, Type, id, callback );
+    fetchAllRecords(accountId, Type, state, callback) {
+        return this.get('sources').some(function (source) {
+            return source.fetchAllRecords(accountId, Type, state, callback);
         });
     },
 
-    commitChanges ( changes, callback ) {
+    refreshRecord(accountId, Type, id, callback) {
+        return this.get('sources').some(function (source) {
+            return source.refreshRecord(accountId, Type, id, callback);
+        });
+    },
+
+    commitChanges(changes, callback) {
         let waiting = 0;
         let callbackAfterAll;
-        if ( callback ) {
+        if (callback) {
             callbackAfterAll = function () {
-                if ( !( waiting -= 1 ) ) {
+                if (!(waiting -= 1)) {
                     callback();
                 }
             };
         }
-        this.get( 'sources' ).forEach( function ( source ) {
-            if ( source.commitChanges( changes, callbackAfterAll ) ) {
+        this.get('sources').forEach(function (source) {
+            if (source.commitChanges(changes, callbackAfterAll)) {
                 waiting += 1;
             }
         });
         return this;
     },
 
-    fetchQuery ( query, callback ) {
-        return this.get( 'sources' ).some( function ( source ) {
-            return source.fetchQuery( query, callback );
+    fetchQuery(query, callback) {
+        return this.get('sources').some(function (source) {
+            return source.fetchQuery(query, callback);
         });
     },
 });

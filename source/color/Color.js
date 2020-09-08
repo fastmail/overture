@@ -1,9 +1,9 @@
 class Color {
-    constructor ( opacity ) {
+    constructor(opacity) {
         this.opacity = opacity;
     }
 
-    toJSON () {
+    toJSON() {
         return this.toString();
     }
 }
@@ -11,17 +11,13 @@ class Color {
 // ---
 
 // LAB helper functions
-const rgbToLRGB = function ( x ) {
+const rgbToLRGB = function (x) {
     x /= 255;
-    return x > 0.04045 ?
-        Math.pow( ( x + 0.055 ) / 1.055, 2.4 ) :
-        x / 12.92;
+    return x > 0.04045 ? Math.pow((x + 0.055) / 1.055, 2.4) : x / 12.92;
 };
 
-const lrgbToRGB = function ( x ) {
-    x = x > 0.0031308 ?
-        1.055 * Math.pow( x, 1 / 2.4 ) - 0.055 :
-        12.92 * x;
+const lrgbToRGB = function (x) {
+    x = x > 0.0031308 ? 1.055 * Math.pow(x, 1 / 2.4) - 0.055 : 12.92 * x;
     x *= 255;
     return x < 0 ? 0 : x > 255 ? 255 : x;
 };
@@ -31,107 +27,110 @@ const delta = 6 / 29;
 const deltaCubed = delta * delta * delta;
 const threeDeltaSquared = 3 * delta * delta;
 
-const f = function ( t ){
-    return t > deltaCubed ?
-        Math.pow( t, 1/3 ) :
-        ( t / threeDeltaSquared ) + fourOverTwentyNine;
+const f = function (t) {
+    return t > deltaCubed
+        ? Math.pow(t, 1 / 3)
+        : t / threeDeltaSquared + fourOverTwentyNine;
 };
 
-const f1 = function ( t ){
-    return t > delta ?
-        t * t * t :
-        threeDeltaSquared * ( t - fourOverTwentyNine );
+const f1 = function (t) {
+    return t > delta ? t * t * t : threeDeltaSquared * (t - fourOverTwentyNine);
 };
 
 // ---
 
-const printHex = function ( number ) {
-    let string = Math.round( number ).toString( 16 );
-    if ( number < 16 ) {
+const printHex = function (number) {
+    let string = Math.round(number).toString(16);
+    if (number < 16) {
         string = '0' + string;
     }
     return string;
 };
 
 class RGB extends Color {
-    constructor ( r, g, b, opacity ) {
-        super( opacity );
+    constructor(r, g, b, opacity) {
+        super(opacity);
         this.r = r; // [0,255]
         this.g = g; // [0,255]
         this.b = b; // [0,255]
     }
 
-    toString () {
+    toString() {
         const opacity = this.opacity;
-        if ( opacity < 1 ) {
-            return 'rgba(' +
-                Math.round( this.r ) + ', ' +
-                Math.round( this.g ) + ', ' +
-                Math.round( this.b ) + ', ' +
+        if (opacity < 1) {
+            return (
+                'rgba(' +
+                Math.round(this.r) +
+                ', ' +
+                Math.round(this.g) +
+                ', ' +
+                Math.round(this.b) +
+                ', ' +
                 opacity +
-            ')';
+                ')'
+            );
         }
-        return '#' +
-            printHex( this.r ) +
-            printHex( this.g ) +
-            printHex( this.b );
+        return '#' + printHex(this.r) + printHex(this.g) + printHex(this.b);
     }
 
-    toRGB () {
+    toRGB() {
         return this;
     }
 
     // Algorithm from
     // http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
-    toHSL () {
+    toHSL() {
         const r = this.r / 255;
         const g = this.g / 255;
         const b = this.b / 255;
 
-        const min = Math.min( r, g, b );
-        const max = Math.max( r, g, b );
+        const min = Math.min(r, g, b);
+        const max = Math.max(r, g, b);
 
-        const l = ( min + max ) / 2;
+        const l = (min + max) / 2;
         let h, s, d;
 
-        if ( min === max ) {
+        if (min === max) {
             h = s = 0;
         } else {
             d = max - min;
-            s = d / ( l <= 0.5 ? max + min : 2 - max - min );
-            h = r === max ? ( g - b ) / d :
-                g === max ? ( b - r ) / d + 2 :
-                            ( r - g ) / d + 4;
-            if ( h < 0 ) {
+            s = d / (l <= 0.5 ? max + min : 2 - max - min);
+            h =
+                r === max
+                    ? (g - b) / d
+                    : g === max
+                    ? (b - r) / d + 2
+                    : (r - g) / d + 4;
+            if (h < 0) {
                 h += 6;
             }
             h = h * 60;
         }
-        return new HSL( h, s, l, this.opacity );
+        return new HSL(h, s, l, this.opacity);
     }
 
     // Algorithm from https://observablehq.com/@mbostock/lab-and-rgb
-    toLAB () {
+    toLAB() {
         // 1. Convert to linear-light sRGB.
-        const r = rgbToLRGB( this.r );
-        const g = rgbToLRGB( this.g );
-        const b = rgbToLRGB( this.b );
+        const r = rgbToLRGB(this.r);
+        const g = rgbToLRGB(this.g);
+        const b = rgbToLRGB(this.b);
 
         // 2. Convert and apply chromatic adaptation to CIEXYZ D50.
-        const x = ( 0.4360747 * r + 0.3850649 * g + 0.1430804 * b );
-        const y = ( 0.2225045 * r + 0.7168786 * g + 0.0606169 * b );
-        const z = ( 0.0139322 * r + 0.0971045 * g + 0.7141733 * b );
+        const x = 0.4360747 * r + 0.3850649 * g + 0.1430804 * b;
+        const y = 0.2225045 * r + 0.7168786 * g + 0.0606169 * b;
+        const z = 0.0139322 * r + 0.0971045 * g + 0.7141733 * b;
 
         // 3. Convert from CIEXYZ D50 to CIELAB
-        const fx = f( x / 0.96422 );
-        const fy = f( y );
-        const fz = f( z / 0.82521 );
+        const fx = f(x / 0.96422);
+        const fy = f(y);
+        const fz = f(z / 0.82521);
 
         return new LAB(
             116 * fy - 16,
-            500 * ( fx - fy ),
-            200 * ( fy - fz ),
-            this.opacity
+            500 * (fx - fy),
+            200 * (fy - fz),
+            this.opacity,
         );
     }
 }
@@ -139,43 +138,39 @@ class RGB extends Color {
 // ---
 
 class HSL extends Color {
-    constructor ( h, s, l, opacity ) {
-        super( opacity );
+    constructor(h, s, l, opacity) {
+        super(opacity);
         this.h = h; // [0,360]
         this.s = s; // [0,1]
         this.l = l; // [0,1]
     }
 
-    toString () {
-        const hsl =
-            this.h + ', ' +
-            ( 100 * this.s ) + '%, ' +
-            ( 100 * this.l ) + '%';
+    toString() {
+        const hsl = this.h + ', ' + 100 * this.s + '%, ' + 100 * this.l + '%';
         const opacity = this.opacity;
-        return opacity < 1 ?
-            'hsla(' + hsl + ', ' + opacity + ')' :
-            'hsl(' + hsl + ')';
+        return opacity < 1
+            ? 'hsla(' + hsl + ', ' + opacity + ')'
+            : 'hsl(' + hsl + ')';
     }
 
     // Algorithm from https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
-    toRGB () {
+    toRGB() {
         const h = this.h;
         const s = this.s;
         const l = this.l;
-        const x = s * Math.min( l, 1 - l );
-        const f = n => {
-            const k = ( n + h / 30 ) % 12;
-            return 255 *
-                ( l - x * Math.max( Math.min( k - 3, 9 - k, 1 ), -1 ) );
+        const x = s * Math.min(l, 1 - l);
+        const f = (n) => {
+            const k = (n + h / 30) % 12;
+            return 255 * (l - x * Math.max(Math.min(k - 3, 9 - k, 1), -1));
         };
-        return new RGB( f(0), f(8), f(4), this.opacity );
+        return new RGB(f(0), f(8), f(4), this.opacity);
     }
 
-    toHSL () {
+    toHSL() {
         return this;
     }
 
-    toLAB () {
+    toLAB() {
         return this.toRGB().toLAB();
     }
 }
@@ -183,71 +178,69 @@ class HSL extends Color {
 // ---
 
 class LAB extends Color {
-    constructor ( l, a, b, opacity ) {
-        super( opacity );
+    constructor(l, a, b, opacity) {
+        super(opacity);
         this.l = l; // [0, 100]
         this.a = a; // [-160, 160]
         this.b = b; // [-160, 160]
     }
 
     // Algorithm from https://observablehq.com/@mbostock/lab-and-rgb
-    toRGB () {
+    toRGB() {
         // 1. Convert from CIELAB to CIEXYZ D50
-        const dl = ( this.l + 16 ) / 116;
+        const dl = (this.l + 16) / 116;
         const da = this.a / 500;
         const db = this.b / 200;
 
-        const x = 0.96422 * f1( dl + da );
-        const y = f1( dl );
-        const z = 0.82521 * f1( dl - db );
+        const x = 0.96422 * f1(dl + da);
+        const y = f1(dl);
+        const z = 0.82521 * f1(dl - db);
 
         // 2. Convert to linear-light sRGB.
-        const r =  3.1338561 * x - 1.6168667 * y - 0.4906146 * z;
-        const g = -0.9787684 * x + 1.9161415 * y + 0.0334540 * z;
-        const b =  0.0719453 * x - 0.2289914 * y + 1.4052427 * z;
+        const r = 3.1338561 * x - 1.6168667 * y - 0.4906146 * z;
+        const g = -0.9787684 * x + 1.9161415 * y + 0.033454 * z;
+        const b = 0.0719453 * x - 0.2289914 * y + 1.4052427 * z;
 
         // 3. Convert to sRGB
-        return new RGB(
-            lrgbToRGB( r ),
-            lrgbToRGB( g ),
-            lrgbToRGB( b ),
-            this.opacity
-        );
+        return new RGB(lrgbToRGB(r), lrgbToRGB(g), lrgbToRGB(b), this.opacity);
     }
 
-    toHSL () {
+    toHSL() {
         return this.toRGB().toHSL();
     }
 
-    toLAB () {
+    toLAB() {
         return this;
     }
 }
 
 // ---
 
-const getByteDoubled = function ( number, offsetFromEnd ) {
+const getByteDoubled = function (number, offsetFromEnd) {
     offsetFromEnd <<= 2;
-    const byte = ( number >> offsetFromEnd ) & 0xf;
-    return ( byte << 4 ) | byte;
+    const byte = (number >> offsetFromEnd) & 0xf;
+    return (byte << 4) | byte;
 };
 
-const getDoubleByte = function ( number, offsetFromEnd ) {
+const getDoubleByte = function (number, offsetFromEnd) {
     offsetFromEnd <<= 3;
-    return ( number >> offsetFromEnd ) & 0xff;
+    return (number >> offsetFromEnd) & 0xff;
 };
 
-const splitColor = function ( color ) {
-    const first = color.indexOf( '(' ) + 1;
-    const last = color.lastIndexOf( ')' );
-    const parts = color.slice( first, last ).trim().split( /[, /]+/ );
+const splitColor = function (color) {
+    const first = color.indexOf('(') + 1;
+    const last = color.lastIndexOf(')');
+    const parts = color
+        .slice(first, last)
+        .trim()
+        .split(/[, /]+/);
     return parts.length >= 3 ? parts : null;
 };
 
-const parseNumber = function ( string, max ) {
-    let number = parseFloat( string );
-    if ( string.charAt( string.length - 1 ) === '%' ) {
-        number = number * max / 100;
+const parseNumber = function (string, max) {
+    let number = parseFloat(string);
+    if (string.charAt(string.length - 1) === '%') {
+        number = (number * max) / 100;
     }
     return number < 0 ? 0 : number > max ? max : number || 0;
 };
@@ -447,13 +440,12 @@ const cssColorNames = {
 
 const cssColorRegEx = new RegExp(
     '#(?:[0-9a-f]{3,4}){1,2}|(?:rgb|hsl)a?\\(.*?\\)|\\b(?:' +
-        Object.keys( cssColorNames ).join( '|' ) +
+        Object.keys(cssColorNames).join('|') +
         ')\\b',
-    'ig'
+    'ig',
 );
 
-Object.assign( Color, {
-
+Object.assign(Color, {
     RGB,
     HSL,
     LAB,
@@ -461,52 +453,50 @@ Object.assign( Color, {
     cssColorRegEx,
     cssColorNames,
 
-    fromCSSColorValue ( color ) {
+    fromCSSColorValue(color) {
         let opacity = 1;
         let r, g, b, number, size, getChannel, alphaOffset, parts;
         color = color.toLowerCase();
-        if ( color in cssColorNames ) {
-            number = cssColorNames[ color ];
-            r = getDoubleByte( number, 2 );
-            g = getDoubleByte( number, 1 );
-            b = getDoubleByte( number, 0 );
-        } else if ( color.charAt( 0 ) === '#' ) {
-            number = parseInt( color.slice( 1 ), 16 ) || 0;
+        if (color in cssColorNames) {
+            number = cssColorNames[color];
+            r = getDoubleByte(number, 2);
+            g = getDoubleByte(number, 1);
+            b = getDoubleByte(number, 0);
+        } else if (color.charAt(0) === '#') {
+            number = parseInt(color.slice(1), 16) || 0;
             size = color.length;
             getChannel = size < 6 ? getByteDoubled : getDoubleByte;
             alphaOffset = 0;
-            if ( size === 5 || size === 9 ) {
-                opacity = getChannel( number, 0 ) / 255;
+            if (size === 5 || size === 9) {
+                opacity = getChannel(number, 0) / 255;
                 alphaOffset = 1;
             }
-            r = getChannel( number, alphaOffset + 2 );
-            g = getChannel( number, alphaOffset + 1 );
-            b = getChannel( number, alphaOffset + 0 );
-        } else if ( /^rgb/i.test( color ) &&
-                ( parts = splitColor( color ) ) ) {
-            r = parseNumber( parts[0], 255 );
-            g = parseNumber( parts[1], 255 );
-            b = parseNumber( parts[2], 255 );
-            if ( parts.length > 3 ) {
-                opacity = parseNumber( parts[3], 1 );
+            r = getChannel(number, alphaOffset + 2);
+            g = getChannel(number, alphaOffset + 1);
+            b = getChannel(number, alphaOffset + 0);
+        } else if (/^rgb/i.test(color) && (parts = splitColor(color))) {
+            r = parseNumber(parts[0], 255);
+            g = parseNumber(parts[1], 255);
+            b = parseNumber(parts[2], 255);
+            if (parts.length > 3) {
+                opacity = parseNumber(parts[3], 1);
             }
-        } else if ( /^hsl/i.test( color ) &&
-                ( parts = splitColor( color ) ) ) {
-            const h = parseNumber( parts[0], 360 );
-            const s = parseNumber( parts[1], 1 );
-            const l = parseNumber( parts[2], 1 );
-            if ( parts.length > 3 ) {
-                opacity = parseNumber( parts[3], 1 );
+        } else if (/^hsl/i.test(color) && (parts = splitColor(color))) {
+            const h = parseNumber(parts[0], 360);
+            const s = parseNumber(parts[1], 1);
+            const l = parseNumber(parts[2], 1);
+            if (parts.length > 3) {
+                opacity = parseNumber(parts[3], 1);
             }
-            return new HSL( h, s, l, opacity );
+            return new HSL(h, s, l, opacity);
         } else {
             return null;
         }
-        return new RGB( r, g, b, opacity );
+        return new RGB(r, g, b, opacity);
     },
 
-    fromJSON ( color ) {
-        return color ? Color.fromCSSColorValue( color ) : null;
+    fromJSON(color) {
+        return color ? Color.fromCSSColorValue(color) : null;
     },
 });
 

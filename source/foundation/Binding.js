@@ -46,19 +46,21 @@ import * as RunLoop from './RunLoop';
         root      - {Object} The object to treat as root.
         path      - {String} The path string.
 */
-const _resolveRootAndPath = function ( binding, direction, root, path ) {
-    const beginObservablePath = path.lastIndexOf( '*' ) + 1;
-    const observablePath = path.slice( beginObservablePath );
-    const staticPath = beginObservablePath ?
-            path.slice( 0, beginObservablePath - 1 ) : '';
-    const lastDot = observablePath.lastIndexOf( '.' );
+const _resolveRootAndPath = function (binding, direction, root, path) {
+    const beginObservablePath = path.lastIndexOf('*') + 1;
+    const observablePath = path.slice(beginObservablePath);
+    const staticPath = beginObservablePath
+        ? path.slice(0, beginObservablePath - 1)
+        : '';
+    const lastDot = observablePath.lastIndexOf('.');
 
-    binding[ direction + 'Object' ] =
-        staticPath ? getFromPath( root, staticPath ) : root;
-    binding[ direction + 'Path' ] = observablePath;
-    binding[ direction + 'PathBeforeKey' ] =
-        ( lastDot === -1 ) ? '' : observablePath.slice( 0, lastDot );
-    binding[ direction + 'Key' ] = observablePath.slice( lastDot + 1 );
+    binding[direction + 'Object'] = staticPath
+        ? getFromPath(root, staticPath)
+        : root;
+    binding[direction + 'Path'] = observablePath;
+    binding[direction + 'PathBeforeKey'] =
+        lastDot === -1 ? '' : observablePath.slice(0, lastDot);
+    binding[direction + 'Key'] = observablePath.slice(lastDot + 1);
 };
 
 const isNum = /^\d+$/;
@@ -74,15 +76,15 @@ const isNum = /^\d+$/;
     Returns:
         {*} The value v.
 */
-const identity = v => v;
+const identity = (v) => v;
 
 class Binding {
-    __setupProperty__ ( metadata, key ) {
-        metadata.bindings[ key ] = this;
-        metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
+    __setupProperty__(metadata, key) {
+        metadata.bindings[key] = this;
+        metadata.inits.Bindings = (metadata.inits.Bindings || 0) + 1;
     }
-    __teardownProperty__ ( metadata, key ) {
-        metadata.bindings[ key ] = null;
+    __teardownProperty__(metadata, key) {
+        metadata.bindings[key] = null;
         metadata.inits.Bindings -= 1;
     }
 
@@ -134,7 +136,6 @@ class Binding {
         During which queue in the run loop should the binding sync?
     */
 
-
     /**
         Constructor: O.Binding
 
@@ -142,7 +143,7 @@ class Binding {
             mixin - {Object} (optional). Can set isTwoWay or the transform to
                     use on the binding.
     */
-    constructor ( mixin ) {
+    constructor(mixin) {
         this.isConnected = false;
         this.isSuspended = true;
         this.isNotInSync = true;
@@ -171,7 +172,7 @@ class Binding {
         this.transform = identity;
         this.queue = 'bindings';
 
-        Object.assign( this, mixin );
+        Object.assign(this, mixin);
     }
 
     /**
@@ -179,7 +180,7 @@ class Binding {
 
         Disconnects binding and prevents any further value syncs.
     */
-    destroy () {
+    destroy() {
         this.disconnect();
         // Ignore any remaining queued connect() calls.
         this.isConnected = true;
@@ -203,8 +204,8 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    from ( root, path ) {
-        const rootIsPath = ( typeof root === 'string' );
+    from(root, path) {
+        const rootIsPath = typeof root === 'string';
         this._fromRoot = rootIsPath ? path : root;
         this._fromPath = rootIsPath ? root : path;
         return this;
@@ -228,8 +229,8 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    to ( root, path ) {
-        const rootIsPath = ( typeof root === 'string' );
+    to(root, path) {
+        const rootIsPath = typeof root === 'string';
         this._toRoot = rootIsPath ? path : root;
         this._toPath = rootIsPath ? root : path;
         return this;
@@ -306,8 +307,8 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    connect () {
-        if ( this.isConnected ) {
+    connect() {
+        if (this.isConnected) {
             return this;
         }
 
@@ -315,22 +316,30 @@ class Binding {
 
         // Resolve objects:
         _resolveRootAndPath(
-            this, 'from', this._fromRoot || this._toRoot, this._fromPath );
+            this,
+            'from',
+            this._fromRoot || this._toRoot,
+            this._fromPath,
+        );
         _resolveRootAndPath(
-            this, 'to', this._toRoot || this._fromRoot, this._toPath );
+            this,
+            'to',
+            this._toRoot || this._fromRoot,
+            this._toPath,
+        );
 
         const fromObject = this.fromObject;
         const toObject = this.toObject;
 
-        if ( toObject instanceof Element ) {
+        if (toObject instanceof Element) {
             this.queue = 'render';
         }
 
         // Occassionally we have a binding created before the objects it
         // connects are, in which case delay connecting it a bit.
-        if ( !this._doNotDelayConnection && ( !fromObject || !toObject ) ) {
+        if (!this._doNotDelayConnection && (!fromObject || !toObject)) {
             this._doNotDelayConnection = true;
-            RunLoop.queueFn( 'before', this.connect, this );
+            RunLoop.queueFn('before', this.connect, this);
             return this;
         }
 
@@ -341,18 +350,21 @@ class Binding {
         // in the constructor, but that’s a desperate measure), but the fromPath
         // is commonly useful in determining what went wrong.
         const fromPath = this.fromPath;
-        if ( !fromObject ) {
-            throw new TypeError( 'Binding#connect: fromObject is not set' +
-                ' (fromPath = ' + fromPath + ')'
+        if (!fromObject) {
+            throw new TypeError(
+                'Binding#connect: fromObject is not set' +
+                    ' (fromPath = ' +
+                    fromPath +
+                    ')',
             );
         }
-        fromObject.addObserverForPath( fromPath, this, 'fromDidChange' );
+        fromObject.addObserverForPath(fromPath, this, 'fromDidChange');
 
         // Grab initial value:
         this.sync();
 
-        if ( this.isTwoWay ) {
-            toObject.addObserverForPath( this.toPath, this, 'toDidChange' );
+        if (this.isTwoWay) {
+            toObject.addObserverForPath(this.toPath, this, 'toDidChange');
         }
         this.isConnected = true;
         return this;
@@ -366,17 +378,23 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    disconnect () {
-        if ( !this.isConnected ) {
+    disconnect() {
+        if (!this.isConnected) {
             return this;
         }
 
         this.fromObject.removeObserverForPath(
-            this.fromPath, this, 'fromDidChange' );
+            this.fromPath,
+            this,
+            'fromDidChange',
+        );
 
-        if ( this.isTwoWay ) {
+        if (this.isTwoWay) {
             this.toObject.removeObserverForPath(
-                this.toPath, this, 'toDidChange' );
+                this.toPath,
+                this,
+                'toDidChange',
+            );
         }
 
         this.isConnected = false;
@@ -397,7 +415,7 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    suspend () {
+    suspend() {
         this.isSuspended = true;
         return this;
     }
@@ -411,8 +429,8 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    resume () {
-        if ( this.isSuspended && this.isConnected ) {
+    resume() {
+        if (this.isSuspended && this.isConnected) {
             this.isSuspended = false;
             this.sync();
         }
@@ -440,8 +458,8 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    fromDidChange () {
-        return this.needsSync( true );
+    fromDidChange() {
+        return this.needsSync(true);
     }
 
     /**
@@ -454,8 +472,8 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    toDidChange () {
-        return this.needsSync( false );
+    toDidChange() {
+        return this.needsSync(false);
     }
 
     /**
@@ -470,14 +488,14 @@ class Binding {
         Returns:
             {O.Binding} Returns self.
     */
-    needsSync ( direction ) {
+    needsSync(direction) {
         const queue = this.queue;
         const inQueue = this.isNotInSync;
         this.willSyncForward = direction;
         this.isNotInSync = true;
-        if ( !inQueue && !this.isSuspended ) {
-            if ( queue ) {
-                RunLoop.queueFn( queue, this.sync, this, true );
+        if (!inQueue && !this.isSuspended) {
+            if (queue) {
+                RunLoop.queueFn(queue, this.sync, this, true);
             } else {
                 this.sync();
             }
@@ -498,8 +516,8 @@ class Binding {
         Returns:
             {Boolean} Did the binding actually make a change?
     */
-    sync ( force ) {
-        if ( !force && ( !this.isNotInSync || this.isSuspended ) ) {
+    sync(force) {
+        if (!force && (!this.isNotInSync || this.isSuspended)) {
             return false;
         }
 
@@ -508,33 +526,33 @@ class Binding {
         const syncForward = this.willSyncForward;
         const from = syncForward ? 'from' : 'to';
         const to = syncForward ? 'to' : 'from';
-        const pathBeforeKey = this[ to + 'PathBeforeKey' ];
-        let toObject = this[ to + 'Object' ];
+        const pathBeforeKey = this[to + 'PathBeforeKey'];
+        let toObject = this[to + 'Object'];
 
-        if ( pathBeforeKey ) {
-            toObject = toObject.getFromPath( pathBeforeKey );
+        if (pathBeforeKey) {
+            toObject = toObject.getFromPath(pathBeforeKey);
         }
-        if ( !toObject ) {
+        if (!toObject) {
             return false;
         }
 
-        const key = this[ to + 'Key' ];
+        const key = this[to + 'Key'];
         const value = this.transform(
-            this[ from + 'Object' ].getFromPath( this[ from + 'Path' ] ),
-            syncForward
+            this[from + 'Object'].getFromPath(this[from + 'Path']),
+            syncForward,
         );
-        if ( value !== undefined ) {
-            if ( isNum.test( key ) ) {
-                toObject.setObjectAt( +key, value );
+        if (value !== undefined) {
+            if (isNum.test(key)) {
+                toObject.setObjectAt(+key, value);
             } else {
-                toObject.set( key, value );
+                toObject.set(key, value);
             }
         }
         return true;
     }
 }
 
-setBinding( Binding );
+setBinding(Binding);
 
 /**
     Function: O.bind
@@ -554,9 +572,9 @@ setBinding( Binding );
     Returns:
         {O.Binding} The new binding.
 */
-const bind = function ( root, path, transform ) {
-    const binding = new Binding().from( root, path );
-    if ( transform ) {
+const bind = function (root, path, transform) {
+    const binding = new Binding().from(root, path);
+    if (transform) {
         binding.transform = transform;
     }
     return binding;
@@ -581,8 +599,8 @@ const bind = function ( root, path, transform ) {
     Returns:
         {O.Binding} The new binding.
 */
-const bindTwoWay = function ( root, path, transform ) {
-    const binding = bind( root, path, transform );
+const bindTwoWay = function (root, path, transform) {
+    const binding = bind(root, path, transform);
     binding.isTwoWay = true;
     return binding;
 };

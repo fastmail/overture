@@ -1,8 +1,8 @@
-import '../foundation/RunLoop';  // For Function#invokeInRunLoop
-import '../foundation/Enumerable';  // For Array#binarySearch
+import '../foundation/RunLoop'; // For Function#invokeInRunLoop
+import '../foundation/Enumerable'; // For Array#binarySearch
 import { getViewFromNode } from './activeViews';
 
-const etSearch = function ( candidate, b ) {
+const etSearch = function (candidate, b) {
     const a = candidate[0];
     return a < b ? -1 : a > b ? 1 : 0;
 };
@@ -33,7 +33,6 @@ const etSearch = function ( candidate, b ) {
 
 */
 const ViewEventsController = {
-
     /**
         Property (private): O.ViewEventsController._eventTargets
         Type: [Number,O.EventTarget][]
@@ -61,19 +60,19 @@ const ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    addEventTarget ( eventTarget, priority ) {
-        if ( !priority ) {
+    addEventTarget(eventTarget, priority) {
+        if (!priority) {
             priority = 0;
         }
         const eventTargets = this._eventTargets.slice();
-        let index = eventTargets.binarySearch( priority, etSearch );
+        let index = eventTargets.binarySearch(priority, etSearch);
         const length = eventTargets.length;
 
-        while ( index < length && eventTargets[ index ][0] === priority ) {
+        while (index < length && eventTargets[index][0] === priority) {
             index += 1;
         }
 
-        eventTargets.splice( index, 0, [ priority, eventTarget ] );
+        eventTargets.splice(index, 0, [priority, eventTarget]);
         this._eventTargets = eventTargets;
 
         return this;
@@ -92,9 +91,9 @@ const ViewEventsController = {
         Returns:
             {O.ViewEventsController} Returns self.
     */
-    removeEventTarget ( eventTarget ) {
+    removeEventTarget(eventTarget) {
         this._eventTargets = this._eventTargets.filter(
-            target => target[1] !== eventTarget
+            (target) => target[1] !== eventTarget,
         );
         return this;
     },
@@ -114,29 +113,29 @@ const ViewEventsController = {
                     view will be looked up via the DOM node in the
                     `event.target` property.
     */
-    handleEvent: function ( event, view, _rootView ) {
+    handleEvent: function (event, view, _rootView) {
         const eventTargets = this._eventTargets;
         let l = eventTargets.length;
 
-        if ( !view ) {
-            view = getViewFromNode( event.target ) || _rootView;
+        if (!view) {
+            view = getViewFromNode(event.target) || _rootView;
         }
         event.targetView = view;
 
-        while ( l-- ) {
+        while (l--) {
             let eventTarget = eventTargets[l][1];
-            if ( eventTarget === this ) {
+            if (eventTarget === this) {
                 eventTarget = view;
             }
-            if ( eventTarget ) {
-                eventTarget.fire( event.type, event );
-                if ( event.propagationStopped ) {
+            if (eventTarget) {
+                eventTarget.fire(event.type, event);
+                if (event.propagationStopped) {
                     break;
                 }
             }
         }
     }.invokeInRunLoop(),
 };
-ViewEventsController.addEventTarget( ViewEventsController, 0 );
+ViewEventsController.addEventTarget(ViewEventsController, 0);
 
 export default ViewEventsController;

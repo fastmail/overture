@@ -1,5 +1,5 @@
 import { meta } from '../core/Core';
-import '../core/Array';  // For Array#erase
+import '../core/Array'; // For Array#erase
 
 import Event from './Event';
 import * as RunLoop from './RunLoop';
@@ -22,10 +22,11 @@ const eventPrefix = '__event__';
         {Function} Returns self.
  */
 Function.prototype.on = function () {
-    return this.observes.apply( this,
-        slice.call( arguments ).map( function ( type ) {
+    return this.observes.apply(
+        this,
+        slice.call(arguments).map(function (type) {
             return eventPrefix + type;
-        })
+        }),
     );
 };
 
@@ -42,7 +43,6 @@ Function.prototype.on = function () {
 */
 
 export default {
-
     /**
         Property: O.EventTarget#nextEventTarget
         Type: (O.EventTarget|null)
@@ -70,11 +70,11 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    on ( type, object, method ) {
-        if ( typeof object !== 'function' ) {
+    on(type, object, method) {
+        if (typeof object !== 'function') {
             object = { object, method };
         }
-        meta( this ).addObserver( eventPrefix + type, object );
+        meta(this).addObserver(eventPrefix + type, object);
         return this;
     },
 
@@ -91,12 +91,12 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    once ( type, fn ) {
-        const once = function ( event ) {
-            fn.call( this, event );
-            this.off( type, once );
+    once(type, fn) {
+        const once = function (event) {
+            fn.call(this, event);
+            this.off(type, once);
         };
-        this.on( type, once );
+        this.on(type, once);
         return this;
     },
 
@@ -128,48 +128,47 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    fire ( type, event ) {
+    fire(type, event) {
         let target = this;
-        if ( typeof type !== 'string' && !event ) {
+        if (typeof type !== 'string' && !event) {
             event = type;
             type = event.type;
         }
         const typeKey = eventPrefix + type;
 
-        if ( !event || !( event instanceof Event ) ) {
-            if ( event && /Event\]$/.test( event.toString() ) ) {
+        if (!event || !(event instanceof Event)) {
+            if (event && /Event\]$/.test(event.toString())) {
                 event.stopPropagation = function () {
                     this.propagationStopped = true;
                     return this;
                 };
             } else {
-                event = new Event( type, target, event );
+                event = new Event(type, target, event);
             }
         }
         event.propagationStopped = false;
 
-        while ( target ) {
-            const handlers = meta( target ).observers[ typeKey ];
+        while (target) {
+            const handlers = meta(target).observers[typeKey];
             const l = handlers ? handlers.length : 0;
-            for ( let i = 0; i < l; i += 1 ) {
+            for (let i = 0; i < l; i += 1) {
                 try {
                     const handler = handlers[i];
-                    if ( typeof handler === 'function' ) {
-                        handler.call( target, event );
+                    if (typeof handler === 'function') {
+                        handler.call(target, event);
                     } else {
-                        ( handler.object || target )[ handler.method ]( event );
+                        (handler.object || target)[handler.method](event);
                     }
-                } catch ( error ) {
-                    RunLoop.didError( error );
+                } catch (error) {
+                    RunLoop.didError(error);
                 }
             }
             // Move up the hierarchy, unless stopPropagation was called
-            target =
-                event.propagationStopped ?
-                    null :
-                target.get ?
-                    target.get( 'nextEventTarget' ) :
-                    target.nextEventTarget;
+            target = event.propagationStopped
+                ? null
+                : target.get
+                ? target.get('nextEventTarget')
+                : target.nextEventTarget;
         }
 
         return this;
@@ -192,11 +191,11 @@ export default {
         Returns:
             {O.EventTarget} Returns self.
     */
-    off ( type, object, method ) {
-        if ( typeof object !== 'function' ) {
+    off(type, object, method) {
+        if (typeof object !== 'function') {
             object = { object, method };
         }
-        meta( this ).removeObserver( eventPrefix + type, object );
+        meta(this).removeObserver(eventPrefix + type, object);
         return this;
     },
 };

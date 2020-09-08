@@ -21,14 +21,14 @@ export default {
             dragData - {Object} An object with data types as keys and the data
                        itself as the values.
     */
-    init: function ( dragData ) {
-        if ( !dragData ) {
+    init: function (dragData) {
+        if (!dragData) {
             dragData = {};
         }
         this._dragData = dragData;
-        this.dragDataTypes = Object.keys( dragData );
-        this.get = function ( key ) {
-            return this[ key ];
+        this.dragDataTypes = Object.keys(dragData);
+        this.get = function (key) {
+            return this[key];
         };
     },
 
@@ -68,7 +68,7 @@ export default {
         Returns:
             {*} The data of the requested type, if available.
     */
-    getDragDataOfType ( type/*, drag*/ ) {
-        return this._dragData[ type ];
+    getDragDataOfType(type /*, drag*/) {
+        return this._dragData[type];
     },
 };

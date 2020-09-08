@@ -22,12 +22,12 @@ import { create as el } from './Element';
     Returns:
         {Element} The <style> node that was created.
 */
-export const create = function ( id, css ) {
-    const style = el( 'style', {
+export const create = function (id, css) {
+    const style = el('style', {
         type: 'text/css',
         id,
         text: css,
     });
-    document.head.appendChild( style );
+    document.head.appendChild(style);
     return style;
 };

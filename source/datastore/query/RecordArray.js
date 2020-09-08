@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core';
 import Obj from '../../foundation/Object';
 import Enumerable from '../../foundation/Enumerable';
-import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ComputedProps'; // For Function#property
 
 /**
     Class: O.RecordArray
@@ -13,17 +13,16 @@ import '../../foundation/ComputedProps';  // For Function#property
     An immutable enumerable object representing a list of records.
  */
 const RecordArray = Class({
-
     Extends: Obj,
 
     Mixin: Enumerable,
 
-    init: function ( store, Type, storeKeys ) {
+    init: function (store, Type, storeKeys) {
         this.store = store;
         this.Type = Type;
         this.storeKeys = storeKeys;
 
-        RecordArray.parent.constructor.call( this );
+        RecordArray.parent.constructor.call(this);
     },
 
     /**
@@ -33,8 +32,8 @@ const RecordArray = Class({
         The number of records in the array.
     */
     length: function () {
-        return this.get( 'storeKeys' ).length;
-    }.property( 'storeKeys' ),
+        return this.get('storeKeys').length;
+    }.property('storeKeys'),
 
     /**
         Method: O.RecordArray#getObjectAt
@@ -47,10 +46,10 @@ const RecordArray = Class({
         Returns:
             {O.Record} The record at index i in this array.
     */
-    getObjectAt ( index ) {
-        const storeKey = this.get( 'storeKeys' )[ index ];
-        if ( storeKey ) {
-            return this.get( 'store' ).materialiseRecord( storeKey );
+    getObjectAt(index) {
+        const storeKey = this.get('storeKeys')[index];
+        if (storeKey) {
+            return this.get('store').materialiseRecord(storeKey);
         }
     },
 });

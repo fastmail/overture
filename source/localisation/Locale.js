@@ -1,130 +1,128 @@
 import { merge } from '../core/Core';
-import '../core/Date';  // For Date#format
+import '../core/Date'; // For Date#format
 
-const compileTranslation = function ( translation ) {
+const compileTranslation = function (translation) {
     let compiled = '';
     let start = 0;
     let searchIndex = 0;
     const length = translation.length;
 
-    outer: while ( true ) {
-        let end = translation.indexOf( '[', searchIndex );
+    outer: while (true) {
+        let end = translation.indexOf('[', searchIndex);
         // If there are no more macros, just the last text section to
         // process.
-        if ( end === -1 ) {
+        if (end === -1) {
             end = length;
         } else {
             // Check the '[' isn't escaped (preceded by an odd number of
             // '~' characters):
             let j = end;
-            while ( j-- ) {
-                if ( translation[ j ] !== '~' ) {
+            while (j--) {
+                if (translation[j] !== '~') {
                     break;
                 }
             }
-            if ( ( end - j ) % 2 === 0 ) {
+            if ((end - j) % 2 === 0) {
                 searchIndex = end + 1;
                 continue;
             }
         }
         // Standard text section
-        const part = translation.slice( start, end ).replace( /~(.)/g, '$1' );
-        if ( part ) {
-            if ( compiled ) {
+        const part = translation.slice(start, end).replace(/~(.)/g, '$1');
+        if (part) {
+            if (compiled) {
                 compiled += '+';
             }
-            compiled += JSON.stringify( part );
+            compiled += JSON.stringify(part);
         }
         // Check if we've reached the end of the string
-        if ( end === length ) {
+        if (end === length) {
             break;
         }
         // Macro section
         start = searchIndex = end + 1;
         // Find the end of the macro call.
-        while ( true ) {
-            end = translation.indexOf( ']', searchIndex );
+        while (true) {
+            end = translation.indexOf(']', searchIndex);
             // Invalid translation string.
-            if ( end === -1 ) {
+            if (end === -1) {
                 compiled = '';
                 break outer;
             }
             // Check the ']' character isn't escaped.
             let j = end;
-            while ( j-- ) {
-                if ( translation[ j ] !== '~' ) {
+            while (j--) {
+                if (translation[j] !== '~') {
                     break;
                 }
             }
-            if ( ( end - j ) % 2 ) {
+            if ((end - j) % 2) {
                 break;
             }
             searchIndex = end + 1;
         }
         // Split into parts
-        const parts = translation.slice( start, end ).split( ',' );
+        const parts = translation.slice(start, end).split(',');
         const l = parts.length;
 
-        if ( compiled ) {
+        if (compiled) {
             compiled += '+';
         }
-        if ( l > 1 ) {
+        if (l > 1) {
             compiled += 'lang.macros["';
         }
-        for ( let i = 0; i < l; i += 1 ) {
+        for (let i = 0; i < l; i += 1) {
             // If not the first part, add a comma to separate the
             // arguments to the macro function call.
-            if ( i > 1 ) {
+            if (i > 1) {
                 compiled += ',';
             }
             // If a comma was escaped, we split up an argument.
             // Rejoin these.
             let part = parts[i];
             let partLength = part.length;
-            while ( partLength && part[ partLength - 1 ] === '~' ) {
+            while (partLength && part[partLength - 1] === '~') {
                 i += 1;
                 part += ',';
                 part += parts[i];
                 partLength = part.length;
             }
             // Unescape the part.
-            part = part.replace( /~(.)/g, '$1' );
+            part = part.replace(/~(.)/g, '$1');
             // Check if we've got an argument.
-            if ( /^_(?:\*|\d+)$/.test( part ) ) {
-                part = part.slice( 1 );
+            if (/^_(?:\*|\d+)$/.test(part)) {
+                part = part.slice(1);
                 compiled += 'args';
-                compiled += ( part === '*' ?
-                    '' : '[' + ( parseInt( part, 10 ) - 1 ) + ']'
-                );
-            } else { // Otherwise:
-                if ( !i ) {
+                compiled +=
+                    part === '*' ? '' : '[' + (parseInt(part, 10) - 1) + ']';
+            } else {
+                // Otherwise:
+                if (!i) {
                     // First part is the macro name.
-                    compiled += ( part === '*' ?
-                        'quant' : part === '#' ? 'numf' : part );
+                    compiled +=
+                        part === '*' ? 'quant' : part === '#' ? 'numf' : part;
                     compiled += '"].call(lang,';
                 } else {
                     // Anything else is a plain string argument
-                    compiled += JSON.stringify( part );
+                    compiled += JSON.stringify(part);
                 }
             }
         }
-        if ( l > 1 ) {
+        if (l > 1) {
             compiled += ')';
         }
         start = searchIndex = end + 1;
     }
 
-    return new Function( 'lang', 'args',
-        'return ' + ( compiled || '""' ) + ';'
-    );
+    return new Function('lang', 'args', 'return ' + (compiled || '""') + ';');
 };
 
-const formatInt = function ( number, locale ) {
+const formatInt = function (number, locale) {
     let string = number + '';
-    if ( string.length > 3 ) {
+    if (string.length > 3) {
         string = string.replace(
             /(\d+?)(?=(?:\d{3})+$)/g,
-            '$1' + locale.thousandsSeparator
+            '$1' + locale.thousandsSeparator,
         );
     }
     return string;
@@ -158,15 +156,15 @@ class Locale {
         Parameters:
             mixin - {Object} Information for this locale.
     */
-    constructor ( mixin ) {
-        this.macros = Object.create( this.macros );
-        this.dateFormats = Object.create( this.dateFormats );
+    constructor(mixin) {
+        this.macros = Object.create(this.macros);
+        this.dateFormats = Object.create(this.dateFormats);
         this.compiled = {};
-        merge( this, mixin );
+        merge(this, mixin);
     }
 }
 
-Object.assign( Locale.prototype, {
+Object.assign(Locale.prototype, {
     /**
         Property: O.Locale#code
         Type: String
@@ -201,7 +199,7 @@ Object.assign( Locale.prototype, {
         An array containing the suffix denoting units of bytes, kilobytes,
         megabytes and gigabytes (in that order).
     */
-    fileSizeUnits: [ 'B', 'KB', 'MB', 'GB' ],
+    fileSizeUnits: ['B', 'KB', 'MB', 'GB'],
 
     /**
         Method: O.Locale#getFormattedNumber
@@ -216,16 +214,18 @@ Object.assign( Locale.prototype, {
         Returns:
             {String} The localised number.
     */
-    getFormattedNumber ( number ) {
+    getFormattedNumber(number) {
         let integer = number + '';
         let fraction = '';
-        const decimalPointIndex = integer.indexOf( '.' );
-        if ( decimalPointIndex > -1 ) {
-            fraction = integer.slice( decimalPointIndex + 1 );
-            integer = integer.slice( 0, decimalPointIndex );
+        const decimalPointIndex = integer.indexOf('.');
+        if (decimalPointIndex > -1) {
+            fraction = integer.slice(decimalPointIndex + 1);
+            integer = integer.slice(0, decimalPointIndex);
         }
-        return formatInt( integer, this ) +
-            ( fraction && this.decimalPoint + fraction );
+        return (
+            formatInt(integer, this) +
+            (fraction && this.decimalPoint + fraction)
+        );
     },
 
     /**
@@ -240,7 +240,7 @@ Object.assign( Locale.prototype, {
         Returns:
             {String} The localised ordinal.
     */
-    getFormattedOrdinal ( number ) {
+    getFormattedOrdinal(number) {
         return number + '.';
     },
 
@@ -257,21 +257,20 @@ Object.assign( Locale.prototype, {
         Returns:
             {String} The localised, human-readable file size.
     */
-    getFormattedFileSize ( bytes, decimalPlaces ) {
+    getFormattedFileSize(bytes, decimalPlaces) {
         const units = this.fileSizeUnits;
         const l = units.length - 1;
         let i = 0;
         const ORDER_MAGNITUDE = 1000;
-        while ( i < l && bytes >= ORDER_MAGNITUDE ) {
+        while (i < l && bytes >= ORDER_MAGNITUDE) {
             bytes /= ORDER_MAGNITUDE;
             i += 1;
         }
         // B/KB to nearest whole number, MB/GB to 1 decimal place.
-        const number = ( i < 2 ) ?
-            Math.round( bytes ) + '' :
-            bytes.toFixed( decimalPlaces || 0 );
+        const number =
+            i < 2 ? Math.round(bytes) + '' : bytes.toFixed(decimalPlaces || 0);
         // Use a &nbsp; to join the number to the unit.
-        return this.getFormattedNumber( number ) + ' ' + units[i];
+        return this.getFormattedNumber(number) + ' ' + units[i];
     },
 
     // === Date and Time ===
@@ -282,15 +281,22 @@ Object.assign( Locale.prototype, {
 
         Names of days of the week, starting from Sunday at index 0.
     */
-    dayNames: [ 'Sunday', 'Monday', 'Tuesday',
-        'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
+    dayNames: [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+    ],
     /**
         Property: O.Locale#abbreviatedDayNames
         Type: String[]
 
         Abbeviated names of days of the week, starting from Sunday at index 0.
     */
-    abbreviatedDayNames: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
+    abbreviatedDayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 
     /**
         Property: O.Locale#monthNames
@@ -298,8 +304,20 @@ Object.assign( Locale.prototype, {
 
         Names of months of the year, starting from January.
     */
-    monthNames: [ 'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December' ],
+    monthNames: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ],
 
     /**
         Property: O.Locale#abbreviatedMonthNames
@@ -307,8 +325,20 @@ Object.assign( Locale.prototype, {
 
         Abbeviated names of months of the year, starting from January.
     */
-    abbreviatedMonthNames: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
+    abbreviatedMonthNames: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ],
 
     /**
         Property: O.Locale#amDesignator
@@ -354,9 +384,11 @@ Object.assign( Locale.prototype, {
     */
     dateFormats: {
         date: '%d/%m/%Y',
-        time ( date, locale, utc ) {
+        time(date, locale, utc) {
             return date.format(
-                locale.use24hClock ? this.time24 : this.time12, utc );
+                locale.use24hClock ? this.time24 : this.time12,
+                utc,
+            );
         },
         time12: '%-I:%M %p',
         time24: '%H:%M',
@@ -390,11 +422,12 @@ Object.assign( Locale.prototype, {
         Returns:
             {String} The localised date.
     */
-    getFormattedDate ( date, type, utc ) {
+    getFormattedDate(date, type, utc) {
         const dateFormats = this.dateFormats;
-        const format = dateFormats[ type ] || dateFormats.date;
-        return typeof format === 'function' ?
-            dateFormats[ type ]( date, this, utc ) : date.format( format, utc );
+        const format = dateFormats[type] || dateFormats.date;
+        return typeof format === 'function'
+            ? dateFormats[type](date, this, utc)
+            : date.format(format, utc);
     },
 
     // === Strings ===
@@ -410,117 +443,144 @@ Object.assign( Locale.prototype, {
         // Japanese, Vietnamese, Korean.
         // Case 1: everything.
         // Case 2: is 0 (optional; case 1 used if not supplied).
-        '*1' ( n, singular, zero ) {
-            return ( !n && zero !== undefined ? zero : singular
-            ).replace( '%n', formatInt( n, this ) );
+        '*1'(n, singular, zero) {
+            return (!n && zero !== undefined ? zero : singular).replace(
+                '%n',
+                formatInt(n, this),
+            );
         },
         // Most Western languages.
         // Case 1: is 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; plural used if not supplied).
-        '*2' ( n, singular, plural, zero ) {
-            return ( n === 1 ? singular :
-                !n && zero !== undefined ? zero : plural
-            ).replace( '%n', formatInt( n, this ) );
+        '*2'(n, singular, plural, zero) {
+            return (n === 1
+                ? singular
+                : !n && zero !== undefined
+                ? zero
+                : plural
+            ).replace('%n', formatInt(n, this));
         },
         // French and Brazilian Portuguese.
         // Case 1: is 0 or 1.
         // Case 2: everything else.
         // Case 3: is 0 (optional; singular used if not supplied).
-        '*2a' ( n, singular, plural, zero ) {
-            return ( n > 1 ? plural :
-                !n && zero !== undefined ? zero : singular
-            ).replace( '%n', formatInt( n, this ) );
+        '*2a'(n, singular, plural, zero) {
+            return (n > 1
+                ? plural
+                : !n && zero !== undefined
+                ? zero
+                : singular
+            ).replace('%n', formatInt(n, this));
         },
         // Hungarian
         // Case 1: is 0,*3,*6,*8,*20,*30,*60,*80,*00,*000000, *000000+.
         // Case 2: everything else
         //        (*1,*2,*4,*5,*7,*9,*10,*40,*50,*70,*90,*000,*0000,*00000).
         // Case 3: is 0 (optional; case 1 used if not supplied)
-        '*2b' ( n, form1, form2, zero ) {
-            return ( !n ? zero !== undefined ? zero : form1 :
-                ( /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test( n + '' ) ) ?
-                form1 : form2
-            ).replace( '%n', formatInt( n, this ) );
+        '*2b'(n, form1, form2, zero) {
+            return (!n
+                ? zero !== undefined
+                    ? zero
+                    : form1
+                : /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test(n + '')
+                ? form1
+                : form2
+            ).replace('%n', formatInt(n, this));
         },
         // Latvian.
         // Case 1: is 0.
         // Case 2: ends in 1, does not end in 11.
         // Case 3: everything else.
-        '*3a' ( n, zero, plural1, plural2 ) {
-            return (
-                !n ? zero :
-                n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
-            ).replace( '%n', formatInt( n, this ) );
+        '*3a'(n, zero, plural1, plural2) {
+            return (!n
+                ? zero
+                : n % 10 === 1 && n % 100 !== 11
+                ? plural1
+                : plural2
+            ).replace('%n', formatInt(n, this));
         },
         // Romanian.
         // Case 1: is 1.
         // Case 2: is 0 or ends in 01-19.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3b' ( n, singular, plural1, plural2, zero ) {
+        '*3b'(n, singular, plural1, plural2, zero) {
             const mod100 = n % 100;
-            return (
-                !n && zero !== undefined ? zero :
-                n === 1 ? singular :
-                !n || ( 1 <= mod100 && mod100 <= 19 ) ? plural1 : plural2
-            ).replace( '%n', formatInt( n, this ) );
+            return (!n && zero !== undefined
+                ? zero
+                : n === 1
+                ? singular
+                : !n || (1 <= mod100 && mod100 <= 19)
+                ? plural1
+                : plural2
+            ).replace('%n', formatInt(n, this));
         },
         // Lithuanian.
         // Case 1: ends in 1, not 11.
         // Case 2: ends in 0 or ends in 10-20.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3c' ( n, form1, form2, form3, zero ) {
+        '*3c'(n, form1, form2, form3, zero) {
             const mod10 = n % 10;
             const mod100 = n % 100;
-            return (
-                !n && zero !== undefined ? zero :
-                mod10 === 1 && mod100 !== 11 ? form1 :
-                mod10 === 0 || ( 10 <= mod100 && mod100 <= 20 ) ? form2 : form3
-            ).replace( '%n', formatInt( n, this ) );
+            return (!n && zero !== undefined
+                ? zero
+                : mod10 === 1 && mod100 !== 11
+                ? form1
+                : mod10 === 0 || (10 <= mod100 && mod100 <= 20)
+                ? form2
+                : form3
+            ).replace('%n', formatInt(n, this));
         },
         // Russian, Ukrainian, Serbian, Croatian.
         // Case 1: ends in 1, does not end in 11.
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3d' ( n, form1, form2, form3, zero ) {
+        '*3d'(n, form1, form2, form3, zero) {
             const mod10 = n % 10;
             const mod100 = n % 100;
-            return (
-                !n && zero !== undefined ? zero :
-                mod10 === 1 && mod100 !== 11 ? form1 :
-                2 <= mod10 && mod10 <= 4 && ( mod100 < 12 || mod100 > 14 ) ?
-                form2 : form3
-            ).replace( '%n', formatInt( n, this ) );
+            return (!n && zero !== undefined
+                ? zero
+                : mod10 === 1 && mod100 !== 11
+                ? form1
+                : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+                ? form2
+                : form3
+            ).replace('%n', formatInt(n, this));
         },
         // Czech, Slovak.
         // Case 1: is 1.
         // Case 2: is 2-4.
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3e' ( n, singular, plural1, plural2, zero ) {
-            return (
-                !n && zero !== undefined ? zero :
-                n === 1 ? singular :
-                2 <= n && n <= 4 ? plural1 : plural2
-            ).replace( '%n', formatInt( n, this ) );
+        '*3e'(n, singular, plural1, plural2, zero) {
+            return (!n && zero !== undefined
+                ? zero
+                : n === 1
+                ? singular
+                : 2 <= n && n <= 4
+                ? plural1
+                : plural2
+            ).replace('%n', formatInt(n, this));
         },
         // Polish.
         // Case 1: is 1.
         // Case 2: ends in 2-4, does not end in 12-14.
         // Case 3: everything else
         // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3f' ( n, singular, plural1, plural2, zero ) {
+        '*3f'(n, singular, plural1, plural2, zero) {
             const mod10 = n % 10;
             const mod100 = n % 100;
-            return (
-                !n && zero !== undefined ? zero :
-                n === 1 ? singular :
-                2 <= mod10 && mod10 <= 4 && ( mod100 < 12 || mod100 > 14 ) ?
-                plural1 : plural2
-            ).replace( '%n', formatInt( n, this ) );
+            return (!n && zero !== undefined
+                ? zero
+                : n === 1
+                ? singular
+                : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+                ? plural1
+                : plural2
+            ).replace('%n', formatInt(n, this));
         },
         // Slovenian, Sorbian.
         // Case 1: ends in 01.
@@ -528,14 +588,18 @@ Object.assign( Locale.prototype, {
         // Case 3: ends in 03 or 04.
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4a' ( n, end01, end02, end03or04, plural, zero ) {
+        '*4a'(n, end01, end02, end03or04, plural, zero) {
             const mod100 = n % 100;
-            return (
-                !n && zero !== undefined ? zero :
-                mod100 === 1 ? end01 :
-                mod100 === 2 ? end02 :
-                mod100 === 3 || mod100 === 4 ? end03or04 : plural
-            ).replace( '%n', formatInt( n, this ) );
+            return (!n && zero !== undefined
+                ? zero
+                : mod100 === 1
+                ? end01
+                : mod100 === 2
+                ? end02
+                : mod100 === 3 || mod100 === 4
+                ? end03or04
+                : plural
+            ).replace('%n', formatInt(n, this));
         },
         // Scottish Gaelic.
         // Case 1: is 1 or 11.
@@ -543,13 +607,17 @@ Object.assign( Locale.prototype, {
         // Case 3: is 3-19.
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4b' ( n, form1, form2, form3, form4, zero ) {
-            return (
-                !n && zero !== undefined ? zero :
-                n === 1 || n === 11 ? form1 :
-                n === 2 || n === 12 ? form2 :
-                3 <= n && n <= 19 ? form3 : form4
-            ).replace( '%n', formatInt( n, this ) );
+        '*4b'(n, form1, form2, form3, form4, zero) {
+            return (!n && zero !== undefined
+                ? zero
+                : n === 1 || n === 11
+                ? form1
+                : n === 2 || n === 12
+                ? form2
+                : 3 <= n && n <= 19
+                ? form3
+                : form4
+            ).replace('%n', formatInt(n, this));
         },
         // Gaeilge (Irish).
         // Case 1: is 1.
@@ -558,14 +626,19 @@ Object.assign( Locale.prototype, {
         // Case 4: is 7-10.
         // Case 5: everything else.
         // Case 6: is 0 (optional; case 5 used if not supplied)
-        '*5' ( n, singular, doubular, form1, form2, form3, zero ) {
-            return (
-                !n && zero !== undefined ? zero :
-                n === 1 ? singular :
-                n === 2 ? doubular :
-                3 <= n && n <= 6 ? form1 :
-                7 <= n && n <= 10 ? form2 : form3
-            ).replace( '%n', formatInt( n, this ) );
+        '*5'(n, singular, doubular, form1, form2, form3, zero) {
+            return (!n && zero !== undefined
+                ? zero
+                : n === 1
+                ? singular
+                : n === 2
+                ? doubular
+                : 3 <= n && n <= 6
+                ? form1
+                : 7 <= n && n <= 10
+                ? form2
+                : form3
+            ).replace('%n', formatInt(n, this));
         },
         // Arabic.
         // Case 1: is 0.
@@ -574,15 +647,20 @@ Object.assign( Locale.prototype, {
         // Case 4: ends in 03-10.
         // Case 5: ends in 11-99.
         // Case 6: everything else.
-        '*6' ( n, zero, singular, doubular, pl1, pl2, pl3 ) {
+        '*6'(n, zero, singular, doubular, pl1, pl2, pl3) {
             const mod100 = n % 100;
-            return (
-                !n ? zero :
-                n === 1 ? singular :
-                n === 2 ? doubular :
-                3 <= mod100 && mod100 <= 10 ? pl1 :
-                11 <= mod100 && mod100 <= 99 ? pl2 : pl3
-            ).replace( '%n', formatInt( n, this ) );
+            return (!n
+                ? zero
+                : n === 1
+                ? singular
+                : n === 2
+                ? doubular
+                : 3 <= mod100 && mod100 <= 10
+                ? pl1
+                : 11 <= mod100 && mod100 <= 99
+                ? pl2
+                : pl3
+            ).replace('%n', formatInt(n, this));
         },
     },
 
@@ -661,40 +739,42 @@ Object.assign( Locale.prototype, {
         Returns:
             {(String|Array)} The localised string or array of localised parts.
     */
-    translate ( string ) {
-        let translation = this.translations[ string ];
+    translate(string) {
+        let translation = this.translations[string];
         let returnString = true;
         const args = [];
         let i, l;
 
-        if ( translation === undefined ) {
+        if (translation === undefined) {
             translation = string;
         }
 
-        for ( i = 1, l = arguments.length; i < l; i += 1 ) {
+        for (i = 1, l = arguments.length; i < l; i += 1) {
             const arg = arguments[i];
-            if ( typeof arg === 'object' ) {
+            if (typeof arg === 'object') {
                 returnString = false;
             }
-            args[ i - 1 ] = arg;
+            args[i - 1] = arg;
         }
 
-        if ( returnString ) {
-            const compiled = this.compiled[ string ] ||
-                ( this.compiled[ string ] = compileTranslation( translation ) );
-            return compiled( this, args );
+        if (returnString) {
+            const compiled =
+                this.compiled[string] ||
+                (this.compiled[string] = compileTranslation(translation));
+            return compiled(this, args);
         }
 
-        const parts = translation.split( /\[_(\d)\]/ );
-        for ( i = 0, l = parts.length; i < l; i += 1 ) {
+        const parts = translation.split(/\[_(\d)\]/);
+        for (i = 0, l = parts.length; i < l; i += 1) {
             const part = parts[i];
-            if ( i % 2 === 1 ) {
-                parts[i] = args[ part - 1 ] || null;
-            } else if ( part.indexOf( '[*' ) !== -1 ) {
+            if (i % 2 === 1) {
+                parts[i] = args[part - 1] || null;
+            } else if (part.indexOf('[*') !== -1) {
                 // Presumably it contains a macro; execute that.
-                const compiled = this.compiled[ part ] ||
-                    ( this.compiled[ part ] = compileTranslation( part ) );
-                parts[i] = compiled( this, args );
+                const compiled =
+                    this.compiled[part] ||
+                    (this.compiled[part] = compileTranslation(part));
+                parts[i] = compiled(this, args);
             }
         }
         return parts;

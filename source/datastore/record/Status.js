@@ -17,17 +17,17 @@
 */
 
 // Core states:
-export const EMPTY        =   1;
-export const READY        =   2;
-export const DESTROYED    =   4;
-export const NON_EXISTENT =   8;
+export const EMPTY = 1;
+export const READY = 2;
+export const DESTROYED = 4;
+export const NON_EXISTENT = 8;
 
 // Properties:
-export const LOADING      =  16;
-export const COMMITTING   =  32;
-export const NEW          =  64;
-export const DIRTY        = 128;
-export const OBSOLETE     = 256;
+export const LOADING = 16;
+export const COMMITTING = 32;
+export const NEW = 64;
+export const DIRTY = 128;
+export const OBSOLETE = 256;
 
 // Sugar
-export const UNSAVED      = READY|NEW|DIRTY;
+export const UNSAVED = READY | NEW | DIRTY;

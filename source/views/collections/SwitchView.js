@@ -3,37 +3,36 @@
 import { isDestroyed, Class } from '../../core/Core';
 import { bind } from '../../foundation/Binding';
 import * as RunLoop from '../../foundation/RunLoop';
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/ObservableProps'; // For Function#observes
 import View from '../View';
 import { forView } from '../../dom/Element';
 
-const forEachView = function ( views, method, args ) {
+const forEachView = function (views, method, args) {
     let l = views ? views.length : 0,
         view;
-    while ( l-- ) {
+    while (l--) {
         view = views[l];
-        if ( view instanceof View && !isDestroyed( view ) ) {
-            if ( args ) {
-                view[ method ].apply( view, args );
+        if (view instanceof View && !isDestroyed(view)) {
+            if (args) {
+                view[method].apply(view, args);
             } else {
-                view[ method ]();
+                view[method]();
             }
         }
     }
 };
 
-const flattenAndPrune = function ( array, node ) {
-    if ( node instanceof Array ) {
-        node.reduce( flattenAndPrune, array );
-    } else if ( node ) {
-        array.push( node );
+const flattenAndPrune = function (array, node) {
+    if (node instanceof Array) {
+        node.reduce(flattenAndPrune, array);
+    } else if (node) {
+        array.push(node);
     }
     return array;
 };
 
 const SwitchView = Class({
-
     Extends: View,
 
     syncOnlyInDocument: false,
@@ -49,78 +48,78 @@ const SwitchView = Class({
         this.views = [];
         this.subViews = [];
 
-        SwitchView.parent.constructor.apply( this, arguments );
+        SwitchView.parent.constructor.apply(this, arguments);
 
         this.isRendered = true;
 
-        const views = this.get( 'views' );
+        const views = this.get('views');
         let l = views.length;
         let view;
-        while ( l-- ) {
+        while (l--) {
             view = views[l];
-            if ( view && !( view instanceof Array ) ) {
-                views[l] = [ view ];
+            if (view && !(view instanceof Array)) {
+                views[l] = [view];
             }
         }
     },
 
-    destroy () {
-        let views = this.get( 'views' );
+    destroy() {
+        let views = this.get('views');
         let l = views.length;
-        while ( l-- ) {
-            forEachView( views[l], 'destroy' );
+        while (l--) {
+            forEachView(views[l], 'destroy');
         }
-        views = this.get( 'subViews' );
+        views = this.get('subViews');
         l = views.length;
-        while ( l-- ) {
-            forEachView( views[l], 'destroy' );
+        while (l--) {
+            forEachView(views[l], 'destroy');
         }
-        SwitchView.parent.destroy.call( this );
+        SwitchView.parent.destroy.call(this);
     },
 
     // ---
 
     layer: function () {
-        return document.createComment( 'SwitchView ' + this.get( 'id' ) );
+        return document.createComment('SwitchView ' + this.get('id'));
     }.property(),
 
-    willEnterDocument () {
+    willEnterDocument() {
         this.resume();
         this.redraw();
         return this;
     },
 
-    didEnterDocument () {
-        this.set( 'isInDocument', true );
-        if ( this.get( 'index' ) !== this._index ) {
+    didEnterDocument() {
+        this.set('isInDocument', true);
+        if (this.get('index') !== this._index) {
             this.switchNeedsRedraw();
         }
         return this;
     },
 
-    willLeaveDocument () {
-        return this.set( 'isInDocument', false );
+    willLeaveDocument() {
+        return this.set('isInDocument', false);
     },
 
-    didLeaveDocument () {
+    didLeaveDocument() {
         return this.suspend();
     },
 
     // ---
 
-    redraw () {
+    redraw() {
         const oldIndex = this._index;
-        const newIndex = this.get( 'index' );
+        const newIndex = this.get('index');
         // If not yet added to parent, nothing to redraw; _add will be called
         // automatically soon.
-        if ( oldIndex > -1 && oldIndex !== newIndex && !isDestroyed( this ) ) {
-            if ( this._suspendRedraw ) {
+        if (oldIndex > -1 && oldIndex !== newIndex && !isDestroyed(this)) {
+            if (this._suspendRedraw) {
                 this._needsRedraw = [];
             } else {
                 this._needsRedraw = null;
-                const parentView = this.get( 'parentView' );
-                if ( parentView ) {
-                    this._remove( parentView );
+                const parentView = this.get('parentView');
+                if (parentView) {
+                    this._remove(parentView);
                     this._add();
                 }
             }
@@ -128,23 +127,23 @@ const SwitchView = Class({
     },
 
     switchNeedsRedraw: function () {
-        if ( this.get( 'isInDocument' ) ) {
-            if ( this._suspendRedraw ) {
+        if (this.get('isInDocument')) {
+            if (this._suspendRedraw) {
                 this._needsRedraw = [];
             } else {
-                RunLoop.queueFn( 'render', this.redraw, this );
+                RunLoop.queueFn('render', this.redraw, this);
             }
         }
-    }.observes( 'index' ),
+    }.observes('index'),
 
-    parentViewDidChange: function ( _, __, oldParent, newParent ) {
-        if ( oldParent ) {
+    parentViewDidChange: function (_, __, oldParent, newParent) {
+        if (oldParent) {
             // May be a NOP, but just in case.
-            oldParent.removeObserverForKey( 'childViews', this, '_add' );
-            this._remove( oldParent );
+            oldParent.removeObserverForKey('childViews', this, '_add');
+            this._remove(oldParent);
         }
-        if ( newParent ) {
-            if ( newParent.get( 'childViews' ).includes( this ) ) {
+        if (newParent) {
+            if (newParent.get('childViews').includes(this)) {
                 // If we already know where we are in the parent view, we can
                 // add our real views immediately.
                 this._add();
@@ -152,105 +151,108 @@ const SwitchView = Class({
                 // Otherwise, we need to wait until we've been inserted to know
                 // where our DOM marker has been placed, and where the view is
                 // in the list of child views.
-                newParent.addObserverForKey( 'childViews', this, '_add' );
+                newParent.addObserverForKey('childViews', this, '_add');
             }
         }
-    }.observes( 'parentView' ),
+    }.observes('parentView'),
 
-    _add () {
-        const index = this.get( 'index' );
-        const views = this.get( 'views' )[ index ];
-        const subViews = this.get( 'subViews' )[ index ];
-        const parent = this.get( 'parentView' );
-        const isInDocument = parent.get( 'isInDocument' );
-        const position = this.get( 'layer' );
+    _add() {
+        const index = this.get('index');
+        const views = this.get('views')[index];
+        const subViews = this.get('subViews')[index];
+        const parent = this.get('parentView');
+        const isInDocument = parent.get('isInDocument');
+        const position = this.get('layer');
         const layer = position.parentNode;
         let l, node, before;
 
         // May be a NOP, but just in case.
-        parent.removeObserverForKey( 'childViews', this, '_add' );
-        if ( this._index !== -1 ) {
+        parent.removeObserverForKey('childViews', this, '_add');
+        if (this._index !== -1) {
             return;
         }
         this._index = index;
 
-        if ( subViews ) {
-            forEachView( subViews, 'set', [ 'parentView', parent ] );
-            if ( isInDocument ) {
-                forEachView( subViews, 'willEnterDocument' );
+        if (subViews) {
+            forEachView(subViews, 'set', ['parentView', parent]);
+            if (isInDocument) {
+                forEachView(subViews, 'willEnterDocument');
             }
         }
 
         l = views ? views.length : 0;
-        while ( l-- ) {
+        while (l--) {
             node = views[l];
-            if ( node instanceof View ) {
-                parent.insertView( node, this, 'after' );
+            if (node instanceof View) {
+                parent.insertView(node, this, 'after');
             } else {
-                if ( typeof node !== 'object' ) {
-                    node = views[l] = document.createTextNode( node );
+                if (typeof node !== 'object') {
+                    node = views[l] = document.createTextNode(node);
                 }
                 before = position.nextSibling;
-                if ( before ) {
-                    layer.insertBefore( node, before );
+                if (before) {
+                    layer.insertBefore(node, before);
                 } else {
-                    layer.appendChild( node );
+                    layer.appendChild(node);
                 }
             }
         }
 
-        if ( subViews ) {
-            if ( isInDocument ) {
-                forEachView( subViews, 'didEnterDocument' );
+        if (subViews) {
+            if (isInDocument) {
+                forEachView(subViews, 'didEnterDocument');
             }
-            Array.prototype.push.apply( parent.get( 'childViews' ), subViews );
-            parent.propertyDidChange( 'childViews' );
+            Array.prototype.push.apply(parent.get('childViews'), subViews);
+            parent.propertyDidChange('childViews');
         }
     },
 
-    _remove ( parent ) {
+    _remove(parent) {
         const oldIndex = this._index;
-        const views = this.get( 'views' )[ oldIndex ];
-        const subViews = this.get( 'subViews' )[ oldIndex ];
-        const isInDocument = parent.get( 'isInDocument' );
+        const views = this.get('views')[oldIndex];
+        const subViews = this.get('subViews')[oldIndex];
+        const isInDocument = parent.get('isInDocument');
         let l, node, childViews, view, index, numToRemove;
 
-        if ( isInDocument && subViews ) {
-            forEachView( subViews, 'willLeaveDocument' );
+        if (isInDocument && subViews) {
+            forEachView(subViews, 'willLeaveDocument');
         }
 
         l = views ? views.length : 0;
-        while ( l-- ) {
+        while (l--) {
             node = views[l];
-            if ( node instanceof View ) {
-                parent.removeView( node );
+            if (node instanceof View) {
+                parent.removeView(node);
             } else {
-                node.parentNode.removeChild( node );
+                node.parentNode.removeChild(node);
             }
         }
 
-        if ( subViews ) {
-            if ( isInDocument ) {
-                forEachView( subViews, 'didLeaveDocument' );
+        if (subViews) {
+            if (isInDocument) {
+                forEachView(subViews, 'didLeaveDocument');
             }
-            forEachView( subViews, 'set', [ 'parentView', null ] );
-            childViews = parent.get( 'childViews' );
+            forEachView(subViews, 'set', ['parentView', null]);
+            childViews = parent.get('childViews');
             l = subViews.length;
-            while ( l-- ) {
+            while (l--) {
                 view = subViews[l];
-                index = childViews.lastIndexOf( view );
+                index = childViews.lastIndexOf(view);
                 numToRemove = 1;
-                if ( index > -1 ) {
-                    while ( l > 0 && index > 0 &&
-                            subViews[ l - 1 ] === childViews[ index - 1 ] ) {
+                if (index > -1) {
+                    while (
+                        l > 0 &&
+                        index > 0 &&
+                        subViews[l - 1] === childViews[index - 1]
+                    ) {
                         l -= 1;
                         index -= 1;
                         numToRemove += 1;
                     }
-                    childViews.splice( index, numToRemove );
+                    childViews.splice(index, numToRemove);
                 }
             }
-            parent.propertyDidChange( 'childViews' );
+            parent.propertyDidChange('childViews');
         }
         this._index = -1;
     },
@@ -262,41 +264,37 @@ const SwitchView = Class({
         them up, then pass them as subViews when show() or otherwise() is
         called.
     */
-    insertView ( view, parentNode ) {
-        this.childViews.push( view );
-        const oldParent = view.get( 'parentView' );
-        if ( oldParent ) {
-            oldParent.removeView( view );
+    insertView(view, parentNode) {
+        this.childViews.push(view);
+        const oldParent = view.get('parentView');
+        if (oldParent) {
+            oldParent.removeView(view);
         }
-        parentNode.appendChild( view.render().get( 'layer' ) );
+        parentNode.appendChild(view.render().get('layer'));
         return this;
     },
 
-    case ( index, view ) {
-        view = view ?
-            view instanceof Array ?
-                view :
-                [ view ] :
-            null;
-        this.views[ index ] = view && view.reduce( flattenAndPrune, [] );
+    case(index, view) {
+        view = view ? (view instanceof Array ? view : [view]) : null;
+        this.views[index] = view && view.reduce(flattenAndPrune, []);
         const subViews = this.childViews;
-        if ( subViews.length ) {
-            this.subViews[ index ] = subViews;
+        if (subViews.length) {
+            this.subViews[index] = subViews;
             this.childViews = [];
         }
         return this;
     },
 
-    show ( view ) {
-        return this.case( 0, view );
+    show(view) {
+        return this.case(0, view);
     },
 
-    otherwise ( view ) {
-        return this.case( 1, view );
+    otherwise(view) {
+        return this.case(1, view);
     },
 
-    end () {
-        forView( this._oldView );
+    end() {
+        forView(this._oldView);
         this._oldView = null;
         return this;
     },
@@ -304,40 +302,40 @@ const SwitchView = Class({
 
 export default SwitchView;
 
-const pickViewWhen = function ( bool ) {
+const pickViewWhen = function (bool) {
     return bool ? 0 : 1;
 };
-const pickViewUnless = function ( bool ) {
+const pickViewUnless = function (bool) {
     return bool ? 1 : 0;
 };
 
-const choose = function ( object, property, transform ) {
+const choose = function (object, property, transform) {
     const switchView = new SwitchView({
-        index: bind( object, property, transform ),
+        index: bind(object, property, transform),
     });
-    switchView._oldView = forView( switchView );
+    switchView._oldView = forView(switchView);
     return switchView;
 };
 
-const when = function ( object, property, transform ) {
-    const pickView = transform ? function ( value, syncForward ) {
-        return pickViewWhen( transform( value, syncForward ) );
-    } : pickViewWhen;
+const when = function (object, property, transform) {
+    const pickView = transform
+        ? function (value, syncForward) {
+              return pickViewWhen(transform(value, syncForward));
+          }
+        : pickViewWhen;
     // (The lint would complain that it expected .case().)
     // eslint-disable-next-line overture/switch-view-usage
-    return choose( object, property, pickView );
+    return choose(object, property, pickView);
 };
-const unless = function ( object, property, transform ) {
-    const pickView = transform ? function ( value, syncForward ) {
-        return pickViewUnless( transform( value, syncForward ) );
-    } : pickViewUnless;
+const unless = function (object, property, transform) {
+    const pickView = transform
+        ? function (value, syncForward) {
+              return pickViewUnless(transform(value, syncForward));
+          }
+        : pickViewUnless;
     // (The lint would complain that it expected .case().)
     // eslint-disable-next-line overture/switch-view-usage
-    return choose( object, property, pickView );
+    return choose(object, property, pickView);
 };
 
-export {
-    when,
-    unless,
-    choose,
-};
+export { when, unless, choose };

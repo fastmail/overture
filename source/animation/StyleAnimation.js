@@ -4,7 +4,7 @@ import { setStyle } from '../dom/Element';
 
 const numbersRe = /[.\-\d]+/g;
 
-const splitTransform = function ( transform ) {
+const splitTransform = function (transform) {
     const result = [];
     const l = transform.length;
     let last = 0;
@@ -12,27 +12,26 @@ const splitTransform = function ( transform ) {
     let inNumber = false;
     let i, character, part;
 
-    for ( i = 0; i < l; i += 1 ) {
-        character = transform.charAt( i );
-        if ( ( inNumber || inFn ) &&
-                ( inNumber !== /^[.\-\d]/.test( character ) ) ) {
-            part = transform.slice( last, i );
-            result.push( inNumber ? parseFloat( part ) : part );
+    for (i = 0; i < l; i += 1) {
+        character = transform.charAt(i);
+        if ((inNumber || inFn) && inNumber !== /^[.\-\d]/.test(character)) {
+            part = transform.slice(last, i);
+            result.push(inNumber ? parseFloat(part) : part);
             last = i;
             inNumber = !inNumber;
-        } else if ( character === '(' ) {
+        } else if (character === '(') {
             inFn = true;
-        } else if ( character === ')' ) {
+        } else if (character === ')') {
             inFn = false;
         }
     }
-    result.push( transform.slice( last ) );
+    result.push(transform.slice(last));
     return result;
 };
 
-const zeroTransform = function ( parts ) {
+const zeroTransform = function (parts) {
     parts = parts.slice();
-    for ( let i = 1, l = parts.length; i < l; i += 2 ) {
+    for (let i = 1, l = parts.length; i < l; i += 2) {
         parts[i] = 0;
     }
     return parts;
@@ -40,51 +39,51 @@ const zeroTransform = function ( parts ) {
 
 const styleAnimators = {
     display: {
-        calcDelta ( startValue, endValue ) {
+        calcDelta(startValue, endValue) {
             return endValue === 'none' ? startValue : endValue;
         },
-        calcValue ( position, deltaValue, startValue ) {
+        calcValue(position, deltaValue, startValue) {
             return position ? deltaValue : startValue;
         },
     },
     transform: {
-        calcDelta ( startValue, endValue ) {
-            let start = splitTransform( startValue || '' );
-            let end = splitTransform( endValue || '' );
+        calcDelta(startValue, endValue) {
+            let start = splitTransform(startValue || '');
+            let end = splitTransform(endValue || '');
             let i, l;
-            if ( !endValue || ( endValue === 'none' ) ) {
-                end = zeroTransform( start );
+            if (!endValue || endValue === 'none') {
+                end = zeroTransform(start);
             }
-            if ( !startValue || ( startValue === 'none' ) ) {
-                start = zeroTransform( end );
+            if (!startValue || startValue === 'none') {
+                start = zeroTransform(end);
             }
-            if ( start.length !== end.length ) {
-                start = [ startValue ];
-                end = [ endValue ];
+            if (start.length !== end.length) {
+                start = [startValue];
+                end = [endValue];
             }
-            for ( i = 0, l = start.length; i < l; i += 1 ) {
-                if ( start[i] === 0 && /^[,)]/.test( start[ i + 1 ] ) ) {
-                    start[ i + 1 ] = end[ i + 1 ].replace( /[,)].*/g, '' ) +
-                        start[ i + 1 ];
+            for (i = 0, l = start.length; i < l; i += 1) {
+                if (start[i] === 0 && /^[,)]/.test(start[i + 1])) {
+                    start[i + 1] =
+                        end[i + 1].replace(/[,)].*/g, '') + start[i + 1];
                 }
             }
             return {
                 start,
-                delta: end.map( ( value, index ) => (
-                    index & 1 ? value - start[ index ] : 0
-                )),
+                delta: end.map((value, index) =>
+                    index & 1 ? value - start[index] : 0,
+                ),
             };
         },
-        calcValue ( position, deltaValue, _, end ) {
-            if ( !deltaValue ) {
+        calcValue(position, deltaValue, _, end) {
+            if (!deltaValue) {
                 return end;
             }
             const start = deltaValue.start;
             const delta = deltaValue.delta;
             let transform = start[0];
-            for ( let i = 1, l = start.length; i < l; i += 2 ) {
-                transform += start[ i ] + ( position * delta[ i ] );
-                transform += start[ i + 1 ];
+            for (let i = 1, l = start.length; i < l; i += 2) {
+                transform += start[i] + position * delta[i];
+                transform += start[i + 1];
             }
             return transform;
         },
@@ -154,76 +153,78 @@ class StyleAnimation extends Animation {
         Returns:
             {Boolean} True if any of the styles are going to be animated.
     */
-    prepare ( styles ) {
-        let animated = this.animated = [];
-        const from = this.startValue = this.current;
-        const current = this.current = clone( from );
-        const delta = this.deltaValue = {};
-        const units = this.units = {};
+    prepare(styles) {
+        let animated = (this.animated = []);
+        const from = (this.startValue = this.current);
+        const current = (this.current = clone(from));
+        const delta = (this.deltaValue = {});
+        const units = (this.units = {});
         const element = this.element;
 
         this.endValue = styles;
 
-        for ( const property in styles ) {
-            let start = from[ property ];
-            const end = styles[ property ];
-            if ( start !== end ) {
+        for (const property in styles) {
+            let start = from[property];
+            const end = styles[property];
+            if (start !== end) {
                 // We only support animating key layout properties.
-                if ( supported[ property ] ) {
-                    animated.push( property );
-                    const animator = styleAnimators[ property ];
-                    if ( animator ) {
-                        delta[ property ] = animator.calcDelta( start, end );
+                if (supported[property]) {
+                    animated.push(property);
+                    const animator = styleAnimators[property];
+                    if (animator) {
+                        delta[property] = animator.calcDelta(start, end);
                     } else {
-                        units[ property ] =
-                            ( typeof start === 'string' &&
-                                start.replace( numbersRe, '' ) ) ||
-                            ( typeof end === 'string' &&
-                                end.replace( numbersRe, '' ) ) ||
+                        units[property] =
+                            (typeof start === 'string' &&
+                                start.replace(numbersRe, '')) ||
+                            (typeof end === 'string' &&
+                                end.replace(numbersRe, '')) ||
                             // If no unit specified, using 0 will ensure
                             // the value passed to setStyle is a number, so
                             // it will add 'px' if appropriate.
                             0;
-                        start = from[ property ] = parseFloat( start );
-                        delta[ property ] = parseFloat( end ) - start;
+                        start = from[property] = parseFloat(start);
+                        delta[property] = parseFloat(end) - start;
                     }
                 } else {
-                    current[ property ] = end;
-                    setStyle( element, property, end );
+                    current[property] = end;
+                    setStyle(element, property, end);
                 }
             }
         }
 
         // Animate common top change as a transform for performance
-        if ( delta.top && ( !units.top || units.top === 'px' ) ) {
+        if (delta.top && (!units.top || units.top === 'px')) {
             let transform = styles.transform || '';
-            if ( transform === 'none' ) {
+            if (transform === 'none') {
                 transform = '';
             }
-            if ( transform === '' ||
-                    /^translate3d\([^,]+,|\d+(?:px)?,0\)$/.test( transform ) ) {
-                if ( !delta.transform ) {
-                    animated.push( 'transform' );
+            if (
+                transform === '' ||
+                /^translate3d\([^,]+,|\d+(?:px)?,0\)$/.test(transform)
+            ) {
+                if (!delta.transform) {
+                    animated.push('transform');
                 }
-                if ( transform === '' ) {
+                if (transform === '') {
                     styles.transform = 'none';
-                    transform = 'translate3d(0,' + delta.top +'px,0)';
+                    transform = 'translate3d(0,' + delta.top + 'px,0)';
                 } else {
-                    const parts = transform.split( ',' );
-                    parts[1] = ( parseInt( parts[1], 10 ) + delta.top ) + 'px';
-                    transform = parts.join( ',' );
+                    const parts = transform.split(',');
+                    parts[1] = parseInt(parts[1], 10) + delta.top + 'px';
+                    transform = parts.join(',');
                 }
                 delta.tt = styleAnimators.transform.calcDelta(
                     from.transform || '',
-                    transform
+                    transform,
                 );
-                animated.push( 'tt' );
-                animated = animated.filter( x => x !== 'top' && x !== 'tt' );
+                animated.push('tt');
+                animated = animated.filter((x) => x !== 'top' && x !== 'tt');
             }
         }
 
-        if ( animated.length ) {
-            setStyle( element, 'will-change', animated.join( ', ' ) );
+        if (animated.length) {
+            setStyle(element, 'will-change', animated.join(', '));
             return true;
         }
 
@@ -239,56 +240,64 @@ class StyleAnimation extends Animation {
         Parameters:
             position - {Number} The position in the animation.
     */
-    drawFrame ( position ) {
+    drawFrame(position) {
         const isRunning = position < 1;
         const {
-            startValue, endValue, deltaValue,
-            units, current, animated, element,
+            startValue,
+            endValue,
+            deltaValue,
+            units,
+            current,
+            animated,
+            element,
         } = this;
         let l = animated.length;
 
-        while ( l-- ) {
+        while (l--) {
             let property = animated[l];
-            const delta = deltaValue[ property ];
-            const isTopTransform = ( property === 'tt' );
-            if ( isTopTransform ) {
+            const delta = deltaValue[property];
+            const isTopTransform = property === 'tt';
+            if (isTopTransform) {
                 property = 'transform';
             }
 
-            const start = startValue[ property ];
-            const end = endValue[ property ];
-            const unit = units[ property ];
-            const animator = styleAnimators[ property ];
-            const value = isRunning ?
-                animator ?
-                    animator.calcValue( position, delta, start, end ) :
-                    ( start + ( position * delta ) ) + unit :
-                end;
+            const start = startValue[property];
+            const end = endValue[property];
+            const unit = units[property];
+            const animator = styleAnimators[property];
+            const value = isRunning
+                ? animator
+                    ? animator.calcValue(position, delta, start, end)
+                    : start + position * delta + unit
+                : end;
 
-            if ( isTopTransform ) {
-                if ( !isRunning ) {
+            if (isTopTransform) {
+                if (!isRunning) {
                     continue;
                 }
             } else {
-                current[ property ] = value;
-                if ( isRunning && deltaValue.tt &&
-                        ( property === 'top' || property === 'transform' ) ) {
+                current[property] = value;
+                if (
+                    isRunning &&
+                    deltaValue.tt &&
+                    (property === 'top' || property === 'transform')
+                ) {
                     continue;
                 }
             }
-            setStyle( element, property, value );
+            setStyle(element, property, value);
         }
     }
 
-    stop () {
-        if ( this.isRunning ) {
+    stop() {
+        if (this.isRunning) {
             const element = this.element;
-            if ( this.deltaValue.tt ) {
+            if (this.deltaValue.tt) {
                 const current = this.current;
-                setStyle( element, 'top', current.top );
-                setStyle( element, 'transform', current.transform );
+                setStyle(element, 'top', current.top);
+                setStyle(element, 'transform', current.transform);
             }
-            setStyle( element, 'will-change', 'auto' );
+            setStyle(element, 'will-change', 'auto');
         }
         return super.stop();
     }

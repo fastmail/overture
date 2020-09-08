@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/ObservableProps';  // For Function#observes
-import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/ObservableProps'; // For Function#observes
+import '../../foundation/EventTarget'; // For Function#on
 import * as RunLoop from '../../foundation/RunLoop';
 import { lookupKey } from '../../dom/DOMEvent';
 import { create as el } from '../../dom/Element';
@@ -65,7 +65,6 @@ import AbstractControlView from './AbstractControlView';
     position.
 */
 const ButtonView = Class({
-
     Extends: AbstractControlView,
 
     /**
@@ -139,16 +138,24 @@ const ButtonView = Class({
         disabled    - If the view's isDisabled property is true.
     */
     className: function () {
-        const type = this.get( 'type' );
-        return 'v-Button' +
-            ( type ? ' ' + type : '' ) +
-            ( this.get( 'icon' ) ? ' v-Button--hasIcon' : '' ) +
-            ( this.get( 'shortcut' ) ? ' v-Button--hasShortcut' : '' ) +
-            ( this.get( 'isActive' ) ? ' is-active' : '' ) +
-            ( this.get( 'isWaiting' ) ? ' is-waiting' : '' ) +
-            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' );
-    }.property( 'type', 'icon', 'shortcut', 'isActive', 'isWaiting',
-                'isDisabled' ),
+        const type = this.get('type');
+        return (
+            'v-Button' +
+            (type ? ' ' + type : '') +
+            (this.get('icon') ? ' v-Button--hasIcon' : '') +
+            (this.get('shortcut') ? ' v-Button--hasShortcut' : '') +
+            (this.get('isActive') ? ' is-active' : '') +
+            (this.get('isWaiting') ? ' is-waiting' : '') +
+            (this.get('isDisabled') ? ' is-disabled' : '')
+        );
+    }.property(
+        'type',
+        'icon',
+        'shortcut',
+        'isActive',
+        'isWaiting',
+        'isDisabled',
+    ),
 
     /**
         Method: O.ButtonView#draw
@@ -156,18 +163,15 @@ const ButtonView = Class({
         Overridden to draw view. See <O.View#draw>. For DOM structure, see
         general <O.ButtonView> notes.
     */
-    draw ( layer ) {
-        let icon = this.get( 'icon' );
-        if ( typeof icon === 'string' ) {
-            icon = ButtonView.drawIcon( icon );
-        } else if ( !icon ) {
-            icon = document.createComment( 'icon' );
+    draw(layer) {
+        let icon = this.get('icon');
+        if (typeof icon === 'string') {
+            icon = ButtonView.drawIcon(icon);
+        } else if (!icon) {
+            icon = document.createComment('icon');
         }
         this._domControl = layer;
-        return [
-            icon,
-            ButtonView.parent.draw.call( this, layer ),
-        ];
+        return [icon, ButtonView.parent.draw.call(this, layer)];
     },
 
     // --- Keep render in sync with state ---
@@ -178,26 +182,26 @@ const ButtonView = Class({
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    buttonNeedsRedraw: function ( self, property, oldValue ) {
-        if ( property === 'isWaiting' ) {
+    buttonNeedsRedraw: function (self, property, oldValue) {
+        if (property === 'isWaiting') {
             property = 'isDisabled';
         }
-        return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'icon', 'isWaiting' ),
+        return this.propertyNeedsRedraw(self, property, oldValue);
+    }.observes('icon', 'isWaiting'),
 
-    redrawIcon ( layer ) {
-        let icon = this.get( 'icon' );
-        if ( typeof icon === 'string' ) {
-            icon = ButtonView.drawIcon( icon );
-        } else if ( !icon ) {
-            icon = document.createComment( 'icon' );
+    redrawIcon(layer) {
+        let icon = this.get('icon');
+        if (typeof icon === 'string') {
+            icon = ButtonView.drawIcon(icon);
+        } else if (!icon) {
+            icon = document.createComment('icon');
         }
-        layer.replaceChild( icon, layer.firstChild );
+        layer.replaceChild(icon, layer.firstChild);
     },
 
-    redrawIsDisabled () {
+    redrawIsDisabled() {
         this._domControl.disabled =
-            this.get( 'isDisabled' ) || this.get( 'isWaiting' );
+            this.get('isDisabled') || this.get('isWaiting');
     },
 
     // --- Activate ---
@@ -252,16 +256,16 @@ const ButtonView = Class({
 
         It also fires an event called `button:activate` on itself.
     */
-    activate () {
-        if ( !this.get( 'isDisabled' ) && !this.get( 'isWaiting' ) ) {
-            const target = this.get( 'target' ) || this;
+    activate() {
+        if (!this.get('isDisabled') && !this.get('isWaiting')) {
+            const target = this.get('target') || this;
             let action;
-            if ( ( action = this.get( 'action' ) ) ) {
-                target.fire( action, { originView: this } );
-            } else if ( ( action = this.get( 'method' ) ) ) {
-                target[ action ]( this );
+            if ((action = this.get('action'))) {
+                target.fire(action, { originView: this });
+            } else if ((action = this.get('method'))) {
+                target[action](this);
             }
-            this.fire( 'button:activate' );
+            this.fire('button:activate');
         }
     },
 
@@ -292,7 +296,7 @@ const ButtonView = Class({
     /**
         Method (private): O.ButtonView#_setIgnoreUntil
     */
-    _setIgnoreUntil () {
+    _setIgnoreUntil() {
         this._ignoreUntil = Date.now() + 200;
     },
 
@@ -304,22 +308,28 @@ const ButtonView = Class({
         Parameters:
             event - {Event} The click or mouseup event.
     */
-    mouseActivate: function ( event ) {
-        if ( this._ignoreUntil > Date.now() ||
-                event.button || event.metaKey || event.ctrlKey ) {
+    mouseActivate: function (event) {
+        if (
+            this._ignoreUntil > Date.now() ||
+            event.button ||
+            event.metaKey ||
+            event.ctrlKey
+        ) {
             return;
         }
-        if ( event.type !== 'mouseup' ||
-                this.getParentWhere( x => x.isMenuView ) ) {
+        if (
+            event.type !== 'mouseup' ||
+            this.getParentWhere((x) => x.isMenuView)
+        ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
-            RunLoop.invokeInNextEventLoop( this._setIgnoreUntil, this );
+            RunLoop.invokeInNextEventLoop(this._setIgnoreUntil, this);
             this.activate();
             event.preventDefault();
             // Firefox keeps focus on the button after clicking. If the user
             // then hits "space", it will activate the button again!
             this.blur();
         }
-    }.on( 'mouseup', 'click' ),
+    }.on('mouseup', 'click'),
 
     /**
         Method: O.ButtonView#keyboardActivate
@@ -330,22 +340,22 @@ const ButtonView = Class({
         Parameters:
             event - {Event} The keypress event.
     */
-    keyboardActivate: function ( event ) {
-        const key = lookupKey( event );
-        if ( key === 'Enter' || key === 'Space' ) {
+    keyboardActivate: function (event) {
+        const key = lookupKey(event);
+        if (key === 'Enter' || key === 'Space') {
             this.activate();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
-        if ( key === 'Escape' ) {
+        if (key === 'Escape') {
             this.blur();
             event.stopPropagation();
         }
-    }.on( 'keydown' ),
+    }.on('keydown'),
 });
 
-ButtonView.drawIcon = function ( icon ) {
-    return el( 'i', {
+ButtonView.drawIcon = function (icon) {
+    return el('i', {
         className: 'icon ' + icon,
     });
 };

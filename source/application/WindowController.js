@@ -1,11 +1,11 @@
 /*global JSON, window, document, localStorage */
 
 import { Class } from '../core/Core';
-import '../core/Date';  // For Date#format
-import '../core/String';  // For String#escapeHTML
+import '../core/Date'; // For Date#format
+import '../core/String'; // For String#escapeHTML
 import Obj from '../foundation/Object';
-import '../foundation/EventTarget';  // For Function#on
-import * as RunLoop from '../foundation/RunLoop';  // + Function#invokeInRunLoop
+import '../foundation/EventTarget'; // For Function#on
+import * as RunLoop from '../foundation/RunLoop'; // + Function#invokeInRunLoop
 
 /**
     Class: O.WindowController
@@ -31,7 +31,6 @@ import * as RunLoop from '../foundation/RunLoop';  // + Function#invokeInRunLoop
     focus or not.
 */
 const WindowController = Class({
-
     Extends: Obj,
 
     /**
@@ -72,7 +71,7 @@ const WindowController = Class({
     */
 
     init: function (/* ...mixins */) {
-        this.id = new Date().format( '%y%m%d%H%M%S' ) + Math.random();
+        this.id = new Date().format('%y%m%d%H%M%S') + Math.random();
         this.isMaster = false;
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
 
@@ -80,53 +79,53 @@ const WindowController = Class({
         this._checkTimeout = null;
         this._pingTimeout = null;
 
-        WindowController.parent.constructor.apply( this, arguments );
+        WindowController.parent.constructor.apply(this, arguments);
 
-        window.addEventListener( 'storage', this, false );
-        window.addEventListener( 'unload', this, false );
-        window.addEventListener( 'focus', this, false );
-        window.addEventListener( 'blur', this, false );
+        window.addEventListener('storage', this, false);
+        window.addEventListener('unload', this, false);
+        window.addEventListener('focus', this, false);
+        window.addEventListener('blur', this, false);
 
         this.start();
     },
 
-    destroy () {
-        this.end( this.get( 'broadcastKey' ) );
+    destroy() {
+        this.end(this.get('broadcastKey'));
 
-        window.removeEventListener( 'storage', this, false );
-        window.removeEventListener( 'unload', this, false );
-        window.removeEventListener( 'focus', this, false );
-        window.removeEventListener( 'blur', this, false );
+        window.removeEventListener('storage', this, false);
+        window.removeEventListener('unload', this, false);
+        window.removeEventListener('focus', this, false);
+        window.removeEventListener('blur', this, false);
 
-        WindowController.parent.destroy.call( this );
+        WindowController.parent.destroy.call(this);
     },
 
-    start () {
-        this.broadcast( 'wc:hello' );
+    start() {
+        this.broadcast('wc:hello');
 
         const check = () => {
             this.checkMaster();
-            this._checkTimeout = RunLoop.invokeAfterDelay( check, 9000 );
+            this._checkTimeout = RunLoop.invokeAfterDelay(check, 9000);
         };
         const ping = () => {
             this.sendPing();
-            this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
+            this._pingTimeout = RunLoop.invokeAfterDelay(ping, 17000);
         };
-        this._checkTimeout = RunLoop.invokeAfterDelay( check, 500 );
-        this._pingTimeout = RunLoop.invokeAfterDelay( ping, 17000 );
+        this._checkTimeout = RunLoop.invokeAfterDelay(check, 500);
+        this._pingTimeout = RunLoop.invokeAfterDelay(ping, 17000);
     },
 
-    end ( broadcastKey ) {
-        RunLoop.cancel( this._pingTimeout );
-        RunLoop.cancel( this._checkTimeout );
+    end(broadcastKey) {
+        RunLoop.cancel(this._pingTimeout);
+        RunLoop.cancel(this._checkTimeout);
 
-        this.broadcast( 'wc:bye', null, broadcastKey );
+        this.broadcast('wc:bye', null, broadcastKey);
     },
 
-    broadcastKeyDidChange: function ( _, __, oldBroadcastKey ) {
-        this.end( oldBroadcastKey );
+    broadcastKeyDidChange: function (_, __, oldBroadcastKey) {
+        this.end(oldBroadcastKey);
         this.start();
-    }.observes( 'broadcastKey' ),
+    }.observes('broadcastKey'),
 
     /**
         Method (protected): O.WindowController#handleEvent
@@ -136,32 +135,31 @@ const WindowController = Class({
         Parameters:
             event - {Event} The event object.
     */
-    handleEvent: function ( event ) {
-        switch ( event.type ) {
-        case 'storage':
-            if ( event.key === this.get( 'broadcastKey' ) ) {
-                try {
-                    const data = JSON.parse( event.newValue );
-                    // IE fires events in the same window that set the
-                    // property. Ignore these.
-                    if ( data.wcId !== this.id ) {
-                        this.fire( data.type, data );
-                    }
-                } catch ( error ) {}
-            }
-            break;
-        case 'unload':
-            this.destroy();
-            break;
-        case 'focus':
-            this.set( 'isFocused', true );
-            break;
-        case 'blur':
-            this.set( 'isFocused', false );
-            break;
+    handleEvent: function (event) {
+        switch (event.type) {
+            case 'storage':
+                if (event.key === this.get('broadcastKey')) {
+                    try {
+                        const data = JSON.parse(event.newValue);
+                        // IE fires events in the same window that set the
+                        // property. Ignore these.
+                        if (data.wcId !== this.id) {
+                            this.fire(data.type, data);
+                        }
+                    } catch (error) {}
+                }
+                break;
+            case 'unload':
+                this.destroy();
+                break;
+            case 'focus':
+                this.set('isFocused', true);
+                break;
+            case 'blur':
+                this.set('isFocused', false);
+                break;
         }
     }.invokeInRunLoop(),
-
 
     /**
         Method (protected): O.WindowController#sendPing
@@ -169,8 +167,8 @@ const WindowController = Class({
         Sends a ping to let other windows know about the existence of this one.
         Automatically called periodically.
     */
-    sendPing () {
-        this.broadcast( 'wc:ping' );
+    sendPing() {
+        this.broadcast('wc:ping');
     },
 
     /**
@@ -181,14 +179,14 @@ const WindowController = Class({
         Parameters:
             event - {Event} An event object containing the window id.
     */
-    _hello: function ( event ) {
-        this._ping( event );
-        if ( event.wcId < this.id ) {
+    _hello: function (event) {
+        this._ping(event);
+        if (event.wcId < this.id) {
             this.checkMaster();
         } else {
             this.sendPing();
         }
-    }.on( 'wc:hello' ),
+    }.on('wc:hello'),
 
     /**
         Method (private): O.WindowController#_ping
@@ -198,10 +196,9 @@ const WindowController = Class({
         Parameters:
             event - {Event} An event object containing the window id.
     */
-    _ping: function ( event ) {
-        this._seenWCs[ event.wcId ] = Date.now();
-    }.on( 'wc:ping' ),
-
+    _ping: function (event) {
+        this._seenWCs[event.wcId] = Date.now();
+    }.on('wc:ping'),
 
     /**
         Method (private): O.WindowController#_bye
@@ -211,10 +208,10 @@ const WindowController = Class({
         Parameters:
             event - {Event} An event object containing the window id.
     */
-    _bye: function ( event ) {
-        delete this._seenWCs[ event.wcId ];
+    _bye: function (event) {
+        delete this._seenWCs[event.wcId];
         this.checkMaster();
-    }.on( 'wc:bye' ),
+    }.on('wc:bye'),
 
     /**
         Method: O.WindowController#checkMaster
@@ -222,19 +219,19 @@ const WindowController = Class({
         Looks at the set of other windows it knows about and sets the isMaster
         property based on whether this window has the lowest ordered id.
     */
-    checkMaster () {
+    checkMaster() {
         const now = Date.now();
         let isMaster = true;
         const seenWCs = this._seenWCs;
         const ourId = this.id;
-        for ( const id in seenWCs ) {
-            if ( seenWCs[ id ] + 23000 < now ) {
-                delete seenWCs[ id ];
-            } else if ( id < ourId ) {
+        for (const id in seenWCs) {
+            if (seenWCs[id] + 23000 < now) {
+                delete seenWCs[id];
+            } else if (id < ourId) {
                 isMaster = false;
             }
         }
-        this.set( 'isMaster', isMaster );
+        this.set('isMaster', isMaster);
     },
 
     /**
@@ -248,16 +245,21 @@ const WindowController = Class({
             broadcastKey - {String} (optional). The key to use; otherwise the
                            key will be taken from the broadcastKey property.
     */
-    broadcast ( type, data, broadcastKey ) {
+    broadcast(type, data, broadcastKey) {
         try {
             localStorage.setItem(
-                broadcastKey || this.get( 'broadcastKey' ),
-                JSON.stringify( Object.assign({
-                    wcId: this.id,
-                    type,
-                }, data ))
+                broadcastKey || this.get('broadcastKey'),
+                JSON.stringify(
+                    Object.assign(
+                        {
+                            wcId: this.id,
+                            type,
+                        },
+                        data,
+                    ),
+                ),
             );
-        } catch ( error ) {}
+        } catch (error) {}
     },
 });
 

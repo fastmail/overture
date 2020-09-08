@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core';
-import '../../core/Number';  // For Number#limit
+import '../../core/Number'; // For Number#limit
 import { bind, bindTwoWay } from '../../foundation/Binding';
-import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ComputedProps'; // For Function#property
 import View from '../View';
 import Draggable from '../../drag-drop/Draggable';
 
@@ -22,7 +22,6 @@ const TOP_LEFT = SplitViewController.TOP_LEFT;
     resize the static pane in the split view.
 */
 const SplitDividerView = Class({
-
     Extends: View,
 
     Mixin: Draggable,
@@ -62,7 +61,7 @@ const SplitDividerView = Class({
         the distance from the edge of the split view that the split divider
         view should be positioned.
     */
-    offset: bindTwoWay( 'controller.staticPaneLength' ),
+    offset: bindTwoWay('controller.staticPaneLength'),
 
     /**
         Property: O.SplitDividerView#min
@@ -70,7 +69,7 @@ const SplitDividerView = Class({
 
         Bound to the <O.SplitViewController#minStaticPaneLength>.
     */
-    min: bind( 'controller.minStaticPaneLength' ),
+    min: bind('controller.minStaticPaneLength'),
 
     /**
         Property: O.SplitDividerView#max
@@ -78,7 +77,7 @@ const SplitDividerView = Class({
 
         Bound to the <O.SplitViewController#maxStaticPaneLength>.
     */
-    max: bind( 'controller.maxStaticPaneLength' ),
+    max: bind('controller.maxStaticPaneLength'),
 
     /**
         Property: O.SplitDividerView#direction
@@ -86,7 +85,7 @@ const SplitDividerView = Class({
 
         Bound to the <O.SplitViewController#direction>.
     */
-    direction: bind( 'controller.direction' ),
+    direction: bind('controller.direction'),
 
     /**
         Property: O.SplitDividerView#flex
@@ -94,7 +93,7 @@ const SplitDividerView = Class({
 
         Bound to the <O.SplitViewController#flex>.
     */
-    flex: bind( 'controller.flex' ),
+    flex: bind('controller.flex'),
 
     /**
         Property: O.SplitDividerView#anchor
@@ -104,11 +103,16 @@ const SplitDividerView = Class({
         (top/left/bottom/right).
     */
     anchor: function () {
-        const flexTL = this.get( 'flex' ) === TOP_LEFT;
-        const isVertical = this.get( 'direction' ) === VERTICAL;
-        return isVertical ?
-            ( flexTL ? 'right' : 'left' ) : ( flexTL ? 'bottom' : 'top' );
-    }.property( 'flex', 'direction' ),
+        const flexTL = this.get('flex') === TOP_LEFT;
+        const isVertical = this.get('direction') === VERTICAL;
+        return isVertical
+            ? flexTL
+                ? 'right'
+                : 'left'
+            : flexTL
+            ? 'bottom'
+            : 'top';
+    }.property('flex', 'direction'),
 
     /**
         Property: O.SplitDividerView#positioning
@@ -127,9 +131,9 @@ const SplitDividerView = Class({
         direction, anchor, thickness and offset properties.
     */
     layout: function () {
-        const thickness = this.get( 'thickness' );
+        const thickness = this.get('thickness');
         let styles;
-        if ( this.get( 'direction' ) === VERTICAL ) {
+        if (this.get('direction') === VERTICAL) {
             styles = {
                 top: 0,
                 bottom: 0,
@@ -142,19 +146,18 @@ const SplitDividerView = Class({
                 height: thickness,
             };
         }
-        styles[ this.get( 'anchor' ) ] =
-            this.get( 'offset' ) - ( thickness / 2 );
+        styles[this.get('anchor')] = this.get('offset') - thickness / 2;
         return styles;
-    }.property( 'direction', 'anchor', 'thickness', 'offset' ),
+    }.property('direction', 'anchor', 'thickness', 'offset'),
 
     /**
         Method: O.SplitDividerView#dragStarted
 
         Records the offset at the time the drag starts.
     */
-    dragStarted () {
-        this._offset = this.get( 'offset' );
-        this._dir = ( this.get( 'direction' ) === VERTICAL ) ? 'x' : 'y';
+    dragStarted() {
+        this._offset = this.get('offset');
+        this._dir = this.get('direction') === VERTICAL ? 'x' : 'y';
     },
 
     /**
@@ -166,15 +169,18 @@ const SplitDividerView = Class({
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragMoved ( drag ) {
+    dragMoved(drag) {
         const dir = this._dir;
-        const delta = drag.get( 'cursorPosition' )[ dir ] -
-            drag.get( 'startPosition' )[ dir ];
-        const sign = this.get( 'flex' ) === TOP_LEFT ? -1 : 1;
+        const delta =
+            drag.get('cursorPosition')[dir] - drag.get('startPosition')[dir];
+        const sign = this.get('flex') === TOP_LEFT ? -1 : 1;
 
-        this.set( 'offset',
-            ( this._offset + ( sign * delta ) )
-                .limit( this.get( 'min' ), this.get( 'max' ) )
+        this.set(
+            'offset',
+            (this._offset + sign * delta).limit(
+                this.get('min'),
+                this.get('max'),
+            ),
         );
     },
 });

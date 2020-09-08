@@ -3,7 +3,7 @@ import Obj from './Object';
 import ObservableRange from './ObservableRange';
 import Enumerable from './Enumerable';
 import MutableEnumerable from './MutableEnumerable';
-import './ComputedProps';  // For Function#property
+import './ComputedProps'; // For Function#property
 
 const splice = Array.prototype.splice;
 const slice = Array.prototype.slice;
@@ -21,10 +21,9 @@ const slice = Array.prototype.slice;
     array[i].
 */
 const ObservableArray = Class({
-
     Extends: Obj,
 
-    Mixin: [ ObservableRange, Enumerable, MutableEnumerable ],
+    Mixin: [ObservableRange, Enumerable, MutableEnumerable],
 
     /**
         Constructor: O.ObservableArray
@@ -33,12 +32,14 @@ const ObservableArray = Class({
             array   - {Array} (optional) The initial contents of the array.
             ...mixins - {Object} (optional)
     */
-    init: function ( array /*, ...mixins */) {
+    init: function (array /*, ...mixins */) {
         this._array = array || [];
         this._length = this._array.length;
 
-        ObservableArray.parent.constructor.apply( this,
-            Array.prototype.slice.call( arguments, 1 ) );
+        ObservableArray.parent.constructor.apply(
+            this,
+            Array.prototype.slice.call(arguments, 1),
+        );
     },
 
     /**
@@ -51,8 +52,8 @@ const ObservableArray = Class({
         of the new array is checked for equality with that of the old array to
         ensure accurate notification of the changed range.
     */
-    '[]': function ( array ) {
-        if ( array ) {
+    '[]': function (array) {
+        if (array) {
             const oldArray = this._array;
             const oldLength = this._length;
             const newLength = array.length;
@@ -62,24 +63,22 @@ const ObservableArray = Class({
             this._array = array;
             this._length = newLength;
 
-            while ( ( start < newLength ) &&
-                    ( array[ start ] === oldArray[ start ] ) ) {
+            while (start < newLength && array[start] === oldArray[start]) {
                 start += 1;
             }
-            if ( newLength === oldLength ) {
+            if (newLength === oldLength) {
                 let last = end - 1;
-                while ( ( end > start ) &&
-                        ( array[ last ] === oldArray[ last ] ) ) {
+                while (end > start && array[last] === oldArray[last]) {
                     end = last;
                     last -= 1;
                 }
             } else {
-                end = Math.max( oldLength, newLength );
-                this.propertyDidChange( 'length', oldLength, newLength );
+                end = Math.max(oldLength, newLength);
+                this.propertyDidChange('length', oldLength, newLength);
             }
 
-            if ( start !== end ) {
-                this.rangeDidChange( start, end );
+            if (start !== end) {
+                this.rangeDidChange(start, end);
             }
         }
         return this._array.slice();
@@ -96,8 +95,8 @@ const ObservableArray = Class({
         Returns:
             {*} The value at index i in this array.
     */
-    getObjectAt ( index ) {
-        return this._array[ index ];
+    getObjectAt(index) {
+        return this._array[index];
     },
 
     /**
@@ -106,18 +105,20 @@ const ObservableArray = Class({
 
         The length of the array.
     */
-    length: function ( value ) {
+    length: function (value) {
         let length = this._length;
-        if ( typeof value === 'number' && value !== length ) {
+        if (typeof value === 'number' && value !== length) {
             this._array.length = value;
             this._length = value;
-            if ( value < length ) {
-                this.rangeDidChange( value, length );
+            if (value < length) {
+                this.rangeDidChange(value, length);
             }
             length = value;
         }
         return length;
-    }.property().nocache(),
+    }
+        .property()
+        .nocache(),
 
     /**
         Method: O.ObservableArray#setObjectAt
@@ -131,14 +132,14 @@ const ObservableArray = Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    setObjectAt ( index, value ) {
-        this._array[ index ] = value;
+    setObjectAt(index, value) {
+        this._array[index] = value;
         const length = this._length;
-        if ( length <= index ) {
+        if (length <= index) {
             this._length = index + 1;
-            this.propertyDidChange( 'length', length, index + 1 );
+            this.propertyDidChange('length', length, index + 1);
         }
-        this.rangeDidChange( index );
+        this.rangeDidChange(index);
         return this;
     },
 
@@ -156,29 +157,29 @@ const ObservableArray = Class({
         Returns:
             {Array} Returns an array of the removed objects.
     */
-    replaceObjectsAt ( index, numberRemoved, newItems ) {
+    replaceObjectsAt(index, numberRemoved, newItems) {
         const oldLength = this._length;
         const array = this._array;
         let removed;
 
-        newItems = newItems ? slice.call( newItems ) : [];
+        newItems = newItems ? slice.call(newItems) : [];
 
-        if ( oldLength <= index ) {
+        if (oldLength <= index) {
             const l = newItems.length;
-            for ( let i = 0; i < l; i += 1 ) {
-                array[ index + i ] = newItems[i];
+            for (let i = 0; i < l; i += 1) {
+                array[index + i] = newItems[i];
             }
         } else {
-            newItems.unshift( index, numberRemoved );
-            removed = splice.apply( array, newItems );
+            newItems.unshift(index, numberRemoved);
+            removed = splice.apply(array, newItems);
         }
         const newLength = array.length;
-        if ( oldLength !== newLength ) {
+        if (oldLength !== newLength) {
             this._length = newLength;
-            this.propertyDidChange( 'length', oldLength, newLength );
-            this.rangeDidChange( index, Math.max( oldLength, newLength ) );
+            this.propertyDidChange('length', oldLength, newLength);
+            this.rangeDidChange(index, Math.max(oldLength, newLength));
         } else {
-            this.rangeDidChange( index, index + numberRemoved );
+            this.rangeDidChange(index, index + numberRemoved);
         }
         return removed || [];
     },
@@ -197,9 +198,9 @@ const ObservableArray = Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    sort ( comparefn ) {
-        this._array.sort( comparefn );
-        this.rangeDidChange( 0, this._length );
+    sort(comparefn) {
+        this._array.sort(comparefn);
+        this.rangeDidChange(0, this._length);
         return this;
     },
 
@@ -211,9 +212,9 @@ const ObservableArray = Class({
         Returns:
             {O.ObservableArray} Returns self.
     */
-    reverse () {
+    reverse() {
         this._array.reverse();
-        this.rangeDidChange( 0, this._length );
+        this.rangeDidChange(0, this._length);
         return this;
     },
 
@@ -230,14 +231,14 @@ const ObservableArray = Class({
         Returns:
             {Array} Returns new concatenated array.
     */
-    concat () {
+    concat() {
         const args = [];
         const l = arguments.length;
-        for ( let i = 0; i < l; i += 1 ) {
+        for (let i = 0; i < l; i += 1) {
             const item = arguments[i];
             args[i] = item instanceof ObservableArray ? item._array : item;
         }
-        return Array.prototype.concat.apply( this._array, args );
+        return Array.prototype.concat.apply(this._array, args);
     },
 
     /**
@@ -253,8 +254,8 @@ const ObservableArray = Class({
             {String} Concatenated string of all items joined by separator
             string.
     */
-    join ( separator ) {
-        return this._array.join( separator );
+    join(separator) {
+        return this._array.join(separator);
     },
 
     /**
@@ -271,8 +272,8 @@ const ObservableArray = Class({
             {Array} Shallow copy of the underlying array between the given
             indexes.
     */
-    slice ( start, end ) {
-        return this._array.slice( start, end );
+    slice(start, end) {
+        return this._array.slice(start, end);
     },
 });
 

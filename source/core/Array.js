@@ -1,4 +1,4 @@
-Object.assign( Array.prototype, {
+Object.assign(Array.prototype, {
     /**
         Method: Array#get
 
@@ -11,8 +11,8 @@ Object.assign( Array.prototype, {
         Returns:
             {*} The requested property of this array.
     */
-    get ( key ) {
-        return this[ key ];
+    get(key) {
+        return this[key];
     },
 
     /**
@@ -27,8 +27,8 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    set ( key, value ) {
-        this[ key ] = value;
+    set(key, value) {
+        this[key] = value;
         return this;
     },
 
@@ -43,8 +43,8 @@ Object.assign( Array.prototype, {
         Returns:
             {*} The value at the given index in this array.
     */
-    getObjectAt ( index ) {
-        return this[ index ];
+    getObjectAt(index) {
+        return this[index];
     },
 
     /**
@@ -59,8 +59,8 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    setObjectAt ( index, value ) {
-        this[ index ] = value;
+    setObjectAt(index, value) {
+        this[index] = value;
         return this;
     },
 
@@ -76,10 +76,10 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    include ( item ) {
+    include(item) {
         let i = 0;
         const l = this.length;
-        while ( i < l && this[i] !== item ) {
+        while (i < l && this[i] !== item) {
             i += 1;
         }
         this[i] = item;
@@ -98,11 +98,11 @@ Object.assign( Array.prototype, {
         Returns:
             {Array} Returns self.
     */
-    erase ( item ) {
+    erase(item) {
         let l = this.length;
-        while ( l-- ) {
-            if ( this[l] === item ) {
-                this.splice( l, 1 );
+        while (l--) {
+            if (this[l] === item) {
+                this.splice(l, 1);
             }
         }
         return this;

@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/EventTarget';  // For Function#on
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/EventTarget'; // For Function#on
 import { create as el } from '../../dom/Element';
 
 import AbstractControlView from './AbstractControlView';
@@ -15,7 +15,6 @@ import CheckboxView from './CheckboxView';
     representing the state of the button (`true` => selected).
 */
 const RadioView = Class({
-
     Extends: AbstractControlView,
 
     // --- Render ---
@@ -30,26 +29,28 @@ const RadioView = Class({
         Overrides default in <O.View#className>.
     */
     className: function () {
-        const type = this.get( 'type' );
-        return 'v-Radio ' +
-            ( this.get( 'value' ) ? 'is-checked' : 'is-unchecked' ) +
-            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
-            ( type ? ' ' + type : '' );
-    }.property( 'type', 'value', 'isDisabled' ),
+        const type = this.get('type');
+        return (
+            'v-Radio ' +
+            (this.get('value') ? 'is-checked' : 'is-unchecked') +
+            (this.get('isDisabled') ? ' is-disabled' : '') +
+            (type ? ' ' + type : '')
+        );
+    }.property('type', 'value', 'isDisabled'),
 
     /**
         Method: O.RadioView#draw
 
         Overridden to draw radio button in layer. See <O.View#draw>.
     */
-    draw ( layer ) {
+    draw(layer) {
         return [
-            this._domControl = el( 'input', {
+            (this._domControl = el('input', {
                 className: 'v-Radio-input',
                 type: 'radio',
-                checked: this.get( 'value' ),
-            }),
-            RadioView.parent.draw.call( this, layer ),
+                checked: this.get('value'),
+            })),
+            RadioView.parent.draw.call(this, layer),
         ];
     },
 
@@ -80,10 +81,10 @@ const RadioView = Class({
         <O.AbstractControlView#activate>.
     */
     activate: function () {
-        if ( !this.get( 'isDisabled' ) ) {
-            this.set( 'value', true );
+        if (!this.get('isDisabled')) {
+            this.set('value', true);
         }
-    }.on( 'click' ),
+    }.on('click'),
 });
 
 export default RadioView;

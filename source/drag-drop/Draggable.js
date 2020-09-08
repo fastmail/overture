@@ -30,7 +30,7 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragStarted (/* drag */) {},
+    dragStarted(/* drag */) {},
 
     /**
         Method: O.Draggable#dragMoved
@@ -40,7 +40,7 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragMoved (/* drag */) {},
+    dragMoved(/* drag */) {},
 
     /**
         Method: O.Draggable#dragEnded
@@ -52,5 +52,5 @@ export default {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dragEnded (/* drag */) {},
+    dragEnded(/* drag */) {},
 };

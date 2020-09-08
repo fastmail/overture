@@ -1,7 +1,7 @@
 import { Class, isEqual } from '../../core/Core';
-import '../../foundation/ComputedProps';  // For Function#property
-import '../../foundation/EventTarget';  // For Function#on
-import '../../foundation/ObservableProps';  // For Function#observes
+import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/EventTarget'; // For Function#on
+import '../../foundation/ObservableProps'; // For Function#observes
 import { create as el } from '../../dom/Element';
 import AbstractControlView from './AbstractControlView';
 
@@ -14,7 +14,6 @@ import AbstractControlView from './AbstractControlView';
     bindable, representing the selected option.
 */
 const SelectView = Class({
-
     Extends: AbstractControlView,
 
     /**
@@ -38,7 +37,7 @@ const SelectView = Class({
 
         Extra attributes to add to the <select> element, if provided.
     */
-   inputAttributes: null,
+    inputAttributes: null,
 
     // --- Render ---
 
@@ -52,29 +51,29 @@ const SelectView = Class({
         Overrides default in <O.View#className>.
     */
     className: function () {
-        const type = this.get( 'type' );
-        return 'v-Select' +
-            ( this.get( 'isFocused' ) ? ' is-focused' : '' ) +
-            ( this.get( 'isDisabled' ) ? ' is-disabled' : '' ) +
-            ( type ? ' ' + type : '' );
-    }.property( 'type', 'isFocused', 'isDisabled' ),
+        const type = this.get('type');
+        return (
+            'v-Select' +
+            (this.get('isFocused') ? ' is-focused' : '') +
+            (this.get('isDisabled') ? ' is-disabled' : '') +
+            (type ? ' ' + type : '')
+        );
+    }.property('type', 'isFocused', 'isDisabled'),
 
     /**
         Method: O.SelectView#draw
 
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
-    draw ( layer ) {
-        const control = this._domControl =
-            this._drawSelect( this.get( 'options' ) );
-        const inputAttributes = this.get( 'inputAttributes' );
-        if ( inputAttributes ) {
+    draw(layer) {
+        const control = (this._domControl = this._drawSelect(
+            this.get('options'),
+        ));
+        const inputAttributes = this.get('inputAttributes');
+        if (inputAttributes) {
             this.redrawInputAttributes();
         }
-        return [
-            SelectView.parent.draw.call( this, layer ),
-            control,
-        ];
+        return [SelectView.parent.draw.call(this, layer), control];
     },
 
     /**
@@ -88,21 +87,23 @@ const SelectView = Class({
         Returns:
             {Element} The `<select>`.
     */
-    _drawSelect ( options ) {
-        const selected = this.get( 'value' );
-        const select = el( 'select', {
+    _drawSelect(options) {
+        const selected = this.get('value');
+        const select = el(
+            'select',
+            {
                 className: 'v-Select-input',
-                disabled: this.get( 'isDisabled' ),
+                disabled: this.get('isDisabled'),
             },
-                options.map(
-                    ( option, i ) => el( 'option', {
-                        text: option.text,
-                        value: i,
-                        selected: isEqual( option.value, selected ),
-                        disabled: !!option.isDisabled,
-                    })
-                )
-            );
+            options.map((option, i) =>
+                el('option', {
+                    text: option.text,
+                    value: i,
+                    selected: isEqual(option.value, selected),
+                    disabled: !!option.isDisabled,
+                }),
+            ),
+        );
         return select;
     },
 
@@ -114,20 +115,20 @@ const SelectView = Class({
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    selectNeedsRedraw: function ( self, property, oldValue ) {
-        return this.propertyNeedsRedraw( self, property, oldValue );
-    }.observes( 'options', 'value', 'inputAttributes' ),
+    selectNeedsRedraw: function (self, property, oldValue) {
+        return this.propertyNeedsRedraw(self, property, oldValue);
+    }.observes('options', 'value', 'inputAttributes'),
 
     /**
         Method: O.SelectView#redrawInputAttributes
 
         Updates any other properties of the `<input>` element.
     */
-    redrawInputAttributes () {
-        const inputAttributes = this.get( 'inputAttributes' );
+    redrawInputAttributes() {
+        const inputAttributes = this.get('inputAttributes');
         const control = this._domControl;
-        for ( const property in inputAttributes ) {
-            control.set( property, inputAttributes[ property ] );
+        for (const property in inputAttributes) {
+            control.set(property, inputAttributes[property]);
         }
     },
 
@@ -137,19 +138,19 @@ const SelectView = Class({
         Updates the DOM representation when the <O.SelectView#options> property
         changes.
     */
-    redrawOptions ( layer, oldOptions ) {
-        const options = this.get( 'options' );
-        if ( !isEqual( options, oldOptions ) ) {
+    redrawOptions(layer, oldOptions) {
+        const options = this.get('options');
+        if (!isEqual(options, oldOptions)) {
             // Must blur before removing from DOM in iOS, otherwise
             // the slot-machine selector will not hide
-            const isFocused = this.get( 'isFocused' );
-            const select = this._drawSelect( options );
-            if ( isFocused ) {
+            const isFocused = this.get('isFocused');
+            const select = this._drawSelect(options);
+            if (isFocused) {
                 this.blur();
             }
-            layer.replaceChild( select, this._domControl );
+            layer.replaceChild(select, this._domControl);
             this._domControl = select;
-            if ( isFocused ) {
+            if (isFocused) {
                 this.focus();
             }
         }
@@ -161,20 +162,20 @@ const SelectView = Class({
         Selects the corresponding option in the select when the
         <O.SelectView#value> property changes.
     */
-    redrawValue () {
-        const value = this.get( 'value' );
-        const options = this.get( 'options' );
+    redrawValue() {
+        const value = this.get('value');
+        const options = this.get('options');
         let l = options.length;
 
-        while ( l-- ) {
-            if ( isEqual( options[l].value, value ) ) {
+        while (l--) {
+            if (isEqual(options[l].value, value)) {
                 this._domControl.value = l + '';
                 return;
             }
         }
         // Work around Chrome on Android bug where it doesn't redraw the
         // select control until the element blurs.
-        if ( this.get( 'isFocused' ) ) {
+        if (this.get('isFocused')) {
             this.blur().focus();
         }
     },
@@ -189,8 +190,8 @@ const SelectView = Class({
     */
     syncBackValue: function () {
         const i = this._domControl.selectedIndex;
-        this.set( 'value', this.get( 'options' ).getObjectAt( i ).value );
-    }.on( 'change' ),
+        this.set('value', this.get('options').getObjectAt(i).value);
+    }.on('change'),
 });
 
 export default SelectView;

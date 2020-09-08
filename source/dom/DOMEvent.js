@@ -68,8 +68,8 @@ const keyReplacements = {
     Returns:
         {String} The key pressed (in lowercase if a letter).
 */
-const lookupKey = function ( event, noModifiers ) {
-    const isKeyPress = ( event.type === 'keypress' );
+const lookupKey = function (event, noModifiers) {
+    const isKeyPress = event.type === 'keypress';
     // Newer browser API: gives the character that would be inserted. This is
     // normally what we want, but if Alt is held down then you get extra
     // alternate characters when we really want to return Alt-{key}, where
@@ -77,47 +77,50 @@ const lookupKey = function ( event, noModifiers ) {
 
     // If alt key is held down we will get
     let key = event.key;
-    if ( !key || event.altKey ) {
+    if (!key || event.altKey) {
         // See http://unixpapa.com/js/key.html. Short summary:
         // event.keyCode || event.which gives the ASCII code for any normal
         // keypress on all browsers. However, if event.which === 0 then it was a
         // special key and so it should be looked up in the table of function
         // keys. Anything from code 32 downwards must also be a special char.
         const code = event.keyCode || event.which;
-        const preferAsci = isKeyPress && code > 32 &&
-                event.which !== 0 && event.charCode !== 0;
-        const str = String.fromCharCode( code );
-        key = ( !preferAsci && keys[ code ] ) || str;
+        const preferAsci =
+            isKeyPress &&
+            code > 32 &&
+            event.which !== 0 &&
+            event.charCode !== 0;
+        const str = String.fromCharCode(code);
+        key = (!preferAsci && keys[code]) || str;
 
         // Function keys
-        if ( !preferAsci && 111 < code && code < 124 ) {
-            key = 'F' + ( code - 111 );
+        if (!preferAsci && 111 < code && code < 124) {
+            key = 'F' + (code - 111);
         }
     } else {
-        key = keyReplacements[ key ] || key;
+        key = keyReplacements[key] || key;
     }
 
     // Ignore caps-lock
-    if ( /^[A-Za-z]$/.test( key ) ) {
+    if (/^[A-Za-z]$/.test(key)) {
         key = event.shiftKey ? key.toUpperCase() : key.toLowerCase();
     }
 
     // Append modifiers (use alphabetical order)
     let modifiers = '';
-    if ( !noModifiers ) {
+    if (!noModifiers) {
         // Different keyboard layouts may require Shift/Alt for non A-Z
         // keys, so we only add meta and ctrl modifiers.
-        const altAndShift = !isKeyPress || ( /[a-z]/.test( key ) );
-        if ( event.altKey && altAndShift ) {
+        const altAndShift = !isKeyPress || /[a-z]/.test(key);
+        if (event.altKey && altAndShift) {
             modifiers += 'Alt-';
         }
-        if ( event.ctrlKey ) {
+        if (event.ctrlKey) {
             modifiers += 'Ctrl-';
         }
-        if ( event.metaKey ) {
+        if (event.metaKey) {
             modifiers += 'Meta-';
         }
-        if ( event.shiftKey && altAndShift ) {
+        if (event.shiftKey && altAndShift) {
             modifiers += 'Shift-';
         }
     }
@@ -137,9 +140,14 @@ const lookupKey = function ( event, noModifiers ) {
     Returns:
         {Boolean} Was a secondary button clicked or modifier held down?
 */
-const isClickModified = function ( event ) {
-    return !!event.button ||
-        event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+const isClickModified = function (event) {
+    return (
+        !!event.button ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+    );
 };
 
 export { keys, lookupKey, isClickModified };

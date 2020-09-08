@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core';
 import Obj from '../../foundation/Object';
-import '../../foundation/ComputedProps';  // For Function#property
+import '../../foundation/ComputedProps'; // For Function#property
 
 const VERTICAL = 1;
 const HORIZONTAL = 2;
@@ -15,7 +15,6 @@ const auto = 'auto';
     Extends: O.Object
 */
 const SplitViewController = Class({
-
     Extends: Obj,
 
     /**
@@ -77,23 +76,37 @@ const SplitViewController = Class({
 
         The layout properties to use to position the top/left pane.
     */
-    topLeftLayout: function ( layout ) {
-        const flexDir = this.get( 'direction' );
-        const flexPane = this.get( 'flex' );
-        const staticLength = this.get( 'staticPaneLength' );
-        return layout || {
-            top: 0,
-            left: 0,
-            right: ( flexDir === VERTICAL &&
-                flexPane === TOP_LEFT ) ? staticLength : auto,
-            width: flexDir === HORIZONTAL ? '100%' :
-                flexPane === TOP_LEFT ? auto : staticLength,
-            bottom: ( flexDir === HORIZONTAL &&
-                flexPane === TOP_LEFT ) ? staticLength : auto,
-            height: flexDir === VERTICAL ? '100%' :
-                flexPane === TOP_LEFT ? auto : staticLength,
-        };
-    }.property( 'flex', 'direction', 'staticPaneLength' ),
+    topLeftLayout: function (layout) {
+        const flexDir = this.get('direction');
+        const flexPane = this.get('flex');
+        const staticLength = this.get('staticPaneLength');
+        return (
+            layout || {
+                top: 0,
+                left: 0,
+                right:
+                    flexDir === VERTICAL && flexPane === TOP_LEFT
+                        ? staticLength
+                        : auto,
+                width:
+                    flexDir === HORIZONTAL
+                        ? '100%'
+                        : flexPane === TOP_LEFT
+                        ? auto
+                        : staticLength,
+                bottom:
+                    flexDir === HORIZONTAL && flexPane === TOP_LEFT
+                        ? staticLength
+                        : auto,
+                height:
+                    flexDir === VERTICAL
+                        ? '100%'
+                        : flexPane === TOP_LEFT
+                        ? auto
+                        : staticLength,
+            }
+        );
+    }.property('flex', 'direction', 'staticPaneLength'),
 
     /**
         Property: O.SplitViewController#bottomRightLayout
@@ -101,23 +114,37 @@ const SplitViewController = Class({
 
         The layout properties to use to position the bottom/right pane.
     */
-    bottomRightLayout: function ( layout ) {
-        const flexDir = this.get( 'direction' );
-        const flexPane = this.get( 'flex' );
-        const staticLength = this.get( 'staticPaneLength' );
-        return layout || {
-            bottom: 0,
-            right: 0,
-            left: ( flexDir === VERTICAL &&
-                flexPane === BOTTOM_RIGHT ) ? staticLength : auto,
-            width: flexDir === HORIZONTAL ? '100%' :
-                flexPane === BOTTOM_RIGHT ? auto : staticLength,
-            top: ( flexDir === HORIZONTAL &&
-                flexPane === BOTTOM_RIGHT ) ? staticLength : auto,
-            height: flexDir === VERTICAL ? '100%' :
-                flexPane === BOTTOM_RIGHT ? auto : staticLength,
-        };
-    }.property( 'flex', 'direction', 'staticPaneLength' ),
+    bottomRightLayout: function (layout) {
+        const flexDir = this.get('direction');
+        const flexPane = this.get('flex');
+        const staticLength = this.get('staticPaneLength');
+        return (
+            layout || {
+                bottom: 0,
+                right: 0,
+                left:
+                    flexDir === VERTICAL && flexPane === BOTTOM_RIGHT
+                        ? staticLength
+                        : auto,
+                width:
+                    flexDir === HORIZONTAL
+                        ? '100%'
+                        : flexPane === BOTTOM_RIGHT
+                        ? auto
+                        : staticLength,
+                top:
+                    flexDir === HORIZONTAL && flexPane === BOTTOM_RIGHT
+                        ? staticLength
+                        : auto,
+                height:
+                    flexDir === VERTICAL
+                        ? '100%'
+                        : flexPane === BOTTOM_RIGHT
+                        ? auto
+                        : staticLength,
+            }
+        );
+    }.property('flex', 'direction', 'staticPaneLength'),
 });
 
 SplitViewController.VERTICAL = VERTICAL;

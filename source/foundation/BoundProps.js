@@ -1,5 +1,5 @@
 import { meta, guid } from '../core/Core';
-import '../core/Object';  // For Object.keyOf
+import '../core/Object'; // For Object.keyOf
 
 const bindingKey = '__binding__';
 
@@ -23,22 +23,22 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    initBindings () {
-        const bindings = meta( this ).bindings;
-        for ( const key in bindings ) {
+    initBindings() {
+        const bindings = meta(this).bindings;
+        for (const key in bindings) {
             // Guard in case a previously bound property has been overridden in
             // a subclass by a non-bound value.
             let binding;
-            if ( binding = bindings[ key ] ) {
-                if ( !bindings.hasOwnProperty( key ) ) {
-                    binding = bindings[ key ] = Object.create( binding );
+            if ((binding = bindings[key])) {
+                if (!bindings.hasOwnProperty(key)) {
+                    binding = bindings[key] = Object.create(binding);
                 }
                 // Set it to undefined. If the initial value to be synced
                 // is undefined, nothing will be synced, but we don't want to
                 // leave the Binding object itself as the value; instead we want
                 // the value to be undefined.
-                this[ key ] = undefined;
-                binding.to( key, this ).connect();
+                this[key] = undefined;
+                binding.to(key, this).connect();
             }
         }
         return this;
@@ -55,13 +55,13 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    destroyBindings () {
-        const bindings = meta( this ).bindings;
-        for ( const key in bindings ) {
+    destroyBindings() {
+        const bindings = meta(this).bindings;
+        for (const key in bindings) {
             // Guard in case a previously bound property has been overridden in
             // a subclass by a non-bound value.
-            const binding = bindings[ key ];
-            if ( binding ) {
+            const binding = bindings[key];
+            if (binding) {
                 binding.destroy();
             }
         }
@@ -77,10 +77,10 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    registerBinding ( binding ) {
-        const metadata = meta( this );
-        metadata.bindings[ bindingKey + guid( binding ) ] = binding;
-        metadata.inits.Bindings = ( metadata.inits.Bindings || 0 ) + 1;
+    registerBinding(binding) {
+        const metadata = meta(this);
+        metadata.bindings[bindingKey + guid(binding)] = binding;
+        metadata.inits.Bindings = (metadata.inits.Bindings || 0) + 1;
         return this;
     },
 
@@ -93,12 +93,12 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    deregisterBinding ( binding ) {
-        const metadata = meta( this );
+    deregisterBinding(binding) {
+        const metadata = meta(this);
         const bindings = metadata.bindings;
-        const key = Object.keyOf( bindings, binding );
-        if ( key ) {
-            bindings[ key ] = null;
+        const key = Object.keyOf(bindings, binding);
+        if (key) {
+            bindings[key] = null;
             metadata.inits.Bindings -= 1;
         }
         return this;
@@ -114,11 +114,11 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    suspendBindings () {
-        const bindings = meta( this ).bindings;
-        for ( const key in bindings ) {
-            const binding = bindings[ key ];
-            if ( binding ) {
+    suspendBindings() {
+        const bindings = meta(this).bindings;
+        for (const key in bindings) {
+            const binding = bindings[key];
+            if (binding) {
                 binding.suspend();
             }
         }
@@ -133,11 +133,11 @@ export default {
         Returns:
             {O.BoundProps} Returns self.
     */
-    resumeBindings () {
-        const bindings = meta( this ).bindings;
-        for ( const key in bindings ) {
-            const binding = bindings[ key ];
-            if ( binding ) {
+    resumeBindings() {
+        const bindings = meta(this).bindings;
+        for (const key in bindings) {
+            const binding = bindings[key];
+            if (binding) {
                 binding.resume();
             }
         }
