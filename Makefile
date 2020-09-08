@@ -18,11 +18,6 @@ clean:
 clobber: clean
 	rm -rf node_modules
 
-# === Tools ===
-
-PATH_TO_TOOLS := tools
-include $(PATH_TO_TOOLS)/Makefile
-
 # === Documentation ===
 
 PATH_TO_DOC := tools/docbuilder
@@ -32,11 +27,8 @@ include $(PATH_TO_DOC)/Makefile
 
 # === Build ===
 
-.SECONDEXPANSION:
+SRC_FILES := $(shell find source -name "*.js")
 
-MODULE = $(patsubst build/%-raw.js,%,$@)
-
-build/%-raw.js: $$(shell find source -name "*.js") node_modules | build
-	$(REMOVE_OLD)
-	npx rollup source/$(MODULE).js -o $@ -c
-	$(GZIP_AND_COMPRESS)
+build/Overture-raw.js: $(SRC_FILES) node_modules
+	rm -rf build
+	npm run build
