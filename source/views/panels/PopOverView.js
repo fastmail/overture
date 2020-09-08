@@ -84,7 +84,6 @@ const PopOverView = Class({
         const safeAreaInsetBottom = rootView.get('safeAreaInsetBottom');
         const layout = {};
         let calloutStyle = '';
-        let aFlex, bFlex, startDistance, endDistance;
 
         this.insertView(options.view, this._popOver);
 
@@ -110,6 +109,10 @@ const PopOverView = Class({
                 break;
         }
 
+        let aFlex;
+        let bFlex;
+        let startDistance;
+        let endDistance;
         // 0% rather than 0 for IE11 compatibility due to Bug #4
         // in https://github.com/philipwalton/flexbugs
         switch (alignEdge) {

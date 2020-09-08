@@ -94,7 +94,7 @@ Object.assign(String.prototype, {
         let output = '';
         let i = 0;
         let argIndex = 1;
-        let part, toInsert;
+        let part;
 
         while ((part = splitter.exec(this))) {
             // Add everything between last placeholder and this placeholder
@@ -108,6 +108,7 @@ Object.assign(String.prototype, {
 
             // Generate the string form of the data from the type specified
             // in (7).
+            let toInsert;
             switch (part[7]) {
                 case '%':
                     // Special case: just output the character and continue;
@@ -441,7 +442,9 @@ Object.assign(String.prototype, {
             // as a 64 bit little-endian long int.
             const length = string.length;
             const blocks = [0];
-            let i, j, k;
+            let i;
+            let j;
+            let k;
             for (i = 0, j = 0, k = 0; j < length; j += 1) {
                 blocks[i] |= string.charCodeAt(j) << k;
                 k += 8;
@@ -498,7 +501,8 @@ Object.assign(String.prototype, {
                 let b = h1;
                 let c = h2;
                 let d = h3;
-                let f, g, temp;
+                let f;
+                let g;
 
                 for (let i = 0; i < 64; i += 1) {
                     if (i < 16) {
@@ -514,7 +518,7 @@ Object.assign(String.prototype, {
                         f = c ^ (b | ~d);
                         g = (7 * i) % 16;
                     }
-                    temp = d;
+                    const temp = d;
                     d = c;
                     c = b;
                     b = add(

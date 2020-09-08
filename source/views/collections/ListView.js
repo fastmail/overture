@@ -22,10 +22,9 @@ const addToTable = function (array, table) {
 
 const getNextViewIndex = function (childViews, newRendered, fromIndex) {
     const length = childViews.length;
-    let view, item;
     while (fromIndex < length) {
-        view = childViews[fromIndex];
-        item = view.get('content');
+        const view = childViews[fromIndex];
+        const item = view.get('content');
         if (item && newRendered[guid(item)]) {
             break;
         }
@@ -214,13 +213,12 @@ const ListView = Class({
         const moved = new Set();
         let frag = null;
         let currentViewIndex;
-        let viewIsInCorrectPosition, i, l, item, id, view, isAdded, isRemoved;
 
         // Mark views we still need
-        for (i = start, l = end; i < l; i += 1) {
-            item = list.getObjectAt(i);
-            id = item ? guid(item) : 'null:' + i;
-            view = rendered[id];
+        for (let i = start, l = end; i < l; i += 1) {
+            const item = list.getObjectAt(i);
+            const id = item ? guid(item) : 'null:' + i;
+            const view = rendered[id];
             if (view && this.isCorrectItemView(view, item, i)) {
                 newRendered[id] = view;
             }
@@ -229,13 +227,11 @@ const ListView = Class({
         this.beginPropertyChanges();
 
         // Remove ones which are no longer needed
-        for (id in rendered) {
+        for (const id in rendered) {
             if (!newRendered[id]) {
-                view = rendered[id];
-                isRemoved =
-                    removed && (item = view.get('content'))
-                        ? removed[item.get('storeKey')]
-                        : false;
+                const view = rendered[id];
+                const item = removed ? view.get('content') : null;
+                const isRemoved = item ? removed[item.get('storeKey')] : false;
                 view.detach(isRemoved);
                 this.destroyItemView(view);
             }
@@ -243,14 +239,15 @@ const ListView = Class({
         currentViewIndex = getNextViewIndex(childViews, newRendered, 0);
 
         // Create/update views in render range
-        for (i = start, l = end; i < l; i += 1) {
-            item = list.getObjectAt(i);
-            id = item ? guid(item) : 'null:' + i;
-            view = newRendered[id];
+        for (let i = start, l = end; i < l; i += 1) {
+            const item = list.getObjectAt(i);
+            const id = item ? guid(item) : 'null:' + i;
+            let view = newRendered[id];
             // Was the view already in the list?
             if (view) {
                 // Is it in the correct position?
-                viewIsInCorrectPosition = childViews[currentViewIndex] === view;
+                const viewIsInCorrectPosition =
+                    childViews[currentViewIndex] === view;
                 // If not, remove
                 if (!viewIsInCorrectPosition) {
                     // Suspend property changes so we don't redraw layout
@@ -281,7 +278,8 @@ const ListView = Class({
                     continue;
                 }
             } else {
-                isAdded = added && item ? added[item.get('storeKey')] : false;
+                const isAdded =
+                    added && item ? added[item.get('storeKey')] : false;
                 view = this.createItemView(item, i, list, isAdded);
                 if (!view) {
                     continue;
@@ -302,8 +300,8 @@ const ListView = Class({
             layer.appendChild(frag);
         }
         if (isInDocument && viewsDidEnterDoc.length) {
-            for (i = 0, l = viewsDidEnterDoc.length; i < l; i += 1) {
-                view = viewsDidEnterDoc[i];
+            for (let i = 0, l = viewsDidEnterDoc.length; i < l; i += 1) {
+                const view = viewsDidEnterDoc[i];
                 view.didEnterDocument();
                 if (moved.has(view)) {
                     view.endPropertyChanges();

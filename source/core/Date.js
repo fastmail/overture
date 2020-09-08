@@ -420,7 +420,6 @@ Object.assign(Date.prototype, {
                   nopad,
                   character,
               ) {
-                  let num, str, offset, sign, hoursOffset, minutesOffset;
                   switch (character) {
                       case 'a':
                           // Abbreviated day of the week, e.g. 'Mon'.
@@ -475,20 +474,24 @@ Object.assign(Date.prototype, {
                               utc ? date.getUTCHours() : date.getHours(),
                               nopad,
                           );
-                      case 'I':
+                      case 'I': {
                           // Hour of the day in 12h clock (01-12).
-                          num = utc ? date.getUTCHours() : date.getHours();
+                          const num = utc
+                              ? date.getUTCHours()
+                              : date.getHours();
                           return num
                               ? pad(num < 13 ? num : num - 12, nopad)
                               : '12';
-                      case 'j':
+                      }
+                      case 'j': {
                           // Day of the year as a decimal number (001-366).
-                          num = date.getDayOfYear(utc);
+                          const num = date.getDayOfYear(utc);
                           return nopad
                               ? num + ''
                               : num < 100
                               ? '0' + pad(num)
                               : pad(num);
+                      }
                       case 'k':
                           // Hour of the day in 12h clock (0-23), padded with a space if
                           // single digit.
@@ -497,13 +500,16 @@ Object.assign(Date.prototype, {
                               nopad,
                               ' ',
                           );
-                      case 'l':
+                      case 'l': {
                           // Hour of the day in 12h clock (1-12), padded with a space if
                           // single digit.
-                          num = utc ? date.getUTCHours() : date.getHours();
+                          const num = utc
+                              ? date.getUTCHours()
+                              : date.getHours();
                           return num
                               ? pad(num < 13 ? num : num - 12, nopad, ' ')
                               : '12';
+                      }
                       case 'm':
                           // Month of the year (01-12).
                           return pad(
@@ -519,15 +525,16 @@ Object.assign(Date.prototype, {
                       case 'n':
                           // Newline character.
                           return '\n';
-                      case 'p':
+                      case 'p': {
                           // Localised equivalent of AM or PM.
-                          str =
+                          const str =
                               (utc ? date.getUTCHours() : date.getHours()) < 12
                                   ? 'am'
                                   : 'pm';
                           return i18n
                               ? i18n.get(str + 'Designator')
                               : str.toUpperCase();
+                      }
                       case 'r':
                           // The time in AM/PM notation: '%I:%M:%S %p'.
                           return date.format('%I:%M:%S %p', utc);
@@ -592,18 +599,19 @@ Object.assign(Date.prototype, {
                           return utc
                               ? date.getUTCFullYear()
                               : date.getFullYear();
-                      case 'z':
+                      case 'z': {
                           // Timezone offset
-                          offset = Math.round(date.getTimezoneOffset());
-                          sign = offset > 0 ? '-' : '+';
+                          let offset = Math.round(date.getTimezoneOffset());
+                          const sign = offset > 0 ? '-' : '+';
                           offset = Math.abs(offset);
-                          hoursOffset = ~~(offset / 60);
-                          minutesOffset = offset - 60 * hoursOffset;
+                          const hoursOffset = ~~(offset / 60);
+                          const minutesOffset = offset - 60 * hoursOffset;
                           return (
                               sign +
                               "%'02n".format(hoursOffset) +
                               ":%'02n".format(minutesOffset)
                           );
+                      }
                       case 'Z':
                           // Timezone name or abbreviation.
                           return (

@@ -197,17 +197,18 @@ const ToolbarView = Class({
             const rightConfig = this.get('rightConfig');
             const widths = this._widths;
             let pxWidth = this.get('pxWidth');
-            let rootView, i, l, config;
             if (!pxWidth) {
-                rootView = this.getParent(RootView);
+                const rootView = this.getParent(RootView);
                 pxWidth = rootView ? rootView.get('pxWidth') : 1024;
             }
             pxWidth -= this.get('minimumGap');
+            let i;
+            let l;
             for (i = 0, l = rightConfig.length; i < l; i += 1) {
                 pxWidth -= widths[rightConfig[i]];
             }
             for (i = 0, l = leftConfig.length; i < l; i += 1) {
-                config = leftConfig[i];
+                const config = leftConfig[i];
                 if (config === '*') {
                     break;
                 } else {
@@ -348,10 +349,9 @@ const ToolbarView = Class({
         let start = 0;
         let isEqual = true;
         const flex = this._flex;
-        let i, l, view, parent;
 
-        for (i = start, l = oldViews.length; i < l; i += 1) {
-            view = oldViews[i];
+        for (let i = start, l = oldViews.length; i < l; i += 1) {
+            const view = oldViews[i];
             if (view instanceof View) {
                 if (isEqual && view === newViews[i]) {
                     start += 1;
@@ -371,10 +371,11 @@ const ToolbarView = Class({
                 }
             }
         }
-        for (i = start, l = newViews.length; i < l; i += 1) {
-            view = newViews[i];
+        for (let i = start, l = newViews.length; i < l; i += 1) {
+            const view = newViews[i];
             if (view instanceof View) {
-                if ((parent = view.get('parentView'))) {
+                const parent = view.get('parentView');
+                if (parent) {
                     parent.removeView(view);
                 }
                 this.insertView(

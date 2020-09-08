@@ -253,8 +253,8 @@ const Drag = Class({
                   (e.g. hand when over a link, pointer otherwise).
     */
     _setCursor: function (set) {
-        let stylesheet = this._stylesheet,
-            cursor = this.get('defaultCursor');
+        let stylesheet = this._stylesheet;
+        let cursor = this.get('defaultCursor');
         if (stylesheet) {
             stylesheet.parentNode.removeChild(stylesheet);
             stylesheet = null;
@@ -609,18 +609,15 @@ const Drag = Class({
         // Find which view is currently under the cursor. If none, presume we've
         // moved the cursor over the drag image, so we're probably still over
         // the current drop.
-        let view = event.targetView,
-            x,
-            y;
+        let view = event.targetView;
         if (!view) {
             view = this.get('dropTarget');
         }
 
         // Update cursor location
-        this.set('cursorPosition', {
-            x: (x = event.clientX),
-            y: (y = event.clientY),
-        });
+        const x = event.clientX;
+        const y = event.clientY;
+        this.set('cursorPosition', { x, y });
 
         // Check if we're over any hotspots that should trigger a scroll.
         this._check(view, x, y);

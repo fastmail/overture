@@ -277,12 +277,11 @@ const NestedStore = Class({
             const newData = {};
             const newChanged = {};
             let clean = true;
-            let isChanged, key;
 
             changedKeys = [];
 
-            for (key in oldData) {
-                isChanged = !isEqual(oldData[key], newBase[key]);
+            for (const key in oldData) {
+                const isChanged = !isEqual(oldData[key], newBase[key]);
                 if (rebase && key in oldChanged) {
                     if (isChanged) {
                         newChanged[key] = true;

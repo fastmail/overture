@@ -132,7 +132,8 @@ const MenuButtonView = Class({
             this.set('isActive', true);
             const buttonView = this;
             const menuView = this.get('menuView');
-            let popOverView, menuOptionView;
+            let popOverView;
+            let menuOptionView;
             const popOverOptions = Object.assign(
                 {
                     view: menuView,

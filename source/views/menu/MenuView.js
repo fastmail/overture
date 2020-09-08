@@ -213,13 +213,13 @@ const MenuView = Class({
                 if (!this.get('showFilter')) {
                     const kbShortcuts = ViewEventsController.kbShortcuts;
                     const handler = kbShortcuts.getHandlerForKey(key);
-                    let parent, object, method;
                     if (handler) {
-                        parent = object = handler[0];
-                        method = handler[1];
+                        const object = handler[0];
+                        const method = handler[1];
                         // Check object is child view of the menu; we want to
                         // ignore any other keyboard shortcuts.
                         if (object instanceof View) {
+                            let parent = object;
                             while (parent && parent !== this) {
                                 parent = parent.get('parentView');
                             }

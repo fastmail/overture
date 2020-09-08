@@ -33,14 +33,13 @@ class TouchDragEvent {
 }
 
 const getTouch = function (touches, touchId) {
-    let l = touches.length,
-        touch;
     // Touch id may be 0 on Android chrome; can't use a falsy check
     if (touchId === null) {
         return null;
     }
+    let l = touches.length;
     while (l--) {
-        touch = touches[l];
+        const touch = touches[l];
         if (touch.identifier === touchId) {
             return touch;
         }

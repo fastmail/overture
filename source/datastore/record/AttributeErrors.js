@@ -32,16 +32,16 @@ const AttributeErrors = Class({
 
         const attrs = meta(record).attrs;
         let errorCount = 0;
-        let attrKey, propKey, attribute, error;
 
-        for (attrKey in attrs) {
+        for (const attrKey in attrs) {
             // Check if attribute has been removed (e.g. in a subclass).
-            if ((propKey = attrs[attrKey])) {
+            const propKey = attrs[attrKey];
+            if (propKey) {
                 // Validate current value and set error on this object.
-                attribute = record[propKey];
-                error = this[propKey] = attribute.validate
+                const attribute = record[propKey];
+                const error = (this[propKey] = attribute.validate
                     ? attribute.validate(record.get(propKey), propKey, record)
-                    : null;
+                    : null);
 
                 // Keep an error count
                 if (error) {
@@ -70,16 +70,11 @@ const AttributeErrors = Class({
         const dependents = metadata.dependents[property];
         const l = dependents ? dependents.length : 0;
         const record = this._record;
-        let i, propKey, attribute;
 
         this.beginPropertyChanges();
-        for (i = 0; i <= l; i += 1) {
-            if (i === l) {
-                propKey = property;
-            } else {
-                propKey = dependents[i];
-            }
-            attribute = record[propKey];
+        for (let i = 0; i <= l; i += 1) {
+            const propKey = i === l ? property : dependents[i];
+            const attribute = record[propKey];
             if (changed[propKey] || !(attribute instanceof RecordAttribute)) {
                 continue;
             }
@@ -105,16 +100,12 @@ const AttributeErrors = Class({
             changed - {Object} A map of validity string changes.
     */
     setRecordValidity: function (_, changed) {
-        let errorCount = this.get('errorCount'),
-            key,
-            vals,
-            wasValid,
-            isValid;
-        for (key in changed) {
+        let errorCount = this.get('errorCount');
+        for (const key in changed) {
             if (key !== 'errorCount') {
-                vals = changed[key];
-                wasValid = !vals.oldValue;
-                isValid = !vals.newValue;
+                const vals = changed[key];
+                const wasValid = !vals.oldValue;
+                const isValid = !vals.newValue;
                 if (wasValid && !isValid) {
                     errorCount += 1;
                 } else if (isValid && !wasValid) {

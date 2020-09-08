@@ -21,13 +21,15 @@ const makeComputedDidChange = function (key) {
 const setupComputed = function (metadata, key, object) {
     const dependencies = this.dependencies;
     let dependents = metadata.dependents;
-    let method, pathObservers, methodObservers;
 
     if (!metadata.hasOwnProperty('dependents')) {
         dependents = metadata.dependents = clone(dependents);
         metadata.allDependents = {};
     }
     let l = dependencies.length;
+    let method;
+    let pathObservers;
+    let methodObservers;
     while (l--) {
         const valueThisKeyDependsOn = dependencies[l];
         if (valueThisKeyDependsOn.indexOf('.') === -1) {
@@ -67,13 +69,15 @@ const setupComputed = function (metadata, key, object) {
 const teardownComputed = function (metadata, key) {
     const dependencies = this.dependencies;
     let dependents = metadata.dependents;
-    let method, pathObservers, methodObservers;
 
     if (!metadata.hasOwnProperty('dependents')) {
         dependents = metadata.dependents = clone(dependents);
         metadata.allDependents = {};
     }
     let l = dependencies.length;
+    let method;
+    let pathObservers;
+    let methodObservers;
     while (l--) {
         const valueThisKeyDependsOn = dependencies[l];
         if (valueThisKeyDependsOn.indexOf('.') === -1) {
@@ -303,14 +307,13 @@ export default {
             {O.ComputedProps} Returns self.
     */
     set(key, value) {
-        let oldValue = this[key],
-            silent,
-            cache;
+        let oldValue = this[key];
+        let silent;
         if (oldValue && oldValue.isProperty) {
             silent = !!oldValue.isSilent;
             value = oldValue.call(this, value, key);
             if (!oldValue.isVolatile) {
-                cache = meta(this).cache;
+                const cache = meta(this).cache;
                 oldValue = cache[key];
                 cache[key] = value;
             } else {

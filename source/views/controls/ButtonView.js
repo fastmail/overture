@@ -259,11 +259,12 @@ const ButtonView = Class({
     activate() {
         if (!this.get('isDisabled') && !this.get('isWaiting')) {
             const target = this.get('target') || this;
-            let action;
-            if ((action = this.get('action'))) {
+            const method = this.get('method');
+            const action = method ? null : this.get('action');
+            if (method) {
+                target[method](this);
+            } else if (action) {
                 target.fire(action, { originView: this });
-            } else if ((action = this.get('method'))) {
-                target[action](this);
             }
             this.fire('button:activate');
         }

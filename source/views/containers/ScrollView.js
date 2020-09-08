@@ -502,10 +502,9 @@ if (isIOS) {
     mixin(RootView.prototype, {
         preventRootScroll: function (event) {
             const view = event.targetView;
-            let doc, win;
             if (!(view instanceof ScrollView) && !view.getParent(ScrollView)) {
-                doc = this.layer.ownerDocument;
-                win = doc.defaultView;
+                const doc = this.layer.ownerDocument;
+                const win = doc.defaultView;
                 if (
                     this.get('pxHeight') <= win.innerHeight &&
                     !/^(?:INPUT|TEXTAREA)$/.test(doc.activeElement.nodeName)

@@ -66,14 +66,13 @@ const Record = Class({
         const prototype = Type.prototype;
         const clone = new Type(store);
         const attrs = meta(this).attrs;
-        let attrKey, propKey, value;
         clone.set('accountId', this.get('accountId'));
-        for (attrKey in attrs) {
-            propKey = attrs[attrKey];
+        for (const attrKey in attrs) {
+            const propKey = attrs[attrKey];
             if (prototype[propKey].noSync) {
                 continue;
             }
-            value = this.get(propKey);
+            let value = this.get(propKey);
             if (value instanceof Record) {
                 value = value.getDoppelganger(store);
             }
@@ -498,15 +497,14 @@ const Record = Class({
 
 Record.getClientSettableAttributes = function (Type) {
     let clientSettableAttributes = Type.clientSettableAttributes;
-    let prototype, attrs, attrKey, propKey, attribute;
     if (!clientSettableAttributes) {
-        prototype = Type.prototype;
-        attrs = meta(prototype).attrs;
+        const prototype = Type.prototype;
+        const attrs = meta(prototype).attrs;
         clientSettableAttributes = {};
-        for (attrKey in attrs) {
-            propKey = attrs[attrKey];
+        for (const attrKey in attrs) {
+            const propKey = attrs[attrKey];
             if (propKey) {
-                attribute = prototype[propKey];
+                const attribute = prototype[propKey];
                 if (!attribute.noSync) {
                     clientSettableAttributes[attrKey] = true;
                 }

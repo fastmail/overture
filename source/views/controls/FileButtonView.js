@@ -129,16 +129,17 @@ const FileButtonView = Class({
         const files = Array.prototype.slice.call(input.files);
 
         if (event.target === input && files.length) {
-            let target, action;
             if (!this.get('isDisabled')) {
-                target = this.get('target') || this;
-                if ((action = this.get('action'))) {
+                const target = this.get('target') || this;
+                const method = this.get('method');
+                const action = method ? null : this.get('action');
+                if (method) {
+                    target[method](files, this);
+                } else if (action) {
                     target.fire(action, {
                         originView: this,
                         files,
                     });
-                } else if ((action = this.get('method'))) {
-                    target[action](files, this);
                 }
             }
         }

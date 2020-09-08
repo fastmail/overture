@@ -111,16 +111,14 @@ const Enumerable = {
             {Number} The index to place the value in the sorted array.
     */
     binarySearch(value, comparator) {
-        let lower = 0,
-            upper = this.get('length'),
-            middle,
-            candidate;
+        let lower = 0;
+        let upper = this.get('length');
         if (!comparator) {
             comparator = defaultComparator;
         }
         while (lower < upper) {
-            middle = (lower + upper) >> 1;
-            candidate = this.getObjectAt(middle);
+            const middle = (lower + upper) >> 1;
+            const candidate = this.getObjectAt(middle);
             if (comparator(candidate, value) < 0) {
                 lower = middle + 1;
             } else {

@@ -15,7 +15,7 @@ import { loc } from './i18n';
 */
 const formatDuration = (Date.formatDuration = function (durationInMS, approx) {
     const durationInSeconds = Math.abs(Math.floor(durationInMS / 1000));
-    let time, weeks, days, hours, minutes;
+    let time;
 
     if (durationInSeconds < 60) {
         if (approx) {
@@ -26,6 +26,8 @@ const formatDuration = (Date.formatDuration = function (durationInMS, approx) {
     } else if (durationInSeconds < 60 * 60) {
         time = loc('[*2,_1,%n minute,%n minutes]', ~~(durationInSeconds / 60));
     } else if (durationInSeconds < 60 * 60 * 24) {
+        let hours;
+        let minutes;
         if (approx) {
             hours = Math.round(durationInSeconds / (60 * 60));
             minutes = 0;
@@ -43,6 +45,8 @@ const formatDuration = (Date.formatDuration = function (durationInMS, approx) {
             ? durationInSeconds < 60 * 60 * 24 * 21
             : durationInSeconds < 60 * 60 * 24 * 7
     ) {
+        let days;
+        let hours;
         if (approx) {
             days = Math.round(durationInSeconds / (60 * 60 * 24));
             hours = 0;
@@ -56,6 +60,8 @@ const formatDuration = (Date.formatDuration = function (durationInMS, approx) {
             hours,
         );
     } else {
+        let weeks;
+        let days;
         if (approx) {
             weeks = Math.round(durationInSeconds / (60 * 60 * 24 * 7));
             days = 0;
@@ -98,7 +104,9 @@ Date.prototype.relativeTo = function (date, approx, mustNotBeFuture) {
 
     let duration = date - this;
     const isFuture = duration < 0;
-    let time, years, months;
+    let time;
+    let years;
+    let months;
 
     if (isFuture) {
         duration = -duration;

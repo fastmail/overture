@@ -57,9 +57,7 @@ const RootView = Class({
         const nodeIsDocument = node.nodeType === 9;
         const doc = nodeIsDocument ? node : node.ownerDocument;
         const win = doc.defaultView;
-        let events, l;
-
-        events = [
+        let events = [
             'click',
             'mousedown',
             'mouseup',
@@ -76,7 +74,7 @@ const RootView = Class({
             'cut',
             'submit',
         ];
-        for (l = events.length; l--; ) {
+        for (let l = events.length; l--; ) {
             node.addEventListener(
                 events[l],
                 this,
@@ -93,11 +91,11 @@ const RootView = Class({
         // These events are automatically added to all inputs when created
         // instead.
         events = ['focus', 'blur', 'change', 'input'];
-        for (l = events.length; l--; ) {
+        for (let l = events.length; l--; ) {
             node.addEventListener(events[l], this, true);
         }
         events = ['resize', 'scroll'];
-        for (l = events.length; l--; ) {
+        for (let l = events.length; l--; ) {
             win.addEventListener(events[l], this, false);
         }
 

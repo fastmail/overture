@@ -26,15 +26,13 @@ class RecordAttribute {
     __setupProperty__(metadata, propKey, object) {
         const constructor = object.constructor;
         let attrs = metadata.attrs;
-        let dependents, dependencies, l, key, AttributeErrorsType;
-        let attrErrorsMetadata;
         if (!metadata.hasOwnProperty('attrs')) {
             attrs = metadata.attrs = attrs ? Object.create(attrs) : {};
         }
         if (this.isPrimaryKey) {
             constructor.primaryKey = propKey;
             // Make the `id` property depend on the primary key.
-            dependents = metadata.dependents;
+            let dependents = metadata.dependents;
             if (!metadata.hasOwnProperty('dependents')) {
                 dependents = metadata.dependents = clone(dependents);
                 metadata.allDependents = {};
@@ -48,25 +46,30 @@ class RecordAttribute {
             if (!metadata.hasObserver(propKey, attributeErrorsObserver)) {
                 metadata.addObserver(propKey, attributeErrorsObserver);
             }
-            dependencies = this.validityDependencies;
+            const dependencies = this.validityDependencies;
+            let dependents;
             if (dependencies) {
-                AttributeErrorsType = object.AttributeErrorsType;
+                let AttributeErrorsType = object.AttributeErrorsType;
                 if (AttributeErrorsType.forRecordType !== constructor) {
                     AttributeErrorsType = object.AttributeErrorsType = Class({
                         Extends: AttributeErrorsType,
                     });
                     AttributeErrorsType.forRecordType = constructor;
-                    attrErrorsMetadata = meta(AttributeErrorsType.prototype);
+                    const attrErrorsMetadata = meta(
+                        AttributeErrorsType.prototype,
+                    );
                     dependents = attrErrorsMetadata.dependents = clone(
                         attrErrorsMetadata.dependents,
                     );
                 } else {
-                    attrErrorsMetadata = meta(AttributeErrorsType.prototype);
+                    const attrErrorsMetadata = meta(
+                        AttributeErrorsType.prototype,
+                    );
                     dependents = attrErrorsMetadata.dependents;
                 }
-                l = dependencies.length;
+                let l = dependencies.length;
                 while (l--) {
-                    key = dependencies[l];
+                    const key = dependencies[l];
                     if (!dependents[key]) {
                         dependents[key] = [];
                         if (
@@ -300,7 +303,7 @@ Object.assign(RecordAttribute.prototype, {
         const data = storeKey ? store.getData(storeKey) : record._data;
         const attrKey = this.key || propKey;
         const Type = this.Type;
-        let currentAttrValue, attrValue, update;
+        let currentAttrValue;
         if (data) {
             currentAttrValue = data[attrKey];
             if (currentAttrValue === undefined) {
@@ -310,19 +313,18 @@ Object.assign(RecordAttribute.prototype, {
                 propValue !== undefined &&
                 this.willSet(propValue, propKey, record)
             ) {
-                if (this.toJSON) {
-                    attrValue = this.toJSON(propValue, propKey, record);
-                } else if (propValue && propValue.toJSON) {
-                    attrValue = propValue.toJSON();
-                } else {
-                    attrValue = propValue;
-                }
+                const attrValue = this.toJSON
+                    ? this.toJSON(propValue, propKey, record)
+                    : propValue && propValue.toJSON
+                    ? propValue.toJSON()
+                    : propValue;
+
                 if (!isEqual(attrValue, currentAttrValue)) {
                     // May have changed if willSet moved the account this record
                     // is in.
                     storeKey = record.get('storeKey');
                     if (storeKey) {
-                        update = {};
+                        const update = {};
                         update[attrKey] = attrValue;
                         store.updateData(
                             storeKey,

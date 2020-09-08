@@ -42,7 +42,8 @@ const ShortcutOverlayView = Class({
             const ancestors = getAncestors(el);
             for (let i = 0; i < ancestors.length; i++) {
                 const values = styleCache.get(ancestors[i]);
-                let position, zIndex;
+                let position;
+                let zIndex;
                 if (values) {
                     position = values[0];
                     zIndex = values[1];

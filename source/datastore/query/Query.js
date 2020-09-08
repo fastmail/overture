@@ -508,14 +508,13 @@ const Query = Class({
         const added = event.addedIndexes;
         const removed = event.removedIndexes;
         const awaitingIdFetch = this._awaitingIdFetch;
-        let i, l, call, start, end, j, ll, index;
-        for (i = 0, l = awaitingIdFetch.length; i < l; i += 1) {
-            call = awaitingIdFetch[i];
-            start = call[0];
-            end = call[1];
+        for (let i = 0, l = awaitingIdFetch.length; i < l; i += 1) {
+            const call = awaitingIdFetch[i];
+            let start = call[0];
+            let end = call[1];
 
-            for (j = 0, ll = removed.length; j < ll; j += 1) {
-                index = removed[j];
+            for (let j = 0, ll = removed.length; j < ll; j += 1) {
+                const index = removed[j];
                 if (index < start) {
                     start -= 1;
                 }
@@ -524,8 +523,8 @@ const Query = Class({
                 }
             }
 
-            for (j = 0, ll = added.length; j < ll; j += 1) {
-                index = added[j];
+            for (let j = 0, ll = added.length; j < ll; j += 1) {
+                const index = added[j];
                 if (index <= start) {
                     start += 1;
                 }
@@ -613,7 +612,6 @@ const Query = Class({
         let firstChange = 0;
         let lastChangeNew = total - 1;
         let lastChangeOld = (oldTotal || 0) - 1;
-        let i, storeKey;
 
         // Initial fetch, oldTotal === null
         if (oldTotal !== null) {
@@ -633,13 +631,13 @@ const Query = Class({
                 lastChangeOld -= 1;
             }
 
-            for (i = firstChange; i <= lastChangeOld; i += 1) {
-                storeKey = oldStoreKeys[i];
+            for (let i = firstChange; i <= lastChangeOld; i += 1) {
+                const storeKey = oldStoreKeys[i];
                 index[storeKey] = i;
             }
 
-            for (i = firstChange; i <= lastChangeNew; i += 1) {
-                storeKey = storeKeys[i];
+            for (let i = firstChange; i <= lastChangeNew; i += 1) {
+                const storeKey = storeKeys[i];
                 if (index[storeKey] === i) {
                     index[storeKey] = -1;
                 } else {
@@ -648,8 +646,8 @@ const Query = Class({
                 }
             }
 
-            for (i = firstChange; i <= lastChangeOld; i += 1) {
-                storeKey = oldStoreKeys[i];
+            for (let i = firstChange; i <= lastChangeOld; i += 1) {
+                const storeKey = oldStoreKeys[i];
                 if (index[storeKey] !== -1) {
                     removedIndexes.push(i);
                     removedStoreKeys.push(storeKey);

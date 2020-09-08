@@ -435,14 +435,13 @@ const clone = function (value) {
         are the both arrays or objects with equal members?
 */
 const isEqual = function (a, b) {
-    let i, l, key, constructor;
     if (a === b) {
         return true;
     }
     if (a && b && typeof a === 'object' && typeof b === 'object') {
         if (a instanceof Array) {
             if (b instanceof Array && a.length === b.length) {
-                for (i = 0, l = a.length; i < l; i += 1) {
+                for (let i = 0, l = a.length; i < l; i += 1) {
                     if (!isEqual(a[i], b[i])) {
                         return false;
                     }
@@ -452,19 +451,19 @@ const isEqual = function (a, b) {
         } else if (a instanceof Date) {
             return +a === +b;
         } else {
-            constructor = a.constructor;
+            const constructor = a.constructor;
             if (a.constructor !== b.constructor) {
                 return false;
             }
             if (constructor.isEqual) {
                 return constructor.isEqual(a, b);
             }
-            for (key in a) {
+            for (const key in a) {
                 if (!isEqual(a[key], b[key])) {
                     return false;
                 }
             }
-            for (key in b) {
+            for (const key in b) {
                 if (!isEqual(a[key], b[key])) {
                     return false;
                 }

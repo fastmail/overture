@@ -88,12 +88,11 @@ class RGB extends Color {
         const max = Math.max(r, g, b);
 
         const l = (min + max) / 2;
-        let h, s, d;
+        let h = 0;
+        let s = 0;
 
-        if (min === max) {
-            h = s = 0;
-        } else {
-            d = max - min;
+        if (min !== max) {
+            const d = max - min;
             s = d / (l <= 0.5 ? max + min : 2 - max - min);
             h =
                 r === max
@@ -455,18 +454,21 @@ Object.assign(Color, {
 
     fromCSSColorValue(color) {
         let opacity = 1;
-        let r, g, b, number, size, getChannel, alphaOffset, parts;
+        let r;
+        let g;
+        let b;
+        let parts;
         color = color.toLowerCase();
         if (color in cssColorNames) {
-            number = cssColorNames[color];
+            const number = cssColorNames[color];
             r = getDoubleByte(number, 2);
             g = getDoubleByte(number, 1);
             b = getDoubleByte(number, 0);
         } else if (color.charAt(0) === '#') {
-            number = parseInt(color.slice(1), 16) || 0;
-            size = color.length;
-            getChannel = size < 6 ? getByteDoubled : getDoubleByte;
-            alphaOffset = 0;
+            const number = parseInt(color.slice(1), 16) || 0;
+            const size = color.length;
+            const getChannel = size < 6 ? getByteDoubled : getDoubleByte;
+            let alphaOffset = 0;
             if (size === 5 || size === 9) {
                 opacity = getChannel(number, 0) / 255;
                 alphaOffset = 1;

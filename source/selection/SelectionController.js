@@ -104,11 +104,10 @@ const SelectionController = Class({
         const _selectedStoreKeys = this._selectedStoreKeys;
         let howManyChanged = 0;
         let l = storeKeys.length;
-        let storeKey, wasSelected;
 
         while (l--) {
-            storeKey = storeKeys[l];
-            wasSelected = !!_selectedStoreKeys[storeKey];
+            const storeKey = storeKeys[l];
+            const wasSelected = !!_selectedStoreKeys[storeKey];
             if (isSelected !== wasSelected) {
                 if (isSelected) {
                     _selectedStoreKeys[storeKey] = true;
