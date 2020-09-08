@@ -1,7 +1,7 @@
-import './Number'; // For Number#mod
+import './Number.js'; // For Number#mod
 
 // Circular but it's… mostly OK. See Overture.js for explanation.
-import * as i18n from '../localisation/i18n';
+import * as i18n from '../localisation/i18n.js';
 
 const isLeapYear = function (year) {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;

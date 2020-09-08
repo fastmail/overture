@@ -1,11 +1,11 @@
-import { Class } from '../../core/Core';
-import '../../core/Number'; // For Number#limit
-import { bind } from '../../foundation/Binding';
-import '../../foundation/ComputedProps'; // For Function#property, #nocache
-import '../../foundation/RunLoop'; // For Function#queue
-import ScrollView from '../containers/ScrollView';
-import View from '../View';
-import ViewEventsController from '../ViewEventsController';
+import { Class } from '../../core/Core.js';
+import '../../core/Number.js'; // For Number#limit
+import { bind } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
+import '../../foundation/RunLoop.js'; // For Function#queue
+import ScrollView from '../containers/ScrollView.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
 
 const ListKBFocusView = Class({
     Extends: View,

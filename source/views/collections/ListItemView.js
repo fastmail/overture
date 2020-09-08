@@ -1,7 +1,7 @@
-import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps'; // For Function#property
-import '../../foundation/RunLoop'; // For Function#nextFrame
-import View from '../View';
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js'; // For Function#property
+import '../../foundation/RunLoop.js'; // For Function#nextFrame
+import View from '../View.js';
 
 const ListItemView = Class({
     Extends: View,

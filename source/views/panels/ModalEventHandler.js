@@ -1,7 +1,7 @@
-import { Class } from '../../core/Core';
-import Obj from '../../foundation/Object';
-import '../../foundation/EventTarget'; // For Function#on
-import ScrollView from '../containers/ScrollView';
+import { Class } from '../../core/Core.js';
+import Obj from '../../foundation/Object.js';
+import '../../foundation/EventTarget.js'; // For Function#on
+import ScrollView from '../containers/ScrollView.js';
 
 const ModalEventHandler = Class({
     Extends: Obj,

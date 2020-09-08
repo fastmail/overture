@@ -1,6 +1,6 @@
-import Animation from './Animation';
-import { clone } from '../core/Core';
-import { setStyle } from '../dom/Element';
+import Animation from './Animation.js';
+import { clone } from '../core/Core.js';
+import { setStyle } from '../dom/Element.js';
 
 const numbersRe = /[.\-\d]+/g;
 

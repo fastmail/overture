@@ -1,4 +1,4 @@
-import { isApple } from '../ua/UA';
+import { isApple } from '../ua/UA.js';
 
 /**
     Function: O.toPlatformKey

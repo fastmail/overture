@@ -1,7 +1,7 @@
-import { Class } from '../core/Core';
-import Obj from '../foundation/Object';
-import { create as createStylesheet } from '../dom/Stylesheet';
-import { loc } from '../localisation/i18n';
+import { Class } from '../core/Core.js';
+import Obj from '../foundation/Object.js';
+import { create as createStylesheet } from '../dom/Stylesheet.js';
+import { loc } from '../localisation/i18n.js';
 
 /**
     Class: O.ThemeManager

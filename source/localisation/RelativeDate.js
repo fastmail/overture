@@ -1,4 +1,4 @@
-import { loc } from './i18n';
+import { loc } from './i18n.js';
 
 /**
     Function: Date.formatDuration

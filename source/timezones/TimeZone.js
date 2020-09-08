@@ -1,5 +1,5 @@
-import '../core/Date'; // For Date#add
-import '../core/String'; // For String#format
+import '../core/Date.js'; // For Date#add
+import '../core/String.js'; // For String#format
 
 // Periods format:
 // until posix time, offset (secs), rules name, suffix

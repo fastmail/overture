@@ -1,6 +1,6 @@
-import '../core/Number'; // For Number#mod
-import '../core/String'; // For String#escapeRegExp
-import * as i18n from '../localisation/i18n';
+import '../core/Number.js'; // For Number#mod
+import '../core/String.js'; // For String#escapeRegExp
+import * as i18n from '../localisation/i18n.js';
 import Parse, {
     define,
     optional,
@@ -8,7 +8,7 @@ import Parse, {
     sequence,
     firstMatch,
     longestMatch,
-} from './Parse';
+} from './Parse.js';
 
 // --- Date Grammar ---
 

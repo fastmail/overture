@@ -1,4 +1,4 @@
-import { isApple } from '../ua/UA';
+import { isApple } from '../ua/UA.js';
 
 export const DEFAULT_IN_INPUT = 0;
 export const ACTIVE_IN_INPUT = 1;

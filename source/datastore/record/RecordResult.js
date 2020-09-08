@@ -1,5 +1,5 @@
-import { EMPTY, NEW, DIRTY, COMMITTING, NON_EXISTENT } from './Status';
-import Record from './Record';
+import { EMPTY, NEW, DIRTY, COMMITTING, NON_EXISTENT } from './Status.js';
+import Record from './Record.js';
 
 // ---
 

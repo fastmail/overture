@@ -1,13 +1,13 @@
-import ComputedProps from './ComputedProps';
-import BoundProps from './BoundProps';
-import ObservableProps from './ObservableProps';
-import EventTarget from './EventTarget';
+import ComputedProps from './ComputedProps.js';
+import BoundProps from './BoundProps.js';
+import ObservableProps from './ObservableProps.js';
+import EventTarget from './EventTarget.js';
 import {
     meta,
     mixin,
     OBJECT_INITIALISED,
     OBJECT_DESTROYED,
-} from '../core/Core';
+} from '../core/Core.js';
 
 /**
     Class: O.Object

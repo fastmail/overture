@@ -1,10 +1,10 @@
-import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps'; // For Function#property
-import '../../foundation/EventTarget'; // For Function#on
-import { create as el } from '../../dom/Element';
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js'; // For Function#property
+import '../../foundation/EventTarget.js'; // For Function#on
+import { create as el } from '../../dom/Element.js';
 
-import AbstractControlView from './AbstractControlView';
-import CheckboxView from './CheckboxView';
+import AbstractControlView from './AbstractControlView.js';
+import CheckboxView from './CheckboxView.js';
 
 /**
     Class: O.RadioView

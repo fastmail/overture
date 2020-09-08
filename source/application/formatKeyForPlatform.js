@@ -1,5 +1,5 @@
-import '../core/String'; // For String#capitalise
-import { isApple } from '../ua/UA';
+import '../core/String.js'; // For String#capitalise
+import { isApple } from '../ua/UA.js';
 
 const platformKeys = {
     ArrowUp: '↑',

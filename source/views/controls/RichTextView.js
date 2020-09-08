@@ -1,29 +1,29 @@
 /*global FileReader, Squire */
 
-import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps'; // For Function#property, #nocache
-import '../../foundation/EventTarget'; // For Function#on
-import '../../foundation/ObservableProps'; // For Function#observes
-import { isEqualToValue } from '../../foundation/Transform';
-import { bind, bindTwoWay } from '../../foundation/Binding';
-import * as RunLoop from '../../foundation/RunLoop'; // Also Function#nextFrame
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
+import '../../foundation/EventTarget.js'; // For Function#on
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import { isEqualToValue } from '../../foundation/Transform.js';
+import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#nextFrame
 // and Function#queue
-import formatKeyForPlatform from '../../application/formatKeyForPlatform';
-import { nearest, create as el } from '../../dom/Element';
-import { lookupKey, isClickModified } from '../../dom/DOMEvent';
-import DropTarget from '../../drag-drop/DropTarget';
-import * as DragEffect from '../../drag-drop/DragEffect';
-import { loc } from '../../localisation/i18n';
-import { isIOS, isApple, isAndroid } from '../../ua/UA';
-import View from '../View';
-import ViewEventsController from '../ViewEventsController';
-import ScrollView from '../containers/ScrollView';
-import ToolbarView from '../collections/ToolbarView';
-import PopOverView from '../panels/PopOverView';
-import ButtonView from './ButtonView';
-import FileButtonView from './FileButtonView';
-import MenuView from '../menu/MenuView';
-import TextView from './TextView';
+import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
+import { nearest, create as el } from '../../dom/Element.js';
+import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
+import DropTarget from '../../drag-drop/DropTarget.js';
+import * as DragEffect from '../../drag-drop/DragEffect.js';
+import { loc } from '../../localisation/i18n.js';
+import { isIOS, isApple, isAndroid } from '../../ua/UA.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import ScrollView from '../containers/ScrollView.js';
+import ToolbarView from '../collections/ToolbarView.js';
+import PopOverView from '../panels/PopOverView.js';
+import ButtonView from './ButtonView.js';
+import FileButtonView from './FileButtonView.js';
+import MenuView from '../menu/MenuView.js';
+import TextView from './TextView.js';
 
 const execCommand = function (command) {
     return function (arg) {

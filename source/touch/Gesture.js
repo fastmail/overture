@@ -1,4 +1,4 @@
-import GestureManager from './GestureManager';
+import GestureManager from './GestureManager.js';
 
 export default class Gesture {
     constructor(mixin) {

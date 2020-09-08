@@ -1,7 +1,7 @@
-import '../foundation/ComputedProps'; // For Function#property
-import { setStyle } from '../dom/Element';
-import Easing from './Easing';
-import StyleAnimation from './StyleAnimation';
+import '../foundation/ComputedProps.js'; // For Function#property
+import { setStyle } from '../dom/Element.js';
+import Easing from './Easing.js';
+import StyleAnimation from './StyleAnimation.js';
 
 /**
     Mixin: O.AnimatableView

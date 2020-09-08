@@ -1,4 +1,4 @@
-import { create as el } from './Element';
+import { create as el } from './Element.js';
 
 /**
     Namespace: O.Stylesheet

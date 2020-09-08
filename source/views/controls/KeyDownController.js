@@ -1,8 +1,8 @@
-import { Class } from '../../core/Core';
-import Obj from '../../foundation/Object';
-import * as RunLoop from '../../foundation/RunLoop';
-import { isApple } from '../../ua/UA';
-import ViewEventsController from '../ViewEventsController';
+import { Class } from '../../core/Core.js';
+import Obj from '../../foundation/Object.js';
+import * as RunLoop from '../../foundation/RunLoop.js';
+import { isApple } from '../../ua/UA.js';
+import ViewEventsController from '../ViewEventsController.js';
 
 const KeyDownController = Class({
     Extends: Obj,

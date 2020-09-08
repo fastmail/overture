@@ -1,4 +1,4 @@
-import { meta } from '../core/Core';
+import { meta } from '../core/Core.js';
 
 /**
     Mixin: O.ObservableRange

@@ -1,4 +1,4 @@
-import '../../foundation/ComputedProps'; // For Function#property
+import '../../foundation/ComputedProps.js'; // For Function#property
 
 /**
     Mixin: O.TrueVisibleRect

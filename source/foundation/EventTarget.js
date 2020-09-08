@@ -1,8 +1,8 @@
-import { meta } from '../core/Core';
-import '../core/Array'; // For Array#erase
+import { meta } from '../core/Core.js';
+import '../core/Array.js'; // For Array#erase
 
-import Event from './Event';
-import * as RunLoop from './RunLoop';
+import Event from './Event.js';
+import * as RunLoop from './RunLoop.js';
 
 const slice = Array.prototype.slice;
 const eventPrefix = '__event__';

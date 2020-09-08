@@ -1,4 +1,4 @@
-import Obj from '../foundation/Object';
+import Obj from '../foundation/Object.js';
 
 /**
     Property: O.activeViews

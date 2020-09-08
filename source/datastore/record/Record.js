@@ -1,11 +1,11 @@
-import { Class, meta, clone } from '../../core/Core';
-import Obj from '../../foundation/Object';
-import * as RunLoop from '../../foundation/RunLoop';
-import '../../foundation/ComputedProps'; // For Function#property, #nocache
+import { Class, meta, clone } from '../../core/Core.js';
+import Obj from '../../foundation/Object.js';
+import * as RunLoop from '../../foundation/RunLoop.js';
+import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
 
-import { ToOneAttribute } from './toOne';
-import AttributeErrors from './AttributeErrors';
-import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status';
+import { ToOneAttribute } from './toOne.js';
+import AttributeErrors from './AttributeErrors.js';
+import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status.js';
 
 const READY_NEW_DIRTY = READY | NEW | DIRTY;
 

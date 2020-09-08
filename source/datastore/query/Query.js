@@ -1,11 +1,11 @@
-import { Class, guid, meta } from '../../core/Core';
-import Obj from '../../foundation/Object';
-import ObservableRange from '../../foundation/ObservableRange';
-import Enumerable from '../../foundation/Enumerable';
-import '../../foundation/EventTarget'; // For Function#on
-import '../../foundation/ObservableProps'; // For Function#observes
-import '../../foundation/RunLoop'; // For Function#queue
-import '../../foundation/ComputedProps'; // For Function#property, #nocache
+import { Class, guid, meta } from '../../core/Core.js';
+import Obj from '../../foundation/Object.js';
+import ObservableRange from '../../foundation/ObservableRange.js';
+import Enumerable from '../../foundation/Enumerable.js';
+import '../../foundation/EventTarget.js'; // For Function#on
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import '../../foundation/RunLoop.js'; // For Function#queue
+import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
 
 import {
     EMPTY,
@@ -17,7 +17,7 @@ import {
     // OBSOLETE => The list may have changed on the server since the last fetch
     // was initiated.
     OBSOLETE,
-} from '../record/Status';
+} from '../record/Status.js';
 
 const AUTO_REFRESH_NEVER = 0;
 const AUTO_REFRESH_IF_OBSERVED = 1;

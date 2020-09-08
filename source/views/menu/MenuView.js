@@ -1,21 +1,21 @@
-import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps'; // For Function#property
-import '../../foundation/EventTarget'; // For Function#on
-import '../../foundation/ObservableProps'; // For Function#observes
-import Obj from '../../foundation/Object';
-import { bind } from '../../foundation/Binding';
-import ObservableArray from '../../foundation/ObservableArray';
-import * as RunLoop from '../../foundation/RunLoop'; // Also Function#queue
-import { lookupKey } from '../../dom/DOMEvent';
-import OptionsController from '../../selection/OptionsController';
-import View from '../View';
-import ViewEventsController from '../ViewEventsController';
-import ScrollView from '../containers/ScrollView';
-import OptionsListView from '../collections/OptionsListView';
-import PopOverView from '../panels/PopOverView';
-import MenuButtonView from './MenuButtonView';
-import MenuFilterView from './MenuFilterView';
-import MenuOptionView from './MenuOptionView';
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js'; // For Function#property
+import '../../foundation/EventTarget.js'; // For Function#on
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import Obj from '../../foundation/Object.js';
+import { bind } from '../../foundation/Binding.js';
+import ObservableArray from '../../foundation/ObservableArray.js';
+import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#queue
+import { lookupKey } from '../../dom/DOMEvent.js';
+import OptionsController from '../../selection/OptionsController.js';
+import View from '../View.js';
+import ViewEventsController from '../ViewEventsController.js';
+import ScrollView from '../containers/ScrollView.js';
+import OptionsListView from '../collections/OptionsListView.js';
+import PopOverView from '../panels/PopOverView.js';
+import MenuButtonView from './MenuButtonView.js';
+import MenuFilterView from './MenuFilterView.js';
+import MenuOptionView from './MenuOptionView.js';
 
 const MenuOption = Class({
     Extends: Obj,

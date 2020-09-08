@@ -1,11 +1,11 @@
-import { Class } from '../../core/Core';
-import '../../core/Number'; // For Number#limit
-import { bind, bindTwoWay } from '../../foundation/Binding';
-import '../../foundation/ComputedProps'; // For Function#property
-import View from '../View';
-import Draggable from '../../drag-drop/Draggable';
+import { Class } from '../../core/Core.js';
+import '../../core/Number.js'; // For Number#limit
+import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import '../../foundation/ComputedProps.js'; // For Function#property
+import View from '../View.js';
+import Draggable from '../../drag-drop/Draggable.js';
 
-import SplitViewController from './SplitViewController';
+import SplitViewController from './SplitViewController.js';
 
 const VERTICAL = SplitViewController.VERTICAL;
 const TOP_LEFT = SplitViewController.TOP_LEFT;

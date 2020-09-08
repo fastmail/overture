@@ -1,4 +1,4 @@
-import { RecordAttribute } from './attr';
+import { RecordAttribute } from './attr.js';
 
 class ToOneAttribute extends RecordAttribute {
     willSet(propValue, propKey, record) {

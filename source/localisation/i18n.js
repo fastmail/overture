@@ -1,6 +1,6 @@
 /*global Intl */
 
-import '../core/String'; // For String#escapeRegExp
+import '../core/String.js'; // For String#escapeRegExp
 
 /**
     Module: Localisation

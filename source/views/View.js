@@ -1,19 +1,19 @@
-import { isDestroyed, Class } from '../core/Core';
-import '../core/String'; // For String#capitalise
-import Obj from '../foundation/Object';
-import * as RunLoop from '../foundation/RunLoop';
-import '../foundation/ObservableProps'; // For Function#observes
-import '../foundation/ComputedProps'; // For Function#property
-import { setView } from '../_codependent/_View';
+import { isDestroyed, Class } from '../core/Core.js';
+import '../core/String.js'; // For String#capitalise
+import Obj from '../foundation/Object.js';
+import * as RunLoop from '../foundation/RunLoop.js';
+import '../foundation/ObservableProps.js'; // For Function#observes
+import '../foundation/ComputedProps.js'; // For Function#property
+import { setView } from '../_codependent/_View.js';
 import {
     create as el,
     forView,
     appendChildren,
     getPosition,
-} from '../dom/Element';
+} from '../dom/Element.js';
 
-import ViewEventsController from './ViewEventsController';
-import activeViews from './activeViews';
+import ViewEventsController from './ViewEventsController.js';
+import activeViews from './activeViews.js';
 
 let UID = 0;
 

@@ -1,16 +1,16 @@
-import { Class } from '../core/Core';
-import '../core/Array'; // For Array#include
-import '../core/String'; // For String#contains
-import Obj from '../foundation/Object';
-import * as RunLoop from '../foundation/RunLoop'; // Also Function#queue
-import '../foundation/ComputedProps'; // For Function#property
-import { create as el } from '../dom/Element';
-import { create as createStylesheet } from '../dom/Stylesheet';
-import ScrollView from '../views/containers/ScrollView';
-import { getViewFromNode } from '../views/activeViews';
+import { Class } from '../core/Core.js';
+import '../core/Array.js'; // For Array#include
+import '../core/String.js'; // For String#contains
+import Obj from '../foundation/Object.js';
+import * as RunLoop from '../foundation/RunLoop.js'; // Also Function#queue
+import '../foundation/ComputedProps.js'; // For Function#property
+import { create as el } from '../dom/Element.js';
+import { create as createStylesheet } from '../dom/Stylesheet.js';
+import ScrollView from '../views/containers/ScrollView.js';
+import { getViewFromNode } from '../views/activeViews.js';
 
-import DragController from './DragController'; // Circular but it's OK
-import * as DragEffect from './DragEffect';
+import DragController from './DragController.js'; // Circular but it's OK
+import * as DragEffect from './DragEffect.js';
 
 /* Issues with native drag and drop.
 

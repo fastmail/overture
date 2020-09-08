@@ -1,11 +1,11 @@
-import { Class } from '../core/Core';
-import '../foundation/EventTarget'; // For Function#on
-import '../foundation/RunLoop'; // For Function#invokeInRunLoop
+import { Class } from '../core/Core.js';
+import '../foundation/EventTarget.js'; // For Function#on
+import '../foundation/RunLoop.js'; // For Function#invokeInRunLoop
 
-import View from './View';
-import ViewEventsController from './ViewEventsController';
-import { getViewFromNode } from './activeViews';
-import AbstractControlView from './controls/AbstractControlView';
+import View from './View.js';
+import ViewEventsController from './ViewEventsController.js';
+import { getViewFromNode } from './activeViews.js';
+import AbstractControlView from './controls/AbstractControlView.js';
 
 let passiveSupported = false;
 

@@ -1,8 +1,8 @@
-import { isDestroyed, guid, Class } from '../../core/Core';
-import { bind } from '../../foundation/Binding';
-import { DESTROYED } from '../../datastore/record/Status';
-import ListView from './ListView';
-import ScrollView from '../containers/ScrollView';
+import { isDestroyed, guid, Class } from '../../core/Core.js';
+import { bind } from '../../foundation/Binding.js';
+import { DESTROYED } from '../../datastore/record/Status.js';
+import ListView from './ListView.js';
+import ScrollView from '../containers/ScrollView.js';
 
 const OptionsListView = Class({
     Extends: ListView,

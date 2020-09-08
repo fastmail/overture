@@ -1,5 +1,5 @@
-import { merge } from '../core/Core';
-import '../core/Date'; // For Date#format
+import { merge } from '../core/Core.js';
+import '../core/Date.js'; // For Date#format
 
 const compileTranslation = function (translation) {
     let compiled = '';

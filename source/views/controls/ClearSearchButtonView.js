@@ -1,5 +1,5 @@
-import { Class } from '../../core/Core';
-import ButtonView from './ButtonView';
+import { Class } from '../../core/Core.js';
+import ButtonView from './ButtonView.js';
 import { ACTIVE_IN_INPUT } from '../../application/keyboardShortcuts.js';
 
 const ClearSearchButtonView = Class({

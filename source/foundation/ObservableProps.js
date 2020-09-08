@@ -1,5 +1,5 @@
-import { meta, OBJECT_INITIALISED } from '../core/Core';
-import Binding from './Binding';
+import { meta, OBJECT_INITIALISED } from '../core/Core.js';
+import Binding from './Binding.js';
 
 const setupObserver = function (metadata, method) {
     const observes = this.observedProperties;

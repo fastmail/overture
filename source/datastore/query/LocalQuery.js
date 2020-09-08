@@ -1,7 +1,7 @@
-import { Class } from '../../core/Core';
-import sortByProperties from '../../core/sortByProperties';
-import Query from './Query';
-import { EMPTY, READY, OBSOLETE } from '../record/Status';
+import { Class } from '../../core/Core.js';
+import sortByProperties from '../../core/sortByProperties.js';
+import Query from './Query.js';
+import { EMPTY, READY, OBSOLETE } from '../record/Status.js';
 
 /**
     Class: O.LocalQuery

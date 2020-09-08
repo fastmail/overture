@@ -1,10 +1,10 @@
-import { Class, meta } from '../core/Core';
-import '../core/Array'; // For Array#include
-import Obj from '../foundation/Object';
-import * as RunLoop from '../foundation/RunLoop'; // + Function#invokeInRunLoop
-import '../foundation/EventTarget'; // For Function#on
-import '../foundation/ObservableProps'; // For Function#observes
-import XHR from './XHR';
+import { Class, meta } from '../core/Core.js';
+import '../core/Array.js'; // For Array#include
+import Obj from '../foundation/Object.js';
+import * as RunLoop from '../foundation/RunLoop.js'; // + Function#invokeInRunLoop
+import '../foundation/EventTarget.js'; // For Function#on
+import '../foundation/ObservableProps.js'; // For Function#observes
+import XHR from './XHR.js';
 
 const NativeEventSource = window.EventSource;
 

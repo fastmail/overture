@@ -1,6 +1,6 @@
-import { Class } from '../../core/Core';
-import '../../foundation/ObservableProps'; // For Function#observes
-import View from '../View';
+import { Class } from '../../core/Core.js';
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import View from '../View.js';
 
 /**
     Class: O.LabelView

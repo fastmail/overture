@@ -1,15 +1,15 @@
-import { Class, mixin } from '../../core/Core';
-import * as RunLoop from '../../foundation/RunLoop'; // Also Function#queue
-import '../../foundation/ComputedProps'; // For Function#property
-import '../../foundation/EventTarget'; // For Function#on
-import '../../foundation/ObservableProps'; // For Function#observes
-import { create as el, setStyle, appendChildren } from '../../dom/Element';
-import Animation from '../../animation/Animation';
-import Tap from '../../touch/Tap';
-import { isIOS, browser, version } from '../../ua/UA';
-import View from '../View';
-import RootView from '../RootView';
-import ViewEventsController from '../ViewEventsController';
+import { Class, mixin } from '../../core/Core.js';
+import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#queue
+import '../../foundation/ComputedProps.js'; // For Function#property
+import '../../foundation/EventTarget.js'; // For Function#on
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import { create as el, setStyle, appendChildren } from '../../dom/Element.js';
+import Animation from '../../animation/Animation.js';
+import Tap from '../../touch/Tap.js';
+import { isIOS, browser, version } from '../../ua/UA.js';
+import View from '../View.js';
+import RootView from '../RootView.js';
+import ViewEventsController from '../ViewEventsController.js';
 
 class ScrollAnimation extends Animation {
     prepare(coordinates) {

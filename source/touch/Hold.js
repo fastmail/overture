@@ -1,8 +1,8 @@
-import Event from '../foundation/Event';
-import * as RunLoop from '../foundation/RunLoop';
-import ViewEventsController from '../views/ViewEventsController';
-import Tap from './Tap';
-import Gesture from './Gesture';
+import Event from '../foundation/Event.js';
+import * as RunLoop from '../foundation/RunLoop.js';
+import ViewEventsController from '../views/ViewEventsController.js';
+import Tap from './Tap.js';
+import Gesture from './Gesture.js';
 
 class HoldEvent extends Event {
     constructor(touch) {

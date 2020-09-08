@@ -1,7 +1,7 @@
-import { Class, meta, isEqual } from '../../core/Core';
-import '../../foundation/Enumerable'; // For Array#binarySearch
-import '../../foundation/ObservableProps'; // For Function#observes
-import '../../foundation/ComputedProps'; // For Function#property, #nocache
+import { Class, meta, isEqual } from '../../core/Core.js';
+import '../../foundation/Enumerable.js'; // For Array#binarySearch
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
 import {
     EMPTY,
     READY,
@@ -14,8 +14,8 @@ import {
     // OBSOLETE => The data on the server may have changed since the last update
     // was requested.
     OBSOLETE,
-} from '../record/Status';
-import Query from './Query';
+} from '../record/Status.js';
+import Query from './Query.js';
 
 /**
     Enum: O.WindowedQuery-WindowState

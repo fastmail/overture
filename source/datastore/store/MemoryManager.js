@@ -1,8 +1,8 @@
-import { guid } from '../../core/Core';
-import * as RunLoop from '../../foundation/RunLoop';
+import { guid } from '../../core/Core.js';
+import * as RunLoop from '../../foundation/RunLoop.js';
 
-import Record from '../record/Record';
-import Query from '../query/Query';
+import Record from '../record/Record.js';
+import Query from '../query/Query.js';
 
 /**
     Class: O.MemoryManager

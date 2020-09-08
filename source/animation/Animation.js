@@ -1,7 +1,7 @@
-import { meta } from '../core/Core';
-import '../core/Array'; // For Array#erase
-import * as RunLoop from '../foundation/RunLoop';
-import Easing from './Easing';
+import { meta } from '../core/Core.js';
+import '../core/Array.js'; // For Array#erase
+import * as RunLoop from '../foundation/RunLoop.js';
+import Easing from './Easing.js';
 
 // Does the used prefer reduced motion?
 const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion:reduce)');

@@ -1,10 +1,10 @@
-import { Class } from '../core/Core';
-import '../core/Number'; // For Number#mod
-import Obj from '../foundation/Object';
-import '../foundation/EventTarget'; // For Function#on
-import '../foundation/ObservableProps'; // For Function#observes
-import ObservableArray from '../foundation/ObservableArray';
-import * as i18n from '../localisation/i18n';
+import { Class } from '../core/Core.js';
+import '../core/Number.js'; // For Number#mod
+import Obj from '../foundation/Object.js';
+import '../foundation/EventTarget.js'; // For Function#on
+import '../foundation/ObservableProps.js'; // For Function#observes
+import ObservableArray from '../foundation/ObservableArray.js';
+import * as i18n from '../localisation/i18n.js';
 
 const OptionsController = Class({
     Extends: Obj,

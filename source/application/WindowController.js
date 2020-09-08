@@ -1,9 +1,9 @@
-import { Class } from '../core/Core';
-import '../core/Date'; // For Date#format
-import '../core/String'; // For String#escapeHTML
-import Obj from '../foundation/Object';
-import '../foundation/EventTarget'; // For Function#on
-import * as RunLoop from '../foundation/RunLoop'; // + Function#invokeInRunLoop
+import { Class } from '../core/Core.js';
+import '../core/Date.js'; // For Date#format
+import '../core/String.js'; // For String#escapeHTML
+import Obj from '../foundation/Object.js';
+import '../foundation/EventTarget.js'; // For Function#on
+import * as RunLoop from '../foundation/RunLoop.js'; // + Function#invokeInRunLoop
 
 /**
     Class: O.WindowController

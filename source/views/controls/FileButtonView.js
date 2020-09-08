@@ -1,9 +1,9 @@
-import { Class } from '../../core/Core';
-import '../../foundation/EventTarget'; // For Function#on
-import { create as el } from '../../dom/Element';
+import { Class } from '../../core/Core.js';
+import '../../foundation/EventTarget.js'; // For Function#on
+import { create as el } from '../../dom/Element.js';
 
-import ButtonView from './ButtonView';
-import AbstractControlView from './AbstractControlView';
+import ButtonView from './ButtonView.js';
+import AbstractControlView from './AbstractControlView.js';
 
 /**
     Class: O.FileButtonView

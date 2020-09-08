@@ -1,10 +1,10 @@
 /*global Element, SVGAnimatedString */
 
-import '../core/String'; // For String#camelCase, #contains, #hyphenate
-import { browser } from '../ua/UA';
-import { Binding } from '../_codependent/_Binding';
-import * as RunLoop from '../foundation/RunLoop';
-import { View } from '../_codependent/_View';
+import '../core/String.js'; // For String#camelCase, #contains, #hyphenate
+import { browser } from '../ua/UA.js';
+import { Binding } from '../_codependent/_Binding.js';
+import * as RunLoop from '../foundation/RunLoop.js';
+import { View } from '../_codependent/_View.js';
 
 /**
     Module: DOM

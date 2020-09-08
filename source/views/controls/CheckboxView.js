@@ -1,10 +1,10 @@
-import { Class } from '../../core/Core';
-import '../../foundation/ComputedProps'; // For Function#property
-import '../../foundation/EventTarget'; // For Function#on
-import '../../foundation/ObservableProps'; // For Function#observes
-import { create as el } from '../../dom/Element';
+import { Class } from '../../core/Core.js';
+import '../../foundation/ComputedProps.js'; // For Function#property
+import '../../foundation/EventTarget.js'; // For Function#on
+import '../../foundation/ObservableProps.js'; // For Function#observes
+import { create as el } from '../../dom/Element.js';
 
-import AbstractControlView from './AbstractControlView';
+import AbstractControlView from './AbstractControlView.js';
 
 /**
     Class: O.CheckboxView

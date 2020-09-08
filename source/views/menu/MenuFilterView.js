@@ -1,12 +1,12 @@
-import { Class } from '../../core/Core';
-import Obj from '../../foundation/Object';
-import '../../foundation/EventTarget'; // For Function#on
-import { bind, bindTwoWay } from '../../foundation/Binding';
-import { lookupKey } from '../../dom/DOMEvent';
-import View from '../View';
-import ScrollView from '../containers/ScrollView';
-import ViewEventsController from '../ViewEventsController';
-import SearchTextView from '../controls/SearchTextView';
+import { Class } from '../../core/Core.js';
+import Obj from '../../foundation/Object.js';
+import '../../foundation/EventTarget.js'; // For Function#on
+import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import { lookupKey } from '../../dom/DOMEvent.js';
+import View from '../View.js';
+import ScrollView from '../containers/ScrollView.js';
+import ViewEventsController from '../ViewEventsController.js';
+import SearchTextView from '../controls/SearchTextView.js';
 
 const MenuFilterView = Class({
     Extends: View,

@@ -1,9 +1,9 @@
 /*global Element */
 
-import { setBinding } from '../_codependent/_Binding';
-import getFromPath from './getFromPath';
+import { setBinding } from '../_codependent/_Binding.js';
+import getFromPath from './getFromPath.js';
 
-import * as RunLoop from './RunLoop';
+import * as RunLoop from './RunLoop.js';
 
 /**
     Class: O.Binding

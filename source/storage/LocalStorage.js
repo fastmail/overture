@@ -1,5 +1,5 @@
-import { Class, isEqual } from '../core/Core';
-import Obj from '../foundation/Object';
+import { Class, isEqual } from '../core/Core.js';
+import Obj from '../foundation/Object.js';
 
 /**
     Module: Storage
