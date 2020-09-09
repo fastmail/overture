@@ -1,6 +1,4 @@
-import './Number.js'; // For Number#mod
-
-// Circular but it's… mostly OK. See Overture.js for explanation.
+import { mod } from './Math.js';
 import * as i18n from '../localisation/i18n.js';
 
 const isLeapYear = function (year) {
@@ -232,7 +230,7 @@ Object.assign(Date.prototype, {
         // on a Sunday, then Saturday is the last day of the week, so if we
         // are on a Sunday there are 6 days until Saturday, whereas if we are
         // on a Saturday there are 0 days until Saturday.
-        const daysUntilEndOfWeek = (6 - day + firstDayOfWeek).mod(7);
+        const daysUntilEndOfWeek = mod(6 - day + firstDayOfWeek, 7);
         // Week number:
         // 1st Jan => 1 + [0-6] => [1-7] => so divide by 7 and round up for 1.
         // 2nd Jan => 2 + [0-6] => [2-8] => so divide by 7 and round up and will
@@ -281,14 +279,14 @@ Object.assign(Date.prototype, {
             : new Date(this.getFullYear(), 0, 4);
         const jan4WeekDay = utc ? jan4.getUTCDay() : jan4.getDay();
         // Find Monday before 4th Jan
-        const wk1Start = jan4 - (jan4WeekDay - firstDayOfWeek).mod(7) * aDay;
+        const wk1Start = jan4 - mod(jan4WeekDay - firstDayOfWeek, 7) * aDay;
         // Week No == How many weeks have past since then, + 1.
         let week = Math.floor((this - wk1Start) / 604800000) + 1;
         if (week === 53) {
             const date = utc ? this.getUTCDate() : this.getDate();
             const day = utc ? this.getUTCDay() : this.getDay();
             // First day of week must be no greater than 28th December
-            if (date - (day - firstDayOfWeek).mod(7) > 28) {
+            if (date - mod(day - firstDayOfWeek, 7) > 28) {
                 week = 1;
             }
         }

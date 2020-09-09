@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../core/Number.js'; // For Number#limit
+import { limit } from '../../core/Math.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import '../../foundation/ComputedProps.js'; // For Function#property
 import View from '../View.js';
@@ -177,7 +177,8 @@ const SplitDividerView = Class({
 
         this.set(
             'offset',
-            (this._offset + sign * delta).limit(
+            limit(
+                this._offset + sign * delta,
                 this.get('min'),
                 this.get('max'),
             ),

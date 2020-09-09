@@ -1,4 +1,4 @@
-import '../core/Number.js'; // For Number#mod
+import { mod } from '../core/Math.js';
 import '../core/String.js'; // For String#escapeRegExp
 import * as i18n from '../localisation/i18n.js';
 import Parse, {
@@ -324,10 +324,10 @@ const interpreter = {
             if (hasWeekday) {
                 if (searchMethod !== PAST) {
                     // Date is currently 1.
-                    day = (weekday - date.getDay()).mod(7) + 1;
+                    day = mod(weekday - date.getDay(), 7) + 1;
                 } else {
                     date.setDate((day = getDaysInMonth(month, year)));
-                    day = day - (date.getDay() - weekday).mod(7);
+                    day = day - mod(date.getDay() - weekday, 7);
                 }
             } else {
                 day = 1;
@@ -426,10 +426,10 @@ const interpreter = {
 
             if (hasWeekday) {
                 if (searchMethod !== PAST) {
-                    day = (weekday - date.getDay()).mod(7) + 1;
+                    day = mod(weekday - date.getDay(), 7) + 1;
                 } else {
                     date.setDate((day = getDaysInMonth(month, year)));
-                    day = day - (date.getDay() - weekday).mod(7);
+                    day = day - mod(date.getDay() - weekday, 7);
                 }
                 date.setDate(day);
             }
@@ -438,11 +438,11 @@ const interpreter = {
             date.setMonth(0);
             if (hasWeekday) {
                 if (searchMethod !== PAST) {
-                    day = (weekday - date.getDay()).mod(7) + 1;
+                    day = mod(weekday - date.getDay(), 7) + 1;
                 } else {
                     date.setMonth(11);
                     date.setDate((day = getDaysInMonth(11, year)));
-                    day = day - (date.getDay() - weekday).mod(7);
+                    day = day - mod(date.getDay() - weekday, 7);
                 }
                 date.setDate(day);
             }
@@ -451,12 +451,12 @@ const interpreter = {
             if (searchMethod === PAST) {
                 date.setTime(date.getTime() - dayInMs);
                 date.setTime(
-                    date.getTime() - dayInMs * (date.getDay() - weekday).mod(7),
+                    date.getTime() - dayInMs * mod(date.getDay() - weekday, 7),
                 );
             } else {
                 date.setTime(date.getTime() + dayInMs);
                 date.setTime(
-                    date.getTime() + dayInMs * (weekday - date.getDay()).mod(7),
+                    date.getTime() + dayInMs * mod(weekday - date.getDay(), 7),
                 );
             }
         } /* Default to today */ else {

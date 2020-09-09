@@ -1,5 +1,5 @@
 import { Class } from '../core/Core.js';
-import '../core/Number.js'; // For Number#mod
+import { mod } from '../core/Math.js';
 import Obj from '../foundation/Object.js';
 import '../foundation/EventTarget.js'; // For Function#on
 import '../foundation/ObservableProps.js'; // For Function#observes
@@ -78,10 +78,10 @@ const OptionsController = Class({
         if (i < 0 && step < 0) {
             i = l;
         }
-        const current = i.mod(l);
+        const current = mod(i, l);
 
         do {
-            i = (i + step).mod(l);
+            i = mod(i + step, l);
         } while (!this.mayFocus(options.getObjectAt(i)) && i !== current);
 
         return options.getObjectAt(i);

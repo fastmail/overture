@@ -9,9 +9,10 @@ export {
     Class,
 } from './core/Core.js';
 export { default as sortByProperties } from './core/sortByProperties.js';
+import * as Math from './core/Math.js';
+export { Math };
 import './core/Array.js';
 import './core/Date.js';
-import './core/Number.js';
 import './core/Object.js';
 import './core/RegExp.js';
 import './core/String.js';

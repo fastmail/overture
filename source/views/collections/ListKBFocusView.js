@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../core/Number.js'; // For Number#limit
+import { limit } from '../../core/Math.js';
 import { bind } from '../../foundation/Binding.js';
 import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
 import '../../foundation/RunLoop.js'; // For Function#queue
@@ -154,7 +154,7 @@ const ListKBFocusView = Class({
             delta = 0;
         }
         if (delta) {
-            singleSelection.set('index', (index + delta).limit(0, length - 1));
+            singleSelection.set('index', limit(index + delta, 0, length - 1));
         } else {
             singleSelection.propertyDidChange('index');
         }
