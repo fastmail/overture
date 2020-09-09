@@ -1,6 +1,7 @@
 /*global FileReader, Squire */
 
 import { Class } from '../../core/Core.js';
+import { email as emailRegExp } from '../../core/RegExp.js';
 import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
 import '../../foundation/EventTarget.js'; // For Function#on
 import '../../foundation/ObservableProps.js'; // For Function#observes
@@ -45,7 +46,6 @@ const queryCommandState = function (tag) {
     }.property('path');
 };
 
-const emailRegExp = RegExp.email;
 // Use a more relaxed definition of a URL than normal; anything URL-like we
 // want to accept so we can prefill the link destination box.
 const urlRegExp = /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;

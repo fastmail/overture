@@ -4,7 +4,7 @@
 
     A regular expression for detecting an email address.
 */
-RegExp.email = /\b([\w.%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,})\b/i;
+const email = /\b([\w.%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,})\b/i;
 
 /**
     Property: RegExp.url
@@ -35,7 +35,6 @@ RegExp.email = /\b([\w.%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,})\b/i;
 // )
 
 // eslint-disable-next-line max-len
-RegExp.url = /\b(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.-]+[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’])/i;
+const url = /\b(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.-]+[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()[\]{};:'".,<>?«»“”‘’])/i;
 
-// TODO(cmorgan/modulify): do something about these exports: RegExp.email,
-// RegExp.url
+export { email, url };
