@@ -112,27 +112,9 @@ export { i18n };
 export { loc } from './localisation/i18n.js';
 import './localisation/RelativeDate.js';
 
-import * as parse from './parser/DateParser.js';
-export { parse };
-import Parse, {
-    define,
-    optional,
-    not,
-    repeat,
-    sequence,
-    firstMatch,
-    longestMatch,
-} from './parser/Parse.js';
-Object.assign(Parse, {
-    define,
-    optional,
-    not,
-    repeat,
-    sequence,
-    firstMatch,
-    longestMatch,
-});
-export { Parse };
+import * as parse from './parser/Parse.js';
+import * as parsedate from './parser/DateParser.js';
+export { parse, parsedate };
 
 export { default as OptionsController } from './selection/OptionsController.js';
 export { default as SelectionController } from './selection/SelectionController.js';

@@ -1,13 +1,14 @@
 import { mod } from '../core/Math.js';
 import '../core/String.js'; // For String#escapeRegExp
 import { getLocale } from '../localisation/i18n.js';
-import Parse, {
+import {
     define,
     optional,
     not,
     sequence,
     firstMatch,
     longestMatch,
+    ParseResult,
 } from './Parse.js';
 
 // --- Date Grammar ---
@@ -576,7 +577,7 @@ const parseDateTime = function (string, locale, mode) {
     const dateParser =
         dateParsers[code] ||
         (dateParsers[code] = generateLocalisedDateParser(locale, mode));
-    const parse = new Parse(string);
+    const parse = new ParseResult(string);
     while (parse.string.length) {
         if (!dateParser(parse)) {
             // We've hit something unexpected. Skip it.

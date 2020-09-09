@@ -1,17 +1,3 @@
-class Parse {
-    constructor(string, tokens) {
-        this.string = string;
-        this.tokens = tokens || [];
-    }
-    clone() {
-        return new Parse(this.string, this.tokens.slice());
-    }
-    assimilate(parse) {
-        this.string = parse.string;
-        this.tokens = parse.tokens;
-    }
-}
-
 const define = function (name, regexp, context) {
     return function (parse) {
         const string = parse.string;
@@ -119,5 +105,27 @@ const longestMatch = function (patterns) {
     };
 };
 
-export default Parse;
-export { define, optional, not, repeat, sequence, firstMatch, longestMatch };
+class ParseResult {
+    constructor(string, tokens) {
+        this.string = string;
+        this.tokens = tokens || [];
+    }
+    clone() {
+        return new ParseResult(this.string, this.tokens.slice());
+    }
+    assimilate(parse) {
+        this.string = parse.string;
+        this.tokens = parse.tokens;
+    }
+}
+
+export {
+    define,
+    optional,
+    not,
+    repeat,
+    sequence,
+    firstMatch,
+    longestMatch,
+    ParseResult,
+};
