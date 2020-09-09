@@ -1,4 +1,4 @@
-import * as DragEffect from './DragEffect.js';
+import { ALL } from './DragEffect.js';
 
 /**
     Class: O.DragDataSource
@@ -48,7 +48,7 @@ export default {
 
         The effects allowed on the data.
     */
-    allowedDragEffects: DragEffect.ALL,
+    allowedDragEffects: ALL,
 
     /**
         Property: O.DragDataSource#dragDataTypes

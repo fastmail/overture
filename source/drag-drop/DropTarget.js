@@ -1,4 +1,4 @@
-import * as DragEffect from './DragEffect.js';
+import { MOVE, DEFAULT } from './DragEffect.js';
 
 /**
     Mixin: O.DropTarget
@@ -31,7 +31,7 @@ export default {
 
         The effect that will be applied to the data if dropped.
     */
-    dropEffect: DragEffect.MOVE,
+    dropEffect: MOVE,
 
     /**
         Property: O.DropTarget#dropAcceptedDataTypes
@@ -113,7 +113,7 @@ export default {
             drag - {O.Drag} The drag instance.
     */
     dropExited(drag) {
-        drag.set('dropEffect', DragEffect.DEFAULT);
+        drag.set('dropEffect', DEFAULT);
         this.set('hasDragOver', false);
     },
 

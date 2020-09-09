@@ -5,7 +5,7 @@ import ViewEventsController from '../views/ViewEventsController.js';
 import { getViewFromNode } from '../views/activeViews.js';
 
 import Drag from './Drag.js'; // Circular but it's OK
-import * as DragEffect from './DragEffect.js';
+import { ALL, DEFAULT, effectToString } from './DragEffect.js';
 
 const isControl = {
     BUTTON: 1,
@@ -14,8 +14,6 @@ const isControl = {
     SELECT: 1,
     TEXTAREA: 1,
 };
-const effectToString = DragEffect.effectToString;
-const DEFAULT = DragEffect.DEFAULT;
 
 class TouchDragEvent {
     constructor(touch) {
@@ -406,7 +404,7 @@ const DragController = new Obj({
             try {
                 effectAllowed = dataTransfer.effectAllowed;
             } catch (error) {
-                effectAllowed = DragEffect.ALL;
+                effectAllowed = ALL;
             }
             // Drag from external source
             drag = new Drag({

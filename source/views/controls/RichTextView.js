@@ -10,7 +10,7 @@ import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
 import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
 import DropTarget from '../../drag-drop/DropTarget.js';
-import * as DragEffect from '../../drag-drop/DragEffect.js';
+import { COPY } from '../../drag-drop/DragEffect.js';
 import { loc } from '../../localisation/i18n.js';
 import { isIOS, isApple, isAndroid } from '../../ua/UA.js';
 import View from '../View.js';
@@ -1219,7 +1219,7 @@ const RichTextView = Class({
         'image/tiff': true,
     },
 
-    dropEffect: DragEffect.COPY,
+    dropEffect: COPY,
 
     drop(drag) {
         const types = this.get('dropAcceptedDataTypes');

@@ -10,7 +10,14 @@ import ScrollView from '../views/containers/ScrollView.js';
 import { getViewFromNode } from '../views/activeViews.js';
 
 import DragController from './DragController.js'; // Circular but it's OK
-import * as DragEffect from './DragEffect.js';
+import {
+    NONE,
+    COPY,
+    LINK,
+    ALL,
+    DEFAULT,
+    effectToString,
+} from './DragEffect.js';
 
 /* Issues with native drag and drop.
 
@@ -73,10 +80,10 @@ const Drag = Class({
 
         this.isNative = false;
         this.dragSource = null;
-        this.allowedEffects = DragEffect.ALL;
+        this.allowedEffects = ALL;
         this.dataSource = null;
         this.dropTarget = null;
-        this.dropEffect = DragEffect.DEFAULT;
+        this.dropEffect = DEFAULT;
         this.cursorPosition = this.startPosition = {
             x: event.clientX,
             y: event.clientY,
@@ -261,13 +268,13 @@ const Drag = Class({
         }
         if (set) {
             switch (this.get('dropEffect')) {
-                case DragEffect.NONE:
+                case NONE:
                     cursor = 'no-drop';
                     break;
-                case DragEffect.COPY:
+                case COPY:
                     cursor = 'copy';
                     break;
-                case DragEffect.LINK:
+                case LINK:
                     cursor = 'alias';
                     break;
             }
@@ -518,7 +525,7 @@ const Drag = Class({
                 let dataIsSet = false;
 
                 dataTransfer.effectAllowed =
-                    DragEffect.effectToString[this.get('allowedEffects')];
+                    effectToString[this.get('allowedEffects')];
 
                 if (dataSource.get('isDragDataSource')) {
                     dataSource.get('dragDataTypes').forEach((type) => {
@@ -832,11 +839,7 @@ const Drag = Class({
     drop(event) {
         this.event = event;
         const dropEffect = this.dropEffect;
-        if (
-            this.dropTarget &&
-            dropEffect !== DragEffect.NONE &&
-            dropEffect !== DragEffect.DEFAULT
-        ) {
+        if (this.dropTarget && dropEffect !== NONE && dropEffect !== DEFAULT) {
             this.dropTarget.drop(this);
         }
         return this;
