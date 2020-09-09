@@ -3,7 +3,7 @@ import { mod } from '../core/Math.js';
 import Obj from '../foundation/Object.js';
 import /* { on, observes } from */ '../foundation/Decorators.js';
 import ObservableArray from '../foundation/ObservableArray.js';
-import * as i18n from '../localisation/i18n.js';
+import { makeSearchRegExp } from '../localisation/i18n.js';
 
 const OptionsController = Class({
     Extends: Obj,
@@ -49,7 +49,7 @@ const OptionsController = Class({
 
     filterOptions(content, search /*, isFiltering*/) {
         const patterns = search
-            ? search.split(/\s+/).map(i18n.makeSearchRegExp)
+            ? search.split(/\s+/).map(makeSearchRegExp)
             : null;
         return patterns
             ? content.filter((option) => {

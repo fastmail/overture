@@ -1,5 +1,8 @@
 import { mod } from './Math.js';
-import * as i18n from '../localisation/i18n.js';
+import {
+    date as localisedDate,
+    get as getLocalised,
+} from '../localisation/i18n.js';
 
 const isLeapYear = function (year) {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -152,10 +155,11 @@ Object.assign(Date.prototype, {
             {String} Localised day name.
     */
     getDayName(abbreviate, utc) {
-        const names =
-            i18n && i18n.get((abbreviate ? 'abbreviatedD' : 'd') + 'ayNames');
+        const names = getLocalised(
+            (abbreviate ? 'abbreviatedD' : 'd') + 'ayNames',
+        );
         const day = utc ? this.getUTCDay() : this.getDay();
-        return names ? names[day] : day;
+        return names[day];
     },
 
     /**
@@ -175,10 +179,11 @@ Object.assign(Date.prototype, {
             {String} Localised month name.
     */
     getMonthName(abbreviate, utc) {
-        const names =
-            i18n && i18n.get((abbreviate ? 'abbreviatedM' : 'm') + 'onthNames');
+        const names = getLocalised(
+            (abbreviate ? 'abbreviatedM' : 'm') + 'onthNames',
+        );
         const day = utc ? this.getUTCMonth() : this.getMonth();
-        return names ? names[day] : day;
+        return names[day];
     },
 
     /**
@@ -433,9 +438,7 @@ Object.assign(Date.prototype, {
                           return date.getMonthName(false, utc);
                       case 'c':
                           // The locale's appropriate date and time representation.
-                          return i18n
-                              ? i18n.date(date, 'fullDateAndTime')
-                              : date.toLocaleString();
+                          return localisedDate(date, 'fullDateAndTime');
                       case 'C':
                           // Century number (00-99).
                           return pad(
@@ -529,9 +532,7 @@ Object.assign(Date.prototype, {
                               (utc ? date.getUTCHours() : date.getHours()) < 12
                                   ? 'am'
                                   : 'pm';
-                          return i18n
-                              ? i18n.get(str + 'Designator')
-                              : str.toUpperCase();
+                          return getLocalised(str + 'Designator');
                       }
                       case 'r':
                           // The time in AM/PM notation: '%I:%M:%S %p'.
@@ -576,14 +577,10 @@ Object.assign(Date.prototype, {
                           return pad(this.getWeekNumber(1, utc), nopad);
                       case 'x':
                           // The locale's appropriate date representation.
-                          return i18n
-                              ? i18n.date(date, 'date')
-                              : date.format('%d/%m/%y', utc);
+                          return localisedDate(date, 'date');
                       case 'X':
                           // The locale's appropriate time representation.
-                          return i18n
-                              ? i18n.date(date, 'time')
-                              : date.format('%H:%M', utc);
+                          return localisedDate(date, 'time');
                       case 'y':
                           // Year without century (00-99).
                           return (utc

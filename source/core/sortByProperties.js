@@ -1,7 +1,7 @@
 // Yeah, core is importing something from localisation. Boundaries like “core”
 // and “localisation” aren’t solid boundaries these days, anyway. Deal with it.
 // It’s not a circular import. Everyone’s happy.
-import * as i18n from '../localisation/i18n.js';
+import { compare } from '../localisation/i18n.js';
 
 /**
     Function: O.sortByProperties
@@ -41,7 +41,7 @@ export default function sortByProperties(properties) {
                     return aVal ? -1 : 1;
                 }
                 if (type === 'string') {
-                    return i18n.compare(aVal, bVal);
+                    return compare(aVal, bVal);
                 }
                 if (aVal < bVal) {
                     return -1;

@@ -1,6 +1,6 @@
 import { mod } from '../core/Math.js';
 import '../core/String.js'; // For String#escapeRegExp
-import * as i18n from '../localisation/i18n.js';
+import { getLocale } from '../localisation/i18n.js';
 import Parse, {
     define,
     optional,
@@ -565,7 +565,7 @@ const unknown = define('unknown', /^[^\s]+/);
 const dateParsers = {};
 const parseDateTime = function (string, locale, mode) {
     if (!locale) {
-        locale = i18n.getLocale();
+        locale = getLocale();
     }
     string = string
         .trim()
