@@ -1,5 +1,5 @@
 import { meta, guid } from '../core/Core.js';
-import '../core/Object.js'; // For Object.keyOf
+import { keyOf } from '../core/KeyValue.js';
 
 const bindingKey = '__binding__';
 
@@ -96,7 +96,7 @@ export default {
     deregisterBinding(binding) {
         const metadata = meta(this);
         const bindings = metadata.bindings;
-        const key = Object.keyOf(bindings, binding);
+        const key = keyOf(bindings, binding);
         if (key) {
             bindings[key] = null;
             metadata.inits.Bindings -= 1;

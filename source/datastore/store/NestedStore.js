@@ -1,5 +1,5 @@
 import { Class, isEqual, clone } from '../../core/Core.js';
-import '../../core/Object.js'; // For Object.filter
+import { filter } from '../../core/KeyValue.js';
 import * as RunLoop from '../../foundation/RunLoop.js';
 
 import {
@@ -119,7 +119,7 @@ const NestedStore = Class({
         for (const storeKey in _skToChanged) {
             const changed = _skToChanged[storeKey];
             const data = _skToData[storeKey];
-            parent.updateData(storeKey, Object.filter(data, changed), true);
+            parent.updateData(storeKey, filter(data, changed), true);
         }
         for (const storeKey in _destroyed) {
             const ifCopiedStoreKey = _destroyed[storeKey];

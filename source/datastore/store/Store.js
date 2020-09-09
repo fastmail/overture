@@ -1,5 +1,5 @@
 import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
-import '../../core/Object.js'; // For Object.filter and Object.keyOf
+import { filter, keyOf, zip } from '../../core/KeyValue.js';
 import '../../core/Array.js'; // For Array#erase
 import * as RunLoop from '../../foundation/RunLoop.js';
 import Obj from '../../foundation/Object.js';
@@ -60,11 +60,11 @@ const mayHaveChanges = function (store) {
 
 // ---
 
-const filter = function (accept, storeKey) {
+const acceptStoreKey = function (accept, storeKey) {
     return accept(this._skToData[storeKey], this, storeKey);
 };
 
-const sort = function (compare, a, b) {
+const compareStoreKeys = function (compare, a, b) {
     const { _skToData } = this;
     const aIsFirst = compare(_skToData[a], _skToData[b], this, a, b);
     return aIsFirst || ~~a.slice(1) - ~~b.slice(1);
@@ -127,7 +127,7 @@ const convertForeignKeysToSK = function (
                           store.getStoreKey.bind(store, accountId, AttrType),
                       )
                     : // idType === SET_IDS ?
-                      Object.zip(
+                      zip(
                           Object.keys(value).map(
                               store.getStoreKey.bind(
                                   store,
@@ -165,7 +165,7 @@ const convertForeignKeysToId = function (store, Type, data) {
                     : idType === ARRAY_IDS
                     ? value.map(toId.bind(null, store))
                     : // idType === SET_IDS ?
-                      Object.zip(
+                      zip(
                           Object.keys(value).map(toId.bind(null, store)),
                           Object.values(value),
                       ));
@@ -770,7 +770,7 @@ const Store = Class({
                 );
                 create.changes.push(changed);
             } else {
-                data = Object.filter(
+                data = filter(
                     convertForeignKeysToId(this, Type, data),
                     Record.getClientSettableAttributes(Type),
                 );
@@ -1267,7 +1267,7 @@ const Store = Class({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
-                    (Object.keyOf(Status, status) || status) +
+                    (keyOf(Status, status) || status) +
                     '\nData: ' +
                     JSON.stringify(data),
             });
@@ -1391,10 +1391,7 @@ const Store = Class({
     undestroyRecord(storeKey, Type, data, _isCopyOfStoreKey) {
         const status = this.getStatus(storeKey);
         if (data) {
-            data = Object.filter(
-                data,
-                Record.getClientSettableAttributes(Type),
-            );
+            data = filter(data, Record.getClientSettableAttributes(Type));
         }
         if (status === EMPTY || status === DESTROYED) {
             this.createRecord(storeKey, data, _isCopyOfStoreKey);
@@ -1599,7 +1596,7 @@ const Store = Class({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
-                    (Object.keyOf(Status, status) || status) +
+                    (keyOf(Status, status) || status) +
                     '\nData: ' +
                     JSON.stringify(data),
             });
@@ -1833,13 +1830,13 @@ const Store = Class({
         }
 
         if (accept) {
-            const filterFn = filter.bind(this, accept);
+            const filterFn = acceptStoreKey.bind(this, accept);
             results = results.filter(filterFn);
             results.filterFn = filterFn;
         }
 
         if (compare) {
-            const sortFn = sort.bind(this, compare);
+            const sortFn = compareStoreKeys.bind(this, compare);
             results.sort(sortFn);
             results.sortFn = sortFn;
         }
@@ -1867,7 +1864,7 @@ const Store = Class({
     findOne(Type, accept) {
         const _skToId = this._typeToSKToId[guid(Type)] || {};
         const { _skToStatus } = this;
-        const filterFn = accept && filter.bind(this, accept);
+        const filterFn = accept && acceptStoreKey.bind(this, accept);
 
         for (const storeKey in _skToId) {
             if (

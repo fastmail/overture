@@ -9,13 +9,14 @@ export {
     Class,
 } from './core/Core.js';
 export { default as sortByProperties } from './core/sortByProperties.js';
+import * as KeyValue from './core/KeyValue.js';
+export { KeyValue };
 import * as Math from './core/Math.js';
 export { Math };
 import * as RegExp from './core/RegExp.js';
 export { RegExp };
 import './core/Array.js';
 import './core/Date.js';
-import './core/Object.js';
 import './core/String.js';
 
 export { Binding, bind, bindTwoWay } from './foundation/Binding.js';
