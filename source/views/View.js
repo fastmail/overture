@@ -9,6 +9,7 @@ import {
     forView,
     appendChildren,
     getPosition,
+    cssStringFromKeyValue,
 } from '../dom/Element.js';
 
 import ViewEventsController from './ViewEventsController.js';
@@ -335,7 +336,7 @@ const View = Class({
             id: this.get('id'),
             className: this.get('className'),
             // (`|| undefined` to omit the attribute rather than leaving empty.)
-            style: Object.toCSSString(this.get('layerStyles')) || undefined,
+            style: cssStringFromKeyValue(this.get('layerStyles')) || undefined,
         });
         this.didCreateLayer(layer);
         this.redrawAriaAttributes(layer);
@@ -738,7 +739,7 @@ const View = Class({
             layer - {Element} The view's layer.
     */
     redrawLayerStyles(layer) {
-        layer.style.cssText = Object.toCSSString(this.get('layerStyles'));
+        layer.style.cssText = cssStringFromKeyValue(this.get('layerStyles'));
         if (this.get('isInDocument')) {
             this.didResize();
         }

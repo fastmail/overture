@@ -611,7 +611,27 @@ Element.prototype.set = function (key, value) {
 };
 
 /**
-    Function: Object.toCSSString
+    Function: O.Element.getAncestors
+
+    Gets an array of all the elements ancestors, including itself.
+
+    Parameters:
+        el - {Element} The element whose ancestors will be returned.
+
+    Returns:
+        {Element[]} An array of elements.
+*/
+const getAncestors = function (el) {
+    const ancestors = [];
+    while (el) {
+        ancestors.push(el);
+        el = el.parentElement;
+    }
+    return ancestors.reverse();
+};
+
+/**
+    Function: O.Element.cssStringFromKeyValue
 
     Converts an object into a String of 'key:value' pairs, delimited by ';'.
     Keys are converted from camel case to hyphenated format and numerical
@@ -623,7 +643,7 @@ Element.prototype.set = function (key, value) {
     Returns:
         {String} The CSS string.
 */
-Object.toCSSString = function (object) {
+const cssStringFromKeyValue = function (object) {
     let result = '';
     for (let key in object) {
         let value = object[key];
@@ -644,26 +664,6 @@ Object.toCSSString = function (object) {
     return result;
 };
 
-/**
-    Function: O.Element.getAncestors
-
-    Gets an array of all the elements ancestors, including itself.
-
-    Parameters:
-        el - {Element} The element whose ancestors will be returned.
-
-    Returns:
-        {Element[]} An array of elements.
-*/
-const getAncestors = function (el) {
-    const ancestors = [];
-    while (el) {
-        ancestors.push(el);
-        el = el.parentElement;
-    }
-    return ancestors.reverse();
-};
-
 export {
     forView,
     create,
@@ -676,7 +676,8 @@ export {
     nearest,
     getPosition,
     getAncestors,
+    cssStringFromKeyValue,
 };
 
-// TODO(cmorgan/modulify): do something about these exports: Object.toCSSString
+// TODO(cmorgan/modulify): do something about these exports:
 // Element#get, Element#set
