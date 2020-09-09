@@ -1,7 +1,7 @@
 import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
 import { filter, keyOf, zip } from '../../core/KeyValue.js';
 import '../../core/Array.js'; // For Array#erase
-import * as RunLoop from '../../foundation/RunLoop.js';
+import { queueFn, didError } from '../../foundation/RunLoop.js';
 import Obj from '../../foundation/Object.js';
 import Event from '../../foundation/Event.js';
 import EventTarget from '../../foundation/EventTarget.js';
@@ -54,7 +54,7 @@ const generateStoreKey = function () {
 // ---
 
 const mayHaveChanges = function (store) {
-    RunLoop.queueFn('before', store.checkForChanges, store);
+    queueFn('before', store.checkForChanges, store);
     return store;
 };
 
@@ -1263,7 +1263,7 @@ const Store = Class({
     createRecord(storeKey, data, _isCopyOfStoreKey) {
         const status = this.getStatus(storeKey);
         if (status !== EMPTY && status !== DESTROYED) {
-            RunLoop.didError({
+            didError({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
@@ -1592,7 +1592,7 @@ const Store = Class({
         let seenChange = false;
 
         if (!current || (changeIsDirty && !(status & READY))) {
-            RunLoop.didError({
+            didError({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message:
                     '\nStatus: ' +
@@ -1777,7 +1777,7 @@ const Store = Class({
     _recordDidChange(storeKey) {
         const typeId = guid(this._skToType[storeKey]);
         this._changedTypes[typeId] = true;
-        RunLoop.queueFn('middle', this._fireTypeChanges, this);
+        queueFn('middle', this._fireTypeChanges, this);
     },
 
     /**
@@ -2133,7 +2133,7 @@ const Store = Class({
 
         // Notify LocalQuery we're now ready even if no records loaded.
         this._changedTypes[typeId] = true;
-        RunLoop.queueFn('middle', this._fireTypeChanges, this);
+        queueFn('middle', this._fireTypeChanges, this);
 
         return this;
     },
@@ -2489,7 +2489,7 @@ const Store = Class({
                 this.updateData(storeKey, data, false);
                 this.setStatus(storeKey, status & ~(COMMITTING | NEW));
             } else {
-                RunLoop.didError({
+                didError({
                     name: SOURCE_COMMIT_CREATE_MISMATCH_ERROR,
                 });
             }
@@ -2717,7 +2717,7 @@ const Store = Class({
                 this.setStatus(storeKey, DESTROYED);
                 this.unloadRecord(storeKey);
             } else {
-                RunLoop.didError({
+                didError({
                     name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR,
                 });
             }
@@ -2784,7 +2784,7 @@ const Store = Class({
                     this.undestroyRecord(storeKey);
                 }
             } else {
-                RunLoop.didError({
+                didError({
                     name: SOURCE_COMMIT_DESTROY_MISMATCH_ERROR,
                 });
             }

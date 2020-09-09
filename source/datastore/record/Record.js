@@ -1,7 +1,7 @@
 import { Class, meta, clone } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
-import * as RunLoop from '../../foundation/RunLoop.js';
-import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
+import { didError } from '../../foundation/RunLoop.js';
+import /* { property, nocache } from */ '../../foundation/Decorators.js';
 
 import { ToOneAttribute } from './toOne.js';
 import AttributeErrors from './AttributeErrors.js';
@@ -189,7 +189,7 @@ const Record = Class({
         const primaryKey = this.constructor.primaryKey || 'id';
         if (id !== undefined) {
             if (storeKey) {
-                RunLoop.didError({
+                didError({
                     name: 'O.Record#id',
                     message: 'Cannot change immutable property',
                 });

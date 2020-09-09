@@ -1,6 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/RunLoop.js'; // For Function#nextFrame
+import /* { property, nextFrame } from */ '../../foundation/Decorators.js';
 import View from '../View.js';
 
 const ListItemView = Class({

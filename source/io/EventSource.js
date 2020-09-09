@@ -1,9 +1,8 @@
 import { Class, meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
 import Obj from '../foundation/Object.js';
-import * as RunLoop from '../foundation/RunLoop.js'; // + Function#invokeInRunLoop
-import '../foundation/EventTarget.js'; // For Function#on
-import '../foundation/ObservableProps.js'; // For Function#observes
+import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
+import /* { invokeInRunLoop, on, observes } from */ '../foundation/Decorators.js';
 import XHR from './XHR.js';
 
 const NativeEventSource = window.EventSource;
@@ -103,11 +102,7 @@ const EventSource = NativeEventSource
                   this.fire('restart').close().open();
               } else {
                   this._then = now;
-                  this._tick = RunLoop.invokeAfterDelay(
-                      this._check,
-                      60000,
-                      this,
-                  );
+                  this._tick = invokeAfterDelay(this._check, 60000, this);
                   // Chrome occasionally closes the event source without firing
                   // an event. Resync readyState here to work around.
                   this.set('readyState', this._eventSource.readyState);
@@ -127,7 +122,7 @@ const EventSource = NativeEventSource
                   }
               } else {
                   if (tick) {
-                      RunLoop.cancel(tick);
+                      cancel(tick);
                       this._tick = null;
                   }
               }
@@ -267,7 +262,7 @@ const EventSource = NativeEventSource
           },
 
           _reconnect() {
-              RunLoop.invokeAfterDelay(this.open, this._reconnectAfter, this);
+              invokeAfterDelay(this.open, this._reconnectAfter, this);
           },
 
           _processData(text) {

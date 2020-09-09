@@ -1,8 +1,8 @@
 import { Class } from '../core/Core.js';
 import '../core/String.js'; // For String#contains
 import Obj from '../foundation/Object.js';
-import * as RunLoop from '../foundation/RunLoop.js';
-import '../foundation/EventTarget.js'; // For Function#on
+import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
+import /* { on } from */ '../foundation/Decorators.js';
 import XHR from './XHR.js';
 
 /**
@@ -112,11 +112,7 @@ const HttpRequest = Class({
         const timeout = this.get('timeout');
         if (timeout) {
             this._lastActivity = Date.now();
-            this._timer = RunLoop.invokeAfterDelay(
-                this.didTimeout,
-                timeout,
-                this,
-            );
+            this._timer = invokeAfterDelay(this.didTimeout, timeout, this);
         }
     }.on('io:begin'),
 
@@ -127,7 +123,7 @@ const HttpRequest = Class({
     clearTimeout: function () {
         const timer = this._timer;
         if (timer) {
-            RunLoop.cancel(timer);
+            cancel(timer);
         }
     }.on('io:end'),
 
@@ -140,7 +136,7 @@ const HttpRequest = Class({
         if (timeToTimeout < 10) {
             this.fire('io:timeout').abort();
         } else {
-            this._timer = RunLoop.invokeAfterDelay(
+            this._timer = invokeAfterDelay(
                 this.didTimeout,
                 timeToTimeout,
                 this,

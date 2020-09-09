@@ -1,7 +1,7 @@
 import { Class, meta } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
-import * as RunLoop from '../foundation/RunLoop.js'; // Also Function#queue
-import '../foundation/ObservableProps.js'; // For Function#observes
+import /* { observes, queue } from */ '../foundation/Decorators.js';
+import { queueFn } from '../foundation/RunLoop.js';
 import { READY } from '../datastore/record/Status.js';
 
 const SingleSelectionController = Class({
@@ -207,10 +207,7 @@ const SingleSelectionController = Class({
             list.removeObserverForKey(key, this, 'contentBecameReady');
             // Queue so that all data from the server will have been loaded
             // into the list.
-            RunLoop.queueFn(
-                'before',
-                this.setRecordInNewContent.bind(this, list),
-            );
+            queueFn('before', this.setRecordInNewContent.bind(this, list));
         }
     },
 

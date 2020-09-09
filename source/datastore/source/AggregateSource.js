@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import '../../core/Array.js'; // For Array#erase
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { observes } from */ '../../foundation/Decorators.js';
 
 import Source from './Source.js';
 

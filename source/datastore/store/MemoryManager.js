@@ -1,5 +1,8 @@
 import { guid } from '../../core/Core.js';
-import * as RunLoop from '../../foundation/RunLoop.js';
+import {
+    invokeAfterDelay,
+    invokeInNextEventLoop,
+} from '../../foundation/RunLoop.js';
 
 import Record from '../record/Record.js';
 import Query from '../query/Query.js';
@@ -74,7 +77,7 @@ class MemoryManager {
         this.isPaused = false;
         this.frequency = frequency || 30000;
 
-        RunLoop.invokeAfterDelay(this.cleanup, this.frequency, this);
+        invokeAfterDelay(this.cleanup, this.frequency, this);
     }
 
     /**
@@ -112,7 +115,7 @@ class MemoryManager {
         let deleted;
 
         if (this.isPaused) {
-            RunLoop.invokeAfterDelay(this.cleanup, this.frequency, this);
+            invokeAfterDelay(this.cleanup, this.frequency, this);
             return;
         }
 
@@ -134,9 +137,9 @@ class MemoryManager {
 
         // Yield between examining types so we don't hog the event queue.
         if (index) {
-            RunLoop.invokeInNextEventLoop(this.cleanup, this);
+            invokeInNextEventLoop(this.cleanup, this);
         } else {
-            RunLoop.invokeAfterDelay(this.cleanup, this.frequency, this);
+            invokeAfterDelay(this.cleanup, this.frequency, this);
         }
     }
 

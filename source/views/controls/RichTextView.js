@@ -2,13 +2,10 @@
 
 import { Class } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';
-import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../foundation/Decorators.js';
 import { isEqualToValue } from '../../foundation/Transform.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#nextFrame
-// and Function#queue
+import { didError } from '../../foundation/RunLoop.js';
 import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
 import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
@@ -286,7 +283,7 @@ const RichTextView = Class({
             .addEventListener('pathChange', this)
             .addEventListener('undoStateChange', this)
             .addEventListener('dragover', this)
-            .addEventListener('drop', this).didError = RunLoop.didError;
+            .addEventListener('drop', this).didError = didError;
         this.set('editor', editor).set('path', editor.getPath());
 
         if (this.get('isDisabled')) {

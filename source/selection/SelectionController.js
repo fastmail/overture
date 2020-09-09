@@ -1,7 +1,6 @@
 import { isDestroyed, Class } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
-import '../foundation/ObservableProps.js'; // For Function#observes
-import '../foundation/ComputedProps.js'; // For Function#property, #nocache
+import /* { observes, property, nocache } from */ '../foundation/Decorators.js';
 
 const SelectionController = Class({
     Extends: Obj,

@@ -2,8 +2,8 @@ import { Class } from '../core/Core.js';
 import '../core/Date.js'; // For Date#format
 import '../core/String.js'; // For String#escapeHTML
 import Obj from '../foundation/Object.js';
-import '../foundation/EventTarget.js'; // For Function#on
-import * as RunLoop from '../foundation/RunLoop.js'; // + Function#invokeInRunLoop
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
+import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 
 /**
     Class: O.WindowController
@@ -103,19 +103,19 @@ const WindowController = Class({
 
         const check = () => {
             this.checkMaster();
-            this._checkTimeout = RunLoop.invokeAfterDelay(check, 9000);
+            this._checkTimeout = invokeAfterDelay(check, 9000);
         };
         const ping = () => {
             this.sendPing();
-            this._pingTimeout = RunLoop.invokeAfterDelay(ping, 17000);
+            this._pingTimeout = invokeAfterDelay(ping, 17000);
         };
-        this._checkTimeout = RunLoop.invokeAfterDelay(check, 500);
-        this._pingTimeout = RunLoop.invokeAfterDelay(ping, 17000);
+        this._checkTimeout = invokeAfterDelay(check, 500);
+        this._pingTimeout = invokeAfterDelay(ping, 17000);
     },
 
     end(broadcastKey) {
-        RunLoop.cancel(this._pingTimeout);
-        RunLoop.cancel(this._checkTimeout);
+        cancel(this._pingTimeout);
+        cancel(this._checkTimeout);
 
         this.broadcast('wc:bye', null, broadcastKey);
     },

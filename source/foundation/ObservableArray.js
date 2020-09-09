@@ -3,7 +3,7 @@ import Obj from './Object.js';
 import ObservableRange from './ObservableRange.js';
 import Enumerable from './Enumerable.js';
 import MutableEnumerable from './MutableEnumerable.js';
-import './ComputedProps.js'; // For Function#property
+import /* { property, nocache } from */ './Decorators.js';
 
 const splice = Array.prototype.splice;
 const slice = Array.prototype.slice;

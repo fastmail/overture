@@ -3,7 +3,7 @@
 import '../core/String.js'; // For String#camelCase, #contains, #hyphenate
 import { browser } from '../ua/UA.js';
 import { Binding } from '../_codependent/_Binding.js';
-import * as RunLoop from '../foundation/RunLoop.js';
+import { didError } from '../foundation/RunLoop.js';
 import { View } from '../_codependent/_View.js';
 
 /**
@@ -409,7 +409,7 @@ const setStyle = function (el, style, value) {
         try {
             el.style[style] = value;
         } catch (error) {
-            RunLoop.didError({
+            didError({
                 name: 'Element#setStyle',
                 message: 'Invalid value set',
                 details:

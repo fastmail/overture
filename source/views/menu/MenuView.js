@@ -1,11 +1,9 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { property, on, queue } from */ '../../foundation/Decorators.js';
 import Obj from '../../foundation/Object.js';
 import { bind } from '../../foundation/Binding.js';
 import ObservableArray from '../../foundation/ObservableArray.js';
-import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#queue
+import { queueFn, invokeInNextFrame } from '../../foundation/RunLoop.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import OptionsController from '../../selection/OptionsController.js';
 import View from '../View.js';
@@ -116,7 +114,7 @@ const MenuView = Class({
 
         if (!this.showFilter) {
             const scrollView = this.scrollView;
-            RunLoop.queueFn('after', scrollView.focus, scrollView);
+            queueFn('after', scrollView.focus, scrollView);
         }
 
         return this;
@@ -166,7 +164,7 @@ const MenuView = Class({
     hide() {
         const parent = this.get('parentView');
         if (parent) {
-            RunLoop.invokeInNextFrame(parent.hide, parent);
+            invokeInNextFrame(parent.hide, parent);
         }
     },
 

@@ -1,9 +1,8 @@
 import { isDestroyed, Class } from '../core/Core.js';
 import '../core/String.js'; // For String#capitalise
 import Obj from '../foundation/Object.js';
-import * as RunLoop from '../foundation/RunLoop.js';
-import '../foundation/ObservableProps.js'; // For Function#observes
-import '../foundation/ComputedProps.js'; // For Function#property
+import { queueFn } from '../foundation/RunLoop.js';
+import /* { property, observes } from */ '../foundation/Decorators.js';
 import { setView } from '../_codependent/_View.js';
 import {
     create as el,
@@ -252,7 +251,7 @@ const View = Class({
             this._suspendRedraw = false;
             this.resumeBindings();
             if (this._needsRedraw && this.get('isInDocument')) {
-                RunLoop.queueFn('render', this.redraw, this);
+                queueFn('render', this.redraw, this);
             }
         }
         return this;
@@ -404,7 +403,7 @@ const View = Class({
         // If change was made since willEnterDocument, will not be
         // flushed, so add redraw to render queue.
         if (this._needsRedraw) {
-            RunLoop.queueFn('render', this.redraw, this);
+            queueFn('render', this.redraw, this);
         }
         this.set('isInDocument', true);
 
@@ -638,7 +637,7 @@ const View = Class({
             }
             needsRedraw[l] = [layerProperty, oldProp];
             if (!this._suspendRedraw && this.get('isInDocument')) {
-                RunLoop.queueFn('render', this.redraw, this);
+                queueFn('render', this.redraw, this);
             }
         }
         return this;

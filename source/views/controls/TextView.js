@@ -1,7 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
 import { browser } from '../../ua/UA.js';
 import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey } from '../../dom/DOMEvent.js';

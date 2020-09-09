@@ -1,8 +1,7 @@
 import { isDestroyed, Class } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
-import * as RunLoop from '../../foundation/RunLoop.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import { queueFn } from '../../foundation/RunLoop.js';
+import /* { property, observes } from */ '../../foundation/Decorators.js';
 import View from '../View.js';
 import { forView } from '../../dom/Element.js';
 
@@ -128,7 +127,7 @@ const SwitchView = Class({
             if (this._suspendRedraw) {
                 this._needsRedraw = [];
             } else {
-                RunLoop.queueFn('render', this.redraw, this);
+                queueFn('render', this.redraw, this);
             }
         }
     }.observes('index'),

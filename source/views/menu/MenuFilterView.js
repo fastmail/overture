@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
-import '../../foundation/EventTarget.js'; // For Function#on
+import /* { on } from */ '../../foundation/Decorators.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import View from '../View.js';

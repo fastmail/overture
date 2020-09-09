@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ObservableProps.js'; // For Function#observes
-import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#queue
+import /* { observes, queue } from */ '../../foundation/Decorators.js';
+import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import ScrollView from '../containers/ScrollView.js';
 import ListView from './ListView.js';
 import TrueVisibleRect from './TrueVisibleRect.js';
@@ -85,9 +85,7 @@ const ProgressiveListView = Class({
         // to the new maximum scrollTop, no scroll event is fired. Therefore we
         // have to simulate this firing in the next event loop.
         if (length < oldLength) {
-            RunLoop.invokeInNextEventLoop(
-                this.fire.bind(this, 'scroll', null, null),
-            );
+            invokeInNextEventLoop(this.fire.bind(this, 'scroll', null, null));
         }
     }.observes('contentLength'),
 

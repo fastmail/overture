@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
-import * as RunLoop from '../../foundation/RunLoop.js';
+import { invokeAfterDelay, cancel } from '../../foundation/RunLoop.js';
 import { isApple } from '../../ua/UA.js';
 import ViewEventsController from '../ViewEventsController.js';
 
@@ -32,7 +32,7 @@ const KeyDownController = Class({
 
     _cancel() {
         if (this._invocationToken !== null) {
-            RunLoop.cancel(this._invocationToken);
+            cancel(this._invocationToken);
             this._invocationToken = null;
         }
     },
@@ -41,7 +41,7 @@ const KeyDownController = Class({
         const delay = this.get('delay');
         this._cancel();
         if (delay) {
-            this._invocationToken = RunLoop.invokeAfterDelay(
+            this._invocationToken = invokeAfterDelay(
                 this._activate,
                 delay,
                 this,

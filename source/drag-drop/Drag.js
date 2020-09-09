@@ -2,8 +2,8 @@ import { Class } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
 import '../core/String.js'; // For String#contains
 import Obj from '../foundation/Object.js';
-import * as RunLoop from '../foundation/RunLoop.js'; // Also Function#queue
-import '../foundation/ComputedProps.js'; // For Function#property
+import /* { queue, property } from */ '../foundation/Decorators.js';
+import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { create as el } from '../dom/Element.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';
 import ScrollView from '../views/containers/ScrollView.js';
@@ -578,7 +578,7 @@ const Drag = Class({
             this._dragCursor = null;
         }
         if (this._scrollInterval) {
-            RunLoop.cancel(this._scrollInterval);
+            cancel(this._scrollInterval);
             this._scrollInterval = null;
         }
         this._setCursor(false);
@@ -722,7 +722,7 @@ const Drag = Class({
         }
         // Clear the timer if we used to be in a hotspot.
         if (this._scrollInterval) {
-            RunLoop.cancel(this._scrollInterval);
+            cancel(this._scrollInterval);
             this._scrollInterval = null;
         }
         // And set a new timer if we are currently in a hotspot.
@@ -743,7 +743,7 @@ const Drag = Class({
                 : 0;
             if (deltaX || deltaY) {
                 this._scrollBy = { x: deltaX, y: deltaY };
-                this._scrollInterval = RunLoop.invokePeriodically(
+                this._scrollInterval = invokePeriodically(
                     this._scroll,
                     100,
                     this,

@@ -1,8 +1,6 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/ObservableProps.js'; // For Function#observes
-import '../../foundation/EventTarget.js'; // For Function#on
-import * as RunLoop from '../../foundation/RunLoop.js';
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 
@@ -323,7 +321,7 @@ const ButtonView = Class({
             this.getParentWhere((x) => x.isMenuView)
         ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
-            RunLoop.invokeInNextEventLoop(this._setIgnoreUntil, this);
+            invokeInNextEventLoop(this._setIgnoreUntil, this);
             this.activate();
             event.preventDefault();
             // Firefox keeps focus on the button after clicking. If the user

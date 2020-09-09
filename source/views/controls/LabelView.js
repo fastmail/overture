@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { observes } from */ '../../foundation/Decorators.js';
 import View from '../View.js';
 
 /**

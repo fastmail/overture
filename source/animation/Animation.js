@@ -1,6 +1,6 @@
 import { meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
-import * as RunLoop from '../foundation/RunLoop.js';
+import { invokeInNextFrame, frameStartTime } from '../foundation/RunLoop.js';
 import Easing from './Easing.js';
 
 // Does the used prefer reduced motion?
@@ -17,11 +17,11 @@ const nextFrame = function () {
     // Cache to local variable for speed
     const anims = animations;
     let l = anims.length;
-    const time = RunLoop.frameStartTime;
+    const time = frameStartTime;
 
     if (l) {
         // Request first to get in shortest time.
-        RunLoop.invokeInNextFrame(nextFrame);
+        invokeInNextFrame(nextFrame);
 
         while (l--) {
             const objAnimations = anims[l];
@@ -164,7 +164,7 @@ export default class Animation {
 
         // Start loop if no current animations
         if (!animations.length) {
-            RunLoop.invokeInNextFrame(nextFrame);
+            invokeInNextFrame(nextFrame);
         }
 
         // And add objectAnimations to animation queue

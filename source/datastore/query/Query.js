@@ -2,10 +2,7 @@ import { Class, guid, meta } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
 import ObservableRange from '../../foundation/ObservableRange.js';
 import Enumerable from '../../foundation/Enumerable.js';
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
-import '../../foundation/RunLoop.js'; // For Function#queue
-import '../../foundation/ComputedProps.js'; // For Function#property, #nocache
+import /* { on, observes, queue, property, nocache } from */ '../../foundation/Decorators.js';
 
 import {
     EMPTY,

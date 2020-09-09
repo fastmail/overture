@@ -1,8 +1,6 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
-import * as RunLoop from '../../foundation/RunLoop.js';
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import { invokeAfterDelay, cancel } from '../../foundation/RunLoop.js';
 import View from '../View.js';
 import PopOverView from '../panels/PopOverView.js';
 
@@ -38,11 +36,7 @@ const MenuOptionView = Class({
         if (!this.get('isFocused') && !this._focusTimeout) {
             const popOverView = this.getParent(PopOverView);
             if (popOverView && popOverView.hasSubView()) {
-                this._focusTimeout = RunLoop.invokeAfterDelay(
-                    this.takeFocus,
-                    75,
-                    this,
-                );
+                this._focusTimeout = invokeAfterDelay(this.takeFocus, 75, this);
             } else {
                 this.takeFocus();
             }
@@ -51,7 +45,7 @@ const MenuOptionView = Class({
 
     mouseout: function () {
         if (this._focusTimeout) {
-            RunLoop.cancel(this._focusTimeout);
+            cancel(this._focusTimeout);
             this._focusTimeout = null;
         }
         if (

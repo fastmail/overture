@@ -1,6 +1,6 @@
 import { Class, isEqual, clone } from '../../core/Core.js';
 import { filter } from '../../core/KeyValue.js';
-import * as RunLoop from '../../foundation/RunLoop.js';
+import { queueFn } from '../../foundation/RunLoop.js';
 
 import {
     // Core states:
@@ -315,7 +315,7 @@ const NestedStore = Class({
             store.parentDidUpdateData(storeKey, changedKeys);
         });
         this._recordDidChange(storeKey);
-        RunLoop.queueFn('before', this.checkForChanges, this);
+        queueFn('before', this.checkForChanges, this);
     },
 
     // === A nested store is not directly connected to a source ================

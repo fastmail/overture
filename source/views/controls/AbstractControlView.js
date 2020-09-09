@@ -1,7 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 import View from '../View.js';
 import ViewEventsController from '../ViewEventsController.js';
 import { loc } from '../../localisation/i18n.js';

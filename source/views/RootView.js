@@ -1,6 +1,5 @@
 import { Class } from '../core/Core.js';
-import '../foundation/EventTarget.js'; // For Function#on
-import '../foundation/RunLoop.js'; // For Function#invokeInRunLoop
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 
 import View from './View.js';
 import ViewEventsController from './ViewEventsController.js';

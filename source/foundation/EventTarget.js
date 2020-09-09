@@ -2,33 +2,11 @@ import { meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
 
 import Event from './Event.js';
-import * as RunLoop from './RunLoop.js';
+import { didError } from './RunLoop.js';
 
-const slice = Array.prototype.slice;
 const eventPrefix = '__event__';
 
-/**
-    Method: Function#on
-
-    Defines the list of events this method is interested in. Whenever one of
-    these events is triggered on the object to which this method belongs,
-    the method will automatically be called.
-
-    Parameters:
-        var_args - {...String} All arguments are treated as the names of
-                   events this method should be triggered by.
-
-    Returns:
-        {Function} Returns self.
- */
-Function.prototype.on = function () {
-    return this.observes.apply(
-        this,
-        slice.call(arguments).map((type) => {
-            return eventPrefix + type;
-        }),
-    );
-};
+export { eventPrefix as _eventPrefix };
 
 /**
     Mixin: O.EventTarget
@@ -160,7 +138,7 @@ export default {
                         (handler.object || target)[handler.method](event);
                     }
                 } catch (error) {
-                    RunLoop.didError(error);
+                    didError(error);
                 }
             }
             // Move up the hierarchy, unless stopPropagation was called
@@ -199,5 +177,3 @@ export default {
         return this;
     },
 };
-
-// TODO(cmorgan/modulify): do something about these exports: Function#on

@@ -1,6 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/EventTarget.js'; // For Function#on
+import /* { property, on } from */ '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
 
 import AbstractControlView from './AbstractControlView.js';

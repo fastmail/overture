@@ -1,4 +1,4 @@
-import '../foundation/RunLoop.js'; // For Function#invokeInRunLoop
+import /* { invokeInRunLoop } from */ '../foundation/Decorators.js';
 import '../foundation/Enumerable.js'; // For Array#binarySearch
 import { getViewFromNode } from './activeViews.js';
 

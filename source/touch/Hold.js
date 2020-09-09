@@ -1,5 +1,5 @@
 import Event from '../foundation/Event.js';
-import * as RunLoop from '../foundation/RunLoop.js';
+import { invokeAfterDelay } from '../foundation/RunLoop.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 import Tap from './Tap.js';
 import Gesture from './Gesture.js';
@@ -25,7 +25,7 @@ class TrackedTouch {
         this.target = touch.target;
         this.cancelOnMove = true;
         this._ignore = false;
-        RunLoop.invokeAfterDelay(fireHoldEvent, 750, this);
+        invokeAfterDelay(fireHoldEvent, 750, this);
     }
 
     done() {

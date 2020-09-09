@@ -1,7 +1,6 @@
 import { Class } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
-import '../foundation/ObservableProps.js'; // For Function#observes
-import '../foundation/RunLoop.js'; // For Function#invokeInRunLoop, #queue
+import /* { observes, invokeInRunLoop, queue } from */ '../foundation/Decorators.js';
 
 /**
     Module: Application

@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/EventTarget.js'; // For Function#on
+import /* { on } from */ '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
 
 import ButtonView from './ButtonView.js';

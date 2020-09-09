@@ -1,6 +1,6 @@
 import { Class, meta } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { observes } from */ '../../foundation/Decorators.js';
 
 import { RecordAttribute } from './attr.js';
 

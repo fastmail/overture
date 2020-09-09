@@ -1,8 +1,6 @@
 import { Class, mixin } from '../../core/Core.js';
-import * as RunLoop from '../../foundation/RunLoop.js'; // Also Function#queue
-import '../../foundation/ComputedProps.js'; // For Function#property
-import '../../foundation/EventTarget.js'; // For Function#on
-import '../../foundation/ObservableProps.js'; // For Function#observes
+import /* { property, on, observes, queue } from */ '../../foundation/Decorators.js';
+import { queueFn } from '../../foundation/RunLoop.js';
 import { create as el, setStyle, appendChildren } from '../../dom/Element.js';
 import Animation from '../../animation/Animation.js';
 import Tap from '../../touch/Tap.js';
@@ -431,7 +429,7 @@ const ScrollView = Class({
         layer.scrollTop = y;
         // In case we've gone past the end.
         if (x || y) {
-            RunLoop.queueFn('after', this.syncBackScroll, this);
+            queueFn('after', this.syncBackScroll, this);
         }
     },
 

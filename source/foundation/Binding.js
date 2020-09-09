@@ -3,7 +3,7 @@
 import { setBinding } from '../_codependent/_Binding.js';
 import getFromPath from './getFromPath.js';
 
-import * as RunLoop from './RunLoop.js';
+import { queueFn } from './RunLoop.js';
 
 /**
     Class: O.Binding
@@ -339,7 +339,7 @@ class Binding {
         // connects are, in which case delay connecting it a bit.
         if (!this._doNotDelayConnection && (!fromObject || !toObject)) {
             this._doNotDelayConnection = true;
-            RunLoop.queueFn('before', this.connect, this);
+            queueFn('before', this.connect, this);
             return this;
         }
 
@@ -495,7 +495,7 @@ class Binding {
         this.isNotInSync = true;
         if (!inQueue && !this.isSuspended) {
             if (queue) {
-                RunLoop.queueFn(queue, this.sync, this, true);
+                queueFn(queue, this.sync, this, true);
             } else {
                 this.sync();
             }

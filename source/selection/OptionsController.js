@@ -1,8 +1,7 @@
 import { Class } from '../core/Core.js';
 import { mod } from '../core/Math.js';
 import Obj from '../foundation/Object.js';
-import '../foundation/EventTarget.js'; // For Function#on
-import '../foundation/ObservableProps.js'; // For Function#observes
+import /* { on, observes } from */ '../foundation/Decorators.js';
 import ObservableArray from '../foundation/ObservableArray.js';
 import * as i18n from '../localisation/i18n.js';
 

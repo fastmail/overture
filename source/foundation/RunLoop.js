@@ -484,72 +484,6 @@ const setDidError = function (fn) {
     didError = fn;
 };
 
-Object.assign(Function.prototype, {
-    /**
-        Method: Function#queue
-
-        Parameters:
-            queue - {String} The name of the queue to add calls to this function
-                    to.
-
-        Returns:
-            {Function} Returns wrapper that passes calls to
-            <O.RunLoop.queueFn>.
-    */
-    queue(queue) {
-        const fn = this;
-        return function () {
-            queueFn(queue, fn, this);
-            return this;
-        };
-    },
-
-    /**
-        Method: Function#nextLoop
-
-        Returns:
-            {Function} Returns wrapper that passes calls to
-            <O.RunLoop.invokeInNextEventLoop>.
-    */
-    nextLoop() {
-        const fn = this;
-        return function () {
-            invokeInNextEventLoop(fn, this);
-            return this;
-        };
-    },
-
-    /**
-        Method: Function#nextFrame
-
-        Returns:
-            {Function} Returns wrapper that passes calls to
-            <O.RunLoop.invokeInNextFrame>.
-    */
-    nextFrame() {
-        const fn = this;
-        return function () {
-            invokeInNextFrame(fn, this);
-            return this;
-        };
-    },
-
-    /**
-        Method: Function#invokeInRunLoop
-
-        Wraps any calls to this function inside a call to <O.RunLoop.invoke>.
-
-        Returns:
-            {Function} Returns wrapped function.
-    */
-    invokeInRunLoop() {
-        const fn = this;
-        return function () {
-            return invoke(fn, this, arguments);
-        };
-    },
-});
-
 const nextLoop = invoke.bind(null, flushQueue, null, ['nextLoop']);
 
 const nextFrame = function (time) {
@@ -559,8 +493,6 @@ const nextFrame = function (time) {
     mayRedraw = false;
 };
 
-// TODO(cmorgan/modulify): do something about these exports: Function#queue,
-// Function#nextLoop, Function#nextFrame, Function#invokeInRunLoop
 export {
     frameStartTime,
     mayRedraw,
