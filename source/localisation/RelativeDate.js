@@ -13,7 +13,7 @@ import { loc } from './i18n.js';
     Returns:
         {String} The formatted duration.
 */
-const formatDuration = (Date.formatDuration = function (durationInMS, approx) {
+const formatDuration = function (durationInMS, approx) {
     const durationInSeconds = Math.abs(Math.floor(durationInMS / 1000));
     let time;
 
@@ -76,7 +76,8 @@ const formatDuration = (Date.formatDuration = function (durationInMS, approx) {
         );
     }
     return time.trim();
-});
+};
+Date.formatDuration = formatDuration;
 
 /**
     Method: Date#relativeTo
@@ -146,5 +147,5 @@ Date.prototype.relativeTo = function (date, approx, mustNotBeFuture) {
     return isFuture ? loc('[_1] from now', time) : loc('[_1] ago', time);
 };
 
-// TODO(cmorgan/modulify): do something about these exports: Date#relativeTo,
-// Date.formatDuration
+// TODO(cmorgan/modulify): do something about these exports:
+// Date#relativeTo, Date.formatDuration
