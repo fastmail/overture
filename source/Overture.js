@@ -1,3 +1,5 @@
+import './Global.js';
+
 export {
     meta,
     isDestroyed,
@@ -15,10 +17,8 @@ import * as Math from './core/Math.js';
 export { Math };
 import * as RegExp from './core/RegExp.js';
 export { RegExp };
-import './core/Array.js';
-import './core/Date.js';
-import './core/String.js';
 
+export { default as Promise } from './foundation/Promise.js';
 export { Binding, bind, bindTwoWay } from './foundation/Binding.js';
 export { default as BoundProps } from './foundation/BoundProps.js';
 export { default as ComputedProps } from './foundation/ComputedProps.js';
@@ -36,11 +36,6 @@ import * as RunLoop from './foundation/RunLoop.js';
 export { RunLoop };
 import * as Transform from './foundation/Transform.js';
 export { Transform };
-import Promise from './foundation/Promise.js';
-// Replace the global Promise with our RunLoop-enabled Promise
-window.Promise = Promise;
-// … as well as as `O.Promise`.
-export { Promise };
 
 export { default as Color } from './color/Color.js';
 
@@ -110,7 +105,6 @@ export { default as Locale } from './localisation/Locale.js';
 import * as i18n from './localisation/i18n.js';
 export { i18n };
 export { loc } from './localisation/i18n.js';
-import './localisation/RelativeDate.js';
 
 import * as parse from './parser/Parse.js';
 import * as parsedate from './parser/DateParser.js';
