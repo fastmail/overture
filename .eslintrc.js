@@ -1,14 +1,12 @@
+/*global module */
 module.exports = {
+    ignorePatterns: ['/dist/**', '/node_modules/**'],
     env: {
         es6: true,
     },
     globals: {
         window: true,
         document: true,
-        location: true,
-        navigator: true,
-        localStorage: true,
-        sessionStorage: true,
     },
     plugins: ['overture'],
     extends: ['eslint:recommended', 'prettier', 'plugin:overture/recommended'],

@@ -1,3 +1,5 @@
+/*global location */
+
 import { Class } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
 import /* { observes, invokeInRunLoop, queue } from */ '../foundation/Decorators.js';

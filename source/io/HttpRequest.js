@@ -41,11 +41,10 @@ const HttpRequest = Class({
     /**
         Property: O.HttpRequest#url
         Type: String
-        Default: The current location path (i.e. the URL before the ? or #).
 
         The URL to submit the request to.
     */
-    url: location.pathname,
+    url: '',
 
     /**
         Property: O.HttpRequest#contentType

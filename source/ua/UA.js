@@ -1,3 +1,5 @@
+/*global navigator */
+
 /**
     Module: UA
 

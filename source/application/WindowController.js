@@ -1,3 +1,5 @@
+/*global localStorage */
+
 import { Class } from '../core/Core.js';
 import '../core/Date.js'; // For Date#format
 import '../core/String.js'; // For String#escapeHTML

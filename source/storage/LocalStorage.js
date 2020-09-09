@@ -1,3 +1,5 @@
+/*global localStorage, sessionStorage, location */
+
 import { Class, isEqual } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
 
