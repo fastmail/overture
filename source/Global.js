@@ -4,7 +4,6 @@
 import './core/Array.js';
 import './core/Date.js';
 import './core/String.js';
-import './foundation/Enumerable.js';
 import './foundation/Decorators.js';
 import Promise from './foundation/Promise.js';
 import './dom/Element.js';

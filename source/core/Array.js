@@ -1,3 +1,5 @@
+import Enumerable from '../foundation/Enumerable.js';
+
 Object.assign(Array.prototype, {
     /**
         Method: Array#get
@@ -107,7 +109,12 @@ Object.assign(Array.prototype, {
         }
         return this;
     },
+
+    first: Enumerable.first,
+    last: Enumerable.last,
+    binarySearch: Enumerable.binarySearch,
 });
 
-// TODO(cmorgan/modulify): do something about these exports: Array#get,
-// Array#set, Array#getObjectAt, Array#setObjectAt, Array#include, Array#erase
+// TODO(cmorgan/modulify): do something about these exports:
+// Array#get, Array#set, Array#getObjectAt, Array#setObjectAt, Array#include,
+// Array#erase, Array#first, Array#last, Array#binarySearch

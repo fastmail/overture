@@ -357,15 +357,4 @@ const Enumerable = {
     },
 };
 
-// Copy the Enumerable methods to `Array.prototype`. This should be only the
-// following: first, last and binarySearch.
-for (const key in Enumerable) {
-    if (!Array.prototype.hasOwnProperty(key)) {
-        Array.prototype[key] = Enumerable[key];
-    }
-}
-
 export default Enumerable;
-
-// TODO(cmorgan/modulify): do something about these exports:
-// Array implements Enumerable
