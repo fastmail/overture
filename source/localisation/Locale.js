@@ -316,6 +316,25 @@ Object.assign(Locale.prototype, {
     // === Strings ===
 
     /**
+        Method (private): Method: O.Locale#_lr
+
+        Accepts a list of translated strings/arguments and, when no DOM
+        elements are included in the list, reduces them to a single string.
+
+        Parameters:
+            parts - {*[]} Array of items.
+
+        Returns:
+            {String|*[]} A single string or array of items.
+    */
+    _lr(parts) {
+        if (parts.some((p) => typeof p === 'object')) {
+            return parts;
+        }
+        return parts.join('');
+    },
+
+    /**
         Property: O.Locale#macros
         Type: String[Function]
 
