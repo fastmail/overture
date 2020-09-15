@@ -1,6 +1,6 @@
 /*global Element, SVGAnimatedString */
 
-import '../core/String.js'; // For String#camelCase, #contains, #hyphenate
+import '../core/String.js'; // For String#camelCase, #hyphenate
 import { browser } from '../ua/UA.js';
 import { Binding } from '../_codependent/_Binding.js';
 import { didError } from '../foundation/RunLoop.js';

@@ -1,6 +1,5 @@
 import { Class } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
-import '../core/String.js'; // For String#contains
 import Obj from '../foundation/Object.js';
 import '../foundation/Decorators.js';
 import { cancel, invokePeriodically } from '../foundation/RunLoop.js';

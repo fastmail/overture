@@ -1,5 +1,4 @@
 import { Class } from '../core/Core.js';
-import '../core/String.js'; // For String#contains
 import Obj from '../foundation/Object.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 import '../foundation/Decorators.js';
