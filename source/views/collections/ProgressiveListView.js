@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/Decorators.js';
+import /* { observes, queue } from */ '../../foundation/Decorators.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import ScrollView from '../containers/ScrollView.js';
 import ListView from './ListView.js';

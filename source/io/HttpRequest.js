@@ -1,7 +1,7 @@
 import { Class } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
-import '../foundation/Decorators.js';
+import /* { on } from */ '../foundation/Decorators.js';
 import XHR from './XHR.js';
 
 /**

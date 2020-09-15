@@ -1,5 +1,5 @@
 import { Class, meta } from '../../core/Core.js';
-import '../../foundation/Decorators.js';
+import /* { on } from */ '../../foundation/Decorators.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { setStyle, create as el } from '../../dom/Element.js';
 import RootView from '../RootView.js';

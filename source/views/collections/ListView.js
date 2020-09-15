@@ -1,6 +1,6 @@
 import { Class, guid } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
-import '../../foundation/Decorators.js';
+import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { appendChildren } from '../../dom/Element.js';
 import { browser } from '../../ua/UA.js';
 import View from '../View.js';

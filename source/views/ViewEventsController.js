@@ -1,5 +1,5 @@
 import '../core/Array.js'; // For Array#binarySearch
-import '../foundation/Decorators.js';
+import /* { invokeInRunLoop } from */ '../foundation/Decorators.js';
 import { getViewFromNode } from './activeViews.js';
 
 const etSearch = function (candidate, b) {

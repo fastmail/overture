@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
 import { bind } from '../../foundation/Binding.js';
-import '../../foundation/Decorators.js';
+import /* { property, nocache, queue } from */ '../../foundation/Decorators.js';
 import ScrollView from '../containers/ScrollView.js';
 import View from '../View.js';
 import ViewEventsController from '../ViewEventsController.js';

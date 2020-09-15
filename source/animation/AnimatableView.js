@@ -1,4 +1,4 @@
-import '../foundation/Decorators.js';
+import /* { property } from */ '../foundation/Decorators.js';
 import { setStyle } from '../dom/Element.js';
 import Easing from './Easing.js';
 import StyleAnimation from './StyleAnimation.js';

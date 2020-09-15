@@ -2,7 +2,7 @@
 
 import { Class } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';
-import '../../foundation/Decorators.js';
+import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../foundation/Decorators.js';
 import { isEqualToValue } from '../../foundation/Transform.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { didError } from '../../foundation/RunLoop.js';

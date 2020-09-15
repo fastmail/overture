@@ -1,6 +1,6 @@
 import { Class, meta, isEqual } from '../../core/Core.js';
 import '../../core/Array.js'; // For Array#binarySearch
-import '../../foundation/Decorators.js';
+import /* { observes, property, nocache } from */ '../../foundation/Decorators.js';
 import {
     EMPTY,
     READY,

@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/Decorators.js';
+import /* { property, nextFrame } from */ '../../foundation/Decorators.js';
 import View from '../View.js';
 
 const ListItemView = Class({

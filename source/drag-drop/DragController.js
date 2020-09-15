@@ -1,5 +1,5 @@
 import Obj from '../foundation/Object.js';
-import '../foundation/Decorators.js';
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 import { lookupKey } from '../dom/DOMEvent.js';
 import ViewEventsController from '../views/ViewEventsController.js';
 import { getViewFromNode } from '../views/activeViews.js';

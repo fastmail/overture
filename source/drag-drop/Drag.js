@@ -1,7 +1,7 @@
 import { Class } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
 import Obj from '../foundation/Object.js';
-import '../foundation/Decorators.js';
+import /* { queue, property } from */ '../foundation/Decorators.js';
 import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { create as el } from '../dom/Element.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';

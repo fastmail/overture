@@ -1,5 +1,5 @@
 import { Class } from '../core/Core.js';
-import '../foundation/Decorators.js';
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 
 import View from './View.js';
 import ViewEventsController from './ViewEventsController.js';

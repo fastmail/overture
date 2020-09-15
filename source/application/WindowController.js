@@ -4,7 +4,7 @@ import { Class } from '../core/Core.js';
 import '../core/Date.js'; // For Date#format
 import '../core/String.js'; // For String#escapeHTML
 import Obj from '../foundation/Object.js';
-import '../foundation/Decorators.js';
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 
 /**

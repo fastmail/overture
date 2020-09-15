@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
-import '../../foundation/Decorators.js';
+import /* { on } from */ '../../foundation/Decorators.js';
 import ScrollView from '../containers/ScrollView.js';
 
 const ModalEventHandler = Class({

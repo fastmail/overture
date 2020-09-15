@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import '../../foundation/Decorators.js';
+import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';

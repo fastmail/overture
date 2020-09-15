@@ -1,5 +1,5 @@
 import { Class, mixin } from '../../core/Core.js';
-import '../../foundation/Decorators.js';
+import /* { property, on, observes, queue } from */ '../../foundation/Decorators.js';
 import { queueFn } from '../../foundation/RunLoop.js';
 import { create as el, setStyle, appendChildren } from '../../dom/Element.js';
 import Animation from '../../animation/Animation.js';

@@ -1,7 +1,7 @@
 import { Class, meta, clone } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
 import { didError } from '../../foundation/RunLoop.js';
-import '../../foundation/Decorators.js';
+import /* { property, nocache } from */ '../../foundation/Decorators.js';
 
 import { ToOneAttribute } from './toOne.js';
 import AttributeErrors from './AttributeErrors.js';
