@@ -1,7 +1,7 @@
 import { isDestroyed, Class } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
 import { queueFn } from '../../foundation/RunLoop.js';
-import /* { property, observes } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 import View from '../View.js';
 import { forView } from '../../dom/Element.js';
 

@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, queue } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 import Obj from '../../foundation/Object.js';
 import { bind } from '../../foundation/Binding.js';
 import ObservableArray from '../../foundation/ObservableArray.js';

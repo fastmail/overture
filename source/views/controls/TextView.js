@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 import { browser } from '../../ua/UA.js';
 import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey } from '../../dom/DOMEvent.js';

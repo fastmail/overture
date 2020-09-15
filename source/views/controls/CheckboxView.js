@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
 
 import AbstractControlView from './AbstractControlView.js';

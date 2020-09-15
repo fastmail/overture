@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
-import /* { property } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 
 const VERTICAL = 1;
 const HORIZONTAL = 2;

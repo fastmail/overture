@@ -2,7 +2,7 @@ import { isDestroyed, Class } from '../core/Core.js';
 import '../core/String.js'; // For String#capitalise
 import Obj from '../foundation/Object.js';
 import { queueFn } from '../foundation/RunLoop.js';
-import /* { property, observes } from */ '../foundation/Decorators.js';
+import '../foundation/Decorators.js';
 import { setView } from '../_codependent/_View.js';
 import {
     create as el,

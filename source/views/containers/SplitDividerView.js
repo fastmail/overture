@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import /* { property } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 import View from '../View.js';
 import Draggable from '../../drag-drop/Draggable.js';
 

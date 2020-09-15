@@ -1,6 +1,6 @@
 import { Class, meta } from '../core/Core.js';
 import Obj from '../foundation/Object.js';
-import /* { observes, queue } from */ '../foundation/Decorators.js';
+import '../foundation/Decorators.js';
 import { queueFn } from '../foundation/RunLoop.js';
 import { READY } from '../datastore/record/Status.js';
 

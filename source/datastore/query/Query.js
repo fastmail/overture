@@ -2,7 +2,7 @@ import { Class, guid, meta } from '../../core/Core.js';
 import Obj from '../../foundation/Object.js';
 import ObservableRange from '../../foundation/ObservableRange.js';
 import Enumerable from '../../foundation/Enumerable.js';
-import /* { on, observes, queue, property, nocache } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 
 import {
     EMPTY,

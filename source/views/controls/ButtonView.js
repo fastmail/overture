@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import '../../foundation/Decorators.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';

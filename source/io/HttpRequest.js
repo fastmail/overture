@@ -2,7 +2,7 @@ import { Class } from '../core/Core.js';
 import '../core/String.js'; // For String#contains
 import Obj from '../foundation/Object.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
-import /* { on } from */ '../foundation/Decorators.js';
+import '../foundation/Decorators.js';
 import XHR from './XHR.js';
 
 /**
