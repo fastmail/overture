@@ -262,12 +262,12 @@ const RichTextView = Class({
     draw(/* layer */) {
         const editorClassName = this.get('editorClassName');
         const editingLayer = (this._editingLayer = el('div', {
-            id: this.get('editorId'),
-            role: 'textbox',
+            'id': this.get('editorId'),
+            'role': 'textbox',
             'aria-multiline': 'true',
             'aria-label': this.get('label'),
-            tabIndex: this.get('tabIndex'),
-            className:
+            'tabIndex': this.get('tabIndex'),
+            'className':
                 'v-RichText-input' +
                 (editorClassName ? ' ' + editorClassName : ''),
         }));

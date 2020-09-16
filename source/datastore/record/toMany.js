@@ -35,6 +35,8 @@ const mapToTrue = function (result, key) {
 
 // ---
 
+const ARRAY_PROPERTY = '[]';
+
 const RecordArray = Class({
     Extends: ObservableArray,
 
@@ -66,7 +68,7 @@ const RecordArray = Class({
             } else {
                 list = list.slice();
             }
-            RecordArray.parent['[]'].call(this, list);
+            RecordArray.parent[ARRAY_PROPERTY].call(this, list);
         }
     },
 
@@ -87,9 +89,9 @@ const RecordArray = Class({
         this._updatingStore = false;
     },
 
-    '[]': function (array) {
+    [ARRAY_PROPERTY]: function (array) {
         if (array) {
-            RecordArray.parent['[]'].call(
+            RecordArray.parent[ARRAY_PROPERTY].call(
                 this,
                 array.map((x) => x.get('storeKey')),
             );

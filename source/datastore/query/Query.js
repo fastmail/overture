@@ -20,6 +20,8 @@ const AUTO_REFRESH_NEVER = 0;
 const AUTO_REFRESH_IF_OBSERVED = 1;
 const AUTO_REFRESH_ALWAYS = 2;
 
+const ARRAY_PROPERTY = '[]';
+
 /**
     Class: O.Query
 
@@ -220,7 +222,7 @@ const Query = Class({
                 // 3. A range is observed
                 if (
                     !observers.length &&
-                    !observers['[]'] &&
+                    !observers[ARRAY_PROPERTY] &&
                     !(rangeObservers && rangeObservers.length)
                 ) {
                     break;
@@ -305,7 +307,7 @@ const Query = Class({
 
         A standard array of record objects for the records in this query.
     */
-    '[]': function () {
+    [ARRAY_PROPERTY]: function () {
         const store = this.get('store');
         return this._storeKeys.map((storeKey) =>
             storeKey ? store.getRecordFromStoreKey(storeKey) : null,

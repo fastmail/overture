@@ -7,6 +7,7 @@ import './Decorators.js';
 
 const splice = Array.prototype.splice;
 const slice = Array.prototype.slice;
+const ARRAY_PROPERTY = '[]';
 
 /**
     Class: O.ObservableArray
@@ -52,7 +53,7 @@ const ObservableArray = Class({
         of the new array is checked for equality with that of the old array to
         ensure accurate notification of the changed range.
     */
-    '[]': function (array) {
+    [ARRAY_PROPERTY]: function (array) {
         if (array) {
             const oldArray = this._array;
             const oldLength = this._length;

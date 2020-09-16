@@ -192,7 +192,7 @@ const EventSource = NativeEventSource
 
           open() {
               const headers = {
-                  Accept: 'text/event-stream',
+                  'Accept': 'text/event-stream',
                   'Cache-Control': 'no-cache',
               };
               if (this._lastEventId) {
