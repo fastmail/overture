@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 import /* { property } from */ '../../foundation/Decorators.js';
 
 const VERTICAL = 1;
@@ -152,4 +152,4 @@ SplitViewController.HORIZONTAL = HORIZONTAL;
 SplitViewController.TOP_LEFT = TOP_LEFT;
 SplitViewController.BOTTOM_RIGHT = BOTTOM_RIGHT;
 
-export default SplitViewController;
+export { SplitViewController };

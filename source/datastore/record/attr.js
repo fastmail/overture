@@ -379,5 +379,4 @@ const attr = function (Type, mixin) {
     return new RecordAttribute(mixin);
 };
 
-export default attr;
 export { attr, RecordAttribute };

@@ -10,7 +10,7 @@ const bindingKey = '__binding__';
     inherited from the prototype, and for suspending/resuming bindings on the
     object.
 */
-export default {
+const BoundProps = {
     /**
         Method: O.BoundProps#initBindings
 
@@ -144,3 +144,5 @@ export default {
         return this;
     },
 };
+
+export { BoundProps };

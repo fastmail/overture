@@ -9,7 +9,7 @@ import /* { property } from */ '../../foundation/Decorators.js';
     absolutely necessary, for example in <O.ProgressiveListView>, where it is
     used to only render the visible portion of a potentially very long list.
 */
-export default {
+const TrueVisibleRect = {
     visibleRect: function () {
         // Ignore any changes whilst not in the DOM
         if (!this.get('isInDocument')) {
@@ -43,3 +43,5 @@ export default {
         'isInDocument',
     ),
 };
+
+export { TrueVisibleRect };

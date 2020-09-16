@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import /* { observes } from */ '../../foundation/Decorators.js';
-import View from '../View.js';
+import { View } from '../View.js';
 
 /**
     Class: O.LabelView
@@ -99,4 +99,4 @@ const LabelView = Class({
     },
 });
 
-export default LabelView;
+export { LabelView };

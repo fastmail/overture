@@ -1,6 +1,6 @@
-/*global setTimeout, clearTimeout, console */
+/*global document, setTimeout, clearTimeout, console, window */
 
-import Heap from './Heap.js';
+import { Heap } from './Heap.js';
 
 const win = window;
 

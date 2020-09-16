@@ -1,7 +1,7 @@
 import { meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
 import { invokeInNextFrame, frameStartTime } from '../foundation/RunLoop.js';
-import Easing from './Easing.js';
+import { ease } from './Easing.js';
 
 // Does the used prefer reduced motion?
 const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion:reduce)');
@@ -85,7 +85,7 @@ const nextFrame = function () {
     For animating something other than a numeric property, override
     <O.Animation#prepare> and <O.Animation#drawFrame> methods.
 */
-export default class Animation {
+class Animation {
     /**
         Property: O.Animation#isRunning
         Type: Boolean
@@ -279,4 +279,6 @@ Animation.prototype.duration = 300;
 
     The easing function to use for the animation.
 */
-Animation.prototype.ease = Easing.ease;
+Animation.prototype.ease = ease;
+
+export { Animation };

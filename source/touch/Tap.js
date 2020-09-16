@@ -1,7 +1,7 @@
-import Event from '../foundation/Event.js';
+import { Event } from '../foundation/Event.js';
 import { getViewFromNode } from '../views/activeViews.js';
-import ViewEventsController from '../views/ViewEventsController.js';
-import Gesture from './Gesture.js';
+import { ViewEventsController } from '../views/ViewEventsController.js';
+import { Gesture } from './Gesture.js';
 
 /*  We can't just call preventDefault on touch(start|move), as this would
     prevent scrolling and also prevent links we want to act as normal from
@@ -125,7 +125,7 @@ const getCommonAncestor = function (a, b) {
     holding one button and tap another; the tap gesture will still be
     recognised).
 */
-export default new Gesture({
+const Tap = new Gesture({
     _tracking: {},
 
     cancel() {
@@ -217,3 +217,5 @@ export default new Gesture({
         }
     },
 });
+
+export { Tap };

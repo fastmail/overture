@@ -2,11 +2,11 @@ import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
 import { filter, keyOf, zip } from '../../core/KeyValue.js';
 import '../../core/Array.js'; // For Array#erase
 import { queueFn, didError } from '../../foundation/RunLoop.js';
-import Obj from '../../foundation/Object.js';
-import Event from '../../foundation/Event.js';
-import EventTarget from '../../foundation/EventTarget.js';
-import Record from '../record/Record.js';
-import RecordArray from '../query/RecordArray.js';
+import { Obj } from '../../foundation/Object.js';
+import { Event } from '../../foundation/Event.js';
+import { EventTarget } from '../../foundation/EventTarget.js';
+import { Record } from '../record/Record.js';
+import { RecordArray } from '../query/RecordArray.js';
 import {
     // Core states:
     EMPTY,
@@ -2826,4 +2826,4 @@ const Store = Class({
     };
 });
 
-export default Store;
+export { Store };

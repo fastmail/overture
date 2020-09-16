@@ -1,9 +1,9 @@
 import { Class } from '../../core/Core.js';
 import /* { observes, queue } from */ '../../foundation/Decorators.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
-import ScrollView from '../containers/ScrollView.js';
-import ListView from './ListView.js';
-import TrueVisibleRect from './TrueVisibleRect.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { ListView } from './ListView.js';
+import { TrueVisibleRect } from './TrueVisibleRect.js';
 
 const ProgressiveListView = Class({
     Extends: ListView,
@@ -126,4 +126,4 @@ const ProgressiveListView = Class({
         .observes('visibleRect', 'itemHeight'),
 });
 
-export default ProgressiveListView;
+export { ProgressiveListView };

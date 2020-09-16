@@ -340,4 +340,4 @@ Object.assign(XHR.prototype, {
     },
 });
 
-export default XHR;
+export { XHR };

@@ -3,7 +3,7 @@ import { bind } from '../../foundation/Binding.js';
 import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { appendChildren } from '../../dom/Element.js';
 import { browser } from '../../ua/UA.js';
-import View from '../View.js';
+import { View } from '../View.js';
 
 const isFirefox = browser === 'firefox';
 const isMSIE = browser === 'msie';
@@ -352,4 +352,4 @@ const ListView = Class({
     replaceView: null,
 });
 
-export default ListView;
+export { ListView };

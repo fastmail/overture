@@ -73,4 +73,4 @@ Object.assign(OPromise, {
     },
 });
 
-export default OPromise;
+export { OPromise as Promise };

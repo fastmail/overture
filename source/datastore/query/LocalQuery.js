@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
-import sortByProperties from '../../core/sortByProperties.js';
-import Query from './Query.js';
+import { sortByProperties } from '../../core/sortByProperties.js';
+import { Query } from './Query.js';
 import { EMPTY, READY, OBSOLETE } from '../record/Status.js';
 
 /**
@@ -95,4 +95,4 @@ const LocalQuery = Class({
     },
 });
 
-export default LocalQuery;
+export { LocalQuery };

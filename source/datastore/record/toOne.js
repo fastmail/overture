@@ -35,5 +35,4 @@ const toOne = function (mixin) {
     return new ToOneAttribute(mixin);
 };
 
-export default toOne;
 export { toOne, ToOneAttribute };

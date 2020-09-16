@@ -1,5 +1,5 @@
 import { isDestroyed, Class } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { observes, property, nocache } from */ '../foundation/Decorators.js';
 
 const SelectionController = Class({
@@ -213,4 +213,4 @@ const SelectionController = Class({
     },
 });
 
-export default SelectionController;
+export { SelectionController };

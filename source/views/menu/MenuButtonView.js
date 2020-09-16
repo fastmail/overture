@@ -1,9 +1,9 @@
 import { Class } from '../../core/Core.js';
 import /* { property, on, observes } from */ '../../foundation/Decorators.js';
-import PopOverView from '../panels/PopOverView.js';
-import RootView from '../RootView.js';
-import ButtonView from '../controls/ButtonView.js';
-import MenuOptionView from './MenuOptionView.js';
+import { PopOverView } from '../panels/PopOverView.js';
+import { RootView } from '../RootView.js';
+import { ButtonView } from '../controls/ButtonView.js';
+import { MenuOptionView } from './MenuOptionView.js';
 
 /**
     Class: O.MenuButtonView
@@ -209,4 +209,4 @@ const MenuButtonView = Class({
     }.on('mousedown'),
 });
 
-export default MenuButtonView;
+export { MenuButtonView };

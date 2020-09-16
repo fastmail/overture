@@ -1,7 +1,7 @@
 import { Class, guid, meta } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
-import ObservableRange from '../../foundation/ObservableRange.js';
-import Enumerable from '../../foundation/Enumerable.js';
+import { Obj } from '../../foundation/Object.js';
+import { ObservableRange } from '../../foundation/ObservableRange.js';
+import { Enumerable } from '../../foundation/Enumerable.js';
 import /* { on, observes, queue, property, nocache } from */ '../../foundation/Decorators.js';
 
 import {
@@ -686,4 +686,4 @@ Query.AUTO_REFRESH_NEVER = AUTO_REFRESH_NEVER;
 Query.AUTO_REFRESH_IF_OBSERVED = AUTO_REFRESH_IF_OBSERVED;
 Query.AUTO_REFRESH_ALWAYS = AUTO_REFRESH_ALWAYS;
 
-export default Query;
+export { Query };

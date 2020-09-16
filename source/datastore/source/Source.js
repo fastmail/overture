@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 
 /**
     Class: O.Source
@@ -147,4 +147,4 @@ const Source = Class({
     },
 });
 
-export default Source;
+export { Source };

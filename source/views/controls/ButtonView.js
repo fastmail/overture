@@ -4,7 +4,7 @@ import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 
-import AbstractControlView from './AbstractControlView.js';
+import { AbstractControlView } from './AbstractControlView.js';
 
 /**
     Class: O.ButtonView
@@ -359,4 +359,4 @@ ButtonView.drawIcon = function (icon) {
     });
 };
 
-export default ButtonView;
+export { ButtonView };

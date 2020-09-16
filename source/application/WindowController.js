@@ -3,7 +3,7 @@
 import { Class } from '../core/Core.js';
 import '../core/Date.js'; // For Date#format
 import '../core/String.js'; // For String#escapeHTML
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 
@@ -263,4 +263,4 @@ const WindowController = Class({
     },
 });
 
-export default WindowController;
+export { WindowController };

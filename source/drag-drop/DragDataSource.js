@@ -13,7 +13,7 @@ import { ALL } from './DragEffect.js';
 
     or used as a mixin in another class.
 */
-export default {
+const DragDataSource = {
     /**
         Constructor: O.DragDataSource
 
@@ -72,3 +72,5 @@ export default {
         return this._dragData[type];
     },
 };
+
+export { DragDataSource };

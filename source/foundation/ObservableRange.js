@@ -8,7 +8,7 @@ import { meta } from '../core/Core.js';
     to have the ObservableProps mixin applied and have a length property.
 */
 
-export default {
+const ObservableRange = {
     /**
         Method: O.ObservableRange#rangeDidChange
 
@@ -156,3 +156,5 @@ export default {
         return false;
     },
 };
+
+export { ObservableRange };

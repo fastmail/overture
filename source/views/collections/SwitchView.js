@@ -2,7 +2,7 @@ import { isDestroyed, Class } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
 import { queueFn } from '../../foundation/RunLoop.js';
 import /* { property, observes } from */ '../../foundation/Decorators.js';
-import View from '../View.js';
+import { View } from '../View.js';
 import { forView } from '../../dom/Element.js';
 
 const forEachView = function (views, method, args) {
@@ -330,5 +330,4 @@ const unless = function (object, property, transform) {
     return choose(object, property, pickView);
 };
 
-export default SwitchView;
-export { when, unless, choose };
+export { SwitchView, when, unless, choose };

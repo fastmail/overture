@@ -21,7 +21,7 @@ import { compare } from '../localisation/i18n.js';
         {Function} This function may be passed to the Array#sort method to
         sort the array of objects by the properties specified.
 */
-export default function sortByProperties(properties) {
+const sortByProperties = function (properties) {
     if (!(properties instanceof Array)) {
         properties = [properties];
     }
@@ -53,4 +53,6 @@ export default function sortByProperties(properties) {
         }
         return 0;
     };
-}
+};
+
+export { sortByProperties };

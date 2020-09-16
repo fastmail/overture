@@ -1,6 +1,6 @@
 import { meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
-import getFromPath from './getFromPath.js';
+import { getFromPath } from './getFromPath.js';
 
 /**
     Module: Foundation
@@ -59,7 +59,7 @@ const computeDependentKeys = function (cache, key, results) {
     return results;
 };
 
-export default {
+const ComputedProps = {
     /**
         Method: O.ComputedProps#propertiesDependentOnKey
 
@@ -245,3 +245,5 @@ export default {
         return this.set(key, !this.get(key));
     },
 };
+
+export { ComputedProps };

@@ -138,4 +138,4 @@ const ViewEventsController = {
 };
 ViewEventsController.addEventTarget(ViewEventsController, 0);
 
-export default ViewEventsController;
+export { ViewEventsController };

@@ -2,9 +2,9 @@ import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
 import { bind } from '../../foundation/Binding.js';
 import /* { property, nocache, queue } from */ '../../foundation/Decorators.js';
-import ScrollView from '../containers/ScrollView.js';
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { View } from '../View.js';
+import { ViewEventsController } from '../ViewEventsController.js';
 
 const ListKBFocusView = Class({
     Extends: View,
@@ -181,4 +181,4 @@ const ListKBFocusView = Class({
     star() {},
 });
 
-export default ListKBFocusView;
+export { ListKBFocusView };

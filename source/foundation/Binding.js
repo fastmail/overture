@@ -1,7 +1,7 @@
 /*global Element */
 
 import { setBinding } from '../_codependent/_Binding.js';
-import getFromPath from './getFromPath.js';
+import { getFromPath } from './getFromPath.js';
 
 import { queueFn } from './RunLoop.js';
 
@@ -605,5 +605,4 @@ const bindTwoWay = function (root, path, transform) {
     return binding;
 };
 
-export default Binding;
 export { Binding, bind, bindTwoWay };

@@ -1,4 +1,4 @@
-import Animation from './Animation.js';
+import { Animation } from './Animation.js';
 import { clone } from '../core/Core.js';
 import { setStyle } from '../dom/Element.js';
 
@@ -301,4 +301,4 @@ class StyleAnimation extends Animation {
     }
 }
 
-export default StyleAnimation;
+export { StyleAnimation };

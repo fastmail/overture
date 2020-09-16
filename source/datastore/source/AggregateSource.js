@@ -2,7 +2,7 @@ import { Class } from '../../core/Core.js';
 import '../../core/Array.js'; // For Array#erase
 import /* { observes } from */ '../../foundation/Decorators.js';
 
-import Source from './Source.js';
+import { Source } from './Source.js';
 
 /**
     Class: O.AggregateSource
@@ -108,4 +108,4 @@ const AggregateSource = Class({
     },
 });
 
-export default AggregateSource;
+export { AggregateSource };

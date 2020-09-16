@@ -1,7 +1,7 @@
 import { Class, isEqual } from '../../core/Core.js';
 import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
-import AbstractControlView from './AbstractControlView.js';
+import { AbstractControlView } from './AbstractControlView.js';
 
 /**
     Class: O.SelectView
@@ -192,4 +192,4 @@ const SelectView = Class({
     }.on('change'),
 });
 
-export default SelectView;
+export { SelectView };

@@ -1,8 +1,8 @@
-import Event from '../foundation/Event.js';
+import { Event } from '../foundation/Event.js';
 import { invokeAfterDelay } from '../foundation/RunLoop.js';
-import ViewEventsController from '../views/ViewEventsController.js';
-import Tap from './Tap.js';
-import Gesture from './Gesture.js';
+import { ViewEventsController } from '../views/ViewEventsController.js';
+import { Tap } from './Tap.js';
+import { Gesture } from './Gesture.js';
 
 class HoldEvent extends Event {
     constructor(touch) {
@@ -38,7 +38,7 @@ class TrackedTouch {
     * Lasts at least 750ms.
     * Moves less than 5px from the initial touch point.
 */
-export default new Gesture({
+const Hold = new Gesture({
     _tracking: {},
 
     cancel: Tap.cancel,
@@ -73,3 +73,5 @@ export default new Gesture({
         }
     },
 });
+
+export { Hold };

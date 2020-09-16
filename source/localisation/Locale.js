@@ -576,4 +576,4 @@ Object.assign(Locale.prototype, {
     translations: {},
 });
 
-export default Locale;
+export { Locale };

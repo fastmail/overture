@@ -1,7 +1,7 @@
 import { meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
 
-import Event from './Event.js';
+import { Event } from './Event.js';
 import { didError } from './RunLoop.js';
 
 const eventPrefix = '__event__';
@@ -20,7 +20,7 @@ export { eventPrefix as _eventPrefix };
     `io:eventName` events.
 */
 
-export default {
+const EventTarget = {
     /**
         Property: O.EventTarget#nextEventTarget
         Type: (O.EventTarget|null)
@@ -177,3 +177,5 @@ export default {
         return this;
     },
 };
+
+export { EventTarget };

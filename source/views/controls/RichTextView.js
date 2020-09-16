@@ -6,22 +6,22 @@ import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../f
 import { isEqualToValue } from '../../foundation/Transform.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { didError } from '../../foundation/RunLoop.js';
-import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
+import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
-import DropTarget from '../../drag-drop/DropTarget.js';
+import { DropTarget } from '../../drag-drop/DropTarget.js';
 import { COPY } from '../../drag-drop/DragEffect.js';
 import { loc } from '../../localisation/i18n.js';
 import { isIOS, isApple, isAndroid } from '../../ua/UA.js';
-import View from '../View.js';
-import ViewEventsController from '../ViewEventsController.js';
-import ScrollView from '../containers/ScrollView.js';
-import ToolbarView from '../collections/ToolbarView.js';
-import PopOverView from '../panels/PopOverView.js';
-import ButtonView from './ButtonView.js';
-import FileButtonView from './FileButtonView.js';
-import MenuView from '../menu/MenuView.js';
-import TextView from './TextView.js';
+import { View } from '../View.js';
+import { ViewEventsController } from '../ViewEventsController.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { ToolbarView } from '../collections/ToolbarView.js';
+import { PopOverView } from '../panels/PopOverView.js';
+import { ButtonView } from './ButtonView.js';
+import { FileButtonView } from './FileButtonView.js';
+import { MenuView } from '../menu/MenuView.js';
+import { TextView } from './TextView.js';
 
 const execCommand = function (command) {
     return function (arg) {
@@ -1235,4 +1235,4 @@ const RichTextView = Class({
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 
-export default RichTextView;
+export { RichTextView };

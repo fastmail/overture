@@ -1,8 +1,8 @@
 import { Class } from '../../core/Core.js';
 import { loc } from '../../localisation/i18n.js';
 import { when } from '../collections/SwitchView.js';
-import TextView from './TextView.js';
-import ClearSearchButtonView from './ClearSearchButtonView.js';
+import { TextView } from './TextView.js';
+import { ClearSearchButtonView } from './ClearSearchButtonView.js';
 
 const SearchTextView = Class({
     Extends: TextView,
@@ -36,4 +36,4 @@ const SearchTextView = Class({
     },
 });
 
-export default SearchTextView;
+export { SearchTextView };

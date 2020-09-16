@@ -3,7 +3,7 @@
 
     Represents a synthetic event.
 */
-export default class Event {
+class Event {
     /**
         Constructor: O.Event
 
@@ -47,3 +47,5 @@ export default class Event {
         return this;
     }
 }
+
+export { Event };

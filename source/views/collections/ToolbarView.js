@@ -3,12 +3,12 @@ import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';
-import View from '../View.js';
-import RootView from '../RootView.js';
-import ViewEventsController from '../ViewEventsController.js';
-import PopOverView from '../panels/PopOverView.js';
-import MenuButtonView from '../menu/MenuButtonView.js';
-import MenuView from '../menu/MenuView.js';
+import { View } from '../View.js';
+import { RootView } from '../RootView.js';
+import { ViewEventsController } from '../ViewEventsController.js';
+import { PopOverView } from '../panels/PopOverView.js';
+import { MenuButtonView } from '../menu/MenuButtonView.js';
+import { MenuView } from '../menu/MenuView.js';
 
 const toView = function (name) {
     return name === '-'
@@ -391,4 +391,4 @@ const ToolbarView = Class({
 
 ToolbarView.OverflowMenuView = OverflowMenuView;
 
-export default ToolbarView;
+export { ToolbarView };

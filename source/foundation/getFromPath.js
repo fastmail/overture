@@ -16,7 +16,7 @@
         {*} Returns the value at the end of the path.
 */
 const isNum = /^\d+$/;
-export default function getFromPath(root, path) {
+const getFromPath = function (root, path) {
     let currentPosition = 0;
     const pathLength = path.length;
     while (currentPosition < pathLength) {
@@ -37,4 +37,6 @@ export default function getFromPath(root, path) {
         currentPosition = nextDot + 1;
     }
     return root;
-}
+};
+
+export { getFromPath };

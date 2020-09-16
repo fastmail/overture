@@ -1,10 +1,10 @@
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 import { lookupKey } from '../dom/DOMEvent.js';
-import ViewEventsController from '../views/ViewEventsController.js';
+import { ViewEventsController } from '../views/ViewEventsController.js';
 import { getViewFromNode } from '../views/activeViews.js';
 
-import Drag from './Drag.js'; // Circular but it's OK
+import { Drag } from './Drag.js'; // Circular but it's OK
 import { ALL, DEFAULT, effectToString } from './DragEffect.js';
 
 const isControl = {
@@ -540,4 +540,4 @@ const DragController = new Obj({
 
 ViewEventsController.addEventTarget(DragController, 20);
 
-export default DragController;
+export { DragController };

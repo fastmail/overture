@@ -1,9 +1,9 @@
 import { Class, meta } from '../../core/Core.js';
 import '../../core/Array.js'; // For Array#erase
-import ObservableArray from '../../foundation/ObservableArray.js';
+import { ObservableArray } from '../../foundation/ObservableArray.js';
 
 import { RecordAttribute } from './attr.js';
-import Record from './Record.js';
+import { Record } from './Record.js';
 
 const slice = Array.prototype.slice;
 
@@ -203,5 +203,4 @@ const toMany = function (mixin) {
     return new ToManyAttribute(mixin);
 };
 
-export default toMany;
 export { toMany, ToManyAttribute };

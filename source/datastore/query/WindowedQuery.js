@@ -14,7 +14,7 @@ import {
     // was requested.
     OBSOLETE,
 } from '../record/Status.js';
-import Query from './Query.js';
+import { Query } from './Query.js';
 
 /**
     Enum: O.WindowedQuery-WindowState
@@ -1375,4 +1375,4 @@ const WindowedQuery = Class({
     },
 });
 
-export default WindowedQuery;
+export { WindowedQuery };

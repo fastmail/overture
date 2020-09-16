@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import ButtonView from './ButtonView.js';
+import { ButtonView } from './ButtonView.js';
 import { ACTIVE_IN_INPUT } from '../../application/keyboardShortcuts.js';
 
 const ClearSearchButtonView = Class({
@@ -10,4 +10,4 @@ const ClearSearchButtonView = Class({
     shortcutWhenInputFocused: ACTIVE_IN_INPUT,
 });
 
-export default ClearSearchButtonView;
+export { ClearSearchButtonView };

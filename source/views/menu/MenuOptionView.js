@@ -1,8 +1,8 @@
 import { Class } from '../../core/Core.js';
 import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 import { invokeAfterDelay, cancel } from '../../foundation/RunLoop.js';
-import View from '../View.js';
-import PopOverView from '../panels/PopOverView.js';
+import { View } from '../View.js';
+import { PopOverView } from '../panels/PopOverView.js';
 
 const MenuOptionView = Class({
     Extends: View,
@@ -57,4 +57,4 @@ const MenuOptionView = Class({
     }.on('mouseout'),
 });
 
-export default MenuOptionView;
+export { MenuOptionView };

@@ -7,7 +7,7 @@ const slice = Array.prototype.slice;
     with a 'replaceObjectsAt' method and a 'get' method that supports 'length'.
     The API mirrors that of the native Array type.
 */
-export default {
+const MutableEnumerable = {
     // :: Mutation methods =====================================================
 
     /**
@@ -93,3 +93,5 @@ export default {
         return this.replaceObjectsAt(index, numberRemoved, newItems);
     },
 };
+
+export { MutableEnumerable };

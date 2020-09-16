@@ -1,6 +1,6 @@
 import { isDestroyed, Class } from '../core/Core.js';
 import '../core/String.js'; // For String#capitalise
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import { queueFn } from '../foundation/RunLoop.js';
 import /* { property, observes } from */ '../foundation/Decorators.js';
 import { setView } from '../_codependent/_View.js';
@@ -12,8 +12,8 @@ import {
     cssStringFromKeyValue,
 } from '../dom/Element.js';
 
-import ViewEventsController from './ViewEventsController.js';
-import activeViews from './activeViews.js';
+import { ViewEventsController } from './ViewEventsController.js';
+import { activeViews } from './activeViews.js';
 
 let UID = 0;
 
@@ -1323,4 +1323,4 @@ View.peekId = function () {
     return 'v' + UID;
 };
 
-export default View;
+export { View };

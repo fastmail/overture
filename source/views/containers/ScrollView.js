@@ -2,12 +2,12 @@ import { Class, mixin } from '../../core/Core.js';
 import /* { property, on, observes, queue } from */ '../../foundation/Decorators.js';
 import { queueFn } from '../../foundation/RunLoop.js';
 import { create as el, setStyle, appendChildren } from '../../dom/Element.js';
-import Animation from '../../animation/Animation.js';
-import Tap from '../../touch/Tap.js';
+import { Animation } from '../../animation/Animation.js';
+import { Tap } from '../../touch/Tap.js';
 import { isIOS, browser, version } from '../../ua/UA.js';
-import View from '../View.js';
-import RootView from '../RootView.js';
-import ViewEventsController from '../ViewEventsController.js';
+import { View } from '../View.js';
+import { RootView } from '../RootView.js';
+import { ViewEventsController } from '../ViewEventsController.js';
 
 class ScrollAnimation extends Animation {
     prepare(coordinates) {
@@ -609,4 +609,4 @@ if (isIOS && version < 13) {
     });
 }
 
-export default ScrollView;
+export { ScrollView };

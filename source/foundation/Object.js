@@ -1,7 +1,7 @@
-import ComputedProps from './ComputedProps.js';
-import BoundProps from './BoundProps.js';
-import ObservableProps from './ObservableProps.js';
-import EventTarget from './EventTarget.js';
+import { ComputedProps } from './ComputedProps.js';
+import { BoundProps } from './BoundProps.js';
+import { ObservableProps } from './ObservableProps.js';
+import { EventTarget } from './EventTarget.js';
 import {
     meta,
     mixin,
@@ -71,4 +71,4 @@ mixin(ObjPrototype, {
     },
 });
 
-export default Obj;
+export { Obj };

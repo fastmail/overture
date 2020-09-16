@@ -1,9 +1,11 @@
 import { Class, meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 import /* { invokeInRunLoop, on, observes } from */ '../foundation/Decorators.js';
-import XHR from './XHR.js';
+import { XHR } from './XHR.js';
+
+/*global window */
 
 const NativeEventSource = window.EventSource;
 
@@ -365,4 +367,4 @@ EventSource.CONNECTING = CONNECTING;
 EventSource.OPEN = OPEN;
 EventSource.CLOSED = CLOSED;
 
-export default EventSource;
+export { EventSource };

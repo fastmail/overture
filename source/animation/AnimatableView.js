@@ -1,7 +1,7 @@
 import /* { property } from */ '../foundation/Decorators.js';
 import { setStyle } from '../dom/Element.js';
-import Easing from './Easing.js';
-import StyleAnimation from './StyleAnimation.js';
+import { ease } from './Easing.js';
+import { StyleAnimation } from './StyleAnimation.js';
 
 /**
     Mixin: O.AnimatableView
@@ -9,7 +9,7 @@ import StyleAnimation from './StyleAnimation.js';
     Mix this into an <O.View> class to automatically animate all changes to the
     view's <O.View#layerStyles> property.
 */
-export default {
+const AnimatableView = {
     /**
         Property: O.AnimatableView#animateLayer
         Type: Boolean
@@ -37,7 +37,7 @@ export default {
 
         The easing function to use for the animation of the view's layer styles.
     */
-    animateLayerEasing: Easing.ease,
+    animateLayerEasing: ease,
 
     /**
         Property: O.AnimatableView#animating
@@ -142,3 +142,5 @@ export default {
         }
     },
 };
+
+export { AnimatableView };

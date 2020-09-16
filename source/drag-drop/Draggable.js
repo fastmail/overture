@@ -4,7 +4,7 @@
     The Draggable mixin should be applied to views you wish to make draggable.
     Override the methods to get the callbacks you're interested in.
 */
-export default {
+const Draggable = {
     /**
         Property: O.Draggable#isDraggable
         Type: Boolean
@@ -54,3 +54,5 @@ export default {
     */
     dragEnded(/* drag */) {},
 };
+
+export { Draggable };

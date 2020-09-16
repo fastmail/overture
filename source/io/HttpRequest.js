@@ -1,8 +1,8 @@
 import { Class } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 import /* { on } from */ '../foundation/Decorators.js';
-import XHR from './XHR.js';
+import { XHR } from './XHR.js';
 
 /**
     Class: O.HttpRequest
@@ -281,4 +281,4 @@ const HttpRequest = Class({
     */
 });
 
-export default HttpRequest;
+export { HttpRequest };

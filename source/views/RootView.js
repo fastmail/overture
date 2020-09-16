@@ -1,10 +1,10 @@
 import { Class } from '../core/Core.js';
 import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 
-import View from './View.js';
-import ViewEventsController from './ViewEventsController.js';
+import { View } from './View.js';
+import { ViewEventsController } from './ViewEventsController.js';
 import { getViewFromNode } from './activeViews.js';
-import AbstractControlView from './controls/AbstractControlView.js';
+import { AbstractControlView } from './controls/AbstractControlView.js';
 
 let passiveSupported = false;
 
@@ -166,4 +166,4 @@ const RootView = Class({
     }.invokeInRunLoop(),
 });
 
-export default RootView;
+export { RootView };

@@ -1,6 +1,6 @@
 import '../core/Array.js'; // For Array#erase
-import Obj from '../foundation/Object.js';
-import ViewEventsController from '../views/ViewEventsController.js';
+import { Obj } from '../foundation/Object.js';
+import { ViewEventsController } from '../views/ViewEventsController.js';
 
 const GestureManager = new Obj({
     _gestures: [],
@@ -38,4 +38,4 @@ const GestureManager = new Obj({
 
 ViewEventsController.addEventTarget(GestureManager, 30);
 
-export default GestureManager;
+export { GestureManager };

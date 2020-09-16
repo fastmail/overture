@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import /* { property, nextFrame } from */ '../../foundation/Decorators.js';
-import View from '../View.js';
+import { View } from '../View.js';
 
 const ListItemView = Class({
     Extends: View,
@@ -55,4 +55,4 @@ const ListItemView = Class({
         .observes('isInDocument'),
 });
 
-export default ListItemView;
+export { ListItemView };

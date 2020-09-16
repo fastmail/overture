@@ -1,4 +1,4 @@
-import Enumerable from '../foundation/Enumerable.js';
+import { Enumerable } from '../foundation/Enumerable.js';
 
 Object.assign(Array.prototype, {
     /**

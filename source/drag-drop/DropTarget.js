@@ -6,7 +6,7 @@ import { MOVE, DEFAULT } from './DragEffect.js';
     The DropTarget mixin should be applied to views you wish to make drop
     targets.
 */
-export default {
+const DropTarget = {
     /**
         Property: O.DropTarget#isDropTarget
         Type: Boolean
@@ -127,3 +127,5 @@ export default {
     */
     drop(/* drag */) {},
 };
+
+export { DropTarget };

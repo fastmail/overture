@@ -1,14 +1,14 @@
 import { Class } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { queue, property } from */ '../foundation/Decorators.js';
 import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { create as el } from '../dom/Element.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';
-import ScrollView from '../views/containers/ScrollView.js';
+import { ScrollView } from '../views/containers/ScrollView.js';
 import { getViewFromNode } from '../views/activeViews.js';
 
-import DragController from './DragController.js'; // Circular but it's OK
+import { DragController } from './DragController.js'; // Circular but it's OK
 import {
     NONE,
     COPY,
@@ -845,4 +845,4 @@ const Drag = Class({
     },
 });
 
-export default Drag;
+export { Drag };

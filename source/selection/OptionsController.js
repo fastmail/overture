@@ -1,8 +1,8 @@
 import { Class } from '../core/Core.js';
 import { mod } from '../core/Math.js';
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { on, observes } from */ '../foundation/Decorators.js';
-import ObservableArray from '../foundation/ObservableArray.js';
+import { ObservableArray } from '../foundation/ObservableArray.js';
 import { makeSearchRegExp } from '../localisation/i18n.js';
 
 const OptionsController = Class({
@@ -144,4 +144,4 @@ const OptionsController = Class({
     }.observes('selected'),
 });
 
-export default OptionsController;
+export { OptionsController };

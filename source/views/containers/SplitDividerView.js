@@ -2,10 +2,10 @@ import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import /* { property } from */ '../../foundation/Decorators.js';
-import View from '../View.js';
-import Draggable from '../../drag-drop/Draggable.js';
+import { View } from '../View.js';
+import { Draggable } from '../../drag-drop/Draggable.js';
 
-import SplitViewController from './SplitViewController.js';
+import { SplitViewController } from './SplitViewController.js';
 
 const VERTICAL = SplitViewController.VERTICAL;
 const TOP_LEFT = SplitViewController.TOP_LEFT;
@@ -186,4 +186,4 @@ const SplitDividerView = Class({
     },
 });
 
-export default SplitDividerView;
+export { SplitDividerView };

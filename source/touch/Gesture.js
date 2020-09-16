@@ -1,6 +1,6 @@
-import GestureManager from './GestureManager.js';
+import { GestureManager } from './GestureManager.js';
 
-export default class Gesture {
+class Gesture {
     constructor(mixin) {
         Object.assign(this, mixin);
         GestureManager.register(this);
@@ -13,3 +13,5 @@ export default class Gesture {
     move() {}
     end() {}
 }
+
+export { Gesture };

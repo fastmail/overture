@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 
-import UndoManager from './UndoManager.js';
+import { UndoManager } from './UndoManager.js';
 
 const StoreUndoManager = Class({
     Extends: UndoManager,
@@ -54,4 +54,4 @@ const StoreUndoManager = Class({
     },
 });
 
-export default StoreUndoManager;
+export { StoreUndoManager };

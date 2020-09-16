@@ -1,4 +1,4 @@
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 
 /**
     Property: O.activeViews
@@ -18,7 +18,6 @@ import Obj from '../foundation/Object.js';
     permitted to mutate it.
 */
 const activeViews = new Obj();
-export default activeViews;
 
 /**
     Function: O.getViewFromNode
@@ -31,7 +30,7 @@ export default activeViews;
     Returns:
         {O.View|null} The view which owns the node.
 */
-export const getViewFromNode = function (node) {
+const getViewFromNode = function (node) {
     const doc = node.ownerDocument;
     let view = null;
     while (!view && node && node !== doc) {
@@ -40,3 +39,5 @@ export const getViewFromNode = function (node) {
     }
     return view;
 };
+
+export { activeViews, getViewFromNode };

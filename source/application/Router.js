@@ -1,7 +1,7 @@
 /*global location */
 
 import { Class } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { observes, invokeInRunLoop, queue } from */ '../foundation/Decorators.js';
 
 /**
@@ -471,4 +471,4 @@ const Router = Class({
     },
 });
 
-export default Router;
+export { Router };

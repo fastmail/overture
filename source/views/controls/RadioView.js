@@ -2,8 +2,8 @@ import { Class } from '../../core/Core.js';
 import /* { property, on } from */ '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
 
-import AbstractControlView from './AbstractControlView.js';
-import CheckboxView from './CheckboxView.js';
+import { AbstractControlView } from './AbstractControlView.js';
+import { CheckboxView } from './CheckboxView.js';
 
 /**
     Class: O.RadioView
@@ -86,4 +86,4 @@ const RadioView = Class({
     }.on('click'),
 });
 
-export default RadioView;
+export { RadioView };

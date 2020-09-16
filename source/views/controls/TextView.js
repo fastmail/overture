@@ -3,8 +3,8 @@ import /* { property, nocache, on, observes } from */ '../../foundation/Decorato
 import { browser } from '../../ua/UA.js';
 import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import ScrollView from '../containers/ScrollView.js';
-import AbstractControlView from './AbstractControlView.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { AbstractControlView } from './AbstractControlView.js';
 
 const isFirefox = browser === 'firefox';
 
@@ -528,4 +528,4 @@ const TextView = Class({
     }.on('keyup'),
 });
 
-export default TextView;
+export { TextView };

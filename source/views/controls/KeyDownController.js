@@ -1,8 +1,8 @@
 import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 import { invokeAfterDelay, cancel } from '../../foundation/RunLoop.js';
 import { isApple } from '../../ua/UA.js';
-import ViewEventsController from '../ViewEventsController.js';
+import { ViewEventsController } from '../ViewEventsController.js';
 
 const KeyDownController = Class({
     Extends: Obj,
@@ -76,4 +76,4 @@ const KeyDownController = Class({
     }.on('keyup', 'blur'),
 });
 
-export default KeyDownController;
+export { KeyDownController };

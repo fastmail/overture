@@ -1,5 +1,5 @@
 import { meta, OBJECT_INITIALISED } from '../core/Core.js';
-import Binding from './Binding.js';
+import { Binding } from './Binding.js';
 
 /**
     Method (private): O.ObservableProps-_setupTeardownPaths
@@ -131,7 +131,7 @@ const _notifyGenericObservers = function (that, metadata, changed) {
     get/set methods inherited from <O.ComputedProps>.
 */
 
-export default {
+const ObservableProps = {
     /**
         Method: O.Observable#initObservers
 
@@ -434,3 +434,5 @@ export default {
         return this;
     },
 };
+
+export { ObservableProps };

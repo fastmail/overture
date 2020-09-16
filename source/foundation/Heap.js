@@ -1,4 +1,4 @@
-export default class Heap {
+class Heap {
     constructor(comparator) {
         this.data = [];
         this.length = 0;
@@ -122,3 +122,5 @@ export default class Heap {
         return this;
     }
 }
+
+export { Heap };

@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
-import formatKeyForPlatform from '../../application/formatKeyForPlatform.js';
+import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { create as el, getAncestors, getStyle } from '../../dom/Element.js';
-import View from '../View.js';
+import { View } from '../View.js';
 
 const ShortcutView = Class({
     Extends: View,

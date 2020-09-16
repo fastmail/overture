@@ -245,4 +245,4 @@ TimeZone.rules = {
 };
 TimeZone.areas = {};
 
-export default TimeZone;
+export { TimeZone };

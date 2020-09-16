@@ -15,7 +15,7 @@ import {
     OBSOLETE, // Source may have changes not yet loaded.
 } from '../record/Status.js';
 
-import Store from './Store.js';
+import { Store } from './Store.js';
 
 /**
     Class: O.NestedStore
@@ -340,4 +340,4 @@ const NestedStore = Class({
     sourceDidNotDestroy: null,
 });
 
-export default NestedStore;
+export { NestedStore };

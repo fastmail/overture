@@ -1,7 +1,7 @@
 /*global localStorage, sessionStorage, location */
 
 import { Class, isEqual } from '../core/Core.js';
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 
 /**
     Module: Storage
@@ -94,4 +94,4 @@ const LocalStorage = Class({
     },
 });
 
-export default LocalStorage;
+export { LocalStorage };

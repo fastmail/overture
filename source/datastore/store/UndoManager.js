@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 
 /**
     Class: O.UndoManager
@@ -86,4 +86,4 @@ const UndoManager = Class({
     applyChange(/* data, isRedo */) {},
 });
 
-export default UndoManager;
+export { UndoManager };

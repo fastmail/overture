@@ -357,4 +357,4 @@ const Enumerable = {
     },
 };
 
-export default Enumerable;
+export { Enumerable };

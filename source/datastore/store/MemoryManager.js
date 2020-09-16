@@ -4,8 +4,8 @@ import {
     invokeInNextEventLoop,
 } from '../../foundation/RunLoop.js';
 
-import Record from '../record/Record.js';
-import Query from '../query/Query.js';
+import { Record } from '../record/Record.js';
+import { Query } from '../query/Query.js';
 
 /**
     Class: O.MemoryManager
@@ -210,4 +210,4 @@ class MemoryManager {
     }
 }
 
-export default MemoryManager;
+export { MemoryManager };

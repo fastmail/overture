@@ -1,5 +1,5 @@
 import { EMPTY, NEW, DIRTY, COMMITTING, NON_EXISTENT } from './Status.js';
-import Record from './Record.js';
+import { Record } from './Record.js';
 
 // ---
 
@@ -205,4 +205,4 @@ Object.assign(Record.prototype, {
 
 // --- Export
 
-export default RecordResult;
+export { RecordResult };

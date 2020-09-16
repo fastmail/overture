@@ -1,10 +1,10 @@
 import { Class, meta, clone } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 import { didError } from '../../foundation/RunLoop.js';
 import /* { property, nocache } from */ '../../foundation/Decorators.js';
 
 import { ToOneAttribute } from './toOne.js';
-import AttributeErrors from './AttributeErrors.js';
+import { AttributeErrors } from './AttributeErrors.js';
 import { READY, NEW, DIRTY, OBSOLETE, LOADING } from './Status.js';
 
 const READY_NEW_DIRTY = READY | NEW | DIRTY;
@@ -524,4 +524,4 @@ Record.getClientSettableAttributes = function (Type) {
     that is the primary key.
 */
 
-export default Record;
+export { Record };

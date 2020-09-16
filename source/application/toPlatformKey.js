@@ -11,7 +11,7 @@ import { isApple } from '../ua/UA.js';
     Returns:
         {String} The corresponding key mapped for the user's platform.
 */
-export default function toPlatformKey(key) {
+const toPlatformKey = function (key) {
     if (key.includes('Cmd-')) {
         key = key.replace('Cmd-', isApple ? 'Meta-' : 'Ctrl-');
         if (
@@ -26,4 +26,6 @@ export default function toPlatformKey(key) {
         }
     }
     return key;
-}
+};
+
+export { toPlatformKey };

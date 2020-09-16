@@ -39,10 +39,12 @@ const sortModifierKeys = function (a, b) {
     Returns:
         {String} The shortcut formatted for display on the user's platform.
 */
-export default function formatKeyForPlatform(shortcut) {
+const formatKeyForPlatform = function (shortcut) {
     return shortcut
         .split('-')
         .sort(sortModifierKeys)
         .map((key) => platformKeys[key] || key.capitalise())
         .join('');
-}
+};
+
+export { formatKeyForPlatform };

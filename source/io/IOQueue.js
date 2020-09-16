@@ -1,6 +1,6 @@
 import { Class } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
-import Obj from '../foundation/Object.js';
+import { Obj } from '../foundation/Object.js';
 import /* { on } from */ '../foundation/Decorators.js';
 
 /**
@@ -182,5 +182,4 @@ IOQueue.QUEUE = QUEUE;
 IOQueue.IGNORE = IGNORE;
 IOQueue.ABORT = ABORT;
 
-export default IOQueue;
-export { QUEUE, IGNORE, ABORT };
+export { IOQueue, QUEUE, IGNORE, ABORT };

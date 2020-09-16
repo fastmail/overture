@@ -1,12 +1,12 @@
 import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 import /* { on } from */ '../../foundation/Decorators.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import View from '../View.js';
-import ScrollView from '../containers/ScrollView.js';
-import ViewEventsController from '../ViewEventsController.js';
-import SearchTextView from '../controls/SearchTextView.js';
+import { View } from '../View.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { ViewEventsController } from '../ViewEventsController.js';
+import { SearchTextView } from '../controls/SearchTextView.js';
 
 const MenuFilterView = Class({
     Extends: View,
@@ -135,4 +135,4 @@ const MenuFilterView = Class({
     }.on('keydown'),
 });
 
-export default MenuFilterView;
+export { MenuFilterView };

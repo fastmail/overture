@@ -2,8 +2,8 @@ import { Class } from '../../core/Core.js';
 import /* { on } from */ '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
 
-import ButtonView from './ButtonView.js';
-import AbstractControlView from './AbstractControlView.js';
+import { ButtonView } from './ButtonView.js';
+import { AbstractControlView } from './AbstractControlView.js';
 
 /**
     Class: O.FileButtonView
@@ -148,4 +148,4 @@ const FileButtonView = Class({
     }.on('change'),
 });
 
-export default FileButtonView;
+export { FileButtonView };

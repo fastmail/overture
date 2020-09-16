@@ -1,8 +1,8 @@
 import { isDestroyed, guid, Class } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
 import { DESTROYED } from '../../datastore/record/Status.js';
-import ListView from './ListView.js';
-import ScrollView from '../containers/ScrollView.js';
+import { ListView } from './ListView.js';
+import { ScrollView } from '../containers/ScrollView.js';
 
 const OptionsListView = Class({
     Extends: ListView,
@@ -138,4 +138,4 @@ const OptionsListView = Class({
         .queue('after'),
 });
 
-export default OptionsListView;
+export { OptionsListView };

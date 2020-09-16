@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
-import Obj from '../../foundation/Object.js';
+import { Obj } from '../../foundation/Object.js';
 import /* { on } from */ '../../foundation/Decorators.js';
-import ScrollView from '../containers/ScrollView.js';
+import { ScrollView } from '../containers/ScrollView.js';
 
 const ModalEventHandler = Class({
     Extends: Obj,
@@ -90,4 +90,4 @@ const ModalEventHandler = Class({
     }.on('touchstart'),
 });
 
-export default ModalEventHandler;
+export { ModalEventHandler };
