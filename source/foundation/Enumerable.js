@@ -93,22 +93,22 @@ const Enumerable = {
     },
 
     /**
-        Method: Array#binarySearch
+        Method: O.Enumerable#binarySearch
 
         *Presumes the enumerable is sorted.*
 
-        Does a binary search on the array to find the index for the given value,
-        or if not in the array, then the index at which it should be inserted to
-        maintain the ordering of the array.
+        Does a binary search on the enumerable to find the index for the given
+        value, or if not in the enumerable, then the index at which it should
+        be inserted to maintain the ordering.
 
         Parameters:
-            value      - {*} The value to search for in the array
+            value      - {*} The value to search for in the enumerable.
             comparator - {Function} (optional). A comparator function. If not
                          supplied, the comparison will be made simply by the `<`
                          infix comparator.
 
         Returns:
-            {Number} The index to place the value in the sorted array.
+            {Number} The index to place the value in the sorted enumerable.
     */
     binarySearch(value, comparator) {
         let lower = 0;

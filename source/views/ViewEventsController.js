@@ -1,5 +1,5 @@
+import '../core/Array.js'; // For Array#binarySearch
 import '../foundation/Decorators.js';
-import '../foundation/Enumerable.js'; // For Array#binarySearch
 import { getViewFromNode } from './activeViews.js';
 
 const etSearch = function (candidate, b) {

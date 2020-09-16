@@ -1,5 +1,5 @@
 import { Class, meta, isEqual } from '../../core/Core.js';
-import '../../foundation/Enumerable.js'; // For Array#binarySearch
+import '../../core/Array.js'; // For Array#binarySearch
 import '../../foundation/Decorators.js';
 import {
     EMPTY,
