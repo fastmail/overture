@@ -459,7 +459,7 @@ Object.assign(Color, {
         let b;
         let parts;
         color = color.toLowerCase();
-        if (color in cssColorNames) {
+        if (cssColorNames.hasOwnProperty(color)) {
             const number = cssColorNames[color];
             r = getDoubleByte(number, 2);
             g = getDoubleByte(number, 1);
