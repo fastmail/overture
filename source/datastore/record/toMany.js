@@ -5,10 +5,6 @@ import { ObservableArray } from '../../foundation/ObservableArray.js';
 import { RecordAttribute } from './attr.js';
 import { Record } from './Record.js';
 
-const slice = Array.prototype.slice;
-
-// ---
-
 /**
     Method: O.Record#notifyRecordArray
 
@@ -115,7 +111,7 @@ const RecordArray = Class({
     },
 
     replaceObjectsAt(index, numberRemoved, newItems) {
-        newItems = newItems ? slice.call(newItems) : [];
+        newItems = newItems ? Array.from(newItems) : [];
         const store = this.get('store');
         const oldItems = RecordArray.parent.replaceObjectsAt
             .call(

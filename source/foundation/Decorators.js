@@ -7,8 +7,6 @@ import {
     invokeInNextFrame,
 } from './RunLoop.js';
 
-const slice = Array.prototype.slice;
-
 const makeComputedDidChange = function (key) {
     return function () {
         this.computedPropertyDidChange(key);
@@ -180,10 +178,10 @@ Object.assign(Function.prototype, {
         Returns:
             {Function} Returns self.
     */
-    property() {
+    property(...dependencies) {
         this.isProperty = true;
-        if (arguments.length) {
-            this.dependencies = slice.call(arguments);
+        if (dependencies.length) {
+            this.dependencies = dependencies;
             this.__setupProperty__ = setupComputed;
             this.__teardownProperty__ = teardownComputed;
         }
@@ -257,10 +255,10 @@ Object.assign(Function.prototype, {
         Returns:
             {Function} Returns self.
     */
-    on() {
+    on(...eventTypes) {
         return this.observes.apply(
             this,
-            slice.call(arguments).map((type) => {
+            eventTypes.map((type) => {
                 return eventPrefix + type;
             }),
         );

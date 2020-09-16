@@ -45,11 +45,8 @@ const RootView = Class({
 
     layer: null,
 
-    init: function (node /*, ...mixins */) {
-        RootView.parent.constructor.apply(
-            this,
-            Array.prototype.slice.call(arguments, 1),
-        );
+    init: function (node, ...mixins) {
+        RootView.parent.constructor.apply(this, mixins);
 
         // Node.DOCUMENT_NODE => 9.
         const className = this.get('className');

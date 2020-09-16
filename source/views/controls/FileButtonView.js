@@ -126,7 +126,7 @@ const FileButtonView = Class({
     */
     _fileWasChosen: function (event) {
         const input = this._domControl;
-        const files = Array.prototype.slice.call(input.files);
+        const files = Array.from(input.files);
 
         if (event.target === input && files.length) {
             if (!this.get('isDisabled')) {

@@ -5,8 +5,6 @@ import { Enumerable } from './Enumerable.js';
 import { MutableEnumerable } from './MutableEnumerable.js';
 import /* { property, nocache } from */ './Decorators.js';
 
-const splice = Array.prototype.splice;
-const slice = Array.prototype.slice;
 const ARRAY_PROPERTY = '[]';
 
 /**
@@ -33,14 +31,11 @@ const ObservableArray = Class({
             array   - {Array} (optional) The initial contents of the array.
             ...mixins - {Object} (optional)
     */
-    init: function (array /*, ...mixins */) {
+    init: function (array, ...mixins) {
         this._array = array || [];
         this._length = this._array.length;
 
-        ObservableArray.parent.constructor.apply(
-            this,
-            Array.prototype.slice.call(arguments, 1),
-        );
+        ObservableArray.parent.constructor.apply(this, mixins);
     },
 
     /**
@@ -163,7 +158,7 @@ const ObservableArray = Class({
         const array = this._array;
         let removed;
 
-        newItems = newItems ? slice.call(newItems) : [];
+        newItems = newItems ? Array.from(newItems) : [];
 
         if (oldLength <= index) {
             const l = newItems.length;
@@ -171,8 +166,7 @@ const ObservableArray = Class({
                 array[index + i] = newItems[i];
             }
         } else {
-            newItems.unshift(index, numberRemoved);
-            removed = splice.apply(array, newItems);
+            removed = array.splice(index, numberRemoved, ...newItems);
         }
         const newLength = array.length;
         if (oldLength !== newLength) {

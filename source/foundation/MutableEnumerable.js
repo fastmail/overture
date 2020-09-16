@@ -1,5 +1,3 @@
-const slice = Array.prototype.slice;
-
 /**
     Mixin: O.MutableEnumerable
 
@@ -21,8 +19,7 @@ const MutableEnumerable = {
         Returns:
             {Number} The new length of the array.
     */
-    push() {
-        const newItems = slice.call(arguments);
+    push(...newItems) {
         this.replaceObjectsAt(this.get('length'), 0, newItems);
         return this.get('length');
     },
@@ -53,8 +50,7 @@ const MutableEnumerable = {
         Returns:
             {Number} The new length of the array.
     */
-    unshift() {
-        const newItems = slice.call(arguments);
+    unshift(...newItems) {
         this.replaceObjectsAt(0, 0, newItems);
         return this.get('length');
     },
@@ -88,8 +84,7 @@ const MutableEnumerable = {
         Returns:
             {Array} The items removed from the array.
     */
-    splice(index, numberRemoved) {
-        const newItems = slice.call(arguments, 2);
+    splice(index, numberRemoved, ...newItems) {
         return this.replaceObjectsAt(index, numberRemoved, newItems);
     },
 };

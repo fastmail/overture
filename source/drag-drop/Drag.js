@@ -330,7 +330,7 @@ const Drag = Class({
             }
             // Deprecated HTML5 DnD interface
             if (dataTransfer && dataTransfer.types) {
-                return Array.prototype.slice.call(dataTransfer.types);
+                return Array.from(dataTransfer.types);
             }
         }
         return [];
