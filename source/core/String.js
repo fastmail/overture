@@ -501,10 +501,10 @@ Object.assign(String.prototype, {
                 let b = h1;
                 let c = h2;
                 let d = h3;
-                let f;
-                let g;
 
                 for (let i = 0; i < 64; i += 1) {
+                    let f;
+                    let g;
                     if (i < 16) {
                         f = (b & c) | (~b & d);
                         g = i;
