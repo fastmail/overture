@@ -95,15 +95,15 @@ export { Element };
 import * as Stylesheet from './dom/Stylesheet.js';
 export { Stylesheet };
 
-export { Drag } from './drag-drop/Drag.js';
-export { DragController } from './drag-drop/DragController.js';
-export { DragDataSource } from './drag-drop/DragDataSource.js';
-import * as DragEffect from './drag-drop/DragEffect.js';
+export { Drag } from './drag/Drag.js';
+export { DragController } from './drag/DragController.js';
+export { DragDataSource } from './drag/DragDataSource.js';
+import * as DragEffect from './drag/DragEffect.js';
 export { DragEffect };
-export { Draggable } from './drag-drop/Draggable.js';
-export { DropTarget } from './drag-drop/DropTarget.js';
-
 export { EventSource } from './io/EventSource.js';
+export { Draggable } from './drag/Draggable.js';
+export { DropTarget } from './drag/DropTarget.js';
+
 export { HttpRequest } from './io/HttpRequest.js';
 export { IOQueue } from './io/IOQueue.js';
 export { XHR } from './io/XHR.js';
@@ -113,8 +113,8 @@ import * as i18n from './localisation/i18n.js';
 export { i18n };
 export { loc } from './localisation/i18n.js';
 
-import * as parse from './parser/Parse.js';
-import * as parsedate from './parser/DateParser.js';
+import * as parse from './parse/Parse.js';
+import * as parsedate from './parse/DateParser.js';
 export { parse, parsedate };
 
 export { OptionsController } from './selection/OptionsController.js';
