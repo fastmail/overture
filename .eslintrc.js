@@ -18,8 +18,10 @@ module.exports = {
     rules: {
         // Possible errors
         'no-constant-condition': ['error', { checkLoops: false }],
+        'no-control-regex': 'off',
         'no-empty': ['error', { allowEmptyCatch: true }],
         'no-prototype-builtins': 'off',
+        'no-shadow': 'error',
         'no-useless-backreference': 'error',
         'require-atomic-updates': 'error',
         // Best practices
@@ -49,6 +51,7 @@ module.exports = {
         'no-unused-expressions': 'error',
         'no-useless-call': 'error',
         'no-useless-concat': 'error',
+        'no-useless-escape': 'off',
         'no-useless-return': 'error',
         'prefer-regex-literals': 'error',
         'radix': 'error',
