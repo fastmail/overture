@@ -344,27 +344,4 @@ const EventSource = NativeEventSource
           },
       });
 
-/**
-    Constant: O.EventSource.CONNECTING
-    Type: Number
-
-    <O.EventSource#readyState> when establishing a connection to the server.
-*/
-/**
-    Constant: O.EventSource.OPEN
-    Type: Number
-
-    <O.EventSource#readyState> when a connection is open and receiving events.
-*/
-/**
-    Constant: O.EventSource.CLOSED
-    Type: Number
-
-    <O.EventSource#readyState> when there is no connection and it is not being
-    reestablished.
-*/
-EventSource.CONNECTING = CONNECTING;
-EventSource.OPEN = OPEN;
-EventSource.CLOSED = CLOSED;
-
-export { EventSource };
+export { EventSource, CONNECTING, OPEN, CLOSED };

@@ -100,10 +100,14 @@ export { DragController } from './drag/DragController.js';
 export { DragDataSource } from './drag/DragDataSource.js';
 import * as DragEffect from './drag/DragEffect.js';
 export { DragEffect };
-export { EventSource } from './io/EventSource.js';
 export { Draggable } from './drag/Draggable.js';
 export { DropTarget } from './drag/DropTarget.js';
 
+import { EventSource, CONNECTING, OPEN, CLOSED } from './io/EventSource.js';
+EventSource.CONNECTING = CONNECTING;
+EventSource.OPEN = OPEN;
+EventSource.CLOSED = CLOSED;
+export { EventSource };
 export { HttpRequest } from './io/HttpRequest.js';
 export { IOQueue } from './io/IOQueue.js';
 export { XHR } from './io/XHR.js';
