@@ -5,6 +5,7 @@ export {
     DELETE_ITEM,
 } from './application/keyboardShortcuts.js';
 export { formatKeyForPlatform } from './application/formatKeyForPlatform.js';
+export { heartbeat, RedrawOnMinute } from './application/heartbeat.js';
 export { toPlatformKey } from './application/toPlatformKey.js';
 export { GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts.js';
 export { Router } from './application/Router.js';
