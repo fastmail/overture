@@ -198,6 +198,35 @@ const cssColorRegEx = new RegExp(
     'ig',
 );
 
+const getByteDoubled = (number, offsetFromEnd) => {
+    offsetFromEnd <<= 2;
+    const byte = (number >> offsetFromEnd) & 0xf;
+    return (byte << 4) | byte;
+};
+
+const getDoubleByte = (number, offsetFromEnd) => {
+    offsetFromEnd <<= 3;
+    return (number >> offsetFromEnd) & 0xff;
+};
+
+const splitColor = (color) => {
+    const first = color.indexOf('(') + 1;
+    const last = color.lastIndexOf(')');
+    const parts = color
+        .slice(first, last)
+        .trim()
+        .split(/[, /]+/);
+    return parts.length >= 3 ? parts : null;
+};
+
+const parseNumber = (string, max) => {
+    let number = parseFloat(string);
+    if (string.charAt(string.length - 1) === '%') {
+        number = (number * max) / 100;
+    }
+    return number < 0 ? 0 : number > max ? max : number || 0;
+};
+
 class Color {
     constructor(opacity) {
         this.opacity = opacity;
@@ -407,11 +436,11 @@ class HSL extends Color {
         const s = this.s;
         const l = this.l;
         const x = s * Math.min(l, 1 - l);
-        const f = (n) => {
+        const t = (n) => {
             const k = (n + h / 30) % 12;
             return 255 * (l - x * Math.max(Math.min(k - 3, 9 - k, 1), -1));
         };
-        return new RGB(f(0), f(8), f(4), this.opacity);
+        return new RGB(t(0), t(8), t(4), this.opacity);
     }
 
     toHSL() {
@@ -461,36 +490,5 @@ class LAB extends Color {
         return this;
     }
 }
-
-// ---
-
-const getByteDoubled = function (number, offsetFromEnd) {
-    offsetFromEnd <<= 2;
-    const byte = (number >> offsetFromEnd) & 0xf;
-    return (byte << 4) | byte;
-};
-
-const getDoubleByte = function (number, offsetFromEnd) {
-    offsetFromEnd <<= 3;
-    return (number >> offsetFromEnd) & 0xff;
-};
-
-const splitColor = function (color) {
-    const first = color.indexOf('(') + 1;
-    const last = color.lastIndexOf(')');
-    const parts = color
-        .slice(first, last)
-        .trim()
-        .split(/[, /]+/);
-    return parts.length >= 3 ? parts : null;
-};
-
-const parseNumber = function (string, max) {
-    let number = parseFloat(string);
-    if (string.charAt(string.length - 1) === '%') {
-        number = (number * max) / 100;
-    }
-    return number < 0 ? 0 : number > max ? max : number || 0;
-};
 
 export { Color, RGB, HSL, LAB, cssColorRegEx, cssColorNames };

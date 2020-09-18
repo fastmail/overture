@@ -137,20 +137,20 @@ class Animation {
         Parameters:
             value    - {*} The new value to animate to.
             duration - {Number} (optional) The length of the animation (in ms).
-            ease     - {Function} (optional) The easing function to use.
+            easing   - {Function} (optional) The easing function to use.
 
         Returns:
             {O.Animation} Returns self.
     */
-    animate(value, duration, ease) {
+    animate(value, duration, easing) {
         if (this.isRunning) {
             this.stop();
         }
         if (duration != null) {
             this.duration = duration;
         }
-        if (ease != null) {
-            this.ease = ease;
+        if (easing != null) {
+            this.ease = easing;
         }
 
         // Prepare any values. Check we've actually got something to animate.
