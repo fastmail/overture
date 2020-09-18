@@ -1,3 +1,5 @@
+/*global window */
+
 import { meta } from '../core/Core.js';
 import '../core/Array.js'; // For Array#erase
 import { invokeInNextFrame, frameStartTime } from '../foundation/RunLoop.js';

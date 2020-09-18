@@ -1,3 +1,5 @@
+/*global document */
+
 import { Class } from '../../core/Core.js';
 import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';

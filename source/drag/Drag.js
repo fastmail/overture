@@ -1,3 +1,5 @@
+/*global document */
+
 import { Class } from '../core/Core.js';
 import '../core/Array.js'; // For Array#include
 import { Obj } from '../foundation/Object.js';

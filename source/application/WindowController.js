@@ -1,4 +1,4 @@
-/*global localStorage */
+/*global window, document, localStorage */
 
 import { Class } from '../core/Core.js';
 import '../core/Date.js'; // For Date#format

@@ -1,3 +1,5 @@
+/*global window */
+
 import { Class } from '../core/Core.js';
 import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 

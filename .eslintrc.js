@@ -4,10 +4,6 @@ module.exports = {
     env: {
         es6: true,
     },
-    globals: {
-        window: true,
-        document: true,
-    },
     plugins: ['overture'],
     extends: ['eslint:recommended', 'prettier', 'plugin:overture/recommended'],
     parser: 'babel-eslint',

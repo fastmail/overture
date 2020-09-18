@@ -1,3 +1,5 @@
+/*global window */
+
 /**
  This file imports all the parts of Overture that affect the global environment.
 */

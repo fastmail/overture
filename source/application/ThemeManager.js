@@ -1,3 +1,5 @@
+/*global document */
+
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';

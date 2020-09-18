@@ -1,4 +1,4 @@
-/*global navigator */
+/*global window, document, navigator */
 
 /**
     Module: UA

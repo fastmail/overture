@@ -1,4 +1,4 @@
-/*global location */
+/*global window, document, location */
 
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';

@@ -1,3 +1,5 @@
+/*global document */
+
 import { Obj } from '../foundation/Object.js';
 import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 import { lookupKey } from '../dom/DOMEvent.js';

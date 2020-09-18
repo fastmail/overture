@@ -1,4 +1,4 @@
-/*global DOMParser, navigator */
+/*global DOMParser, window, document, navigator */
 
 const NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
 

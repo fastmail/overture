@@ -1,3 +1,5 @@
+/*global document */
+
 import { Class } from '../../core/Core.js';
 import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
 import { browser } from '../../ua/UA.js';

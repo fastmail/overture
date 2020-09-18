@@ -1,3 +1,5 @@
+/*global document */
+
 import { isDestroyed, Class } from '../../core/Core.js';
 import { bind } from '../../foundation/Binding.js';
 import { queueFn } from '../../foundation/RunLoop.js';

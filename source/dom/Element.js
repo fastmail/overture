@@ -1,4 +1,4 @@
-/*global Element, SVGAnimatedString */
+/*global window, document, Element, SVGAnimatedString */
 
 import '../core/String.js'; // For String#camelCase, #hyphenate
 import { browser } from '../ua/UA.js';

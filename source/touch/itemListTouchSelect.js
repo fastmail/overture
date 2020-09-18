@@ -1,3 +1,5 @@
+/*global document */
+
 import { nearest } from '../dom/Element.js';
 import { linear } from '../animation/Easing.js';
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
@@ -5,8 +7,6 @@ import { getViewFromNode } from '../views/activeViews.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import { RootView } from '../views/RootView.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
-
-/*global document */
 
 const IDLE = 0;
 const DETECT = 1;

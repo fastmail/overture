@@ -1,4 +1,4 @@
-/*global FileReader, Squire */
+/*global window, document, FileReader, Squire */
 
 import { Class } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';

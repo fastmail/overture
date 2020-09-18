@@ -1,3 +1,5 @@
+/*global document */
+
 import { Event } from '../foundation/Event.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
