@@ -147,9 +147,4 @@ const SplitViewController = Class({
     }.property('flex', 'direction', 'staticPaneLength'),
 });
 
-SplitViewController.VERTICAL = VERTICAL;
-SplitViewController.HORIZONTAL = HORIZONTAL;
-SplitViewController.TOP_LEFT = TOP_LEFT;
-SplitViewController.BOTTOM_RIGHT = BOTTOM_RIGHT;
-
-export { SplitViewController };
+export { SplitViewController, VERTICAL, HORIZONTAL, TOP_LEFT, BOTTOM_RIGHT };

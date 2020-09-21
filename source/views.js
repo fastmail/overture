@@ -1,5 +1,15 @@
 export { RootView } from './views/RootView.js';
-export { View } from './views/View.js';
+export {
+    View,
+    peekId,
+    POSITION_SAME,
+    POSITION_DISCONNECTED,
+    POSITION_PRECEDING,
+    POSITION_FOLLOWING,
+    POSITION_CONTAINS,
+    POSITION_CONTAINED_BY,
+    LAYOUT_FILL_PARENT,
+} from './views/View.js';
 export { activeViews, getViewFromNode } from './views/activeViews.js';
 export { ViewEventsController } from './views/ViewEventsController.js';
 export { ListItemView } from './views/collections/ListItemView.js';
@@ -17,7 +27,13 @@ export { ToolbarView } from './views/collections/ToolbarView.js';
 export { TrueVisibleRect } from './views/collections/TrueVisibleRect.js';
 export { ScrollView } from './views/containers/ScrollView.js';
 export { SplitDividerView } from './views/containers/SplitDividerView.js';
-export { SplitViewController } from './views/containers/SplitViewController.js';
+export {
+    SplitViewController,
+    VERTICAL,
+    HORIZONTAL,
+    TOP_LEFT,
+    BOTTOM_RIGHT,
+} from './views/containers/SplitViewController.js';
 export { AbstractControlView } from './views/controls/AbstractControlView.js';
 export { ButtonView } from './views/controls/ButtonView.js';
 export { CheckboxView } from './views/controls/CheckboxView.js';

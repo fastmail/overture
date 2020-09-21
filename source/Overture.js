@@ -138,7 +138,26 @@ import * as UA from './ua/UA.js';
 export { UA };
 
 export { RootView } from './views/RootView.js';
-export { View } from './views/View.js';
+import {
+    View,
+    peekId,
+    POSITION_SAME,
+    POSITION_DISCONNECTED,
+    POSITION_PRECEDING,
+    POSITION_FOLLOWING,
+    POSITION_CONTAINS,
+    POSITION_CONTAINED_BY,
+    LAYOUT_FILL_PARENT,
+} from './views/View.js';
+View.LAYOUT_FILL_PARENT = LAYOUT_FILL_PARENT;
+View.POSITION_SAME = POSITION_SAME;
+View.POSITION_DISCONNECTED = POSITION_DISCONNECTED;
+View.POSITION_PRECEDING = POSITION_PRECEDING;
+View.POSITION_FOLLOWING = POSITION_FOLLOWING;
+View.POSITION_CONTAINS = POSITION_CONTAINS;
+View.POSITION_CONTAINED_BY = POSITION_CONTAINED_BY;
+View.peekId = peekId;
+export { View };
 export { activeViews, getViewFromNode } from './views/activeViews.js';
 export { ViewEventsController } from './views/ViewEventsController.js';
 export { ListItemView } from './views/collections/ListItemView.js';
@@ -156,7 +175,18 @@ export { ToolbarView } from './views/collections/ToolbarView.js';
 export { TrueVisibleRect } from './views/collections/TrueVisibleRect.js';
 export { ScrollView } from './views/containers/ScrollView.js';
 export { SplitDividerView } from './views/containers/SplitDividerView.js';
-export { SplitViewController } from './views/containers/SplitViewController.js';
+import {
+    SplitViewController,
+    VERTICAL,
+    HORIZONTAL,
+    TOP_LEFT,
+    BOTTOM_RIGHT,
+} from './views/containers/SplitViewController.js';
+SplitViewController.VERTICAL = VERTICAL;
+SplitViewController.HORIZONTAL = HORIZONTAL;
+SplitViewController.TOP_LEFT = TOP_LEFT;
+SplitViewController.BOTTOM_RIGHT = BOTTOM_RIGHT;
+export { SplitViewController };
 export { AbstractControlView } from './views/controls/AbstractControlView.js';
 export { ButtonView } from './views/controls/ButtonView.js';
 export { CheckboxView } from './views/controls/CheckboxView.js';

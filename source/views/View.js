@@ -1303,24 +1303,27 @@ const View = Class({
 // Removes circular dependency
 setView(View);
 
-// Expose Globals:
+// ---
 
-View.LAYOUT_FILL_PARENT = {
+const LAYOUT_FILL_PARENT = {
     top: 0,
     left: 0,
     bottom: 0,
     right: 0,
 };
 
-View.POSITION_SAME = POSITION_SAME;
-View.POSITION_DISCONNECTED = POSITION_DISCONNECTED;
-View.POSITION_PRECEDING = POSITION_PRECEDING;
-View.POSITION_FOLLOWING = POSITION_FOLLOWING;
-View.POSITION_CONTAINS = POSITION_CONTAINS;
-View.POSITION_CONTAINED_BY = POSITION_CONTAINED_BY;
-
-View.peekId = function () {
+const peekId = function () {
     return 'v' + UID;
 };
 
-export { View };
+export {
+    View,
+    peekId,
+    POSITION_SAME,
+    POSITION_DISCONNECTED,
+    POSITION_PRECEDING,
+    POSITION_FOLLOWING,
+    POSITION_CONTAINS,
+    POSITION_CONTAINED_BY,
+    LAYOUT_FILL_PARENT,
+};
