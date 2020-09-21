@@ -25,6 +25,7 @@ export {
 } from './views/collections/SwitchView.js';
 export { ToolbarView } from './views/collections/ToolbarView.js';
 export { TrueVisibleRect } from './views/collections/TrueVisibleRect.js';
+export { PanZoomView } from './views/containers/PanZoomView.js';
 export { ScrollView } from './views/containers/ScrollView.js';
 export { SplitDividerView } from './views/containers/SplitDividerView.js';
 export {
@@ -34,6 +35,10 @@ export {
     TOP_LEFT,
     BOTTOM_RIGHT,
 } from './views/containers/SplitViewController.js';
+export {
+    TouchScrollAnimator,
+    TouchScrollView,
+} from './views/containers/TouchScrollView.js';
 export { AbstractControlView } from './views/controls/AbstractControlView.js';
 export { ButtonView } from './views/controls/ButtonView.js';
 export { CheckboxView } from './views/controls/CheckboxView.js';
