@@ -1,1 +1,8 @@
-export { Color } from './color/Color.js';
+export {
+    Color,
+    RGB,
+    HSL,
+    LAB,
+    cssColorRegEx,
+    cssColorNames,
+} from './color/Color.js';

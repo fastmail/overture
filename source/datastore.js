@@ -3,8 +3,7 @@ export { Query } from './datastore/query/Query.js';
 export { LocalQuery } from './datastore/query/LocalQuery.js';
 export { WindowedQuery } from './datastore/query/WindowedQuery.js';
 export { AttributeErrors } from './datastore/record/AttributeErrors.js';
-import { Record } from './datastore/record/Record.js';
-export { Record };
+export { Record } from './datastore/record/Record.js';
 export { attr, RecordAttribute } from './datastore/record/attr.js';
 export {
     EMPTY,
@@ -21,8 +20,14 @@ export {
 export { toMany, ToManyAttribute } from './datastore/record/toMany.js';
 export { toOne, ToOneAttribute } from './datastore/record/toOne.js';
 export { RecordResult } from './datastore/record/RecordResult.js';
-import { ValidationError } from './datastore/record/ValidationError.js';
-export { ValidationError };
+export {
+    ValidationError,
+    REQUIRED,
+    TOO_SHORT,
+    TOO_LONG,
+    INVALID_CHAR,
+    FIRST_CUSTOM_ERROR,
+} from './datastore/record/ValidationError.js';
 export { AggregateSource } from './datastore/source/AggregateSource.js';
 export { Source } from './datastore/source/Source.js';
 export { MemoryManager } from './datastore/store/MemoryManager.js';

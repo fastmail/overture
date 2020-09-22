@@ -8,7 +8,7 @@ export { EventTarget } from './foundation/EventTarget.js';
 export { getFromPath } from './foundation/getFromPath.js';
 export { Heap } from './foundation/Heap.js';
 export { MutableEnumerable } from './foundation/MutableEnumerable.js';
-export { Obj as Object } from './foundation/Object.js';
+export { Obj } from './foundation/Object.js';
 export { ObservableArray } from './foundation/ObservableArray.js';
 export { ObservableProps } from './foundation/ObservableProps.js';
 export { ObservableRange } from './foundation/ObservableRange.js';
