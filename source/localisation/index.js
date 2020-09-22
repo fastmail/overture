@@ -1,4 +1,4 @@
-export { Locale } from './localisation/Locale.js';
+export { Locale } from './Locale.js';
 export {
     activeLocaleCode,
     addLocale,
@@ -14,4 +14,4 @@ export {
     compare,
     makeSearchRegExp,
     letterAlternatives,
-} from './localisation/i18n.js';
+} from './i18n.js';

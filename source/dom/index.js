@@ -1,4 +1,4 @@
-export { keys, lookupKey, isClickModified } from './dom/DOMEvent.js';
+export { keys, lookupKey, isClickModified } from './DOMEvent.js';
 export {
     forView,
     create as el,
@@ -12,5 +12,5 @@ export {
     getPosition,
     getAncestors,
     cssStringFromKeyValue,
-} from './dom/Element.js';
-export { create as createStylesheet } from './dom/Stylesheet.js';
+} from './Element.js';
+export { create as createStylesheet } from './Stylesheet.js';

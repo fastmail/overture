@@ -7,7 +7,7 @@ export {
     firstMatch,
     longestMatch,
     ParseResult,
-} from './parse/Parse.js';
+} from './Parse.js';
 export {
     tokeniseDateTime,
     interpretDateTime,
@@ -20,4 +20,4 @@ export {
     JUST_TIME,
     JUST_DATE,
     DATE_AND_TIME,
-} from './parse/DateParser.js';
+} from './DateParser.js';

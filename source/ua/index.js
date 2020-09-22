@@ -10,4 +10,4 @@ export {
     version,
     canTouch,
     canU2F,
-} from './ua/UA.js';
+} from './UA.js';
