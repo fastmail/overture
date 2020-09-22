@@ -36,6 +36,7 @@ const ${name} = (props) => {
 
 export { ${name} };
 `;
+}
 
 export default function raw(options: Options = {}) {
     const filter = createFilter(options.include, options.exclude);
