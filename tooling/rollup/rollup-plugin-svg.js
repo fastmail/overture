@@ -9,7 +9,7 @@ export default function svg(options = {}) {
                 return null;
             }
             const name = basename(id, '.svg');
-            return `import { setAttributes } from '/overture/dom.js';
+            return `import { setAttributes } from '/overture/dom';
 
 const src = \`${code}\`;
 

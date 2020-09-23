@@ -12,7 +12,7 @@ interface Options {
 async function transformSVG(path) {
     const name = basename(path, '.svg');
     const src = (await readFile(path, { encoding: 'utf-8' })).trim();
-    return `import { setAttributes } from '/overture/dom.js';
+    return `import { setAttributes } from '/overture/dom';
 
 const src = \`${src}\`;
 
