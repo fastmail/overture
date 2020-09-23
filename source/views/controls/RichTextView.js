@@ -1235,4 +1235,4 @@ const RichTextView = Class({
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 
-export { RichTextView };
+export { RichTextView, TOOLBAR_HIDDEN, TOOLBAR_AT_TOP };

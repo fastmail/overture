@@ -391,4 +391,4 @@ const ToolbarView = Class({
 
 ToolbarView.OverflowMenuView = OverflowMenuView;
 
-export { ToolbarView };
+export { ToolbarView, OverflowMenuView };

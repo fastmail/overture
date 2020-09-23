@@ -18,7 +18,7 @@ export { ListView } from './collections/ListView.js';
 export { ProgressiveListView } from './collections/ProgressiveListView.js';
 export { OptionsListView } from './collections/OptionsListView.js';
 export { SwitchView, when, unless, choose } from './collections/SwitchView.js';
-export { ToolbarView } from './collections/ToolbarView.js';
+export { ToolbarView, OverflowMenuView } from './collections/ToolbarView.js';
 export { TrueVisibleRect } from './collections/TrueVisibleRect.js';
 export { PanZoomView } from './containers/PanZoomView.js';
 export { ScrollView } from './containers/ScrollView.js';
@@ -50,7 +50,11 @@ export { MenuFilterView } from './menu/MenuFilterView.js';
 export { MenuButtonView } from './menu/MenuButtonView.js';
 export { MenuView } from './menu/MenuView.js';
 export { RadioView } from './controls/RadioView.js';
-export { RichTextView } from './controls/RichTextView.js';
+export {
+    RichTextView,
+    TOOLBAR_HIDDEN,
+    TOOLBAR_AT_TOP,
+} from './controls/RichTextView.js';
 export { SearchTextView } from './controls/SearchTextView.js';
 export { SelectView } from './controls/SelectView.js';
 export { TextView } from './controls/TextView.js';
