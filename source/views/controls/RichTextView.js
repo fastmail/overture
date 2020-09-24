@@ -259,6 +259,10 @@ const RichTextView = Class({
         );
     }.property('isFocused', 'isDisabled'),
 
+    createEditor(root, options) {
+        return new Squire(root, options);
+    },
+
     draw(/* layer */) {
         const editorClassName = this.get('editorClassName');
         const editingLayer = (this._editingLayer = el('div', {
@@ -274,7 +278,10 @@ const RichTextView = Class({
         // The nodes must be in a document or document fragment for DOM Range
         // API to work; otherwise will throw INVALID_NODE_TYPE_ERR errors.
         document.createDocumentFragment().appendChild(editingLayer);
-        const editor = new Squire(editingLayer, this.get('blockDefaults'));
+        const editor = this.createEditor(
+            editingLayer,
+            this.get('blockDefaults'),
+        );
         editor
             .setHTML(this._value)
             .addEventListener('input', this)
