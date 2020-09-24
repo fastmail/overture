@@ -178,8 +178,4 @@ const IOQueue = Class({
     }.on('io:end'),
 });
 
-IOQueue.QUEUE = QUEUE;
-IOQueue.IGNORE = IGNORE;
-IOQueue.ABORT = ABORT;
-
 export { IOQueue, QUEUE, IGNORE, ABORT };

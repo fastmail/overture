@@ -110,9 +110,6 @@ class RecordResult {
 */
 RecordResult.prototype.handledErrorTypes = HANDLE_NO_ERRORS;
 
-RecordResult.HANDLE_ALL_ERRORS = HANDLE_ALL_ERRORS;
-RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
-
 // ---
 
 Object.assign(Record.prototype, {
@@ -205,4 +202,4 @@ Object.assign(Record.prototype, {
 
 // --- Export
 
-export { RecordResult };
+export { RecordResult, HANDLE_ALL_ERRORS, HANDLE_NO_ERRORS };

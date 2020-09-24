@@ -49,13 +49,31 @@ import * as keyboardShortcuts from './application/keyboardShortcuts.js';
 export { keyboardShortcuts };
 export { formatKeyForPlatform } from './application/formatKeyForPlatform.js';
 export { toPlatformKey } from './application/toPlatformKey.js';
-export { GlobalKeyboardShortcuts } from './application/GlobalKeyboardShortcuts.js';
+import {
+    GlobalKeyboardShortcuts,
+    DEFAULT_IN_INPUT,
+    ACTIVE_IN_INPUT,
+    DISABLE_IN_INPUT,
+} from './application/GlobalKeyboardShortcuts.js';
+GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;
+GlobalKeyboardShortcuts.ACTIVE_IN_INPUT = ACTIVE_IN_INPUT;
+GlobalKeyboardShortcuts.DISABLE_IN_INPUT = DISABLE_IN_INPUT;
+export { GlobalKeyboardShortcuts };
 export { Router } from './application/Router.js';
 export { ThemeManager } from './application/ThemeManager.js';
 export { WindowController } from './application/WindowController.js';
 
 export { RecordArray } from './datastore/query/RecordArray.js';
-export { Query } from './datastore/query/Query.js';
+import {
+    Query,
+    AUTO_REFRESH_NEVER,
+    AUTO_REFRESH_IF_OBSERVED,
+    AUTO_REFRESH_ALWAYS,
+} from './datastore/query/Query.js';
+Query.AUTO_REFRESH_NEVER = AUTO_REFRESH_NEVER;
+Query.AUTO_REFRESH_IF_OBSERVED = AUTO_REFRESH_IF_OBSERVED;
+Query.AUTO_REFRESH_ALWAYS = AUTO_REFRESH_ALWAYS;
+export { Query };
 export { LocalQuery } from './datastore/query/LocalQuery.js';
 export { WindowedQuery } from './datastore/query/WindowedQuery.js';
 export { AttributeErrors } from './datastore/record/AttributeErrors.js';
@@ -72,7 +90,14 @@ export { ToManyAttribute };
 import { toOne, ToOneAttribute } from './datastore/record/toOne.js';
 Record.toOne = toOne;
 export { ToOneAttribute };
-export { RecordResult } from './datastore/record/RecordResult.js';
+import {
+    RecordResult,
+    HANDLE_ALL_ERRORS,
+    HANDLE_NO_ERRORS,
+} from './datastore/record/RecordResult.js';
+RecordResult.HANDLE_ALL_ERRORS = HANDLE_ALL_ERRORS;
+RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
+export { RecordResult };
 import { ValidationError } from './datastore/record/ValidationError.js';
 ValidationError.REQUIRED = 1;
 ValidationError.TOO_SHORT = 2;
@@ -109,7 +134,11 @@ EventSource.OPEN = OPEN;
 EventSource.CLOSED = CLOSED;
 export { EventSource };
 export { HttpRequest } from './io/HttpRequest.js';
-export { IOQueue } from './io/IOQueue.js';
+import { IOQueue, QUEUE, IGNORE, ABORT } from './io/IOQueue.js';
+IOQueue.QUEUE = QUEUE;
+IOQueue.IGNORE = IGNORE;
+IOQueue.ABORT = ABORT;
+export { IOQueue };
 export { XHR } from './io/XHR.js';
 
 export { Locale } from './localisation/Locale.js';
@@ -203,7 +232,10 @@ export { MenuFilterView } from './views/menu/MenuFilterView.js';
 export { MenuButtonView } from './views/menu/MenuButtonView.js';
 export { MenuView } from './views/menu/MenuView.js';
 export { RadioView } from './views/controls/RadioView.js';
-export { RichTextView } from './views/controls/RichTextView.js';
+import { RichTextView } from './views/controls/RichTextView.js';
+RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
+RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
+export { RichTextView };
 export { SearchTextView } from './views/controls/SearchTextView.js';
 export { SelectView } from './views/controls/SelectView.js';
 export { TextView } from './views/controls/TextView.js';

@@ -5,10 +5,11 @@ import /* { property } from */ '../../foundation/Decorators.js';
 import { View } from '../View.js';
 import { Draggable } from '../../drag/Draggable.js';
 
-import { SplitViewController } from './SplitViewController.js';
-
-const VERTICAL = SplitViewController.VERTICAL;
-const TOP_LEFT = SplitViewController.TOP_LEFT;
+import {
+    SplitViewController,
+    VERTICAL,
+    TOP_LEFT,
+} from './SplitViewController.js';
 
 /**
     Class: O.SplitDividerView

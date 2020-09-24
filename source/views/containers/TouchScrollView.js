@@ -6,7 +6,7 @@ import { ease, linear } from '../../animation/Easing.js';
 import { EventTarget } from '../../foundation/EventTarget.js';
 import { Tap } from '../../touch/Tap.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-import { View } from '../View.js';
+import { View, LAYOUT_FILL_PARENT } from '../View.js';
 import { ScrollView } from './ScrollView.js';
 
 // ---
@@ -474,7 +474,7 @@ const TouchScrollView = Class({
 
     positioning: 'absolute',
 
-    layout: View.LAYOUT_FILL_PARENT,
+    layout: LAYOUT_FILL_PARENT,
 
     layerStyles: function () {
         const styles = View.prototype.layerStyles.call(this);

@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { create as el, getAncestors, getStyle } from '../../dom/Element.js';
-import { View } from '../View.js';
+import { View, LAYOUT_FILL_PARENT } from '../View.js';
 
 const ShortcutView = Class({
     Extends: View,
@@ -32,7 +32,7 @@ const ShortcutOverlayView = Class({
 
     positioning: 'absolute',
 
-    layout: View.LAYOUT_FILL_PARENT,
+    layout: LAYOUT_FILL_PARENT,
 
     draw() {
         const shortcuts = this.get('shortcuts')._shortcuts;

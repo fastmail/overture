@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import { sortByProperties } from '../../core/sortByProperties.js';
-import { Query } from './Query.js';
+import { Query, AUTO_REFRESH_ALWAYS } from './Query.js';
 import { EMPTY, READY, OBSOLETE } from '../record/Status.js';
 
 /**
@@ -19,7 +19,7 @@ import { EMPTY, READY, OBSOLETE } from '../record/Status.js';
 const LocalQuery = Class({
     Extends: Query,
 
-    autoRefresh: Query.AUTO_REFRESH_ALWAYS,
+    autoRefresh: AUTO_REFRESH_ALWAYS,
 
     /**
         Constructor: O.LocalQuery

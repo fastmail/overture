@@ -5,7 +5,7 @@ import { create as el, setStyle, appendChildren } from '../../dom/Element.js';
 import { Animation } from '../../animation/Animation.js';
 import { Tap } from '../../touch/Tap.js';
 import { isIOS, browser, version } from '../../ua/UA.js';
-import { View } from '../View.js';
+import { View, LAYOUT_FILL_PARENT } from '../View.js';
 import { RootView } from '../RootView.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
@@ -93,7 +93,7 @@ const ScrollView = Class({
 
         Overrides default in <O.View#layout>.
     */
-    layout: View.LAYOUT_FILL_PARENT,
+    layout: LAYOUT_FILL_PARENT,
 
     /**
         Property: O.ScrollView#layerStyles

@@ -210,8 +210,9 @@ const GlobalKeyboardShortcuts = Class({
     }.on('keydown', 'keypress'),
 });
 
-GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;
-GlobalKeyboardShortcuts.ACTIVE_IN_INPUT = ACTIVE_IN_INPUT;
-GlobalKeyboardShortcuts.DISABLE_IN_INPUT = DISABLE_IN_INPUT;
-
-export { GlobalKeyboardShortcuts };
+export {
+    GlobalKeyboardShortcuts,
+    DEFAULT_IN_INPUT,
+    ACTIVE_IN_INPUT,
+    DISABLE_IN_INPUT,
+};
