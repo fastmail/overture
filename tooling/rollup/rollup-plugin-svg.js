@@ -14,7 +14,7 @@ export default function svg(options = {}) {
 const src = \`${code}\`;
 
 let cachedNode = null;
-const ${name} = (props) => {
+const drawIcon${name} = (props) => {
     if (!cachedNode) {
         cachedNode = new DOMParser().parseFromString(src, 'image/svg+xml').firstChild;
         cachedNode.setAttribute('role', 'presentation');
@@ -31,7 +31,7 @@ const ${name} = (props) => {
     return svg;
 }
 
-export { ${name} };
+export { drawIcon${name} };
 `;
         },
     };
