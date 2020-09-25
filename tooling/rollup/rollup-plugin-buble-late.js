@@ -14,6 +14,7 @@ export default function bubleLate(options) {
         options.transforms = {};
     }
     options.transforms.modules = false;
+    options.objectAssign = 'Object.assign';
 
     return {
         name: 'buble-late',
