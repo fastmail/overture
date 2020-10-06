@@ -12,7 +12,11 @@ export default function po(options = {}) {
             return compile(id, code, null, false);
         },
         renderChunk(code, chunk) {
-            if (chunk.facadeModuleId && chunk.facadeModuleId.endsWith('.po')) {
+            const facadeModuleId = chunk.facadeModuleId || '';
+            if (
+                facadeModuleId.endsWith('.po') ||
+                facadeModuleId.includes('/locale/')
+            ) {
                 return code.replace(
                     /['"]?translations['"]?:\s+({[\s\S]*?\n\s*})/,
                     (_, strings) => {
