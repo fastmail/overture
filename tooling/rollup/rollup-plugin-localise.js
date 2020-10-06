@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 const isId = /^[A-Z0-9_]+$/;
 
 const enumerateStrings = function (code, idsInUse, db) {
-    const locRegex = /\bloc\(\s*['"`](.*?)['"`]/g;
+    const locRegex = /\bloc\(\s*['"`]([A-Z0-9_]+)['"`]/g;
     return code.replace(locRegex, (_, id) => {
         if (!isId.test(id)) {
             const entry = db.find(({ string }) => id === string);

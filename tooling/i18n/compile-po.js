@@ -243,6 +243,10 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
             translations[key] = outputTranslationsAsFn
                 ? compileTranslation(string)
                 : string;
+            // For Overture strings in Vite
+            if (outputTranslationsAsFn && !string.startsWith('/')) {
+                translations[string] = translations[key];
+            }
         }
     }
 
