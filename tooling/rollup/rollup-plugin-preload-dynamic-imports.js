@@ -1,13 +1,12 @@
-import { basename } from 'path';
-
-export default function () {
+export default function (config) {
+    const trimPrefix = (config && config.trimPrefix) || /^.*[/]/;
     return {
         name: 'preload-dynamic-imports',
         renderDynamicImport({ format, targetModuleId }) {
             if (format !== 'es' || !targetModuleId) {
                 return null;
             }
-            const module = basename(targetModuleId, '.js');
+            const module = targetModuleId.replace(trimPrefix, '/');
             return {
                 left: `(FM.preloadModuleDependencies('${module}'),import(`,
                 right: '))',
