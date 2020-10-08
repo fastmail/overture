@@ -7,11 +7,11 @@ import MagicString from 'magic-string';
 const isId = /^[A-Z0-9_]+$/;
 
 const enumerateStrings = function (file, code, idsInUse, db) {
-    const locRegex = /\bloc\(\s*['"`]([A-Z0-9_]+)['"`]/g;
+    const locRegex = /\bloc\(\s*(['"`])(.*?)\1/g;
     const source = new MagicString(code);
 
     for (const match of code.matchAll(locRegex)) {
-        let id = match[1];
+        let id = match[2];
         if (!isId.test(id)) {
             const entry = db.find(({ string }) => id === string);
             if (!entry) {
