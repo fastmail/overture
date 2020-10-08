@@ -1,12 +1,17 @@
-import { createFilter } from '@rollup/pluginutils';
 import parseDb from '../i18n/parse-db.js';
+
+import { createFilter } from '@rollup/pluginutils';
 import { readFileSync } from 'fs';
+import MagicString from 'magic-string';
 
 const isId = /^[A-Z0-9_]+$/;
 
-const enumerateStrings = function (code, idsInUse, db) {
+const enumerateStrings = function (file, code, idsInUse, db) {
     const locRegex = /\bloc\(\s*['"`]([A-Z0-9_]+)['"`]/g;
-    return code.replace(locRegex, (_, id) => {
+    const source = new MagicString(code);
+
+    for (const match of code.matchAll(locRegex)) {
+        let id = match[1];
         if (!isId.test(id)) {
             const entry = db.find(({ string }) => id === string);
             if (!entry) {
@@ -19,8 +24,18 @@ const enumerateStrings = function (code, idsInUse, db) {
             index = idsInUse.length;
             idsInUse.push(id);
         }
-        return 'loc(' + index;
+
+        const start = match.index;
+        const end = start + match[0].length;
+        source.overwrite(start, end, 'loc(' + index);
+    }
+
+    const map = source.generateMap({
+        source: file,
+        includeContent: true,
     });
+
+    return { code: source.toString(), map };
 };
 
 export default function localise(options) {
@@ -33,10 +48,7 @@ export default function localise(options) {
             if (!filter(id)) {
                 return;
             }
-            return {
-                code: enumerateStrings(code, idsInUse, db),
-                map: { mappings: '' },
-            };
+            return enumerateStrings(id, code, idsInUse, db);
         },
     };
 }
