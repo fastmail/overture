@@ -106,8 +106,6 @@ Date.prototype.relativeTo = function (date, approx, mustNotBeFuture) {
     let duration = date - this;
     const isFuture = duration < 0;
     let time;
-    let years;
-    let months;
 
     if (isFuture) {
         duration = -duration;
@@ -126,8 +124,8 @@ Date.prototype.relativeTo = function (date, approx, mustNotBeFuture) {
         }
         time = formatDuration(duration, approx);
     } else {
-        years = date.getFullYear() - this.getFullYear();
-        months = date.getMonth() - this.getMonth();
+        let years = date.getFullYear() - this.getFullYear();
+        let months = date.getMonth() - this.getMonth();
 
         if (isFuture) {
             years = -years;
