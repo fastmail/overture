@@ -1,5 +1,4 @@
-import { EMPTY, NEW, DIRTY, COMMITTING, NON_EXISTENT } from './Status.js';
-import { Record } from './Record.js';
+import { EMPTY, NEW, DIRTY, COMMITTING } from './Status.js';
 
 // ---
 
@@ -109,96 +108,6 @@ class RecordResult {
     `[ 'alreadyExists' ]`. (Where “handle” means “stop propagation on”.)
 */
 RecordResult.prototype.handledErrorTypes = HANDLE_NO_ERRORS;
-
-// ---
-
-Object.assign(Record.prototype, {
-    /*
-        Function: O.Record#getResult
-        Returns: {Promise<O.RecordResult>}
-
-        The promise it returns will resolve to a RecordResult which has two
-        notable properties, `record` and `error`.
-
-        Normally, <O.Record#ifSuccess> will be easier to use, but if you’re
-        working with batch processing of objects and Promise.all(), then you’ll
-        want to use getResult rather than ifSuccess, because Promise.all() will
-        reject with the first error it receives, whereas in such a situation
-        you’ll want instead to produce an array of errors.
-
-        Usage:
-
-            record
-                .set( … )  // Or anything that makes it commit changes.
-                .getResult({
-                    handledErrorTypes: [ 'somethingWrong' ],
-                })
-                .then( result => {
-                    if ( result.error ) {
-                        // Do something with the somethingWrong error
-                    }
-                });
-    */
-    getResult(mixin) {
-        return new Promise((resolve) => new RecordResult(this, resolve, mixin));
-    },
-
-    /*
-        Function: O.Record#ifSuccess
-        Returns: {Promise<O.Record, O.RecordResult>}
-
-        The promise it returns will either resolve to the record, or be rejected
-        with a RecordResult, which is an object containing two properties to
-        care about, `record` and `error`.
-
-        (Why the name ifSuccess? Read it as “set this field; if success, then do
-        such-and-such, otherwise catch so-and-so.)
-
-        Usage for catching failed commits:
-
-            record
-                .set( … )  // Or anything that makes it commit changes.
-                .ifSuccess({
-                    handledErrorTypes: [ 'somethingWrong' ],
-                })
-                .then( record => {
-                    // Do something after the commit has finished
-                })
-                .catch( ({ record, error }) => {
-                    // Do something with the somethingWrong error
-                });
-
-        Or for loading a record that may or may not exist:
-
-            store
-                .getRecord( null, Foo, 'id' )
-                .ifSuccess()
-                    .then( record => {
-                        // record loaded
-                    })
-                    .catch( ({ record }) => {
-                        // record didn't load
-                    })
-
-    */
-    ifSuccess(mixin) {
-        return new Promise(
-            (resolve, reject) =>
-                new RecordResult(
-                    this,
-                    (result) => {
-                        const record = result.record;
-                        if (result.error || record.is(NON_EXISTENT)) {
-                            reject(result);
-                        } else {
-                            resolve(record);
-                        }
-                    },
-                    mixin,
-                ),
-        );
-    },
-});
 
 // --- Export
 
