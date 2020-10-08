@@ -1,13 +1,14 @@
-import { Class } from '../../core/Core.js';
-import /* { on, property } from */ '../../foundation/Decorators.js';
-import { create as el, setStyle } from '../../dom/Element.js';
 import { Animation } from '../../animation/Animation.js';
 import { ease, linear } from '../../animation/Easing.js';
+import { Class, mixin } from '../../core/Core.js';
+import { create as el, setStyle } from '../../dom/Element.js';
 import { EventTarget } from '../../foundation/EventTarget.js';
 import { Tap } from '../../touch/Tap.js';
+import { LAYOUT_FILL_PARENT, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-import { View, LAYOUT_FILL_PARENT } from '../View.js';
 import { ScrollView } from './ScrollView.js';
+
+import /* { on, property } from */ '../../foundation/Decorators.js';
 
 // ---
 
@@ -22,12 +23,9 @@ const getTouch = function (touches, id) {
     return null;
 };
 
-const TouchScrollAnimator = Class({
-    Extends: Animation,
-
-    Mixin: EventTarget,
-
-    init: function (mixin) {
+class TouchScrollAnimator extends Animation {
+    constructor(mixin) {
+        super();
         this._initialTouchX = 0;
         this._initialTouchY = 0;
         this._initialTouchTime = 0;
@@ -71,8 +69,8 @@ const TouchScrollAnimator = Class({
 
         this.speed = 1;
 
-        TouchScrollAnimator.parent.constructor.call(this, mixin);
-    },
+        Object.assign(this, mixin);
+    }
 
     prepare(coordinates) {
         this.syncDimensions();
@@ -90,21 +88,19 @@ const TouchScrollAnimator = Class({
         const deltaY = (this.deltaY = endY - startY);
 
         return !!(deltaX || deltaY);
-    },
+    }
 
     drawFrame(position, time) {
-        let x;
-        let y;
         if (this.isDecelerating) {
             if (!this.drawDecelerationFrame(time)) {
                 this.stop();
             }
         } else {
-            x =
+            let x =
                 position !== 1
                     ? this.startX + position * this.deltaX
                     : this.endX;
-            y =
+            let y =
                 position !== 1
                     ? this.startY + position * this.deltaY
                     : this.endY;
@@ -115,7 +111,7 @@ const TouchScrollAnimator = Class({
             this.object.setXY(x, y, false);
         }
         return this;
-    },
+    }
 
     shouldStartScroll(x, y) {
         const moveX = Math.abs(x - this._initialTouchX);
@@ -129,12 +125,112 @@ const TouchScrollAnimator = Class({
                 isDragging;
         }
         return isDragging;
-    },
+    }
 
     getSnapPoint(/* x, y */) {
         return null;
-    },
+    }
 
+    drawDecelerationFrame(time) {
+        const FRICTION = 0.965;
+        const PENETRATION_DECELERATION = 0.08;
+        const PENETRATION_ACCELERATION = 0.15;
+
+        const deltaTime = time - (this._lastFrameTime || time);
+        const friction = Math.pow(FRICTION, deltaTime / (1000 / 60));
+        let currentX = this.currentX;
+        let currentY = this.currentY;
+        let velocityX = this._velocityX;
+        let velocityY = this._velocityY;
+        let scrollOutsideX = 0;
+        let scrollOutsideY = 0;
+
+        currentX += velocityX;
+        currentY += velocityY;
+
+        velocityX *= friction;
+        velocityY *= friction;
+
+        if (!this.object.isInfinite) {
+            const maxX = this.maxX;
+            const maxY = this.maxY;
+            if (!this.object.allowBounce) {
+                if (currentX < 0) {
+                    currentX = 0;
+                    velocityX = 0;
+                }
+                if (currentX > maxX) {
+                    currentX = maxX;
+                    velocityX = 0;
+                }
+                if (currentY < 0) {
+                    currentY = 0;
+                    velocityY = 0;
+                }
+                if (currentY > maxY) {
+                    currentY = maxY;
+                    velocityY = 0;
+                }
+            } else {
+                const snapX = this._snapX;
+                if (snapX !== null) {
+                    scrollOutsideX = snapX - currentX;
+                } else if (currentX < 0) {
+                    scrollOutsideX = -currentX;
+                } else if (currentX > maxX) {
+                    scrollOutsideX = maxX - currentX;
+                }
+                const snapY = this._snapY;
+                if (snapY !== null) {
+                    scrollOutsideY = snapY - currentY;
+                } else if (currentY < 0) {
+                    scrollOutsideY = -currentY;
+                } else if (currentY > maxY) {
+                    scrollOutsideY = maxY - currentY;
+                }
+                if (scrollOutsideX < -0.01 || 0.01 < scrollOutsideX) {
+                    if (scrollOutsideX * velocityX <= 0) {
+                        velocityX += scrollOutsideX * PENETRATION_DECELERATION;
+                    } else {
+                        velocityX = scrollOutsideX * PENETRATION_ACCELERATION;
+                    }
+                } else {
+                    currentX = Math.round(currentX + scrollOutsideX);
+                    scrollOutsideX = 0;
+                }
+                if (scrollOutsideY < -0.01 || 0.01 < scrollOutsideY) {
+                    if (scrollOutsideY * velocityY <= 0) {
+                        velocityY += scrollOutsideY * PENETRATION_DECELERATION;
+                    } else {
+                        velocityY = scrollOutsideY * PENETRATION_ACCELERATION;
+                    }
+                } else {
+                    currentY = Math.round(currentY + scrollOutsideY);
+                    scrollOutsideY = 0;
+                }
+            }
+        }
+
+        this.currentX = currentX;
+        this.currentY = currentY;
+        if (time) {
+            this.object.setXY(currentX, currentY, false);
+            this._lastFrameTime = time;
+        }
+
+        this._velocityX = velocityX;
+        this._velocityY = velocityY;
+
+        return (
+            !!(scrollOutsideX || scrollOutsideY) ||
+            Math.abs(velocityX) >= 0.1 ||
+            Math.abs(velocityY) >= 0.1
+        );
+    }
+}
+
+mixin(TouchScrollAnimator.prototype, EventTarget);
+mixin(TouchScrollAnimator.prototype, {
     onTouchStart: function (event) {
         const touches = event.touches;
         const touch = touches[0];
@@ -327,103 +423,6 @@ const TouchScrollAnimator = Class({
             ViewEventsController.removeEventTarget(this);
         }
     }.on('touchend', 'touchcancel'),
-
-    drawDecelerationFrame(time) {
-        const FRICTION = 0.965;
-        const PENETRATION_DECELERATION = 0.08;
-        const PENETRATION_ACCELERATION = 0.15;
-
-        const deltaTime = time - (this._lastFrameTime || time);
-        const friction = Math.pow(FRICTION, deltaTime / (1000 / 60));
-        let currentX = this.currentX;
-        let currentY = this.currentY;
-        let velocityX = this._velocityX;
-        let velocityY = this._velocityY;
-        let scrollOutsideX = 0;
-        let scrollOutsideY = 0;
-
-        currentX += velocityX;
-        currentY += velocityY;
-
-        velocityX *= friction;
-        velocityY *= friction;
-
-        if (!this.object.isInfinite) {
-            const maxX = this.maxX;
-            const maxY = this.maxY;
-            if (!this.object.allowBounce) {
-                if (currentX < 0) {
-                    currentX = 0;
-                    velocityX = 0;
-                }
-                if (currentX > maxX) {
-                    currentX = maxX;
-                    velocityX = 0;
-                }
-                if (currentY < 0) {
-                    currentY = 0;
-                    velocityY = 0;
-                }
-                if (currentY > maxY) {
-                    currentY = maxY;
-                    velocityY = 0;
-                }
-            } else {
-                const snapX = this._snapX;
-                if (snapX !== null) {
-                    scrollOutsideX = snapX - currentX;
-                } else if (currentX < 0) {
-                    scrollOutsideX = -currentX;
-                } else if (currentX > maxX) {
-                    scrollOutsideX = maxX - currentX;
-                }
-                const snapY = this._snapY;
-                if (snapY !== null) {
-                    scrollOutsideY = snapY - currentY;
-                } else if (currentY < 0) {
-                    scrollOutsideY = -currentY;
-                } else if (currentY > maxY) {
-                    scrollOutsideY = maxY - currentY;
-                }
-                if (scrollOutsideX < -0.01 || 0.01 < scrollOutsideX) {
-                    if (scrollOutsideX * velocityX <= 0) {
-                        velocityX += scrollOutsideX * PENETRATION_DECELERATION;
-                    } else {
-                        velocityX = scrollOutsideX * PENETRATION_ACCELERATION;
-                    }
-                } else {
-                    currentX = Math.round(currentX + scrollOutsideX);
-                    scrollOutsideX = 0;
-                }
-                if (scrollOutsideY < -0.01 || 0.01 < scrollOutsideY) {
-                    if (scrollOutsideY * velocityY <= 0) {
-                        velocityY += scrollOutsideY * PENETRATION_DECELERATION;
-                    } else {
-                        velocityY = scrollOutsideY * PENETRATION_ACCELERATION;
-                    }
-                } else {
-                    currentY = Math.round(currentY + scrollOutsideY);
-                    scrollOutsideY = 0;
-                }
-            }
-        }
-
-        this.currentX = currentX;
-        this.currentY = currentY;
-        if (time) {
-            this.object.setXY(currentX, currentY, false);
-            this._lastFrameTime = time;
-        }
-
-        this._velocityX = velocityX;
-        this._velocityY = velocityY;
-
-        return (
-            !!(scrollOutsideX || scrollOutsideY) ||
-            Math.abs(velocityX) >= 0.1 ||
-            Math.abs(velocityY) >= 0.1
-        );
-    },
 });
 
 const TouchScrollView = Class({
