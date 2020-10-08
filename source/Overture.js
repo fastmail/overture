@@ -232,7 +232,11 @@ export { MenuFilterView } from './views/menu/MenuFilterView.js';
 export { MenuButtonView } from './views/menu/MenuButtonView.js';
 export { MenuView } from './views/menu/MenuView.js';
 export { RadioView } from './views/controls/RadioView.js';
-import { RichTextView } from './views/controls/RichTextView.js';
+import {
+    RichTextView,
+    TOOLBAR_HIDDEN,
+    TOOLBAR_AT_TOP,
+} from './views/controls/RichTextView.js';
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 export { RichTextView };
