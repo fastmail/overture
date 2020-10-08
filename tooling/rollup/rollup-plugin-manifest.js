@@ -5,11 +5,14 @@
  * @return {Object}
  */
 export default function (config) {
+    if (!config) {
+        config = {};
+    }
     const manifest = {
         files: [],
         entries: {},
     };
-    const trimPrefix = (config && config.trimPrefix) || /^.*[/]/;
+    const trimPrefix = config.trimPrefix || /^.*[/]/;
     return {
         name: 'manifest',
         generateBundle(options, bundle) {
@@ -36,9 +39,9 @@ export default function (config) {
 
             this.emitFile({
                 type: 'asset',
-                fileName: options.compact
-                    ? 'manifest.min.json'
-                    : 'manifest.json',
+                fileName:
+                    config.output ||
+                    (options.compact ? 'manifest.min.json' : 'manifest.json'),
                 source: JSON.stringify(manifest, null, 2),
             });
         },
