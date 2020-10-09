@@ -28,7 +28,12 @@ export default function deadcode(outputOptions) {
             if (!id.endsWith('.js')) {
                 return;
             }
-            const result = minify(code, options);
+            const result = minify(code, {
+                ...options,
+                sourceMap: {
+                    content: this.getCombinedSourcemap(),
+                },
+            });
             if (result.error) {
                 throw result.error;
             } else {

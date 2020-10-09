@@ -9,7 +9,7 @@ export default function svg(options = {}) {
                 return null;
             }
             const name = basename(id, '.svg');
-            return `import { setAttributes } from '/overture/dom';
+            code = `import { setAttributes } from '/overture/dom';
 
 const src = \`${code}\`;
 
@@ -33,6 +33,7 @@ const drawIcon${name} = (props) => {
 
 export { drawIcon${name} };
 `;
+            return { code, map: { mappings: '' } };
         },
     };
 }
