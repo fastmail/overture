@@ -39,9 +39,7 @@ export default function (config) {
 
             this.emitFile({
                 type: 'asset',
-                fileName:
-                    config.output ||
-                    (options.compact ? 'manifest.min.json' : 'manifest.json'),
+                fileName: config.output || 'manifest.json',
                 source: JSON.stringify(manifest, null, 2),
             });
         },
