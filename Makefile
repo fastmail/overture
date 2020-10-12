@@ -4,12 +4,11 @@
 
 all: compile docs
 
-compile: build/Loader-raw.js build/Overture-raw.js
+compile: build/Loader.js build/Overture.js build/Loader-raw.js build/Overture-raw.js
 
-node_modules/.up-to-date: package.json yarn.lock
-	rm -rf node_modules
-	yarn
-	touch -c node_modules/.up-to-date
+node_modules/.up-to-date: package.json package-lock.json
+	npm install
+	touch node_modules/.stamp
 
 build:
 	mkdir -p build
@@ -34,11 +33,17 @@ include $(PATH_TO_DOC)/Makefile
 
 # === Build ===
 
+build/Overture.js: source/Overture.js node_modules/.stamp | build
+	npm run build:overture
+
+build/Loader.js: source/Loader.js node_modules/.stamp | build
+	npm run build:loader
+
 .SECONDEXPANSION:
 
 MODULE = $(patsubst build/%-raw.js,%,$@)
 
-build/%-raw.js: $$(shell find source -name "*.js") node_modules/.up-to-date | build
+build/%-raw.js: $$(shell find source -name "*.js") node_modules/.stamp | build
 	$(REMOVE_OLD)
-	yarn run rollup source/$(MODULE).js -o $@ -c
+	$(shell npm bin)/rollup source/$(MODULE).js -o $@ -c
 	$(GZIP_AND_COMPRESS)
