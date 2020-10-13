@@ -17,7 +17,7 @@ export default function po(options = {}) {
                 facadeModuleId.endsWith('.po') ||
                 facadeModuleId.includes('/locale/')
             ) {
-                return code.replace(
+                code = code.replace(
                     /['"]?translations['"]?:\s+({[\s\S]*?\n\s*})/,
                     (_, strings) => {
                         // eslint-disable-next-line no-eval
@@ -28,31 +28,15 @@ export default function po(options = {}) {
                         );
                         return (
                             'translations: [\n' +
-                            translations
-                                .map(
-                                    (fn) =>
-                                        '    ' +
-                                        JSON.stringify(fn).replace(
-                                            // Convert to fat arrow syntax;
-                                            // more concise
-                                            /"function[\s\S]*?}"/g,
-                                            (fn) =>
-                                                JSON.parse(fn).replace(
-                                                    /function[^(]*(\([^)]*\))\s*/,
-                                                    (_, args) =>
-                                                        args.replace(
-                                                            /\s+/g,
-                                                            '',
-                                                        ) + '=>',
-                                                ),
-                                        ) +
-                                        ',',
-                                )
-                                .join('\n') +
+                            translations.join(',\n') +
                             '\n]'
                         );
                     },
                 );
+                return {
+                    code,
+                    map: { mappings: '' },
+                };
             }
             return null;
         },

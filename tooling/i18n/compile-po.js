@@ -217,12 +217,7 @@ const compileTranslation = function (translation) {
         compiled = compiled[0];
     }
 
-    // eslint-disable-next-line no-new-func
-    return new Function(
-        'x',
-        'a',
-        'return ' + (compiled || '""') + ';',
-    ).toString();
+    return `(x, a) => ${compiled || '""'}`;
 };
 
 const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
