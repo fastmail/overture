@@ -1,3 +1,4 @@
+import prettier from 'prettier';
 import parsePo from './parse-po.js';
 
 const flatten = function (output, item) {
@@ -259,7 +260,7 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
         ],
 
         getFormattedOrdinal: /^en/.test(id)
-            ? function (number) {
+            ? ((number) => {
                   const mod10 = number % 10;
                   const mod100 = number % 100;
                   return (
@@ -272,11 +273,9 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
                           ? 'rd'
                           : 'th')
                   );
-              }.toString()
+              }).toString()
             : id === 'nl'
-            ? function (number) {
-                  return number + 'e';
-              }.toString()
+            ? ((number) => number + 'e').toString()
             : undefined,
 
         dayNames: [
@@ -472,22 +471,40 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
     };
 };
 
+const stringify = (thing) => {
+    switch (typeof thing) {
+        case 'object':
+            if (thing instanceof Array) {
+                return '[' + thing.map(stringify).join(', ') + ']';
+            }
+            return (
+                '{' +
+                Object.keys(thing)
+                    .map(
+                        (key) =>
+                            JSON.stringify(key) + ': ' + stringify(thing[key]),
+                    )
+                    .join(', ') +
+                '}'
+            );
+        case 'string':
+            if (thing.charAt(0) === '/' || thing.charAt(0) === '(') {
+                return thing;
+            }
+    }
+    return JSON.stringify(thing);
+};
+
 const compile = function (id, code, stringIds, outputTranslationsAsFn = true) {
     const json = parsePo(code);
     const data = makeLocale(id, stringIds, json, outputTranslationsAsFn);
-    const generatedCode =
-        'export default ' +
-        JSON.stringify(data, null, 2)
-            .replace(/"(\/.*?\/i?)"/g, function (_, regexp) {
-                return regexp.replace(/\\\\/g, '\\');
-            })
-            .replace(/"function[\s\S]*?}"/g, (fn) =>
-                JSON.parse(fn).replace(
-                    /function[^(]*(\([^)]*\))\s*/,
-                    (_, args) => args.replace(/\s+/g, '') + '=>',
-                ),
-            );
-
+    const generatedCode = prettier.format('export default ' + stringify(data), {
+        singleQuote: true,
+        tabWidth: 4,
+        quoteProps: 'consistent',
+        trailingComma: 'all',
+        parser: 'babel',
+    });
     return {
         code: generatedCode,
         map: { mappings: '' },
