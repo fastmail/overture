@@ -3,10 +3,11 @@
 const NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
 
 /**
-    All untrusted HTML (i.e. anything that's not a static string we wrote)
-    MUST go through HTMLDefanger before being inserted into the DOM. The defang method returns a DOM node or fragment, which you can adopt into the target document and then append directly.
+    All untrusted HTML (i.e. anything that's not a static string we wrote) MUST go through HTMLDefanger before being inserted into the DOM. The defang method returns a DOM node or fragment, which you can append directly.
 
     DO NOT get the HTML return type and set it as innerHTML. While this should be safe in theory, in practice browsers may reparse it differently so you end up with a different (potentially dangerous) DOM tree. This is called mXSS. DOMPurify tries to fix the mXSS bugs it knows about; I prefer the safer option of never doing the operation that can lead to it in the first place. The HTML return type is only for serialising into record state.
+
+    The _INERT return type returns DOM nodes that are still in the inert document and not imported. If you use this and then want to insert it into the document after further transformations you MUST use `document.importNode(...)` to safely import it; DO NOT use document.adoptNode (or omit importing it), as this may leave shadow roots in place that can contain unsanitised content.
 
     This defanger will strip all comments; they're not dangerous, just not necessary. If you have a usecase where you need them preserved, talk to neilj.
 
@@ -406,9 +407,12 @@ const defangElement = function (node, options) {
 
 const getElementsByTagName = document.getElementsByTagName;
 
-const DOM = 0;
-const FRAGMENT = 1;
-const HTML = 2;
+const DOM = 1;
+const FRAGMENT = 2;
+const HTML = 4;
+const INERT = 8;
+const DOM_INERT = DOM | INERT;
+const FRAGMENT_INERT = FRAGMENT | INERT;
 
 // Chrome Mobile  will sometimes crashes with error
 // "Failed to execute 'acceptNode' on 'NodeFilter':
@@ -436,7 +440,7 @@ class HTMLDefanger {
         Object.assign(this, mixin);
     }
 
-    defang(html) {
+    defang(html, returnType) {
         let doc = null;
         let documentElement;
         try {
@@ -485,22 +489,29 @@ class HTMLDefanger {
         }
         // We presume all DOM clobbering has been removed by this point, so we
         // can use the standard properties/methods without issue.
-        if (this.returnType === HTML) {
+        if (returnType === undefined) {
+            returnType = this.returnType;
+        }
+        if (returnType === HTML) {
             return doc.body.innerHTML;
         }
-        if (this.returnType === FRAGMENT) {
+        if (returnType & FRAGMENT) {
             const frag = doc.createDocumentFragment();
             const body = doc.body;
             while (body.firstChild) {
                 frag.appendChild(body.firstChild);
             }
-            return frag;
+            return returnType === FRAGMENT_INERT
+                ? frag
+                : document.importNode(frag, true);
         }
 
-        return documentElement;
+        return returnType === DOM_INERT
+            ? documentElement
+            : document.importNode(documentElement, true);
     }
 }
 
 // ---
 
-export { HTMLDefanger, DOM, FRAGMENT, HTML };
+export { HTMLDefanger, DOM, FRAGMENT, HTML, DOM_INERT, FRAGMENT_INERT };
