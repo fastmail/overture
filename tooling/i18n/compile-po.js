@@ -77,7 +77,7 @@ const join = function (strings) {
 
 const makeRegExp = function (strings) {
     const regexp = join(divide(strings.reduce(flatten, []), 0));
-    return '/^' + regexp + '\\b/i';
+    return new RegExp('^' + regexp + '\\b', 'i');
 };
 
 const makePrefixes = function (string) {
@@ -221,6 +221,14 @@ const compileTranslation = function (translation) {
     return `(x, a) => ${compiled || '""'}`;
 };
 
+const enliven = (code) => {
+    // eslint-disable-next-line no-new-func
+    return Function('return ' + code)();
+};
+
+const compileTranslationAndEval = (translation) =>
+    enliven(compileTranslation(translation));
+
 const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
     const getString = function (id) {
         const obj = idToEntry[id];
@@ -230,14 +238,14 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
     if (stringIds) {
         translations = stringIds.map(getString);
         if (outputTranslationsAsFn) {
-            translations = translations.map(compileTranslation);
+            translations = translations.map(compileTranslationAndEval);
         }
     } else {
         translations = {};
         for (const key in idToEntry) {
             const string = getString(key);
             translations[key] = outputTranslationsAsFn
-                ? compileTranslation(string)
+                ? compileTranslationAndEval(string)
                 : string;
             // For Overture strings in Vite
             if (outputTranslationsAsFn && !string.startsWith('/')) {
@@ -260,7 +268,7 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
         ],
 
         getFormattedOrdinal: /^en/.test(id)
-            ? ((number) => {
+            ? (number) => {
                   const mod10 = number % 10;
                   const mod100 = number % 100;
                   return (
@@ -273,9 +281,9 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
                           ? 'rd'
                           : 'th')
                   );
-              }).toString()
+              }
             : id === 'nl'
-            ? ((number) => number + 'e').toString()
+            ? (number) => number + 'e'
             : undefined,
 
         dayNames: [
@@ -451,20 +459,20 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
             tomorrow: makeRegExp([getString('TIME_TOMORROW')]),
             now: makeRegExp([getString('TIME_NOW')]),
 
-            // millisecond: '/^ms|milli(?:second)?s?\\b/i',
-            // second: '/^sec(?:ond)?s?\\b/i',
-            // minute: '/^min(?:ute)?s?\\b/i',
-            // hour: '/^h(?:ou)?rs?\\b/i',
-            // week: '/^w(?:ee)?k\\b/i',
-            // month: '/^m(?:o(?:nth)?s?)?\\b/i',
-            // day: '/^d(?:ays?)?\\b/i',
-            // year: '/^y(?:(?:ea)?rs?)?\\b/i',
+            // millisecond: /^ms|milli(?:second)?s?\\b/i,
+            // second: /^sec(?:ond)?s?\\b/i,
+            // minute: /^min(?:ute)?s?\\b/i,
+            // hour: /^h(?:ou)?rs?\\b/i,
+            // week: /^w(?:ee)?k\\b/i,
+            // month: /^m(?:o(?:nth)?s?)?\\b/i,
+            // day: /^d(?:ays?)?\\b/i,
+            // year: /^y(?:(?:ea)?rs?)?\\b/i,
 
-            am: getString('REGEX_DETECT_AM'),
-            pm: getString('REGEX_DETECT_PM'),
+            am: enliven(getString('REGEX_DETECT_AM')),
+            pm: enliven(getString('REGEX_DETECT_PM')),
 
-            ordinalSuffix: getString('REGEX_ORDINAL_SUFFIX'),
-            timeContext: getString('REGEX_TIME_CONTEXT'),
+            ordinalSuffix: enliven(getString('REGEX_ORDINAL_SUFFIX')),
+            timeContext: enliven(getString('REGEX_TIME_CONTEXT')),
         },
 
         translations,
@@ -477,6 +485,9 @@ const stringify = (thing) => {
             if (thing instanceof Array) {
                 return '[' + thing.map(stringify).join(', ') + ']';
             }
+            if (thing instanceof RegExp) {
+                return thing.toString();
+            }
             return (
                 '{' +
                 Object.keys(thing)
@@ -487,10 +498,8 @@ const stringify = (thing) => {
                     .join(', ') +
                 '}'
             );
-        case 'string':
-            if (thing.charAt(0) === '/' || thing.charAt(0) === '(') {
-                return thing;
-            }
+        case 'function':
+            return thing.toString();
     }
     return JSON.stringify(thing);
 };
