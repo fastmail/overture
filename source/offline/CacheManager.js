@@ -1,4 +1,4 @@
-import { Database, promisify as _, iterate } from './Database.js';
+import { Database, iterate, promisify as _ } from './Database.js';
 
 /*global caches, fetch, setTimeout, Response */
 
@@ -13,6 +13,9 @@ class CacheManager {
             version: 1,
             setup(db /*, newVersion, oldVersion*/) {
                 for (const cacheName in rules) {
+                    if (rules.noExpire) {
+                        continue;
+                    }
                     const store = db.createObjectStore(cacheName, {
                         keyPath: 'url',
                     });
@@ -54,8 +57,20 @@ class CacheManager {
         return response;
     }
 
+    async putIn(cacheName, request, response) {
+        if (response) {
+            // TODO: Handle quota error
+            const cache = await caches.open(cacheName);
+            await cache.put(request, response);
+        }
+    }
+
     async setIn(cacheName, request, response) {
         const rules = this.rules[cacheName];
+        if (rules.noExpire) {
+            this.putIn(cacheName, request, response);
+            return;
+        }
         const db = this.db;
         await db.transaction(cacheName, 'readwrite', async (transaction) => {
             const store = transaction.objectStore(cacheName);
@@ -78,11 +93,7 @@ class CacheManager {
         // Wait for transaction to complete before adding to cache to ensure
         // anything in the cache is definitely tracked in the db so can be
         // cleaned up.
-        if (response) {
-            // TODO: Handle quota error
-            const cache = await caches.open(cacheName);
-            await cache.put(request, response);
-        }
+        await this.putIn(cacheName, request, response);
         this.removeExpiredIn(cacheName);
     }
 
