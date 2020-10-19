@@ -284,7 +284,7 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
               }
             : id === 'nl'
             ? (number) => number + 'e'
-            : undefined,
+            : (number) => number + '.',
 
         dayNames: [
             getString('S_CALENDAR_SUNDAY'),
