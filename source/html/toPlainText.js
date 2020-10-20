@@ -1,4 +1,4 @@
-import { HTMLDefanger, FRAGMENT } from './HTMLDefanger.js';
+import { FRAGMENT_INERT, HTMLDefanger } from './HTMLDefanger.js';
 
 // ---
 
@@ -200,7 +200,7 @@ const nodesToText = function (
 
 const toPlainText = function (html, markupInline = true) {
     const frag = new HTMLDefanger({
-        returnType: FRAGMENT,
+        returnType: FRAGMENT_INERT,
     }).defang(html);
     const stringBuilder = [];
     nodesToText(stringBuilder, frag.childNodes, [], '', false, markupInline);
