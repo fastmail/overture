@@ -109,7 +109,9 @@ class CacheManager {
         const db = this.db;
         const maxLastAccess = rules.maxLastAccess;
         const maxNumber = rules.maxNumber || Infinity;
-        const minLastAccess = maxLastAccess ? Date.now() - maxLastAccess : 0;
+        const minLastAccess = maxLastAccess
+            ? Date.now() - 1000 * maxLastAccess
+            : 0;
         const entriesToDelete = [];
         await db.transaction(cacheName, 'readonly', async (transaction) => {
             // Iterate starting from most recently used
