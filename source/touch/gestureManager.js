@@ -8,10 +8,12 @@ const gestureManager = new Obj({
 
     register(gesture) {
         this._gestures.push(gesture);
+        return this;
     },
 
     deregister(gesture) {
         this._gestures.erase(gesture);
+        return this;
     },
 
     isMouseDown: false,
