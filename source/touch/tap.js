@@ -127,7 +127,7 @@ const getCommonAncestor = function (a, b) {
     holding one button and tap another; the tap gesture will still be
     recognised).
 */
-const Tap = new Gesture({
+const tap = new Gesture({
     _tracking: {},
 
     cancel() {
@@ -220,4 +220,4 @@ const Tap = new Gesture({
     },
 });
 
-export { Tap };
+export { tap };

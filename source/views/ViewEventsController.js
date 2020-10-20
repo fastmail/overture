@@ -25,7 +25,7 @@ const etSearch = function (candidate, b) {
     Standard event target priorities used in library:
 
     40  - MouseEventRemover
-    30  - GestureManager
+    30  - gestureManager
     20  - DragController
     15  - MenuFilterView
     10  - ModalViewHandler

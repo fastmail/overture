@@ -1,13 +1,14 @@
-import { Class, mixin } from '../../core/Core.js';
-import /* { property, on, observes, queue } from */ '../../foundation/Decorators.js';
-import { queueFn } from '../../foundation/RunLoop.js';
-import { create as el, setStyle, appendChildren } from '../../dom/Element.js';
 import { Animation } from '../../animation/Animation.js';
-import { Tap } from '../../touch/Tap.js';
-import { isIOS, browser, version } from '../../ua/UA.js';
-import { View, LAYOUT_FILL_PARENT } from '../View.js';
+import { Class, mixin } from '../../core/Core.js';
+import { appendChildren, create as el, setStyle } from '../../dom/Element.js';
+import { queueFn } from '../../foundation/RunLoop.js';
+import { tap } from '../../touch/tap.js';
+import { browser, isIOS, version } from '../../ua/UA.js';
 import { RootView } from '../RootView.js';
+import { LAYOUT_FILL_PARENT, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
+
+import /* { property, on, observes, queue } from */ '../../foundation/Decorators.js';
 
 class ScrollAnimation extends Animation {
     prepare(coordinates) {
@@ -455,7 +456,7 @@ const ScrollView = Class({
         if (event) {
             event.stopPropagation();
             // Don't interpret tap to stop scroll as a real tap.
-            Tap.cancel();
+            tap.cancel();
         }
     }.on('scroll'),
 

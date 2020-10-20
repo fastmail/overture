@@ -1,3 +1,67 @@
+import * as Easing from './animation/Easing.js';
+import {
+    ACTIVE_IN_INPUT,
+    DEFAULT_IN_INPUT,
+    DISABLE_IN_INPUT,
+    GlobalKeyboardShortcuts,
+} from './application/GlobalKeyboardShortcuts.js';
+import * as keyboardShortcuts from './application/keyboardShortcuts.js';
+import * as KeyValue from './core/KeyValue.js';
+import * as Math from './core/Math.js';
+import * as RegExp from './core/RegExp.js';
+import {
+    AUTO_REFRESH_ALWAYS,
+    AUTO_REFRESH_IF_OBSERVED,
+    AUTO_REFRESH_NEVER,
+    Query,
+} from './datastore/query/Query.js';
+import { attr, RecordAttribute } from './datastore/record/attr.js';
+import { Record } from './datastore/record/Record.js';
+import {
+    HANDLE_ALL_ERRORS,
+    HANDLE_NO_ERRORS,
+    RecordResult,
+} from './datastore/record/RecordResult.js';
+import * as Status from './datastore/record/Status.js';
+import { toMany, ToManyAttribute } from './datastore/record/toMany.js';
+import { toOne, ToOneAttribute } from './datastore/record/toOne.js';
+import { ValidationError } from './datastore/record/ValidationError.js';
+import * as DOMEvent from './dom/DOMEvent.js';
+import * as Element from './dom/Element.js';
+import * as Stylesheet from './dom/Stylesheet.js';
+import * as DragEffect from './drag/DragEffect.js';
+import * as RunLoop from './foundation/RunLoop.js';
+import * as Transform from './foundation/Transform.js';
+import { CLOSED, CONNECTING, EventSource, OPEN } from './io/EventSource.js';
+import { ABORT, IGNORE, IOQueue, QUEUE } from './io/IOQueue.js';
+import * as i18n from './localisation/i18n.js';
+import * as parsedate from './parse/DateParser.js';
+import * as parse from './parse/Parse.js';
+import * as UA from './ua/UA.js';
+import {
+    BOTTOM_RIGHT,
+    HORIZONTAL,
+    SplitViewController,
+    TOP_LEFT,
+    VERTICAL,
+} from './views/containers/SplitViewController.js';
+import {
+    RichTextView,
+    TOOLBAR_AT_TOP,
+    TOOLBAR_HIDDEN,
+} from './views/controls/RichTextView.js';
+import {
+    LAYOUT_FILL_PARENT,
+    peekId,
+    POSITION_CONTAINED_BY,
+    POSITION_CONTAINS,
+    POSITION_DISCONNECTED,
+    POSITION_FOLLOWING,
+    POSITION_PRECEDING,
+    POSITION_SAME,
+    View,
+} from './views/View.js';
+
 import './Global.js';
 
 export {
@@ -11,11 +75,8 @@ export {
     Class,
 } from './core/Core.js';
 export { sortByProperties } from './core/sortByProperties.js';
-import * as KeyValue from './core/KeyValue.js';
 export { KeyValue };
-import * as Math from './core/Math.js';
 export { Math };
-import * as RegExp from './core/RegExp.js';
 export { RegExp };
 
 export { Promise } from './foundation/Promise.js';
@@ -32,29 +93,18 @@ export { Obj as Object } from './foundation/Object.js';
 export { ObservableArray } from './foundation/ObservableArray.js';
 export { ObservableProps } from './foundation/ObservableProps.js';
 export { ObservableRange } from './foundation/ObservableRange.js';
-import * as RunLoop from './foundation/RunLoop.js';
 export { RunLoop };
-import * as Transform from './foundation/Transform.js';
 export { Transform };
 
 export { Color } from './color/Color.js';
 
 export { AnimatableView } from './animation/AnimatableView.js';
 export { Animation } from './animation/Animation.js';
-import * as Easing from './animation/Easing.js';
 export { Easing };
 export { StyleAnimation } from './animation/StyleAnimation.js';
-
-import * as keyboardShortcuts from './application/keyboardShortcuts.js';
 export { keyboardShortcuts };
 export { formatKeyForPlatform } from './application/formatKeyForPlatform.js';
 export { toPlatformKey } from './application/toPlatformKey.js';
-import {
-    GlobalKeyboardShortcuts,
-    DEFAULT_IN_INPUT,
-    ACTIVE_IN_INPUT,
-    DISABLE_IN_INPUT,
-} from './application/GlobalKeyboardShortcuts.js';
 GlobalKeyboardShortcuts.DEFAULT_IN_INPUT = DEFAULT_IN_INPUT;
 GlobalKeyboardShortcuts.ACTIVE_IN_INPUT = ACTIVE_IN_INPUT;
 GlobalKeyboardShortcuts.DISABLE_IN_INPUT = DISABLE_IN_INPUT;
@@ -64,12 +114,6 @@ export { ThemeManager } from './application/ThemeManager.js';
 export { WindowController } from './application/WindowController.js';
 
 export { RecordArray } from './datastore/query/RecordArray.js';
-import {
-    Query,
-    AUTO_REFRESH_NEVER,
-    AUTO_REFRESH_IF_OBSERVED,
-    AUTO_REFRESH_ALWAYS,
-} from './datastore/query/Query.js';
 Query.AUTO_REFRESH_NEVER = AUTO_REFRESH_NEVER;
 Query.AUTO_REFRESH_IF_OBSERVED = AUTO_REFRESH_IF_OBSERVED;
 Query.AUTO_REFRESH_ALWAYS = AUTO_REFRESH_ALWAYS;
@@ -77,28 +121,17 @@ export { Query };
 export { LocalQuery } from './datastore/query/LocalQuery.js';
 export { WindowedQuery } from './datastore/query/WindowedQuery.js';
 export { AttributeErrors } from './datastore/record/AttributeErrors.js';
-import { Record } from './datastore/record/Record.js';
 export { Record };
-import { attr, RecordAttribute } from './datastore/record/attr.js';
 Record.attr = attr;
 export { RecordAttribute };
-import * as Status from './datastore/record/Status.js';
 export { Status };
-import { toMany, ToManyAttribute } from './datastore/record/toMany.js';
 Record.toMany = toMany;
 export { ToManyAttribute };
-import { toOne, ToOneAttribute } from './datastore/record/toOne.js';
 Record.toOne = toOne;
 export { ToOneAttribute };
-import {
-    RecordResult,
-    HANDLE_ALL_ERRORS,
-    HANDLE_NO_ERRORS,
-} from './datastore/record/RecordResult.js';
 RecordResult.HANDLE_ALL_ERRORS = HANDLE_ALL_ERRORS;
 RecordResult.HANDLE_NO_ERRORS = HANDLE_NO_ERRORS;
 export { RecordResult };
-import { ValidationError } from './datastore/record/ValidationError.js';
 ValidationError.REQUIRED = 1;
 ValidationError.TOO_SHORT = 2;
 ValidationError.TOO_LONG = 4;
@@ -112,29 +145,21 @@ export { NestedStore } from './datastore/store/NestedStore.js';
 export { Store } from './datastore/store/Store.js';
 export { StoreUndoManager } from './datastore/store/StoreUndoManager.js';
 export { UndoManager } from './datastore/store/UndoManager.js';
-
-import * as DOMEvent from './dom/DOMEvent.js';
 export { DOMEvent };
-import * as Element from './dom/Element.js';
 export { Element };
-import * as Stylesheet from './dom/Stylesheet.js';
 export { Stylesheet };
 
 export { Drag } from './drag/Drag.js';
 export { DragController } from './drag/DragController.js';
 export { DragDataSource } from './drag/DragDataSource.js';
-import * as DragEffect from './drag/DragEffect.js';
 export { DragEffect };
 export { Draggable } from './drag/Draggable.js';
 export { DropTarget } from './drag/DropTarget.js';
-
-import { EventSource, CONNECTING, OPEN, CLOSED } from './io/EventSource.js';
 EventSource.CONNECTING = CONNECTING;
 EventSource.OPEN = OPEN;
 EventSource.CLOSED = CLOSED;
 export { EventSource };
 export { HttpRequest } from './io/HttpRequest.js';
-import { IOQueue, QUEUE, IGNORE, ABORT } from './io/IOQueue.js';
 IOQueue.QUEUE = QUEUE;
 IOQueue.IGNORE = IGNORE;
 IOQueue.ABORT = ABORT;
@@ -142,12 +167,8 @@ export { IOQueue };
 export { XHR } from './io/XHR.js';
 
 export { Locale } from './localisation/Locale.js';
-import * as i18n from './localisation/i18n.js';
 export { i18n };
 export { loc } from './localisation/i18n.js';
-
-import * as parse from './parse/Parse.js';
-import * as parsedate from './parse/DateParser.js';
 export { parse, parsedate };
 
 export { OptionsController } from './selection/OptionsController.js';
@@ -159,25 +180,12 @@ export { LocalStorage } from './storage/LocalStorage.js';
 export { TimeZone } from './timezones/TimeZone.js';
 
 export { Gesture } from './touch/Gesture.js';
-export { GestureManager } from './touch/GestureManager.js';
-export { Hold } from './touch/Hold.js';
-export { Tap } from './touch/Tap.js';
-
-import * as UA from './ua/UA.js';
+export { gestureManager } from './touch/gestureManager.js';
+export { hold } from './touch/hold.js';
+export { tap } from './touch/tap.js';
 export { UA };
 
 export { RootView } from './views/RootView.js';
-import {
-    View,
-    peekId,
-    POSITION_SAME,
-    POSITION_DISCONNECTED,
-    POSITION_PRECEDING,
-    POSITION_FOLLOWING,
-    POSITION_CONTAINS,
-    POSITION_CONTAINED_BY,
-    LAYOUT_FILL_PARENT,
-} from './views/View.js';
 View.LAYOUT_FILL_PARENT = LAYOUT_FILL_PARENT;
 View.POSITION_SAME = POSITION_SAME;
 View.POSITION_DISCONNECTED = POSITION_DISCONNECTED;
@@ -204,13 +212,6 @@ export { ToolbarView } from './views/collections/ToolbarView.js';
 export { TrueVisibleRect } from './views/collections/TrueVisibleRect.js';
 export { ScrollView } from './views/containers/ScrollView.js';
 export { SplitDividerView } from './views/containers/SplitDividerView.js';
-import {
-    SplitViewController,
-    VERTICAL,
-    HORIZONTAL,
-    TOP_LEFT,
-    BOTTOM_RIGHT,
-} from './views/containers/SplitViewController.js';
 SplitViewController.VERTICAL = VERTICAL;
 SplitViewController.HORIZONTAL = HORIZONTAL;
 SplitViewController.TOP_LEFT = TOP_LEFT;
@@ -232,11 +233,6 @@ export { MenuFilterView } from './views/menu/MenuFilterView.js';
 export { MenuButtonView } from './views/menu/MenuButtonView.js';
 export { MenuView } from './views/menu/MenuView.js';
 export { RadioView } from './views/controls/RadioView.js';
-import {
-    RichTextView,
-    TOOLBAR_HIDDEN,
-    TOOLBAR_AT_TOP,
-} from './views/controls/RichTextView.js';
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 export { RichTextView };
