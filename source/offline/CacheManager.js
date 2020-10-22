@@ -1,6 +1,17 @@
 import { Database, iterate, promisify as _ } from './Database.js';
 
-/*global caches, fetch, setTimeout, Response */
+/*global caches, fetch, setTimeout, Request, Response */
+
+const bearerParam = /[?&]access_token=[^&]+/;
+const downloadParam = /[?&]download=1\b/;
+
+const processResponse = (request, response) => {
+    if (downloadParam.test(request.url)) {
+        response = new Response(response.body, response);
+        response.headers.set('Content-Disposition', 'attachment');
+    }
+    return response;
+};
 
 class CacheManager {
     constructor(rules) {
@@ -28,58 +39,62 @@ class CacheManager {
     async getIn(cacheName, request) {
         const rules = this.rules[cacheName];
         const cache = await caches.open(cacheName);
-        let response = await cache.match(request, { ignoreSearch: true });
-        if (!rules) {
-            return response || fetch(request);
-        }
+        const cacheUrl = request.url
+            .replace(bearerParam, '')
+            .replace(downloadParam, '');
+        const response = await cache.match(cacheUrl);
         if (response) {
-            this.setIn(cacheName, request, null);
-            if (/[?&]download=1\b/.test(request.url)) {
-                response = new Response(response.body, response);
-                response.headers.set('Content-Disposition', 'attachment');
+            if (rules) {
+                this.setIn(cacheName, cacheUrl, null, request);
             }
-            return response;
+            return processResponse(request, response);
+        } else if (!rules) {
+            return fetch(request);
         }
         return this.fetchAndCacheIn(cacheName, request);
     }
 
     async fetchAndCacheIn(cacheName, request) {
-        const response = await fetch(request);
+        let url = request.url;
+        if (request.mode === 'no-cors' || downloadParam.test(url)) {
+            url = url.replace(downloadParam, '');
+            request = new Request(url, {
+                mode: 'cors',
+                referrer: 'no-referrer',
+            });
+        }
+        let response = await fetch(request);
         // Cache if valid
         if (response && response.status < 400) {
-            let clone = response.clone();
-            if (clone.headers.has('Content-Disposition')) {
-                clone = new Response(response.body, response);
-                clone.headers.delete('Content-Disposition');
-            }
-            this.setIn(cacheName, request, clone);
+            url = url.replace(bearerParam, '');
+            this.setIn(cacheName, url, response.clone(), null);
+            response = processResponse(request, response);
         }
         return response;
     }
 
-    async putIn(cacheName, request, response) {
+    async putIn(cacheName, cacheUrl, response) {
         if (response) {
             // TODO: Handle quota error
             const cache = await caches.open(cacheName);
-            await cache.put(request, response);
+            await cache.put(cacheUrl, response);
         }
     }
 
-    async setIn(cacheName, request, response) {
+    async setIn(cacheName, cacheUrl, response, request) {
         const rules = this.rules[cacheName];
         if (rules.noExpire) {
-            this.putIn(cacheName, request, response);
+            this.putIn(cacheName, cacheUrl, response);
             return;
         }
         const db = this.db;
         await db.transaction(cacheName, 'readwrite', async (transaction) => {
             const store = transaction.objectStore(cacheName);
-            const url = request.url;
-            const existing = await _(store.get(url));
+            const existing = await _(store.get(cacheUrl));
             const now = Date.now();
             const created = existing && !response ? existing.created : now;
             store.put({
-                url,
+                url: cacheUrl,
                 created,
                 lastAccess: now,
             });
@@ -93,7 +108,7 @@ class CacheManager {
         // Wait for transaction to complete before adding to cache to ensure
         // anything in the cache is definitely tracked in the db so can be
         // cleaned up.
-        await this.putIn(cacheName, request, response);
+        await this.putIn(cacheName, cacheUrl, response);
         this.removeExpiredIn(cacheName);
     }
 
