@@ -13,6 +13,8 @@ import { AbstractControlView } from './AbstractControlView.js';
     representing the state of the checkbox (`true` => checked).
 */
 const CheckboxView = Class({
+    Name: 'CheckboxView',
+
     Extends: AbstractControlView,
 
     // --- Render ---

@@ -16,6 +16,8 @@ import { ScrollView } from './ScrollView.js';
 import { TouchScrollView } from './TouchScrollView.js';
 
 const PanZoomView = Class({
+    Name: 'PanZoomView',
+
     Extends: TouchScrollView,
 
     showScrollbarX: true,

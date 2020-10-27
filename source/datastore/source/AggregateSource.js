@@ -13,6 +13,8 @@ import { Source } from './Source.js';
     finds one that can handle it.
 */
 const AggregateSource = Class({
+    Name: 'AggregateSource',
+
     Extends: Source,
 
     init: function (/* ...mixins */) {

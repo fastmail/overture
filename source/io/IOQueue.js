@@ -22,6 +22,8 @@ const IGNORE = 2;
 const ABORT = 3;
 
 const IOQueue = Class({
+    Name: 'IOQueue',
+
     Extends: Obj,
 
     /**

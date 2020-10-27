@@ -9,6 +9,8 @@ import { ViewEventsController } from '../ViewEventsController.js';
 import { SearchTextView } from '../controls/SearchTextView.js';
 
 const MenuFilterView = Class({
+    Name: 'MenuFilterView',
+
     Extends: View,
 
     isFiltering: bind('controller*isFiltering'),

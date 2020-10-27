@@ -19,6 +19,8 @@ const toView = function (name) {
 };
 
 const OverflowMenuView = Class({
+    Name: 'OverflowMenuView',
+
     Extends: MenuButtonView,
 
     didEnterDocument() {
@@ -90,6 +92,8 @@ const viewIsBeforeFlex = function (view, flex) {
 };
 
 const ToolbarView = Class({
+    Name: 'ToolbarView',
+
     Extends: View,
 
     className: 'v-Toolbar',

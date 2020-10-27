@@ -3,6 +3,8 @@ import { Obj } from '../foundation/Object.js';
 import /* { observes, property, nocache } from */ '../foundation/Decorators.js';
 
 const SelectionController = Class({
+    Name: 'SelectionController',
+
     Extends: Obj,
 
     content: null,

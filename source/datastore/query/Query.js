@@ -63,6 +63,8 @@ const ARRAY_PROPERTY = '[]';
 
 */
 const Query = Class({
+    Name: 'Query',
+
     Extends: Obj,
 
     Mixin: [Enumerable, ObservableRange],

@@ -31,6 +31,8 @@ import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
     focus or not.
 */
 const WindowController = Class({
+    Name: 'WindowController',
+
     Extends: Obj,
 
     /**

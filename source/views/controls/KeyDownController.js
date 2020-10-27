@@ -5,6 +5,8 @@ import { isApple } from '../../ua/UA.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
 const KeyDownController = Class({
+    Name: 'KeyDownController',
+
     Extends: Obj,
 
     key: isApple ? 'Meta' : 'Ctrl',

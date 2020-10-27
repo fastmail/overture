@@ -20,6 +20,8 @@ const ARRAY_PROPERTY = '[]';
     array[i].
 */
 const ObservableArray = Class({
+    Name: 'ObservableArray',
+
     Extends: Obj,
 
     Mixin: [ObservableRange, Enumerable, MutableEnumerable],

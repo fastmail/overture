@@ -444,7 +444,9 @@ const isEqual = function (a, b) {
     new class and returns a constructor function with each of these methods in
     its prototype.
 
-    There are three special parameters:
+    There are four special parameters:
+
+    - `Name` is mandatory and declares the name of the class.
 
     - `Extends` is mandatory and declares the parent class to use. Reminder: all
       classes created with `O.Class` are expected to extend `O.Object`. If you
@@ -463,6 +465,7 @@ const isEqual = function (a, b) {
     For example:
 
         const MyClass = O.Class({
+            Name: 'MyClass',
             Extends: O.Object,
             sayBoo () {
                 alert( 'boo' );
@@ -503,6 +506,7 @@ const isEqual = function (a, b) {
     The O.Class way:
 
         const Foo = Class({
+            Name: 'Foo',
             Extends: Bar,
             Mixin: [ Baz, Quux ],
 
@@ -571,6 +575,14 @@ const Class = function (params) {
         function () {
             parent.apply(this, arguments);
         };
+
+    if (params.hasOwnProperty('Name')) {
+        Object.defineProperty(init, 'name', {
+            configurable: true,
+            value: params.Name,
+        });
+        delete params.Name;
+    }
 
     const proto = parent.prototype;
     init.parent = proto;

@@ -10,6 +10,8 @@ import { Obj } from '../../foundation/Object.js';
     and commited back to here by an instance of <O.Store>.
 */
 const Source = Class({
+    Name: 'Source',
+
     Extends: Obj,
 
     // ---

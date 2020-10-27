@@ -4,6 +4,8 @@ import { create as el, getAncestors, getStyle } from '../../dom/Element.js';
 import { View, LAYOUT_FILL_PARENT } from '../View.js';
 
 const ShortcutView = Class({
+    Name: 'ShortcutView',
+
     Extends: View,
 
     key: null,
@@ -24,6 +26,8 @@ const ShortcutView = Class({
 });
 
 const ShortcutOverlayView = Class({
+    Name: 'ShortcutOverlayView',
+
     Extends: View,
 
     className: 'v-ShortcutOverlay',

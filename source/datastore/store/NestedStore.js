@@ -25,6 +25,8 @@ import { Store } from './Store.js';
     ever affecting the parent store.
 */
 const NestedStore = Class({
+    Name: 'NestedStore',
+
     Extends: Store,
 
     autoCommit: false,

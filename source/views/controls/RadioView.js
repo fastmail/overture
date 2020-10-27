@@ -14,6 +14,8 @@ import { CheckboxView } from './CheckboxView.js';
     representing the state of the button (`true` => selected).
 */
 const RadioView = Class({
+    Name: 'RadioView',
+
     Extends: AbstractControlView,
 
     // --- Render ---

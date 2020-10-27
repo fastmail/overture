@@ -12,6 +12,8 @@ import { RecordAttribute } from './attr.js';
     Maintains the state of the validity of each attribute on a record.
 */
 const AttributeErrors = Class({
+    Name: 'AttributeErrors',
+
     Extends: Obj,
 
     /**

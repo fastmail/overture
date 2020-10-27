@@ -3,6 +3,8 @@ import /* { property, nextFrame } from */ '../../foundation/Decorators.js';
 import { View } from '../View.js';
 
 const ListItemView = Class({
+    Name: 'ListItemView',
+
     Extends: View,
 
     content: null,

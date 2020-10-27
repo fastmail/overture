@@ -172,6 +172,8 @@ const renderView = function (view) {
 let isRedrawingLayer = false;
 
 const View = Class({
+    Name: 'View',
+
     Extends: Obj,
 
     /**

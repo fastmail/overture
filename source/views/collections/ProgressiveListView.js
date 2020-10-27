@@ -6,6 +6,8 @@ import { ListView } from './ListView.js';
 import { TrueVisibleRect } from './TrueVisibleRect.js';
 
 const ProgressiveListView = Class({
+    Name: 'ProgressiveListView',
+
     Extends: ListView,
 
     Mixin: TrueVisibleRect,

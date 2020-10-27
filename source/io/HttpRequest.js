@@ -15,6 +15,8 @@ import { XHR } from './XHR.js';
 */
 
 const HttpRequest = Class({
+    Name: 'HttpRequest',
+
     Extends: Obj,
 
     /**

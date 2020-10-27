@@ -5,6 +5,8 @@ import { TextView } from './TextView.js';
 import { ClearSearchButtonView } from './ClearSearchButtonView.js';
 
 const SearchTextView = Class({
+    Name: 'SearchTextView',
+
     Extends: TextView,
 
     type: 'v-SearchText',

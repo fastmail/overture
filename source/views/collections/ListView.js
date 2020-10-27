@@ -33,6 +33,8 @@ const getNextViewIndex = function (childViews, newRendered, fromIndex) {
 };
 
 const ListView = Class({
+    Name: 'ListView',
+
     Extends: View,
 
     content: null,

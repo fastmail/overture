@@ -5,6 +5,8 @@ import { View } from '../View.js';
 import { PopOverView } from '../panels/PopOverView.js';
 
 const MenuOptionView = Class({
+    Name: 'MenuOptionView',
+
     Extends: View,
 
     destroy() {

@@ -7,6 +7,8 @@ import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
 const ListKBFocusView = Class({
+    Name: 'ListKBFocusView',
+
     Extends: View,
 
     selection: null,

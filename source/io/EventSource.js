@@ -26,6 +26,8 @@ const CLOSED = 2;
 */
 const EventSource = NativeEventSource
     ? Class({
+          Name: 'EventSource',
+
           Extends: Obj,
 
           /**
@@ -183,6 +185,8 @@ const EventSource = NativeEventSource
           }.observes('readyState'),
       })
     : Class({
+          Name: 'EventSource',
+
           Extends: Obj,
 
           readyState: CONNECTING,

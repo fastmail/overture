@@ -58,6 +58,8 @@ show-stopping bugs here, so this is handled as normal.
     Represents a drag operation being performed by a user.
 */
 const Drag = Class({
+    Name: 'Drag',
+
     Extends: Obj,
 
     /**

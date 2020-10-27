@@ -41,6 +41,8 @@ try {
     document.
 */
 const RootView = Class({
+    Name: 'RootView',
+
     Extends: View,
 
     syncOnlyInDocument: false,

@@ -4,6 +4,8 @@ import /* { on } from */ '../../foundation/Decorators.js';
 import { ScrollView } from '../containers/ScrollView.js';
 
 const ModalEventHandler = Class({
+    Name: 'ModalEventHandler',
+
     Extends: Obj,
 
     init: function (/* ...mixins */) {

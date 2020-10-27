@@ -15,6 +15,8 @@ import { loc } from '../localisation/i18n.js';
     hotswapped if themes are changed.
 */
 const ThemeManager = Class({
+    Name: 'ThemeManager',
+
     Extends: Obj,
 
     init: function (/* ...mixins */) {

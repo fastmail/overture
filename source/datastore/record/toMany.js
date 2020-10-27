@@ -34,6 +34,8 @@ const mapToTrue = function (result, key) {
 const ARRAY_PROPERTY = '[]';
 
 const RecordArray = Class({
+    Name: 'RecordArray',
+
     Extends: ObservableArray,
 
     init: function (record, propKey, Type) {

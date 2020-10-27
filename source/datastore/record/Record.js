@@ -26,6 +26,8 @@ const READY_NEW_DIRTY = READY | NEW | DIRTY;
     provides the basic status management for the attributes.
 */
 const Record = Class({
+    Name: 'Record',
+
     Extends: Obj,
 
     /**

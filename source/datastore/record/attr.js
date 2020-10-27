@@ -52,6 +52,7 @@ class RecordAttribute {
                 let AttributeErrorsType = object.AttributeErrorsType;
                 if (AttributeErrorsType.forRecordType !== constructor) {
                     AttributeErrorsType = object.AttributeErrorsType = Class({
+                        Name: 'AttributeErrorsType',
                         Extends: AttributeErrorsType,
                     });
                     AttributeErrorsType.forRecordType = constructor;

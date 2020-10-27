@@ -237,6 +237,8 @@ const getDelta = function (Type, data, changed) {
       - `OBSOLETE`: The record may have changes on the server not yet loaded.
 */
 const Store = Class({
+    Name: 'Store',
+
     Extends: Obj,
 
     /**

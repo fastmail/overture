@@ -15,6 +15,8 @@ const auto = 'auto';
     Extends: O.Object
 */
 const SplitViewController = Class({
+    Name: 'SplitViewController',
+
     Extends: Obj,
 
     /**

@@ -16,6 +16,8 @@ import { MenuFilterView } from './MenuFilterView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
 const MenuOption = Class({
+    Name: 'MenuOption',
+
     Extends: Obj,
 
     init: function (button, controller) {
@@ -38,6 +40,8 @@ const MenuOption = Class({
 });
 
 const MenuController = Class({
+    Name: 'MenuController',
+
     Extends: OptionsController,
 
     init: function (view, content, isFiltering) {
@@ -89,6 +93,8 @@ const MenuController = Class({
 });
 
 const MenuView = Class({
+    Name: 'MenuView',
+
     Extends: View,
 
     className: 'v-Menu',

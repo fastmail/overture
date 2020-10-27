@@ -19,6 +19,8 @@ const isFirefox = browser === 'firefox';
     the input text.
 */
 const TextView = Class({
+    Name: 'TextView',
+
     Extends: AbstractControlView,
 
     init: function (/* ...mixins */) {

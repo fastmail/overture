@@ -50,6 +50,8 @@ ScrollAnimation.prototype.duration = 250;
     property to `true` to show a scrollbar on horizontal overflow as well.
 */
 const ScrollView = Class({
+    Name: 'ScrollView',
+
     Extends: View,
 
     /**

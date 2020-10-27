@@ -53,6 +53,8 @@ const TOOLBAR_HIDDEN = 0;
 const TOOLBAR_AT_TOP = 1;
 
 const URLPickerView = Class({
+    Name: 'URLPickerView',
+
     Extends: View,
 
     prompt: '',
@@ -110,6 +112,8 @@ const URLPickerView = Class({
 });
 
 const RichTextView = Class({
+    Name: 'RichTextView',
+
     Extends: View,
 
     Mixin: DropTarget,

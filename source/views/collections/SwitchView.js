@@ -31,6 +31,8 @@ const flattenAndPrune = function (array, node) {
 };
 
 const SwitchView = Class({
+    Name: 'SwitchView',
+
     Extends: View,
 
     syncOnlyInDocument: false,

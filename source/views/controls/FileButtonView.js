@@ -31,6 +31,8 @@ import { AbstractControlView } from './AbstractControlView.js';
 
 */
 const FileButtonView = Class({
+    Name: 'FileButtonView',
+
     Extends: ButtonView,
 
     /**

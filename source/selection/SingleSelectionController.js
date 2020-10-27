@@ -5,6 +5,8 @@ import { queueFn } from '../foundation/RunLoop.js';
 import { READY } from '../datastore/record/Status.js';
 
 const SingleSelectionController = Class({
+    Name: 'SingleSelectionController',
+
     Extends: Obj,
 
     allowNoSelection: true,

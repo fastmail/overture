@@ -65,6 +65,8 @@ import { AbstractControlView } from './AbstractControlView.js';
     position.
 */
 const ButtonView = Class({
+    Name: 'ButtonView',
+
     Extends: AbstractControlView,
 
     /**

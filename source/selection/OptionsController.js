@@ -6,6 +6,8 @@ import { ObservableArray } from '../foundation/ObservableArray.js';
 import { makeSearchRegExp } from '../localisation/i18n.js';
 
 const OptionsController = Class({
+    Name: 'OptionsController',
+
     Extends: Obj,
 
     init: function () {

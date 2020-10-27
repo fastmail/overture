@@ -426,6 +426,8 @@ mixin(TouchScrollAnimator.prototype, {
 });
 
 const TouchScrollView = Class({
+    Name: 'TouchScrollView',
+
     Extends: View,
 
     keys: {},

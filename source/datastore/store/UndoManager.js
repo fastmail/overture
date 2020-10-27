@@ -6,6 +6,8 @@ import { Obj } from '../../foundation/Object.js';
 */
 
 const UndoManager = Class({
+    Name: 'UndoManager',
+
     Extends: Obj,
 
     init: function (/* ...mixins */) {

@@ -3,6 +3,8 @@ import { Class } from '../../core/Core.js';
 import { UndoManager } from './UndoManager.js';
 
 const StoreUndoManager = Class({
+    Name: 'StoreUndoManager',
+
     Extends: UndoManager,
 
     init: function (/* ...mixins */) {

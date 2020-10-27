@@ -28,6 +28,8 @@ const dummyStorage = {
     should be stored; class instances will not be restored correctly.
 */
 const LocalStorage = Class({
+    Name: 'LocalStorage',
+
     Extends: Obj,
 
     /**

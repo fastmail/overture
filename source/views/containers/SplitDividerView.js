@@ -19,6 +19,8 @@ import { VERTICAL, TOP_LEFT } from './SplitViewController.js';
     resize the static pane in the split view.
 */
 const SplitDividerView = Class({
+    Name: 'SplitDividerView',
+
     Extends: View,
 
     Mixin: Draggable,

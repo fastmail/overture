@@ -274,6 +274,8 @@ const windowIsStillInUse = function (index, windowSize, prefetch, ranges) {
     query changes.
 */
 const WindowedQuery = Class({
+    Name: 'WindowedQuery',
+
     Extends: Query,
 
     /**

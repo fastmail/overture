@@ -53,6 +53,8 @@ const globalQueryStringPart = function () {
     probably clobber the hash.
 */
 const Router = Class({
+    Name: 'Router',
+
     Extends: Obj,
 
     /**

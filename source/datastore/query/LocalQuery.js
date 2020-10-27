@@ -17,6 +17,8 @@ import { EMPTY, READY, OBSOLETE } from '../record/Status.js';
     retrieving the query from the store.
  */
 const LocalQuery = Class({
+    Name: 'LocalQuery',
+
     Extends: Query,
 
     autoRefresh: AUTO_REFRESH_ALWAYS,

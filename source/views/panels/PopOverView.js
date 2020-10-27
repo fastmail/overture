@@ -9,6 +9,8 @@ import { ViewEventsController } from '../ViewEventsController.js';
 import { ModalEventHandler } from './ModalEventHandler.js';
 
 const PopOverView = Class({
+    Name: 'PopOverView',
+
     Extends: View,
 
     init: function () {

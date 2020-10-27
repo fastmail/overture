@@ -12,6 +12,8 @@ import { AbstractControlView } from './AbstractControlView.js';
     bindable, representing the selected option.
 */
 const SelectView = Class({
+    Name: 'SelectView',
+
     Extends: AbstractControlView,
 
     /**

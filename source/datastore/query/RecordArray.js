@@ -13,6 +13,8 @@ import /* { property } from */ '../../foundation/Decorators.js';
     An immutable enumerable object representing a list of records.
  */
 const RecordArray = Class({
+    Name: 'RecordArray',
+
     Extends: Obj,
 
     Mixin: Enumerable,

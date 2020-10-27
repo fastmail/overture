@@ -35,6 +35,8 @@ import { MenuOptionView } from './MenuOptionView.js';
         });
 */
 const MenuButtonView = Class({
+    Name: 'MenuButtonView',
+
     Extends: ButtonView,
 
     /**

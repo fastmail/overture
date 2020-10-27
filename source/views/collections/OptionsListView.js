@@ -5,6 +5,8 @@ import { ListView } from './ListView.js';
 import { ScrollView } from '../containers/ScrollView.js';
 
 const OptionsListView = Class({
+    Name: 'OptionsListView',
+
     Extends: ListView,
 
     init: function () {

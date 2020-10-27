@@ -29,6 +29,8 @@ const handleOnDown = {};
     This class facilitates adding keyboard shortcuts to your application.
 */
 const GlobalKeyboardShortcuts = Class({
+    Name: 'GlobalKeyboardShortcuts',
+
     Extends: Obj,
 
     /**

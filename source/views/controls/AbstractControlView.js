@@ -19,6 +19,8 @@ import { appendChildren, create as el } from '../../dom/Element.js';
     subclassed.
 */
 const AbstractControlView = Class({
+    Name: 'AbstractControlView',
+
     Extends: View,
 
     /**
