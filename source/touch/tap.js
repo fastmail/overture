@@ -183,13 +183,19 @@ const tap = new Gesture({
             const id = touch.identifier;
             const trackedTouch = tracking[id];
             if (trackedTouch) {
-                let target = document.elementFromPoint(
-                    touch.clientX,
-                    touch.clientY,
-                );
+                const { clientX, clientY } = touch;
+                // Android Chrome gives bogus values sometimes, which I think
+                // are Infinity. Check it's finite before using.
+                let target =
+                    0 <= clientX &&
+                    clientX < Infinity &&
+                    0 <= clientY &&
+                    clientY < Infinity
+                        ? document.elementFromPoint(clientX, clientY)
+                        : null;
                 const initialTarget = trackedTouch.target;
                 const duration = Date.now() - trackedTouch.timestamp;
-                if (target !== initialTarget) {
+                if (target && target !== initialTarget) {
                     target = getCommonAncestor(target, initialTarget);
                 }
                 if (target) {
