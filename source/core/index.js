@@ -6,6 +6,7 @@ export {
     merge,
     clone,
     isEqual,
+    classes,
     Class,
 } from './Core.js';
 export { sortByProperties } from './sortByProperties.js';

@@ -435,6 +435,8 @@ const isEqual = function (a, b) {
     return false;
 };
 
+const classes = {};
+
 /**
     Function: O.Class
 
@@ -581,6 +583,7 @@ const Class = function (params) {
             configurable: true,
             value: params.Name,
         });
+        classes[params.Name] = init;
         delete params.Name;
     }
 
@@ -614,6 +617,7 @@ export {
     merge,
     clone,
     isEqual,
+    classes,
     Class,
     OBJECT_INITIALISED,
     OBJECT_DESTROYED,

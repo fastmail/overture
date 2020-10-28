@@ -72,6 +72,7 @@ export {
     merge,
     clone,
     isEqual,
+    classes,
     Class,
 } from './core/Core.js';
 export { sortByProperties } from './core/sortByProperties.js';
