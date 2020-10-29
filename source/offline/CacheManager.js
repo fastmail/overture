@@ -65,7 +65,7 @@ class CacheManager {
         }
         let response = await fetch(request);
         // Cache if valid
-        if (response && response.status < 400) {
+        if (response && response.status === 200) {
             url = url.replace(bearerParam, '');
             this.setIn(cacheName, url, response.clone(), null);
             response = processResponse(request, response);
