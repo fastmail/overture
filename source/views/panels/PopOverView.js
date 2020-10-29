@@ -62,6 +62,10 @@ const PopOverView = Class({
             return;
         }
         const alignWithView = options.alignWithView;
+        if (!alignWithView.get('isInDocument')) {
+            this.hide();
+            return;
+        }
         const atNode =
             options.atNode ||
             (alignWithView === this.get('parentPopOverView')
