@@ -579,10 +579,14 @@ const Class = function (params) {
         };
 
     if (params.hasOwnProperty('Name')) {
-        Object.defineProperty(init, 'name', {
-            configurable: true,
-            value: params.Name,
-        });
+        // iOS 9 and Blackberry 10 (and presumably other very old browsers)
+        // will throw an exception if you try to do this.
+        try {
+            Object.defineProperty(init, 'name', {
+                configurable: true,
+                value: params.Name,
+            });
+        } catch (error) {}
         classes[params.Name] = init;
         delete params.Name;
     }
