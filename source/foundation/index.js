@@ -17,6 +17,7 @@ export {
     mayRedraw,
     flushQueue,
     flushAllQueues,
+    eraseAllQueues,
     queueFn,
     invoke,
     invokeInNextEventLoop,

@@ -218,6 +218,17 @@ const flushAllQueues = function () {
 };
 
 /**
+    Method: O.RunLoop.eraseAllQueues
+
+    Drops all queued functions without running them.
+*/
+const eraseAllQueues = function () {
+    for (const id in _queues) {
+        _queues[id].length = 0;
+    }
+};
+
+/**
     Method: O.RunLoop.queueFn
 
     Add a [function, object] tuple to a queue, ensuring it is not added
@@ -498,6 +509,7 @@ export {
     mayRedraw,
     flushQueue,
     flushAllQueues,
+    eraseAllQueues,
     queueFn,
     invoke,
     invokeInNextEventLoop,
