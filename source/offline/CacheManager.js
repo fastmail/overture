@@ -43,10 +43,7 @@ class CacheManager {
             .replace(bearerParam, '')
             .replace(downloadParam, '');
         const response = await cache.match(cacheUrl);
-        if (response && response.status !== 200) {
-            // TEMP: Clean up Safari's incorrectly cached 304s
-            cache.delete(cacheUrl);
-        } else if (response) {
+        if (response) {
             if (rules) {
                 this.setIn(cacheName, cacheUrl, null, request);
             }
