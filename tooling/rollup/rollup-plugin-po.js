@@ -3,6 +3,7 @@ import { compile, compileTranslation } from '../i18n/compile-po.js';
 
 export default function po(options = {}) {
     const filter = createFilter(options.include, options.exclude);
+    const { filterChunk = () => true } = options;
     return {
         transform(code, id) {
             if (!filter(id) || !id.endsWith('.po')) {
@@ -12,33 +13,32 @@ export default function po(options = {}) {
             return compile(id, code, null, false);
         },
         renderChunk(code, chunk) {
-            const facadeModuleId = chunk.facadeModuleId || '';
-            if (
-                facadeModuleId.endsWith('.po') ||
-                facadeModuleId.includes('/locale/')
-            ) {
-                code = code.replace(
-                    /['"]?translations['"]?:\s+({[\s\S]*?\n\s*})/,
-                    (_, strings) => {
+            if (!filterChunk(chunk)) {
+                return;
+            }
+            code = code.replace(
+                /['"]?translations['"]?:\s+({[\s\S]*?\n\s*})/g,
+                (match, strings) => {
+                    let data;
+                    try {
                         // eslint-disable-next-line no-eval
                         const evalGlobal = eval;
-                        const data = evalGlobal('(' + strings + ')');
-                        const translations = options.idsInUse.map((id) =>
-                            compileTranslation(data[id]),
-                        );
-                        return (
-                            'translations: [\n' +
-                            translations.join(',\n') +
-                            '\n]'
-                        );
-                    },
-                );
-                return {
-                    code,
-                    map: { mappings: '' },
-                };
-            }
-            return null;
+                        data = evalGlobal('(' + strings + ')');
+                    } catch {
+                        return match;
+                    }
+                    const translations = options.idsInUse.map((id) =>
+                        compileTranslation(data[id]),
+                    );
+                    return (
+                        'translations: [\n' + translations.join(',\n') + '\n]'
+                    );
+                },
+            );
+            return {
+                code,
+                map: { mappings: '' },
+            };
         },
     };
 }
