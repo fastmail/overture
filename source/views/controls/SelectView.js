@@ -190,7 +190,10 @@ const SelectView = Class({
     */
     syncBackValue: function () {
         const i = this._domControl.selectedIndex;
-        this.set('value', this.get('options').getObjectAt(i).value);
+        const option = this.get('options').getObjectAt(i);
+        if (option) {
+            this.set('value', option.value);
+        }
     }.on('change'),
 });
 
