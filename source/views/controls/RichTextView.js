@@ -1072,7 +1072,13 @@ const RichTextView = Class({
         switch (lookupKey(event)) {
             case isApple ? 'Meta-k' : 'Ctrl-k':
                 event.preventDefault();
-                this.showLinkOverlay(this.get('toolbarView').getView('link'));
+                if (this.get('isLink')) {
+                    this.removeLink();
+                } else {
+                    this.showLinkOverlay(
+                        this.get('toolbarView').getView('link'),
+                    );
+                }
                 break;
             case 'PageDown':
                 if (!isApple) {
