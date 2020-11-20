@@ -379,12 +379,12 @@ const Drag = Class({
                     if (item.kind === 'file') {
                         // Ignore folders
                         if (!itemType) {
-                            if (item.getAsEntry && !item.getAsEntry().isFile) {
-                                continue;
-                            } else if (
-                                item.webkitGetAsEntry &&
-                                !item.webkitGetAsEntry().isFile
-                            ) {
+                            const entry = item.getAsEntry
+                                ? item.getAsEntry()
+                                : item.webkitGetAsEntry
+                                ? item.webkitGetAsEntry()
+                                : null;
+                            if (entry && !entry.isFile) {
                                 continue;
                             }
                         }
