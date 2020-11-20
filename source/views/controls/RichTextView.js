@@ -67,12 +67,12 @@ const URLPickerView = Class({
 
     draw(/* layer */) {
         return [
-            el('h3.u-bold', [this.get('prompt')]),
+            el('h3.u-font-bold', [this.get('prompt')]),
             (this._input = new TextView({
                 value: bindTwoWay(this, 'value'),
                 placeholder: this.get('placeholder'),
             })),
-            el('p.u-alignRight', [
+            el('p.u-align-right', [
                 new ButtonView({
                     type: 'v-Button--standard v-Button--size13',
                     label: loc('Cancel'),
