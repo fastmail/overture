@@ -1,27 +1,28 @@
 /*global window, document, FileReader, Squire */
 
+import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { Class } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';
-import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../foundation/Decorators.js';
-import { isEqualToValue } from '../../foundation/Transform.js';
+import { isClickModified, lookupKey } from '../../dom/DOMEvent.js';
+import { create as el, nearest } from '../../dom/Element.js';
+import { COPY } from '../../drag/DragEffect.js';
+import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { didError } from '../../foundation/RunLoop.js';
-import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
-import { nearest, create as el } from '../../dom/Element.js';
-import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
-import { DropTarget } from '../../drag/DropTarget.js';
-import { COPY } from '../../drag/DragEffect.js';
+import { isEqualToValue } from '../../foundation/Transform.js';
 import { loc } from '../../localisation/i18n.js';
-import { isIOS, isApple, isAndroid } from '../../ua/UA.js';
+import { isAndroid, isApple, isIOS } from '../../ua/UA.js';
+import { ToolbarView } from '../collections/ToolbarView.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { MenuView } from '../menu/MenuView.js';
+import { PopOverView } from '../panels/PopOverView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-import { ScrollView } from '../containers/ScrollView.js';
-import { ToolbarView } from '../collections/ToolbarView.js';
-import { PopOverView } from '../panels/PopOverView.js';
 import { ButtonView } from './ButtonView.js';
 import { FileButtonView } from './FileButtonView.js';
-import { MenuView } from '../menu/MenuView.js';
 import { TextView } from './TextView.js';
+
+import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../foundation/Decorators.js';
 
 const execCommand = function (command) {
     return function (arg) {
@@ -496,8 +497,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('size'),
-                    label: loc('Font Size'),
-                    tooltip: loc('Font Size'),
+                    label: loc('Text Size'),
+                    tooltip: loc('Text Size'),
                     target: this,
                     method: 'showFontSizeMenu',
                 }),
