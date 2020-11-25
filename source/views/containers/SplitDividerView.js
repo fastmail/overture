@@ -1,11 +1,11 @@
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
-import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import /* { property } from */ '../../foundation/Decorators.js';
-import { View } from '../View.js';
 import { Draggable } from '../../drag/Draggable.js';
+import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import { View } from '../View.js';
+import { TOP_LEFT, VERTICAL } from './SplitViewController.js';
 
-import { VERTICAL, TOP_LEFT } from './SplitViewController.js';
+import /* { property } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.SplitDividerView
@@ -24,6 +24,22 @@ const SplitDividerView = Class({
     Extends: View,
 
     Mixin: Draggable,
+
+    init: function (mixin) {
+        const controller = mixin.controller;
+        SplitDividerView.parent.init.call(
+            this,
+            controller
+                ? {
+                      direction: controller.get('direction'),
+                      flex: controller.get('flex'),
+                      min: bind(controller, 'minStaticPaneLength'),
+                      max: bind(controller, 'maxStaticPaneLength'),
+                      offset: bindTwoWay(controller, 'staticPaneLength'),
+                  }
+                : mixin,
+        );
+    },
 
     /**
         Property: O.SplitDividerView#className
@@ -53,38 +69,11 @@ const SplitDividerView = Class({
     */
 
     /**
-        Property: O.SplitDividerView#offset
-        Type: Number
-
-        Bound two-way to the <O.SplitViewController#staticPaneLength>. It is
-        the distance from the edge of the split view that the split divider
-        view should be positioned.
-    */
-    offset: bindTwoWay('controller.staticPaneLength'),
-
-    /**
-        Property: O.SplitDividerView#min
-        Type: Number
-
-        Bound to the <O.SplitViewController#minStaticPaneLength>.
-    */
-    min: bind('controller.minStaticPaneLength'),
-
-    /**
-        Property: O.SplitDividerView#max
-        Type: Number
-
-        Bound to the <O.SplitViewController#maxStaticPaneLength>.
-    */
-    max: bind('controller.maxStaticPaneLength'),
-
-    /**
         Property: O.SplitDividerView#direction
         Type: Number
 
         Bound to the <O.SplitViewController#direction>.
     */
-    direction: bind('controller.direction'),
 
     /**
         Property: O.SplitDividerView#flex
@@ -92,7 +81,29 @@ const SplitDividerView = Class({
 
         Bound to the <O.SplitViewController#flex>.
     */
-    flex: bind('controller.flex'),
+
+    /**
+        Property: O.SplitDividerView#min
+        Type: Number
+
+        Bound to the <O.SplitViewController#minStaticPaneLength>.
+    */
+
+    /**
+        Property: O.SplitDividerView#max
+        Type: Number
+
+        Bound to the <O.SplitViewController#maxStaticPaneLength>.
+    */
+
+    /**
+        Property: O.SplitDividerView#offset
+        Type: Number
+
+        Bound two-way to the <O.SplitViewController#staticPaneLength>. It is
+        the distance from the edge of the split view that the split divider
+        view should be positioned.
+    */
 
     /**
         Property: O.SplitDividerView#anchor
