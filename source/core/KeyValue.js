@@ -60,10 +60,9 @@ const filter = (object, include) => {
         {Object} The object mapping keys to values.
 */
 const zip = (keys, values) => {
-    let l = Math.min(keys.length, values.length);
     const object = {};
-    while (l--) {
-        object[keys[l]] = values[l];
+    for (let i = 0, l = Math.min(keys.length, values.length); i < l; i += 1) {
+        object[keys[i]] = values[i];
     }
     return object;
 };

@@ -1,24 +1,24 @@
 /*global document */
 
 import { Class } from '../core/Core.js';
-import '../core/Array.js'; // For Array#include
-import { Obj } from '../foundation/Object.js';
-import /* { queue, property } from */ '../foundation/Decorators.js';
-import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { create as el } from '../dom/Element.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';
-import { ScrollView } from '../views/containers/ScrollView.js';
+import { Obj } from '../foundation/Object.js';
+import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
-
+import { ScrollView } from '../views/containers/ScrollView.js';
 import { DragController } from './DragController.js'; // Circular but it's OK
 import {
-    NONE,
-    COPY,
-    LINK,
     ALL,
+    COPY,
     DEFAULT,
     effectToString,
+    LINK,
+    NONE,
 } from './DragEffect.js';
+
+import '../core/Array.js'; // For Array#include
+import /* { queue, property } from */ '../foundation/Decorators.js';
 
 /* Issues with native drag and drop.
 
@@ -93,6 +93,7 @@ const Drag = Class({
         };
         this.defaultCursor = 'default';
         this.dragImage = null;
+        this.autoScroll = true;
 
         Drag.parent.constructor.call(this, mixin);
 
@@ -701,7 +702,7 @@ const Drag = Class({
             scroll = null;
             // Optimise by only reclaculating scrollView bounds when we mouse
             // over a new view.
-            if (view && this._lastTargetView !== view) {
+            if (this.autoScroll && view && this._lastTargetView !== view) {
                 let scrollView = (this._lastTargetView = view);
 
                 if (!(scrollView instanceof ScrollView)) {
