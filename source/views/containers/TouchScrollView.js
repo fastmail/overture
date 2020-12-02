@@ -12,6 +12,8 @@ import /* { on, property } from */ '../../foundation/Decorators.js';
 
 // ---
 
+/*global window */
+
 const ScrollViewPrototype = ScrollView.prototype;
 
 const getTouch = function (touches, id) {
@@ -24,7 +26,7 @@ const getTouch = function (touches, id) {
 };
 
 class TouchScrollAnimator extends Animation {
-    constructor(mixin) {
+    constructor(props) {
         super();
         this._initialTouchX = 0;
         this._initialTouchY = 0;
@@ -69,7 +71,7 @@ class TouchScrollAnimator extends Animation {
 
         this.speed = 1;
 
-        Object.assign(this, mixin);
+        Object.assign(this, props);
     }
 
     prepare(coordinates) {
@@ -229,6 +231,36 @@ class TouchScrollAnimator extends Animation {
     }
 }
 
+const distanceIsLessThan = (x1, y1, x2, y2, distance) => {
+    const x = x2 - x1;
+    const y = y2 - y1;
+    return x * x + y * y < distance * distance;
+};
+
+const touchIsOnSelectionHandle = (touch) => {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) {
+        return false;
+    }
+    const rects = Array.from(selection.getRangeAt(0).getClientRects());
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    let tl = null;
+    let br = null;
+    rects.forEach((rect) => {
+        if (!tl || rect.y < tl.y || (rect.y === tl.y && rect.x < tl.x)) {
+            tl = rect;
+        }
+        if (!br || rect.y > br.y || (rect.y === br.y && rect.x > br.x)) {
+            br = rect;
+        }
+    });
+    return (
+        distanceIsLessThan(touchX, touchY, tl.left, tl.top, 40) ||
+        distanceIsLessThan(touchX, touchY, br.right, br.bottom, 40)
+    );
+};
+
 mixin(TouchScrollAnimator.prototype, EventTarget);
 mixin(TouchScrollAnimator.prototype, {
     onTouchStart: function (event) {
@@ -239,6 +271,10 @@ mixin(TouchScrollAnimator.prototype, {
         const currentTouchTime = event.timeStamp || Date.now();
 
         if (touches.length > 1) {
+            return;
+        }
+
+        if (touchIsOnSelectionHandle(touch)) {
             return;
         }
 
@@ -435,7 +471,7 @@ const TouchScrollView = Class({
     showScrollbarX: false,
     showScrollbarY: true,
 
-    init: function (mixin) {
+    init: function () {
         this.allowDefaultTouch = false;
 
         this.isInfinite = false;
@@ -444,7 +480,7 @@ const TouchScrollView = Class({
         this.scrollLeft = 0;
         this.scrollTop = 0;
 
-        TouchScrollView.parent.constructor.call(this, mixin);
+        TouchScrollView.parent.constructor.apply(this, arguments);
     },
 
     willEnterDocument: ScrollViewPrototype.willEnterDocument,
