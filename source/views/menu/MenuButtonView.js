@@ -1,9 +1,10 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import { ButtonView } from '../controls/ButtonView.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { RootView } from '../RootView.js';
-import { ButtonView } from '../controls/ButtonView.js';
 import { MenuOptionView } from './MenuOptionView.js';
+
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.MenuButtonView
@@ -127,8 +128,10 @@ const MenuButtonView = Class({
         Overridden to show menu associated with button, if not already visible.
         Ignores target/method/action properties.
     */
-    activate() {
+    activate(event) {
         if (!this.get('isActive') && !this.get('isDisabled')) {
+            this.isKeyActivation =
+                event && event.type && event.type.startsWith('key');
             this.set('isActive', true);
             const buttonView = this;
             const menuView = this.get('menuView');
@@ -207,7 +210,7 @@ const MenuButtonView = Class({
         if (event.button || event.metaKey || event.ctrlKey) {
             return;
         }
-        this.activate();
+        this.activate(event);
     }.on('mousedown'),
 });
 

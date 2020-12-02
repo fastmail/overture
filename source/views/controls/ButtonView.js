@@ -1,12 +1,12 @@
 /*global document */
 
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
-import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
-
+import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { AbstractControlView } from './AbstractControlView.js';
+
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.ButtonView
@@ -258,8 +258,10 @@ const ButtonView = Class({
 
         It also fires an event called `button:activate` on itself.
     */
-    activate() {
+    activate(event) {
         if (!this.get('isDisabled') && !this.get('isWaiting')) {
+            this.isKeyActivation =
+                event && event.type && event.type.startsWith('key');
             const target = this.get('target') || this;
             const method = this.get('method');
             const action = method ? null : this.get('action');
@@ -326,7 +328,7 @@ const ButtonView = Class({
         ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
             invokeInNextEventLoop(this._setIgnoreUntil, this);
-            this.activate();
+            this.activate(event);
             event.preventDefault();
             // Firefox keeps focus on the button after clicking. If the user
             // then hits "space", it will activate the button again!
@@ -346,7 +348,7 @@ const ButtonView = Class({
     keyboardActivate: function (event) {
         const key = lookupKey(event);
         if (key === 'Enter' || key === 'Space') {
-            this.activate();
+            this.activate(event);
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
