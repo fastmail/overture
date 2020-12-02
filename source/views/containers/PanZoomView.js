@@ -1,5 +1,12 @@
+import { Animation } from '../../animation/Animation.js';
+import { linear } from '../../animation/Easing.js';
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
+import { appendChildren, setStyle } from '../../dom/Element.js';
+import { ViewEventsController } from '../ViewEventsController.js';
+import { ScrollView } from './ScrollView.js';
+import { TouchScrollView } from './TouchScrollView.js';
+
 import /* {
     nextFrame,
     nextLoop,
@@ -8,12 +15,6 @@ import /* {
     property,
     queue,
 } from */ '../../foundation/Decorators.js';
-import { Animation } from '../../animation/Animation.js';
-import { linear } from '../../animation/Easing.js';
-import { appendChildren, setStyle } from '../../dom/Element.js';
-import { ViewEventsController } from '../ViewEventsController.js';
-import { ScrollView } from './ScrollView.js';
-import { TouchScrollView } from './TouchScrollView.js';
 
 const PanZoomView = Class({
     Name: 'PanZoomView',
@@ -57,6 +58,11 @@ const PanZoomView = Class({
         }
     }.observes('isInDocument'),
 
+    didResize() {
+        this.contentDidResize();
+        return PanZoomView.parent.didResize.call(this);
+    },
+
     // Needs to be in the next next frame after the next event loop so the
     // browser has definitely drawn the loaded image and we get the proper
     // resized dimensions. Why, I'm not quite sure but just nextLoop no longer
@@ -68,6 +74,15 @@ const PanZoomView = Class({
         const minScale = this.get('minScale');
         if (this.get('scale') < minScale) {
             this.set('scale', minScale);
+        }
+        const scrollLeft = this.get('scrollLeft');
+        const scrollTop = this.get('scrollTop');
+        if (
+            scrollLeft > this.get('maxScrollX') ||
+            scrollTop > this.get('maxScrollY')
+        ) {
+            // This will clamp them to allowed values
+            this.scrollTo(scrollLeft, scrollTop, false);
         }
     }
         .nextLoop()
