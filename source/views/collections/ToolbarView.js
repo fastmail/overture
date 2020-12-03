@@ -1,14 +1,15 @@
 import { Class } from '../../core/Core.js';
-import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';
-import { View } from '../View.js';
-import { RootView } from '../RootView.js';
-import { ViewEventsController } from '../ViewEventsController.js';
-import { PopOverView } from '../panels/PopOverView.js';
 import { MenuButtonView } from '../menu/MenuButtonView.js';
 import { MenuView } from '../menu/MenuView.js';
+import { PopOverView } from '../panels/PopOverView.js';
+import { RootView } from '../RootView.js';
+import { View } from '../View.js';
+import { ViewEventsController } from '../ViewEventsController.js';
+
+import /* { property, observes } from */ '../../foundation/Decorators.js';
 
 const toView = function (name) {
     return name === '-'
@@ -68,9 +69,9 @@ const OverflowMenuView = Class({
         const key = lookupKey(event);
         const button = this.get('shortcuts')[key];
         if (button instanceof MenuButtonView) {
-            this.activate();
+            this.activate(event);
         }
-        button.activate();
+        button.activate(event);
     },
 });
 
@@ -78,9 +79,8 @@ const viewIsBeforeFlex = function (view, flex) {
     const layer = view.get('layer');
     const childNodes = flex.parentNode.childNodes;
     let l = childNodes.length;
-    let node;
     while (l--) {
-        node = childNodes[l];
+        const node = childNodes[l];
         if (node === layer) {
             return false;
         }
