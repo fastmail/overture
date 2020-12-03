@@ -131,7 +131,7 @@ const MenuButtonView = Class({
     activate(event) {
         if (!this.get('isActive') && !this.get('isDisabled')) {
             this.isKeyActivation =
-                event && event.type && event.type.startsWith('key');
+                !!event && !!event.type && event.type.startsWith('key');
             this.set('isActive', true);
             const buttonView = this;
             const menuView = this.get('menuView');

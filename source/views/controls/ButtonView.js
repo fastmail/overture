@@ -261,7 +261,7 @@ const ButtonView = Class({
     activate(event) {
         if (!this.get('isDisabled') && !this.get('isWaiting')) {
             this.isKeyActivation =
-                event && event.type && event.type.startsWith('key');
+                !!event && !!event.type && event.type.startsWith('key');
             const target = this.get('target') || this;
             const method = this.get('method');
             const action = method ? null : this.get('action');
