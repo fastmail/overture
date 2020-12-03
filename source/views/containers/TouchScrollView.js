@@ -243,6 +243,9 @@ const touchIsOnSelectionHandle = (touch) => {
         return false;
     }
     const rects = Array.from(selection.getRangeAt(0).getClientRects());
+    if (!rects.length) {
+        return false;
+    }
     const touchX = touch.clientX;
     const touchY = touch.clientY;
     let tl = null;
