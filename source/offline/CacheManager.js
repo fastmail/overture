@@ -6,9 +6,19 @@ const bearerParam = /[?&]access_token=[^&]+/;
 const downloadParam = /[?&]download=1\b/;
 
 const processResponse = (request, response) => {
-    if (downloadParam.test(request.url)) {
+    const requestUrl = request.url;
+    const isDownload = downloadParam.test(requestUrl);
+    // Firefox uses the response url for the "View image" context menu action.
+    // This may have an outdated access_token param and so fail, because we
+    // ignore this when pulling it out of the cache. If you just create a new
+    // Response object, it will have a null url, which causes Firefox to
+    // fallback to the request url (there's no way to set the url explicitly on
+    // a new Response object).
+    if (isDownload || requestUrl !== response.url) {
         response = new Response(response.body, response);
-        response.headers.set('Content-Disposition', 'attachment');
+        if (isDownload) {
+            response.headers.set('Content-Disposition', 'attachment');
+        }
     }
     return response;
 };
