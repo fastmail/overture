@@ -139,16 +139,18 @@ const nodesToText = function (
         }
         switch (tag) {
             case 'A':
-                href = node.href;
-                href = href.slice(href.indexOf(':') + 1);
-                if (href.charAt(0) === '/' && href.charAt(1) === '/') {
-                    href = href.slice(2);
-                }
-                if (href.charAt(href.length - 1) === '/') {
-                    href = href.slice(0, -1);
-                }
-                if (!node.textContent.includes(href)) {
-                    stringBuilder.push(' <' + node.href + '>');
+                if (markupInline) {
+                    href = node.href;
+                    href = href.slice(href.indexOf(':') + 1);
+                    if (href.charAt(0) === '/' && href.charAt(1) === '/') {
+                        href = href.slice(2);
+                    }
+                    if (href.charAt(href.length - 1) === '/') {
+                        href = href.slice(0, -1);
+                    }
+                    if (!node.textContent.includes(href)) {
+                        stringBuilder.push(' <' + node.href + '>');
+                    }
                 }
                 break;
             case 'I':
