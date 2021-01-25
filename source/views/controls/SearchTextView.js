@@ -1,8 +1,8 @@
 import { Class } from '../../core/Core.js';
 import { loc } from '../../localisation/i18n.js';
 import { when } from '../collections/SwitchView.js';
-import { TextView } from './TextView.js';
 import { ClearSearchButtonView } from './ClearSearchButtonView.js';
+import { TextView } from './TextView.js';
 
 const SearchTextView = Class({
     Name: 'SearchTextView',
@@ -12,6 +12,13 @@ const SearchTextView = Class({
     type: 'v-SearchText',
 
     icon: null,
+
+    inputAttributes: {
+        autocapitalize: 'off',
+        autocomplete: 'off',
+        autocorrect: 'off',
+        spellcheck: 'false',
+    },
 
     // Helps password managers know this is not a username input!
     name: 'search',
