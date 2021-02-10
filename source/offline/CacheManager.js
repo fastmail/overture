@@ -103,11 +103,22 @@ class CacheManager {
             const existing = await _(store.get(cacheUrl));
             const now = Date.now();
             const created = existing && !response ? existing.created : now;
-            store.put({
-                url: cacheUrl,
-                created,
-                lastAccess: now,
-            });
+            const maxLastAccess = rules.maxLastAccess;
+            // We've already returned the result, but if it should have expired,
+            // don't update the cache time so we'll flush it from the cache
+            // before next time.
+            if (
+                response ||
+                !existing ||
+                !maxLastAccess ||
+                existing.lastAccess + 1000 * maxLastAccess >= now
+            ) {
+                store.put({
+                    url: cacheUrl,
+                    created,
+                    lastAccess: now,
+                });
+            }
             if (
                 rules.refetchIfOlderThan &&
                 created + 1000 * rules.refetchIfOlderThan < now
