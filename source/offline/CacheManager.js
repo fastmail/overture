@@ -147,7 +147,7 @@ class CacheManager {
             let count = 0;
             for await (const result of iterate(cursor)) {
                 const entry = result.value;
-                if (entry.lastAccess < minLastAccess || count > maxNumber) {
+                if (entry.lastAccess < minLastAccess || count >= maxNumber) {
                     entriesToDelete.push(entry);
                 } else {
                     count += 1;
