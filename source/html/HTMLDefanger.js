@@ -414,7 +414,7 @@ const INERT = 8;
 const DOM_INERT = DOM | INERT;
 const FRAGMENT_INERT = FRAGMENT | INERT;
 
-// Chrome Mobile  will sometimes crashes with error
+// Chrome Mobile will sometimes crash with error
 // "Failed to execute 'acceptNode' on 'NodeFilter':
 // The provided callback is no longer runnable."
 // if you pass a function instead of null.
