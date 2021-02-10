@@ -154,20 +154,28 @@ class CacheManager {
                 }
             }
         });
-        const cache = await caches.open(cacheName);
-        await Promise.all(entriesToDelete.map(({ url }) => cache.delete(url)));
-        await db.transaction(cacheName, 'readwrite', async (transaction) => {
-            const store = transaction.objectStore(cacheName);
-            // We check the lastAccess time has not changed so we don't delete
-            // an updated entry if setInCache has interleaved.
-            entriesToDelete.forEach(async (entryToDelete) => {
-                const key = entryToDelete.url;
-                const entry = await _(store.get(key));
-                if (entry.lastAccess === entryToDelete.lastAccess) {
-                    store.delete(key);
-                }
-            });
-        });
+        if (entriesToDelete.length) {
+            const cache = await caches.open(cacheName);
+            await Promise.all(
+                entriesToDelete.map(({ url }) => cache.delete(url)),
+            );
+            await db.transaction(
+                cacheName,
+                'readwrite',
+                async (transaction) => {
+                    const store = transaction.objectStore(cacheName);
+                    // We check the lastAccess time has not changed so we don't
+                    //delete an updated entry if setInCache has interleaved.
+                    entriesToDelete.forEach(async (entryToDelete) => {
+                        const key = entryToDelete.url;
+                        const entry = await _(store.get(key));
+                        if (entry.lastAccess === entryToDelete.lastAccess) {
+                            store.delete(key);
+                        }
+                    });
+                },
+            );
+        }
         if (rules.expiryInProgress > 1) {
             setTimeout(() => this.removeExpiredIn(cacheName), 0);
         }
