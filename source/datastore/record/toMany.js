@@ -33,8 +33,8 @@ const mapToTrue = function (result, key) {
 
 const ARRAY_PROPERTY = '[]';
 
-const RecordArray = Class({
-    Name: 'RecordArray',
+const ToManyRecordArray = Class({
+    Name: 'ToManyRecordArray',
 
     Extends: ObservableArray,
 
@@ -46,7 +46,7 @@ const RecordArray = Class({
 
         this._updatingStore = false;
 
-        RecordArray.parent.constructor.call(this);
+        ToManyRecordArray.parent.constructor.call(this);
     },
 
     toJSON() {
@@ -66,7 +66,7 @@ const RecordArray = Class({
             } else {
                 list = list.slice();
             }
-            RecordArray.parent[ARRAY_PROPERTY].call(this, list);
+            ToManyRecordArray.parent[ARRAY_PROPERTY].call(this, list);
         }
     },
 
@@ -89,7 +89,7 @@ const RecordArray = Class({
 
     [ARRAY_PROPERTY]: function (array) {
         if (array) {
-            RecordArray.parent[ARRAY_PROPERTY].call(
+            ToManyRecordArray.parent[ARRAY_PROPERTY].call(
                 this,
                 array.map((x) => x.get('storeKey')),
             );
@@ -101,7 +101,7 @@ const RecordArray = Class({
     }.property(),
 
     getObjectAt(index) {
-        const storeKey = RecordArray.parent.getObjectAt.call(this, index);
+        const storeKey = ToManyRecordArray.parent.getObjectAt.call(this, index);
         return storeKey
             ? this.get('store').getRecordFromStoreKey(storeKey)
             : null;
@@ -115,7 +115,7 @@ const RecordArray = Class({
     replaceObjectsAt(index, numberRemoved, newItems) {
         newItems = newItems ? Array.from(newItems) : [];
         const store = this.get('store');
-        const oldItems = RecordArray.parent.replaceObjectsAt
+        const oldItems = ToManyRecordArray.parent.replaceObjectsAt
             .call(
                 this,
                 index,
@@ -166,7 +166,7 @@ class ToManyAttribute extends RecordAttribute {
         const arrayKey = '_' + propKey + 'RecordArray';
         let recordArray = record[arrayKey];
         if (!recordArray) {
-            recordArray = record[arrayKey] = new RecordArray(
+            recordArray = record[arrayKey] = new ToManyRecordArray(
                 record,
                 propKey,
                 this.recordType,
