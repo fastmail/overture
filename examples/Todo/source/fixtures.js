@@ -1,23 +1,21 @@
 /*global console, setTimeout, clearTimeout, window */
-"use strict";
+import { zip } from 'overture/core';
 
-( function () {
-
-var confirmCommit = function ( args, extras ) {
-    var result = {};
+const confirmCommit = function ( args, extras ) {
+    const result = {};
     if ( args.create ) {
-        result.created = Object.zip(
+        result.created = zip(
             Object.keys( args.create ),
-            Object.keys( args.create ).map( function ( id ) {
+            Object.keys( args.create ).map( ( id ) => {
                 return Object.assign(
                     { id: 'committed' + id.slice( 1 ) }, extras );
             })
         );
     }
     if ( args.update )  {
-        result.updated = Object.zip(
+        result.updated = zip(
             Object.keys( args.update ),
-            Object.keys( args.update ).map( function () {
+            Object.keys( args.update ).map( () => {
                 return null;
             })
         );
@@ -30,8 +28,8 @@ var confirmCommit = function ( args, extras ) {
     return result;
 };
 
-var API = {
-    'TodoList/get': function ( results/*, args*/ ) {
+const API = {
+    'TodoList/get' ( results/*, args*/ ) {
         results.push([ 'TodoList/get', {
             state: 'foo',
             list: [{
@@ -43,10 +41,10 @@ var API = {
             }]
         }]);
     },
-    'TodoList/set': function ( results, args ) {
+    'TodoList/set' ( results, args ) {
         results.push([ 'TodoList/set', confirmCommit( args ) ]);
     },
-    'Todo/get': function ( results/*, args*/ ) {
+    'Todo/get' ( results/*, args*/ ) {
         results.push([ 'Todo/get', {
             state: 'foo',
             list: [{
@@ -102,12 +100,12 @@ var API = {
             }]
         }]);
     },
-    'Todo/set': function ( results, args ) {
+    'Todo/set' ( results, args ) {
         results.push([ 'Todo/set', confirmCommit( args ) ]);
     },
 };
 
-var XMLHttpRequest = function () {
+const XMLHttpRequest = function () {
     this.readyState = 0;
     this.status = 0;
     this.statusText = '';
@@ -129,8 +127,8 @@ XMLHttpRequest.prototype.send = function ( data ) {
         console.log( data );
         return;
     }
-    var that = this;
-    this._request = setTimeout( function () {
+    const that = this;
+    this._request = setTimeout( () => {
         that._returnResultForData( data );
     }, 10 );
 };
@@ -142,19 +140,21 @@ XMLHttpRequest.prototype.getResponseHeader = function ( name ) {
     if ( name === 'Content-type' ) {
         return 'application/json';
     }
+    return '';
 };
 XMLHttpRequest.prototype.getAllResponseHeaders = function () {
     return "IsLocal: True";
 };
 XMLHttpRequest.prototype._returnResultForData = function ( data ) {
-    var methods = [];
+    let methods = [];
     try {
         methods = JSON.parse( data ).methodCalls || [];
     } catch ( error ) {}
-    var result = [],
-        k = 0, kk;
-    for ( var i = 0, l = methods.length; i < l; i += 1 ) {
-        var method = methods[i];
+    const result = [];
+        let k = 0; let
+kk;
+    for ( let i = 0, l = methods.length; i < l; i += 1 ) {
+        const method = methods[i];
         if ( API[ method[0] ] ) {
             API[ method[0] ]( result, method[1] );
         }
@@ -169,5 +169,3 @@ XMLHttpRequest.prototype._returnResultForData = function ( data ) {
 };
 
 window.XMLHttpRequest = XMLHttpRequest;
-
-}() );

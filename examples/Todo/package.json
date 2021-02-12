@@ -1,0 +1,17 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "source/main.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^2.2.1",
+    "vite": "^2.0.0-beta.31"
+  },
+  "type": "module"
+}

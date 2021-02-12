@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "overture/*": ["../../source/*"]
+        }
+    },
+    "exclude": ["node_modules", "dist"]
+}

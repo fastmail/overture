@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <title>Overture Todo Example App</title>
-<link rel="stylesheet" href="styles/reset.css">
-<link rel="stylesheet" href="styles/libstyles.css">
-<link rel="stylesheet" href="styles/icons.css">
+<link rel="stylesheet" href="/styles/reset.css">
+<link rel="stylesheet" href="/styles/libstyles.css">
+<link rel="stylesheet" href="/styles/icons.css">
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
 <style>
 html {
-    background: url(images/bg.png);
+    background: url(/images/bg.png);
     font-family: "Open Sans", "Helvetica Neue", sans-serif;
 }
 
@@ -119,12 +119,13 @@ html {
     text-align: center;
 }
 
+.u-red {
+    background: red;
+}
+
 </style>
 </head>
 <body>
-<script src="fixtures.js"></script>
-<script src="../../dist/O.js"></script>
-<script src="Connection.js"></script>
-<script src="Todo.js"></script>
+<script src="/source/main.js" type="module"></script>
 </body>
 </html>
