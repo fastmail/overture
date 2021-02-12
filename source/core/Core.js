@@ -6,6 +6,8 @@
     the default types and class creation functionality.
 */
 
+import { invoke } from '../foundation/RunLoop.js';
+
 /**
     Function: O.meta
 
@@ -578,7 +580,9 @@ const Class = function (params) {
             parent.apply(this, arguments);
         };
 
+    let name = null;
     if (params.hasOwnProperty('Name')) {
+        name = params.Name;
         // iOS 9 and Blackberry 10 (and presumably other very old browsers)
         // will throw an exception if you try to do this.
         try {
@@ -587,7 +591,6 @@ const Class = function (params) {
                 value: params.Name,
             });
         } catch (error) {}
-        classes[params.Name] = init;
         delete params.Name;
     }
 
@@ -609,6 +612,75 @@ const Class = function (params) {
     }
 
     mixin(init.prototype, params, false);
+
+    if (import.meta.hot && classes.hasOwnProperty(name)) {
+        const klass = classes[name];
+
+        // Make a copy of the original prototype
+        const oldProto = Object.assign({}, klass.prototype);
+
+        // Update the original prototype
+        Object.assign(klass.prototype, init.prototype);
+
+        // Collect the keys of all the computed properties on the new
+        // prototype and the keys/values of the non-computed properties
+        // whose value is different between the old and the new prototype
+        const computed = [];
+        const nonComputed = {};
+        Object.keys(init.prototype).forEach(key => {
+            if (key === 'constructor') {
+                return;
+            }
+            const value = init.prototype[key];
+
+            // Is it a computed property?
+            if (typeof value === 'function') {
+                if (value.isProperty) {
+                    computed.push(key);
+                }
+                return;
+            }
+
+            // Is the new value different to the old value?
+            const oldValue = oldProto[key];
+            if (!isEqual(value, oldValue)) {
+                nonComputed[key] = oldValue;
+            }
+        });
+        const canRedrawView = 'viewNeedsRedraw' in init.prototype;
+
+        // Trigger property updates on instances of the class
+        invoke(() => {
+            klass.instances.forEach(instance => {
+                // Notify the instance of changes to non-computed properties
+                Object.entries(nonComputed).forEach(([key, oldValue]) => {
+                    // Skip any values that have been overriden on the
+                    // instance as they're assumed to hold important state
+                    if (instance.hasOwnProperty(key)) {
+                        return;
+                    }
+
+                    const value = init.prototype[key];
+                    instance.propertyDidChange(key, oldValue, value);
+                });
+
+                // Notify the instance of changes to computed properties
+                computed.forEach(property => {
+                    instance.computedPropertyDidChange(property);
+                });
+
+                // If the instance is a view that can redraw, trigger a redraw
+                if (canRedrawView) {
+                    instance.viewNeedsRedraw();
+                }
+            });
+        });
+    } else {
+        classes[name] = init;
+        if (import.meta.hot) {
+            classes[name].instances = new Set();
+        }
+    }
 
     return init;
 };

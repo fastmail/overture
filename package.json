@@ -25,11 +25,14 @@
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-replace": "^2.3.4",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.8.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-overture": "file:eslint-plugin-overture",
+    "prettier": "^2.2.1",
     "rollup": "^2.26.10",
     "rollup-plugin-terser": "^7.0.2"
-  }
+  },
+  "type": "module"
 }

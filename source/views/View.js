@@ -476,6 +476,10 @@ const View = Class({
         return this;
     },
 
+    viewNeedsRedraw() {
+        this.propertyNeedsRedraw(this, 'layer');
+    },
+
     // --- Event triage ---
 
     /**
