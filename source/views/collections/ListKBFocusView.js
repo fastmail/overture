@@ -1,23 +1,23 @@
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
 import { bind } from '../../foundation/Binding.js';
-import /* { property, nocache, queue } from */ '../../foundation/Decorators.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
+
+import /* { property, nocache, queue } from */ '../../foundation/Decorators.js';
 
 const ListKBFocusView = Class({
     Name: 'ListKBFocusView',
 
     Extends: View,
 
+    listView: null,
     selection: null,
     singleSelection: null,
 
     index: bind('singleSelection*index'),
     record: bind('singleSelection*record'),
-
-    itemHeight: 32,
 
     keys: {
         j: 'goNext',
@@ -33,6 +33,8 @@ const ListKBFocusView = Class({
 
     positioning: 'absolute',
 
+    itemLayout: bind('listView*itemLayout'),
+
     layoutIndex: function () {
         const index = this.get('index');
         const list = this.get('singleSelection').get('content');
@@ -47,14 +49,14 @@ const ListKBFocusView = Class({
     }.property('index', 'record'),
 
     layout: function () {
-        const itemHeight = this.get('itemHeight');
         const index = this.get('layoutIndex');
+        const listView = this.get('listView');
         return {
             visibility: index < 0 ? 'hidden' : 'visible',
-            marginTop: index < 0 ? 0 : itemHeight * index,
-            height: itemHeight,
+            marginTop: index < 0 ? 0 : listView.indexToOffset(index),
+            height: listView.get('itemHeight'),
         };
-    }.property('itemHeight', 'layoutIndex'),
+    }.property('itemLayout', 'layoutIndex'),
 
     didEnterDocument() {
         const keys = this.get('keys');
@@ -124,17 +126,17 @@ const ListKBFocusView = Class({
         const scrollView = this.getParent(ScrollView);
         if (scrollView) {
             const scrollHeight = scrollView.get('pxHeight');
-            const itemHeight = this.get('pxHeight');
+            const pxHeight = this.get('pxHeight');
             const top = this.getPositionRelativeTo(scrollView).top;
 
             if (offset && -1 <= offset && offset <= 1) {
-                offset = (offset * (scrollHeight - itemHeight)) >> 1;
+                offset = (offset * (scrollHeight - pxHeight)) >> 1;
             }
             scrollView.scrollTo(
                 0,
                 Math.max(
                     0,
-                    top + ((itemHeight - scrollHeight) >> 1) + (offset || 0),
+                    top + ((pxHeight - scrollHeight) >> 1) + (offset || 0),
                 ),
                 withAnimation,
             );

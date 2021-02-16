@@ -1,9 +1,10 @@
 import { Class, guid } from '../../core/Core.js';
-import { bind } from '../../foundation/Binding.js';
-import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { appendChildren } from '../../dom/Element.js';
+import { bind } from '../../foundation/Binding.js';
 import { browser } from '../../ua/UA.js';
 import { View } from '../View.js';
+
+import /* { property, observes } from */ '../../foundation/Decorators.js';
 
 const isFirefox = browser === 'firefox';
 const isMSIE = browser === 'msie';
@@ -55,6 +56,8 @@ const ListView = Class({
         this.controller = null;
         this.focused = null;
         this.selection = null;
+
+        this.itemLayout = 0;
 
         ListView.parent.constructor.apply(this, arguments);
 
@@ -126,8 +129,9 @@ const ListView = Class({
     },
 
     layout: function () {
+        const length = this.get('contentLength') || 0;
         const itemHeight = this.get('itemHeight');
-        let height = itemHeight * (this.get('contentLength') || 0);
+        let height = length ? this.indexToOffset(length - 1) + itemHeight : 0;
         // Firefox breaks in weird and wonderful ways when a scroll area is
         // over a certain height, somewhere between 2^24 and 2^25px tall.
         // 2^24 = 16,777,216
@@ -143,7 +147,11 @@ const ListView = Class({
             height = 10737418;
         }
         return itemHeight ? { height } : {};
-    }.property('itemHeight', 'contentLength'),
+    }.property('itemLayout', 'contentLength'),
+
+    itemLayoutDidChange: function () {
+        this.increment('itemLayout');
+    }.observes('itemHeight'),
 
     draw(layer) {
         // Render any unmanaged child views first.
@@ -163,8 +171,16 @@ const ListView = Class({
         }
     },
 
-    viewNeedsRedraw() {
+    viewNeedsRedraw: function () {
         this.propertyNeedsRedraw(this, 'layer');
+    }.observes('itemLayout'),
+
+    offsetToIndex(offsetInPx) {
+        return Math.floor(offsetInPx / this.get('itemHeight'));
+    },
+
+    indexToOffset(index) {
+        return index * this.get('itemHeight');
     },
 
     // -----------------------------------------------------------------------
@@ -180,6 +196,7 @@ const ListView = Class({
             controller: this.get('controller'),
             selection: this.get('selection'),
             parentView: this,
+            itemLayout: this.get('itemLayout'),
             content,
             index,
             list,
@@ -240,6 +257,7 @@ const ListView = Class({
         currentViewIndex = getNextViewIndex(childViews, newRendered, 0);
 
         // Create/update views in render range
+        const itemLayout = this.get('itemLayout');
         for (let i = start, l = end; i < l; i += 1) {
             const item = list.getObjectAt(i);
             const id = item ? guid(item) : 'null:' + i;
@@ -263,8 +281,10 @@ const ListView = Class({
                         view.didLeaveDocument();
                     }
                 }
-                // Always update list/index
-                view.set('index', i).set('list', list);
+                // Always update itemLayout/list/index
+                view.set('itemLayout', itemLayout)
+                    .set('index', i)
+                    .set('list', list);
                 // If in correct position, all done
                 if (viewIsInCorrectPosition) {
                     if (frag) {

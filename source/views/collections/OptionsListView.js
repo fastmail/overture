@@ -1,8 +1,8 @@
-import { isDestroyed, guid, Class } from '../../core/Core.js';
-import { bind } from '../../foundation/Binding.js';
+import { Class, guid, isDestroyed } from '../../core/Core.js';
 import { DESTROYED } from '../../datastore/record/Status.js';
-import { ListView } from './ListView.js';
+import { bind } from '../../foundation/Binding.js';
 import { ScrollView } from '../containers/ScrollView.js';
+import { ListView } from './ListView.js';
 
 const OptionsListView = Class({
     Name: 'OptionsListView',
@@ -18,14 +18,6 @@ const OptionsListView = Class({
     },
 
     layerTag: 'ul',
-
-    itemHeightDidChange: function () {
-        const itemHeight = this.get('itemHeight');
-        const views = this._views;
-        for (const id in views) {
-            views[id].set('itemHeight', itemHeight);
-        }
-    }.observes('itemHeight'),
 
     // ---
 

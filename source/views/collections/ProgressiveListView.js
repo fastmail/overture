@@ -1,9 +1,10 @@
 import { Class } from '../../core/Core.js';
-import /* { observes, queue } from */ '../../foundation/Decorators.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { ListView } from './ListView.js';
 import { TrueVisibleRect } from './TrueVisibleRect.js';
+
+import /* { observes, queue } from */ '../../foundation/Decorators.js';
 
 const ProgressiveListView = Class({
     Name: 'ProgressiveListView',
@@ -13,7 +14,9 @@ const ProgressiveListView = Class({
     Mixin: TrueVisibleRect,
 
     batchSize: 10,
-    triggerInPx: 200,
+    numItemsPastVisible: function () {
+        return Math.ceil(200 / this.get('itemHeight'));
+    }.property('itemHeight'),
 
     init: function (/* ...mixins */) {
         ProgressiveListView.parent.constructor.apply(this, arguments);
@@ -95,26 +98,26 @@ const ProgressiveListView = Class({
         // We only care about changes when we're visible.
         if (this.get('isInDocument')) {
             const visible = this.get('visibleRect');
-            const extension = this.get('triggerInPx');
+            const extension = this.get('numItemsPastVisible');
             const batchSize = this.get('batchSize');
-            const itemHeight = this.get('itemHeight');
-            const batchHeight = itemHeight * batchSize;
             const y = visible.y;
             const height = visible.height;
-            // Index of first item we want rendered
+            const firstVisible = this.offsetToIndex(y);
+            const lastVisible = this.offsetToIndex(y + height);
+            // Index (inclusive) of first item we want rendered
             const start = Math.max(
                 0,
-                ~~((y - extension) / batchHeight) * batchSize,
+                Math.floor((firstVisible - extension) / batchSize) * batchSize,
             );
-            // Index of last item we want rendered
+            // Index (exclusive) of last item we want rendered
             const end =
-                ~~((y + height + extension) / batchHeight) * batchSize +
+                (Math.floor((lastVisible + extension) / batchSize) + 1) *
                 batchSize;
             const _renderRange = this._renderRange;
 
-            this.set('firstVisible', Math.floor(y / itemHeight)).set(
+            this.set('firstVisible', firstVisible).set(
                 'lastVisible',
-                Math.floor((y + height) / itemHeight) + 1,
+                lastVisible + 1, // End index is exclusive
             );
 
             if (start !== _renderRange.start || end !== _renderRange.end) {
@@ -125,7 +128,7 @@ const ProgressiveListView = Class({
         }
     }
         .queue('middle')
-        .observes('visibleRect', 'itemHeight'),
+        .observes('visibleRect', 'itemLayout'),
 });
 
 export { ProgressiveListView };
