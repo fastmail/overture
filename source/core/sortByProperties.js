@@ -40,7 +40,7 @@ const sortByProperties = function (properties) {
                 if (type === 'boolean' && aVal !== bVal) {
                     return aVal ? -1 : 1;
                 }
-                if (type === 'string') {
+                if (type === 'string' && aVal !== bVal) {
                     return compare(aVal, bVal);
                 }
                 if (aVal < bVal) {
