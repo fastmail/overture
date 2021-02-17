@@ -53,10 +53,11 @@ class Database {
         return _db;
     }
 
-    async transaction(storeNames, type, fn) {
+    // Mode = readwrite or readonly
+    async transaction(storeNames, mode, fn) {
         const db = await this.open();
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeNames, type);
+            const transaction = db.transaction(storeNames, mode);
             transaction.onabort = () => reject(transaction.error);
             transaction.oncomplete = () => resolve();
             fn(transaction);
