@@ -109,9 +109,11 @@ const MenuFilterView = Class({
             case 'Enter':
                 controller.selectFocused();
                 break;
+            case 'Ctrl-k':
             case 'ArrowUp':
                 controller.focusPrevious();
                 break;
+            case 'Ctrl-j':
             case 'ArrowDown':
                 controller.focusNext();
                 break;
