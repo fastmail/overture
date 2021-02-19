@@ -2,11 +2,12 @@ import { Class } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
 import /* { on } from */ '../../foundation/Decorators.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import { lookupKey } from '../../dom/DOMEvent.js';
+import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
 import { View } from '../View.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { SearchTextView } from '../controls/SearchTextView.js';
+import { queueFn } from '../../foundation/RunLoop.js';
 
 const MenuFilterView = Class({
     Name: 'MenuFilterView',
@@ -74,13 +75,18 @@ const MenuFilterView = Class({
         return new Obj({
             view: this._input,
             controller: this.get('controller'),
-            done: function () {
-                if (!this.view.get('isFocused')) {
-                    this.controller.set('isFiltering', false);
+            done: function (event) {
+                if (!isClickModified(event)) {
+                    queueFn(
+                        'after',
+                        () => {
+                            if (!this.view.get('isFocused')) {
+                                this.controller.set('isFiltering', false);
+                            }
+                        },
+                    );
                 }
-            }
-                .queue('after')
-                .on('click', 'keydown'),
+            }.on('click', 'keydown'),
         });
     }.property(),
 
