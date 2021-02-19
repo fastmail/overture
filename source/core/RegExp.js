@@ -4,7 +4,7 @@
 
     A regular expression for detecting an email address.
 */
-const email = /\b([\w.%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,})\b/i;
+const email = /([\w!$&*\-=^`|~#%'+/?{}]+(?:\.[\w!$&*\-=^`|~#%'+/?{}]+)*@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,})\b/;
 
 /**
     Property: RegExp.url
