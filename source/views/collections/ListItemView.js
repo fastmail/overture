@@ -1,4 +1,5 @@
 import { Class } from '../../core/Core.js';
+import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { View } from '../View.js';
 
 import /* { property, nextFrame } from */ '../../foundation/Decorators.js';
@@ -46,15 +47,21 @@ const ListItemView = Class({
         };
     }.property(),
 
-    layoutWillChange: function () {
+    invalidateLayout() {
         this.computedPropertyDidChange('layout');
-    }
-        .nextLoop()
-        .observes('index', 'itemLayout'),
+    },
+
+    layoutWillChange: function () {
+        if (this.get('animateLayer')) {
+            invokeInNextEventLoop(this.invalidateLayout, this);
+        } else {
+            this.invalidateLayout();
+        }
+    }.observes('index', 'itemLayout'),
 
     resetLayout: function () {
         if (this.get('animateIn')) {
-            this.computedPropertyDidChange('layout');
+            this.invalidateLayout();
         }
     }
         .nextLoop()
