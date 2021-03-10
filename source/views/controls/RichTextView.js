@@ -923,7 +923,7 @@ const RichTextView = Class({
                     // and add a mailto: handler, if found.
                     email = emailRegExp.exec(url);
                     if (email && email[0].length === url.length) {
-                        url = 'mailto:' + email[0];
+                        url = 'mailto:' + encodeURIComponent(email[0]);
                         // Or an http:// prefix if not.
                     } else {
                         url = 'http://' + url;
