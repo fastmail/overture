@@ -953,9 +953,9 @@ const RichTextView = Class({
             confirm: loc('Insert Image'),
             add() {
                 let url = this.get('value').trim();
-                if (!/^https?:/i.test(url)) {
-                    // Must be http/https protocol
-                    if (/^[a-z]:/i.test(url)) {
+                if (!/^(?:https?|data):/i.test(url)) {
+                    // Must be http/https/data protocol
+                    if (/^[a-z]+:/i.test(url)) {
                         return;
                     }
                     // If none, presume http
