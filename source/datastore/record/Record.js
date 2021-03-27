@@ -44,9 +44,11 @@ const Record = Class({
         this._noSync = false;
         this._data = storeKey
             ? null
-            : {
+            : store
+            ? {
                   accountId: store.getPrimaryAccountIdForType(this.constructor),
-              };
+              }
+            : {};
         this.store = store;
         this.storeKey = storeKey;
 
