@@ -192,7 +192,7 @@ const SelectView = Class({
         const i = this._domControl.selectedIndex;
         const option = this.get('options').getObjectAt(i);
         if (option) {
-            this.set('value', option.value);
+            this.userDidInput(option.value);
         }
     }.on('change'),
 });

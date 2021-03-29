@@ -83,7 +83,7 @@ const RadioView = Class({
     */
     activate: function () {
         if (!this.get('isDisabled')) {
-            this.set('value', true);
+            this.userDidInput(true);
         }
     }.on('click'),
 });

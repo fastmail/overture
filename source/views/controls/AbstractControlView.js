@@ -361,6 +361,10 @@ const AbstractControlView = Class({
         via a keyboard shortcut.
     */
     activate() {},
+
+    userDidInput(value) {
+        this.set('value', value);
+    },
 });
 
 export { AbstractControlView };

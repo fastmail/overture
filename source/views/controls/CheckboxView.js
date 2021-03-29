@@ -93,7 +93,7 @@ const CheckboxView = Class({
     */
     activate() {
         if (!this.get('isDisabled')) {
-            this.toggle('value');
+            this.userDidInput(!this.get('value'));
         }
     },
 
@@ -119,7 +119,7 @@ const CheckboxView = Class({
                 event.preventDefault();
                 value = !value;
             }
-            this.set('value', value);
+            this.userDidInput(value);
         }
     }.on('click', 'tap'),
 });
