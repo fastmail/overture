@@ -9,6 +9,7 @@ const sniffContentType = (type, name) => {
             break;
         case 'application/x-any': // Garbage created by JAVA mail (I think)
         case 'application/word': // Seen in the wild for a PDF
+        case 'application/binary': // Seen in the wild for a PDF
             type = 'application/octet-stream';
         /* falls through */
         case 'application/octet-stream':
