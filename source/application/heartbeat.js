@@ -1,5 +1,8 @@
+import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
+
 import /* { observes } from */ '../foundation/Decorators.js';
-import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
+
+/*global document */
 
 /**
     Object: heartbeat
@@ -11,6 +14,7 @@ import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 const heartbeat = {
     _views: [],
     _timer: null,
+    _next: 0,
     register(view) {
         const views = this._views;
         if (!views.length) {
@@ -26,11 +30,14 @@ const heartbeat = {
         }
     },
     start() {
-        this._timer = invokeAfterDelay(
-            this.beat,
-            61000 - 1000 * new Date().getUTCSeconds(),
-            this,
-        );
+        const visibilityState = document.visibilityState || 'visible';
+        if (visibilityState !== 'visible') {
+            return;
+        }
+        const now = Date.now();
+        const next = now + (60000 - (now % 60000));
+        this._next = next;
+        this._timer = invokeAfterDelay(this.beat, next - now + 500, this);
     },
     stop() {
         if (this._timer) {
@@ -39,12 +46,25 @@ const heartbeat = {
         }
     },
     beat() {
-        this._views.forEach((view) => {
-            view.nowNeedsRedraw();
-        });
+        if (Date.now() >= this._next) {
+            this._views.forEach((view) => {
+                view.nowNeedsRedraw();
+            });
+        }
         this.start();
     },
+    handleEvent() {
+        const visibilityState = document.visibilityState || 'visible';
+        if (visibilityState !== 'visible') {
+            this.stop();
+        } else {
+            if (this._views.length) {
+                this.beat();
+            }
+        }
+    },
 };
+document.addEventListener('visibilitychange', heartbeat, false);
 
 const RedrawOnMinute = {
     register: function () {
