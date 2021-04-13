@@ -1,8 +1,9 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
-import { invokeAfterDelay, cancel } from '../../foundation/RunLoop.js';
-import { View } from '../View.js';
+import { cancel, invokeAfterDelay } from '../../foundation/RunLoop.js';
 import { PopOverView } from '../panels/PopOverView.js';
+import { View } from '../View.js';
+
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 
 const MenuOptionView = Class({
     Name: 'MenuOptionView',
@@ -19,7 +20,13 @@ const MenuOptionView = Class({
     layerTag: 'li',
 
     className: function () {
-        return 'v-MenuOption' + (this.get('isFocused') ? ' is-focused' : '');
+        return (
+            'v-MenuOption' +
+            (this.get('content').get('button').get('isLastOfSection')
+                ? ' v-MenuOption--lastOfSection'
+                : '') +
+            (this.get('isFocused') ? ' is-focused' : '')
+        );
     }.property('isFocused'),
 
     draw(/* layer */) {
