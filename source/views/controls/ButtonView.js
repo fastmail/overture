@@ -266,9 +266,9 @@ const ButtonView = Class({
             const method = this.get('method');
             const action = method ? null : this.get('action');
             if (method) {
-                target[method](this);
+                target[method](this, event);
             } else if (action) {
-                target.fire(action, { originView: this });
+                target.fire(action, { originView: this, originEvent: event });
             }
             this.fire('button:activate');
         }
