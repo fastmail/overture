@@ -1,4 +1,5 @@
 import { Class } from '../../core/Core.js';
+import { create as el } from '../../dom/Element.js';
 import { cancel, invokeAfterDelay } from '../../foundation/RunLoop.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { View } from '../View.js';
@@ -30,7 +31,9 @@ const MenuOptionView = Class({
     }.property('isFocused'),
 
     draw(/* layer */) {
-        return this.get('content').get('button');
+        const button = this.get('content').get('button');
+        const title = button.get('sectionTitle');
+        return [title ? el('h2.v-MenuOption-title', [title]) : null, button];
     },
 
     _focusTimeout: null,
