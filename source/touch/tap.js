@@ -54,7 +54,10 @@ class TrackedTouch {
         this.cancelOnMove = inScrollView;
         this.activeEls = activeEls;
         do {
-            if (/^(?:A|BUTTON|INPUT|LABEL)$/.test(target.nodeName)) {
+            if (
+                /^(?:A|BUTTON|INPUT|LABEL)$/.test(target.nodeName) ||
+                (target.classList && target.classList.contains('tap-target'))
+            ) {
                 activeEls.push(target);
                 target.classList.add('tap-active');
             }
