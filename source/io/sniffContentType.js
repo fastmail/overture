@@ -12,8 +12,9 @@ const sniffContentType = (type, name) => {
         case 'application/binary': // Seen in the wild for a PDF
             type = 'application/octet-stream';
         /* falls through */
-        case 'application/octet-stream':
-        case 'text/plain': // Default for really broken or missing MIME type
+        default:
+            // Use extension to determine MIME type for files where the type
+            // given is commonly wrong
             if (/\.pdf$/i.test(name)) {
                 type = 'application/pdf';
             } else if (/\.pkpass$/.test(name)) {
@@ -22,8 +23,8 @@ const sniffContentType = (type, name) => {
                 // Broken crap from cheap security cameras
                 type = 'image/jpeg';
             } else if (/\.mp3$/i.test(name)) {
-                // Orange.fr sends voice messages via email with mp3 attachments,
-                // but application/octet-stream MIME type
+                // Orange.fr sends voice messages via email with mp3
+                // attachments, but application/octet-stream MIME type
                 type = 'audio/mpeg';
             }
             break;
