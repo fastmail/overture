@@ -277,24 +277,31 @@ const ButtonView = Class({
     // --- Keep state in sync with render ---
 
     /**
-        Property (private): O.ButtonView#_ignoreUntil
+        Property: O.ButtonView#noRepeatWithin
         Type: Number
 
-        Time before which we should not reactive.
+        Time in ms to ignore further clicks after being clicked. By default,
+        this is 200ms, which encompasses most double clicks. So for people that
+        automatically double click everything (yep! that's a type of user), we
+        won't trigger twice. This is important if you automatically select the
+        next item after applying an action.
+        .
+    */
+    noRepeatWithin: 200,
+
+    /**
+        Property (private): O.ButtonView#_ignoreUntil
+        Type: Number
 
         We want to trigger on mouseup so that the button can be used in a menu
         in a single click action. However, we also want to trigger on click for
         accessibility reasons. We don't want to trigger twice though, and at the
         time of the mouseup event there's no way to know if a click event will
-        follow it. However, if a click event *is* following it, in most
-        browsers, the click event will already be in the event queue, so we
-        temporarily ignore clicks and put a callback function onto the end of
-        the event queue to stop ignoring them. This will only run after the
-        click event has fired (if there is one). The exception is Opera, where
-        it gets queued before the click event. By adding a minimum 200ms delay
-        we can more or less guarantee it is queued after, and it also prevents
-        double click from activating the button twice, which could have
-        unintended effects.
+        follow it. However, if a click event *is* following it, the click event
+        will already be in the event queue, so we temporarily ignore clicks and
+        put a callback function onto the end of the event queue to stop
+        ignoring them. We can also add any delay for the noRepeatWithin property
+        to extend the time we ignore further clicks.
     */
     _ignoreUntil: 0,
 
@@ -302,7 +309,7 @@ const ButtonView = Class({
         Method (private): O.ButtonView#_setIgnoreUntil
     */
     _setIgnoreUntil() {
-        this._ignoreUntil = Date.now() + 200;
+        this._ignoreUntil = Date.now() + this.get('noRepeatWithin');
     },
 
     /**
