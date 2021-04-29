@@ -1249,7 +1249,7 @@ const WindowedQuery = Class({
         // All that's left is to inform observers of the changes.
         return this.beginPropertyChanges()
             .set('length', total)
-            .set('status', status & EMPTY ? READY : status)
+            .set('status', READY | (status & (DIRTY | LOADING | OBSOLETE)))
             .endPropertyChanges()
             .rangeDidChange(
                 informAllRangeObservers ? 0 : position,

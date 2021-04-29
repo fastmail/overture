@@ -269,7 +269,7 @@ const Query = Class({
     fetch(force, callback) {
         const status = this.get('status');
         if (force || status === EMPTY || status & OBSOLETE) {
-            if (status & READY) {
+            if (status !== EMPTY) {
                 this._refresh = true;
             }
             this.get('source').fetchQuery(this, callback);
