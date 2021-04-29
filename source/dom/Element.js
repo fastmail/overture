@@ -1,10 +1,11 @@
 /*global window, document, Element, SVGAnimatedString */
 
-import '../core/String.js'; // For String#camelCase, #hyphenate
-import { browser } from '../ua/UA.js';
 import { Binding } from '../_codependent/_Binding.js';
-import { didError } from '../foundation/RunLoop.js';
 import { View } from '../_codependent/_View.js';
+import { didError } from '../foundation/RunLoop.js';
+import { browser } from '../ua/UA.js';
+
+import '../core/String.js'; // For String#camelCase, #hyphenate
 
 /**
     Module: DOM
@@ -154,6 +155,7 @@ const booleanProperties = {
     defaultChecked: 1,
     disabled: 1,
     hidden: 1,
+    indeterminate: 1,
     multiple: 1,
     readOnly: 1,
     required: 1,
