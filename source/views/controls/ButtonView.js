@@ -285,7 +285,6 @@ const ButtonView = Class({
         automatically double click everything (yep! that's a type of user), we
         won't trigger twice. This is important if you automatically select the
         next item after applying an action.
-        .
     */
     noRepeatWithin: 200,
 
