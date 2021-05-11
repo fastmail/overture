@@ -4,6 +4,7 @@ import { Obj } from '../../foundation/Object.js';
 import { bind } from '../../foundation/Binding.js';
 import { ObservableArray } from '../../foundation/ObservableArray.js';
 import { queueFn, invokeInNextFrame } from '../../foundation/RunLoop.js';
+import { toBoolean } from '../../foundation/Transform.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { OptionsController } from '../../selection/OptionsController.js';
 import { View } from '../View.js';
@@ -48,7 +49,9 @@ const MenuController = Class({
     init: function (view, content, isFiltering) {
         this.options = new ObservableArray();
         this.view = view;
-        this.content = content.map((button) => new MenuOption(button, this));
+        this.content = content
+            .filter(toBoolean)
+            .map((button) => new MenuOption(button, this));
         MenuController.parent.constructor.call(this, {
             isFiltering,
         });
