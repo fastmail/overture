@@ -23,7 +23,8 @@ const MenuOptionView = Class({
     className: function () {
         return (
             'v-MenuOption' +
-            (this.get('content').get('button').get('isLastOfSection')
+            (this.get('content').get('button').get('isLastOfSection') &&
+            this.get('index') < this.getFromPath('list.length') - 1
                 ? ' v-MenuOption--lastOfSection'
                 : '') +
             (this.get('isFocused') ? ' is-focused' : '')
