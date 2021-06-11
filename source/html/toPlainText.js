@@ -123,6 +123,7 @@ const nodesToText = function (
                     if (!lastChar || lastChar === '\n') {
                         stringBuilder.push(quotePrefix);
                     }
+                    nodeText = nodeText.replace(/\n(?!$)/g, '\n' + quotePrefix);
                 }
                 stringBuilder.push(nodeText);
             }
@@ -184,18 +185,29 @@ const nodesToText = function (
             case 'LI':
             case 'DD':
             case 'TR':
-            case 'TABLE': {
+            case 'TABLE':
+            case 'P':
+            case 'H1':
+            case 'H2':
+            case 'H3':
+            case 'H4':
+            case 'H5':
+            case 'H6': {
                 const lastChar = getLastChar(stringBuilder);
                 if (lastChar !== '\n') {
                     stringBuilder.push('\n');
                 }
-                break;
-            }
-            default:
-                if (/^(?:P|H[1-6])$/.test(tag)) {
-                    const lastChar = getLastChar(stringBuilder);
-                    stringBuilder.push(lastChar !== '\n' ? '\n\n' : '\n');
+                // Line break after headings and paragraphs. Special case check
+                // for MS Outlook overriding the margin on the <p> since this
+                // is so common.
+                if (
+                    /^H[1-6]$/.test(tag) ||
+                    (tag === 'P' &&
+                        !/\bMsoNo(?:rmal|Spacing)\b/.test(node.className))
+                ) {
+                    stringBuilder.push(quotePrefix + '\n');
                 }
+            }
         }
     }
 };
