@@ -2,6 +2,7 @@
 
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
+
 import /* { observes, invokeInRunLoop, queue } from */ '../foundation/Decorators.js';
 
 /**
@@ -253,6 +254,7 @@ const Router = Class({
         if (queryString) {
             queryString
                 .slice(1)
+                .replace(/\+/g, ' ')
                 .split('&')
                 .map((entry) => entry.split('=', 2).map(decodeURIComponent))
                 .forEach(([name, value]) => {
@@ -350,6 +352,7 @@ const Router = Class({
                 // signifying “there are no global parameters”.
                 encodedState
                     .slice(queryStringStart + 1)
+                    .replace(/\+/g, ' ')
                     .split('&')
                     .map((entry) => entry.split('=', 2).map(decodeURIComponent))
                     .forEach(([name, value]) => {
