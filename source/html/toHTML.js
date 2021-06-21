@@ -83,7 +83,8 @@ const toHTML = (plainText, style) => {
                         ? /^(?:ht|f)tps?:/i.test(match[1])
                             ? match[1]
                             : 'http://' + match[1]
-                        : 'mailto:' + encodeURIComponent(match[0])
+                        : 'mailto:' +
+                          encodeURIComponent(match[0]).replace(/%40/g, '@')
                     )
                         .escapeHTML()
                         .replace(/"/g, '&quot;');
