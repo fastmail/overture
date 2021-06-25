@@ -3,7 +3,6 @@ import { ease, linear } from '../../animation/Easing.js';
 import { Class, mixin } from '../../core/Core.js';
 import { create as el, setStyle } from '../../dom/Element.js';
 import { EventTarget } from '../../foundation/EventTarget.js';
-import { tap } from '../../touch/tap.js';
 import { LAYOUT_FILL_PARENT, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ScrollView } from './ScrollView.js';
@@ -288,7 +287,6 @@ mixin(TouchScrollAnimator.prototype, {
             if (!this.object.get('allowDefaultTouch')) {
                 event.preventDefault();
             }
-            tap.cancel();
         }
 
         // Store initial positions and time
@@ -383,7 +381,6 @@ mixin(TouchScrollAnimator.prototype, {
         // Otherwise figure out whether we are switching into dragging mode now.
         else if (this.shouldStartScroll(currentTouchX, currentTouchY)) {
             this._isDragging = true;
-            tap.cancel();
             ViewEventsController.addEventTarget(this, 100);
         }
 

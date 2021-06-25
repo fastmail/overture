@@ -2,7 +2,6 @@ import { Animation } from '../../animation/Animation.js';
 import { Class, mixin } from '../../core/Core.js';
 import { appendChildren, create as el, setStyle } from '../../dom/Element.js';
 import { queueFn } from '../../foundation/RunLoop.js';
-import { tap } from '../../touch/tap.js';
 import { browser, isIOS, version } from '../../ua/UA.js';
 import { RootView } from '../RootView.js';
 import { LAYOUT_FILL_PARENT, View } from '../View.js';
@@ -457,8 +456,6 @@ const ScrollView = Class({
             .endPropertyChanges();
         if (event) {
             event.stopPropagation();
-            // Don't interpret tap to stop scroll as a real tap.
-            tap.cancel();
         }
     }.on('scroll'),
 
