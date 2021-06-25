@@ -182,7 +182,6 @@ export { TimeZone } from './timezones/TimeZone.js';
 
 export { Gesture } from './touch/Gesture.js';
 export { gestureManager } from './touch/gestureManager.js';
-export { hold } from './touch/hold.js';
 export { tap } from './touch/tap.js';
 export { UA };
 

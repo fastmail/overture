@@ -1,7 +1,8 @@
 import { Class } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
-import /* { on } from */ '../../foundation/Decorators.js';
 import { ScrollView } from '../containers/ScrollView.js';
+
+import /* { on } from */ '../../foundation/Decorators.js';
 
 const ModalEventHandler = Class({
     Name: 'ModalEventHandler',
@@ -44,7 +45,7 @@ const ModalEventHandler = Class({
             event.stopPropagation();
             if (type === 'mousedown') {
                 this._seenMouseDown = true;
-            } else if (type === 'click') {
+            } else if (type === 'click' || type === 'tap') {
                 event.preventDefault();
                 if (this._seenMouseDown) {
                     if (view.clickedOutside) {

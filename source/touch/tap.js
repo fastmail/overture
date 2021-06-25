@@ -1,43 +1,30 @@
 /*global document */
 
 import { Event } from '../foundation/Event.js';
+import { invokeAfterDelay } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import { Gesture } from './Gesture.js';
 
-/*  We can't just call preventDefault on touch(start|move), as this would
-    prevent scrolling and also prevent links we want to act as normal from
-    working. So we use this hack instead to capture the subsequent click and
-    remove it from the app's existence.
-*/
-class MouseEventRemover {
-    constructor(target, defaultPrevented) {
-        this.target = target;
-        this.stop = defaultPrevented;
-        this.time = Date.now();
-        ViewEventsController.addEventTarget(this, 40);
-    }
-    fire(type, event) {
-        const isClick = type === 'click' && !event.originalType;
-        let isMouse = isClick || /^mouse/.test(type);
-        if (type === 'touchstart' || Date.now() - this.time > 1000) {
-            ViewEventsController.removeEventTarget(this);
-            isMouse = false;
-        }
-        if (isMouse && (this.stop || event.target !== this.target)) {
-            event.preventDefault();
-        }
-        event.propagationStopped = isMouse;
+class TapEvent extends Event {}
+
+class HoldEvent extends Event {
+    constructor(touch) {
+        super('hold', touch.target);
+        this.touch = touch;
     }
 }
 
-class TapEvent extends Event {}
-
-TapEvent.prototype.originalType = 'tap';
+const fireHoldEvent = function () {
+    if (!this._ignore) {
+        ViewEventsController.handleEvent(new HoldEvent(this.touch));
+    }
+};
 
 class TrackedTouch {
-    constructor(x, y, target) {
+    constructor(touch) {
         const activeEls = [];
+        let target = touch.target;
         let view = getViewFromNode(target);
         let inScrollView = false;
         while (view) {
@@ -48,9 +35,10 @@ class TrackedTouch {
             view = view.get('parentView');
         }
         this.timestamp = Date.now();
-        this.x = x;
-        this.y = y;
+        this.x = touch.clientX;
+        this.y = touch.clientY;
         this.target = target;
+        this.touch = touch;
         this.cancelOnMove = inScrollView;
         this.activeEls = activeEls;
         do {
@@ -62,6 +50,8 @@ class TrackedTouch {
                 target.classList.add('tap-active');
             }
         } while ((target = target.parentNode));
+        this._ignore = false;
+        invokeAfterDelay(fireHoldEvent, 750, this);
     }
 
     done() {
@@ -70,37 +60,9 @@ class TrackedTouch {
         for (let i = 0; i < l; i += 1) {
             activeEls[i].classList.remove('tap-active');
         }
+        this._ignore = true;
     }
 }
-
-const isInputOrLink = function (node) {
-    const nodeName = node.nodeName;
-    let seenLink = false;
-    if (
-        nodeName === 'INPUT' ||
-        nodeName === 'BUTTON' ||
-        nodeName === 'TEXTAREA' ||
-        nodeName === 'SELECT'
-    ) {
-        return true;
-    }
-    while (node && node.contentEditable === 'inherit') {
-        if (node.nodeName === 'A') {
-            seenLink = true;
-        }
-        node = node.parentNode;
-    }
-    if (node && node.contentEditable === 'true') {
-        return true;
-    }
-    while (!seenLink && node) {
-        if (node.nodeName === 'A') {
-            seenLink = true;
-        }
-        node = node.parentNode;
-    }
-    return seenLink;
-};
 
 const getParents = function (node) {
     const parents = [];
@@ -149,11 +111,7 @@ const tap = new Gesture({
             const touch = touches[i];
             const id = touch.identifier;
             if (!tracking[id]) {
-                tracking[id] = new TrackedTouch(
-                    touch.clientX,
-                    touch.clientY,
-                    touch.target,
-                );
+                tracking[id] = new TrackedTouch(touch);
             }
         }
     },
@@ -204,23 +162,9 @@ const tap = new Gesture({
                 if (target) {
                     const tapEvent = new TapEvent('tap', target, {
                         duration,
+                        touch,
                     });
                     ViewEventsController.handleEvent(tapEvent);
-                    const clickEvent = new TapEvent('click', target);
-                    clickEvent.defaultPrevented = tapEvent.defaultPrevented;
-                    ViewEventsController.handleEvent(clickEvent);
-                    // The tap could trigger a UI change. When the click event
-                    // is fired 300ms later, if there is now an input under the
-                    // area the touch took place, in iOS the keyboard will
-                    // appear, even though the preventDefault on the click event
-                    // stops it actually being focused. Calling preventDefault
-                    // on the touchend event stops this happening, however we
-                    // must not do this if the user actually taps an input or
-                    // a link!
-                    if (!isInputOrLink(target)) {
-                        event.preventDefault();
-                    }
-                    new MouseEventRemover(target, clickEvent.defaultPrevented);
                 }
                 trackedTouch.done();
                 delete tracking[id];

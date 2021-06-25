@@ -1,8 +1,8 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 import { create as el } from '../../dom/Element.js';
-
 import { AbstractControlView } from './AbstractControlView.js';
+
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.CheckboxView
@@ -102,26 +102,20 @@ const CheckboxView = Class({
     /**
         Method: O.CheckboxView#syncBackValue
 
-        Observes `click` and `tap` events to update the view's `value` property
+        Observes `click` events to update the view's `value` property
         when the user toggles the checkbox.
     */
     syncBackValue: function (event) {
-        const isTap = event.type === 'tap';
-        // Ignore simulated click events
-        if (
-            (isTap || !event.originalType) &&
-            event.targetView === this &&
-            !this.get('isDisabled')
-        ) {
+        if (event.targetView === this && !this.get('isDisabled')) {
             const control = this._domControl;
             let value = control.checked;
-            if (isTap || event.target !== control) {
+            if (event.target !== control) {
                 event.preventDefault();
                 value = !value;
             }
             this.userDidInput(value);
         }
-    }.on('click', 'tap'),
+    }.on('click'),
 });
 
 export { CheckboxView };
