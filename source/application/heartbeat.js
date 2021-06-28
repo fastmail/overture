@@ -1,6 +1,6 @@
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 
-import /* { observes } from */ '../foundation/Decorators.js';
+import /* { invokeInRunLoop, observes } from */ '../foundation/Decorators.js';
 
 /*global document */
 
@@ -53,7 +53,7 @@ const heartbeat = {
         }
         this.start();
     },
-    handleEvent() {
+    handleEvent: function () {
         const visibilityState = document.visibilityState || 'visible';
         if (visibilityState !== 'visible') {
             this.stop();
@@ -62,7 +62,7 @@ const heartbeat = {
                 this.beat();
             }
         }
-    },
+    }.invokeInRunLoop(),
 };
 document.addEventListener('visibilitychange', heartbeat, false);
 
