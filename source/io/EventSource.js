@@ -1,9 +1,10 @@
 import { Class, meta } from '../core/Core.js';
-import '../core/Array.js'; // For Array#include
 import { Obj } from '../foundation/Object.js';
-import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
-import /* { invokeInRunLoop, on, observes } from */ '../foundation/Decorators.js';
+import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { XHR } from './XHR.js';
+
+import '../core/Array.js'; // For Array#include
+import /* { invokeInRunLoop, on, observes } from */ '../foundation/Decorators.js';
 
 /*global window */
 
@@ -60,9 +61,6 @@ const EventSource = NativeEventSource
                         functions or observing methods).
     */
           init: function (/* ...mixins */) {
-              this._then = 0;
-              this._tick = null;
-
               this.readyState = CLOSED;
 
               EventSource.parent.constructor.apply(this, arguments);
@@ -93,44 +91,6 @@ const EventSource = NativeEventSource
               this.set('readyState', this._eventSource.readyState);
               this.fire(event.type, event);
           }.invokeInRunLoop(),
-
-          /**
-        Method (private): O.EventSource#_check
-
-        Checks the computer hasn't been asleep. If it has, it restarts the
-        connection.
-    */
-          _check() {
-              const now = Date.now();
-              if (now - this._then > 67500) {
-                  this.fire('restart').close().open();
-              } else {
-                  this._then = now;
-                  this._tick = invokeAfterDelay(this._check, 60000, this);
-                  // Chrome occasionally closes the event source without firing
-                  // an event. Resync readyState here to work around.
-                  this.set('readyState', this._eventSource.readyState);
-              }
-          },
-          /**
-        Method (private): O.EventSource#_startStopCheck
-
-        Sets up the timer to check if the computer has been asleep.
-    */
-          _startStopCheck: function () {
-              const tick = this._tick;
-              if (this.get('readyState') !== CLOSED) {
-                  if (!tick) {
-                      this._then = Date.now();
-                      this._check();
-                  }
-              } else {
-                  if (tick) {
-                      cancel(tick);
-                      this._tick = null;
-                  }
-              }
-          }.observes('readyState'),
 
           /**
         Method: O.EventSource#open
