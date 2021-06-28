@@ -28,11 +28,12 @@ const requestAnimFrame =
         };
     })();
 
-const Timeout = function (time, period, fn, bind) {
+const Timeout = function (time, period, fn, bind, doNotSchedule) {
     this.time = time;
     this.period = period;
     this.fn = fn;
     this.bind = bind;
+    this.doNotSchedule = doNotSchedule || false;
 };
 
 const parentsBeforeChildren = function (a, b) {
@@ -123,7 +124,8 @@ const _timeouts = new Heap((a, b) => {
 
     Epoch time that the next browser timeout is scheduled for.
 */
-let _nextTimeout = 0;
+const MAX_SAFE_INTEGER = 9007199254740991;
+let _nextTimeout = MAX_SAFE_INTEGER;
 
 /**
     Property (private): O.RunLoop._timer
@@ -372,10 +374,12 @@ const invokeInNextFrame = function (fn, bind, allowDups) {
         <O.RunLoop.cancel> method before the function is invoked, in order
         to cancel the scheduled invocation.
 */
-const invokeAfterDelay = function (fn, delay, bind) {
-    const timeout = new Timeout(Date.now() + delay, 0, fn, bind);
+const invokeAfterDelay = function (fn, delay, bind, doNotSchedule) {
+    const timeout = new Timeout(Date.now() + delay, 0, fn, bind, doNotSchedule);
     _timeouts.push(timeout);
-    _scheduleTimeout();
+    if (!doNotSchedule) {
+        _scheduleTimeout(timeout);
+    }
     return timeout;
 };
 
@@ -396,10 +400,18 @@ const invokeAfterDelay = function (fn, delay, bind) {
         <O.RunLoop.cancel> method to cancel all future invocations scheduled
         by this call.
 */
-const invokePeriodically = function (fn, period, bind) {
-    const timeout = new Timeout(Date.now() + period, period, fn, bind);
+const invokePeriodically = function (fn, period, bind, doNotSchedule) {
+    const timeout = new Timeout(
+        Date.now() + period,
+        period,
+        fn,
+        bind,
+        doNotSchedule,
+    );
     _timeouts.push(timeout);
-    _scheduleTimeout();
+    if (!doNotSchedule) {
+        _scheduleTimeout(timeout);
+    }
     return timeout;
 };
 
@@ -409,17 +421,18 @@ const invokePeriodically = function (fn, period, bind) {
     Sets the browser timer if necessary to trigger at the time of the next
     timeout in the priority queue.
 */
-const _scheduleTimeout = function () {
-    const timeout = _timeouts.peek();
-    const time = timeout ? timeout.time : 0;
-    if (time && time !== _nextTimeout) {
+const _scheduleTimeout = function (timeout) {
+    const time = timeout.time;
+    if (time < _nextTimeout) {
         clearTimeout(_timer);
         const delay = time - Date.now();
         if (delay > 0) {
-            _timer = setTimeout(processTimeouts, time - Date.now());
+            _timer = setTimeout(processTimeouts, delay);
             _nextTimeout = time;
         } else {
-            _nextTimeout = 0;
+            // No need to set a timeout, it will be processed at the end of
+            // this run loop.
+            _nextTimeout = MAX_SAFE_INTEGER;
         }
     }
 };
@@ -435,16 +448,39 @@ const _scheduleTimeout = function () {
 */
 const processTimeouts = function () {
     const timeouts = _timeouts;
-    while (timeouts.length && timeouts.peek().time <= Date.now()) {
-        const timeout = timeouts.pop();
-        let period;
-        if ((period = timeout.period)) {
-            timeout.time = Date.now() + period;
+    const now = Date.now();
+    let nextToSchedule = null;
+    while (timeouts.length) {
+        const timeout = timeouts.peek();
+        if (timeout.time > now) {
+            nextToSchedule = timeout;
+            break;
+        }
+        timeouts.pop();
+        const period = timeout.period;
+        if (period) {
+            timeout.time = now + period;
             timeouts.push(timeout);
         }
         invoke(timeout.fn, timeout.bind);
     }
-    _scheduleTimeout();
+    if (nextToSchedule && nextToSchedule.time !== _nextTimeout) {
+        _nextTimeout = MAX_SAFE_INTEGER;
+        if (nextToSchedule.doNotSchedule) {
+            nextToSchedule = null;
+            timeouts.forEach((timeout) => {
+                if (
+                    !timeout.doNotSchedule &&
+                    (!nextToSchedule || nextToSchedule.time > timeout.time)
+                ) {
+                    nextToSchedule = timeout;
+                }
+            });
+        }
+        if (nextToSchedule) {
+            _scheduleTimeout(nextToSchedule);
+        }
+    }
 };
 
 /**

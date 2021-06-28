@@ -121,6 +121,13 @@ class Heap {
 
         return this;
     }
+
+    forEach(fn) {
+        const data = this.data;
+        for (let i = 0, l = this.length; i < l; i += 1) {
+            fn(data[i]);
+        }
+    }
 }
 
 export { Heap };
