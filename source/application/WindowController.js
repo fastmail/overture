@@ -1,11 +1,12 @@
 /*global window, document, localStorage */
 
 import { Class } from '../core/Core.js';
+import { Obj } from '../foundation/Object.js';
+import { invokeInNextEventLoop } from '../foundation/RunLoop.js';
+
 import '../core/Date.js'; // For Date#format
 import '../core/String.js'; // For String#escapeHTML
-import { Obj } from '../foundation/Object.js';
 import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
-import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
 
 /**
     Class: O.WindowController
@@ -78,8 +79,6 @@ const WindowController = Class({
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
 
         this._seenWCs = {};
-        this._checkTimeout = null;
-        this._pingTimeout = null;
 
         WindowController.parent.constructor.apply(this, arguments);
 
@@ -87,6 +86,8 @@ const WindowController = Class({
         window.addEventListener('unload', this, false);
         window.addEventListener('focus', this, false);
         window.addEventListener('blur', this, false);
+
+        invokeInNextEventLoop(this.checkMaster, this);
 
         this.start();
     },
@@ -104,23 +105,9 @@ const WindowController = Class({
 
     start() {
         this.broadcast('wc:hello');
-
-        const check = () => {
-            this.checkMaster();
-            this._checkTimeout = invokeAfterDelay(check, 9000);
-        };
-        const ping = () => {
-            this.sendPing();
-            this._pingTimeout = invokeAfterDelay(ping, 17000);
-        };
-        this._checkTimeout = invokeAfterDelay(check, 500);
-        this._pingTimeout = invokeAfterDelay(ping, 17000);
     },
 
     end(broadcastKey) {
-        cancel(this._pingTimeout);
-        cancel(this._checkTimeout);
-
         this.broadcast('wc:bye', null, broadcastKey);
     },
 
@@ -167,7 +154,6 @@ const WindowController = Class({
         Method (protected): O.WindowController#sendPing
 
         Sends a ping to let other windows know about the existence of this one.
-        Automatically called periodically.
     */
     sendPing() {
         this.broadcast('wc:ping');
@@ -183,11 +169,7 @@ const WindowController = Class({
     */
     _hello: function (event) {
         this._ping(event);
-        if (event.wcId < this.id) {
-            this.checkMaster();
-        } else {
-            this.sendPing();
-        }
+        this.sendPing();
     }.on('wc:hello'),
 
     /**
@@ -199,7 +181,11 @@ const WindowController = Class({
             event - {Event} An event object containing the window id.
     */
     _ping: function (event) {
-        this._seenWCs[event.wcId] = Date.now();
+        const wcId = event.wcId;
+        this._seenWCs[wcId] = true;
+        if (wcId < this.id) {
+            this.checkMaster();
+        }
     }.on('wc:ping'),
 
     /**
@@ -222,14 +208,10 @@ const WindowController = Class({
         property based on whether this window has the lowest ordered id.
     */
     checkMaster() {
-        const now = Date.now();
         let isMaster = true;
-        const seenWCs = this._seenWCs;
         const ourId = this.id;
-        for (const id in seenWCs) {
-            if (seenWCs[id] + 23000 < now) {
-                delete seenWCs[id];
-            } else if (id < ourId) {
+        for (const id in this._seenWCs) {
+            if (id < ourId) {
                 isMaster = false;
             }
         }
