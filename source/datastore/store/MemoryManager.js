@@ -3,9 +3,8 @@ import {
     invokeAfterDelay,
     invokeInNextEventLoop,
 } from '../../foundation/RunLoop.js';
-
-import { Record } from '../record/Record.js';
 import { Query } from '../query/Query.js';
+import { Record } from '../record/Record.js';
 
 /**
     Class: O.MemoryManager
@@ -44,7 +43,7 @@ class MemoryManager {
     */
 
     /**
-        Property: O.MemoryManager#frequency
+        Property: O.MemoryManager#timeout
         Type: Number
         Default: 30000 (30 seconds)
 
@@ -65,19 +64,25 @@ class MemoryManager {
                              which will be given an array of removed objects of
                              the given type, every time some are removed from
                              the store.
-            frequency    - {Number} (optional) How frequently the cleanup
-                           function is called in milliseconds. Default is 30000,
-                           i.e. every 30 seconds.
+            timeout      - {Number} (optional) How long after a change the
+                           cleanup function is called in milliseconds. Default
+                           is 30000.
     */
-    constructor(store, restrictions, frequency) {
+    constructor(store, restrictions, timeout) {
         this._index = 0;
         this._store = store;
         this._restrictions = restrictions;
+        this._timer = null;
+        this._isRunning = false;
 
         this.isPaused = false;
-        this.frequency = frequency || 30000;
+        this.timeout = timeout || 30000;
 
-        invokeAfterDelay(this.cleanup, this.frequency, this);
+        restrictions.forEach(({ Type }) => {
+            if (Type.prototype instanceof Record) {
+                store.on(Type, this, 'needsCleanup');
+            }
+        });
     }
 
     /**
@@ -97,6 +102,12 @@ class MemoryManager {
         return this;
     }
 
+    needsCleanup() {
+        if (!this._timer && !this._isRunning) {
+            this._timer = invokeAfterDelay(this.cleanup, this.timeout, this);
+        }
+    }
+
     /**
         Method: O.MemoryManager#cleanup
 
@@ -106,6 +117,7 @@ class MemoryManager {
         automatically called periodically by the memory manager.
     */
     cleanup() {
+        this._timer = null;
         let index = this._index;
         const restrictions = this._restrictions[index];
         const Type = restrictions.Type;
@@ -114,10 +126,11 @@ class MemoryManager {
         const afterFn = restrictions.afterCleanup;
         let deleted;
 
-        if (this.isPaused) {
-            invokeAfterDelay(this.cleanup, this.frequency, this);
+        if (!this._isRunning && this.isPaused) {
+            this.needsCleanup();
             return;
         }
+        this._isRunning = true;
 
         do {
             if (ParentType === Record) {
@@ -139,7 +152,7 @@ class MemoryManager {
         if (index) {
             invokeInNextEventLoop(this.cleanup, this);
         } else {
-            invokeAfterDelay(this.cleanup, this.frequency, this);
+            this._isRunning = false;
         }
     }
 
