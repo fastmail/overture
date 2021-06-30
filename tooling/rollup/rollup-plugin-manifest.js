@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+
 /**
  * A Rollup plugin to generate a manifest of chunk names to their filenames
  * (including their content hash). This manifest is then used by the template
@@ -11,6 +13,7 @@ export default function (config) {
     const manifest = {
         files: [],
         entries: {},
+        hashes: {},
     };
     const trimPrefix = config.trimPrefix || /^.*[/]/;
     return {
@@ -34,6 +37,14 @@ export default function (config) {
                         dependencies: chunk.imports,
                     };
                 }
+                manifest.hashes[fileName] = crypto
+                    .createHash('sha256')
+                    .update(chunk.code, 'utf-8')
+                    .digest('base64')
+                    .replace(/[=]/g, '')
+                    .replace(/[+]/g, '-')
+                    .replace(/[/]/g, '_')
+                    .slice(0, 12);
                 manifest.files.push(fileName);
             }
 
