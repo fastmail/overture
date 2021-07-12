@@ -9,6 +9,7 @@ import { OptionsController } from '../../selection/OptionsController.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ScrollView } from '../containers/ScrollView.js';
+import { canPointer } from '../../ua/UA.js';
 import { OptionsListView } from '../collections/OptionsListView.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { MenuButtonView } from './MenuButtonView.js';
@@ -92,6 +93,7 @@ const MenuController = Class({
         .observes('search'),
 });
 
+const moveEventType = canPointer ? 'pointermove' : 'mousemove';
 const MenuView = Class({
     Name: 'MenuView',
 
@@ -115,7 +117,7 @@ const MenuView = Class({
         MenuView.parent.didEnterDocument.call(this);
 
         const layer = this.get('layer');
-        layer.addEventListener('mousemove', this, false);
+        layer.addEventListener(moveEventType, this, false);
         layer.addEventListener('mouseout', this, false);
 
         if (!this.showFilter) {
@@ -137,7 +139,7 @@ const MenuView = Class({
         }
 
         layer.removeEventListener('mouseout', this, false);
-        layer.removeEventListener('mousemove', this, false);
+        layer.removeEventListener(moveEventType, this, false);
 
         return MenuView.parent.didLeaveDocument.call(this);
     },

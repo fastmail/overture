@@ -107,6 +107,14 @@ export const version = parseFloat(
 export const canTouch = 'ontouchstart' in document.documentElement;
 
 /**
+    Property: O.UA.canPointer
+    Type: Boolean
+
+    Does the browser support pointer events?
+*/
+export const canPointer = 'onpointerdown' in document.documentElement;
+
+/**
     Property: O.UA.canU2F
     Type: Boolean
 
