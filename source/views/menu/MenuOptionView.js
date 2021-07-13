@@ -46,7 +46,10 @@ const MenuOptionView = Class({
         }
     },
 
-    mousemove: function () {
+    mousemove: function (event) {
+        if (event.type === 'pointermove' && event.pointerType !== 'mouse') {
+            return;
+        }
         if (!this.get('isFocused') && !this._focusTimeout) {
             const popOverView = this.getParent(PopOverView);
             if (popOverView && popOverView.hasSubView()) {
