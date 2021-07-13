@@ -25,23 +25,25 @@ const OptionsListView = Class({
     selectedOption: bind('controller*selected'),
 
     createItemView(item, index, list) {
-        const itemHeight = this.get('itemHeight');
         const id = guid(item);
         const View = this.getViewTypeForItem(item);
         let view = this._views[id];
-
+        const itemLayout = this.get('itemLayout');
         if (view) {
-            view.set('index', index).set('list', list).set('parentView', this);
+            view.set('itemLayout', itemLayout)
+                .set('index', index)
+                .set('list', list)
+                .set('parentView', this);
         } else {
             const isFocused = item === this.get('focusedOption');
             const isSelected = item === this.get('selectedOption');
             view = this._views[id] = new View({
                 controller: this.get('controller'),
                 parentView: this,
+                itemLayout,
                 content: item,
                 index,
                 list,
-                itemHeight,
                 isFocused,
                 isSelected,
             });
