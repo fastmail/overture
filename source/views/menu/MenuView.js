@@ -94,6 +94,7 @@ const MenuController = Class({
 });
 
 const moveEventType = canPointer ? 'pointermove' : 'mousemove';
+const outEventType = canPointer ? 'pointerout' : 'mouseout';
 const MenuView = Class({
     Name: 'MenuView',
 
@@ -118,7 +119,7 @@ const MenuView = Class({
 
         const layer = this.get('layer');
         layer.addEventListener(moveEventType, this, false);
-        layer.addEventListener('mouseout', this, false);
+        layer.addEventListener(outEventType, this, false);
 
         if (!this.showFilter) {
             const scrollView = this.scrollView;
@@ -138,7 +139,7 @@ const MenuView = Class({
             controller.focus(null);
         }
 
-        layer.removeEventListener('mouseout', this, false);
+        layer.removeEventListener(outEventType, this, false);
         layer.removeEventListener(moveEventType, this, false);
 
         return MenuView.parent.didLeaveDocument.call(this);
