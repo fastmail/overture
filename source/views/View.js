@@ -40,7 +40,7 @@ const POSITION_CONTAINED_BY = 0x10;
     include the behaviour of the view as well as the render method (equivalent
     to the template in other systems) in the class definition.
 
-    Following another idiomatic pattern of the O libary, the standard
+    Following another idiomatic pattern of the O library, the standard
     constructor for O.View takes a single argument which is used to extend and
     override existing methods and properties on the instance; essentially
     creating an instance of an anonymous subclass. For one-off views, this is
@@ -114,23 +114,29 @@ const POSITION_CONTAINED_BY = 0x10;
     need to synchronise in two directions, use the wrapper views, like
     O.CheckboxView etc. For example:
 
-        new O.View({
-            draw( layer ) {
-                const content = this.get( 'content' );
+        new View({
+            isImportant: false,
+            className: function () {
+                return 'v-Message' + (
+                    this.get('isImportant') ? ' is-important' : ''
+                );
+            }.property('isImportant'),
+            draw(layer) {
                 return [
-                    el( 'h1#title', {
-                        className: O.bind( content, 'isDone',
-                            isDone => isDone ? 'done' : 'todo' ),
-                        text: O.bind( content, 'title' )
+                    el('h1#title', {
+                        text: bind(this, 'title'),
                     }),
-                    el( 'p', [
-                        new CheckboxView({
-                            value: O.bind( content, 'isDone' ),
-                            label: O.bind( content, 'description' )
-                        })
-                    ])
+                    el('p.u-normal', {
+                        html: bind(this, 'content'),
+                    }),
+                    el('footer', [
+                        'For more information, please go to',
+                        el('a', { href: 'http://www.overturejs.com/' }, [
+                            'overturejs.com',
+                        ]),
+                    ]),
                 ];
-            }
+            },
         });
 
     The other approach is to observe events and manually update the DOM.
@@ -141,16 +147,16 @@ const POSITION_CONTAINED_BY = 0x10;
     methods that should be invoked on certain events by calling the
     <Function#on> method. For example:
 
-        new O.View({
-            alert: function ( event ) {
-                window.alert( 'You clicked the view!' );
-            }.on( 'click' )
+        new View({
+            alert: function (event) {
+                window.alert('You clicked the view!');
+            }.on('click'),
         });
 
     The arguments to the 'on' method specify the events that should trigger the
     method. The event object is passed as the sole parameter to the method when
     this happens. It is perfectly fine for more than one method on the object to
-    handle the same event, although note in this case there is no guarentee on
+    handle the same event, although note in this case there is no guarantee on
     the order they will be triggered. Unless event.stopPropagation() is called,
     the event will propagate to the object specified as the nextEventTarget
     property on the object, by default the parent view.
@@ -486,7 +492,7 @@ const View = Class({
         Property: O.View#nextEventTarget
         Type: O.EventTarget|null
 
-        The next object to bubble events to. Unless overriden, this will be the
+        The next object to bubble events to. Unless overridden, this will be the
         parent view of this view.
     */
     nextEventTarget: function () {

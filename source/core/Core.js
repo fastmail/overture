@@ -654,7 +654,7 @@ const Class = function (params) {
             klass.instances.forEach(instance => {
                 // Notify the instance of changes to non-computed properties
                 Object.entries(nonComputed).forEach(([key, oldValue]) => {
-                    // Skip any values that have been overriden on the
+                    // Skip any values that have been overridden on the
                     // instance as they're assumed to hold important state
                     if (instance.hasOwnProperty(key)) {
                         return;

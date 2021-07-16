@@ -63,7 +63,7 @@ const HttpRequest = Class({
                 {Accept: 'application/json, * / *'}
 
         An object of default headers to be sent with each request (can be
-        overriden individually in each request). The format of the object is
+        overridden individually in each request). The format of the object is
         `{headerName: headerValue}`.
     */
     headers: {

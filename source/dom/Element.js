@@ -308,9 +308,7 @@ const appendChildren = function (el, children) {
     Function: O.Element.create
 
     Creates and returns a new element, setting any supplied properties and
-    appending any supplied children. If the browser event system doesn't
-    support capturing (just IE<8), then this will also add an event listener
-    for change and input events to any form elements.
+    appending any supplied children.
 
     Parameters:
         tag      - {String} The tag name for the new class. You may also

@@ -259,9 +259,9 @@ const Drag = Class({
         overriding the normal cursor image.
 
         Parameters:
-            set - {Boolean} If true, the cursor image will be overriden to match
-                  the drop effect. If false, it will be set back to the default
-                  (e.g. hand when over a link, pointer otherwise).
+            set - {Boolean} If true, the cursor image will be overridden to
+                  match the drop effect. If false, it will be set back to the
+                  default (e.g. hand when over a link, pointer otherwise).
     */
     _setCursor: function (set) {
         let stylesheet = this._stylesheet;
