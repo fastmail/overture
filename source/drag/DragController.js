@@ -1,13 +1,14 @@
 /*global document */
 
-import { Obj } from '../foundation/Object.js';
-import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
+import { setDragController } from '../_codependent/_DragController.js';
 import { lookupKey } from '../dom/DOMEvent.js';
-import { ViewEventsController } from '../views/ViewEventsController.js';
+import { Obj } from '../foundation/Object.js';
 import { getViewFromNode } from '../views/activeViews.js';
-
-import { Drag } from './Drag.js'; // Circular but it's OK
+import { ViewEventsController } from '../views/ViewEventsController.js';
+import { Drag } from './Drag.js';
 import { ALL, DEFAULT, effectToString } from './DragEffect.js';
+
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 
 const isControl = {
     BUTTON: 1,
@@ -541,5 +542,7 @@ const DragController = new Obj({
 });
 
 ViewEventsController.addEventTarget(DragController, 20);
+
+setDragController(DragController);
 
 export { DragController };

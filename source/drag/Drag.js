@@ -1,5 +1,6 @@
 /*global document */
 
+import { DragController } from '../_codependent/_DragController.js';
 import { Class } from '../core/Core.js';
 import { create as el } from '../dom/Element.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';
@@ -7,7 +8,6 @@ import { Obj } from '../foundation/Object.js';
 import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
-import { DragController } from './DragController.js'; // Circular but it's OK
 import {
     ALL,
     COPY,
