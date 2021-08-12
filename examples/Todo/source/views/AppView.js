@@ -1,7 +1,7 @@
 import { Class } from 'overture/core';
 import { el } from 'overture/dom';
 import { bind, bindTwoWay, invert } from 'overture/foundation';
-import { ButtonView, LabelView, ListView, SearchTextView, ToolbarView, View } from 'overture/views';
+import { ButtonView, TextView, ListView, SearchTextView, ToolbarView, View } from 'overture/views';
 
 import { actions, state, undoManager } from '../app';
 import { TodoView } from './TodoView.js';
@@ -12,7 +12,7 @@ const AppView = new Class({
     className: 'v-App',
     draw() {
         return [
-            new LabelView({
+            new TextView({
                 positioning: 'absolute',
                 className: 'v-App-title',
                 value: 'Todo'

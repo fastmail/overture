@@ -3,24 +3,24 @@ import /* { observes } from */ '../../foundation/Decorators.js';
 import { View } from '../View.js';
 
 /**
-    Class: O.LabelView
+    Class: O.TextView
 
     Extends: O.View
 
-    A LabelView simply displays a string of text, and optionally has a tooltip.
+    A TextView simply displays a string of text, and optionally has a tooltip.
     Its DOM structure is:
 
         <span title="${view.tooltip}">${view.value}</span>
 
     Although you may often want to change the layer tag (e.g. to an `h1` etc.)
 */
-const LabelView = Class({
-    Name: 'LabelView',
+const TextView = Class({
+    Name: 'TextView',
 
     Extends: View,
 
     /**
-        Property: O.LabelView#layerTag
+        Property: O.TextView#layerTag
         Type: String
         Default: 'span'
 
@@ -29,7 +29,7 @@ const LabelView = Class({
     layerTag: 'span',
 
     /**
-        Property: O.LabelView.value
+        Property: O.TextView.value
         Type: String
         Default: ''
 
@@ -38,7 +38,7 @@ const LabelView = Class({
     value: '',
 
     /**
-        Property: O.LabelView#tooltip
+        Property: O.TextView#tooltip
         Type: String
         Default: ''
 
@@ -47,7 +47,7 @@ const LabelView = Class({
     tooltip: '',
 
     /**
-        Method: O.LabelView#draw
+        Method: O.TextView#draw
 
         Overridden to draw view. See <O.View#draw>.
     */
@@ -60,7 +60,7 @@ const LabelView = Class({
     },
 
     /**
-        Method: O.LabelView#labelNeedsRedraw
+        Method: O.TextView#labelNeedsRedraw
 
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
@@ -70,7 +70,7 @@ const LabelView = Class({
     }.observes('tooltip', 'value'),
 
     /**
-        Method: O.LabelView#redrawTooltip
+        Method: O.TextView#redrawTooltip
 
         Parameters:
             layer - {Element} The DOM layer for the view.
@@ -88,7 +88,7 @@ const LabelView = Class({
     },
 
     /**
-        Method: O.LabelView#redrawValue
+        Method: O.TextView#redrawValue
 
         Parameters:
             layer - {Element} The DOM layer for the view.
@@ -101,4 +101,4 @@ const LabelView = Class({
     },
 });
 
-export { LabelView };
+export { TextView };

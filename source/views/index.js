@@ -39,7 +39,7 @@ export { ButtonView } from './controls/ButtonView.js';
 export { CheckboxView } from './controls/CheckboxView.js';
 export { ClearSearchButtonView } from './controls/ClearSearchButtonView.js';
 export { FileButtonView } from './controls/FileButtonView.js';
-export { LabelView } from './content/LabelView.js';
+export { TextView } from './content/TextView.js';
 export { KeyDownController } from './controls/KeyDownController.js';
 export {
     ShortcutView,

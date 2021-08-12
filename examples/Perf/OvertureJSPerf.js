@@ -161,7 +161,7 @@ function overturePerf ( options ) {
                             options.name,
                         ]),
                     ])                                                                                                                                                                                                                                                                       ,
-                    new O.LabelView({
+                    new O.TextView({
                         layerTag: 'div',
                         id: options.name + '-run',
                         className: 'col-md-4 text-right time',
