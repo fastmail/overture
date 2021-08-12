@@ -238,6 +238,6 @@ RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 export { RichTextView };
 export { SearchTextView } from './views/controls/SearchTextView.js';
 export { SelectView } from './views/controls/SelectView.js';
-export { TextView } from './views/controls/TextView.js';
+export { TextInputView } from './views/controls/TextInputView.js';
 export { ModalEventHandler } from './views/panels/ModalEventHandler.js';
 export { PopOverView } from './views/panels/PopOverView.js';

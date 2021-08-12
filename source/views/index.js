@@ -57,6 +57,6 @@ export {
 } from './controls/RichTextView.js';
 export { SearchTextView } from './controls/SearchTextView.js';
 export { SelectView } from './controls/SelectView.js';
-export { TextView } from './controls/TextView.js';
+export { TextInputView } from './controls/TextInputView.js';
 export { ModalEventHandler } from './panels/ModalEventHandler.js';
 export { PopOverView } from './panels/PopOverView.js';

@@ -3,7 +3,7 @@ import { Class } from 'overture/core';
 import { el, lookupKey } from 'overture/dom';
 import { Draggable } from 'overture/drag';
 import { bind, bindTwoWay } from 'overture/foundation';
-import { CheckboxView, ListItemView, TextView, when } from 'overture/views';
+import { CheckboxView, ListItemView, TextInputView, when } from 'overture/views';
 
 import { actions, selectedTodo, state, store } from '../app';
 
@@ -101,7 +101,7 @@ const TodoView = Class({
             */
             when( this, 'isEditing' ).show([
                 el( 'div.v-Todo-summary', [
-                    new TextView({
+                    new TextInputView({
                         value: bindTwoWay( todo, 'summary' ),
                         autoFocus: function () {
                             if ( this.get( 'isInDocument' ) ) {

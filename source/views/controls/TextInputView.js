@@ -11,25 +11,25 @@ import { AbstractControlView } from './AbstractControlView.js';
 const isFirefox = browser === 'firefox';
 
 /**
-    Class: O.TextView
+    Class: O.TextInputView
 
     Extends: O.AbstractControlView
 
     A text input control. The `value` property is two-way bindable, representing
     the input text.
 */
-const TextView = Class({
-    Name: 'TextView',
+const TextInputView = Class({
+    Name: 'TextInputView',
 
     Extends: AbstractControlView,
 
     init: function (/* ...mixins */) {
-        TextView.parent.constructor.apply(this, arguments);
+        TextInputView.parent.constructor.apply(this, arguments);
         this._settingFromInput = false;
     },
 
     /**
-        Property: O.TextView#isMultiline
+        Property: O.TextInputView#isMultiline
         Type: Boolean
         Default: false
 
@@ -40,7 +40,7 @@ const TextView = Class({
     isMultiline: false,
 
     /**
-        Property: O.TextView#isExpanding
+        Property: O.TextInputView#isExpanding
         Type: Boolean
         Default: false
 
@@ -51,7 +51,7 @@ const TextView = Class({
     isExpanding: false,
 
     /**
-        Property: O.TextView#isValid
+        Property: O.TextInputView#isValid
         Type: Boolean
         Default: true
 
@@ -60,7 +60,7 @@ const TextView = Class({
     isValid: true,
 
     /**
-        Property: O.TextView#isHighlighted
+        Property: O.TextInputView#isHighlighted
         Type: Boolean
         Default: false
 
@@ -71,7 +71,7 @@ const TextView = Class({
     isHighlighted: false,
 
     /**
-        Property: O.TextView#inputType
+        Property: O.TextInputView#inputType
         Type: String
         Default: "text"
 
@@ -82,7 +82,7 @@ const TextView = Class({
     inputType: 'text',
 
     /**
-        Property: O.TextView#placeholder
+        Property: O.TextInputView#placeholder
         Type: String
         Default: ''
 
@@ -91,7 +91,7 @@ const TextView = Class({
     placeholder: '',
 
     /**
-        Property: O.TextView#value
+        Property: O.TextInputView#value
         Type: String
         Default: ''
 
@@ -100,7 +100,7 @@ const TextView = Class({
     value: '',
 
     /**
-        Property: O.TextView#inputAttributes
+        Property: O.TextInputView#inputAttributes
         Type: Object
 
         Extra attributes to add to the text view. Examples include:
@@ -116,7 +116,7 @@ const TextView = Class({
     },
 
     /**
-        Property: O.TextView#selection
+        Property: O.TextInputView#selection
         Type: Object
 
         When used as a getter, this will return an object with two properties:
@@ -176,7 +176,7 @@ const TextView = Class({
         .nocache(),
 
     /**
-        Property: O.TextView#blurOnKeys
+        Property: O.TextInputView#blurOnKeys
         Type: Object
         Default: { Escape: true }
 
@@ -188,7 +188,7 @@ const TextView = Class({
     // --- Render ---
 
     /**
-        Property: O.TextView#type
+        Property: O.TextInputView#type
         Type: String
 
         Will be added to the view's class name.
@@ -198,10 +198,10 @@ const TextView = Class({
     layerTag: 'span',
 
     /**
-        Property: O.TextView#className
+        Property: O.TextInputView#className
         Type: String
 
-        Overrides default in <O.View#className>. Will have the class `v-Text`,
+        Overrides default in <O.View#className>. Will have the class `v-TextInput`,
         and any classes given in the <#type> property, along with the following
         other class names dependent on state:
 
@@ -213,9 +213,9 @@ const TextView = Class({
     className: function () {
         const type = this.get('type');
         return (
-            'v-Text' +
-            (this.get('isExpanding') ? ' v-Text--expanding' : '') +
-            (this.get('isMultiline') ? ' v-Text--multiline' : '') +
+            'v-TextInput' +
+            (this.get('isExpanding') ? ' v-TextInput--expanding' : '') +
+            (this.get('isMultiline') ? ' v-TextInput--multiline' : '') +
             (this.get('isHighlighted') ? ' is-highlighted' : '') +
             (this.get('isFocused') ? ' is-focused' : '') +
             (this.get('isValid') ? '' : ' is-invalid') +
@@ -232,7 +232,7 @@ const TextView = Class({
     ),
 
     /**
-        Method: O.TextView#draw
+        Method: O.TextInputView#draw
 
         Overridden to draw view. See <O.View#draw>.
     */
@@ -242,7 +242,7 @@ const TextView = Class({
             isMultiline ? 'textarea' : 'input',
             {
                 id: this.get('id') + '-input',
-                className: 'v-Text-input',
+                className: 'v-TextInput-input',
                 rows: isMultiline ? '1' : undefined,
                 name: this.get('name'),
                 type: this.get('inputType'),
@@ -263,7 +263,7 @@ const TextView = Class({
     // --- Keep render in sync with state ---
 
     /**
-        Method: O.TextView#textNeedsRedraw
+        Method: O.TextInputView#textNeedsRedraw
 
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
@@ -279,7 +279,7 @@ const TextView = Class({
     }.observes('isExpanding', 'value', 'placeholder', 'inputAttributes'),
 
     /**
-        Method: O.TextView#redrawValue
+        Method: O.TextInputView#redrawValue
 
         Updates the content of the `<textarea>` or `<input>` to match the
         <#value> property.
@@ -289,7 +289,7 @@ const TextView = Class({
     },
 
     /**
-        Method: O.TextView#redrawPlaceholder
+        Method: O.TextInputView#redrawPlaceholder
 
         Updates the placeholder text in the DOM when the <#placeholder> property
         changes.
@@ -299,7 +299,7 @@ const TextView = Class({
     },
 
     /**
-        Method: O.TextView#redrawInputAttributes
+        Method: O.TextInputView#redrawInputAttributes
 
         Updates any other properties of the `<input>` element.
     */
@@ -355,7 +355,7 @@ const TextView = Class({
     // --- Activate ---
 
     /**
-        Method: O.TextView#activate
+        Method: O.TextInputView#activate
 
         Overridden to focus the text view. See <O.AbstractControlView#activate>.
     */
@@ -391,13 +391,13 @@ const TextView = Class({
     savedSelection: null,
 
     /**
-        Method: O.TextView#didEnterDocument
+        Method: O.TextInputView#didEnterDocument
 
         Overridden to restore scroll position and selection. See
         <O.View#didEnterDocument>.
     */
     didEnterDocument() {
-        TextView.parent.didEnterDocument.call(this);
+        TextInputView.parent.didEnterDocument.call(this);
         if (this.get('isMultiline')) {
             if (this.get('isExpanding')) {
                 this.redrawTextHeight();
@@ -423,7 +423,7 @@ const TextView = Class({
     },
 
     /**
-        Method: O.TextView#willLeaveDocument
+        Method: O.TextInputView#willLeaveDocument
 
         Overridden to save scroll position and selection. See
         <O.View#willLeaveDocument>.
@@ -438,11 +438,11 @@ const TextView = Class({
         if (this.get('isMultiline')) {
             this._domControl.removeEventListener('scroll', this, false);
         }
-        return TextView.parent.willLeaveDocument.call(this);
+        return TextInputView.parent.willLeaveDocument.call(this);
     },
 
     /**
-        Method (private): O.TextView#_syncBackScrolls
+        Method (private): O.TextInputView#_syncBackScrolls
 
         Sets the <O.View#scrollLeft> and <O.View#scrollTop> properties whenever
         the user scrolls the textarea.
@@ -466,7 +466,7 @@ const TextView = Class({
     // --- Keep state in sync with render ---
 
     /**
-        Method: O.TextView#syncBackValue
+        Method: O.TextInputView#syncBackValue
 
         Updates the <#value> property when the user interacts with the textarea.
 
@@ -480,7 +480,7 @@ const TextView = Class({
     }.on('input'),
 
     /**
-        Method (private): O.TextView#_onClick
+        Method (private): O.TextInputView#_onClick
 
         Focus and set selection to the end.
 
@@ -494,7 +494,7 @@ const TextView = Class({
     }.on('click'),
 
     /**
-        Method (private): O.TextView#_onKeypress
+        Method (private): O.TextInputView#_onKeypress
 
         Stop IE automatically focussing the nearest button when the user hits
         enter in single line text inputs.
@@ -516,7 +516,7 @@ const TextView = Class({
     }.on('keypress'),
 
     /**
-        Method (private): O.TextView#_blurOnKey
+        Method (private): O.TextInputView#_blurOnKey
 
         Blur the text area when the user hits certain keys, provided by the
         <#blurOnKeys> property.
@@ -532,4 +532,4 @@ const TextView = Class({
     }.on('keyup'),
 });
 
-export { TextView };
+export { TextInputView };

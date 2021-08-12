@@ -20,7 +20,7 @@ import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ButtonView } from './ButtonView.js';
 import { FileButtonView } from './FileButtonView.js';
-import { TextView } from './TextView.js';
+import { TextInputView } from './TextInputView.js';
 
 import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../foundation/Decorators.js';
 
@@ -69,7 +69,7 @@ const URLPickerView = Class({
     draw(/* layer */) {
         return [
             el('h3.u-font-bold', [this.get('prompt')]),
-            (this._input = new TextView({
+            (this._input = new TextInputView({
                 value: bindTwoWay(this, 'value'),
                 placeholder: this.get('placeholder'),
             })),

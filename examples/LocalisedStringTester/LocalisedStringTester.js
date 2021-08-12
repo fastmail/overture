@@ -34,7 +34,7 @@ var view = new O.View({
         return [
             el( 'h1', [ 'Localised String Tester' ]),
             el( 'h2', [ 'Your localised string:' ]),
-            new O.TextView({
+            new O.TextInputView({
                 multiline: true,
                 expanding: true,
                 value: new O.Binding({
@@ -46,7 +46,7 @@ var view = new O.View({
                 [ 1, 2, 3 ].map( function ( num ) {
                     return el( 'label.arg', [
                         num + '. ',
-                        new O.TextView({
+                        new O.TextInputView({
                             value: new O.Binding({
                                 isTwoWay: true
                             }).from( 'arg' + num, this )

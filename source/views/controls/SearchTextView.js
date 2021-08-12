@@ -2,12 +2,12 @@ import { Class } from '../../core/Core.js';
 import { loc } from '../../localisation/i18n.js';
 import { when } from '../collections/SwitchView.js';
 import { ClearSearchButtonView } from './ClearSearchButtonView.js';
-import { TextView } from './TextView.js';
+import { TextInputView } from './TextInputView.js';
 
 const SearchTextView = Class({
     Name: 'SearchTextView',
 
-    Extends: TextView,
+    Extends: TextInputView,
 
     type: 'v-SearchText',
 
