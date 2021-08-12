@@ -222,7 +222,7 @@ export { ButtonView } from './views/controls/ButtonView.js';
 export { CheckboxView } from './views/controls/CheckboxView.js';
 export { ClearSearchButtonView } from './views/controls/ClearSearchButtonView.js';
 export { FileButtonView } from './views/controls/FileButtonView.js';
-export { LabelView } from './views/controls/LabelView.js';
+export { LabelView } from './views/content/LabelView.js';
 export { KeyDownController } from './views/controls/KeyDownController.js';
 export {
     ShortcutView,
