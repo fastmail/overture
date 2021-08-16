@@ -496,24 +496,6 @@ const ScrollView = Class({
     }.on('focus', 'blur'),
 });
 
-if (isIOS) {
-    mixin(RootView.prototype, {
-        preventRootScroll: function (event) {
-            const view = event.targetView;
-            if (!(view instanceof ScrollView) && !view.getParent(ScrollView)) {
-                const doc = this.layer.ownerDocument;
-                const win = doc.defaultView;
-                if (
-                    this.get('pxHeight') <= win.innerHeight &&
-                    !/^(?:INPUT|TEXTAREA)$/.test(doc.activeElement.nodeName)
-                ) {
-                    event.preventDefault();
-                }
-            }
-        }.on('touchmove'),
-    });
-}
-
 if (isIOS && version < 13) {
     const isOldOrSafari = version < 11 || browser === 'safari';
 
