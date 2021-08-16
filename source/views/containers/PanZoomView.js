@@ -58,9 +58,11 @@ const PanZoomView = Class({
         }
     }.observes('isInDocument'),
 
-    didResize() {
-        this.contentDidResize();
-        return PanZoomView.parent.didResize.call(this);
+    parentViewDidResize() {
+        if (this.get('isInDocument')) {
+            this.contentDidResize();
+        }
+        return PanZoomView.parent.parentViewDidResize.call(this);
     },
 
     // Needs to be in the next next frame after the next event loop so the
