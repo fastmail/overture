@@ -44,11 +44,11 @@
   top: 100%;
 }
 
-.v-SearchText > .v-TextInput-input {
+.v-SearchInput > .v-TextInput-input {
   padding-left: 29px;
   padding-right: 29px;
 }
-.v-SearchText > .icon {
+.v-SearchInput > .icon {
   position: absolute;
   top: 0;
   bottom: 5px;

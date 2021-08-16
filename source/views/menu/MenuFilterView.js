@@ -6,7 +6,7 @@ import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
 import { View } from '../View.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-import { SearchTextView } from '../controls/SearchTextView.js';
+import { SearchInputView } from '../controls/SearchInputView.js';
 import { queueFn } from '../../foundation/RunLoop.js';
 
 const MenuFilterView = Class({
@@ -28,7 +28,7 @@ const MenuFilterView = Class({
 
     draw(/* layer */) {
         const controller = this.get('controller');
-        const searchTextView = (this._input = new SearchTextView({
+        const searchTextView = (this._input = new SearchInputView({
             shortcut: this.get('shortcut'),
             placeholder: this.get('placeholder'),
             tabIndex: -1,

@@ -4,12 +4,12 @@ import { when } from '../collections/SwitchView.js';
 import { ClearSearchButtonView } from './ClearSearchButtonView.js';
 import { TextInputView } from './TextInputView.js';
 
-const SearchTextView = Class({
-    Name: 'SearchTextView',
+const SearchInputView = Class({
+    Name: 'SearchInputView',
 
     Extends: TextInputView,
 
-    type: 'v-SearchText',
+    type: 'v-SearchInput',
 
     icon: null,
 
@@ -24,7 +24,7 @@ const SearchTextView = Class({
     name: 'search',
 
     draw(layer) {
-        const children = SearchTextView.parent.draw.call(this, layer);
+        const children = SearchInputView.parent.draw.call(this, layer);
         children.push(
             this.get('icon'),
             when(this, 'value')
@@ -45,4 +45,4 @@ const SearchTextView = Class({
     },
 });
 
-export { SearchTextView };
+export { SearchInputView };

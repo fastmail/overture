@@ -55,7 +55,7 @@ export {
     TOOLBAR_HIDDEN,
     TOOLBAR_AT_TOP,
 } from './controls/RichTextView.js';
-export { SearchTextView } from './controls/SearchTextView.js';
+export { SearchInputView } from './controls/SearchInputView.js';
 export { SelectView } from './controls/SelectView.js';
 export { TextInputView } from './controls/TextInputView.js';
 export { ModalEventHandler } from './panels/ModalEventHandler.js';

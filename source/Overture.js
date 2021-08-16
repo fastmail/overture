@@ -236,7 +236,7 @@ export { RadioView } from './views/controls/RadioView.js';
 RichTextView.TOOLBAR_HIDDEN = TOOLBAR_HIDDEN;
 RichTextView.TOOLBAR_AT_TOP = TOOLBAR_AT_TOP;
 export { RichTextView };
-export { SearchTextView } from './views/controls/SearchTextView.js';
+export { SearchInputView } from './views/controls/SearchInputView.js';
 export { SelectView } from './views/controls/SelectView.js';
 export { TextInputView } from './views/controls/TextInputView.js';
 export { ModalEventHandler } from './views/panels/ModalEventHandler.js';
