@@ -102,11 +102,13 @@ const ToolbarView = Class({
     minimumGap: 20,
     preventOverlap: false,
     popOverOptions: null,
+    overflowMenuType: 'v-MenuButton',
 
     init: function (/* ...mixins */) {
         ToolbarView.parent.constructor.apply(this, arguments);
         this._views = {
             overflow: new OverflowMenuView({
+                type: this.get('overflowMenuType'),
                 label: loc('More'),
                 shortcut: '.',
                 popOverView: this.popOverView || new PopOverView(),
