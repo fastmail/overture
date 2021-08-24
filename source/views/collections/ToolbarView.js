@@ -219,7 +219,6 @@ const ToolbarView = Class({
                 }
             }
             if (pxWidth < 0 || i < l) {
-                pxWidth -= widths['-'];
                 pxWidth -= widths.overflow;
 
                 while (pxWidth < 0 && i--) {
@@ -228,6 +227,8 @@ const ToolbarView = Class({
 
                 if (i < 0) {
                     i = 0;
+                } else if (leftConfig[i] === '-') {
+                    i -= 1;
                 }
 
                 this._views.overflow.set(
@@ -242,11 +243,7 @@ const ToolbarView = Class({
                 );
 
                 if (i > 0) {
-                    if (leftConfig[i - 1] === '-') {
-                        i -= 1;
-                    }
                     leftConfig = leftConfig.slice(0, i);
-                    leftConfig.push('-');
                     leftConfig.push('overflow');
                 } else {
                     leftConfig = ['overflow'];
