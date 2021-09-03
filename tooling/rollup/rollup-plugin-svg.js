@@ -1,13 +1,19 @@
 import { createFilter } from '@rollup/pluginutils';
+import { readFileSync } from 'fs';
 import { basename } from 'path';
 
 export default function svg(options = {}) {
     const filter = createFilter(options.include, options.exclude);
     return {
-        transform(code, id) {
+        name: 'svg',
+        enforce: 'pre',
+        load(id) {
             if (!filter(id) || !id.endsWith('.svg')) {
                 return null;
             }
+
+            let code = readFileSync(id, { encoding: 'utf-8' }).trim();
+
             const name = basename(id, '.svg');
             code = `import { setAttributes } from '/overture/dom';
 
