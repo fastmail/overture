@@ -91,6 +91,13 @@ const itemListTouchSelect = {
 
     goSelect(event) {
         const view = this.itemView;
+        if (!view.get('isInDocument')) {
+            // Ordering of events may trigger this after the user has swiped to
+            // archive/delete I think? We're definitely getting occasional
+            // crashes here anyway, because the ScrollView has no parent
+            // RootView, which must mean this is not in the document.
+            return;
+        }
         const selection = view.get('selection');
         const isSelected = !view.get('isSelected');
         const index = view.get('index');
