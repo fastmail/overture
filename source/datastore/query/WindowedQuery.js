@@ -699,11 +699,32 @@ const WindowedQuery = Class({
         const oldLength = this.get('length');
         const newLength = args.total;
         let firstChange = oldLength;
+        let listLength = list.length;
+
+        // --- Check upToId ---
+
+        // upToId is the last item id the updates are to. Anything after here
+        // may have changed, but won't be in the updates, so we need to truncate
+        // the list to ensure it doesn't get into an inconsistent state.
+        // If we can't find the id, we have to reset.
+        if (args.upToId) {
+            const index = list.lastIndexOf(args.upToId) + 1;
+            if (index) {
+                if (index !== listLength) {
+                    recalculateFetchedWindows = true;
+                    list.length = index;
+                    if (index < firstChange) {
+                        firstChange = index;
+                    }
+                }
+            } else {
+                return this.reset();
+            }
+        }
 
         // --- Remove items from list ---
 
-        let l = removedLength;
-        while (l--) {
+        for (let l = removedLength; l--; ) {
             const index = removedIndexes[l];
             list.splice(index, 1);
             if (index < firstChange) {
@@ -730,7 +751,6 @@ const WindowedQuery = Class({
         // If the index is past the end of the array, you can't use splice
         // (unless you set the length of the array first), so use standard
         // assignment.
-        let listLength = list.length;
         for (let i = 0, l = addedLength; i < l; i += 1) {
             const index = addedIndexes[i];
             const storeKey = addedStoreKeys[i];
@@ -743,24 +763,6 @@ const WindowedQuery = Class({
             }
             if (index < firstChange) {
                 firstChange = index;
-            }
-        }
-
-        // --- Check upToId ---
-
-        // upToId is the last item id the updates are to. Anything after here
-        // may have changed, but won't be in the updates, so we need to truncate
-        // the list to ensure it doesn't get into an inconsistent state.
-        // If we can't find the id, we have to reset.
-        if (args.upToId) {
-            l = list.lastIndexOf(args.upToId) + 1;
-            if (l) {
-                if (l !== listLength) {
-                    recalculateFetchedWindows = true;
-                    list.length = l;
-                }
-            } else {
-                return this.reset();
             }
         }
 
