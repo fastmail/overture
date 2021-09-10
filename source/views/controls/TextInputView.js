@@ -1,12 +1,13 @@
 /*global document */
 
 import { Class } from '../../core/Core.js';
-import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
-import { browser } from '../../ua/UA.js';
-import { nearest, create as el } from '../../dom/Element.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
+import { create as el, nearest } from '../../dom/Element.js';
+import { browser } from '../../ua/UA.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { AbstractControlView } from './AbstractControlView.js';
+
+import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
 
 const isFirefox = browser === 'firefox';
 

@@ -1,9 +1,10 @@
 /*global window */
 
 import { meta } from '../core/Core.js';
-import '../core/Array.js'; // For Array#erase
-import { invokeInNextFrame, frameStartTime } from '../foundation/RunLoop.js';
+import { frameStartTime, invokeInNextFrame } from '../foundation/RunLoop.js';
 import { ease } from './Easing.js';
+
+import '../core/Array.js'; // For Array#erase
 
 // Does the used prefer reduced motion?
 const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion:reduce)');

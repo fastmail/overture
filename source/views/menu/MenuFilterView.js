@@ -1,13 +1,14 @@
 import { Class } from '../../core/Core.js';
-import { Obj } from '../../foundation/Object.js';
-import /* { on } from */ '../../foundation/Decorators.js';
+import { isClickModified, lookupKey } from '../../dom/DOMEvent.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import { lookupKey, isClickModified } from '../../dom/DOMEvent.js';
-import { View } from '../View.js';
-import { ScrollView } from '../containers/ScrollView.js';
-import { ViewEventsController } from '../ViewEventsController.js';
-import { SearchInputView } from '../controls/SearchInputView.js';
+import { Obj } from '../../foundation/Object.js';
 import { queueFn } from '../../foundation/RunLoop.js';
+import { ScrollView } from '../containers/ScrollView.js';
+import { SearchInputView } from '../controls/SearchInputView.js';
+import { View } from '../View.js';
+import { ViewEventsController } from '../ViewEventsController.js';
+
+import /* { on } from */ '../../foundation/Decorators.js';
 
 const MenuFilterView = Class({
     Name: 'MenuFilterView',
@@ -77,14 +78,11 @@ const MenuFilterView = Class({
             controller: this.get('controller'),
             done: function (event) {
                 if (!isClickModified(event)) {
-                    queueFn(
-                        'after',
-                        () => {
-                            if (!this.view.get('isFocused')) {
-                                this.controller.set('isFiltering', false);
-                            }
-                        },
-                    );
+                    queueFn('after', () => {
+                        if (!this.view.get('isFocused')) {
+                            this.controller.set('isFiltering', false);
+                        }
+                    });
                 }
             }.on('click', 'keydown'),
         });

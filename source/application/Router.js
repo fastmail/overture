@@ -1,9 +1,9 @@
-/*global window, document, location */
-
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
 
 import /* { observes, invokeInRunLoop, queue } from */ '../foundation/Decorators.js';
+
+/*global window, document, location */
 
 /**
     Module: Application
@@ -465,9 +465,9 @@ const Router = Class({
         } else {
             url += state;
         }
-        const globalQueryStringPart = this.get('globalQueryStringPart');
-        if (globalQueryStringPart) {
-            url += (state.includes('?') ? '&' : '?') + globalQueryStringPart;
+        const globalQueryPart = this.get('globalQueryStringPart');
+        if (globalQueryPart) {
+            url += (state.includes('?') ? '&' : '?') + globalQueryPart;
         }
         if (hash) {
             url += hash;

@@ -1,9 +1,9 @@
 import { Class, meta } from '../../core/Core.js';
-import '../../core/Array.js'; // For Array#erase
 import { ObservableArray } from '../../foundation/ObservableArray.js';
-
 import { RecordAttribute } from './attr.js';
 import { Record } from './Record.js';
+
+import '../../core/Array.js'; // For Array#erase
 
 /**
     Method: O.Record#notifyRecordArray

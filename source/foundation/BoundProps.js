@@ -1,4 +1,4 @@
-import { meta, guid } from '../core/Core.js';
+import { guid, meta } from '../core/Core.js';
 import { keyOf } from '../core/KeyValue.js';
 
 const bindingKey = '__binding__';

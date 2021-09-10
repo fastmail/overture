@@ -1,19 +1,19 @@
-import { Class, meta, clone } from '../../core/Core.js';
+import { Class, clone, meta } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
 import { didError } from '../../foundation/RunLoop.js';
-import /* { property, nocache } from */ '../../foundation/Decorators.js';
-
-import { ToOneAttribute } from './toOne.js';
 import { AttributeErrors } from './AttributeErrors.js';
 import { RecordResult } from './RecordResult.js';
 import {
-    READY,
-    NEW,
     DIRTY,
-    OBSOLETE,
     LOADING,
+    NEW,
     NON_EXISTENT,
+    OBSOLETE,
+    READY,
 } from './Status.js';
+import { ToOneAttribute } from './toOne.js';
+
+import /* { property, nocache } from */ '../../foundation/Decorators.js';
 
 const READY_NEW_DIRTY = READY | NEW | DIRTY;
 
@@ -76,9 +76,9 @@ const Record = Class({
     clone(store) {
         const Type = this.constructor;
         const prototype = Type.prototype;
-        const clone = new Type(store);
+        const recordClone = new Type(store);
         const attrs = meta(this).attrs;
-        clone.set('accountId', this.get('accountId'));
+        recordClone.set('accountId', this.get('accountId'));
         for (const attrKey in attrs) {
             const propKey = attrs[attrKey];
             if (prototype[propKey].noSync) {
@@ -89,11 +89,11 @@ const Record = Class({
                 value = value.getDoppelganger(store);
             }
             if (value !== undefined) {
-                clone.set(propKey, value);
+                recordClone.set(propKey, value);
             }
         }
 
-        return clone;
+        return recordClone;
     },
 
     /**

@@ -1,16 +1,17 @@
 import { Class } from '../core/Core.js';
-import { Obj } from '../foundation/Object.js';
-import /* { on } from */ '../foundation/Decorators.js';
-import { isApple } from '../ua/UA.js';
 import { lookupKey } from '../dom/DOMEvent.js';
+import { Obj } from '../foundation/Object.js';
+import { isApple } from '../ua/UA.js';
 import { RichTextView } from '../views/controls/RichTextView.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import {
-    DEFAULT_IN_INPUT,
     ACTIVE_IN_INPUT,
+    DEFAULT_IN_INPUT,
     DISABLE_IN_INPUT,
 } from './keyboardShortcuts.js';
 import { toPlatformKey } from './toPlatformKey.js';
+
+import /* { on } from */ '../foundation/Decorators.js';
 
 const allowedInputs = {
     checkbox: 1,

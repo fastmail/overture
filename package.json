@@ -25,14 +25,15 @@
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
-    "@rollup/plugin-replace": "^2.3.4",
+    "@rollup/plugin-replace": "^2.4.2",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.8.1",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-overture": "file:eslint-plugin-overture",
-    "prettier": "^2.2.1",
-    "rollup": "^2.26.10",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "prettier": "^2.4.0",
+    "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2"
-  },
-  "type": "module"
+  }
 }

@@ -1,6 +1,6 @@
 import { Class } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
-import { invokeAfterDelay, cancel } from '../../foundation/RunLoop.js';
+import { cancel, invokeAfterDelay } from '../../foundation/RunLoop.js';
 import { isApple } from '../../ua/UA.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 

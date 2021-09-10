@@ -24,6 +24,7 @@ export default {
     plugins: [
         replace({
             'import.meta.hot': false,
+            'preventAssignment': true,
         }),
         buble(),
     ],

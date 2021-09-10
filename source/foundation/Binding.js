@@ -2,7 +2,6 @@
 
 import { setBinding } from '../_codependent/_Binding.js';
 import { getFromPath } from './getFromPath.js';
-
 import { queueFn } from './RunLoop.js';
 
 /**

@@ -1,6 +1,6 @@
 import { Class, meta } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
-import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
+import { invokeAfterDelay } from '../foundation/RunLoop.js';
 import { XHR } from './XHR.js';
 
 import '../core/Array.js'; // For Array#include

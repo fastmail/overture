@@ -1,7 +1,7 @@
-import { Class } from '../../core/Core.js';
 import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
+import { Class } from '../../core/Core.js';
 import { create as el, getAncestors, getStyle } from '../../dom/Element.js';
-import { View, LAYOUT_FILL_PARENT } from '../View.js';
+import { LAYOUT_FILL_PARENT, View } from '../View.js';
 
 const ShortcutView = Class({
     Name: 'ShortcutView',
@@ -42,8 +42,8 @@ const ShortcutOverlayView = Class({
         const shortcuts = this.get('shortcuts')._shortcuts;
 
         const styleCache = new Map();
-        const getEffectiveZIndex = function (el) {
-            const ancestors = getAncestors(el);
+        const getEffectiveZIndex = function (node) {
+            const ancestors = getAncestors(node);
             for (let i = 0; i < ancestors.length; i++) {
                 const values = styleCache.get(ancestors[i]);
                 let position;
@@ -73,15 +73,15 @@ const ShortcutOverlayView = Class({
             // Get target(s) and filter nulls
             const target = view.getShortcutTarget(key);
             const targets = (Array.isArray(target) ? target : [target]).filter(
-                (target) => target !== null,
+                (_target) => _target !== null,
             );
 
-            return targets.map((target) => {
-                const bbox = target.getBoundingClientRect();
-                const zIndex = getEffectiveZIndex(target);
+            return targets.map((_target) => {
+                const bbox = _target.getBoundingClientRect();
+                const zIndex = getEffectiveZIndex(_target);
                 return new ShortcutView({
                     key,
-                    target,
+                    target: _target,
                     layout: {
                         left: bbox.right,
                         top: bbox.bottom - bbox.height / 2,

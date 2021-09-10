@@ -261,13 +261,13 @@ const guid = function (item) {
         return 'date:' + +item;
     }
 
-    let guid = item.__guid__ || guids.get(item);
-    if (!guid) {
-        guid = 'id:' + nextGuid.toString(36);
+    let itemGuid = item.__guid__ || guids.get(item);
+    if (!itemGuid) {
+        itemGuid = 'id:' + nextGuid.toString(36);
         nextGuid += 1;
-        guids.set(item, guid);
+        guids.set(item, itemGuid);
     }
-    return guid;
+    return itemGuid;
 };
 
 /**
@@ -627,7 +627,7 @@ const Class = function (params) {
         // whose value is different between the old and the new prototype
         const computed = [];
         const nonComputed = {};
-        Object.keys(init.prototype).forEach(key => {
+        Object.keys(init.prototype).forEach((key) => {
             if (key === 'constructor') {
                 return;
             }
@@ -651,7 +651,7 @@ const Class = function (params) {
 
         // Trigger property updates on instances of the class
         invoke(() => {
-            klass.instances.forEach(instance => {
+            klass.instances.forEach((instance) => {
                 // Notify the instance of changes to non-computed properties
                 Object.entries(nonComputed).forEach(([key, oldValue]) => {
                     // Skip any values that have been overridden on the
@@ -665,7 +665,7 @@ const Class = function (params) {
                 });
 
                 // Notify the instance of changes to computed properties
-                computed.forEach(property => {
+                computed.forEach((property) => {
                     instance.computedPropertyDidChange(property);
                 });
 

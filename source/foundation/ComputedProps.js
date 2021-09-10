@@ -1,6 +1,7 @@
 import { meta } from '../core/Core.js';
-import '../core/Array.js'; // For Array#erase
 import { getFromPath } from './getFromPath.js';
+
+import '../core/Array.js'; // For Array#erase
 
 /**
     Module: Foundation

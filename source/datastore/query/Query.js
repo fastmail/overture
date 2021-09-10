@@ -1,20 +1,20 @@
 import { Class, guid, meta } from '../../core/Core.js';
+import { Enumerable } from '../../foundation/Enumerable.js';
 import { Obj } from '../../foundation/Object.js';
 import { ObservableRange } from '../../foundation/ObservableRange.js';
-import { Enumerable } from '../../foundation/Enumerable.js';
-import /* { on, observes, queue, property, nocache } from */ '../../foundation/Decorators.js';
-
 import {
-    EMPTY,
-    READY,
     DESTROYED,
-    NON_EXISTENT,
+    EMPTY,
     // LOADING => The list is being fetched from the server.
     LOADING,
+    NON_EXISTENT,
     // OBSOLETE => The list may have changed on the server since the last fetch
     // was initiated.
     OBSOLETE,
+    READY,
 } from '../record/Status.js';
+
+import /* { on, observes, queue, property, nocache } from */ '../../foundation/Decorators.js';
 
 const AUTO_REFRESH_NEVER = 0;
 const AUTO_REFRESH_IF_OBSERVED = 1;

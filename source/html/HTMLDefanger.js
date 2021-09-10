@@ -277,7 +277,8 @@ const ATTRS_INERT = {
 
 // ---
 
-const ATTR_LEADING_WHITESPACE = /^[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205f\u3000]+/g;
+const ATTR_LEADING_WHITESPACE =
+    /^[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205f\u3000]+/g;
 
 const ATTR_SCRIPT_OR_DATA = /^(?:\w+script|data):/i;
 

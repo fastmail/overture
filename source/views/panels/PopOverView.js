@@ -1,12 +1,12 @@
 import { Class, meta } from '../../core/Core.js';
-import /* { on } from */ '../../foundation/Decorators.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import { setStyle, create as el } from '../../dom/Element.js';
+import { create as el, setStyle } from '../../dom/Element.js';
 import { RootView } from '../RootView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-
 import { ModalEventHandler } from './ModalEventHandler.js';
+
+import /* { on } from */ '../../foundation/Decorators.js';
 
 const PopOverView = Class({
     Name: 'PopOverView',

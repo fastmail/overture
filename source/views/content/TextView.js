@@ -1,6 +1,7 @@
 import { Class } from '../../core/Core.js';
-import /* { observes } from */ '../../foundation/Decorators.js';
 import { View } from '../View.js';
+
+import /* { observes } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.TextView

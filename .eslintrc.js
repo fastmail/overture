@@ -1,10 +1,10 @@
-/*global module */
+/*eslint-env node*/
 module.exports = {
     ignorePatterns: ['/dist/**', '/node_modules/**'],
     env: {
         es6: true,
     },
-    plugins: ['overture'],
+    plugins: ['overture', 'import', 'simple-import-sort'],
     extends: ['eslint:recommended', 'prettier', 'plugin:overture/recommended'],
     parser: 'babel-eslint',
     parserOptions: {
@@ -60,5 +60,55 @@ module.exports = {
         'no-var': 'error',
         'prefer-arrow-callback': 'error',
         'prefer-const': 'error',
+        // Import – slow disabled
+        // 'import/no-unresolved': 'error',
+        // 'import/named': 'error',
+        // 'import/default': 'error',
+        // 'import/namespace': 'error',
+        'import/no-self-import': 'error',
+        // 'import/no-cycle': 'error',
+        'import/no-useless-path-segments': 'error',
+        'import/export': 'error',
+        'import/no-named-as-default': 'error',
+        'import/no-named-as-default-member': 'error',
+        'import/first': 'error',
+        'import/exports-last': 'error',
+        'import/no-duplicates': 'error',
+        'import/no-namespace': 'error',
+        'import/newline-after-import': 'error',
+        'import/no-named-default': 'error',
+        'import/no-default-export': 'error',
     },
+    overrides: [
+        {
+            files: ['./source/**/*.js'],
+            rules: {
+                'simple-import-sort/imports': [
+                    'error',
+                    {
+                        groups: [
+                            // Anything that starts with a dot.
+                            ['^\\.'],
+                            // Side effect imports.
+                            ['^\\u0000'],
+                        ],
+                    },
+                ],
+            },
+        },
+        {
+            files: ['index.js'],
+            rules: {
+                'import/group-exports': 'off',
+            },
+        },
+        {
+            files: ['Overture.js'],
+            rules: {
+                'import/group-exports': 'off',
+                'import/exports-last': 'off',
+                'import/no-namespace': 'off',
+            },
+        },
+    ],
 };

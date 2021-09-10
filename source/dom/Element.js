@@ -186,19 +186,21 @@ const styleNames = {
 
 // In times gone by, we had various properties that needed to be prefixed; now
 // it’s down to just user-select. This makes me happy. Hence no for loop.
-const style = document.createElement('div').style;
-style.cssText = 'user-select:none';
 let userSelectProperty = 'user-select';
-if (!style.length) {
-    if (browser === 'firefox') {
-        userSelectProperty = '-moz-user-select';
-        styleNames.userSelect = 'MozUserSelect';
-    } else if (browser === 'msie') {
-        userSelectProperty = '-ms-user-select';
-        styleNames.userSelect = 'msUserSelect';
-    } else {
-        userSelectProperty = '-webkit-user-select';
-        styleNames.userSelect = 'WebkitUserSelect';
+{
+    const style = document.createElement('div').style;
+    style.cssText = 'user-select:none';
+    if (!style.length) {
+        if (browser === 'firefox') {
+            userSelectProperty = '-moz-user-select';
+            styleNames.userSelect = 'MozUserSelect';
+        } else if (browser === 'msie') {
+            userSelectProperty = '-ms-user-select';
+            styleNames.userSelect = 'msUserSelect';
+        } else {
+            userSelectProperty = '-webkit-user-select';
+            styleNames.userSelect = 'WebkitUserSelect';
+        }
     }
 }
 
@@ -495,7 +497,7 @@ const nearest = function (el, test, limit) {
     }
     if (typeof test === 'string') {
         const nodeName = test.toUpperCase();
-        test = (el) => el.nodeName === nodeName;
+        test = (node) => node.nodeName === nodeName;
     }
     while (el && !test(el)) {
         if (!el || el === limit) {

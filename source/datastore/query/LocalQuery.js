@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { sortByProperties } from '../../core/sortByProperties.js';
-import { Query, AUTO_REFRESH_ALWAYS } from './Query.js';
-import { EMPTY, READY, OBSOLETE } from '../record/Status.js';
+import { EMPTY, OBSOLETE, READY } from '../record/Status.js';
+import { AUTO_REFRESH_ALWAYS, Query } from './Query.js';
 
 /**
     Class: O.LocalQuery

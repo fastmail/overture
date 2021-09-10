@@ -1,4 +1,4 @@
-import { EMPTY, NEW, DIRTY, COMMITTING } from './Status.js';
+import { COMMITTING, DIRTY, EMPTY, NEW } from './Status.js';
 
 // ---
 

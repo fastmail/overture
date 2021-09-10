@@ -1,5 +1,6 @@
-import { isDestroyed, Class } from '../core/Core.js';
+import { Class, isDestroyed } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
+
 import /* { observes, property, nocache } from */ '../foundation/Decorators.js';
 
 const SelectionController = Class({
@@ -148,13 +149,13 @@ const SelectionController = Class({
         const loading = query.getStoreKeysForObjectsInRange(
             start,
             Math.min(end, query.get('length') || 0),
-            (storeKeys, start, end) => {
+            (storeKeys, _start, _end) => {
                 this.selectStoreKeys(
                     storeKeys,
                     isSelected,
                     selectionId,
-                    start,
-                    end,
+                    _start,
+                    _end,
                 );
             },
         );

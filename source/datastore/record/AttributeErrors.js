@@ -1,8 +1,8 @@
 import { Class, meta } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
-import /* { observes } from */ '../../foundation/Decorators.js';
-
 import { RecordAttribute } from './attr.js';
+
+import /* { observes } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.AttributeErrors

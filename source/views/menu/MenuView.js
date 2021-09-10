@@ -1,21 +1,22 @@
 import { Class } from '../../core/Core.js';
-import /* { property, on, queue } from */ '../../foundation/Decorators.js';
-import { Obj } from '../../foundation/Object.js';
-import { bind } from '../../foundation/Binding.js';
-import { ObservableArray } from '../../foundation/ObservableArray.js';
-import { queueFn, invokeInNextFrame } from '../../foundation/RunLoop.js';
-import { toBoolean } from '../../foundation/Transform.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
+import { bind } from '../../foundation/Binding.js';
+import { Obj } from '../../foundation/Object.js';
+import { ObservableArray } from '../../foundation/ObservableArray.js';
+import { invokeInNextFrame, queueFn } from '../../foundation/RunLoop.js';
+import { toBoolean } from '../../foundation/Transform.js';
 import { OptionsController } from '../../selection/OptionsController.js';
-import { View } from '../View.js';
-import { ViewEventsController } from '../ViewEventsController.js';
-import { ScrollView } from '../containers/ScrollView.js';
 import { canPointer } from '../../ua/UA.js';
 import { OptionsListView } from '../collections/OptionsListView.js';
+import { ScrollView } from '../containers/ScrollView.js';
 import { PopOverView } from '../panels/PopOverView.js';
+import { View } from '../View.js';
+import { ViewEventsController } from '../ViewEventsController.js';
 import { MenuButtonView } from './MenuButtonView.js';
 import { MenuFilterView } from './MenuFilterView.js';
 import { MenuOptionView } from './MenuOptionView.js';
+
+import /* { property, on, queue } from */ '../../foundation/Decorators.js';
 
 const MenuOption = Class({
     Name: 'MenuOption',

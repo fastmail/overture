@@ -1,5 +1,6 @@
-import '../core/String.js'; // For String#capitalise
 import { isApple } from '../ua/UA.js';
+
+import '../core/String.js'; // For String#capitalise
 
 const platformKeys = {
     ArrowUp: '↑',
@@ -17,9 +18,10 @@ const platformKeys = {
     Delete: isApple ? '⌦' : 'Delete',
 };
 
-const modifierOrder = (isApple
-    ? ['Ctrl', 'Alt', 'Shift', 'Cmd', 'Meta']
-    : ['Meta', 'Cmd', 'Ctrl', 'Alt', 'Shift']
+const modifierOrder = (
+    isApple
+        ? ['Ctrl', 'Alt', 'Shift', 'Cmd', 'Meta']
+        : ['Meta', 'Cmd', 'Ctrl', 'Alt', 'Shift']
 ).reduce((order, x, index) => {
     order[x] = index + 1;
     return order;

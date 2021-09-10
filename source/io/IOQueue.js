@@ -1,6 +1,7 @@
 import { Class } from '../core/Core.js';
-import '../core/Array.js'; // For Array#erase
 import { Obj } from '../foundation/Object.js';
+
+import '../core/Array.js'; // For Array#erase
 import /* { on } from */ '../foundation/Decorators.js';
 
 /**

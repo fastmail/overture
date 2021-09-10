@@ -1,12 +1,12 @@
 /*global window */
 
 import { Class } from '../core/Core.js';
-import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
-
-import { View } from './View.js';
-import { ViewEventsController } from './ViewEventsController.js';
 import { getViewFromNode } from './activeViews.js';
 import { AbstractControlView } from './controls/AbstractControlView.js';
+import { View } from './View.js';
+import { ViewEventsController } from './ViewEventsController.js';
+
+import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
 
 let passiveSupported = false;
 

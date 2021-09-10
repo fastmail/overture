@@ -1,9 +1,10 @@
 import { Class } from '../core/Core.js';
 import { mod } from '../core/Math.js';
 import { Obj } from '../foundation/Object.js';
-import /* { on, observes } from */ '../foundation/Decorators.js';
 import { ObservableArray } from '../foundation/ObservableArray.js';
 import { makeSearchRegExp } from '../localisation/i18n.js';
+
+import /* { on, observes } from */ '../foundation/Decorators.js';
 
 const OptionsController = Class({
     Name: 'OptionsController',

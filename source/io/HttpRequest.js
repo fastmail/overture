@@ -1,8 +1,9 @@
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
-import { invokeAfterDelay, cancel } from '../foundation/RunLoop.js';
-import /* { on } from */ '../foundation/Decorators.js';
+import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { XHR } from './XHR.js';
+
+import /* { on } from */ '../foundation/Decorators.js';
 
 /**
     Class: O.HttpRequest
@@ -153,8 +154,8 @@ const HttpRequest = Class({
     send() {
         let data = this.get('data') || null;
         if (data instanceof Promise) {
-            data.then((data) => {
-                this.set('data', data);
+            data.then((_data) => {
+                this.set('data', _data);
                 this.send();
             });
             return this;

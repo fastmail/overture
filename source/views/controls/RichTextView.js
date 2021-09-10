@@ -46,7 +46,8 @@ const queryCommandState = function (tag) {
 
 // Use a more relaxed definition of a URL than normal; anything URL-like we
 // want to accept so we can prefill the link destination box.
-const urlRegExp = /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
+const urlRegExp =
+    /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
 
 const popOver = new PopOverView();
 

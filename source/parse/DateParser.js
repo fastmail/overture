@@ -1,15 +1,16 @@
 import { mod } from '../core/Math.js';
-import '../core/String.js'; // For String#escapeRegExp
 import { getLocale } from '../localisation/i18n.js';
 import {
     define,
-    optional,
-    not,
-    sequence,
     firstMatch,
     longestMatch,
+    not,
+    optional,
     ParseResult,
+    sequence,
 } from './Parse.js';
+
+import '../core/String.js'; // For String#escapeRegExp
 
 // --- Date Grammar ---
 
@@ -125,9 +126,10 @@ const generateLocalisedDateParser = function (locale, mode) {
                             return year;
                     }
                 } else if (part) {
-                    return define('dateDelimiter', new RegExp(
-                        '^' + part.escapeRegExp(),
-                    ));
+                    return define(
+                        'dateDelimiter',
+                        new RegExp('^' + part.escapeRegExp()),
+                    );
                 }
                 return null;
             })

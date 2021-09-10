@@ -48,7 +48,8 @@ const linkRegExp = new RegExp(
 '))', 'i' );
 */
 
-const linkRegExp = /\b(?:((?:(?:ht|f)tps?:\/\/|www\d{0,3}[.]|[a-z0-9][a-z0-9.\-]*[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:[^\s?&`!()\[\]{};:'".,<>«»“”‘’]|\([^\s()<>]+\)))|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/gi;
+const linkRegExp =
+    /\b(?:((?:(?:ht|f)tps?:\/\/|www\d{0,3}[.]|[a-z0-9][a-z0-9.\-]*[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:[^\s?&`!()\[\]{};:'".,<>«»“”‘’]|\([^\s()<>]+\)))|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/gi;
 
 const escapeHTMLPreservingWS = (string) => {
     return string.escapeHTML().replace(/ (?=(?: |$))/g, '&nbsp;');
@@ -79,12 +80,13 @@ const toHTML = (plainText, style) => {
                         );
                     }
                     lineAsHTML += '<a href="';
-                    lineAsHTML += (match[1]
-                        ? /^(?:ht|f)tps?:/i.test(match[1])
-                            ? match[1]
-                            : 'http://' + match[1]
-                        : 'mailto:' +
-                          encodeURIComponent(match[0]).replace(/%40/g, '@')
+                    lineAsHTML += (
+                        match[1]
+                            ? /^(?:ht|f)tps?:/i.test(match[1])
+                                ? match[1]
+                                : 'http://' + match[1]
+                            : 'mailto:' +
+                              encodeURIComponent(match[0]).replace(/%40/g, '@')
                     )
                         .escapeHTML()
                         .replace(/"/g, '&quot;');

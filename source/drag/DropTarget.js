@@ -1,4 +1,4 @@
-import { MOVE, DEFAULT } from './DragEffect.js';
+import { DEFAULT, MOVE } from './DragEffect.js';
 
 /**
     Mixin: O.DropTarget

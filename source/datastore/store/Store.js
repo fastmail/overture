@@ -1,29 +1,30 @@
-import { Class, meta, isEqual, guid, clone } from '../../core/Core.js';
-import { filter, keyOf, zip } from '../../core/KeyValue.js';
-import '../../core/Array.js'; // For Array#erase
-import { queueFn, didError } from '../../foundation/RunLoop.js';
-import { Obj } from '../../foundation/Object.js';
+import { Class, clone, guid, isEqual, meta } from '../../core/Core.js';
+import { filter as filterObject, keyOf, zip } from '../../core/KeyValue.js';
 import { Event } from '../../foundation/Event.js';
 import { EventTarget } from '../../foundation/EventTarget.js';
-import { Record } from '../record/Record.js';
+import { Obj } from '../../foundation/Object.js';
+import { didError, queueFn } from '../../foundation/RunLoop.js';
 import { RecordArray } from '../query/RecordArray.js';
+import { Record } from '../record/Record.js';
 import {
+    COMMITTING, // Request in progress to commit record
+    DESTROYED,
+    DIRTY, // Record has local changes not yet committing
     // Core states:
     EMPTY,
-    READY,
-    DESTROYED,
-    NON_EXISTENT,
     // Properties:
     LOADING, // Request in progress to fetch record or updates
-    COMMITTING, // Request in progress to commit record
     NEW, // Record is not created on source (has no source id)
-    DIRTY, // Record has local changes not yet committing
+    NON_EXISTENT,
     OBSOLETE, // Record may have changes not yet loaded
+    READY,
 } from '../record/Status.js';
-// eslint-disable-next-line no-duplicate-imports
+// eslint-disable-next-line no-duplicate-imports, import/no-namespace
 import * as Status from '../record/Status.js';
-import { ToOneAttribute } from '../record/toOne.js';
 import { ToManyAttribute } from '../record/toMany.js';
+import { ToOneAttribute } from '../record/toOne.js';
+
+import '../../core/Array.js'; // For Array#erase
 
 /**
     Module: DataStore
@@ -46,9 +47,9 @@ const SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
 
 // ---
 
-let sk = 1;
+let nextStoreKey = 1;
 const generateStoreKey = function () {
-    return 'k' + sk++;
+    return 'k' + nextStoreKey++;
 };
 
 // ---
@@ -756,9 +757,8 @@ const Store = Class({
                     _skToData[isCopyOfStoreKey],
                 );
                 data = convertForeignKeysToId(this, Type, data);
-                const previousAccountId = this.getAccountIdFromStoreKey(
-                    isCopyOfStoreKey,
-                );
+                const previousAccountId =
+                    this.getAccountIdFromStoreKey(isCopyOfStoreKey);
                 create =
                     entry.moveFromAccount[previousAccountId] ||
                     (entry.moveFromAccount[previousAccountId] = {
@@ -772,7 +772,7 @@ const Store = Class({
                 );
                 create.changes.push(changed);
             } else {
-                data = filter(
+                data = filterObject(
                     convertForeignKeysToId(this, Type, data),
                     Record.getClientSettableAttributes(Type),
                 );
@@ -1393,7 +1393,7 @@ const Store = Class({
     undestroyRecord(storeKey, Type, data, _isCopyOfStoreKey) {
         const status = this.getStatus(storeKey);
         if (data) {
-            data = filter(data, Record.getClientSettableAttributes(Type));
+            data = filterObject(data, Record.getClientSettableAttributes(Type));
         }
         if (status === EMPTY || status === DESTROYED) {
             this.createRecord(storeKey, data, _isCopyOfStoreKey);

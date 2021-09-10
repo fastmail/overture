@@ -1,12 +1,12 @@
 /*global document */
 
-import { nearest } from '../dom/Element.js';
 import { linear } from '../animation/Easing.js';
+import { nearest } from '../dom/Element.js';
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
-import { ViewEventsController } from '../views/ViewEventsController.js';
-import { RootView } from '../views/RootView.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
+import { RootView } from '../views/RootView.js';
+import { ViewEventsController } from '../views/ViewEventsController.js';
 
 const IDLE = 0;
 const DETECT = 1;
@@ -184,9 +184,8 @@ const itemListTouchSelect = {
             for (let i = 0, l = storeKeys.length; i < l; i += 1) {
                 const storeKey = storeKeys[i];
                 if (!(storeKey in wasSelected)) {
-                    wasSelected[storeKey] = selection.isStoreKeySelected(
-                        storeKey,
-                    );
+                    wasSelected[storeKey] =
+                        selection.isStoreKeySelected(storeKey);
                 }
             }
             selection.selectStoreKeys(storeKeys, isSelected);

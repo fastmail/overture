@@ -1,12 +1,10 @@
 import { meta } from '../core/Core.js';
-import '../core/Array.js'; // For Array#erase
-
 import { Event } from './Event.js';
 import { didError } from './RunLoop.js';
 
-const eventPrefix = '__event__';
+import '../core/Array.js'; // For Array#erase
 
-export { eventPrefix as _eventPrefix };
+const eventPrefix = '__event__';
 
 /**
     Mixin: O.EventTarget
@@ -178,4 +176,4 @@ const EventTarget = {
     },
 };
 
-export { EventTarget };
+export { EventTarget, eventPrefix as _eventPrefix };

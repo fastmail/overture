@@ -1,11 +1,12 @@
 /*global document */
 
-import { isDestroyed, Class } from '../../core/Core.js';
+import { Class, isDestroyed } from '../../core/Core.js';
+import { forView } from '../../dom/Element.js';
 import { bind } from '../../foundation/Binding.js';
 import { queueFn } from '../../foundation/RunLoop.js';
-import /* { property, observes } from */ '../../foundation/Decorators.js';
 import { View } from '../View.js';
-import { forView } from '../../dom/Element.js';
+
+import /* { property, observes } from */ '../../foundation/Decorators.js';
 
 const forEachView = function (views, method, args) {
     let l = views ? views.length : 0;

@@ -1,10 +1,10 @@
 import { clone } from '../core/Core.js';
 import { _eventPrefix as eventPrefix } from './EventTarget.js';
 import {
-    queueFn,
     invoke,
     invokeInNextEventLoop,
     invokeInNextFrame,
+    queueFn,
 } from './RunLoop.js';
 
 const makeComputedDidChange = function (key) {
@@ -43,17 +43,15 @@ const setupComputed = function (metadata, key, object) {
             if (!pathObservers) {
                 pathObservers = metadata.pathObservers;
                 if (!metadata.hasOwnProperty('pathObservers')) {
-                    pathObservers = metadata.pathObservers = Object.create(
-                        pathObservers,
-                    );
+                    pathObservers = metadata.pathObservers =
+                        Object.create(pathObservers);
                 }
                 methodObservers = pathObservers[method];
                 if (!methodObservers) {
                     methodObservers = pathObservers[method] = [];
                 } else if (!pathObservers.hasOwnProperty(method)) {
-                    methodObservers = pathObservers[
-                        method
-                    ] = methodObservers.slice();
+                    methodObservers = pathObservers[method] =
+                        methodObservers.slice();
                 }
             }
             methodObservers.push(valueThisKeyDependsOn);
@@ -85,15 +83,13 @@ const teardownComputed = function (metadata, key) {
             if (!pathObservers) {
                 pathObservers = metadata.pathObservers;
                 if (!metadata.hasOwnProperty('pathObservers')) {
-                    pathObservers = metadata.pathObservers = Object.create(
-                        pathObservers,
-                    );
+                    pathObservers = metadata.pathObservers =
+                        Object.create(pathObservers);
                 }
                 methodObservers = pathObservers[method];
                 if (!pathObservers.hasOwnProperty(method)) {
-                    methodObservers = pathObservers[
-                        method
-                    ] = methodObservers.slice();
+                    methodObservers = pathObservers[method] =
+                        methodObservers.slice();
                 }
             }
             methodObservers.erase(valueThisKeyDependsOn);
@@ -114,9 +110,8 @@ const setupObserver = function (metadata, method) {
             if (!pathObservers) {
                 pathObservers = metadata.pathObservers;
                 if (!metadata.hasOwnProperty('pathObservers')) {
-                    pathObservers = metadata.pathObservers = Object.create(
-                        pathObservers,
-                    );
+                    pathObservers = metadata.pathObservers =
+                        Object.create(pathObservers);
                 }
                 // There can't be any existing path observers for this method,
                 // as we're only just adding it (and if we're overriding a
@@ -142,9 +137,8 @@ const teardownObserver = function (metadata, method) {
         } else if (!pathObservers) {
             pathObservers = metadata.pathObservers;
             if (!metadata.hasOwnProperty('pathObservers')) {
-                pathObservers = metadata.pathObservers = Object.create(
-                    pathObservers,
-                );
+                pathObservers = metadata.pathObservers =
+                    Object.create(pathObservers);
             }
             // We want to remove all path observers. Can't just delete though,
             // as it may be defined on the prototype object.

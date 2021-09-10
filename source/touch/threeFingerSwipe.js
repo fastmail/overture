@@ -1,6 +1,6 @@
-import { Gesture } from './Gesture.js';
 import { Event } from '../foundation/Event.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
+import { Gesture } from './Gesture.js';
 
 const touchCenter = function (event) {
     const touchMap = [];

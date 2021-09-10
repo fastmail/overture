@@ -1,4 +1,5 @@
 import { merge } from '../core/Core.js';
+
 import '../core/Date.js'; // For Date#format
 
 const formatInt = function (number, locale) {
@@ -356,11 +357,8 @@ Object.assign(Locale.prototype, {
         // Case 2: everything else.
         // Case 3: is 0 (optional; plural used if not supplied).
         '*2'(n, singular, plural, zero) {
-            return (n === 1
-                ? singular
-                : !n && zero !== undefined
-                ? zero
-                : plural
+            return (
+                n === 1 ? singular : !n && zero !== undefined ? zero : plural
             ).replace('%n', formatInt(n, this));
         },
         // French and Brazilian Portuguese.
@@ -368,11 +366,8 @@ Object.assign(Locale.prototype, {
         // Case 2: everything else.
         // Case 3: is 0 (optional; singular used if not supplied).
         '*2a'(n, singular, plural, zero) {
-            return (n > 1
-                ? plural
-                : !n && zero !== undefined
-                ? zero
-                : singular
+            return (
+                n > 1 ? plural : !n && zero !== undefined ? zero : singular
             ).replace('%n', formatInt(n, this));
         },
         // Hungarian
@@ -381,13 +376,14 @@ Object.assign(Locale.prototype, {
         //        (*1,*2,*4,*5,*7,*9,*10,*40,*50,*70,*90,*000,*0000,*00000).
         // Case 3: is 0 (optional; case 1 used if not supplied)
         '*2b'(n, form1, form2, zero) {
-            return (!n
-                ? zero !== undefined
-                    ? zero
-                    : form1
-                : /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test(n + '')
-                ? form1
-                : form2
+            return (
+                !n
+                    ? zero !== undefined
+                        ? zero
+                        : form1
+                    : /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test(n + '')
+                    ? form1
+                    : form2
             ).replace('%n', formatInt(n, this));
         },
         // Latvian.
@@ -395,11 +391,8 @@ Object.assign(Locale.prototype, {
         // Case 2: ends in 1, does not end in 11.
         // Case 3: everything else.
         '*3a'(n, zero, plural1, plural2) {
-            return (!n
-                ? zero
-                : n % 10 === 1 && n % 100 !== 11
-                ? plural1
-                : plural2
+            return (
+                !n ? zero : n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
             ).replace('%n', formatInt(n, this));
         },
         // Romanian.
@@ -409,13 +402,14 @@ Object.assign(Locale.prototype, {
         // Case 4: is 0 (optional; case 2 used if not supplied)
         '*3b'(n, singular, plural1, plural2, zero) {
             const mod100 = n % 100;
-            return (!n && zero !== undefined
-                ? zero
-                : n === 1
-                ? singular
-                : !n || (1 <= mod100 && mod100 <= 19)
-                ? plural1
-                : plural2
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : n === 1
+                    ? singular
+                    : !n || (1 <= mod100 && mod100 <= 19)
+                    ? plural1
+                    : plural2
             ).replace('%n', formatInt(n, this));
         },
         // Lithuanian.
@@ -426,13 +420,14 @@ Object.assign(Locale.prototype, {
         '*3c'(n, form1, form2, form3, zero) {
             const mod10 = n % 10;
             const mod100 = n % 100;
-            return (!n && zero !== undefined
-                ? zero
-                : mod10 === 1 && mod100 !== 11
-                ? form1
-                : mod10 === 0 || (10 <= mod100 && mod100 <= 20)
-                ? form2
-                : form3
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : mod10 === 1 && mod100 !== 11
+                    ? form1
+                    : mod10 === 0 || (10 <= mod100 && mod100 <= 20)
+                    ? form2
+                    : form3
             ).replace('%n', formatInt(n, this));
         },
         // Russian, Ukrainian, Serbian, Croatian.
@@ -443,13 +438,14 @@ Object.assign(Locale.prototype, {
         '*3d'(n, form1, form2, form3, zero) {
             const mod10 = n % 10;
             const mod100 = n % 100;
-            return (!n && zero !== undefined
-                ? zero
-                : mod10 === 1 && mod100 !== 11
-                ? form1
-                : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
-                ? form2
-                : form3
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : mod10 === 1 && mod100 !== 11
+                    ? form1
+                    : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+                    ? form2
+                    : form3
             ).replace('%n', formatInt(n, this));
         },
         // Czech, Slovak.
@@ -458,13 +454,14 @@ Object.assign(Locale.prototype, {
         // Case 3: everything else.
         // Case 4: is 0 (optional; case 3 used if not supplied)
         '*3e'(n, singular, plural1, plural2, zero) {
-            return (!n && zero !== undefined
-                ? zero
-                : n === 1
-                ? singular
-                : 2 <= n && n <= 4
-                ? plural1
-                : plural2
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : n === 1
+                    ? singular
+                    : 2 <= n && n <= 4
+                    ? plural1
+                    : plural2
             ).replace('%n', formatInt(n, this));
         },
         // Polish.
@@ -475,13 +472,14 @@ Object.assign(Locale.prototype, {
         '*3f'(n, singular, plural1, plural2, zero) {
             const mod10 = n % 10;
             const mod100 = n % 100;
-            return (!n && zero !== undefined
-                ? zero
-                : n === 1
-                ? singular
-                : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
-                ? plural1
-                : plural2
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : n === 1
+                    ? singular
+                    : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+                    ? plural1
+                    : plural2
             ).replace('%n', formatInt(n, this));
         },
         // Slovenian, Sorbian.
@@ -492,15 +490,16 @@ Object.assign(Locale.prototype, {
         // Case 5: is 0 (optional; case 4 used if not supplied)
         '*4a'(n, end01, end02, end03or04, plural, zero) {
             const mod100 = n % 100;
-            return (!n && zero !== undefined
-                ? zero
-                : mod100 === 1
-                ? end01
-                : mod100 === 2
-                ? end02
-                : mod100 === 3 || mod100 === 4
-                ? end03or04
-                : plural
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : mod100 === 1
+                    ? end01
+                    : mod100 === 2
+                    ? end02
+                    : mod100 === 3 || mod100 === 4
+                    ? end03or04
+                    : plural
             ).replace('%n', formatInt(n, this));
         },
         // Scottish Gaelic.
@@ -510,15 +509,16 @@ Object.assign(Locale.prototype, {
         // Case 4: everything else.
         // Case 5: is 0 (optional; case 4 used if not supplied)
         '*4b'(n, form1, form2, form3, form4, zero) {
-            return (!n && zero !== undefined
-                ? zero
-                : n === 1 || n === 11
-                ? form1
-                : n === 2 || n === 12
-                ? form2
-                : 3 <= n && n <= 19
-                ? form3
-                : form4
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : n === 1 || n === 11
+                    ? form1
+                    : n === 2 || n === 12
+                    ? form2
+                    : 3 <= n && n <= 19
+                    ? form3
+                    : form4
             ).replace('%n', formatInt(n, this));
         },
         // Gaeilge (Irish).
@@ -529,17 +529,18 @@ Object.assign(Locale.prototype, {
         // Case 5: everything else.
         // Case 6: is 0 (optional; case 5 used if not supplied)
         '*5'(n, singular, doubular, form1, form2, form3, zero) {
-            return (!n && zero !== undefined
-                ? zero
-                : n === 1
-                ? singular
-                : n === 2
-                ? doubular
-                : 3 <= n && n <= 6
-                ? form1
-                : 7 <= n && n <= 10
-                ? form2
-                : form3
+            return (
+                !n && zero !== undefined
+                    ? zero
+                    : n === 1
+                    ? singular
+                    : n === 2
+                    ? doubular
+                    : 3 <= n && n <= 6
+                    ? form1
+                    : 7 <= n && n <= 10
+                    ? form2
+                    : form3
             ).replace('%n', formatInt(n, this));
         },
         // Arabic.
@@ -551,17 +552,18 @@ Object.assign(Locale.prototype, {
         // Case 6: everything else.
         '*6'(n, zero, singular, doubular, pl1, pl2, pl3) {
             const mod100 = n % 100;
-            return (!n
-                ? zero
-                : n === 1
-                ? singular
-                : n === 2
-                ? doubular
-                : 3 <= mod100 && mod100 <= 10
-                ? pl1
-                : 11 <= mod100 && mod100 <= 99
-                ? pl2
-                : pl3
+            return (
+                !n
+                    ? zero
+                    : n === 1
+                    ? singular
+                    : n === 2
+                    ? doubular
+                    : 3 <= mod100 && mod100 <= 10
+                    ? pl1
+                    : 11 <= mod100 && mod100 <= 99
+                    ? pl2
+                    : pl3
             ).replace('%n', formatInt(n, this));
         },
     },

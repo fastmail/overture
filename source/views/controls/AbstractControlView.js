@@ -1,13 +1,14 @@
+import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
+import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';
+import { toPlatformKey } from '../../application/toPlatformKey.js';
 import { Class } from '../../core/Core.js';
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import { appendChildren, create as el } from '../../dom/Element.js';
+import { loc } from '../../localisation/i18n.js';
+import { isIOS } from '../../ua/UA.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-import { loc } from '../../localisation/i18n.js';
-import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
-import { toPlatformKey } from '../../application/toPlatformKey.js';
-import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';
-import { isIOS } from '../../ua/UA.js';
-import { appendChildren, create as el } from '../../dom/Element.js';
+
+import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 
 /**
     Class: O.AbstractControlView

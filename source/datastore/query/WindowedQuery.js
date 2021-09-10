@@ -1,20 +1,21 @@
-import { Class, meta, isEqual } from '../../core/Core.js';
-import '../../core/Array.js'; // For Array#binarySearch
-import /* { observes, property, nocache } from */ '../../foundation/Decorators.js';
+import { Class, isEqual, meta } from '../../core/Core.js';
 import {
-    EMPTY,
-    READY,
     // DIRTY => A preemptive update has been applied since the last fetch of
     // updates from the server was *initiated*. Therefore, any update we receive
     // may not cover all of the preemptives.
     DIRTY,
+    EMPTY,
     // LOADING => An *update* is being fetched from the server
     LOADING,
     // OBSOLETE => The data on the server may have changed since the last update
     // was requested.
     OBSOLETE,
+    READY,
 } from '../record/Status.js';
 import { Query } from './Query.js';
+
+import '../../core/Array.js'; // For Array#binarySearch
+import /* { observes, property, nocache } from */ '../../foundation/Decorators.js';
 
 /**
     Enum: O.WindowedQuery-WindowState
@@ -943,7 +944,7 @@ const WindowedQuery = Class({
             storeKey: toStoreKey(item.id),
         }));
         const seenStorekey = {};
-        const removed = update.removed.reduce((removed, id) => {
+        const removed = update.removed.reduce((_removed, id) => {
             // Need to deduplicate removed; if an id is rewritten, we keep the
             // old id => store key mapping so we can remove it from a query.
             // However, the server may return both the old id and the new id
@@ -954,9 +955,9 @@ const WindowedQuery = Class({
             const storeKey = toStoreKey(id);
             if (!seenStorekey[storeKey]) {
                 seenStorekey[storeKey] = true;
-                removed.push(storeKey);
+                _removed.push(storeKey);
             }
-            return removed;
+            return _removed;
         }, []);
         const upToId = update.upToId && toStoreKey(update.upToId);
         const total = update.total;
@@ -1041,9 +1042,7 @@ const WindowedQuery = Class({
             // Now remove any idempotent operations
             const addedIndexes = normalisedUpdate.addedIndexes;
             const addedStoreKeys = normalisedUpdate.addedStoreKeys;
-            let l = addedIndexes.length;
-
-            while (l--) {
+            for (let l = addedIndexes.length; l--; ) {
                 const storeKey = addedStoreKeys[l];
                 const i = removedStoreKeys.indexOf(storeKey);
                 if (i > -1 && removedIndexes[i] - i + l === addedIndexes[l]) {
@@ -1175,8 +1174,7 @@ const WindowedQuery = Class({
             const removedIndexes = allPreemptives.removedIndexes;
 
             if (canGetDeltaUpdates) {
-                let l = removedIndexes.length;
-                while (l--) {
+                for (let l = removedIndexes.length; l--; ) {
                     const index = removedIndexes[l] - position;
                     if (index < length) {
                         if (index >= 0) {
