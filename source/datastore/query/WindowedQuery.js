@@ -982,9 +982,11 @@ const WindowedQuery = Class({
             // 2. Normalise the update from the server. This is trickier
             // than normal, as we need to determine what the indexes of the
             // removed store keys were in the previous query state.
+            const removedIndexes = [];
+            const removedStoreKeys = [];
             const normalisedUpdate = {
-                removedIndexes: [],
-                removedStoreKeys: [],
+                removedIndexes,
+                removedStoreKeys,
                 addedIndexes: added.map((item) => item.index),
                 addedStoreKeys: added.map((item) => item.storeKey),
                 truncateAtFirstGap: false,
@@ -998,10 +1000,8 @@ const WindowedQuery = Class({
             // compose the result with the preemptive in order to get the
             // original index.
             const list = this._storeKeys;
-            const removedIndexes = normalisedUpdate.removedIndexes;
-            const removedStoreKeys = normalisedUpdate.removedStoreKeys;
-            let _indexes = [];
-            let _storeKeys = [];
+            const indexesToRemove = [];
+            const storeKeysToRemove = [];
             let wasSuccessfulPreemptive = false;
 
             let allPreemptives = composed[preemptivesLength - 1];
@@ -1014,27 +1014,31 @@ const WindowedQuery = Class({
                 } else {
                     index = list.indexOf(storeKey);
                     if (index > -1) {
-                        _indexes.push(index);
-                        _storeKeys.push(storeKey);
+                        indexesToRemove.push(index);
+                        storeKeysToRemove.push(storeKey);
                     } else {
                         normalisedUpdate.truncateAtFirstGap = true;
                     }
                 }
             }
-            if (_indexes.length) {
-                const x = composeUpdates(allPreemptives, {
-                    removedIndexes: _indexes,
-                    removedStoreKeys: _storeKeys,
+            if (storeKeysToRemove.length) {
+                const composedUpdate = composeUpdates(allPreemptives, {
+                    removedIndexes: indexesToRemove,
+                    removedStoreKeys: storeKeysToRemove,
                     addedIndexes: [],
                     addedStoreKeys: [],
                 });
-                _indexes = x.removedIndexes;
-                _storeKeys = x.removedStoreKeys;
-                let ll = removedIndexes.length;
-                for (let i = 0, l = _indexes.length; i < l; i += 1) {
-                    removedIndexes[ll] = _indexes[i];
-                    removedStoreKeys[ll] = _storeKeys[i];
-                    ll += 1;
+                const composedRemovedSKs = composedUpdate.removedStoreKeys;
+                const composedRemovedIndexes = composedUpdate.removedIndexes;
+                for (let i = 0, l = storeKeysToRemove.length; i < l; i += 1) {
+                    const storeKey = storeKeysToRemove[i];
+                    const index = composedRemovedSKs.indexOf(storeKey);
+                    if (index > -1) {
+                        removedIndexes.push(composedRemovedIndexes[index]);
+                        removedStoreKeys.push(storeKey);
+                    } else {
+                        normalisedUpdate.truncateAtFirstGap = true;
+                    }
                 }
             }
             sortLinkedArrays(removedIndexes, removedStoreKeys);
@@ -1045,6 +1049,10 @@ const WindowedQuery = Class({
             for (let l = addedIndexes.length; l--; ) {
                 const storeKey = addedStoreKeys[l];
                 const i = removedStoreKeys.indexOf(storeKey);
+                // i => Number of items removed before this one
+                // l => Number of items added before this one
+                // Therefore old index - i + l => new index. If it is being
+                // added at this index, the whole operation is inert.
                 if (i > -1 && removedIndexes[i] - i + l === addedIndexes[l]) {
                     removedIndexes.splice(i, 1);
                     removedStoreKeys.splice(i, 1);
