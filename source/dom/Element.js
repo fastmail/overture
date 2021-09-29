@@ -621,6 +621,8 @@ Element.prototype.set = function (key, value) {
         appendChildren(this, value);
     } else if (value == null) {
         this.removeAttribute(key);
+    } else if (key === '+class') {
+        this.classList.add(...value.split(/[ .]/));
     } else {
         this.setAttribute(key, '' + value);
     }
