@@ -1,4 +1,3 @@
-export { EventSource, CONNECTING, OPEN, CLOSED } from './EventSource.js';
 export { HttpRequest } from './HttpRequest.js';
 export { IOQueue } from './IOQueue.js';
 export { XHR } from './XHR.js';
