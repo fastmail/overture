@@ -1,6 +1,7 @@
 import { Class, guid } from '../../core/Core.js';
 import { appendChildren } from '../../dom/Element.js';
 import { bind } from '../../foundation/Binding.js';
+import { didError } from '../../foundation/RunLoop.js';
 import { browser } from '../../ua/UA.js';
 import { View } from '../View.js';
 
@@ -286,7 +287,14 @@ const ListView = Class({
                         view.beginPropertyChanges();
                         view.willLeaveDocument();
                     }
-                    layer.removeChild(view.get('layer'));
+                    try {
+                        layer.removeChild(view.get('layer'));
+                    } catch (error) {
+                        didError({
+                            name: 'Model bug',
+                            details: list.log,
+                        });
+                    }
                     if (isInDocument) {
                         view.didLeaveDocument();
                     }
