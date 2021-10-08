@@ -21,10 +21,16 @@ const formatDuration = function (durationInMS, approx) {
         if (approx) {
             time = loc('less than a minute');
         } else {
-            time = loc('[*2,_1,%n second,%n seconds]', durationInSeconds);
+            time = loc(
+                '{value1, plural, one {# second} other {# seconds}}',
+                durationInSeconds,
+            );
         }
     } else if (durationInSeconds < 60 * 60) {
-        time = loc('[*2,_1,%n minute,%n minutes]', ~~(durationInSeconds / 60));
+        time = loc(
+            '{value1, plural, one {# minute} other {# minutes}}',
+            ~~(durationInSeconds / 60),
+        );
     } else if (durationInSeconds < 60 * 60 * 24) {
         let hours;
         let minutes;
@@ -36,7 +42,7 @@ const formatDuration = function (durationInMS, approx) {
             minutes = ~~((durationInSeconds / 60) % 60);
         }
         time = loc(
-            '[*2,_1,%n hour,%n hours,] [*2,_2,%n minute,%n minutes,]',
+            '{value1, plural, one {# hour} other {# hours} =0 {}} {value2, plural, one {# minute} other {# minutes} =0 {}}',
             hours,
             minutes,
         );
@@ -55,7 +61,7 @@ const formatDuration = function (durationInMS, approx) {
             hours = ~~((durationInSeconds / (60 * 60)) % 24);
         }
         time = loc(
-            '[*2,_1,%n day,%n days,] [*2,_2,%n hour,%n hours,]',
+            '{value1, plural, one {# day} other {# days} =0 {}} {value2, plural, one {# hour} other {# hours} =0 {}}',
             days,
             hours,
         );
@@ -70,7 +76,7 @@ const formatDuration = function (durationInMS, approx) {
             days = ~~(durationInSeconds / (60 * 60 * 24)) % 7;
         }
         time = loc(
-            '[*2,_1,%n week,%n weeks,] [*2,_2,%n day,%n days,]',
+            '{value1, plural, one {# week} other {# weeks} =0 {}} {value2, plural, one {# day} other {# days} =0 {}}',
             weeks,
             days,
         );
@@ -136,13 +142,13 @@ Date.prototype.relativeTo = function (date, approx, mustNotBeFuture) {
             months += 12;
         }
         time = loc(
-            '[*2,_1,%n year,%n years,] [*2,_2,%n month,%n months,]',
+            '{value1, plural, one {# year} other {# years} =0 {}} {value2, plural, one {# month} other {# months} =0 {}}',
             years,
             months,
         ).trim();
     }
 
-    return isFuture ? loc('In [_1]', time) : loc('[_1] ago', time);
+    return isFuture ? loc('In {value1}', time) : loc('{value1} ago', time);
 };
 
 // TODO(cmorgan/modulify): do something about these exports:

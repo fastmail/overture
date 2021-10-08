@@ -1,12 +1,12 @@
 /*eslint-env node*/
 import { resolve } from 'path';
 
-import po from '../../tooling/rollup/rollup-plugin-po.js';
+import importLang from '../../tooling/rollup/rollup-plugin-lang-import';
 
 export default {
     alias: {
         overture: resolve('../../source'),
         strings: resolve('../../../../localisation/strings'),
     },
-    plugins: [po()],
+    plugins: [importLang()],
 };

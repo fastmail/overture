@@ -109,7 +109,7 @@ const AbstractControlView = Class({
         const shortcut = this.get('shortcut');
         return shortcut
             ? loc(
-                  'Shortcut: [_1]',
+                  'Shortcut: {value1}',
                   shortcut
                       .split(' ')
                       .map(formatKeyForPlatform)

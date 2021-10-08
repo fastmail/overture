@@ -68,13 +68,17 @@ const locJsonToCSV = () => {
     Object.keys(db).forEach((id) => {
         const dbObj = db[id];
         // TODO: add flag for whether or not to export all strings
-        if (langObjs.every((lang) => lang[id].translation)) {
+        if (
+            langObjs.every((lang) => {
+                const thisLang = lang[id];
+                return !(thisLang.flags && thisLang.flags.includes('fuzzy'));
+            })
+        ) {
             return;
         }
         csvRows.push([
             id,
             dbObj.string,
-            // TODO flag to toggle "fuzzy"
             ...langObjs.map((langObj) => langObj[id].translation),
             dbObj.description,
         ]);

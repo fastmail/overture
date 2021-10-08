@@ -2,17 +2,6 @@ import { merge } from '../core/Core.js';
 
 import '../core/Date.js'; // For Date#format
 
-const formatInt = function (number, locale) {
-    let string = number + '';
-    if (string.length > 3) {
-        string = string.replace(
-            /(\d+?)(?=(?:\d{3})+$)/g,
-            '$1' + locale.thousandsSeparator,
-        );
-    }
-    return string;
-};
-
 /**
     Class: O.Locale
 
@@ -42,7 +31,6 @@ class Locale {
             mixin - {Object} Information for this locale.
     */
     constructor(mixin) {
-        this.macros = Object.create(this.macros);
         this.dateFormats = Object.create(this.dateFormats);
         merge(this, mixin);
     }
@@ -86,6 +74,30 @@ Object.assign(Locale.prototype, {
     fileSizeUnits: ['B', 'KB', 'MB', 'GB'],
 
     /**
+        Method: O.Locale#getFormattedInt
+
+        Format an integer according to local conventions. Inserts thousands
+        separators if used in the locale.  Should not be used for fractional
+        numbers; use getFormattedNumber instead!
+
+        Parameters:
+            number - {(Number|String)} The integer to format.
+
+        Returns:
+            {String} The localised number.
+    */
+    getFormattedInt(number, locale) {
+        let string = number + '';
+        if (string.length > 3) {
+            string = string.replace(
+                /(\d+?)(?=(?:\d{3})+$)/g,
+                '$1' + locale.thousandsSeparator,
+            );
+        }
+        return string;
+    },
+
+    /**
         Method: O.Locale#getFormattedNumber
 
         Format a number according to local conventions. Ensures the correct
@@ -107,7 +119,7 @@ Object.assign(Locale.prototype, {
             integer = integer.slice(0, decimalPointIndex);
         }
         return (
-            formatInt(integer, this) +
+            this.getFormattedInt(integer, this) +
             (fraction && this.decimalPoint + fraction)
         );
     },
@@ -336,237 +348,26 @@ Object.assign(Locale.prototype, {
     },
 
     /**
-        Property: O.Locale#macros
-        Type: String[Function]
+        Method: O.Locale#p
 
-        The set of named macros that may be used in translations using the
-        square brackets notation.
+        Dynamically constructed at compile time.  Short for "pluralise" — made
+        compact for less data to be sent over the wire.
+
+        Given a number and arguments for ICU message syntax options, returns the
+        string with the number interpolated using the correct plural noun rules
+        for a language.
+
+        An ICUMessageObject has keys in the set {zero, one, two, many, few,
+        other}, as appropriate for the locale, as described by Unicode CLDR:
+        https://unicode-org.github.io/cldr-staging/charts/latest/supplemental/language_plural_rules.html
+
+        Parameters:
+            number        - {Number} The number to insert.
+            options       - {ICUMessageObject} The options for a string.
+
+        Returns:
+            {String} The localised result string using the correct plural noun.
     */
-    macros: {
-        // Japanese, Vietnamese, Korean.
-        // Case 1: everything.
-        // Case 2: is 0 (optional; case 1 used if not supplied).
-        '*1'(n, singular, zero) {
-            return (!n && zero !== undefined ? zero : singular).replace(
-                '%n',
-                formatInt(n, this),
-            );
-        },
-        // Most Western languages.
-        // Case 1: is 1.
-        // Case 2: everything else.
-        // Case 3: is 0 (optional; plural used if not supplied).
-        '*2'(n, singular, plural, zero) {
-            return (
-                n === 1 ? singular : !n && zero !== undefined ? zero : plural
-            ).replace('%n', formatInt(n, this));
-        },
-        // French and Brazilian Portuguese.
-        // Case 1: is 0 or 1.
-        // Case 2: everything else.
-        // Case 3: is 0 (optional; singular used if not supplied).
-        '*2a'(n, singular, plural, zero) {
-            return (
-                n > 1 ? plural : !n && zero !== undefined ? zero : singular
-            ).replace('%n', formatInt(n, this));
-        },
-        // Hungarian
-        // Case 1: is 0,*3,*6,*8,*20,*30,*60,*80,*00,*000000, *000000+.
-        // Case 2: everything else
-        //        (*1,*2,*4,*5,*7,*9,*10,*40,*50,*70,*90,*000,*0000,*00000).
-        // Case 3: is 0 (optional; case 1 used if not supplied)
-        '*2b'(n, form1, form2, zero) {
-            return (
-                !n
-                    ? zero !== undefined
-                        ? zero
-                        : form1
-                    : /(?:[368]|20|30|60|80|[^0]00|0{6,})$/.test(n + '')
-                    ? form1
-                    : form2
-            ).replace('%n', formatInt(n, this));
-        },
-        // Latvian.
-        // Case 1: is 0.
-        // Case 2: ends in 1, does not end in 11.
-        // Case 3: everything else.
-        '*3a'(n, zero, plural1, plural2) {
-            return (
-                !n ? zero : n % 10 === 1 && n % 100 !== 11 ? plural1 : plural2
-            ).replace('%n', formatInt(n, this));
-        },
-        // Romanian.
-        // Case 1: is 1.
-        // Case 2: is 0 or ends in 01-19.
-        // Case 3: everything else.
-        // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3b'(n, singular, plural1, plural2, zero) {
-            const mod100 = n % 100;
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : n === 1
-                    ? singular
-                    : !n || (1 <= mod100 && mod100 <= 19)
-                    ? plural1
-                    : plural2
-            ).replace('%n', formatInt(n, this));
-        },
-        // Lithuanian.
-        // Case 1: ends in 1, not 11.
-        // Case 2: ends in 0 or ends in 10-20.
-        // Case 3: everything else.
-        // Case 4: is 0 (optional; case 2 used if not supplied)
-        '*3c'(n, form1, form2, form3, zero) {
-            const mod10 = n % 10;
-            const mod100 = n % 100;
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : mod10 === 1 && mod100 !== 11
-                    ? form1
-                    : mod10 === 0 || (10 <= mod100 && mod100 <= 20)
-                    ? form2
-                    : form3
-            ).replace('%n', formatInt(n, this));
-        },
-        // Russian, Ukrainian, Serbian, Croatian.
-        // Case 1: ends in 1, does not end in 11.
-        // Case 2: ends in 2-4, does not end in 12-14.
-        // Case 3: everything else
-        // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3d'(n, form1, form2, form3, zero) {
-            const mod10 = n % 10;
-            const mod100 = n % 100;
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : mod10 === 1 && mod100 !== 11
-                    ? form1
-                    : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
-                    ? form2
-                    : form3
-            ).replace('%n', formatInt(n, this));
-        },
-        // Czech, Slovak.
-        // Case 1: is 1.
-        // Case 2: is 2-4.
-        // Case 3: everything else.
-        // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3e'(n, singular, plural1, plural2, zero) {
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : n === 1
-                    ? singular
-                    : 2 <= n && n <= 4
-                    ? plural1
-                    : plural2
-            ).replace('%n', formatInt(n, this));
-        },
-        // Polish.
-        // Case 1: is 1.
-        // Case 2: ends in 2-4, does not end in 12-14.
-        // Case 3: everything else
-        // Case 4: is 0 (optional; case 3 used if not supplied)
-        '*3f'(n, singular, plural1, plural2, zero) {
-            const mod10 = n % 10;
-            const mod100 = n % 100;
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : n === 1
-                    ? singular
-                    : 2 <= mod10 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
-                    ? plural1
-                    : plural2
-            ).replace('%n', formatInt(n, this));
-        },
-        // Slovenian, Sorbian.
-        // Case 1: ends in 01.
-        // Case 2: ends in 02.
-        // Case 3: ends in 03 or 04.
-        // Case 4: everything else.
-        // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4a'(n, end01, end02, end03or04, plural, zero) {
-            const mod100 = n % 100;
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : mod100 === 1
-                    ? end01
-                    : mod100 === 2
-                    ? end02
-                    : mod100 === 3 || mod100 === 4
-                    ? end03or04
-                    : plural
-            ).replace('%n', formatInt(n, this));
-        },
-        // Scottish Gaelic.
-        // Case 1: is 1 or 11.
-        // Case 2: is 2 or 12.
-        // Case 3: is 3-19.
-        // Case 4: everything else.
-        // Case 5: is 0 (optional; case 4 used if not supplied)
-        '*4b'(n, form1, form2, form3, form4, zero) {
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : n === 1 || n === 11
-                    ? form1
-                    : n === 2 || n === 12
-                    ? form2
-                    : 3 <= n && n <= 19
-                    ? form3
-                    : form4
-            ).replace('%n', formatInt(n, this));
-        },
-        // Gaeilge (Irish).
-        // Case 1: is 1.
-        // Case 2: is 2.
-        // Case 3: is 3-6.
-        // Case 4: is 7-10.
-        // Case 5: everything else.
-        // Case 6: is 0 (optional; case 5 used if not supplied)
-        '*5'(n, singular, doubular, form1, form2, form3, zero) {
-            return (
-                !n && zero !== undefined
-                    ? zero
-                    : n === 1
-                    ? singular
-                    : n === 2
-                    ? doubular
-                    : 3 <= n && n <= 6
-                    ? form1
-                    : 7 <= n && n <= 10
-                    ? form2
-                    : form3
-            ).replace('%n', formatInt(n, this));
-        },
-        // Arabic.
-        // Case 1: is 0.
-        // Case 2: is 1.
-        // Case 3: is 2.
-        // Case 4: ends in 03-10.
-        // Case 5: ends in 11-99.
-        // Case 6: everything else.
-        '*6'(n, zero, singular, doubular, pl1, pl2, pl3) {
-            const mod100 = n % 100;
-            return (
-                !n
-                    ? zero
-                    : n === 1
-                    ? singular
-                    : n === 2
-                    ? doubular
-                    : 3 <= mod100 && mod100 <= 10
-                    ? pl1
-                    : 11 <= mod100 && mod100 <= 99
-                    ? pl2
-                    : pl3
-            ).replace('%n', formatInt(n, this));
-        },
-    },
 
     /**
         Property: O.Locale#translations

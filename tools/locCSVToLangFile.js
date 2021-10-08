@@ -36,6 +36,13 @@ const locCSVToJson = () => {
             throw new Error(`${id} does not exist in target dictionary.`);
         }
         target.translation = translation;
+        if (target.flags && target.flags.includes("fuzzy")) {
+            let newFlags = target.flags.filter(flag => flag !== "fuzzy");
+            if (!newFlags.length) {
+                newFlags = undefined;
+            }
+            target.flags = newFlags;
+        }
     });
 
     fs.writeFileSync(

@@ -3,186 +3,39 @@
 'use strict';
 
 const fs = require('fs');
+const prettier = require('prettier');
 
 const isId = /^[A-Z0-9_]+$/;
 
 // DB Tools
 
-const parseDB = function (text) {
-    const lines = text.split('\n');
-    const db = [];
-    let obj;
-    let id;
-
-    lines.forEach(function (line) {
-        line = line.trim();
-        // ID
-        if (isId.test(line)) {
-            id = line;
-            obj = {
-                id: id,
-            };
-            db.push(obj);
-        }
-        // String
-        else if (/^".*"$/.test(line)) {
-            if (!id) {
-                console.log('Error: Found a string before an id - ' + line);
-            } else {
-                try {
-                    obj.string = JSON.parse(line);
-                } catch (error) {
-                    console.log(
-                        'Error: String is not properly escaped - ' + line,
-                    );
-                }
-            }
-        }
-        // Description
-        else if (/^\[.*\]$/.test(line)) {
-            if (!id) {
-                console.log('Error: Found a description before an id -' + id);
-            } else {
-                obj.description = line.slice(1, -1);
-            }
-        }
-    });
-    return db;
+const parseDb = function (text) {
+    return JSON.parse(text);
 };
 
-const stringifyDB = function (db) {
-    return db
-        .map(
-            (item) =>
-                item.id +
-                '\n' +
-                JSON.stringify(item.string) +
-                '\n' +
-                '[' +
-                item.description +
-                ']\n',
-        )
-        .join('\n');
+const parseLang = function (text) {
+    // eslint-disable-next-line no-eval
+    return eval(
+        text.replace('export default ', '(function () {return ') + '})();',
+    );
+};
+
+const stringify = function (db) {
+    return prettier.format(
+        `/* eslint-disable import/no-default-export */\nexport default ${JSON.stringify(
+            db,
+        )}`,
+        {
+            tabWidth: 4,
+            parser: 'babel',
+        },
+    );
 };
 
 const indexDB = function (db, property) {
     const output = {};
-    for (let i = 0, l = db.length; i < l; i += 1) {
-        let obj = db[i];
-        output[obj[property]] = obj;
-    }
+    Object.keys(db).forEach((key) => (output[key] = db[key][property]));
     return output;
-};
-
-// PO Tools
-
-const item = /^msg(ctxt|id|str)\s*(""|".*?[^\\]")\s*$/;
-const extra = /^(""|".*?[^\\]")\s*$/;
-const comment = /^#([.:,])\s(.*)$/;
-const translateItemPart = {
-    ctxt: 'id',
-    id: 'string',
-    str: 'translation',
-};
-const translateCommentPart = {
-    ',': 'flag',
-    '.': 'description',
-    ':': 'context',
-};
-
-const trim = function (string) {
-    return string.trim();
-};
-
-const parsePo = function (text) {
-    const results = {};
-    const lines = text.split('\n');
-    const obj = {};
-    for (let i = 0, l = lines.length; i < l; i += 1) {
-        let line = lines[i];
-        let part;
-        let string;
-        if (!line) {
-            // New block
-            obj = {};
-            continue;
-        }
-        let isPrev = false;
-        if (/^#\| /.test(line)) {
-            isPrev = true;
-            line = line.slice(3);
-        }
-        let match = item.exec(line);
-        if (match) {
-            part = translateItemPart[match[1]];
-            try {
-                string = JSON.parse(match[2]);
-            } catch (e) {
-                string = '';
-                console.log('Parse error at line ' + (i + 1));
-                console.log('Perhaps it contains control characters?');
-                console.log(match[2].split(''));
-            }
-            while (true) {
-                line = lines[i + 1] || '';
-                if (isPrev) {
-                    if (/^#| /.test(line)) {
-                        line = line.slice(3);
-                    } else {
-                        break;
-                    }
-                }
-                if (!extra.test(line)) {
-                    break;
-                }
-                i += 1;
-                try {
-                    string += JSON.parse(lines[i]);
-                } catch (e) {
-                    console.log('Parse error at line ' + (i + 1));
-                    console.log(lines[i]);
-                }
-            }
-            // The empty string may be written as '[]'.
-            // This is for legacy compatibility with translang's tools.
-            if (string === '[]') {
-                string = '';
-            }
-            obj[isPrev ? 'prevString' : part] = string;
-            if (part === 'id') {
-                results[string] = obj;
-            }
-            continue;
-        }
-        match = comment.exec(line);
-        if (match) {
-            part = translateCommentPart[match[1]];
-            string = match[2];
-            if (part === 'flag') {
-                let flags = string.split(',').map(trim);
-                if (obj.flags) {
-                    obj.flags = obj.flags.concat(flags);
-                } else {
-                    obj.flags = flags;
-                }
-            }
-            if (part === 'description') {
-                if (obj.description) {
-                    obj.description += ' ' + string;
-                } else {
-                    obj.description = string;
-                }
-            }
-            if (part === 'context') {
-                if (obj.context) {
-                    obj.context.push(string);
-                } else {
-                    obj.context = [string];
-                }
-            }
-        }
-    }
-    return results;
 };
 
 // Enumeration and extraction
@@ -195,7 +48,7 @@ const indexFor = function (array, number) {
     let min = 0;
 
     while (min + 1 < max) {
-        let mid = (min + max) >> 1;
+        const mid = (min + max) >> 1;
         if (number >= array[mid]) {
             min = mid;
         } else {
@@ -215,7 +68,7 @@ const enumerate = function (
     widenSearch,
 ) {
     const extractor = widenSearch ? usesExtractor : locExtractor;
-    const lines = textToScan.split('\n').reduce(function (array, line) {
+    const lines = textToScan.split('\n').reduce((array, line) => {
         let length = line.length;
         const arrayLength = array.length;
         if (arrayLength) {
@@ -234,7 +87,7 @@ const enumerate = function (
             }
             id = stringToEntry[id].id;
         }
-        let lineNumber = indexFor(lines, match.index);
+        const lineNumber = indexFor(lines, match.index);
         if (!seen[id]) {
             ids.push(id);
             seen[id] = {
@@ -249,16 +102,16 @@ const enumerate = function (
 };
 
 const extract = function (dbFilePath, filesToScanPaths, outputPath, allData) {
-    fs.readFile(dbFilePath, 'utf8', function (error, dbText) {
+    fs.readFile(dbFilePath, 'utf8', (error, dbText) => {
         if (error) {
             console.log('Could not read dbFile');
             return;
         }
-        const db = parseDB(dbText);
+        const db = parseDb(dbText);
         const stringToEntry = indexDB(db, 'string');
         const seen = {};
         const ids = [];
-        filesToScanPaths.forEach(function (filePath) {
+        filesToScanPaths.forEach((filePath) => {
             const textToScan = fs.readFileSync(filePath, 'utf8');
             const fileName = filePath.slice(filePath.lastIndexOf('/') + 1);
             enumerate(fileName, stringToEntry, textToScan, seen, ids);
@@ -306,7 +159,7 @@ const divide = function (strings, index) {
             }
             if (ll === -1) {
                 buckets.push({
-                    character: character,
+                    character,
                     strings: [string],
                 });
             }
@@ -318,11 +171,8 @@ const divide = function (strings, index) {
             }
             index += 1;
         } else {
-            output.push(
-                buckets.map(function (bucket) {
-                    return divide(bucket.strings, index);
-                }),
-            );
+            // eslint-disable-next-line no-loop-func
+            output.push(buckets.map((bucket) => divide(bucket.strings, index)));
             break;
         }
     }
@@ -340,14 +190,14 @@ const join = function (strings) {
         if (typeof part === 'string') {
             output += escapeRegExp(part);
         } else {
-            const optional = part.some(function (array) {
+            const optional = part.some((array) => {
                 return array[0] === '';
             });
             let section = part
-                .filter(function (array) {
+                .filter((array) => {
                     return !!array[0];
                 })
-                .map(function (array) {
+                .map((array) => {
                     return join(array);
                 })
                 .join('|');
@@ -385,11 +235,11 @@ Function.prototype.toJSON = function () {
 const _makeLangModule = function (code, idList, idToEntry) {
     const getString = function (id) {
         const obj = idToEntry[id];
-        return obj ? obj.translation || obj.string : '';
+        return obj ? obj.translation || obj.string || obj.fallback : '';
     };
 
     const localisation = {
-        code: code,
+        code,
 
         decimalPoint: getString('S_FORMAT_DECIMAL_POINT'),
         thousandsSeparator: getString('S_FORMAT_THOUSANDS_SEPARATOR'),
@@ -403,8 +253,8 @@ const _makeLangModule = function (code, idList, idToEntry) {
 
         getFormattedOrdinal: /^en/.test(code)
             ? function (number) {
-                  const mod10 = number % 10,
-                      mod100 = number % 100;
+                  const mod10 = number % 10;
+                  const mod100 = number % 100;
                   return (
                       number +
                       (mod10 === 1 && mod100 !== 11
@@ -474,10 +324,10 @@ const _makeLangModule = function (code, idList, idToEntry) {
 
         use24hClock: getString('S_CALENDAR_FORMAT_TIME_DEFAULT') === '24h',
         dateElementOrder: (function () {
-            const format = getString('S_CALENDAR_FORMAT_DATE'),
-                year = /%\-?Y/i.exec(format).index,
-                month = /%\-?[mb]/i.exec(format).index,
-                day = /%\-?d/i.exec(format).index;
+            const format = getString('S_CALENDAR_FORMAT_DATE');
+            const year = /%\-?Y/i.exec(format).index;
+            const month = /%\-?[mb]/i.exec(format).index;
+            const day = /%\-?d/i.exec(format).index;
             return year < month && year < day
                 ? 'ymd'
                 : month < day
@@ -624,12 +474,12 @@ const _makeLangModule = function (code, idList, idToEntry) {
         '\n' +
         '( function () { const x = new O.Locale(' +
         JSON.stringify(localisation, null, 2)
-            .replace(/"(\/.*?\/i?)"/g, function (_, regexp) {
-                return regexp.replace(/\\\\/g, '\\');
-            })
-            .replace(/"(function[\s\S]*?})"/g, function (_, fn) {
-                return fn.replace(/\\n/g, '\n');
-            }) +
+            .replace(/"(\/.*?\/i?)"/g, (_, regexp) =>
+                regexp.replace(/\\\\/g, '\\'),
+            )
+            .replace(/"(function[\s\S]*?})"/g, (_, fn) =>
+                fn.replace(/\\n/g, '\n'),
+            ) +
         ');\nO.i18n.addLocale( x );\nO.i18n.setLocale("' +
         code +
         '")}() );'
@@ -637,36 +487,23 @@ const _makeLangModule = function (code, idList, idToEntry) {
 };
 
 const makeLangModule = function (idListPath, poPath, outputPath) {
-    const code = /.*\/(.*)\.js/.exec(outputPath)[1];
-    let idList;
-    let idToEntry;
-    const output = function () {
-        if (!idList || !idToEntry) {
-            return;
-        }
-        fs.writeFileSync(outputPath, _makeLangModule(code, idList, idToEntry));
-    };
+    const code = /.*\/(.*)\.js$/.exec(outputPath)[1];
+    const idList = parseLang(fs.readFileSync(idListPath, 'utf8'));
+    const idToEntry = parseLang(fs.readFileSync(poPath, 'utf8'));
 
-    fs.readFile(idListPath, 'utf8', function (error, data) {
-        idList = JSON.parse(data);
-        output();
-    });
-    fs.readFile(poPath, 'utf8', function (error, data) {
-        idToEntry = parsePo(data);
-        output();
-    });
+    fs.writeFileSync(outputPath, _makeLangModule(code, idList, idToEntry));
 };
 
 const insertLocale = function (englishDbPath, strings, input, output) {
-    const db = parseDB(fs.readFileSync(englishDbPath, 'utf8'));
+    const db = parseDb(fs.readFileSync(englishDbPath, 'utf8'));
     const stringToEntry = indexDB(db, 'string');
     const index = {};
     strings = JSON.parse(fs.readFileSync(strings, 'utf8'));
-    strings.forEach(function (string, i) {
+    strings.forEach((string, i) => {
         index[string] = i;
     });
     input = fs.readFileSync(input, 'utf8');
-    input = input.replace(extractor, function (_, id) {
+    input = input.replace(locExtractor, (_, id) => {
         if (!isId.test(id)) {
             id = stringToEntry[id].id;
         }
@@ -677,11 +514,11 @@ const insertLocale = function (englishDbPath, strings, input, output) {
 };
 
 const insertEnglish = function (englishDbPath, input, output) {
-    const db = parseDB(fs.readFileSync(englishDbPath, 'utf8'));
+    const db = parseDb(fs.readFileSync(englishDbPath, 'utf8'));
     const stringToEntry = indexDB(db, 'string');
     const idToEntry = indexDB(db, 'id');
     input = fs.readFileSync(input, 'utf8');
-    input = input.replace(extractor, function (_, id) {
+    input = input.replace(locExtractor, (_, id) => {
         if (!isId.test(id)) {
             id = stringToEntry[id].id;
         }
@@ -691,110 +528,60 @@ const insertEnglish = function (englishDbPath, input, output) {
     fs.writeFileSync(output, input);
 };
 
-const updatePo = function (englishDbPath, usagePath, inputPoPath, outputPoPath) {
-    const db = parseDB(fs.readFileSync(englishDbPath, 'utf8'));
-    const inputPo = parsePo(fs.readFileSync(inputPoPath, 'utf8'));
-    // usage = JSON.parse(fs.readFileSync(usagePath, 'utf8'));
-    let output = '';
+const updatePo = function (
+    englishDbPath,
+    usagePath,
+    inputPoPath,
+    outputPoPath,
+) {
+    const db = parseDb(fs.readFileSync(englishDbPath, 'utf8'));
+    const inputPo = parseLang(fs.readFileSync(inputPoPath, 'utf8'));
+    // usage = JSON.parseLang(fs.readFileSync(usagePath, 'utf8'));
 
-    db.forEach(function (dbObj) {
-        const id = dbObj.id;
-        const poObj = inputPo[id];
-        // const useObj = usage[id];
+    Object.keys(db).forEach((stringId) => {
+        const dbObj = db[stringId];
+        let inputPoObj = inputPo[stringId];
 
-        const description = dbObj.description;
-        const flags = (poObj && poObj.flags) || [];
-
-        if (description) {
-            let start = 0;
-            let end;
-            while (true) {
-                end = start + 70;
-                if (end > description.length) {
-                    output += '#. ';
-                    output += description.slice(start, description.length);
-                    output += '\n';
-                    break;
-                } else {
-                    end = description.lastIndexOf(' ', end) + 1;
-                    if (start === end) {
-                        end = start + 80;
-                    }
-                    output += '#. ';
-                    output += description.slice(start, end);
-                    output += '\n';
-                    start = end;
-                }
+        if (!inputPoObj) {
+            inputPoObj = inputPo[stringId] = { ...dbObj };
+            inputPoObj.flags = ['fuzzy'];
+            inputPoObj.translation = '';
+        } else {
+            // if description doesn't match, just update it
+            if (dbObj.description !== inputPoObj.description) {
+                inputPoObj.description = dbObj.description || undefined;
+            }
+            // if string has changed, update it.  we're fuzzy now.
+            if (dbObj.string !== inputPoObj.string) {
+                inputPoObj.string = dbObj.string;
+                inputPoObj.flags = ['fuzzy'];
             }
         }
-        // if ( useObj ) {
-        //     useObj.uses.forEach( function ( reference ) {
-        //         output += '#: ' + reference + '\n';
-        //     });
-        // }
-        if (
-            (!poObj || poObj.string !== dbObj.string) &&
-            flags.indexOf('fuzzy') < 0
-        ) {
-            flags.push('fuzzy');
-        }
-        if (flags.length) {
-            output += '#, ' + flags.join(', ') + '\n';
-        }
-        output += 'msgctxt ' + JSON.stringify(id) + '\n';
-        output += 'msgid ' + JSON.stringify(dbObj.string) + '\n';
-        output +=
-            'msgstr ' + JSON.stringify((poObj && poObj.translation) || '');
-        output += '\n\n';
     });
 
-    fs.writeFileSync(outputPoPath, output);
+    fs.writeFileSync(outputPoPath, stringify(inputPo));
 };
 
-const dbToPo = function (englishDbPath, outputPoPath, makePot) {
-    const db = parseDB(fs.readFileSync(englishDbPath, 'utf8'));
-    let output = '';
+const dbToPo = function (englishDbPath, outputPoPath, /* makePot */) {
+    const db = parseDb(fs.readFileSync(englishDbPath, 'utf8'));
 
-    db.forEach(function (dbObj) {
-        const id = dbObj.id;
-        const description = dbObj.description;
-
-        if (description) {
-            let start = 0;
-            let end = 0;
-            while (true) {
-                end = start + 70;
-                if (end > description.length) {
-                    output += '#. ';
-                    output += description.slice(start, description.length);
-                    output += '\n';
-                    break;
-                } else {
-                    end = description.lastIndexOf(' ', end) + 1;
-                    if (start === end) {
-                        end = start + 80;
-                    }
-                    output += '#. ';
-                    output += description.slice(start, end);
-                    output += '\n';
-                    start = end;
-                }
-            }
-        }
-        output += 'msgctxt ' + JSON.stringify(id) + '\n';
-        output += 'msgid ' + JSON.stringify(dbObj.string) + '\n';
-        output += 'msgstr ' + (makePot ? '""' : JSON.stringify(dbObj.string));
-        output += '\n\n';
+    Object.keys(db).forEach((key) => {
+        db[key].translation = '';
+        db[key].flags = ['fuzzy'];
     });
 
-    fs.writeFileSync(outputPoPath, output);
+    fs.writeFileSync(outputPoPath, stringify(db));
 };
 
 const removeUnusedDB = function (dbPath, usagePath, outputPath) {
-    let db = parseDB(fs.readFileSync(dbPath, 'utf8'));
+    const db = parseDb(fs.readFileSync(dbPath, 'utf8'));
     const usage = JSON.parse(fs.readFileSync(usagePath, 'utf8'));
-    db = db.filter((item) => !!usage[item.id]);
-    fs.writeFileSync(outputPath, stringifyDB(db));
+    Object.keys(db).forEach((key) => {
+        if (usage[key]) {
+            delete db[key];
+        }
+    });
+    fs.writeFileSync(outputPath, stringify(db));
 };
 
 (function () {
@@ -845,13 +632,13 @@ const removeUnusedDB = function (dbPath, usagePath, outputPath) {
             // 4. Output
             insertEnglish(args[1], args[2], args[3]);
             break;
-        case 'dbToPo':
+        case 'dbToLang':
             dbToPo(args[1], args[2], false);
             break;
-        case 'dbToPot':
-            dbToPo(args[1], args[2], true);
-            break;
-        case 'updatePo':
+        // case 'dbToPot':
+        //     dbToPo(args[1], args[2], true);
+        //     break;
+        case 'updateLang':
             updatePo(args[1], args[2], args[3], args[4]);
             break;
         case 'removeUnusedDB':
