@@ -254,7 +254,7 @@ class AbstractEventSource {
         return [options, resetTimeout];
     }
 
-    _didFinishFetch(didNetworkError, status) {
+    _didFinishFetch(didNetworkError, status, response) {
         // Temp errors, retry with exponential backoff:
         // * Network issue
         // * Rate limit response (429)
@@ -281,7 +281,7 @@ class AbstractEventSource {
             this.readyState = CONNECTING;
         } else {
             this.close();
-            this.onerror(status);
+            this.onerror(status, response);
         }
     }
 }
