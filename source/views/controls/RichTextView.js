@@ -74,7 +74,7 @@ const URLPickerView = Class({
                 value: bindTwoWay(this, 'value'),
                 placeholder: this.get('placeholder'),
             })),
-            el('p.u-align-right', [
+            el('p.u-text-right', [
                 new ButtonView({
                     type: 'v-Button--standard v-Button--size13',
                     label: loc('Cancel'),
