@@ -187,7 +187,8 @@ const parsePo = function (text) {
 
 // Enumeration and extraction
 
-const extractor = /\bloc\(\s*'(.*?)'/g;
+const locExtractor = /\bloc\(\s*'(.*?)'/g;
+const usesExtractor = /\b(loc|getString)\(\s*'(.*?)'/g;
 
 const indexFor = function (array, number) {
     let max = array.length;
@@ -205,7 +206,15 @@ const indexFor = function (array, number) {
     return min;
 };
 
-const enumerate = function (fileName, stringToEntry, textToScan, seen, ids) {
+const enumerate = function (
+    fileName,
+    stringToEntry,
+    textToScan,
+    seen,
+    ids,
+    widenSearch,
+) {
+    const extractor = widenSearch ? usesExtractor : locExtractor;
     const lines = textToScan.split('\n').reduce(function (array, line) {
         let length = line.length;
         const arrayLength = array.length;
@@ -809,9 +818,11 @@ const removeUnusedDB = function (dbPath, usagePath, outputPath) {
                 // 2. const args... files to scan
                 // 3. Output
                 // 4. All data
+                // 5. Include getString
                 args[1],
                 args.slice(2, -1),
                 args[args.length - 1],
+                true,
                 true,
             );
             break;
