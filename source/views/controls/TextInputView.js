@@ -1,4 +1,4 @@
-/*global document */
+/*global document, getComputedStyle */
 
 import { Class } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
@@ -24,9 +24,24 @@ const TextInputView = Class({
 
     Extends: AbstractControlView,
 
+    _verticalBorderWidth: 0,
+
     init: function (/* ...mixins */) {
         TextInputView.parent.constructor.apply(this, arguments);
         this._settingFromInput = false;
+
+        if (this.get('isExpanding')) {
+            this.didEnterDocument = function () {
+                TextInputView.parent.didEnterDocument.call(this);
+
+                const style = getComputedStyle(this._domControl);
+                if (style.boxSizing === 'border-box') {
+                    this._verticalBorderWidth = 0;
+                    this._verticalBorderWidth += parseInt(style.borderTopWidth.slice(0, -2), 10);
+                    this._verticalBorderWidth += parseInt(style.borderBottomWidth.slice(0, -2), 10);
+                };
+            }
+        }
     },
 
     /**
@@ -196,7 +211,7 @@ const TextInputView = Class({
     */
     type: '',
 
-    layerTag: 'span',
+    layerTag: 'div',
 
     /**
         Property: O.TextInputView#className
@@ -330,7 +345,7 @@ const TextInputView = Class({
         const scrollHeight = control.scrollHeight;
         // Presto returns 0 immediately after appending to doc.
         if (scrollHeight) {
-            style.height = scrollHeight + 'px';
+            style.height = this._verticalBorderWidth + scrollHeight + 'px';
         }
         // Collapsing the height will mess with the scroll, so make sure we
         // reset the scroll position back to what it was.
