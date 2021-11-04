@@ -4,6 +4,7 @@ import { Binding } from '../_codependent/_Binding.js';
 import { View } from '../_codependent/_View.js';
 import { didError } from '../foundation/RunLoop.js';
 import { browser } from '../ua/UA.js';
+import { ViewEventsController } from '../views/ViewEventsController.js';
 
 import '../core/String.js'; // For String#camelCase, #hyphenate
 
@@ -256,18 +257,32 @@ const forView = function (newView) {
         {Element} The element.
 */
 const setAttributes = function (el, props) {
+    const currentView = view;
     for (const prop in props) {
         const value = props[prop];
-        if (value !== undefined) {
-            if (Binding && value instanceof Binding) {
-                value.to(prop, el).connect();
-                if (view) {
-                    view.registerBinding(value);
-                }
-            } else {
-                el.set(prop, value);
-            }
+        if (value === undefined) {
+            continue;
         }
+        if (prop.startsWith('on')) {
+            el.addEventListener(prop.slice(2), (event) => {
+                ViewEventsController.handleEvent(
+                    event,
+                    currentView,
+                    null,
+                    value,
+                );
+                event.stopPropagation();
+            });
+            continue;
+        }
+        if (Binding && value instanceof Binding) {
+            value.to(prop, el).connect();
+            if (currentView) {
+                currentView.registerBinding(value);
+            }
+            continue;
+        }
+        el.set(prop, value);
     }
     return el;
 };

@@ -114,7 +114,7 @@ const ViewEventsController = {
                     view will be looked up via the DOM node in the
                     `event.target` property.
     */
-    handleEvent: function (event, view, _rootView) {
+    handleEvent: function (event, view, _rootView, elEventCallback) {
         const eventTargets = this._eventTargets;
         let l = eventTargets.length;
 
@@ -126,6 +126,12 @@ const ViewEventsController = {
         while (l--) {
             let eventTarget = eventTargets[l][1];
             if (eventTarget === this) {
+                if (elEventCallback) {
+                    elEventCallback(event);
+                    if (event.propagationStopped) {
+                        break;
+                    }
+                }
                 eventTarget = view;
             }
             if (eventTarget) {
