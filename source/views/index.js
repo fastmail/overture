@@ -45,6 +45,7 @@ export {
     ShortcutView,
     ShortcutOverlayView,
 } from './controls/ShortcutOverlayView.js';
+export { ToggleView } from './controls/ToggleView.js';
 export { MenuOptionView } from './menu/MenuOptionView.js';
 export { MenuFilterView } from './menu/MenuFilterView.js';
 export { MenuButtonView } from './menu/MenuButtonView.js';
