@@ -107,4 +107,4 @@ const toHTML = (plainText, style) => {
 
 // ---
 
-export { toHTML };
+export { toHTML, linkRegExp };

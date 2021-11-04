@@ -6,5 +6,5 @@ export {
     DOM_INERT,
     FRAGMENT_INERT,
 } from './HTMLDefanger.js';
-export { toHTML } from './toHTML.js';
+export { toHTML, linkRegExp } from './toHTML.js';
 export { toPlainText } from './toPlainText.js';
