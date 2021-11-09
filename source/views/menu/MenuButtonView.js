@@ -4,7 +4,14 @@ import { PopOverView } from '../panels/PopOverView.js';
 import { RootView } from '../RootView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+import /* {
+    observes,
+    on,
+    property,
+    queue,
+} from */ '../../foundation/Decorators.js';
+
+/*global document */
 
 /**
     Class: O.MenuButtonView
@@ -120,6 +127,15 @@ const MenuButtonView = Class({
         layer.setAttribute('aria-expanded', this.get('isActive') + '');
     },
 
+    focusAfterMenu: function () {
+        const activeElement = document.activeElement;
+        if (!activeElement || activeElement === document.body) {
+            this.focus();
+        }
+    }
+        .queue('after')
+        .on('focusAfterMenu'),
+
     // --- Activate ---
 
     /**
@@ -144,6 +160,7 @@ const MenuButtonView = Class({
                     alignEdge: this.get('alignMenu'),
                     onHide() {
                         buttonView.set('isActive', false);
+                        buttonView.fire('focusAfterMenu');
                         if (menuOptionView) {
                             menuOptionView.removeObserverForKey(
                                 'isFocused',
