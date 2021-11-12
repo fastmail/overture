@@ -1,14 +1,9 @@
-import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
-import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';
-import { toPlatformKey } from '../../application/toPlatformKey.js';
 import { Class } from '../../core/Core.js';
-import { appendChildren, create as el } from '../../dom/Element.js';
-import { loc } from '../../localisation/i18n.js';
 import { isIOS } from '../../ua/UA.js';
 import { View } from '../View.js';
-import { ViewEventsController } from '../ViewEventsController.js';
 
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+/* { on, observes } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.AbstractControlView
@@ -42,34 +37,6 @@ const AbstractControlView = Class({
     isFocused: false,
 
     /**
-        Property: O.AbstractControlView#label
-        Type: String|Element|null
-        Default: ''
-
-        A label for the control, to be displayed next to it.
-    */
-    label: '',
-
-    /**
-        Property: O.AbstractControlView#name
-        Type: String|undefined
-        Default: undefined
-
-        If set, this will be the name attribute of the control.
-    */
-    name: undefined,
-
-    /**
-        Property: O.AbstractControlView#value
-        Type: *
-        Default: false
-
-        The value represented by this control, for example true/false if a
-        checkbox is checked/unchecked, or the text input into a textarea.
-    */
-    value: false,
-
-    /**
         Property: O.AbstractControlView#tabIndex
         Type: Number|undefined
         Default: undefined
@@ -79,93 +46,48 @@ const AbstractControlView = Class({
     tabIndex: undefined,
 
     /**
-        Property: O.AbstractControlView#shortcut
+        Property: O.AbstractControlView#type
         Type: String
         Default: ''
 
-        If set, this will be registered as the keyboard shortcut to activate the
-        control when it is in the document.
+        A space-separated list of CSS classnames to give the layer in the DOM,
+        irrespective of state.
     */
-    shortcut: '',
+    type: '',
 
     /**
-        Property: O.AbstractControlView#shortcutWhenInputFocused
-        Type: Enum
-        Default: GlobalKeyboardShortcuts.DEFAULT_IN_INPUT
-
-        If a shortcut is set, should it be active when an input is focused?
-    */
-    shortcutWhenInputFocused: DEFAULT_IN_INPUT,
-
-    /**
-        Property: O.AbstractControlView#tooltip
+        Property: O.AbstractControlView#baseClassName
         Type: String
-        Default: '' or 'Shortcut: <shortcut>'
+        Default: ''
 
-        A tooltip to show when the mouse hovers over the view. Defaults to
-        informing the user of the keyboard shortcut for the control, if set.
+        A string prepended to class names used by this view.
     */
-    tooltip: function () {
-        const shortcut = this.get('shortcut');
-        return shortcut
-            ? loc(
-                  'Shortcut: {value1}',
-                  shortcut
-                      .split(' ')
-                      .map(formatKeyForPlatform)
-                      .join(' ' + loc('or') + ' '),
-              )
-            : '';
-    }.property('shortcut'),
+    baseClassName: '',
 
-    getShortcutTarget(key) {
-        const shortcut = this.get('shortcut').split(' ')[0];
-        if (shortcut === '') {
-            return null;
-        }
+    /**
+        Property: O.ToggleView#className
+        Type: String
+        Default: baseClassName
 
-        return toPlatformKey(shortcut) === key ? this.get('layer') : null;
-    },
+        Overrides default in <O.View#className>.
+    */
+    className: function () {
+        const type = this.get('type');
+        return (
+            this.get('baseClassName') +
+            (this.get('isDisabled') ? ' is-disabled' : '') +
+            (this.get('isFocused') ? ' is-focused' : '') +
+            (type ? ' ' + type : '')
+        );
+    }.property('baseClassName', 'isDisabled', 'isFocused', 'type'),
 
     /**
         Method: O.AbstractControlView#didEnterDocument
 
-        Overridden to add keyboard shortcuts.
-        See <O.View#didEnterDocument>.
-    */
-    didEnterDocument() {
-        AbstractControlView.parent.didEnterDocument.call(this);
-        const shortcut = this.get('shortcut');
-        if (shortcut) {
-            shortcut.split(' ').forEach((key) => {
-                ViewEventsController.kbShortcuts.register(
-                    key,
-                    this,
-                    'activate',
-                    this.get('shortcutWhenInputFocused'),
-                );
-            });
-        }
-        return this;
-    },
-
-    /**
-        Method: O.AbstractControlView#didEnterDocument
-
-        Overridden to remove keyboard shortcuts.
+        Overridden to drop focus before leaving the DOM.
         See <O.View#didEnterDocument>.
     */
     willLeaveDocument() {
-        const shortcut = this.get('shortcut');
-        if (shortcut) {
-            shortcut.split(' ').forEach((key) => {
-                ViewEventsController.kbShortcuts.deregister(
-                    key,
-                    this,
-                    'activate',
-                );
-            });
-        }
         // iOS is very buggy if you remove a focused control from the doc;
         // the picker/keyboard stays up and cannot be dismissed
         if (isIOS && this.get('isFocused')) {
@@ -175,15 +97,6 @@ const AbstractControlView = Class({
     },
 
     /**
-        Property: O.AbstractControlView#layerTag
-        Type: String
-        Default: 'label'
-
-        Overrides default in <O.View#layerTag>.
-    */
-    layerTag: 'label',
-
-    /**
         Property (private): O.AbstractControlView#_domControl
         Type: Element|null
 
@@ -191,46 +104,14 @@ const AbstractControlView = Class({
     */
     _domControl: null,
 
-    /**
-        Property (private): O.AbstractControlView#_domLabel
-        Type: Element|null
-
-        A reference to the DOM element containing the label for the view.
-    */
-    _domLabel: null,
-
-    /**
-        Method: O.AbstractControlView#draw
-
-        Overridden to set properties and add label. See <O.View#draw>.
-    */
-    draw(layer) {
-        const control = this._domControl;
-        const name = this.get('name');
-        const tabIndex = this.get('tabIndex');
-
-        if (!control.id) {
-            control.id = this.get('id') + '-input';
-        }
-        control.disabled = this.get('isDisabled');
-
-        if (name !== undefined) {
-            control.name = name;
-        }
-
-        if (tabIndex !== undefined) {
-            control.tabIndex = tabIndex;
-        }
-
-        layer.title = this.get('tooltip');
-        return (this._domLabel = el('span.label', [this.get('label')]));
-    },
-
     // --- Keep render in sync with state ---
 
     abstractControlNeedsRedraw: function (self, property, oldValue) {
         return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes('isDisabled', 'label', 'name', 'tooltip', 'tabIndex'),
+    }.observes(
+        'isDisabled',
+        'tabIndex',
+    ),
 
     /**
         Method: O.AbstractControlView#redrawIsDisabled
@@ -243,50 +124,16 @@ const AbstractControlView = Class({
     },
 
     /**
-        Method: O.AbstractControlView#redrawLabel
-
-        Updates the DOM label to match the label property of the view.
-    */
-    redrawLabel() {
-        const label = this._domLabel;
-        let child;
-        while ((child = label.firstChild)) {
-            label.removeChild(child);
-        }
-        appendChildren(label, [this.get('label')]);
-    },
-
-    /**
-        Method: O.AbstractControlView#redrawName
-
-        Updates the name attribute on the DOM control to match the name
-        property of the view.
-    */
-    redrawName() {
-        this._domControl.name = this.get('name');
-    },
-
-    /**
-        Method: O.AbstractControlView#redrawTooltip
-
-        Parameters:
-            layer - {Element} The DOM layer for the view.
-
-        Updates the title attribute on the DOM layer to match the tooltip
-        property of the view.
-    */
-    redrawTooltip(layer) {
-        layer.title = this.get('tooltip');
-    },
-
-    /**
         Method: O.AbstractControlView#redrawTabIndex
 
         Updates the tabIndex attribute on the DOM control to match the tabIndex
         property of the view.
     */
     redrawTabIndex() {
-        this._domControl.tabIndex = this.get('tabIndex');
+        const tabIndex = this.get('tabIndex');
+        if (tabIndex !== undefined) {
+            this._domControl.tabIndex = tabIndex;
+        }
     },
 
     // --- Focus ---
@@ -351,21 +198,6 @@ const AbstractControlView = Class({
             event.type === 'focus' && event.target === this._domControl,
         );
     }.on('focus', 'blur'),
-
-    // --- Activate ---
-
-    /**
-        Method: O.AbstractControlView#activate
-
-        An abstract method to be overridden by subclasses. This is the action
-        performed when the control is activated, either by being clicked on or
-        via a keyboard shortcut.
-    */
-    activate() {},
-
-    userDidInput(value) {
-        this.set('value', value);
-    },
 });
 
 export { AbstractControlView };

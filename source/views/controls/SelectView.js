@@ -1,13 +1,14 @@
 import { Class, isEqual } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
-import { AbstractControlView } from './AbstractControlView.js';
+import { AbstractInputView } from './AbstractInputView.js';
 
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+/* { property, on, observes } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.SelectView
 
-    Extends: O.AbstractControlView
+    Extends: O.AbstractInputView
 
     A view representing an HTML `<select>` menu. The `value` property is two-way
     bindable, representing the selected option.
@@ -15,7 +16,7 @@ import /* { property, on, observes } from */ '../../foundation/Decorators.js';
 const SelectView = Class({
     Name: 'SelectView',
 
-    Extends: AbstractControlView,
+    Extends: AbstractInputView,
 
     /**
         Property: O.SelectView#options
@@ -42,6 +43,8 @@ const SelectView = Class({
 
     // --- Render ---
 
+    baseClassName: 'v-Select',
+
     type: '',
 
     /**
@@ -54,28 +57,12 @@ const SelectView = Class({
     className: function () {
         const type = this.get('type');
         return (
-            'v-Select' +
+            this.get('baseClassName') +
             (this.get('isFocused') ? ' is-focused' : '') +
             (this.get('isDisabled') ? ' is-disabled' : '') +
             (type ? ' ' + type : '')
         );
     }.property('type', 'isFocused', 'isDisabled'),
-
-    /**
-        Method: O.SelectView#draw
-
-        Overridden to draw select menu in layer. See <O.View#draw>.
-    */
-    draw(layer) {
-        const control = (this._domControl = this._drawSelect(
-            this.get('options'),
-        ));
-        const inputAttributes = this.get('inputAttributes');
-        if (inputAttributes) {
-            this.redrawInputAttributes();
-        }
-        return [SelectView.parent.draw.call(this, layer), control];
-    },
 
     /**
         Method (private): O.SelectView#_drawSelect
@@ -88,12 +75,13 @@ const SelectView = Class({
         Returns:
             {Element} The `<select>`.
     */
-    _drawSelect(options) {
+    drawControl() {
+        const options = this.get('options');
         const selected = this.get('value');
-        const select = el(
+        const select = (this._domControl = el(
             'select',
             {
-                className: 'v-Select-input',
+                className: this.get('baseClassName') + '-input',
                 disabled: this.get('isDisabled'),
             },
             options.map((option, i) =>
@@ -104,7 +92,7 @@ const SelectView = Class({
                     disabled: !!option.isDisabled,
                 }),
             ),
-        );
+        ));
         return select;
     },
 
@@ -118,20 +106,7 @@ const SelectView = Class({
     */
     selectNeedsRedraw: function (self, property, oldValue) {
         return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes('options', 'value', 'inputAttributes'),
-
-    /**
-        Method: O.SelectView#redrawInputAttributes
-
-        Updates any other properties of the `<input>` element.
-    */
-    redrawInputAttributes() {
-        const inputAttributes = this.get('inputAttributes');
-        const control = this._domControl;
-        for (const property in inputAttributes) {
-            control.set(property, inputAttributes[property]);
-        }
-    },
+    }.observes('options'),
 
     /**
         Method: O.SelectView#redrawOptions
@@ -145,7 +120,7 @@ const SelectView = Class({
             // Must blur before removing from DOM in iOS, otherwise
             // the slot-machine selector will not hide
             const isFocused = this.get('isFocused');
-            const select = this._drawSelect(options);
+            const select = this.drawControl();
             if (isFocused) {
                 this.blur();
             }

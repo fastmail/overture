@@ -1,7 +1,9 @@
 import { Class } from '../../core/Core.js';
+import { create as el } from '../../dom/Element.js';
 import { ToggleView } from './ToggleView.js';
 
-import /* { property, observes } from */ '../../foundation/Decorators.js';
+/* { property, observes } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.CheckboxView
@@ -17,20 +19,20 @@ const CheckboxView = Class({
 
     Extends: ToggleView,
 
+    // Don't inherit the ToggleView icon
+    icon: null,
+
     isIndeterminate: false,
 
     // --- Render ---
 
-    /**
-        Property: O.CheckboxView#className
-        Type: String
-        Default: 'v-Checkbox'
+    baseClassName: 'v-Checkbox',
 
-        Overrides default in <O.ToggleView#className> to prepend 'v-Checkbox'.
-    */
-    className: function () {
-        return 'v-Checkbox ' + ToggleView.prototype.className.call(this);
-    }.property(...ToggleView.prototype.className.dependencies),
+    drawControl() {
+        const control = CheckboxView.parent.drawControl.call(this);
+        control.indeterminate = this.get('isIndeterminate');
+        return control;
+    },
 
     // --- Keep render in sync with state ---
 

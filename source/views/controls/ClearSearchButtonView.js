@@ -7,7 +7,10 @@ const ClearSearchButtonView = Class({
 
     Extends: ButtonView,
 
-    className: 'v-ClearSearchButton',
+    positioning: 'absolute',
+
+    baseClassName: 'v-ClearSearchButton',
+
     shortcut: 'Ctrl-/',
     shortcutWhenInputFocused: ACTIVE_IN_INPUT,
 });

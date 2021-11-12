@@ -1,9 +1,9 @@
 import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
-import { AbstractControlView } from './AbstractControlView.js';
-import { CheckboxView } from './CheckboxView.js';
+import { ToggleView } from './ToggleView.js';
 
-import /* { property, on } from */ '../../foundation/Decorators.js';
+/* { property, on } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.RadioView
@@ -16,76 +16,29 @@ import /* { property, on } from */ '../../foundation/Decorators.js';
 const RadioView = Class({
     Name: 'RadioView',
 
-    Extends: AbstractControlView,
+    Extends: ToggleView,
 
     // --- Render ---
 
+    baseClassName: 'v-Radio',
+
     type: '',
-
-    /**
-        Property: O.RadioView#className
-        Type: String
-        Default: 'v-Radio'
-
-        Overrides default in <O.View#className>.
-    */
-    className: function () {
-        const type = this.get('type');
-        return (
-            'v-Radio ' +
-            (this.get('value') ? 'is-checked' : 'is-unchecked') +
-            (this.get('isDisabled') ? ' is-disabled' : '') +
-            (type ? ' ' + type : '')
-        );
-    }.property('type', 'value', 'isDisabled'),
 
     /**
         Method: O.RadioView#draw
 
         Overridden to draw radio button in layer. See <O.View#draw>.
     */
-    draw(layer) {
-        return [
-            (this._domControl = el('input', {
-                className: 'v-Radio-input',
-                type: 'radio',
-                checked: this.get('value'),
-            })),
-            RadioView.parent.draw.call(this, layer),
-        ];
+    drawControl() {
+        return (this._domControl = el('input', {
+            type: 'radio',
+            id: this.get('id') + '-input',
+            className: this.get('baseClassName') + '-input',
+            checked: this.get('value'),
+            disabled: this.get('isDisabled'),
+            name: this.get('name'),
+        }));
     },
-
-    // --- Keep render in sync with state ---
-
-    /**
-        Method: O.RadioView#radioNeedsRedraw
-
-        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
-        redraw.
-    */
-    radioNeedsRedraw: CheckboxView.prototype.checkboxNeedsRedraw,
-
-    /**
-        Method: O.RadioView#redrawValue
-
-        Updates the checked status of the DOM `<input type="radio">` to match
-        the value property of the view.
-    */
-    redrawValue: CheckboxView.prototype.redrawValue,
-
-    // --- Keep state in sync with render ---
-
-    /**
-        Method: O.RadioView#activate
-
-        Overridden to set the view as selected. See
-        <O.AbstractControlView#activate>.
-    */
-    activate: function () {
-        if (!this.get('isDisabled')) {
-            this.userDidInput(true);
-        }
-    }.on('click'),
 });
 
 export { RadioView };

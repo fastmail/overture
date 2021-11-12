@@ -5,7 +5,7 @@ import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el, nearest } from '../../dom/Element.js';
 import { browser } from '../../ua/UA.js';
 import { ScrollView } from '../containers/ScrollView.js';
-import { AbstractControlView } from './AbstractControlView.js';
+import { AbstractInputView } from './AbstractInputView.js';
 
 import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
 
@@ -14,7 +14,7 @@ const isFirefox = browser === 'firefox';
 /**
     Class: O.TextInputView
 
-    Extends: O.AbstractControlView
+    Extends: O.AbstractInputView
 
     A text input control. The `value` property is two-way bindable, representing
     the input text.
@@ -22,26 +22,13 @@ const isFirefox = browser === 'firefox';
 const TextInputView = Class({
     Name: 'TextInputView',
 
-    Extends: AbstractControlView,
+    Extends: AbstractInputView,
 
     _verticalBorderWidth: 0,
 
     init: function (/* ...mixins */) {
         TextInputView.parent.constructor.apply(this, arguments);
         this._settingFromInput = false;
-
-        if (this.get('isExpanding')) {
-            this.didEnterDocument = function () {
-                TextInputView.parent.didEnterDocument.call(this);
-
-                const style = getComputedStyle(this._domControl);
-                if (style.boxSizing === 'border-box') {
-                    this._verticalBorderWidth = 0;
-                    this._verticalBorderWidth += parseInt(style.borderTopWidth.slice(0, -2), 10);
-                    this._verticalBorderWidth += parseInt(style.borderBottomWidth.slice(0, -2), 10);
-                };
-            }
-        }
     },
 
     /**
@@ -100,11 +87,11 @@ const TextInputView = Class({
     /**
         Property: O.TextInputView#placeholder
         Type: String
-        Default: ''
+        Default: undefined
 
         Placeholder text to be displayed in the text input when it is empty.
     */
-    placeholder: '',
+    placeholder: undefined,
 
     /**
         Property: O.TextInputView#value
@@ -114,22 +101,6 @@ const TextInputView = Class({
         The value currently input in the text field.
     */
     value: '',
-
-    /**
-        Property: O.TextInputView#inputAttributes
-        Type: Object
-
-        Extra attributes to add to the text view. Examples include:
-
-        - maxLength: Number
-        - autocomplete: 'on' or 'off'
-        - autocapitalize: 'on' or 'off'
-        - autocorrect: 'on' or 'off'
-        - pattern: String (regexp)
-    */
-    inputAttributes: {
-        autocomplete: 'off',
-    },
 
     /**
         Property: O.TextInputView#selection
@@ -203,6 +174,8 @@ const TextInputView = Class({
 
     // --- Render ---
 
+    baseClassName: 'v-TextInput',
+
     /**
         Property: O.TextInputView#type
         Type: String
@@ -210,8 +183,6 @@ const TextInputView = Class({
         Will be added to the view's class name.
     */
     type: '',
-
-    layerTag: 'div',
 
     /**
         Property: O.TextInputView#className
@@ -247,33 +218,19 @@ const TextInputView = Class({
         'isDisabled',
     ),
 
-    /**
-        Method: O.TextInputView#draw
-
-        Overridden to draw view. See <O.View#draw>.
-    */
-    draw(layer) {
+    drawControl() {
         const isMultiline = this.get('isMultiline');
-        const control = (this._domControl = el(
-            isMultiline ? 'textarea' : 'input',
-            {
-                id: this.get('id') + '-input',
-                className: 'v-TextInput-input',
-                rows: isMultiline ? '1' : undefined,
-                name: this.get('name'),
-                type: this.get('inputType'),
-                disabled: this.get('isDisabled'),
-                tabIndex: this.get('tabIndex'),
-                placeholder: this.get('placeholder') || undefined,
-                value: this.get('value'),
-            },
-        ));
-
-        this.redrawInputAttributes();
-
-        layer.title = this.get('tooltip');
-
-        return [control];
+        return (this._domControl = el(isMultiline ? 'textarea' : 'input', {
+            id: this.get('id') + '-input',
+            className: this.get('baseClassName') + '-input',
+            rows: isMultiline ? '1' : undefined,
+            name: this.get('name'),
+            type: this.get('inputType'),
+            disabled: this.get('isDisabled'),
+            tabIndex: this.get('tabIndex'),
+            placeholder: this.get('placeholder') || undefined,
+            value: this.get('value'),
+        }));
     },
 
     // --- Keep render in sync with state ---
@@ -292,17 +249,7 @@ const TextInputView = Class({
         if (isValue && this.get('isExpanding')) {
             this.propertyNeedsRedraw(self, 'textHeight', oldValue);
         }
-    }.observes('isExpanding', 'value', 'placeholder', 'inputAttributes'),
-
-    /**
-        Method: O.TextInputView#redrawValue
-
-        Updates the content of the `<textarea>` or `<input>` to match the
-        <#value> property.
-    */
-    redrawValue() {
-        this._domControl.value = this.get('value');
-    },
+    }.observes('isExpanding', 'placeholder'),
 
     /**
         Method: O.TextInputView#redrawPlaceholder
@@ -312,19 +259,6 @@ const TextInputView = Class({
     */
     redrawPlaceholder() {
         this._domControl.placeholder = this.get('placeholder');
-    },
-
-    /**
-        Method: O.TextInputView#redrawInputAttributes
-
-        Updates any other properties of the `<input>` element.
-    */
-    redrawInputAttributes() {
-        const inputAttributes = this.get('inputAttributes');
-        const control = this._domControl;
-        for (const property in inputAttributes) {
-            control.set(property, inputAttributes[property]);
-        }
     },
 
     redrawTextHeight() {
@@ -366,18 +300,7 @@ const TextInputView = Class({
         }
     },
 
-    redrawLabel() {},
-
     // --- Activate ---
-
-    /**
-        Method: O.TextInputView#activate
-
-        Overridden to focus the text view. See <O.AbstractControlView#activate>.
-    */
-    activate() {
-        this.focus();
-    },
 
     selectAll() {
         return this.set('selection', {
@@ -416,6 +339,12 @@ const TextInputView = Class({
         TextInputView.parent.didEnterDocument.call(this);
         if (this.get('isMultiline')) {
             if (this.get('isExpanding')) {
+                const style = getComputedStyle(this._domControl);
+                if (style.boxSizing === 'border-box') {
+                    this._verticalBorderWidth =
+                        parseInt(style.borderTopWidth, 10) +
+                        parseInt(style.borderBottomWidth, 10);
+                }
                 this.redrawTextHeight();
             }
             // Restore scroll positions:

@@ -5,8 +5,10 @@ import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { AbstractControlView } from './AbstractControlView.js';
+import { Activatable } from './Activatable.js';
 
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+/* { property, on, observes } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.ButtonView
@@ -69,6 +71,8 @@ const ButtonView = Class({
 
     Extends: AbstractControlView,
 
+    Mixin: [Activatable],
+
     /**
         Property: O.ButtonView#isActive
         Type: Boolean
@@ -97,22 +101,21 @@ const ButtonView = Class({
 
     /**
         Property: O.ButtonView#type
-        Type: String
-        Default: ''
-
-        A space-separated list of CSS classnames to give the layer in the DOM,
-        irrespective of state.
-    */
-    type: '',
-
-    /**
-        Property: O.ButtonView#type
         Type: Element|null
         Default: null
 
         An element to insert before the label.
     */
     icon: null,
+
+    /**
+        Property: O.ButtonView#label
+        Type: String|null
+        Default: ''
+
+        Label text drawn within the button.
+    */
+    label: '',
 
     // --- Render ---
 
@@ -124,6 +127,8 @@ const ButtonView = Class({
         Overrides default in <O.View#layerTag>.
     */
     layerTag: 'button',
+
+    baseClassName: 'v-Button',
 
     /**
         Property: O.ButtonView#className
@@ -140,12 +145,13 @@ const ButtonView = Class({
         disabled    - If the view's isDisabled property is true.
     */
     className: function () {
+        const baseClassName = this.get('baseClassName');
         const type = this.get('type');
         return (
-            'v-Button' +
+            baseClassName +
             (type ? ' ' + type : '') +
-            (this.get('icon') ? ' v-Button--hasIcon' : '') +
-            (this.get('shortcut') ? ' v-Button--hasShortcut' : '') +
+            (this.get('icon') ? ` ${baseClassName}--hasIcon` : '') +
+            (this.get('shortcut') ? ` ${baseClassName}--hasShortcut` : '') +
             (this.get('isActive') ? ' is-active' : '') +
             (this.get('isWaiting') ? ' is-waiting' : '') +
             (this.get('isDisabled') ? ' is-disabled' : '')
@@ -158,6 +164,10 @@ const ButtonView = Class({
         'isWaiting',
         'isDisabled',
     ),
+
+    drawLabel(label) {
+        return el('span.label', [label]);
+    },
 
     /**
         Method: O.ButtonView#draw
@@ -172,8 +182,17 @@ const ButtonView = Class({
         } else if (!icon) {
             icon = document.createComment('icon');
         }
+
+        let label = this.get('label');
+        if (label) {
+            label = this.drawLabel(label);
+        } else {
+            label = document.createComment('label');
+        }
+        this._domLabel = label;
+
         this._domControl = layer;
-        return [icon, ButtonView.parent.draw.call(this, layer)];
+        return [icon, label];
     },
 
     // --- Keep render in sync with state ---
@@ -189,7 +208,7 @@ const ButtonView = Class({
             property = 'isDisabled';
         }
         return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes('icon', 'isWaiting'),
+    }.observes('icon', 'isWaiting', 'label'),
 
     redrawIcon(layer) {
         let icon = this.get('icon');
@@ -204,6 +223,15 @@ const ButtonView = Class({
     redrawIsDisabled() {
         this._domControl.disabled =
             this.get('isDisabled') || this.get('isWaiting');
+    },
+
+    redrawLabel(layer) {
+        let label = this.get('label');
+        if (label) {
+            label = this.drawLabel(label);
+            layer.replaceChild(label, this._domLabel);
+        }
+        this._domLabel = label;
     },
 
     // --- Activate ---

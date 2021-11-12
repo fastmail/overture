@@ -1,11 +1,9 @@
-/*global document */
-
 import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
-import { AbstractControlView } from './AbstractControlView.js';
 import { ButtonView } from './ButtonView.js';
 
-import /* { on } from */ '../../foundation/Decorators.js';
+/* { on } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.FileButtonView
@@ -67,14 +65,19 @@ const FileButtonView = Class({
 
     // --- Render ---
 
-    /**
-        Property: O.FileButtonView#type
-        Type: String
-        Default: 'v-FileButton'
+    baseClassName: 'v-FileButton',
 
-        Overrides default in <O.ButtonView#type>.
-    */
-    type: 'v-FileButton',
+    type: 'v-Button',
+
+    drawControl() {
+        return (this._domControl = el('input', {
+            className: this.get('baseClassName') + '-input',
+            type: 'file',
+            accept: this.get('acceptOnlyTypes') || undefined,
+            multiple: this.get('acceptMultiple'),
+            webkitdirectory: this.get('acceptFolder') || undefined,
+        }));
+    },
 
     /**
         Method: O.FileButtonView#draw
@@ -83,22 +86,9 @@ const FileButtonView = Class({
         general <O.FileButtonView> notes.
     */
     draw(layer) {
-        let icon = this.get('icon');
-        if (typeof icon === 'string') {
-            icon = ButtonView.drawIcon(icon);
-        } else if (!icon) {
-            icon = document.createComment('icon');
-        }
         return [
-            (this._domControl = el('input', {
-                className: 'v-FileButton-input',
-                type: 'file',
-                accept: this.get('acceptOnlyTypes') || undefined,
-                multiple: this.get('acceptMultiple'),
-                webkitdirectory: this.get('acceptFolder') || undefined,
-            })),
-            icon,
-            AbstractControlView.prototype.draw.call(this, layer),
+            this.drawControl(),
+            ...FileButtonView.parent.draw.call(this, layer),
         ];
     },
 

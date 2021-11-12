@@ -1,11 +1,11 @@
 import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
-import { AbstractControlView } from './AbstractControlView.js';
+import { AbstractInputView } from './AbstractInputView.js';
 
 /**
     Class: O.ToggleView
 
-    Extends: O.AbstractControlView
+    Extends: O.AbstractInputView
 
     A toggle control view. The `value` property is two-way bindable,
     representing the state of the toggle (`true` => checked).
@@ -13,35 +13,18 @@ import { AbstractControlView } from './AbstractControlView.js';
 const ToggleView = Class({
     Name: 'ToggleView',
 
-    Extends: AbstractControlView,
-
-    /**
-        Property: O.ToggleView#icon
-        Type: Element|null
-
-        A reference to the SVG icon that replaces the native <input> element.
-    */
-    icon: null,
-
-    /**
-        Property: O.AbstractControlView#tabIndex
-        Type: Number
-        Default: 0
-
-        Overrides default in <O.AbstractControlView#tabIndex>.
-    */
-    tabIndex: 0,
+    Extends: AbstractInputView,
 
     // --- Render ---
 
     /**
         Property: O.ToggleView#layerTag
         Type: String
-        Default: 'div'
+        Default: 'label'
 
         Overrides default in <O.AbstractControlView#layerTag>.
     */
-    layerTag: 'div',
+    layerTag: 'label',
 
     /**
         Property: O.ToggleView#type
@@ -54,6 +37,15 @@ const ToggleView = Class({
     type: '',
 
     /**
+        Property: O.ToggleView#baseClassName
+        Type: String
+        Default: 'v-Toggle'
+
+        A string prepended to class names used by this view.
+    */
+    baseClassName: 'v-Toggle',
+
+    /**
         Property: O.ToggleView#className
         Type: String
         Default: 'v-Toggle'
@@ -63,76 +55,62 @@ const ToggleView = Class({
     className: function () {
         const type = this.get('type');
         return (
-            'v-Toggle' +
+            this.get('baseClassName') +
             (this.get('value') ? ' is-checked' : ' is-unchecked') +
             (this.get('isDisabled') ? ' is-disabled' : '') +
+            (this.get('isFocused') ? ' is-focused' : '') +
             (type ? ' ' + type : '')
         );
-    }.property('type', 'value', 'isDisabled'),
+    }.property('baseClassName', 'type', 'value', 'isDisabled', 'isFocused'),
+
+    drawControl() {
+        return (this._domControl = el('input', {
+            type: 'checkbox',
+            id: this.get('id') + '-input',
+            className: this.get('baseClassName') + '-input',
+            checked: this.get('value'),
+            disabled: this.get('isDisabled'),
+            name: this.get('name'),
+        }));
+    },
+
+    drawLabel(label) {
+        return el('p', [label]);
+    },
 
     /**
         Method: O.ToggleView#draw
 
         Overridden to draw toggle in layer. See <O.View#draw>.
     */
-    draw(/*layer*/) {
-        const id = this.get('id');
-        const icon = this.get('icon');
-        const control = (this._domControl = el('input', {
-            type: 'checkbox',
-            id: id + '-input',
-            checked: this.get('value'),
-            disabled: this.get('isDisabled'),
-            hidden: !!icon,
-            onchange: (event) => {
-                this.userDidInput(event.target.checked);
-            },
-        }));
+    draw(layer) {
+        const control = this.drawControl();
 
-        const name = this.get('name');
-        if (name) {
-            control.name = name;
+        let label = this.get('label');
+        if (label) {
+            label = this.drawLabel(label);
         }
-
-        const label = (this._domLabel = el('p.u-label.u-trim', [
-            this.get('label'),
-        ]));
 
         let description = this.get('description');
         if (description) {
-            label.classList.add('u-trim-top');
-            description = el('p.u-description.u-trim.u-trim-bottom', [
-                description,
-            ]);
+            description = this.drawDescription(description);
         }
+
+        this.redrawInputAttributes(layer);
+        this.redrawTabIndex(layer);
 
         return [
             control,
-            el(
-                'label',
-                {
-                    for: control.id,
-                    tabIndex: this.get('tabIndex'),
-                },
-                [
-                    icon ? el('i.v-Toggle-icon', [icon]) : null,
-                    el('div.v-Toggle-text', [label, description]),
-                ],
-            ),
+            label || description
+                ? el(`div.${this.get('baseClassName')}-text`, [
+                      label,
+                      description,
+                  ])
+                : null,
         ];
     },
 
     // --- Keep render in sync with state ---
-
-    /**
-        Method: O.ToggleView#checkboxNeedsRedraw
-
-        Calls <O.View#propertyNeedsRedraw> for extra properties requiring
-        redraw.
-    */
-    checkboxNeedsRedraw: function (self, property, oldValue) {
-        return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes('value'),
 
     /**
         Method: O.ToggleView#redrawValue
@@ -144,31 +122,16 @@ const ToggleView = Class({
         this._domControl.checked = this.get('value');
     },
 
-    // --- Activate ---
+    // --- Keep state in sync with render ---
 
     /**
-        Method: O.ToggleView#activate
+        Method: O.ToggleView#change
 
-        Overridden to toggle the checked status of the control. See
-        <O.AbstractControlView#activate>.
+        Update view state when the control state changes.
     */
-    activate() {
-        if (!this.get('isDisabled')) {
-            this.userDidInput(!this.get('value'));
-        }
-    },
-
-    /**
-        Method: O.ToggleView#keydown
-
-        Pressing the space key toggles the control.
-    */
-    keydown: function (event) {
-        if (event.key !== ' ') {
-            return;
-        }
-        event.target.click();
-    }.on('keydown'),
+    change: function (event) {
+        this.userDidInput(event.target.checked);
+    }.on('change'),
 });
 
 export { ToggleView };

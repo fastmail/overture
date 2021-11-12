@@ -1,11 +1,10 @@
 import { Class, isEqual } from '../../core/Core.js';
-import { create as el } from '../../dom/Element.js';
-import { AbstractControlView } from './AbstractControlView.js';
+import { appendChildren, create as el } from '../../dom/Element.js';
+import { AbstractInputView } from './AbstractInputView.js';
 
 // ---
 
 const HANDLED_KEYS = new Set([
-    ' ',
     'ArrowDown',
     'ArrowLeft',
     'ArrowRight',
@@ -15,7 +14,7 @@ const HANDLED_KEYS = new Set([
 /**
     Class: O.RadioGroupView
 
-    Extends: O.AbstractControlView
+    Extends: O.AbstractInputView
 
     A view representing an HTML `<select>` menu. The `value` property is two-way
     bindable, representing the selected option.
@@ -23,13 +22,21 @@ const HANDLED_KEYS = new Set([
 const RadioGroupView = Class({
     Name: 'RadioGroupView',
 
-    Extends: AbstractControlView,
+    Extends: AbstractInputView,
+
+    init: function (/* ...mixins */) {
+        RadioGroupView.parent.constructor.apply(this, arguments);
+        const options = this.get('options');
+        const value = this.get('value');
+        this.set(
+            'selectedIndex',
+            options.findIndex((option) => isEqual(value, option.value)),
+        );
+    },
 
     icon: null,
 
-    label: '',
-
-    description: '',
+    selectedIndex: null,
 
     tabIndex: 0,
 
@@ -54,9 +61,10 @@ const RadioGroupView = Class({
     // --- Render ---
 
     _domControls: [],
-    selectedIndex: -1,
 
     layerTag: 'fieldset',
+
+    baseClassName: 'v-RadioGroup',
 
     type: '',
 
@@ -70,13 +78,41 @@ const RadioGroupView = Class({
     className: function () {
         const type = this.get('type');
         return (
-            'v-RadioGroup' +
-            (this.get('blocks') ? ' v-RadioGroup-blocks' : '') +
-            (this.get('isFocused') ? ' is-focused' : '') +
+            this.get('baseClassName') +
             (this.get('isDisabled') ? ' is-disabled' : '') +
+            (this.get('isFocused') ? ' is-focused' : '') +
             (type ? ' ' + type : '')
         );
-    }.property('type', 'isFocused', 'isDisabled', 'blocks'),
+    }.property('type', 'isFocused', 'isDisabled'),
+
+    drawControl(option, index) {
+        const id = this.get('id');
+        const control = el('input', {
+            type: 'radio',
+            id: id + '-option-' + index,
+            className: this.get('baseClassName') + '-input',
+            checked: index === this.get('selectedIndex'),
+            disabled: this.get('isDisabled') || option.isDisabled,
+            name: this.get('name') || id + '-value',
+            tabIndex: '-1',
+            onchange: (event) => {
+                if (event.target.checked) {
+                    this._settingFromInput = true;
+                    this.set('selectedIndex', index);
+                    this._settingFromInput = false;
+                }
+            },
+        });
+        this._domControls.push(control);
+        if (control.checked) {
+            this._domControl = control;
+        }
+        return control;
+    },
+
+    drawLabel(label) {
+        return el('p', [label]);
+    },
 
     /**
         Method: O.ToggleView#draw
@@ -84,60 +120,21 @@ const RadioGroupView = Class({
         Overridden to draw toggle in layer. See <O.View#draw>.
     */
     drawOption(option, index) {
-        const id = this.get('id');
-        const icon = this.get('icon');
-        const value = this.get('value');
-        const isDisabled = this.get('isDisabled');
-        const isSelected = isEqual(value, option.value);
-        if (isSelected) {
-            this.selectedIndex = index;
-        }
+        const baseClassName = this.get('baseClassName');
 
-        const radio = el('input', {
-            type: 'radio',
-            id: id + '-option-' + index,
-            checked: isSelected,
-            disabled: isDisabled || option.isDisabled,
-            hidden: !!icon,
-            onchange: (event) => {
-                if (event.target.checked) {
-                    this.set('selectedIndex', index);
-                }
-            },
-        });
+        const control = this.drawControl(option, index);
 
-        let name = this.get('name');
-        if (!name) {
-            name = id + '-value';
-        }
-        radio.name = name;
-
-        const label = el('p.u-trim', [option.label]);
+        const label = this.drawLabel(option.label, option);
 
         let description = option.description;
         if (description) {
-            label.classList.add('u-trim-top');
-            description = el('p.u-description.u-trim-bottom', [description]);
+            description = this.drawDescription(description, option);
         }
 
-        const control = el(
-            'label.v-RadioGroup-option.v-RadioGroup-content',
-            {
-                for: radio.id,
-            },
-            [
-                icon ? el('i.v-RadioGroup-icon', [icon.cloneNode(true)]) : null,
-                el('div.v-RadioGroup-text', [label, description]),
-            ],
+        return el(
+            `label.${baseClassName}-option`,
+            [control, el(`div.${baseClassName}-text`, [label, description])],
         );
-        this._domControls.push(control);
-
-        if (isSelected || (index === 0 && !value)) {
-            this._domControl = control;
-            control.setAttribute('tabindex', this.get('tabIndex'));
-        }
-
-        return [radio, control];
     },
 
     /**
@@ -146,39 +143,35 @@ const RadioGroupView = Class({
         Overridden to draw select menu in layer. See <O.View#draw>.
     */
     draw(/*layer*/) {
-        this._domControls = [];
-
-        const label = (this._domLabel = el('legend.u-label.u-trim', [
-            this.get('label'),
-        ]));
+        let label = this.get('label');
+        if (label) {
+            label = this.drawLabel(label);
+        }
 
         let description = this.get('description');
         if (description) {
-            label.classList.add('u-trim-top');
-            description = this._domDescription = el(
-                'p.u-description.u-trim.u-trim-bottom',
-                [description],
-            );
+            description = this.drawDescription(description);
         }
 
-        return [
-            label,
-            description,
-            this.get('options').map(this.drawOption, this),
-        ];
+        this._domControls = [];
+        const options = this.get('options').map(this.drawOption, this);
+
+        this.redrawTabIndex();
+
+        return [label, description, options];
     },
 
     // --- Keep render in sync with state ---
 
     /**
-        Method: O.RadioGroupView#radioGroupNeedsRedraw
+        Method: O.RadioGroupView#optionsNeedsRedraw
 
         Calls <O.View#propertyNeedsRedraw> for extra properties requiring
         redraw.
     */
-    radioGroupNeedsRedraw: function (self, property, oldValue) {
+    optionsNeedsRedraw: function (self, property, oldValue) {
         return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes('options', 'value'),
+    }.observes('options'),
 
     /**
         Method: O.RadioGroupView#redrawOptions
@@ -189,26 +182,15 @@ const RadioGroupView = Class({
     redrawOptions(layer, oldOptions) {
         const options = this.get('options');
         if (!isEqual(options, oldOptions)) {
-            // Must blur before removing from DOM in iOS, otherwise
-            // the slot-machine selector will not hide
-            const isFocused = this.get('isFocused');
-            if (isFocused) {
-                this.blur();
-            }
-
             const baseElements = this.get('description') ? 2 : 1;
             while (layer.childElementCount > baseElements) {
                 layer.removeChild(layer.lastElementChild);
             }
 
             this._domControls = [];
-            options.forEach((option, i) => {
-                const [radio, control] = this.drawOption(option, i);
-                layer.appendChild(radio);
-                layer.appendChild(control);
-            });
+            appendChildren(layer, options.map(this.drawOption, this));
 
-            if (isFocused) {
+            if (this.get('isFocused')) {
                 this.focus();
             }
         }
@@ -229,35 +211,11 @@ const RadioGroupView = Class({
         });
     },
 
-    redrawTabIndex() {
-        let index = this.get('selectedIndex');
-        if (index < 0) {
-            index = 0;
-        }
-        this._domControls[index].tabIndex = this.get('tabIndex');
-    },
-
-    /**
-        Method: O.RadioGroupView#redrawValue
-
-        Checks the corresponding control in the radio group when the
-        <O.RadioGroupView#value> property changes.
-    */
-    redrawValue() {
-        const value = this.get('value');
-        const options = this.get('options');
-
-        this.set(
-            'selectedIndex',
-            options.findIndex((option) => isEqual(value, option.value)),
-        );
-    },
-
     selectedIndexDidChange: function (_, __, oldIndex, index) {
         const control = this._domControls[index];
         if (control) {
-            control.previousElementSibling.checked = true;
-            control.setAttribute('tabindex', this.get('tabIndex'));
+            control.checked = true;
+            control.tabIndex = this.get('tabIndex');
             if (this.get('isFocused')) {
                 control.focus();
             }
@@ -268,9 +226,9 @@ const RadioGroupView = Class({
 
         const oldControl = this._domControls[oldIndex];
         if (oldControl) {
-            oldControl.previousElementSibling.checked = false;
+            oldControl.checked = false;
             if (index !== -1) {
-                oldControl.removeAttribute('tabindex');
+                oldControl.tabIndex = '-1';
             }
         }
 
@@ -278,17 +236,45 @@ const RadioGroupView = Class({
         this.userDidInput(newValue);
     }.observes('selectedIndex'),
 
+    /**
+        Method (private): O.AbstractControlView#_updateIsFocused
+
+        Updates the <#isFocused> property.
+
+        Parameters:
+            event - {Event} The focus event.
+    */
+    _updateIsFocused: function (event) {
+        if (event.type === 'focusin') {
+            this.set('isFocused', true);
+        } else if (!this.get('layer').contains(event.relatedTarget)) {
+            this.set('isFocused', false);
+        }
+    }.on('focusin', 'focusout'),
+
+    /**
+        Method: O.RadioGroupView#redrawValue
+
+        Checks the corresponding control in the radio group when the
+        <O.RadioGroupView#value> property changes.
+    */
+    valueDidChange: function (_, __, ___, value) {
+        if (this._settingFromInput) {
+            return;
+        }
+        const options = this.get('options');
+        this.set(
+            'selectedIndex',
+            options.findIndex((option) => isEqual(value, option.value)),
+        );
+    }.observes('value'),
+
     keydown: function (event) {
         const key = event.key;
         if (!HANDLED_KEYS.has(key)) {
             return;
         }
         event.preventDefault();
-
-        if (key === ' ') {
-            event.target.click();
-            return;
-        }
 
         let selectedIndex = this.get('selectedIndex');
         if (key === 'ArrowDown' || key === 'ArrowRight') {
@@ -305,14 +291,6 @@ const RadioGroupView = Class({
         }
         this.set('selectedIndex', selectedIndex);
     }.on('keydown'),
-
-    _updateIsFocused: function (event) {
-        if (event.type === 'click' || event.type === 'focusin') {
-            this.set('isFocused', true);
-        } else if (!this.get('layer').contains(event.relatedTarget)) {
-            this.set('isFocused', false);
-        }
-    }.on('click', 'focusin', 'focusout'),
 });
 
 export { RadioGroupView };
