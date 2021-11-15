@@ -109,6 +109,9 @@ class AbstractEventSource {
 
     close() {
         if (this.readyState !== CLOSED) {
+            // XHR#readystatechange fires synchronously on abort,
+            // so be sure to set ready state to CLOSED first.
+            this.readyState = CLOSED;
             if (this._abortController) {
                 this._abortController.abort();
                 this._abortController = null;
@@ -127,7 +130,6 @@ class AbstractEventSource {
             } else {
                 self.removeEventListener('online', this, false);
             }
-            this.readyState = CLOSED;
         }
         return this;
     }
