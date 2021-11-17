@@ -27,16 +27,6 @@ const ToggleView = Class({
     layerTag: 'label',
 
     /**
-        Property: O.ToggleView#type
-        Type: String
-        Default: ''
-
-        A space-separated list of CSS classnames to give the layer in the DOM,
-        irrespective of state.
-    */
-    type: '',
-
-    /**
         Property: O.ToggleView#baseClassName
         Type: String
         Default: 'v-Toggle'

@@ -19,9 +19,6 @@ const CheckboxView = Class({
 
     Extends: ToggleView,
 
-    // Don't inherit the ToggleView icon
-    icon: null,
-
     isIndeterminate: false,
 
     // --- Render ---

@@ -27,6 +27,8 @@ const SearchInputView = Class({
     // Helps password managers know this is not a username input!
     name: 'search',
 
+    placeholder: null,
+
     baseClassName: 'v-SearchInput',
 
     className: function () {
@@ -45,7 +47,6 @@ const SearchInputView = Class({
             className: this.get('baseClassName') + '-input',
             name: this.get('name'),
             disabled: this.get('isDisabled'),
-            tabIndex: this.get('tabIndex'),
             placeholder: this.get('placeholder'),
             value: this.get('value'),
         }));
@@ -56,7 +57,6 @@ const SearchInputView = Class({
 
         this.redrawInputAttributes(layer);
         this.redrawTabIndex(layer);
-        this.redrawTooltip(layer);
 
         return [
             control,

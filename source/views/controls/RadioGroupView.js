@@ -26,6 +26,7 @@ const RadioGroupView = Class({
 
     init: function (/* ...mixins */) {
         RadioGroupView.parent.constructor.apply(this, arguments);
+        this._domControls = [];
         const options = this.get('options');
         const value = this.get('value');
         this.set(
@@ -34,11 +35,7 @@ const RadioGroupView = Class({
         );
     },
 
-    icon: null,
-
     selectedIndex: null,
-
-    tabIndex: 0,
 
     value: null,
 
@@ -60,30 +57,11 @@ const RadioGroupView = Class({
 
     // --- Render ---
 
-    _domControls: [],
-
     layerTag: 'fieldset',
 
     baseClassName: 'v-RadioGroup',
 
     type: '',
-
-    /**
-        Property: O.RadioGroupView#className
-        Type: String
-        Default: 'v-Select'
-
-        Overrides default in <O.View#className>.
-    */
-    className: function () {
-        const type = this.get('type');
-        return (
-            this.get('baseClassName') +
-            (this.get('isDisabled') ? ' is-disabled' : '') +
-            (this.get('isFocused') ? ' is-focused' : '') +
-            (type ? ' ' + type : '')
-        );
-    }.property('type', 'isFocused', 'isDisabled'),
 
     drawControl(option, index) {
         const id = this.get('id');
@@ -153,7 +131,6 @@ const RadioGroupView = Class({
             description = this.drawDescription(description);
         }
 
-        this._domControls = [];
         const options = this.get('options').map(this.drawOption, this);
 
         this.redrawTabIndex();

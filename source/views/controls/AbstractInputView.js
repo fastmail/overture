@@ -73,23 +73,6 @@ const AbstractInputView = Class({
     },
 
     /**
-        Property: O.AbstractInputView#layerTag
-        Type: String
-        Default: 'div'
-
-        Overrides default in <O.View#layerTag>.
-    */
-    layerTag: 'div',
-
-    /**
-        Property (private): O.AbstractInputView#_domControl
-        Type: Element|null
-
-        A reference to the DOM control managed by the view.
-    */
-    _domControl: null,
-
-    /**
         Method: O.AbstractInputView#drawControl
 
         Overridden to set properties and add label. See <O.View#draw>.
@@ -135,7 +118,7 @@ const AbstractInputView = Class({
 
     abstractInputNeedsRedraw: function (self, property, oldValue) {
         return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes('inputAttributes', 'isDisabled', 'name', 'value'),
+    }.observes('inputAttributes', 'name', 'value'),
 
     /**
         Method: O.TextInputView#redrawInputAttributes
@@ -148,16 +131,6 @@ const AbstractInputView = Class({
         for (const property in inputAttributes) {
             control.set(property, inputAttributes[property]);
         }
-    },
-
-    /**
-        Method: O.AbstractInputView#redrawIsDisabled
-
-        Updates the disabled attribute on the DOM control to match the
-        isDisabled property of the view.
-    */
-    redrawIsDisabled() {
-        this._domControl.disabled = this.get('isDisabled');
     },
 
     /**

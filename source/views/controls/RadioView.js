@@ -22,8 +22,6 @@ const RadioView = Class({
 
     baseClassName: 'v-Radio',
 
-    type: '',
-
     /**
         Method: O.RadioView#draw
 

@@ -24,11 +24,10 @@ const TextInputView = Class({
 
     Extends: AbstractInputView,
 
-    _verticalBorderWidth: 0,
-
     init: function (/* ...mixins */) {
         TextInputView.parent.constructor.apply(this, arguments);
         this._settingFromInput = false;
+        this._verticalBorderWidth = 0;
     },
 
     /**
@@ -175,14 +174,6 @@ const TextInputView = Class({
     // --- Render ---
 
     baseClassName: 'v-TextInput',
-
-    /**
-        Property: O.TextInputView#type
-        Type: String
-
-        Will be added to the view's class name.
-    */
-    type: '',
 
     /**
         Property: O.TextInputView#className

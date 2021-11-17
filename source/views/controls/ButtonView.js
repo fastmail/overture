@@ -179,9 +179,7 @@ const ButtonView = Class({
         this._domControl = layer;
 
         let icon = this.get('icon');
-        if (typeof icon === 'string') {
-            icon = ButtonView.drawIcon(icon);
-        } else if (!icon) {
+        if (!icon) {
             icon = document.createComment('icon');
         }
 
@@ -216,9 +214,7 @@ const ButtonView = Class({
 
     redrawIcon(layer) {
         let icon = this.get('icon');
-        if (typeof icon === 'string') {
-            icon = ButtonView.drawIcon(icon);
-        } else if (!icon) {
+        if (!icon) {
             icon = document.createComment('icon');
         }
         layer.replaceChild(icon, layer.firstChild);
@@ -397,11 +393,5 @@ const ButtonView = Class({
         }
     }.on('keydown'),
 });
-
-ButtonView.drawIcon = function (icon) {
-    return el('i', {
-        className: 'icon ' + icon,
-    });
-};
 
 export { ButtonView };

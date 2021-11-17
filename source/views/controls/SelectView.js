@@ -45,25 +45,6 @@ const SelectView = Class({
 
     baseClassName: 'v-Select',
 
-    type: '',
-
-    /**
-        Property: O.SelectView#className
-        Type: String
-        Default: 'v-Select'
-
-        Overrides default in <O.View#className>.
-    */
-    className: function () {
-        const type = this.get('type');
-        return (
-            this.get('baseClassName') +
-            (this.get('isFocused') ? ' is-focused' : '') +
-            (this.get('isDisabled') ? ' is-disabled' : '') +
-            (type ? ' ' + type : '')
-        );
-    }.property('type', 'isFocused', 'isDisabled'),
-
     /**
         Method (private): O.SelectView#_drawSelect
 
