@@ -4,12 +4,8 @@ import { PopOverView } from '../panels/PopOverView.js';
 import { RootView } from '../RootView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
-import /* {
-    observes,
-    on,
-    property,
-    queue,
-} from */ '../../foundation/Decorators.js';
+/* { observes, on, property, queue } from */
+import '../../foundation/Decorators.js';
 
 /*global document */
 
@@ -54,7 +50,11 @@ const MenuButtonView = Class({
 
         Overrides default in <O.ButtonView#type>.
     */
-    type: 'v-MenuButton',
+    baseClassName: 'v-MenuButton',
+
+    className: function () {
+        return 'v-Button ' + ButtonView.prototype.className.call(this);
+    }.property(...ButtonView.prototype.className.dependencies),
 
     /**
         Property: O.MenuButtonView#popOverView
@@ -112,6 +112,7 @@ const MenuButtonView = Class({
     // --- Accessibility ---
 
     didCreateLayer(layer) {
+        MenuButtonView.parent.didCreateLayer.call(this, layer);
         layer.setAttribute('aria-expanded', 'false');
     },
 

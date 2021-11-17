@@ -67,6 +67,10 @@ const FileButtonView = Class({
 
     baseClassName: 'v-FileButton',
 
+    className: function () {
+        return 'v-Button ' + ButtonView.prototype.className.call(this);
+    }.property(...ButtonView.prototype.className.dependencies),
+
     type: 'v-Button',
 
     drawControl() {
