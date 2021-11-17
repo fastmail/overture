@@ -26,7 +26,7 @@ const AbstractInputView = Class({
 
         A label for the control, to be displayed next to it.
     */
-    label: '',
+    label: null,
 
     /**
         Property: O.AbstractInputView#label
@@ -35,7 +35,7 @@ const AbstractInputView = Class({
 
         A description for the control, to be displayed next to it.
     */
-    description: '',
+    description: null,
 
     /**
         Property: O.AbstractInputView#name
