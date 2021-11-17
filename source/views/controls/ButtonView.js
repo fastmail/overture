@@ -234,8 +234,8 @@ const ButtonView = Class({
         if (label) {
             label = this.drawLabel(label);
             layer.replaceChild(label, this._domLabel);
+            this._domLabel = label;
         }
-        this._domLabel = label;
     },
 
     // --- Activate ---
