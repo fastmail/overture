@@ -120,12 +120,11 @@ const SelectView = Class({
             // Must blur before removing from DOM in iOS, otherwise
             // the slot-machine selector will not hide
             const isFocused = this.get('isFocused');
-            const select = this.drawControl();
             if (isFocused) {
                 this.blur();
             }
-            layer.replaceChild(select, this._domControl);
-            this._domControl = select;
+            const oldControl = this._domControl;
+            layer.replaceChild(this.drawControl(), oldControl);
             if (isFocused) {
                 this.focus();
             }
@@ -146,7 +145,7 @@ const SelectView = Class({
         while (l--) {
             if (isEqual(options[l].value, value)) {
                 this._domControl.value = l + '';
-                return;
+                break;
             }
         }
         // Work around Chrome on Android bug where it doesn't redraw the
