@@ -145,13 +145,12 @@ const ButtonView = Class({
         disabled    - If the view's isDisabled property is true.
     */
     className: function () {
-        const baseClassName = this.get('baseClassName');
         const type = this.get('type');
         return (
-            baseClassName +
+            this.get('baseClassName') +
             (type ? ' ' + type : '') +
-            (this.get('icon') ? ` ${baseClassName}--hasIcon` : '') +
-            (this.get('shortcut') ? ` ${baseClassName}--hasShortcut` : '') +
+            (this.get('icon') ? ` has-icon` : '') +
+            (this.get('shortcut') ? ` has-shortcut` : '') +
             (this.get('isActive') ? ' is-active' : '') +
             (this.get('isWaiting') ? ' is-waiting' : '') +
             (this.get('isDisabled') ? ' is-disabled' : '')
