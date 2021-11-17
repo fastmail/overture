@@ -1,9 +1,10 @@
 import { createFilter } from '@rollup/pluginutils';
 import { compile, compileTranslation } from '../i18n/compile-po.js';
 
-export default function po(options = { outputTranslationsAsFn: false }) {
+export default function po(options) {
     const filter = createFilter(options.include, options.exclude);
     const { filterChunk = () => true } = options;
+    const { outputTranslationsAsFn = false } = options;
     return {
         name: 'po',
         enforce: 'pre',
@@ -12,7 +13,7 @@ export default function po(options = { outputTranslationsAsFn: false }) {
                 return;
             }
             id = id.slice(id.lastIndexOf('/') + 1, id.lastIndexOf('.'));
-            return compile(id, code, null, options.outputTranslationsAsFn);
+            return compile(id, code, null, outputTranslationsAsFn);
         },
         renderChunk(code, chunk) {
             if (!filterChunk(chunk)) {
