@@ -86,9 +86,10 @@ const FileButtonView = Class({
         general <O.FileButtonView> notes.
     */
     draw(layer) {
+        const children = FileButtonView.parent.draw.call(this, layer);
         return [
             this.drawControl(),
-            ...FileButtonView.parent.draw.call(this, layer),
+            ...children,
         ];
     },
 
