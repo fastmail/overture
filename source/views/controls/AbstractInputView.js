@@ -95,12 +95,7 @@ const AbstractInputView = Class({
         Overridden to set properties and add label. See <O.View#draw>.
     */
     drawControl() {
-        return (this._domControl = el('input', {
-            id: this.get('id') + '-input',
-            disabled: this.get('isDisabled'),
-            name: this.get('name'),
-            value: this.get('value'),
-        }));
+        throw new Error('drawControl() must be overriden in subclass');
     },
 
     drawLabel(label) {
