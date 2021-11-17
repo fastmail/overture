@@ -176,6 +176,8 @@ const ButtonView = Class({
         general <O.ButtonView> notes.
     */
     draw(layer) {
+        this._domControl = layer;
+
         let icon = this.get('icon');
         if (typeof icon === 'string') {
             icon = ButtonView.drawIcon(icon);
@@ -191,7 +193,9 @@ const ButtonView = Class({
         }
         this._domLabel = label;
 
-        this._domControl = layer;
+        this.redrawIsDisabled(layer);
+        this.redrawTabIndex(layer);
+
         return [icon, label];
     },
 
