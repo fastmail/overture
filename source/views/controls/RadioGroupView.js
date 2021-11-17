@@ -233,7 +233,9 @@ const RadioGroupView = Class({
         }
 
         const newValue = index > -1 ? this.get('options')[index].value : null;
-        this.userDidInput(newValue);
+        if (this._settingFromInput) {
+            this.userDidInput(newValue);
+        }
     }.observes('selectedIndex'),
 
     /**
@@ -289,7 +291,9 @@ const RadioGroupView = Class({
         } else if (selectedIndex < 0) {
             selectedIndex = maxIndex;
         }
+        this._settingFromInput = true;
         this.set('selectedIndex', selectedIndex);
+        this._settingFromInput = false;
     }.on('keydown'),
 });
 
