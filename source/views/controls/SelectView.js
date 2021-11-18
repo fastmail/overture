@@ -62,6 +62,7 @@ const SelectView = Class({
         const select = (this._domControl = el(
             'select',
             {
+                id: this.get('id') + '-input',
                 className: this.get('baseClassName') + '-input',
                 disabled: this.get('isDisabled'),
             },
