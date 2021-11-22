@@ -60,8 +60,6 @@ const RadioGroupView = Class({
 
     baseClassName: 'v-RadioGroup',
 
-    type: '',
-
     drawControl(option, index) {
         const id = this.get('id');
         const control = el('input', {
@@ -108,10 +106,10 @@ const RadioGroupView = Class({
             description = this.drawDescription(description, option);
         }
 
-        return el(
-            `label.${baseClassName}-option`,
-            [control, el(`div.${baseClassName}-text`, [label, description])],
-        );
+        return el(`label.${baseClassName}-option`, [
+            control,
+            el(`div.${baseClassName}-text`, [label, description]),
+        ]);
     },
 
     /**
@@ -172,7 +170,6 @@ const RadioGroupView = Class({
             appendChildren(layer, options.map(this.drawOption, this));
 
             this.redrawTabIndex();
-
 
             if (this.get('isFocused')) {
                 this.focus();
