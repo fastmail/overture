@@ -29,10 +29,9 @@ const RadioGroupView = Class({
         this._domControls = [];
         const options = this.get('options');
         const value = this.get('value');
-        this.set(
-            'selectedIndex',
-            options.findIndex((option) => isEqual(value, option.value)),
-        );
+        this.selectedIndex = options.findIndex((option) => {
+            return isEqual(value, option.value);
+        });
     },
 
     selectedIndex: null,
