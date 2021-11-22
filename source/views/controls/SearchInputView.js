@@ -13,8 +13,6 @@ const SearchInputView = Class({
 
     Mixin: [Activatable],
 
-    type: '',
-
     icon: null,
 
     inputAttributes: {
@@ -26,8 +24,6 @@ const SearchInputView = Class({
 
     // Helps password managers know this is not a username input!
     name: 'search',
-
-    placeholder: null,
 
     baseClassName: 'v-SearchInput',
 
