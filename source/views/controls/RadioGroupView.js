@@ -87,8 +87,8 @@ const RadioGroupView = Class({
         return control;
     },
 
-    drawLabel(label) {
-        return el('p', [label]);
+    drawLabel(label, option) {
+        return el(option ? 'p' : 'legend', [label]);
     },
 
     /**
