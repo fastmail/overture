@@ -195,6 +195,8 @@ const RadioGroupView = Class({
         });
     },
 
+    redrawValue() {},
+
     selectedIndexDidChange: function (_, __, oldIndex, index) {
         const control = this._domControls[index];
         if (control) {
