@@ -140,7 +140,6 @@ const ButtonView = Class({
         the state:
 
         hasIcon     - If the view has an icon property set.
-        hasShortcut - If the view has a shortcut property set.
         active      - If the view's isActive property is true.
         disabled    - If the view's isDisabled property is true.
     */
@@ -149,20 +148,12 @@ const ButtonView = Class({
         return (
             this.get('baseClassName') +
             (type ? ' ' + type : '') +
-            (this.get('icon') ? ` has-icon` : '') +
-            (this.get('shortcut') ? ` has-shortcut` : '') +
+            (this.get('icon') ? ' has-icon' : '') +
             (this.get('isActive') ? ' is-active' : '') +
             (this.get('isWaiting') ? ' is-waiting' : '') +
             (this.get('isDisabled') ? ' is-disabled' : '')
         );
-    }.property(
-        'type',
-        'icon',
-        'shortcut',
-        'isActive',
-        'isWaiting',
-        'isDisabled',
-    ),
+    }.property('type', 'icon', 'isActive', 'isWaiting', 'isDisabled'),
 
     drawLabel(label) {
         return el('span.label', [label]);
