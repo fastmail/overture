@@ -27,14 +27,14 @@ const RadioGroupView = Class({
     init: function (/* ...mixins */) {
         RadioGroupView.parent.constructor.apply(this, arguments);
         this._domControls = [];
-        const options = this.get('options');
-        const value = this.get('value');
-        this.selectedIndex = options.findIndex((option) => {
-            return isEqual(value, option.value);
-        });
     },
 
-    selectedIndex: null,
+    selectedIndex: function () {
+        const value = this.get('value');
+        return this.get('options').findIndex((option) => {
+            return isEqual(value, option.value);
+        })
+    }.property('value'),
 
     value: null,
 
@@ -66,15 +66,13 @@ const RadioGroupView = Class({
             type: 'radio',
             id: id + '-option-' + index,
             className: this.get('baseClassName') + '-input',
-            checked: index === this.get('selectedIndex'),
+            checked: isEqual(this.get('value'), option.value),
             disabled: this.get('isDisabled') || option.isDisabled,
             name: this.get('name') || id + '-value',
             tabIndex: '-1',
             onchange: (event) => {
                 if (event.target.checked) {
-                    this._settingFromInput = true;
-                    this.set('selectedIndex', index);
-                    this._settingFromInput = false;
+                    this.userDidInput(option.value);
                 }
             },
         });
@@ -161,11 +159,6 @@ const RadioGroupView = Class({
                 layer.removeChild(layer.lastElementChild);
             }
 
-            const value = this.get('value');
-            this.selectedIndex = options.findIndex((option) => {
-                return isEqual(value, option.value);
-            });
-
             this._domControls = [];
             appendChildren(layer, options.map(this.drawOption, this));
 
@@ -192,34 +185,33 @@ const RadioGroupView = Class({
         });
     },
 
-    redrawValue() {},
+    redrawValue() {
+        let index = this.get('selectedIndex');
 
-    selectedIndexDidChange: function (_, __, oldIndex, index) {
-        const control = this._domControls[index];
-        if (control) {
-            control.checked = true;
-            control.tabIndex = this.get('tabIndex');
-            if (this.get('isFocused')) {
-                control.focus();
-            }
-            this._domControl = control;
+        let isChecked;
+        if (index < 0) {
+            index = 0;
+            isChecked = false;
         } else {
-            this._domControl = this._domControls[0];
+            isChecked = true;
         }
 
-        const oldControl = this._domControls[oldIndex];
-        if (oldControl) {
-            oldControl.checked = false;
-            if (index !== -1) {
-                oldControl.tabIndex = '-1';
-            }
+        const control = this._domControls[index];
+        if (isChecked && control === this._domControl) {
+            return;
         }
 
-        const newValue = index > -1 ? this.get('options')[index].value : null;
-        if (this._settingFromInput) {
-            this.userDidInput(newValue);
+        const oldControl = this._domControl;
+        oldControl.checked = false;
+        oldControl.tabIndex = '-1';
+
+        control.checked = isChecked;
+        control.tabIndex = this.get('tabIndex');
+        if (this.get('isFocused')) {
+            control.focus();
         }
-    }.observes('selectedIndex'),
+        this._domControl = control;
+    },
 
     /**
         Method (private): O.AbstractControlView#_updateIsFocused
@@ -237,23 +229,6 @@ const RadioGroupView = Class({
         }
     }.on('focusin', 'focusout'),
 
-    /**
-        Method: O.RadioGroupView#redrawValue
-
-        Checks the corresponding control in the radio group when the
-        <O.RadioGroupView#value> property changes.
-    */
-    valueDidChange: function (_, __, ___, value) {
-        if (this._settingFromInput) {
-            return;
-        }
-        const options = this.get('options');
-        this.set(
-            'selectedIndex',
-            options.findIndex((option) => isEqual(value, option.value)),
-        );
-    }.observes('value'),
-
     keydown: function (event) {
         const key = event.key;
         if (!HANDLED_KEYS.has(key)) {
@@ -261,22 +236,22 @@ const RadioGroupView = Class({
         }
         event.preventDefault();
 
-        let selectedIndex = this.get('selectedIndex');
+        let index = this.get('selectedIndex');
         if (key === 'ArrowDown' || key === 'ArrowRight') {
-            selectedIndex += 1;
+            index += 1;
         } else {
-            selectedIndex -= 1;
+            index -= 1;
         }
 
-        const maxIndex = this.get('options').length - 1;
-        if (selectedIndex > maxIndex) {
-            selectedIndex = 0;
-        } else if (selectedIndex < 0) {
-            selectedIndex = maxIndex;
+        const options = this.get('options');
+        const maxIndex = options.length - 1;
+        if (index > maxIndex) {
+            index = 0;
+        } else if (index < 0) {
+            index = maxIndex;
         }
-        this._settingFromInput = true;
-        this.set('selectedIndex', selectedIndex);
-        this._settingFromInput = false;
+
+        this.userDidInput(options[index].value);
     }.on('keydown'),
 });
 
