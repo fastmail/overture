@@ -163,8 +163,16 @@ const RadioGroupView = Class({
                 layer.removeChild(layer.lastElementChild);
             }
 
+            const value = this.get('value');
+            this.selectedIndex = options.findIndex((option) => {
+                return isEqual(value, option.value);
+            });
+
             this._domControls = [];
             appendChildren(layer, options.map(this.drawOption, this));
+
+            this.redrawTabIndex();
+
 
             if (this.get('isFocused')) {
                 this.focus();
