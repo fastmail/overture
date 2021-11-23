@@ -240,7 +240,7 @@ const TextInputView = Class({
         if (isValue && this.get('isExpanding')) {
             this.propertyNeedsRedraw(self, 'textHeight', oldValue);
         }
-    }.observes('isExpanding', 'placeholder'),
+    }.observes('value', 'isExpanding', 'placeholder'),
 
     /**
         Method: O.TextInputView#redrawPlaceholder
