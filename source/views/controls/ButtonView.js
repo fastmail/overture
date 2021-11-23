@@ -355,6 +355,7 @@ const ButtonView = Class({
         const key = lookupKey(event);
         if (key === 'Enter' || key === 'Space') {
             this.activate(event);
+            event.preventDefault();
             // Don't want to trigger global keyboard shortcuts
             event.stopPropagation();
         }
