@@ -38,12 +38,12 @@ const AbstractControlView = Class({
 
     /**
         Property: O.AbstractControlView#tabIndex
-        Type: Number|undefined
-        Default: undefined
+        Type: Number
+        Default: 0
 
         If set, this will become the tab index for the control.
     */
-    tabIndex: undefined,
+    tabIndex: 0,
 
     /**
         Property: O.AbstractControlView#type
@@ -108,10 +108,7 @@ const AbstractControlView = Class({
 
     abstractControlNeedsRedraw: function (self, property, oldValue) {
         return this.propertyNeedsRedraw(self, property, oldValue);
-    }.observes(
-        'isDisabled',
-        'tabIndex',
-    ),
+    }.observes('isDisabled', 'tabIndex'),
 
     /**
         Method: O.AbstractControlView#redrawIsDisabled
@@ -130,10 +127,7 @@ const AbstractControlView = Class({
         property of the view.
     */
     redrawTabIndex() {
-        const tabIndex = this.get('tabIndex');
-        if (tabIndex !== undefined) {
-            this._domControl.tabIndex = tabIndex;
-        }
+        this._domControl.tabIndex = this.get('tabIndex');
     },
 
     // --- Focus ---
