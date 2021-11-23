@@ -106,7 +106,7 @@ const SelectView = Class({
                 this.blur();
             }
             const oldControl = this._domControl;
-            layer.replaceChild(this.drawControl(), oldControl);
+            oldControl.parentNode.replaceChild(this.drawControl(), oldControl);
             if (isFocused) {
                 this.focus();
             }
