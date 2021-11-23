@@ -35,6 +35,7 @@ export {
     TouchScrollView,
 } from './containers/TouchScrollView.js';
 export { AbstractControlView } from './controls/AbstractControlView.js';
+export { Activatable } from './controls/Activatable.js';
 export { ButtonView } from './controls/ButtonView.js';
 export { CheckboxView } from './controls/CheckboxView.js';
 export { ClearSearchButtonView } from './controls/ClearSearchButtonView.js';
