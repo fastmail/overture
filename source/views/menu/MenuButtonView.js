@@ -150,6 +150,7 @@ const MenuButtonView = Class({
                 !!event && !!event.type && event.type.startsWith('key');
             this.set('isActive', true);
             const buttonView = this;
+            const wasFocused = this.get('isFocused');
             const menuView = this.get('menuView');
             let popOverView;
             let menuOptionView;
@@ -160,7 +161,9 @@ const MenuButtonView = Class({
                     alignEdge: this.get('alignMenu'),
                     onHide() {
                         buttonView.set('isActive', false);
-                        buttonView.fire('focusAfterMenu');
+                        if (wasFocused) {
+                            buttonView.fire('focusAfterMenu');
+                        }
                         if (menuOptionView) {
                             menuOptionView.removeObserverForKey(
                                 'isFocused',
