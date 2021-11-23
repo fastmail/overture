@@ -1,5 +1,4 @@
 import {
-    classes,
     meta,
     mixin,
     OBJECT_DESTROYED,
@@ -41,14 +40,6 @@ const Obj = function (/* ...mixins */) {
         }
     }
     metadata.lifestage = OBJECT_INITIALISED;
-
-    // Store class instances for HMR
-    if (import.meta.hot && this.constructor.name) {
-        const klass = classes[this.constructor.name];
-        if (klass) {
-            klass.instances.add(this);
-        }
-    }
 };
 const ObjPrototype = Obj.prototype;
 ObjPrototype.constructor = Obj;
@@ -69,14 +60,6 @@ mixin(ObjPrototype, {
     constructor: Obj,
 
     destroy() {
-        // Remove stored references to this instance
-        if (import.meta.hot && this.constructor.name) {
-            const klass = classes[this.constructor.name];
-            if (klass) {
-                klass.instances.delete(this);
-            }
-        }
-
         const metadata = meta(this);
         const inits = metadata.inits;
         for (const method in inits) {
