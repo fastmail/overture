@@ -120,7 +120,10 @@ const ToggleView = Class({
         Update view state when the control state changes.
     */
     change: function (event) {
-        this.userDidInput(event.target.checked);
+        const target = event.target;
+        if (target === this._domControl) {
+            this.userDidInput(target.checked);
+        }
     }.on('change'),
 });
 
