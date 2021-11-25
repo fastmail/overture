@@ -126,7 +126,9 @@ const RadioGroupView = Class({
             description = this.drawDescription(description);
         }
 
-        const options = this.get('options').map(this.drawOption, this);
+        const options = el(`div.${this.get('baseClassName')}-options`, [
+            this.get('options').map(this.drawOption, this),
+        ]);
 
         this.redrawTabIndex();
 
