@@ -33,7 +33,7 @@ const RadioGroupView = Class({
         const value = this.get('value');
         return this.get('options').findIndex((option) => {
             return isEqual(value, option.value);
-        })
+        });
     }.property('value'),
 
     value: null,
@@ -77,7 +77,7 @@ const RadioGroupView = Class({
             },
         });
         this._domControls.push(control);
-        if (control.checked) {
+        if (!index || control.checked) {
             this._domControl = control;
         }
         return control;
@@ -197,10 +197,6 @@ const RadioGroupView = Class({
         }
 
         const control = this._domControls[index];
-        if (isChecked && control === this._domControl) {
-            return;
-        }
-
         const oldControl = this._domControl;
         oldControl.checked = false;
         oldControl.tabIndex = '-1';
