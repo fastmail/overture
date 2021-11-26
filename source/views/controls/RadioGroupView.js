@@ -156,13 +156,13 @@ const RadioGroupView = Class({
     redrawOptions(layer, oldOptions) {
         const options = this.get('options');
         if (!isEqual(options, oldOptions)) {
-            const baseElements = this.get('description') ? 2 : 1;
-            while (layer.childElementCount > baseElements) {
-                layer.removeChild(layer.lastElementChild);
-            }
-
             this._domControls = [];
-            appendChildren(layer, options.map(this.drawOption, this));
+            layer.replaceChild(
+                el(`div.${this.get('baseClassName')}-options`, [
+                    options.map(this.drawOption, this),
+                ]),
+                layer.lastChild,
+            );
 
             this.redrawTabIndex();
 
