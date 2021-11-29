@@ -90,13 +90,8 @@ const ToggleView = Class({
         this.redrawTabIndex(layer);
 
         return [
-            control,
-            label || description
-                ? el(`div.${this.get('baseClassName')}-text`, [
-                      label,
-                      description,
-                  ])
-                : null,
+            el(`div.${this.get('baseClassName')}-text`, [control, label]),
+            description,
         ];
     },
 
