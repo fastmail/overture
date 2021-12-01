@@ -53,15 +53,6 @@ const TextInputView = Class({
     isExpanding: false,
 
     /**
-        Property: O.TextInputView#isValid
-        Type: Boolean
-        Default: true
-
-        If false, an `invalid' class will be added to the view's class name.
-    */
-    isValid: true,
-
-    /**
         Property: O.TextInputView#isHighlighted
         Type: Boolean
         Default: false

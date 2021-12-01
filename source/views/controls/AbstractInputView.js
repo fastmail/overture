@@ -1,6 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
 import { AbstractControlView } from './AbstractControlView.js';
+import { REQUIRED } from '../../datastore/record/ValidationError.js';
 
 /* { on, observes } from */
 import '../../foundation/Decorators.js';
@@ -57,6 +58,33 @@ const AbstractInputView = Class({
     value: false,
 
     /**
+        Property: O.AbstractInputView#error
+        Type: ValidationError|null
+        Default: null
+
+        A validation error for this input.
+    */
+    error: null,
+
+    /**
+        Property: O.AbstractInputView#isValid
+        Type: Boolean
+        Default: true
+
+        If false, an `is-invalid' class will be added to the view's class name.
+    */
+    isValid: function (isValid) {
+        if (isValid !== undefined) {
+            return isValid;
+        }
+        const error = this.get('error');
+        if (error && error.type !== REQUIRED) {
+            return this.get('isFocused');
+        }
+        return true;
+    }.property('error', 'isFocused'),
+
+    /**
         Property: O.TextInputView#inputAttributes
         Type: Object
 
@@ -71,6 +99,24 @@ const AbstractInputView = Class({
     inputAttributes: {
         autocomplete: 'off',
     },
+
+    /**
+        Property: O.AbstractInputView#className
+        Type: String
+        Default: baseClassName
+
+        Overrides default in <O.View#className>.
+    */
+    className: function () {
+        const type = this.get('type');
+        return (
+            this.get('baseClassName') +
+            (this.get('isDisabled') ? ' is-disabled' : '') +
+            (this.get('isFocused') ? ' is-focused' : '') +
+            (this.get('isValid') ? '' : ' is-invalid') +
+            (type ? ' ' + type : '')
+        );
+    }.property('baseClassName', 'isDisabled', 'isFocused', 'isValid', 'type'),
 
     /**
         Method: O.AbstractInputView#drawControl

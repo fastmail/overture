@@ -65,23 +65,6 @@ const AbstractControlView = Class({
     baseClassName: '',
 
     /**
-        Property: O.ToggleView#className
-        Type: String
-        Default: baseClassName
-
-        Overrides default in <O.View#className>.
-    */
-    className: function () {
-        const type = this.get('type');
-        return (
-            this.get('baseClassName') +
-            (this.get('isDisabled') ? ' is-disabled' : '') +
-            (this.get('isFocused') ? ' is-focused' : '') +
-            (type ? ' ' + type : '')
-        );
-    }.property('baseClassName', 'isDisabled', 'isFocused', 'type'),
-
-    /**
         Method: O.AbstractControlView#didEnterDocument
 
         Overridden to drop focus before leaving the DOM.
