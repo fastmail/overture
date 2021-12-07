@@ -71,8 +71,14 @@ export default function langImport(options) {
                         return match;
                     }
                     const translations = options.idsInUse.map((id) => {
+                        const target = data[id];
+                        if (!target) {
+                            throw new Error(
+                                `Couldn't find a string for: ${id}`
+                            );
+                        }
                         return compileTranslation(
-                            JSON.parse(data[id]),
+                            JSON.parse(target),
                             fallbackRules,
                         );
                     });
