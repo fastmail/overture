@@ -390,6 +390,12 @@ const ToolbarView = Class({
             }
         }
     },
+
+    preventOverlapDidChange: function () {
+        if (this.get('preventOverlap') && this.get('isInDocument')) {
+            this.preMeasure().postMeasure().computedPropertyDidChange('left');
+        }
+    }.observes('preventOverlap'),
 });
 
 ToolbarView.OverflowMenuView = OverflowMenuView;
