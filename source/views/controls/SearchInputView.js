@@ -60,7 +60,7 @@ const SearchInputView = Class({
             when(this, 'value')
                 .show([
                     new ClearSearchButtonView({
-                        label: loc('Clear Search'),
+                        label: loc('Clear search'),
                         target: this,
                         method: 'reset',
                     }),

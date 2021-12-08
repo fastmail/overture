@@ -498,8 +498,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('size'),
-                    label: loc('Text Size'),
-                    tooltip: loc('Text Size'),
+                    label: loc('Text size'),
+                    tooltip: loc('Text size'),
                     target: this,
                     method: 'showFontSizeMenu',
                 }),
@@ -507,8 +507,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('font'),
-                    label: loc('Font Face'),
-                    tooltip: loc('Font Face'),
+                    label: loc('Font face'),
+                    tooltip: loc('Font face'),
                     target: this,
                     method: 'showFontFaceMenu',
                 }),
@@ -516,8 +516,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('color'),
-                    label: loc('Text Color'),
-                    tooltip: loc('Text Color'),
+                    label: loc('Text color'),
+                    tooltip: loc('Text color'),
                     target: this,
                     method: 'showTextColorMenu',
                 }),
@@ -525,8 +525,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('bgcolor'),
-                    label: loc('Text Highlight'),
-                    tooltip: loc('Text Highlight'),
+                    label: loc('Text highlight'),
+                    tooltip: loc('Text highlight'),
                     target: this,
                     method: 'showTextHighlightColorMenu',
                 }),
@@ -551,9 +551,9 @@ const RichTextView = Class({
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('code'),
                     isActive: bind(this, 'isCode'),
-                    label: loc('Preformatted Text'),
+                    label: loc('Preformatted text'),
                     tooltip:
-                        loc('Preformatted Text') +
+                        loc('Preformatted text') +
                         '\n' +
                         formatKeyForPlatform('Cmd-d'),
                     activate() {
@@ -569,8 +569,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-FileButton v-Button--iconOnly',
                     icon: this.getIcon('image'),
-                    label: loc('Insert Image'),
-                    tooltip: loc('Insert Image'),
+                    label: loc('Insert image'),
+                    tooltip: loc('Insert image'),
                     acceptMultiple: true,
                     acceptOnlyTypes: 'image/jpeg, image/png, image/gif',
                     target: this,
@@ -580,8 +580,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('image'),
-                    label: loc('Insert Image'),
-                    tooltip: loc('Insert Image'),
+                    label: loc('Insert image'),
+                    tooltip: loc('Insert image'),
                     target: this,
                     method: 'showInsertImageOverlay',
                 }),
@@ -642,8 +642,8 @@ const RichTextView = Class({
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('ltr'),
                     isActive: bind(this, 'direction', isEqualToValue('ltr')),
-                    label: loc('Text Direction: Left to Right'),
-                    tooltip: loc('Text Direction: Left to Right'),
+                    label: loc('Text direction: left to right'),
+                    tooltip: loc('Text direction: left to right'),
                     activate() {
                         richTextView.setTextDirection('ltr');
                         this.fire('button:activate');
@@ -654,8 +654,8 @@ const RichTextView = Class({
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('rtl'),
                     isActive: bind(this, 'direction', isEqualToValue('rtl')),
-                    label: loc('Text Direction: Right to Left'),
-                    tooltip: loc('Text Direction: Right to Left'),
+                    label: loc('Text direction: right to left'),
+                    tooltip: loc('Text direction: right to left'),
                     activate() {
                         richTextView.setTextDirection('rtl');
                         this.fire('button:activate');
@@ -686,9 +686,9 @@ const RichTextView = Class({
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('ul'),
                     isActive: bind(this, 'isUnorderedList'),
-                    label: loc('Unordered List'),
+                    label: loc('Unordered list'),
                     tooltip:
-                        loc('Unordered List') +
+                        loc('Unordered list') +
                         '\n' +
                         formatKeyForPlatform('Cmd-Shift-8'),
                     activate() {
@@ -705,9 +705,9 @@ const RichTextView = Class({
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('ol'),
                     isActive: bind(this, 'isOrderedList'),
-                    label: loc('Ordered List'),
+                    label: loc('Ordered list'),
                     tooltip:
-                        loc('Ordered List') +
+                        loc('Ordered list') +
                         '\n' +
                         formatKeyForPlatform('Cmd-Shift-9'),
                     activate() {
@@ -723,8 +723,8 @@ const RichTextView = Class({
                     tabIndex: -1,
                     type: 'v-Button--iconOnly',
                     icon: this.getIcon('unformat'),
-                    label: loc('Clear Formatting'),
-                    tooltip: loc('Clear Formatting'),
+                    label: loc('Clear formatting'),
+                    tooltip: loc('Clear formatting'),
                     activate() {
                         richTextView.removeAllFormatting();
                         this.fire('button:activate');
@@ -909,7 +909,7 @@ const RichTextView = Class({
         return new URLPickerView({
             prompt: loc('Add a link to the following URL or email:'),
             placeholder: 'e.g. www.example.com',
-            confirm: loc('Add Link'),
+            confirm: loc('Add link'),
             add() {
                 let url = this.get('value').trim();
                 let email;
@@ -951,7 +951,7 @@ const RichTextView = Class({
         return new URLPickerView({
             prompt: loc('Insert an image from the following URL:'),
             placeholder: 'e.g. https://example.com/path/to/image.jpg',
-            confirm: loc('Insert Image'),
+            confirm: loc('Insert image'),
             add() {
                 let url = this.get('value').trim();
                 if (!/^(?:https?|data):/i.test(url)) {
