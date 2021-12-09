@@ -1,6 +1,6 @@
 /*global document, getComputedStyle */
 
-import { Class } from '../../core/Core.js';
+import { meta, Class } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el, nearest } from '../../dom/Element.js';
 import { browser } from '../../ua/UA.js';
@@ -457,6 +457,13 @@ const TextInputView = Class({
             this.blur();
         }
     }.on('keyup'),
+});
+
+/* Don't redraw when the user is typing; we handle redrawing value in
+   textNeedsRedraw so remove the abstractInputView observer */
+meta(TextInputView.prototype).removeObserver('value', {
+    object: null,
+    method: 'abstractInputNeedsRedraw',
 });
 
 export { TextInputView };
