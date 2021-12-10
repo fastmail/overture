@@ -1,5 +1,4 @@
 import { Class } from '../../core/Core.js';
-import { create as el } from '../../dom/Element.js';
 import { ToggleView } from './ToggleView.js';
 
 /* { property, observes } from */
