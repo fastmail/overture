@@ -1,12 +1,12 @@
 /*global document */
 
 import { linear } from '../animation/Easing.js';
-import { nearest } from '../dom/Element.js';
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
 import { RootView } from '../views/RootView.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
+import { CheckboxView } from '../views/controls/CheckboxView.js';
 
 const IDLE = 0;
 const DETECT = 1;
@@ -313,12 +313,7 @@ const itemListTouchSelect = {
                 if (
                     numTouches === 2 ||
                     (view.get('selection').get('length') &&
-                        nearest(
-                            event.target,
-                            (node) =>
-                                node.classList.contains('app-listItem-box'),
-                            event.targetView.get('layer'),
-                        ))
+                        event.targetView instanceof CheckboxView)
                 ) {
                     this.goDetect(event, view);
                 }
