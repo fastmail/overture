@@ -411,10 +411,15 @@ const PopOverView = Class({
         }
     },
 
-    clickedOutside() {
+    clickedOutside(event) {
         let view = this;
         let parent;
-        while ((parent = view.get('parentPopOverView'))) {
+        // if we're clicking part of the parent popOver, close its children and
+        // keep it open.
+        while (
+            (parent = view.get('parentPopOverView')) &&
+            !parent.get('layer').contains(event.target)
+        ) {
             view = parent;
         }
         view.softHide();
