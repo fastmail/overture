@@ -402,7 +402,7 @@ const TextInputView = Class({
     */
     syncBackValue: function () {
         this._settingFromInput = true;
-        this.set('value', this._domControl.value);
+        this.userDidInput(this._domControl.value);
         this._settingFromInput = false;
     }.on('input'),
 
