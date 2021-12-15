@@ -1,5 +1,5 @@
 import { Class } from '../../core/Core.js';
-import { create as el } from '../../dom/Element.js';
+import { create as el, nearest } from '../../dom/Element.js';
 import { AbstractInputView } from './AbstractInputView.js';
 
 /**
@@ -115,8 +115,10 @@ const ToggleView = Class({
         Update view state when the control state changes.
     */
     click: function (event) {
-        console.log(event);
-        if (event.targetView === this) {
+        if (
+            event.targetView === this &&
+            !nearest(event.target, 'A', this.get('layer'))
+        ) {
             event.preventDefault();
             this.userDidInput(!this.get('value'), event);
         }
