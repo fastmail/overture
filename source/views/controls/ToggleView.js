@@ -120,7 +120,9 @@ const ToggleView = Class({
             !nearest(event.target, 'A', this.get('layer'))
         ) {
             event.preventDefault();
-            this.userDidInput(!this.get('value'), event);
+            if (!this.get('isDisabled')) {
+                this.userDidInput(!this.get('value'), event);
+            }
         }
     }.on('click'),
 });
