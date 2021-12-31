@@ -343,7 +343,10 @@ Object.assign(RecordAttribute.prototype, {
         } else {
             currentAttrValue = this.defaultValue;
         }
-        return currentAttrValue !== null && Type && Type.fromJSON
+        return currentAttrValue !== null &&
+            currentAttrValue !== undefined &&
+            Type &&
+            Type.fromJSON
             ? Type.fromJSON(currentAttrValue)
             : currentAttrValue;
     },
