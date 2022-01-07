@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const prettier = require('prettier');
 
-/* globals require, process */
+/* globals console, require, process */
 
 const loadCSV = (pathToCsv) =>
     fs
@@ -30,10 +30,17 @@ const locCSVToJson = () => {
 
     csv.forEach((line) => {
         const id = line[0];
+        if (id === "String ID") {
+            return;
+        }
         const translation = line[2];
         const target = lang[id];
+        if (!translation) {
+            return;
+        }
         if (!target) {
-            throw new Error(`${id} does not exist in target dictionary.`);
+            console.log(`${id} does not exist in target dictionary.`);
+            return;
         }
         target.translation = translation;
         if (target.flags && target.flags.includes("fuzzy")) {
