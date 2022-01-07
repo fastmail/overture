@@ -565,9 +565,13 @@ const updatePo = function (
 const dbToPo = function (englishDbPath, outputPoPath, /* makePot */) {
     const db = parseDb(fs.readFileSync(englishDbPath, 'utf8'));
 
+    const addFuzzy = outputPoPath.slice(-10) !== 'en.lang.js';
+
     Object.keys(db).forEach((key) => {
         db[key].translation = '';
-        db[key].flags = ['fuzzy'];
+        if (addFuzzy) {
+            db[key].flags = ['fuzzy'];
+        }
     });
 
     fs.writeFileSync(outputPoPath, stringify(db));
