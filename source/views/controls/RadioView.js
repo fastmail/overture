@@ -37,6 +37,10 @@ const RadioView = Class({
             name: this.get('name'),
         }));
     },
+
+    userDidInput() {
+        this.set('value', true);
+    },
 });
 
 export { RadioView };
