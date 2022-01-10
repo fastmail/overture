@@ -1,5 +1,5 @@
 import { Class, isEqual } from '../../core/Core.js';
-import { appendChildren, create as el } from '../../dom/Element.js';
+import { create as el } from '../../dom/Element.js';
 import { AbstractInputView } from './AbstractInputView.js';
 
 // ---
