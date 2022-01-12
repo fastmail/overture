@@ -622,7 +622,9 @@ Element.prototype.set = function (key, value) {
     } else if (value == null) {
         this.removeAttribute(key);
     } else if (key === '+class') {
-        this.classList.add(...value.split(/[ .]/));
+        // IE doesn't support classList on SVGs
+        // this.classList.add(...value.split(/[ .]/));
+        this.set('class', this.get('class') + ' ' + value);
     } else {
         this.setAttribute(key, '' + value);
     }
