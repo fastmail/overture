@@ -73,8 +73,6 @@ const RootView = Class({
             'wheel',
             'cut',
             'submit',
-            'focusin',
-            'focusout',
         ];
         for (let l = events.length; l--; ) {
             node.addEventListener(

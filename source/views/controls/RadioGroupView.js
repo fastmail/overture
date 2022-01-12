@@ -212,7 +212,7 @@ const RadioGroupView = Class({
     },
 
     /**
-        Method (private): O.AbstractControlView#_updateIsFocused
+        Method (private): O.RadioGroupView#_updateIsFocused
 
         Updates the <#isFocused> property.
 
@@ -220,12 +220,12 @@ const RadioGroupView = Class({
             event - {Event} The focus event.
     */
     _updateIsFocused: function (event) {
-        if (event.type === 'focusin') {
+        if (event.type === 'focus') {
             this.set('isFocused', true);
         } else if (!this.get('layer').contains(event.relatedTarget)) {
             this.set('isFocused', false);
         }
-    }.on('focusin', 'focusout'),
+    }.on('focus', 'blur'),
 
     keydown: function (event) {
         const key = event.key;
