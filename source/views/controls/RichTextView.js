@@ -65,27 +65,27 @@ const URLPickerView = Class({
 
     value: '',
 
-    className: 'v-UrlPicker',
+    className: 'v-UrlPicker u-p-5 u-space-y-4',
 
     draw(/* layer */) {
         return [
-            el('h3.u-font-bold', [this.get('prompt')]),
             (this._input = new TextInputView({
+                label: this.get('prompt'),
                 value: bindTwoWay(this, 'value'),
                 placeholder: this.get('placeholder'),
             })),
-            el('p.u-text-right', [
+            el('p.u-flex.u-space-x-2', [
+                new ButtonView({
+                    type: 'v-Button--cta v-Button--size13',
+                    label: this.get('confirm'),
+                    target: this,
+                    method: 'add',
+                }),
                 new ButtonView({
                     type: 'v-Button--standard v-Button--size13',
                     label: loc('Cancel'),
                     target: popOver,
                     method: 'hide',
-                }),
-                new ButtonView({
-                    type: 'v-Button--constructive v-Button--size13',
-                    label: this.get('confirm'),
-                    target: this,
-                    method: 'add',
                 }),
             ]),
         ];
