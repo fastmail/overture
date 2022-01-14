@@ -221,6 +221,7 @@ const ButtonView = Class({
             label = this.drawLabel(label);
             layer.replaceChild(label, this._domLabel);
             this._domLabel = label;
+            this.fire('button:resize');
         }
     },
 

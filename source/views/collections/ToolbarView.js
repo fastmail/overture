@@ -11,6 +11,10 @@ import { ViewEventsController } from '../ViewEventsController.js';
 
 import /* { property, observes } from */ '../../foundation/Decorators.js';
 
+// ---
+
+/*global window */
+
 const toView = function (name) {
     return name === '-'
         ? el('span.v-Toolbar-divider')
@@ -201,7 +205,10 @@ const ToolbarView = Class({
         if (this.get('preventOverlap')) {
             const rightConfig = this.get('rightConfig');
             const widths = this._widths;
-            let pxWidth = this.get('pxWidth');
+            let pxWidth = parseInt(
+                window.getComputedStyle(this.get('layer')).width,
+                10,
+            );
             if (!pxWidth) {
                 const rootView = this.getParent(RootView);
                 pxWidth = rootView ? rootView.get('pxWidth') : 1024;
@@ -274,6 +281,8 @@ const ToolbarView = Class({
                     ];
                 },
             })),
+            null,
+            'top',
         );
         return this;
     },
@@ -395,7 +404,10 @@ const ToolbarView = Class({
         if (this.get('preventOverlap') && this.get('isInDocument')) {
             this.preMeasure().postMeasure().computedPropertyDidChange('left');
         }
-    }.observes('preventOverlap'),
+    }
+        .queue('after')
+        .observes('preventOverlap')
+        .on('button:resize'),
 });
 
 ToolbarView.OverflowMenuView = OverflowMenuView;
