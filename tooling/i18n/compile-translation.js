@@ -1,5 +1,3 @@
-import prettier from 'prettier';
-
 const flatten = function (output, item) {
     if (item instanceof Array) {
         item.reduce(flatten, output);
@@ -852,17 +850,10 @@ const compile = function (id, code, stringIds, outputTranslationsAsFn = true) {
         code.replace('export default ', '(function () {return ') + '})();',
     );
     const data = makeLocale(id, stringIds, idToEntry, outputTranslationsAsFn);
-    const generatedCode = prettier.format(
+    const generatedCode =
         '/* eslint-disable import/no-default-export */\nexport default ' +
-            stringify(data),
-        {
-            singleQuote: false,
-            tabWidth: 4,
-            quoteProps: 'as-needed',
-            trailingComma: 'all',
-            parser: 'babel',
-        },
-    );
+        stringify(data) +
+        ';';
     return {
         code: generatedCode,
         map: { mappings: '' },

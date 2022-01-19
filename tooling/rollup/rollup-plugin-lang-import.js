@@ -1,5 +1,4 @@
 import { createFilter } from '@rollup/pluginutils';
-import prettier from 'prettier';
 
 import { compile, compileTranslation } from '../i18n/compile-translation.js';
 
@@ -82,18 +81,7 @@ export default function langImport(options) {
                             fallbackRules,
                         );
                     });
-                    return (
-                        'translations: ' +
-                        prettier
-                            .format('[' + translations + ']', {
-                                singleQuote: false,
-                                tabWidth: 4,
-                                quoteProps: 'as-needed',
-                                trailingComma: 'all',
-                                parser: 'babel',
-                            })
-                            .replace('];', ']}')
-                    );
+                    return 'translations: [' + translations + ']};';
                 },
             );
 
