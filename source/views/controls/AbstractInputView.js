@@ -136,28 +136,21 @@ const AbstractInputView = Class({
         return el('p', [description]);
     },
 
-    /**
-        Method: O.AbstractInputView#draw
+    drawHelp() {
+        const description = this.get('description');
+        return description ? this.drawDescription(description) : null;
+    },
 
-        Overridden to set properties and add label. See <O.View#draw>.
-    */
     draw(layer) {
-        const control = this.drawControl();
-
-        let label = this.get('label');
-        if (label) {
-            label = this.drawLabel(label);
-        }
-
-        let description = this.get('description');
-        if (description) {
-            description = this.drawDescription(description);
-        }
+        const controlEl = this.drawControl();
+        const label = this.get('label');
+        const labelEl = label ? this.drawLabel(label) : null;
+        const descriptionEl = this.drawHelp();
 
         this.redrawInputAttributes(layer);
         this.redrawTabIndex(layer);
 
-        return [label, control, description];
+        return [labelEl, controlEl, descriptionEl];
     },
 
     // --- Keep render in sync with state ---
