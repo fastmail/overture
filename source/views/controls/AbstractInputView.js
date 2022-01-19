@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
+import { REQUIRED } from '../../datastore/record/ValidationError.js';
 import { create as el } from '../../dom/Element.js';
 import { AbstractControlView } from './AbstractControlView.js';
-import { REQUIRED } from '../../datastore/record/ValidationError.js';
 
 /* { on, observes } from */
 import '../../foundation/Decorators.js';
@@ -85,7 +85,7 @@ const AbstractInputView = Class({
     }.property('error', 'isFocused'),
 
     /**
-        Property: O.TextInputView#inputAttributes
+        Property: O.AbstractInputView#inputAttributes
         Type: Object
 
         Extra attributes to add to the text view. Examples include:
@@ -167,7 +167,7 @@ const AbstractInputView = Class({
     }.observes('inputAttributes', 'name', 'value'),
 
     /**
-        Method: O.TextInputView#redrawInputAttributes
+        Method: O.AbstractInputView#redrawInputAttributes
 
         Updates any other properties of the `<input>` element.
     */
