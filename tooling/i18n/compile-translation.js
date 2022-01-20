@@ -525,10 +525,15 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
         }
         case 'uk':
         case 'ru': {
-            pluralise = function (number, one, few, many) {
+            pluralise = function (number, one, few, many, other) {
                 const ones = number % 10;
                 const tens = number % 100;
-                if (ones === 1 && tens !== 11) {
+                if (other && Math.floor(number) !== number) {
+                    return other.replace(
+                        '%n',
+                        this.getFormattedInt(number, this),
+                    )
+                } else if (ones === 1 && tens !== 11) {
                     return one.replace(
                         '%n',
                         this.getFormattedInt(number, this),
