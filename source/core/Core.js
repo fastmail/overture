@@ -6,8 +6,6 @@
     the default types and class creation functionality.
 */
 
-import { invoke } from '../foundation/RunLoop.js';
-
 /**
     Function: O.meta
 
