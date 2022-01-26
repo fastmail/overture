@@ -420,7 +420,7 @@ const RichTextView = Class({
         const showToolbar = this.get('showToolbar');
 
         return new ToolbarView({
-            className: 'v-Toolbar v-RichText-toolbar',
+            className: 'v-Toolbar v-Toolbar--preventOverlap v-RichText-toolbar',
             positioning: 'sticky',
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
         })
