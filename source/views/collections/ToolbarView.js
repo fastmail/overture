@@ -205,10 +205,16 @@ const ToolbarView = Class({
         if (this.get('preventOverlap')) {
             const rightConfig = this.get('rightConfig');
             const widths = this._widths;
-            let pxWidth = parseInt(
-                window.getComputedStyle(this.get('layer')).width,
-                10,
-            );
+            const computedWidth = window.getComputedStyle(
+                this.get('layer'),
+            ).width;
+            // If not yet laid out by the browser, this will return either the
+            // empty string (if not in the document), or sometimes a %
+            // (e.g. "100%") if display:none; neither are usable, so treat both
+            // as 0 and get fallback width instead.
+            let pxWidth = computedWidth.endsWith('px')
+                ? parseInt(computedWidth, 10)
+                : 0;
             if (!pxWidth) {
                 const rootView = this.getParent(RootView);
                 pxWidth = rootView ? rootView.get('pxWidth') : 1024;
