@@ -35,7 +35,7 @@ import '../../foundation/Decorators.js';
             ]),
             el( 'div.actions', [
                 new O.ButtonView({
-                    type: 'v-Button--danger v-Button--size13',
+                    type: 'v-Button--danger v-Button--sizeM',
                     icon: el( 'i.icon.icon-redpill' ),
                     isDisabled: O.bind( controller, 'isNeo' ),
                     label: 'The Red Pill',
@@ -43,7 +43,7 @@ import '../../foundation/Decorators.js';
                     method: 'abort'
                 }),
                 new O.ButtonView({
-                    type: 'v-Button--cta v-Button--size13',
+                    type: 'v-Button--cta v-Button--sizeM',
                     icon: el( 'i.icon.icon-bluepill' ),
                     label: 'The Blue Pill',
                     target: controller,

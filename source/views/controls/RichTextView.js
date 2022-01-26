@@ -76,13 +76,13 @@ const URLPickerView = Class({
             })),
             el('p.u-flex.u-space-x-2', [
                 new ButtonView({
-                    type: 'v-Button--cta v-Button--size13',
+                    type: 'v-Button--cta v-Button--sizeM',
                     label: this.get('confirm'),
                     target: this,
                     method: 'add',
                 }),
                 new ButtonView({
-                    type: 'v-Button--standard v-Button--size13',
+                    type: 'v-Button--standard v-Button--sizeM',
                     label: loc('Cancel'),
                     target: popOver,
                     method: 'hide',
