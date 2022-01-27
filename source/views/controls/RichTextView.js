@@ -110,7 +110,7 @@ const URLPickerView = Class({
         if (lookupKey(event) === 'Enter') {
             this.add();
         }
-    }.on('keyup'),
+    }.on('keypress'),
 });
 
 const RichTextView = Class({
