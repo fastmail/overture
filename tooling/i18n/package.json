@@ -1,3 +1,12 @@
 {
-    "type": "module"
+  "name": "overture-i18n-tools",
+  "version": "1.0.0",
+  "bin": {
+    "db-to-lang": "./db-to-lang.js",
+    "update-lang": "./update-lang.js"
+  },
+  "dependencies": {
+    "prettier": "^2.5.1"
+  },
+  "type": "module"
 }

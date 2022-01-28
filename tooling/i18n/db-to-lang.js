@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { writeFileSync, readFileSync } from 'fs';
 import prettier from 'prettier';
 
