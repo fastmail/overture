@@ -421,6 +421,7 @@ const RichTextView = Class({
 
         return new ToolbarView({
             className: 'v-Toolbar v-Toolbar--preventOverlap v-RichText-toolbar',
+            overflowMenuType: '',
             positioning: 'sticky',
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
         })
