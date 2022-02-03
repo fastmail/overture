@@ -246,7 +246,11 @@ const ToolbarView = Class({
                     i -= 1;
                 }
 
-                this._views.overflow.set(
+                const overflowMenuButton = this._views.overflow;
+                if (overflowMenuButton.get('isActive')) {
+                    overflowMenuButton.get('popOverView').hide();
+                }
+                overflowMenuButton.set(
                     'menuView',
                     new MenuView({
                         showFilter: false,
