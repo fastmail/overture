@@ -262,17 +262,19 @@ Object.assign(Function.prototype, {
         Method: Function#queue
 
         Parameters:
-            queue - {String} The name of the queue to add calls to this function
-                    to.
+            queue     - {String} The name of the queue to add calls to this
+                        function to.
+            allowDups - {Boolean} (optional). If true, the object/method will be
+                        added to the queue even if already present.
 
         Returns:
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.queueFn>.
     */
-    queue(queue) {
+    queue(queue, allowDups) {
         const fn = this;
         return function () {
-            queueFn(queue, fn, this);
+            queueFn(queue, fn, this, allowDups);
             return this;
         };
     },
@@ -280,14 +282,18 @@ Object.assign(Function.prototype, {
     /**
         Method: Function#nextLoop
 
+        Parameters:
+            allowDups - {Boolean} (optional). If true, the object/method will be
+                        added to the queue even if already present.
+
         Returns:
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextEventLoop>.
     */
-    nextLoop() {
+    nextLoop(allowDups) {
         const fn = this;
         return function () {
-            invokeInNextEventLoop(fn, this);
+            invokeInNextEventLoop(fn, this, allowDups);
             return this;
         };
     },
@@ -295,14 +301,18 @@ Object.assign(Function.prototype, {
     /**
         Method: Function#nextFrame
 
+        Parameters:
+            allowDups - {Boolean} (optional). If true, the object/method will be
+                        added to the queue even if already present.
+
         Returns:
             {Function} Returns wrapper that passes calls to
             <O.RunLoop.invokeInNextFrame>.
     */
-    nextFrame() {
+    nextFrame(allowDups) {
         const fn = this;
         return function () {
-            invokeInNextFrame(fn, this);
+            invokeInNextFrame(fn, this, allowDups);
             return this;
         };
     },
