@@ -177,8 +177,9 @@ const GlobalKeyboardShortcuts = Class({
 
         Parameters:
             event - {DOMEvent} The keydown/keypress event.
+            accept - {Function} (optional) A function that returns a Boolean to determine whether the handler should be run for the event.
     */
-    trigger: function (event) {
+    trigger: function (event, accept) {
         const target = event.target;
         const nodeName = target.nodeName;
         const key = lookupKey(event);
@@ -197,6 +198,8 @@ const GlobalKeyboardShortcuts = Class({
         }
         const handler = this.getHandlerForKey(key);
         if (handler) {
+            const accepted = accept ? accept(handler) : true;
+            if (!accepted) return;
             const ifInput = handler[2];
             if (
                 inputIsFocused &&

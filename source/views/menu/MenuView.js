@@ -197,6 +197,32 @@ const MenuView = Class({
         .nextFrame()
         .on('button:activate'),
 
+    _shortcutHandler(event) {
+        if (!this.get('showFilter')) {
+            const kbShortcuts = ViewEventsController.kbShortcuts;
+
+            const isMenuChild = (handler) => {
+                const object = handler[0];
+                // Check object is child view of the menu; we want to
+                // ignore any other keyboard shortcuts.
+                if (object instanceof View) {
+                    let parent = object;
+                    while (parent && parent !== this) {
+                        parent = parent.get('parentView');
+                    }
+                    if (parent) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            kbShortcuts.trigger(event, isMenuChild);
+        }
+    },
+
     keydown: function (event) {
         const key = lookupKey(event);
         const controller = this.get('controller');
@@ -223,32 +249,16 @@ const MenuView = Class({
                 }
                 break;
             default:
-                if (!this.get('showFilter')) {
-                    const kbShortcuts = ViewEventsController.kbShortcuts;
-                    const handler = kbShortcuts.getHandlerForKey(key);
-                    if (handler) {
-                        const object = handler[0];
-                        const method = handler[1];
-                        // Check object is child view of the menu; we want to
-                        // ignore any other keyboard shortcuts.
-                        if (object instanceof View) {
-                            let parent = object;
-                            while (parent && parent !== this) {
-                                parent = parent.get('parentView');
-                            }
-                            if (parent) {
-                                object[method](event);
-                                event.preventDefault();
-                                event.stopPropagation();
-                            }
-                        }
-                    }
-                }
+                this._shortcutHandler(event);
                 return;
         }
         event.preventDefault();
         event.stopPropagation();
     }.on('keydown'),
+
+    keypress: function (event) {
+        this._shortcutHandler(event);
+    }.on('keypress'),
 });
 
 export { MenuView };
