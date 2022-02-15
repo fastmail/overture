@@ -199,7 +199,9 @@ const GlobalKeyboardShortcuts = Class({
         const handler = this.getHandlerForKey(key);
         if (handler) {
             const accepted = accept ? accept(handler) : true;
-            if (!accepted) return;
+            if (!accepted) {
+                return;
+            }
             const ifInput = handler[2];
             if (
                 inputIsFocused &&
