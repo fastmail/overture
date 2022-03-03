@@ -1,4 +1,4 @@
-/*global DOMParser, window, document, navigator */
+/*global DOMParser, window, document */
 
 const NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
 
@@ -415,18 +415,6 @@ const INERT = 8;
 const DOM_INERT = DOM | INERT;
 const FRAGMENT_INERT = FRAGMENT | INERT;
 
-// Chrome Mobile will sometimes crash with error
-// "Failed to execute 'acceptNode' on 'NodeFilter':
-// The provided callback is no longer runnable."
-// if you pass a function instead of null.
-//
-// IE11 requires a function.
-const acceptAll = /Trident/.test(navigator.userAgent)
-    ? function () {
-          return 1; // NodeFilter.FILTER_ACCEPT
-      }
-    : null;
-
 class HTMLDefanger {
     constructor(mixin) {
         this.allowTags = TAGS_ALLOW;
@@ -443,25 +431,20 @@ class HTMLDefanger {
 
     defang(html, returnType) {
         let doc = null;
-        let documentElement;
         try {
             doc = new DOMParser().parseFromString(html, 'text/html');
         } catch (error) {}
-        if (
-            !doc ||
-            typeof doc.createNodeIterator !== 'function' ||
-            // In IE11, if parsing the empty string, you get a document with no
-            // children, not even an <html>.
-            !(documentElement = getElementsByTagName.call(doc, 'html')[0])
-        ) {
+        let documentElement =
+            doc && typeof doc.createNodeIterator === 'function'
+                ? getElementsByTagName.call(doc, 'html')[0]
+                : null;
+        if (!documentElement) {
             doc = document.implementation.createHTMLDocument('');
             documentElement = doc.documentElement;
         }
         const nodeIterator = doc.createNodeIterator(
             documentElement,
             129, // NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT
-            acceptAll, // Not optional in IE11
-            false, // Deprecated, but required in IE11
         );
         let baseNode = null;
         let currentNode;
