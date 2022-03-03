@@ -195,9 +195,6 @@ let userSelectProperty = 'user-select';
         if (browser === 'firefox') {
             userSelectProperty = '-moz-user-select';
             styleNames.userSelect = 'MozUserSelect';
-        } else if (browser === 'msie') {
-            userSelectProperty = '-ms-user-select';
-            styleNames.userSelect = 'msUserSelect';
         } else {
             userSelectProperty = '-webkit-user-select';
             styleNames.userSelect = 'WebkitUserSelect';

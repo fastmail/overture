@@ -119,12 +119,10 @@ const PopOverView = Class({
         let bFlex;
         let startDistance;
         let endDistance;
-        // 0% rather than 0 for IE11 compatibility due to Bug #4
-        // in https://github.com/philipwalton/flexbugs
         switch (alignEdge) {
             case 'top':
                 aFlex = '0 1 ' + (posTop + offsetTop) + 'px';
-                bFlex = '1 0 0%';
+                bFlex = '1 0 0';
                 break;
             case 'middle':
                 startDistance = Math.round(posTop + offsetTop + posHeight / 2);
@@ -132,15 +130,15 @@ const PopOverView = Class({
                     rootView.get('pxHeight') -
                     safeAreaInsetBottom -
                     startDistance;
-                aFlex = startDistance + ' 0 0%';
-                bFlex = endDistance + ' 0 0%';
+                aFlex = startDistance + ' 0 0';
+                bFlex = endDistance + ' 0 0';
                 calloutStyle =
                     'top:' +
                     (100 * startDistance) / (startDistance + endDistance) +
                     '%';
                 break;
             case 'bottom':
-                aFlex = '1 0 0%';
+                aFlex = '1 0 0';
                 bFlex =
                     '0 1 ' +
                     (rootView.get('pxHeight') -
@@ -149,20 +147,20 @@ const PopOverView = Class({
                 break;
             case 'left':
                 aFlex = '0 1 ' + (posLeft + offsetLeft) + 'px';
-                bFlex = '1 0 0%';
+                bFlex = '1 0 0';
                 break;
             case 'centre':
                 startDistance = Math.round(posLeft + offsetLeft + posWidth / 2);
                 endDistance = rootView.get('pxWidth') - startDistance;
-                aFlex = startDistance + ' 0 0%';
-                bFlex = endDistance + ' 0 0%';
+                aFlex = startDistance + ' 0 0';
+                bFlex = endDistance + ' 0 0';
                 calloutStyle =
                     'left:' +
                     (100 * startDistance) / (startDistance + endDistance) +
                     '%';
                 break;
             case 'right':
-                aFlex = '1 0 0%';
+                aFlex = '1 0 0';
                 bFlex =
                     '0 1 ' +
                     (rootView.get('pxWidth') -
