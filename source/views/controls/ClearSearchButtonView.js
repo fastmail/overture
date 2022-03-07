@@ -13,7 +13,9 @@ const ClearSearchButtonView = Class({
 
     baseClassName: 'v-ClearSearchButton',
 
-    tooltip: loc('Shortcut: {value1}', formatKeyForPlatform('Ctrl-/')),
+    tooltip: function () {
+        return loc('Shortcut: {value1}', formatKeyForPlatform('Ctrl-/'));
+    }.property(),
 
     // Alternatives are for AZERTY keyboard
     shortcut: 'Ctrl-/ Ctrl-Shift-/ Ctrl-Shift-:',
