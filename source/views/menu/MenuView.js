@@ -72,7 +72,8 @@ const MenuController = Class({
 
     expandFocused() {
         const focused = this.get('focused');
-        if (focused && focused.get('button') instanceof MenuButtonView) {
+        const button = focused ? focused.get('button') : null;
+        if (focused && button && button.get('activateOnMenuFocus')) {
             this.selectFocused();
         }
     },

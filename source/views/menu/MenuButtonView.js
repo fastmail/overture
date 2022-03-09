@@ -109,6 +109,15 @@ const MenuButtonView = Class({
         return this.get('parentView') instanceof MenuOptionView;
     }.property('parentView'),
 
+    /**
+        Property: O.MenuButtonView#activateOnMenuFocus
+        Type: Boolean
+
+        When nested within another menu, set to false to prevent menuView from
+        being activated when focused.
+    */
+    activateOnMenuFocus: true,
+
     // --- Accessibility ---
 
     didCreateLayer(layer) {
@@ -183,29 +192,37 @@ const MenuButtonView = Class({
             );
             if (this.get('isInMenu')) {
                 popOverView = this.getParent(PopOverView);
-                const preferLeft =
-                    popOverView.get('options').positionToThe === 'left';
-                const rootViewWidth = this.getParent(RootView).get('pxWidth');
-                const position = this.get('layer').getBoundingClientRect();
-                menuOptionView = this.get('parentView');
-                popOverOptions.alignWithView = popOverView;
-                popOverOptions.atNode = this.get('layer');
-                popOverOptions.positionToThe =
-                    preferLeft && position.left > position.width
-                        ? 'left'
-                        : !preferLeft &&
-                          rootViewWidth - position.right > position.width
-                        ? 'right'
-                        : position.left < rootViewWidth - position.right
-                        ? 'right'
-                        : 'left';
-                popOverOptions.keepInHorizontalBounds = true;
+                const parentOptions = popOverView.get('options');
                 popOverOptions.showCallout = false;
-                popOverOptions.alignEdge = 'top';
-                popOverOptions.offsetTop = popOverOptions.view.get('showFilter')
-                    ? -35
-                    : -5;
-                popOverOptions.offsetLeft = 0;
+                if (this.get('activateOnMenuFocus')) {
+                    const preferLeft = parentOptions.positionToThe === 'left';
+                    const rootViewWidth =
+                        this.getParent(RootView).get('pxWidth');
+                    const position = this.get('layer').getBoundingClientRect();
+                    menuOptionView = this.get('parentView');
+                    popOverOptions.alignWithView = popOverView;
+                    popOverOptions.atNode = this.get('layer');
+                    popOverOptions.positionToThe =
+                        preferLeft && position.left > position.width
+                            ? 'left'
+                            : !preferLeft &&
+                              rootViewWidth - position.right > position.width
+                            ? 'right'
+                            : position.left < rootViewWidth - position.right
+                            ? 'right'
+                            : 'left';
+                    popOverOptions.keepInHorizontalBounds = true;
+                    popOverOptions.alignEdge = 'top';
+                    popOverOptions.offsetTop = popOverOptions.view.get(
+                        'showFilter',
+                    )
+                        ? -35
+                        : -5;
+                    popOverOptions.offsetLeft = 0;
+                } else {
+                    popOverOptions.alignWithView = parentOptions.alignWithView;
+                    popOverOptions.atNode = parentOptions.atNode;
+                }
             } else {
                 popOverView = this.get('popOverView');
             }
