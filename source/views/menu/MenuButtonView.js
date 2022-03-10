@@ -166,11 +166,13 @@ const MenuButtonView = Class({
                             buttonView.fire('focusAfterMenu');
                         }
                         if (menuOptionView) {
-                            menuOptionView.removeObserverForKey(
-                                'isFocused',
-                                popOverView,
-                                'hide',
-                            );
+                            menuOptionView
+                                .get('controller')
+                                .removeObserverForKey(
+                                    'focused',
+                                    popOverView,
+                                    'hide',
+                                );
                         }
                         if (buttonView.get('destroyMenuViewOnClose')) {
                             menuView.destroy();
