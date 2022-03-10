@@ -81,7 +81,8 @@ const NestedStore = Class({
     */
     commitChanges() {
         this.fire('willCommit');
-        const { _created, _destroyed, _skToData, _skToChanged } = this;
+        const { _created, _destroyed, _skToData, _skToChanged, _skToType } =
+            this;
         const parent = this._parentStore;
 
         for (const storeKey in _created) {
@@ -96,24 +97,9 @@ const NestedStore = Class({
                 delete _skToData[storeKey];
                 parent.updateData(storeKey, data, true);
             } else {
-                const status = parent.getStatus(storeKey);
                 const data = _skToData[storeKey];
-                if (status === EMPTY || status === DESTROYED) {
-                    parent.createRecord(storeKey, data);
-                } else if (
-                    (status & ~(OBSOLETE | LOADING)) ===
-                    (DESTROYED | COMMITTING)
-                ) {
-                    parent._skToData[storeKey] = data;
-                    parent.setStatus(storeKey, READY | NEW | COMMITTING);
-                } else if (status & DESTROYED) {
-                    delete parent._destroyed[storeKey];
-                    parent._skToData[storeKey] = data;
-                    parent.setStatus(
-                        storeKey,
-                        (status & ~(DESTROYED | DIRTY)) | READY,
-                    );
-                }
+                const Type = _skToType[storeKey];
+                parent.undestroyRecord(storeKey, Type, data);
             }
         }
         for (const storeKey in _skToChanged) {
