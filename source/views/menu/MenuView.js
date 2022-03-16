@@ -12,7 +12,6 @@ import { ScrollView } from '../containers/ScrollView.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
-import { MenuButtonView } from './MenuButtonView.js';
 import { MenuFilterView } from './MenuFilterView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
@@ -73,7 +72,7 @@ const MenuController = Class({
     expandFocused() {
         const focused = this.get('focused');
         const button = focused ? focused.get('button') : null;
-        if (focused && button && button.get('activateOnMenuFocus')) {
+        if (button && button.get('activateOnMenuFocus')) {
             this.selectFocused();
         }
     },
