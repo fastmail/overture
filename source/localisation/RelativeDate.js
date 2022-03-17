@@ -151,5 +151,33 @@ Date.prototype.relativeTo = function (date, approx, mustNotBeFuture) {
     return isFuture ? loc('In {value1}', time) : loc('{value1} ago', time);
 };
 
+/**
+    Method: Date#relativeToByDay
+
+    Returns the difference in time between the date given in the sole
+    argument (or now if not supplied) and this date, in a human friendly,
+    localised form, with the day as the most significant unit. e.g. "today",
+    "5 days ago".
+
+    Parameters:
+        date   - {Date} Date to compare it to.
+
+    Returns:
+        {String} Relative date string.
+*/
+
+Date.prototype.relativeToByDay = function (date) {
+    if (!date) {
+        date = new Date();
+    }
+
+    const duration = date - this;
+    if (duration < 1000 * 60 * 60 * 24) {
+        return loc("Today").toLocaleLowerCase();
+    }
+
+    return this.relativeTo(date, true, true);
+}
+
 // TODO(cmorgan/modulify): do something about these exports:
 // Date#relativeTo, Date.formatDuration
