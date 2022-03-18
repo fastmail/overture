@@ -101,7 +101,10 @@ const generateLocalisedDateParser = function (locale, mode) {
     );
 
     const adjustSign = define('adjustSign', /^[+-]/);
-    const adjustUnit = define('adjustUnit', /^(?:day|week|month|year)|[dwmy]/i);
+    const adjustUnit = define(
+        'adjustUnit',
+        /^(?:day|week|month|year)|[dwmy](?!\w)/i,
+    );
     const adjustNumber = define('adjustNumber', /^\d+/);
     const adjust = sequence([
         optional(adjustSign),
