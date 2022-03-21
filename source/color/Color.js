@@ -243,13 +243,15 @@ class Color {
         let b;
         let parts;
         color = color.toLowerCase();
+        const startsWithOcto = color.charAt(0) === '#';
         if (cssColorNames.hasOwnProperty(color)) {
             const number = cssColorNames[color];
             r = getDoubleByte(number, 2);
             g = getDoubleByte(number, 1);
             b = getDoubleByte(number, 0);
-        } else if (color.charAt(0) === '#') {
-            const number = parseInt(color.slice(1), 16) || 0;
+        } else if (startsWithOcto || /^(?:[0-9a-f]{3}){1,2}$/i.test(color)) {
+            const number =
+                parseInt(startsWithOcto ? color.slice(1) : color, 16) || 0;
             const size = color.length;
             const getChannel = size < 6 ? getByteDoubled : getDoubleByte;
             let alphaOffset = 0;
