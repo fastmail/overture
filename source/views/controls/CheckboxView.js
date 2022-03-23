@@ -26,7 +26,7 @@ const CheckboxView = Class({
 
     drawControl() {
         const control = CheckboxView.parent.drawControl.call(this);
-        control.indeterminate = this.get('isIndeterminate');
+        this.redrawIsIndeterminate();
         return control;
     },
 
