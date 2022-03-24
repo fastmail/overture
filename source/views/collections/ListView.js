@@ -7,6 +7,7 @@ import { View } from '../View.js';
 import /* { property, observes } from */ '../../foundation/Decorators.js';
 
 const isFirefox = browser === 'firefox';
+const isMSIE = browser === 'msie';
 
 const byIndex = function (a, b) {
     return a.get('index') - b.get('index');
@@ -139,6 +140,11 @@ const ListView = Class({
         // value over 17895697px. log₂(that) is around 24.093.)
         if (isFirefox && height > 16777216) {
             height = 16777216;
+        }
+        // IE11 flat-out ignores a height value at or above 2³⁰−1 hundredths of
+        // a pixel (10737418.229999999999px is fine, 10737418.23px is ignored).
+        if (isMSIE && height >= 10737418.23) {
+            height = 10737418;
         }
         return itemHeight ? { height } : {};
     }.property('itemLayout', 'contentLength'),

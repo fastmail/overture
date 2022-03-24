@@ -79,11 +79,11 @@ export const isApple = isMac || isIOS;
     Property: O.UA.browser
     Type: String
 
-    The browser being run. "chrome", "firefox", "edge" or "safari".
+    The browser being run. "chrome", "firefox", "msie", "edge" or "safari".
 */
 export const browser = (/firefox|edge/.exec(ua) ||
     /chrome|safari/.exec(ua) ||
-    other)[0];
+    (/trident/.exec(ua) ? ['msie'] : other))[0];
 /**
     Property: O.UA.version
     Type: Number
