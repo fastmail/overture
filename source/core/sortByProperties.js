@@ -30,10 +30,22 @@ const sortByProperties = function (properties) {
     return function (a, b) {
         const hasGet = !!a.get;
         for (let i = 0; i < l; i += 1) {
-            const prop = properties[i];
-            const aVal = hasGet ? a.get(prop) : a[prop];
-            const bVal = hasGet ? b.get(prop) : b[prop];
+            let prop = properties[i];
+            let reverse = false;
+            if (prop.startsWith('-')) {
+                prop = prop.slice(1);
+                reverse = true;
+            }
+
+            let aVal = hasGet ? a.get(prop) : a[prop];
+            let bVal = hasGet ? b.get(prop) : b[prop];
             const type = typeof aVal;
+
+            if (reverse) {
+                const temp = aVal;
+                aVal = bVal;
+                bVal = temp;
+            }
 
             // Must be the same type
             if (type === typeof bVal) {
