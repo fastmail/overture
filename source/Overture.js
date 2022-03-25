@@ -79,7 +79,6 @@ export { KeyValue };
 export { Math };
 export { RegExp };
 
-export { Promise } from './foundation/Promise.js';
 export { Binding, bind, bindTwoWay } from './foundation/Binding.js';
 export { BoundProps } from './foundation/BoundProps.js';
 export { ComputedProps } from './foundation/ComputedProps.js';

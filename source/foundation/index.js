@@ -1,4 +1,3 @@
-export { Promise } from './Promise.js';
 export { Binding, bind, bindTwoWay } from './Binding.js';
 export { BoundProps } from './BoundProps.js';
 export { ComputedProps } from './ComputedProps.js';

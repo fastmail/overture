@@ -114,12 +114,12 @@ let _nextTimeout = MAX_SAFE_INTEGER;
 let _timer = null;
 
 /**
-    Property (private): O.RunLoop._depth
-    Type: Number
+    Property (private): O.RunLoop._willFlushQueues
+    Type: Boolean
 
-    Number of calls to <O.RunLoop.invoke> currently in stack.
+    Will we flush the queues at the end of this task?
 */
-let _depth = 0;
+let _willFlushQueues = false;
 
 /**
     Method: O.RunLoop.flushQueue
@@ -185,13 +185,21 @@ const flushAllQueues = () => {
                 if (!_queues.nextFrame.length) {
                     requestAnimationFrame(nextFrame);
                 }
-                return;
+                break;
             }
             flushQueue(queueName);
             i = 0;
         } else {
             i = i + 1;
         }
+    }
+    _willFlushQueues = false;
+};
+
+const needsFlushAllQueues = () => {
+    if (!_willFlushQueues) {
+        _willFlushQueues = true;
+        Promise.resolve().then(flushAllQueues);
     }
 };
 
@@ -223,7 +231,7 @@ const eraseAllQueues = () => {
     Returns:
         {O.RunLoop} Returns self.
 */
-const queueFn = (queue, fn, bind, allowDups) => {
+const addToQueue = (queue, fn, bind, allowDups) => {
     const toInvoke = _queues[queue];
     const l = toInvoke.length;
     // Log error here, as the stack trace is useless inside flushQueue.
@@ -245,6 +253,10 @@ const queueFn = (queue, fn, bind, allowDups) => {
         toInvoke[l] = [fn, bind];
     }
 };
+const queueFn = (queue, fn, bind, allowDups) => {
+    addToQueue(queue, fn, bind, allowDups);
+    needsFlushAllQueues();
+};
 
 /**
     Method: O.RunLoop.invoke
@@ -264,7 +276,6 @@ const queueFn = (queue, fn, bind, allowDups) => {
 */
 const invoke = (fn, bind, args) => {
     let returnValue;
-    _depth += 1;
     try {
         // Avoiding apply/call when not needed is faster
         if (args) {
@@ -276,13 +287,6 @@ const invoke = (fn, bind, args) => {
         }
     } catch (error) {
         didError(error);
-    }
-    if (_depth === 1) {
-        flushAllQueues();
-    }
-    _depth -= 1;
-    if (!_depth) {
-        processTimeouts();
     }
     return returnValue;
 };
@@ -307,7 +311,7 @@ const invokeInNextEventLoop = (fn, bind, allowDups) => {
     if (!_queues.nextLoop.length) {
         setTimeout(nextLoop, 0);
     }
-    return queueFn('nextLoop', fn, bind, allowDups);
+    return addToQueue('nextLoop', fn, bind, allowDups);
 };
 
 /**
@@ -329,7 +333,7 @@ const invokeInNextFrame = (fn, bind, allowDups) => {
     if (!_queues.nextFrame.length) {
         requestAnimationFrame(nextFrame);
     }
-    return queueFn('nextFrame', fn, bind, allowDups);
+    return addToQueue('nextFrame', fn, bind, allowDups);
 };
 
 /**
@@ -401,15 +405,9 @@ const _scheduleTimeout = (timeout) => {
     const time = timeout.time;
     if (time < _nextTimeout) {
         clearTimeout(_timer);
-        const delay = time - Date.now();
-        if (delay > 0) {
-            _timer = setTimeout(processTimeouts, delay);
-            _nextTimeout = time;
-        } else {
-            // No need to set a timeout, it will be processed at the end of
-            // this run loop.
-            _nextTimeout = MAX_SAFE_INTEGER;
-        }
+        const delay = Math.max(0, time - Date.now());
+        _timer = setTimeout(processTimeouts, delay);
+        _nextTimeout = time;
     }
 };
 
@@ -426,6 +424,10 @@ const processTimeouts = () => {
     const timeouts = _timeouts;
     const now = Date.now();
     let nextToSchedule = null;
+    // We'll schedule the next timeout after processing the expired ones,
+    // so set this to 0 to ensure no other timer set.
+    _nextTimeout = 0;
+    // Process eligible timeouts
     while (timeouts.length) {
         const timeout = timeouts.peek();
         if (timeout.time > now) {
@@ -440,22 +442,22 @@ const processTimeouts = () => {
         }
         invoke(timeout.fn, timeout.bind);
     }
-    if (nextToSchedule && nextToSchedule.time !== _nextTimeout) {
-        _nextTimeout = MAX_SAFE_INTEGER;
-        if (nextToSchedule.doNotSchedule) {
-            nextToSchedule = null;
-            timeouts.forEach((timeout) => {
-                if (
-                    !timeout.doNotSchedule &&
-                    (!nextToSchedule || nextToSchedule.time > timeout.time)
-                ) {
-                    nextToSchedule = timeout;
-                }
-            });
-        }
-        if (nextToSchedule) {
-            _scheduleTimeout(nextToSchedule);
-        }
+    if (nextToSchedule && nextToSchedule.doNotSchedule) {
+        nextToSchedule = null;
+        timeouts.forEach((timeout) => {
+            if (
+                !timeout.doNotSchedule &&
+                (!nextToSchedule || nextToSchedule.time > timeout.time)
+            ) {
+                nextToSchedule = timeout;
+            }
+        });
+    }
+    // Allow timeouts to be scheduled again
+    _nextTimeout = MAX_SAFE_INTEGER;
+    // And schedule one if needed
+    if (nextToSchedule) {
+        _scheduleTimeout(nextToSchedule);
     }
 };
 
@@ -513,6 +515,7 @@ const nextFrame = (time) => {
     frameStartTime = time;
     mayRedraw = true;
     invoke(flushQueue, null, ['nextFrame']);
+    flushAllQueues();
     mayRedraw = false;
 };
 
