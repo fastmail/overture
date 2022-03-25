@@ -143,6 +143,9 @@ class TimeZone {
         if (/GMT[+-]/.test(name)) {
             name = switchSign(name);
         }
+        if (name === 'Europe/Kiev') {
+            name = 'Europe/Kyiv';
+        }
 
         this.id = id;
         this.name = name;
