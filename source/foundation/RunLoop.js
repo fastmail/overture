@@ -171,19 +171,18 @@ const flushQueue = (queue) => {
     indicates something has changed.
 */
 const flushAllQueues = () => {
-    const queues = _queues;
     const order = _queueOrder;
     const l = order.length;
     let i = 0;
     while (i < l) {
         const queueName = order[i];
-        if (queues[queueName].length) {
+        if (_queues[queueName].length) {
             // "Render" waits for next frame, except if in bg, since
             // animation frames don't fire while in the background and we
             // want to flush queues in a reasonable time, as they may
             // redraw the tab name, favicon etc.
             if (i > 2 && !mayRedraw && !document.hidden) {
-                if (!queues.nextFrame.length) {
+                if (!_queues.nextFrame.length) {
                     requestAnimationFrame(nextFrame);
                 }
                 return;
