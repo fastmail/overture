@@ -3,14 +3,6 @@
 
 import { Heap } from './Heap.js';
 
-const win = window;
-
-const setImmediate =
-    window.setImmediate ||
-    function (fn) {
-        return setTimeout(fn, 0);
-    };
-
 const Timeout = function (time, period, fn, bind, doNotSchedule) {
     this.time = time;
     this.period = period;
@@ -312,7 +304,7 @@ const invoke = function (fn, bind, args) {
 */
 const invokeInNextEventLoop = function (fn, bind, allowDups) {
     if (!_queues.nextLoop.length) {
-        setImmediate(nextLoop);
+        setTimeout(nextLoop, 0);
     }
     return queueFn('nextLoop', fn, bind, allowDups);
 };
