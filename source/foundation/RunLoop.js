@@ -1,5 +1,5 @@
 /*global document, setTimeout, clearTimeout, requestAnimationFrame,
-    console, window */
+    console, window, queueMicrotask */
 
 import { Heap } from './Heap.js';
 
@@ -199,7 +199,7 @@ const flushAllQueues = () => {
 const needsFlushAllQueues = () => {
     if (!_willFlushQueues) {
         _willFlushQueues = true;
-        Promise.resolve().then(flushAllQueues);
+        queueMicrotask(flushAllQueues);
     }
 };
 
