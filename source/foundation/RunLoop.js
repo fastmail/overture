@@ -1,4 +1,5 @@
-/*global document, setTimeout, clearTimeout, console, window */
+/*global document, setTimeout, clearTimeout, requestAnimationFrame,
+    console, window */
 
 import { Heap } from './Heap.js';
 
@@ -9,24 +10,6 @@ const setImmediate =
     function (fn) {
         return setTimeout(fn, 0);
     };
-
-const requestAnimFrame =
-    win.requestAnimationFrame ||
-    win.oRequestAnimationFrame ||
-    win.webkitRequestAnimationFrame ||
-    win.mozRequestAnimationFrame ||
-    win.msRequestAnimationFrame ||
-    (function () {
-        let lastTime = 0;
-        return function (callback) {
-            const time = Date.now();
-            const timeToNextCall = Math.max(0, 16 - (time - lastTime));
-            lastTime = time;
-            win.setTimeout(() => {
-                callback(time + timeToNextCall);
-            }, timeToNextCall);
-        };
-    })();
 
 const Timeout = function (time, period, fn, bind, doNotSchedule) {
     this.time = time;
@@ -207,7 +190,7 @@ const flushAllQueues = function () {
             // redraw the tab name, favicon etc.
             if (i > 2 && !mayRedraw && !document.hidden) {
                 if (!queues.nextFrame.length) {
-                    requestAnimFrame(nextFrame);
+                    requestAnimationFrame(nextFrame);
                 }
                 return;
             }
@@ -351,7 +334,7 @@ const invokeInNextEventLoop = function (fn, bind, allowDups) {
 */
 const invokeInNextFrame = function (fn, bind, allowDups) {
     if (!_queues.nextFrame.length) {
-        requestAnimFrame(nextFrame);
+        requestAnimationFrame(nextFrame);
     }
     return queueFn('nextFrame', fn, bind, allowDups);
 };
