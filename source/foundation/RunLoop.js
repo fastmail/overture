@@ -3,15 +3,17 @@
 
 import { Heap } from './Heap.js';
 
-const Timeout = function (time, period, fn, bind, doNotSchedule) {
-    this.time = time;
-    this.period = period;
-    this.fn = fn;
-    this.bind = bind;
-    this.doNotSchedule = doNotSchedule || false;
-};
+class Timeout {
+    constructor(time, period, fn, bind, doNotSchedule) {
+        this.time = time;
+        this.period = period;
+        this.fn = fn;
+        this.bind = bind;
+        this.doNotSchedule = doNotSchedule || false;
+    }
+}
 
-const parentsBeforeChildren = function (a, b) {
+const parentsBeforeChildren = (a, b) => {
     let aView = a[1];
     let bView = b[1];
 
@@ -131,7 +133,7 @@ let _depth = 0;
     Returns:
         {Boolean} Were any functions actually invoked?
 */
-const flushQueue = function (queue) {
+const flushQueue = (queue) => {
     const toInvoke = _queues[queue];
     const l = toInvoke.length;
 
@@ -168,7 +170,7 @@ const flushQueue = function (queue) {
     _queueOrder, starting at the first queue again whenever the queue
     indicates something has changed.
 */
-const flushAllQueues = function () {
+const flushAllQueues = () => {
     const queues = _queues;
     const order = _queueOrder;
     const l = order.length;
@@ -199,7 +201,7 @@ const flushAllQueues = function () {
 
     Drops all queued functions without running them.
 */
-const eraseAllQueues = function () {
+const eraseAllQueues = () => {
     for (const id in _queues) {
         _queues[id].length = 0;
     }
@@ -222,7 +224,7 @@ const eraseAllQueues = function () {
     Returns:
         {O.RunLoop} Returns self.
 */
-const queueFn = function (queue, fn, bind, allowDups) {
+const queueFn = (queue, fn, bind, allowDups) => {
     const toInvoke = _queues[queue];
     const l = toInvoke.length;
     // Log error here, as the stack trace is useless inside flushQueue.
@@ -261,7 +263,7 @@ const queueFn = function (queue, fn, bind, allowDups) {
         {*} The return value of the invoked function, or `undefined` if it
             throws an exception.
 */
-const invoke = function (fn, bind, args) {
+const invoke = (fn, bind, args) => {
     let returnValue;
     _depth += 1;
     try {
@@ -302,7 +304,7 @@ const invoke = function (fn, bind, args) {
     Returns:
         {O.RunLoop} Returns self.
 */
-const invokeInNextEventLoop = function (fn, bind, allowDups) {
+const invokeInNextEventLoop = (fn, bind, allowDups) => {
     if (!_queues.nextLoop.length) {
         setTimeout(nextLoop, 0);
     }
@@ -324,7 +326,7 @@ const invokeInNextEventLoop = function (fn, bind, allowDups) {
     Returns:
         {O.RunLoop} Returns self.
 */
-const invokeInNextFrame = function (fn, bind, allowDups) {
+const invokeInNextFrame = (fn, bind, allowDups) => {
     if (!_queues.nextFrame.length) {
         requestAnimationFrame(nextFrame);
     }
@@ -349,7 +351,7 @@ const invokeInNextFrame = function (fn, bind, allowDups) {
         <O.RunLoop.cancel> method before the function is invoked, in order
         to cancel the scheduled invocation.
 */
-const invokeAfterDelay = function (fn, delay, bind, doNotSchedule) {
+const invokeAfterDelay = (fn, delay, bind, doNotSchedule) => {
     const timeout = new Timeout(Date.now() + delay, 0, fn, bind, doNotSchedule);
     _timeouts.push(timeout);
     if (!doNotSchedule) {
@@ -375,7 +377,7 @@ const invokeAfterDelay = function (fn, delay, bind, doNotSchedule) {
         <O.RunLoop.cancel> method to cancel all future invocations scheduled
         by this call.
 */
-const invokePeriodically = function (fn, period, bind, doNotSchedule) {
+const invokePeriodically = (fn, period, bind, doNotSchedule) => {
     const timeout = new Timeout(
         Date.now() + period,
         period,
@@ -396,7 +398,7 @@ const invokePeriodically = function (fn, period, bind, doNotSchedule) {
     Sets the browser timer if necessary to trigger at the time of the next
     timeout in the priority queue.
 */
-const _scheduleTimeout = function (timeout) {
+const _scheduleTimeout = (timeout) => {
     const time = timeout.time;
     if (time < _nextTimeout) {
         clearTimeout(_timer);
@@ -421,7 +423,7 @@ const _scheduleTimeout = function (timeout) {
     Returns:
         {O.RunLoop} Returns self.
 */
-const processTimeouts = function () {
+const processTimeouts = () => {
     const timeouts = _timeouts;
     const now = Date.now();
     let nextToSchedule = null;
@@ -473,7 +475,7 @@ const processTimeouts = function () {
     Returns:
         {O.RunLoop} Returns self.
 */
-const cancel = function (token) {
+const cancel = (token) => {
     _timeouts.remove(token);
 };
 
@@ -487,7 +489,7 @@ const cancel = function (token) {
     Parameters:
         error - {Error} The error object.
 */
-let didError = function (error) {
+let didError = (error) => {
     if (window.console) {
         console.log(error.name, error.message, error.stack);
     }
@@ -502,13 +504,13 @@ let didError = function (error) {
     Parameters:
         fn - {Function} The new didError function.
 */
-const setDidError = function (fn) {
+const setDidError = (fn) => {
     didError = fn;
 };
 
 const nextLoop = invoke.bind(null, flushQueue, null, ['nextLoop']);
 
-const nextFrame = function (time) {
+const nextFrame = (time) => {
     frameStartTime = time;
     mayRedraw = true;
     invoke(flushQueue, null, ['nextFrame']);
