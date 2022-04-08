@@ -214,6 +214,8 @@ const PopOverView = Class({
         const parentMargin = this.get('parentMargin');
         let keepInVerticalBounds = options.keepInVerticalBounds;
         let keepInHorizontalBounds = options.keepInHorizontalBounds;
+        const calloutOffsetLeft = options.calloutOffsetLeft || 0;
+        const calloutOffsetTop = options.calloutOffsetTop || 0;
         let deltaLeft = 0;
         let deltaTop = 0;
 
@@ -275,9 +277,11 @@ const PopOverView = Class({
             this._callout,
             'transform',
             'translate(' +
-                (positionToTheLeftOrRight ? 0 : -deltaLeft) +
+                (calloutOffsetLeft +
+                    (positionToTheLeftOrRight ? 0 : -deltaLeft)) +
                 'px,' +
-                (positionToTheLeftOrRight ? -deltaTop : 0) +
+                (calloutOffsetTop +
+                    (positionToTheLeftOrRight ? -deltaTop : 0)) +
                 'px)',
         );
     }.queue('after'),
