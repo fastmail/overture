@@ -6,7 +6,8 @@ import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ModalEventHandler } from './ModalEventHandler.js';
 
-import /* { on } from */ '../../foundation/Decorators.js';
+/* { on } from */
+import '../../foundation/Decorators.js';
 
 const PopOverView = Class({
     Name: 'PopOverView',

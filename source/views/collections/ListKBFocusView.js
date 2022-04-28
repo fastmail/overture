@@ -5,7 +5,8 @@ import { ScrollView } from '../containers/ScrollView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
-import /* { property, nocache, queue } from */ '../../foundation/Decorators.js';
+/* { property, nocache, queue } from */
+import '../../foundation/Decorators.js';
 
 const ListKBFocusView = Class({
     Name: 'ListKBFocusView',

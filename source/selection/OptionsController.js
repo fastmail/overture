@@ -4,7 +4,8 @@ import { Obj } from '../foundation/Object.js';
 import { ObservableArray } from '../foundation/ObservableArray.js';
 import { makeSearchRegExp } from '../localisation/i18n.js';
 
-import /* { on, observes } from */ '../foundation/Decorators.js';
+/* { on, observes } from */
+import '../foundation/Decorators.js';
 
 const OptionsController = Class({
     Name: 'OptionsController',

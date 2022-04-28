@@ -1,7 +1,8 @@
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
 
-import /* { observes, invokeInRunLoop, queue } from */ '../foundation/Decorators.js';
+/* { observes, invokeInRunLoop, queue } from */
+import '../foundation/Decorators.js';
 
 /*global window, document, location */
 

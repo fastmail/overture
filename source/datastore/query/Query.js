@@ -14,7 +14,8 @@ import {
     READY,
 } from '../record/Status.js';
 
-import /* { on, observes, queue, property, nocache } from */ '../../foundation/Decorators.js';
+/* { on, observes, queue, property, nocache } from */
+import '../../foundation/Decorators.js';
 
 const AUTO_REFRESH_NEVER = 0;
 const AUTO_REFRESH_IF_OBSERVED = 1;

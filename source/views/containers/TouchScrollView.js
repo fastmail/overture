@@ -7,7 +7,8 @@ import { LAYOUT_FILL_PARENT, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ScrollView } from './ScrollView.js';
 
-import /* { on, property } from */ '../../foundation/Decorators.js';
+/* { on, property } from */
+import '../../foundation/Decorators.js';
 
 // ---
 

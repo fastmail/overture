@@ -4,7 +4,8 @@ import { MutableEnumerable } from './MutableEnumerable.js';
 import { Obj } from './Object.js';
 import { ObservableRange } from './ObservableRange.js';
 
-import /* { property, nocache } from */ './Decorators.js';
+/* { property, nocache } from */
+import './Decorators.js';
 
 const ARRAY_PROPERTY = '[]';
 

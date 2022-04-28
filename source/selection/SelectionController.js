@@ -1,7 +1,8 @@
 import { Class, isDestroyed } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
 
-import /* { observes, property, nocache } from */ '../foundation/Decorators.js';
+/* { observes, property, nocache } from */
+import '../foundation/Decorators.js';
 
 const SelectionController = Class({
     Name: 'SelectionController',

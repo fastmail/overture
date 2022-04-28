@@ -5,7 +5,8 @@ import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { View } from '../View.js';
 import { TOP_LEFT, VERTICAL } from './SplitViewController.js';
 
-import /* { property } from */ '../../foundation/Decorators.js';
+/* { property } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.SplitDividerView

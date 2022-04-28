@@ -5,7 +5,8 @@ import { canPointer } from '../../ua/UA.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { View } from '../View.js';
 
-import /* { property, on, observes } from */ '../../foundation/Decorators.js';
+/* { property, on, observes } from */
+import '../../foundation/Decorators.js';
 
 const MenuOptionView = Class({
     Name: 'MenuOptionView',

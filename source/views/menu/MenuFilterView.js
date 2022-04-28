@@ -8,7 +8,8 @@ import { SearchInputView } from '../controls/SearchInputView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
-import /* { on } from */ '../../foundation/Decorators.js';
+/* { on } from */
+import '../../foundation/Decorators.js';
 
 const MenuFilterView = Class({
     Name: 'MenuFilterView',

@@ -1,6 +1,7 @@
 /*global XMLHttpRequest, FormData */
 
-import /* { invokeInRunLoop } from */ '../foundation/Decorators.js';
+/* { invokeInRunLoop } from */
+import '../foundation/Decorators.js';
 
 const parseHeaders = function (allHeaders) {
     const headers = {};

@@ -2,7 +2,8 @@ import { Class } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
 import { ScrollView } from '../containers/ScrollView.js';
 
-import /* { on } from */ '../../foundation/Decorators.js';
+/* { on } from */
+import '../../foundation/Decorators.js';
 
 const ModalEventHandler = Class({
     Name: 'ModalEventHandler',

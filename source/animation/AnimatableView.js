@@ -2,7 +2,8 @@ import { setStyle } from '../dom/Element.js';
 import { ease } from './Easing.js';
 import { StyleAnimation } from './StyleAnimation.js';
 
-import /* { property } from */ '../foundation/Decorators.js';
+/* { property } from */
+import '../foundation/Decorators.js';
 
 /**
     Mixin: O.AnimatableView

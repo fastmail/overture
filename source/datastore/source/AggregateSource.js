@@ -2,7 +2,8 @@ import { Class } from '../../core/Core.js';
 import { Source } from './Source.js';
 
 import '../../core/Array.js'; // For Array#erase
-import /* { observes } from */ '../../foundation/Decorators.js';
+/* { observes } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.AggregateSource

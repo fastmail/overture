@@ -2,7 +2,8 @@ import { Class } from '../../core/Core.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { View } from '../View.js';
 
-import /* { property, nextFrame } from */ '../../foundation/Decorators.js';
+/* { property, nextFrame } from */
+import '../../foundation/Decorators.js';
 
 const ListItemView = Class({
     Name: 'ListItemView',

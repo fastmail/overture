@@ -1,7 +1,8 @@
 import { getViewFromNode } from './activeViews.js';
 
 import '../core/Array.js'; // For Array#binarySearch
-import /* { invokeInRunLoop } from */ '../foundation/Decorators.js';
+/* { invokeInRunLoop } from */
+import '../foundation/Decorators.js';
 
 const etSearch = function (candidate, b) {
     const a = candidate[0];

@@ -18,7 +18,8 @@ import {
 } from './DragEffect.js';
 
 import '../core/Array.js'; // For Array#include
-import /* { queue, property } from */ '../foundation/Decorators.js';
+/* { queue, property } from */
+import '../foundation/Decorators.js';
 
 /* Issues with native drag and drop.
 

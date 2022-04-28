@@ -11,7 +11,8 @@ import {
 } from './keyboardShortcuts.js';
 import { toPlatformKey } from './toPlatformKey.js';
 
-import /* { on } from */ '../foundation/Decorators.js';
+/* { on } from */
+import '../foundation/Decorators.js';
 
 const allowedInputs = {
     checkbox: 1,

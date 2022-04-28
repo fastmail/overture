@@ -6,7 +6,8 @@ import { AbstractControlView } from './controls/AbstractControlView.js';
 import { View } from './View.js';
 import { ViewEventsController } from './ViewEventsController.js';
 
-import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
+/* { on, invokeInRunLoop } from */
+import '../foundation/Decorators.js';
 
 let passiveSupported = false;
 

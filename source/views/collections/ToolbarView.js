@@ -9,7 +9,8 @@ import { RootView } from '../RootView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
-import /* { property, observes } from */ '../../foundation/Decorators.js';
+/* { property, observes } from */
+import '../../foundation/Decorators.js';
 
 // ---
 

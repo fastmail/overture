@@ -13,7 +13,8 @@ import { activeViews } from './activeViews.js';
 import { ViewEventsController } from './ViewEventsController.js';
 
 import '../core/String.js'; // For String#capitalise
-import /* { property, observes } from */ '../foundation/Decorators.js';
+/* { property, observes } from */
+import '../foundation/Decorators.js';
 
 let UID = 0;
 

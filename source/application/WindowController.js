@@ -6,7 +6,8 @@ import { invokeInNextEventLoop } from '../foundation/RunLoop.js';
 
 import '../core/Date.js'; // For Date#format
 import '../core/String.js'; // For String#escapeHTML
-import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
+/* { on, invokeInRunLoop } from */
+import '../foundation/Decorators.js';
 
 /**
     Class: O.WindowController

@@ -13,7 +13,8 @@ import {
 } from './Status.js';
 import { ToOneAttribute } from './toOne.js';
 
-import /* { property, nocache } from */ '../../foundation/Decorators.js';
+/* { property, nocache } from */
+import '../../foundation/Decorators.js';
 
 const READY_NEW_DIRTY = READY | NEW | DIRTY;
 

@@ -22,7 +22,8 @@ import { ButtonView } from './ButtonView.js';
 import { FileButtonView } from './FileButtonView.js';
 import { TextInputView } from './TextInputView.js';
 
-import /* { property, nocache, on, observes, nextFrame, queue } from */ '../../foundation/Decorators.js';
+/* { property, nocache, on, observes, nextFrame, queue } from */
+import '../../foundation/Decorators.js';
 
 const execCommand = function (command) {
     return function (arg) {

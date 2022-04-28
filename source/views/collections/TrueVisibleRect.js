@@ -1,4 +1,5 @@
-import /* { property } from */ '../../foundation/Decorators.js';
+/* { property } from */
+import '../../foundation/Decorators.js';
 
 /**
     Mixin: O.TrueVisibleRect

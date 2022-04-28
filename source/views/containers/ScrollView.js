@@ -7,7 +7,8 @@ import { RootView } from '../RootView.js';
 import { LAYOUT_FILL_PARENT, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
-import /* { property, on, observes, queue } from */ '../../foundation/Decorators.js';
+/* { property, on, observes, queue } from */
+import '../../foundation/Decorators.js';
 
 class ScrollAnimation extends Animation {
     prepare(coordinates) {

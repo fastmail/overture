@@ -4,7 +4,8 @@ import { bind } from '../../foundation/Binding.js';
 import { browser } from '../../ua/UA.js';
 import { View } from '../View.js';
 
-import /* { property, observes } from */ '../../foundation/Decorators.js';
+/* { property, observes } from */
+import '../../foundation/Decorators.js';
 
 const isFirefox = browser === 'firefox';
 

@@ -2,7 +2,8 @@ import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
 
 import '../core/Array.js'; // For Array#erase
-import /* { on } from */ '../foundation/Decorators.js';
+/* { on } from */
+import '../foundation/Decorators.js';
 
 /**
     Module: IO

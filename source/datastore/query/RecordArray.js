@@ -2,7 +2,8 @@ import { Class } from '../../core/Core.js';
 import { Enumerable } from '../../foundation/Enumerable.js';
 import { Obj } from '../../foundation/Object.js';
 
-import /* { property } from */ '../../foundation/Decorators.js';
+/* { property } from */
+import '../../foundation/Decorators.js';
 
 /**
     Class: O.RecordArray

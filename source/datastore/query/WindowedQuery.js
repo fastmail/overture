@@ -15,7 +15,8 @@ import {
 import { Query } from './Query.js';
 
 import '../../core/Array.js'; // For Array#binarySearch
-import /* { observes, property, nocache } from */ '../../foundation/Decorators.js';
+/* { observes, property, nocache } from */
+import '../../foundation/Decorators.js';
 
 /**
     Enum: O.WindowedQuery-WindowState

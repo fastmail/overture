@@ -8,7 +8,8 @@ import { ViewEventsController } from '../views/ViewEventsController.js';
 import { Drag } from './Drag.js';
 import { ALL, DEFAULT, effectToString } from './DragEffect.js';
 
-import /* { on, invokeInRunLoop } from */ '../foundation/Decorators.js';
+/* { on, invokeInRunLoop } from */
+import '../foundation/Decorators.js';
 
 const isControl = {
     BUTTON: 1,

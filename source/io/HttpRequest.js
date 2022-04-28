@@ -3,7 +3,8 @@ import { Obj } from '../foundation/Object.js';
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { XHR } from './XHR.js';
 
-import /* { on } from */ '../foundation/Decorators.js';
+/* { on } from */
+import '../foundation/Decorators.js';
 
 /**
     Class: O.HttpRequest

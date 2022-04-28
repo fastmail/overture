@@ -15,7 +15,8 @@ import { ViewEventsController } from '../ViewEventsController.js';
 import { MenuFilterView } from './MenuFilterView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
-import /* { property, on, queue } from */ '../../foundation/Decorators.js';
+/* { property, on, queue } from */
+import '../../foundation/Decorators.js';
 
 const MenuOption = Class({
     Name: 'MenuOption',

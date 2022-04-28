@@ -4,7 +4,8 @@ import { ScrollView } from '../containers/ScrollView.js';
 import { ListView } from './ListView.js';
 import { TrueVisibleRect } from './TrueVisibleRect.js';
 
-import /* { observes, queue } from */ '../../foundation/Decorators.js';
+/* { observes, queue } from */
+import '../../foundation/Decorators.js';
 
 const ProgressiveListView = Class({
     Name: 'ProgressiveListView',

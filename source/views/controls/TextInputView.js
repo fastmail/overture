@@ -7,7 +7,8 @@ import { browser } from '../../ua/UA.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { AbstractInputView } from './AbstractInputView.js';
 
-import /* { property, nocache, on, observes } from */ '../../foundation/Decorators.js';
+/* { property, nocache, on, observes } from */
+import '../../foundation/Decorators.js';
 
 const isFirefox = browser === 'firefox';
 

@@ -3,7 +3,8 @@ import { READY } from '../datastore/record/Status.js';
 import { Obj } from '../foundation/Object.js';
 import { queueFn } from '../foundation/RunLoop.js';
 
-import /* { observes, queue } from */ '../foundation/Decorators.js';
+/* { observes, queue } from */
+import '../foundation/Decorators.js';
 
 const SingleSelectionController = Class({
     Name: 'SingleSelectionController',

@@ -1,6 +1,7 @@
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 
-import /* { invokeInRunLoop, observes } from */ '../foundation/Decorators.js';
+/* { invokeInRunLoop, observes } from */
+import '../foundation/Decorators.js';
 
 /*global document */
 

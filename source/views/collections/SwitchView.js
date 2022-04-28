@@ -6,7 +6,8 @@ import { bind } from '../../foundation/Binding.js';
 import { queueFn } from '../../foundation/RunLoop.js';
 import { View } from '../View.js';
 
-import /* { property, observes } from */ '../../foundation/Decorators.js';
+/* { property, observes } from */
+import '../../foundation/Decorators.js';
 
 const forEachView = function (views, method, args) {
     let l = views ? views.length : 0;
