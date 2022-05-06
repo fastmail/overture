@@ -34,6 +34,15 @@ const drawIcon${name} = (props) => {
     }
     const svg = cachedNode.cloneNode(true);
     setAttributes(svg, props);
+    const title = props && props.title;
+    if (title) {
+        const titleTag = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'title'
+        );
+        titleTag.textContent = title;
+        svg.appendChild(titleTag);
+    }
     return svg;
 }
 
