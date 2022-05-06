@@ -846,7 +846,8 @@ const stringify = (thing) => {
 
 const compile = function (id, code, stringIds, outputTranslationsAsFn = true) {
     // eslint-disable-next-line no-eval
-    const idToEntry = eval(
+    const evalGlobal = eval;
+    const idToEntry = evalGlobal(
         code.replace('export default ', '(function () {return ') + '})();',
     );
     const data = makeLocale(id, stringIds, idToEntry, outputTranslationsAsFn);
