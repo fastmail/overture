@@ -14,8 +14,9 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "rollup -c",
-    "lint": "eslint source",
-    "lintfix": "eslint --fix source",
+    "lint": "npm run lint-eslint && npm run lint-prettier",
+    "lint-eslint": "eslint source",
+    "lint-prettier": "prettier --check source",
     "fix": "prettier --write source && eslint --fix source",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
