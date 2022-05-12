@@ -1,3 +1,15 @@
+stages:
+  - lint
+  - test
+
+lint:
+  stage: lint
+  script:
+    - npm ci --ignore-scripts
+    - npm run --silent lint
+  only:
+    - merge_requests
+
 test:
   stage: test
   script: npm ci --ignore-scripts && npm run test
