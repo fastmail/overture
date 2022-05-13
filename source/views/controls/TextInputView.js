@@ -1,6 +1,6 @@
 /*global document, getComputedStyle */
 
-import { meta, Class } from '../../core/Core.js';
+import { Class, meta } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el, nearest } from '../../dom/Element.js';
 import { browser } from '../../ua/UA.js';

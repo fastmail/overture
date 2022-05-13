@@ -54,7 +54,6 @@ const Activatable = {
             : '';
     }.property('shortcut'),
 
-
     didCreateLayer(layer) {
         this.redrawTooltip(layer);
     },

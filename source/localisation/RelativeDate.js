@@ -173,11 +173,11 @@ Date.prototype.relativeToByDay = function (date) {
 
     const duration = date - this;
     if (duration < 1000 * 60 * 60 * 24) {
-        return loc("Today").toLocaleLowerCase();
+        return loc('Today').toLocaleLowerCase();
     }
 
     return this.relativeTo(date, true, true);
-}
+};
 
 // TODO(cmorgan/modulify): do something about these exports:
 // Date#relativeTo, Date.formatDuration

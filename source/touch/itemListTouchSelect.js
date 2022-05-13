@@ -4,9 +4,9 @@ import { linear } from '../animation/Easing.js';
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
+import { CheckboxView } from '../views/controls/CheckboxView.js';
 import { RootView } from '../views/RootView.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
-import { CheckboxView } from '../views/controls/CheckboxView.js';
 
 const IDLE = 0;
 const DETECT = 1;
