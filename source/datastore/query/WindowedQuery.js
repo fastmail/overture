@@ -714,7 +714,7 @@ const WindowedQuery = Class({
             if (index) {
                 if (index !== listLength) {
                     recalculateFetchedWindows = true;
-                    list.length = index;
+                    list.length = listLength = index;
                     if (index < firstChange) {
                         firstChange = index;
                     }
@@ -742,7 +742,7 @@ const WindowedQuery = Class({
             while (list[i]) {
                 i += 1;
             }
-            list.length = i;
+            list.length = listLength = i;
             if (i < firstChange) {
                 firstChange = i;
             }
