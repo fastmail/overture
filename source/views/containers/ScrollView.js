@@ -428,8 +428,23 @@ const ScrollView = Class({
         const layer = this.get('layer');
         const x = this.get('scrollLeft');
         const y = this.get('scrollTop');
+        const styles = layer.style;
+        // As of at least iOS 15.4 and all predecessors, if iOS is currently
+        // doing momentum scrolling and you change the scroll position, it
+        // ignores the change and continues applying the precalculated scroll
+        // positions. So you end up in the wrong place. It also often fails to
+        // redraw correctly so it looks completely broken until you scroll
+        // again.
+        if (isIOS) {
+            styles.overflowX = 'hidden';
+            styles.overflowY = 'hidden';
+        }
         layer.scrollLeft = x;
         layer.scrollTop = y;
+        if (isIOS) {
+            styles.overflowX = this.get('showScrollbarX') ? 'auto' : 'hidden';
+            styles.overflowY = this.get('showScrollbarY') ? 'auto' : 'hidden';
+        }
         // In case we've gone past the end.
         if (x || y) {
             queueFn('after', this.syncBackScroll, this);
