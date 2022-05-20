@@ -4,8 +4,9 @@ import { EventSource } from '../io/ModernEventSource.js';
 
 class EventSourceProxy {
     constructor(url) {
-        this.eventSource = new EventSource(url, {
-            fireEvent: (event) => {
+        this.eventSource = new EventSource({
+            url,
+            onevent: (event) => {
                 this.dispatch(event);
             },
         });
