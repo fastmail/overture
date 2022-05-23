@@ -225,7 +225,7 @@ const Drag = Class({
                 }
             } else {
                 dragCursor = this._dragCursor = el('div', {
-                    style: 'position: fixed; z-index: 9999;',
+                    style: 'position: fixed; z-index: 9999; pointer-events: none',
                 });
                 this._updateDragImagePosition();
                 document.body.appendChild(dragCursor);
