@@ -1522,11 +1522,21 @@ const Store = Class({
         }
         const accountId = this.getAccountIdFromStoreKey(storeKey);
 
+        let callback;
+        if (id === 'singleton') {
+            const typeToStatus = this._accounts[accountId].status;
+            typeToStatus[typeId] |= LOADING;
+            callback = () => {
+                typeToStatus[typeId] &= ~LOADING;
+                this.checkServerState(accountId, Type);
+            };
+        }
+
         if (status & EMPTY) {
-            this.source.fetchRecord(accountId, Type, id);
+            this.source.fetchRecord(accountId, Type, id, callback);
             this.setStatus(storeKey, EMPTY | LOADING);
         } else {
-            this.source.refreshRecord(accountId, Type, id);
+            this.source.refreshRecord(accountId, Type, id, callback);
             this.setStatus(storeKey, status | LOADING);
         }
         return this;
