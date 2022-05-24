@@ -2123,7 +2123,14 @@ const Store = Class({
                 this.sourceStateDidChange(accountId, Type, state);
             } else {
                 account.clientState[typeId] = state;
-                if (!oldClientState || !oldServerState) {
+                if (
+                    !oldClientState ||
+                    !oldServerState ||
+                    // If oldClientState == oldServerState, then the state we've
+                    // just received MUST be newer so we can update the server
+                    // state too
+                    oldClientState === oldServerState
+                ) {
                     account.serverState[typeId] = state;
                 }
             }
