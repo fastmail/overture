@@ -13,6 +13,7 @@ export default function bubleLate(options) {
     if (!options.transforms) {
         options.transforms = {};
     }
+    options.transforms.forOf = false;
     options.transforms.modules = false;
     options.objectAssign = 'Object.assign';
 
