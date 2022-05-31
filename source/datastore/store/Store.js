@@ -1515,7 +1515,11 @@ const Store = Class({
         if (!Type) {
             return this;
         }
-        const id = this._typeToSKToId[guid(Type)][storeKey];
+        const typeId = guid(Type);
+        const id = this._typeToSKToId[typeId][storeKey];
+        if (!id) {
+            return this;
+        }
         const accountId = this.getAccountIdFromStoreKey(storeKey);
 
         if (status & EMPTY) {
