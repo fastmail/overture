@@ -1991,28 +1991,26 @@ const Store = Class({
         const account = this.getAccount(accountId, Type);
         const typeId = guid(Type);
         const clientState = account.clientState[typeId];
+        const oldState = account.serverState[typeId];
 
-        if (account.serverState[typeId] === newState) {
-            // Do nothing, we're already in this state.
-        } else if (
-            clientState &&
-            newState !== clientState &&
-            !account.ignoreServerState &&
-            !(account.status[typeId] & (LOADING | COMMITTING))
-        ) {
-            // Set this to clientState to avoid potential infinite loop. We
-            // don't know for sure if our serverState is older or newer due to
-            // concurrency. As we're now requesting updates, we can reset it to
-            // be clientState and then it will be updated to the real new server
-            // automatically if has changed in the sourceDidFetchUpdates
-            // handler. If a push comes in while fetching the updates, this
-            // won't match and we'll fetch again.
-            account.serverState[typeId] = clientState;
-            this.fire(typeId + ':server:' + accountId);
-            this.fetchAll(accountId, Type, true);
-        } else {
-            account.serverState[typeId] = newState;
-            if (!clientState) {
+        if (oldState !== newState) {
+            // if !oldState => we're checking if a pushed state still needs
+            // fetching. Due to concurrency, if this doesn't match newState,
+            // we don't know if it's older or newer. As we're now requesting
+            // updates, we can reset it to be clientState and then it will be
+            // updated to the real new server automatically if has changed in
+            // the sourceDidFetchUpdates handler. If a push comes in while
+            // fetching the updates, this won't match and we'll fetch again.
+            account.serverState[typeId] =
+                oldState || !clientState ? newState : clientState;
+            if (
+                newState !== clientState &&
+                !account.ignoreServerState &&
+                !(account.status[typeId] & (LOADING | COMMITTING))
+            ) {
+                if (clientState) {
+                    this.fetchAll(accountId, Type, true);
+                }
                 // We have a query but not matches yet; we still need to
                 // refresh the queries in case there are now matches.
                 this.fire(typeId + ':server:' + accountId);
