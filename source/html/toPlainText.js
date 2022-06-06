@@ -212,12 +212,19 @@ const nodesToText = function (
     }
 };
 
-const toPlainText = function (html, markupInline = true) {
+const toPlainText = function (html, markupInline = true, preserveWS = false) {
     const frag = new HTMLDefanger({
         returnType: FRAGMENT_INERT,
     }).defang(html);
     const stringBuilder = [];
-    nodesToText(stringBuilder, frag.childNodes, [], '', false, markupInline);
+    nodesToText(
+        stringBuilder,
+        frag.childNodes,
+        [],
+        '',
+        preserveWS,
+        markupInline,
+    );
     // Remove trailing new line from <div></div>.
     const length = stringBuilder.length;
     const lastString = length ? stringBuilder[length - 1] : '';
