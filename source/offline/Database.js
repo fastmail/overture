@@ -1,4 +1,4 @@
-/*global indexedDB, setTimeout */
+/*global indexedDB */
 
 class Database {
     // name: string
@@ -19,28 +19,14 @@ class Database {
         const _db = new Promise((resolve, reject) => {
             const name = this.name;
             const request = indexedDB.open(name, this.version);
-            let didTimeOut = false;
-            setTimeout(() => {
-                didTimeOut = true;
-                reject(new Error(`Timed out trying to open ${name}`));
-            }, 2000);
             request.onupgradeneeded = (event) => {
                 const db = request.result;
-                if (didTimeOut) {
-                    request.transaction.abort();
-                    db.close();
-                } else {
-                    this.setup(db, event.newVersion, event.oldVersion);
-                }
+                this.setup(db, event.newVersion, event.oldVersion);
             };
             request.onsuccess = () => {
                 const db = request.result;
-                if (didTimeOut) {
-                    db.close();
-                } else {
-                    db.onversionchange = () => this.needsUpdate();
-                    resolve(db);
-                }
+                db.onversionchange = () => this.needsUpdate();
+                resolve(db);
             };
             request.onerror = () => reject(request.errorCode);
         });
