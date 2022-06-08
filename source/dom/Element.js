@@ -2,7 +2,6 @@
 
 import { Binding } from '../_codependent/_Binding.js';
 import { View } from '../_codependent/_View.js';
-import { didError } from '../foundation/RunLoop.js';
 import { browser } from '../ua/UA.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 
@@ -418,25 +417,7 @@ const setStyle = function (el, style, value) {
         if (typeof value === 'number' && !cssNoPx[style]) {
             value += 'px';
         }
-        // IE will throw an error if you try to set an invalid value for a
-        // style.
-        try {
-            el.style[style] = value;
-        } catch (error) {
-            didError({
-                name: 'Element#setStyle',
-                message: 'Invalid value set',
-                details:
-                    'Style: ' +
-                    style +
-                    '\nValue: ' +
-                    value +
-                    '\nEl id: ' +
-                    el.id +
-                    '\nEl class: ' +
-                    el.className,
-            });
-        }
+        el.style[style] = value;
     }
     return this;
 };
