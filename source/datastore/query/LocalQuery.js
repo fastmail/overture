@@ -80,7 +80,6 @@ const LocalQuery = Class({
         if (force || status === EMPTY || status & OBSOLETE) {
             const Type = this.get('Type');
             const store = this.get('store');
-            store.fetchAll(Type);
             if (store.getTypeStatus(Type) & READY) {
                 this.sourceWillFetchQuery();
                 this.sourceDidFetchQuery(
