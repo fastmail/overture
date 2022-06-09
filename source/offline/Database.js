@@ -21,7 +21,12 @@ class Database {
             const request = indexedDB.open(name, this.version);
             request.onupgradeneeded = (event) => {
                 const db = request.result;
-                this.setup(db, event.newVersion, event.oldVersion);
+                this.setup(
+                    db,
+                    event.newVersion,
+                    event.oldVersion,
+                    request.transaction,
+                );
             };
             request.onsuccess = () => {
                 const db = request.result;

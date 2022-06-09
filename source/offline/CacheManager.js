@@ -32,7 +32,7 @@ class CacheManager {
         this.db = new Database({
             name: 'CacheExpiration',
             version: 1,
-            setup(db /*, newVersion, oldVersion*/) {
+            setup(db /*, newVersion, oldVersion, transaction*/) {
                 for (const cacheName in rules) {
                     if (rules.noExpire) {
                         continue;
