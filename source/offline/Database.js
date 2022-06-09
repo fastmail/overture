@@ -31,6 +31,11 @@ class Database {
             request.onsuccess = () => {
                 const db = request.result;
                 db.onversionchange = () => this.needsUpdate();
+                db.onclose = () => {
+                    if (this._db === _db) {
+                        this._db = null;
+                    }
+                };
                 resolve(db);
             };
             request.onerror = () => reject(request.errorCode);
