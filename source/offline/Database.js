@@ -52,11 +52,22 @@ class Database {
     // Mode = readwrite or readonly
     async transaction(storeNames, mode, fn) {
         const db = await this.open();
-        return new Promise((resolve, reject) => {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
             const transaction = db.transaction(storeNames, mode);
-            transaction.onabort = () => reject(transaction.error);
-            transaction.oncomplete = () => resolve();
-            fn(transaction);
+            transaction.onabort = () => {
+                reject(transaction.error);
+            };
+            transaction.oncomplete = () => {
+                resolve();
+            };
+            try {
+                await fn(transaction);
+                transaction.commit();
+            } catch (error) {
+                reject(error);
+                transaction.abort();
+            }
         });
     }
 
