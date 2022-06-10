@@ -176,14 +176,16 @@ class CacheManager {
                 async (transaction) => {
                     const store = transaction.objectStore(cacheName);
                     // We check the lastAccess time has not changed so we don't
-                    //delete an updated entry if setInCache has interleaved.
-                    entriesToDelete.forEach(async (entryToDelete) => {
-                        const key = entryToDelete.url;
-                        const entry = await _(store.get(key));
-                        if (entry.lastAccess === entryToDelete.lastAccess) {
-                            store.delete(key);
-                        }
-                    });
+                    // delete an updated entry if setInCache has interleaved.
+                    await Promise.all(
+                        entriesToDelete.map(async (entryToDelete) => {
+                            const key = entryToDelete.url;
+                            const entry = await _(store.get(key));
+                            if (entry.lastAccess === entryToDelete.lastAccess) {
+                                await _(store.delete(key));
+                            }
+                        }),
+                    );
                 },
             );
         }
