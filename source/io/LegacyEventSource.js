@@ -31,7 +31,7 @@ class LegacyEventSource extends AbstractEventSource {
         };
 
         xhr.open('GET', this.url, true);
-        xhr.withCredentials = !!options.withCredentials;
+        xhr.withCredentials = options.credentials === 'include';
         xhr.responseType = 'text';
         for (const name in options.headers) {
             xhr.setRequestHeader(name, options.headers[name]);
