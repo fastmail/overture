@@ -140,7 +140,7 @@ const PanZoomView = Class({
 
     minScale: function () {
         return this.get('isInDocument')
-            ? Math.min(this.get('pxWidth') / this.get('scrollWidth'), 1)
+            ? limit(this.get('pxWidth') / this.get('scrollWidth'), 0.25, 1)
             : 1;
     }.property('pxWidth', 'scrollWidth'),
 
