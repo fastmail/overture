@@ -38,7 +38,7 @@ class Database {
                 };
                 resolve(db);
             };
-            request.onerror = () => reject(request.errorCode);
+            request.onerror = () => reject(request.error);
         });
         _db.catch(() => {
             if (this._db === _db) {
@@ -84,7 +84,7 @@ class Database {
 const promisify = (request) =>
     new Promise((resolve, reject) => {
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.errorCode);
+        request.onerror = () => reject(request.error);
     });
 
 const iterate = async function* (cursor) {
