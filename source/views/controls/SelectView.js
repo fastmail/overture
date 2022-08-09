@@ -46,7 +46,7 @@ const SelectView = Class({
     baseClassName: 'v-Select',
 
     /**
-        Method (private): O.SelectView#_drawSelect
+        Method: O.SelectView#drawSelect
 
         Creates the DOM elements for the `<select>` and all `<option>` children.
 
@@ -56,7 +56,7 @@ const SelectView = Class({
         Returns:
             {Element} The `<select>`.
     */
-    drawControl() {
+    drawSelect() {
         const options = this.get('options');
         const selected = this.get('value');
         const select = (this._domControl = el(
@@ -76,6 +76,10 @@ const SelectView = Class({
             ),
         ));
         return select;
+    },
+
+    drawControl() {
+        return this.drawSelect();
     },
 
     // --- Keep render in sync with state ---
