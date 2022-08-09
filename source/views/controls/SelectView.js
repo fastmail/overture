@@ -25,7 +25,7 @@ const SelectView = Class({
         The array of options to present in the select menu. Each item in the
         array should be an object, with the following properties:
 
-        text       - {String} The text to display for the item
+        label      - {String} The text to display for the item
         value      - {*} The value for the <O.SelectView#value> property to take
                      when this item is selected.
         isDisabled - {Boolean} (optional) If true, the option will be disabled
@@ -68,7 +68,7 @@ const SelectView = Class({
             },
             options.map((option, i) =>
                 el('option', {
-                    text: option.text,
+                    text: option.label,
                     value: i,
                     selected: isEqual(option.value, selected),
                     disabled: !!option.isDisabled,
