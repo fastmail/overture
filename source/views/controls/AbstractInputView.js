@@ -196,69 +196,6 @@ const AbstractInputView = Class({
         this._domControl.value = this.get('value');
     },
 
-    // --- Focus ---
-
-    /**
-        Method: O.AbstractInputView#focus
-
-        Focusses the control.
-
-        Returns:
-            {O.AbstractInputView} Returns self.
-    */
-    focus() {
-        if (this.get('isInDocument')) {
-            this._domControl.focus({
-                preventScroll: true,
-            });
-            // Fire event synchronously.
-            if (!this.get('isFocused')) {
-                this.fire('focus', {
-                    target: this._domControl,
-                    targetView: this,
-                });
-            }
-        }
-        return this;
-    },
-
-    /**
-        Method: O.AbstractInputView#blur
-
-        Removes focus from the control.
-
-        Returns:
-            {O.AbstractInputView} Returns self.
-    */
-    blur() {
-        if (this.get('isInDocument')) {
-            this._domControl.blur();
-            // Fire event synchronously.
-            if (this.get('isFocused')) {
-                this.fire('blur', {
-                    target: this._domControl,
-                    targetView: this,
-                });
-            }
-        }
-        return this;
-    },
-
-    /**
-        Method (private): O.AbstractInputView#_updateIsFocused
-
-        Updates the <#isFocused> property.
-
-        Parameters:
-            event - {Event} The focus event.
-    */
-    _updateIsFocused: function (event) {
-        this.set(
-            'isFocused',
-            event.type === 'focus' && event.target === this._domControl,
-        );
-    }.on('focus', 'blur'),
-
     // --- Input ---
 
     userDidInput(value) {
