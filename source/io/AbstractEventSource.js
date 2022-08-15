@@ -94,11 +94,7 @@ class AbstractEventSource {
         if (this.readyState === CLOSED) {
             self.addEventListener('visibilitychange', this, false);
             if (typeof navigator.connection !== 'undefined') {
-                navigator.connection.addEventListener(
-                    'typechange',
-                    this,
-                    false,
-                );
+                navigator.connection.addEventListener('change', this, false);
             } else {
                 self.addEventListener('online', this, false);
             }
@@ -122,11 +118,7 @@ class AbstractEventSource {
             this._reconnectAfter = 0;
             self.removeEventListener('visibilitychange', this, false);
             if (typeof navigator.connection !== 'undefined') {
-                navigator.connection.removeEventListener(
-                    'typechange',
-                    this,
-                    false,
-                );
+                navigator.connection.removeEventListener('change', this, false);
             } else {
                 self.removeEventListener('online', this, false);
             }
