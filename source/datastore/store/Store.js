@@ -673,6 +673,26 @@ const Store = Class({
         return this.set('hasChanges', false);
     },
 
+    hasChangesForType(Type) {
+        const { _created, _destroyed, _skToChanged, _skToType } = this;
+        for (const storeKey in _created) {
+            if (Type === _skToType[storeKey]) {
+                return true;
+            }
+        }
+        for (const storeKey in _skToChanged) {
+            if (Type === _skToType[storeKey]) {
+                return true;
+            }
+        }
+        for (const storeKey in _destroyed) {
+            if (Type === _skToType[storeKey]) {
+                return true;
+            }
+        }
+        return false;
+    },
+
     /**
         Method: O.Store#commitChanges
 

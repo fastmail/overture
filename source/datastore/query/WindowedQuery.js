@@ -1364,10 +1364,23 @@ const WindowedQuery = Class({
         }
 
         if (refreshRequested || this.is(EMPTY)) {
-            this.set(
-                'status',
-                (this.get('status') | LOADING) & ~(OBSOLETE | DIRTY),
-            );
+            let status = this.get('status');
+            status |= LOADING;
+            status &= ~OBSOLETE;
+            // If we have applied pre-emptive updates since the last refresh,
+            // and the store still has changes for this type when this is
+            // fetched we must not clear the DIRTY flag, because the change
+            // that caused the pre-emptive update may still not be committed
+            // from the store to the source (if there was already a commit
+            // happening, it can get backed up by one round trip). We'll
+            // try again after this JMAP request has finished.
+            if (
+                status & DIRTY &&
+                !this.get('store').hasChangesForType(this.get('Type'))
+            ) {
+                status &= ~DIRTY;
+            }
+            this.set('status', status);
         }
 
         return {
@@ -1381,6 +1394,9 @@ const WindowedQuery = Class({
                         status & ~(WINDOW_LOADING | WINDOW_RECORDS_LOADING),
                 );
                 this.set('status', this.get('status') & ~LOADING);
+                if (this.is(DIRTY) && !this.is(OBSOLETE)) {
+                    this.setObsolete();
+                }
             },
         };
     },
