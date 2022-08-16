@@ -52,7 +52,11 @@ const getRule = function (rules, offset, datetime, isUTC, recurse) {
                 const difference =
                     (Math.abs(day) - ruleDate.getUTCDay() + 6) % 7;
                 if (difference) {
-                    ruleDate.add(day < 1 ? difference - 7 : difference);
+                    ruleDate.add(
+                        day < 1 ? difference - 7 : difference,
+                        'day',
+                        true,
+                    );
                 }
             }
 
@@ -64,7 +68,7 @@ const getRule = function (rules, offset, datetime, isUTC, recurse) {
             // Now match up timezones
             const ruleIsUTC = !rule[8];
             if (ruleIsUTC !== isUTC) {
-                ruleDate.add((ruleIsUTC ? 1 : -1) * offset, 'second');
+                ruleDate.add((ruleIsUTC ? 1 : -1) * offset, 'second', true);
                 // We need to add the offset of the previous rule. Sigh.
                 // The maximum time offset from a rule is 2 hours. So if within
                 // 3 hours, find the rule for the previous day.
@@ -83,6 +87,7 @@ const getRule = function (rules, offset, datetime, isUTC, recurse) {
                         ruleDate.add(
                             (ruleIsUTC ? 1 : -1) * prevRule[9],
                             'second',
+                            true,
                         );
                     }
                 }
@@ -92,7 +97,7 @@ const getRule = function (rules, offset, datetime, isUTC, recurse) {
             // or invalid. We should pick the rule to follow RFC5545 guidance:
             // Presume the earlier rule is still in effect in both cases
             if (!isUTC) {
-                ruleDate.add(rule[9], 'second');
+                ruleDate.add(rule[9], 'second', true);
                 if (Math.abs(ruleDate - datetime) <= 3 * 60 * 60 * 1000) {
                     prevRule =
                         prevRule ||
@@ -104,7 +109,7 @@ const getRule = function (rules, offset, datetime, isUTC, recurse) {
                             true,
                         );
                     if (prevRule) {
-                        ruleDate.add(prevRule[9], 'second');
+                        ruleDate.add(prevRule[9], 'second', true);
                     }
                 }
             }

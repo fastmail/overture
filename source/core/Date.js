@@ -88,7 +88,6 @@ const duration = {
     minute: 60000,
     hour: 3600000,
     day: aDay,
-    week: 604800000,
 };
 
 Object.assign(Date.prototype, {
@@ -317,19 +316,35 @@ Object.assign(Date.prototype, {
             unit   - {String} (optional) The unit of the first argument. Must be
                      one of 'second'/minute'/'hour'/'day'/'week'/'month'/'year'.
                      If not supplied, defaults to 'day'.
+            utc    - {Boolean} (optional) If true, the delta will be applied to
+                     the UTC time of this date object.
 
         Returns:
             {Date} Returns self.
     */
-    add(number, unit) {
+    add(number, unit, utc) {
+        if (!unit) {
+            unit = 'day';
+        } else if (unit === 'week') {
+            unit = 'day';
+            number *= 7;
+        }
         if (unit === 'year') {
-            this.setFullYear(this.getFullYear() + number);
+            if (utc) {
+                this.setUTCFullYear(this.getUTCFullYear() + number);
+            } else {
+                this.setFullYear(this.getFullYear() + number);
+            }
         } else if (unit === 'month') {
-            this.setMonth(this.getMonth() + number);
+            if (utc) {
+                this.setUTCMonth(this.getUTCMonth() + number);
+            } else {
+                this.setMonth(this.getMonth() + number);
+            }
+        } else if (!utc && unit === 'day') {
+            this.setDate(this.getDate() + number);
         } else {
-            this.setTime(
-                this.getTime() + number * (duration[unit || 'day'] || 0),
-            );
+            this.setTime(this.getTime() + number * (duration[unit] || 0));
         }
         return this;
     },
@@ -344,12 +359,14 @@ Object.assign(Date.prototype, {
             unit   - {String} (optional) The unit of the first argument. Must be
                      one of 'second'/minute'/'hour'/'day'/'week'/'month'/'year'.
                      If not supplied, defaults to 'day'.
+            utc    - {Boolean} (optional) If true, the delta will be applied to
+                     the UTC time of this date object.
 
         Returns:
             {Date} Returns self.
     */
-    subtract(number, unit) {
-        return this.add(-number, unit);
+    subtract(number, unit, utc) {
+        return this.add(-number, unit, utc);
     },
 
     /**

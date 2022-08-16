@@ -471,7 +471,7 @@ const interpreter = {
 
         if (adjust) {
             for (let i = 0, l = adjust.length; i < l; i += 1) {
-                date.add(adjust[i][0], adjust[i][1]);
+                date.add(adjust[i][0], adjust[i][1], false);
             }
         }
 
