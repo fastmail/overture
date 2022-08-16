@@ -23,6 +23,8 @@ const processResponse = (request, response) => {
     return response;
 };
 
+const removeSearch = (url) => url.replace(/[?].*$/, '');
+
 class CacheManager {
     constructor(rules) {
         for (const key in rules) {
@@ -49,9 +51,12 @@ class CacheManager {
     async getIn(cacheName, request) {
         const rules = this.rules[cacheName];
         const cache = await caches.open(cacheName);
-        const cacheUrl = request.url
-            .replace(bearerParam, '')
-            .replace(downloadParam, '');
+        const cacheUrl =
+            rules && rules.ignoreSearch
+                ? removeSearch(request.url)
+                : request.url
+                      .replace(bearerParam, '')
+                      .replace(downloadParam, '');
         const response = await cache.match(cacheUrl);
         if (response) {
             if (rules) {
@@ -65,10 +70,13 @@ class CacheManager {
     }
 
     async fetchAndCacheIn(cacheName, request) {
-        let url = request.url;
-        if (request.mode === 'no-cors' || downloadParam.test(url)) {
-            url = url.replace(downloadParam, '');
-            request = new Request(url, {
+        const ignoreSearch = this.rules[cacheName].ignoreSearch;
+        const requestUrl = request.url;
+        let fetchUrl = ignoreSearch
+            ? removeSearch(requestUrl)
+            : requestUrl.replace(downloadParam, '');
+        if (request.mode === 'no-cors' || fetchUrl !== requestUrl) {
+            request = new Request(fetchUrl, {
                 mode: 'cors',
                 referrer: 'no-referrer',
             });
@@ -76,8 +84,8 @@ class CacheManager {
         let response = await fetch(request);
         // Cache if valid
         if (response && response.status === 200) {
-            url = url.replace(bearerParam, '');
-            this.setIn(cacheName, url, response.clone(), null);
+            fetchUrl = fetchUrl.replace(bearerParam, '');
+            this.setIn(cacheName, fetchUrl, response.clone(), null);
             response = processResponse(request, response);
         }
         return response;
