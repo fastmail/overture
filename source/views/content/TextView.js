@@ -58,7 +58,7 @@ const TextView = Class({
         if (tooltip) {
             layer.title = tooltip;
         }
-        layer.textContent = this.get('value');
+        return [this.get('value')];
     },
 
     /**
@@ -99,7 +99,7 @@ const TextView = Class({
         the view.
     */
     redrawValue(layer) {
-        layer.textContent = this.get('value');
+        layer.set('children', [this.get('value')]);
     },
 });
 
