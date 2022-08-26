@@ -1,17 +1,27 @@
 {
-  "name": "todo",
-  "version": "1.0.0",
-  "description": "",
-  "main": "source/main.js",
-  "scripts": {
-    "dev": "vite"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "prettier": "^2.2.1",
-    "vite": "^3.0.0"
-  },
-  "type": "module"
+    "name": "todo",
+    "version": "1.0.0",
+    "description": "",
+    "main": "source/main.js",
+    "scripts": {
+        "dev": "vite",
+        "fix": "eslint --fix source && prettier --write source && stylelint --fix 'styles/*.css'",
+        "lint": "npm run lint-eslint && npm run lint-prettier && npm run lint-stylelint",
+        "lint-eslint": "eslint source",
+        "lint-prettier": "prettier --check source",
+        "lint-stylelint": "stylelint 'styles/*.css'"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "eslint": "^8.22.0",
+        "eslint-plugin-cypress": "^2.12.1",
+        "prettier": "^2.2.1",
+        "stylelint": "^13.13.1",
+        "stylelint-config-standard": "^20.0.0",
+        "stylelint-order": "^4.1.0",
+        "vite": "^3.0.0"
+    },
+    "type": "module"
 }
