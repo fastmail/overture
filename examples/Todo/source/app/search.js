@@ -7,7 +7,7 @@ import {
     ParseResult,
     repeat,
     sequence,
-} from 'overture/parse';
+} from '/overture/parse';
 
 const bool = define( 'bool', (/^(?:is:(?:not)?done)\b/) );
 const op = define( 'op', (/^(?:AND|OR|NOT)/) );

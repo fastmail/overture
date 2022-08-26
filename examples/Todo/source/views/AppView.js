@@ -1,7 +1,7 @@
-import { Class } from 'overture/core';
-import { el } from 'overture/dom';
-import { bind, bindTwoWay, invert } from 'overture/foundation';
-import { ButtonView, TextView, ListView, SearchInputView, ToolbarView, View } from 'overture/views';
+import { Class } from '/overture/core';
+import { el } from '/overture/dom';
+import { bind, bindTwoWay, invert } from '/overture/foundation';
+import { ButtonView, TextView, ListView, SearchInputView, ToolbarView, View } from '/overture/views';
 
 import { actions, state, undoManager } from '../app';
 import { TodoView } from './TodoView.js';

@@ -1,4 +1,4 @@
-import { GlobalKeyboardShortcuts } from 'overture/application';
+import { GlobalKeyboardShortcuts } from '/overture/application';
 
 import * as actions from './actions.js';
 import { undoManager } from './store.js';

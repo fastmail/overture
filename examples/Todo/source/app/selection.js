@@ -1,5 +1,5 @@
-import { bind } from 'overture/foundation';
-import { SingleSelectionController } from 'overture/selection';
+import { bind } from '/overture/foundation';
+import { SingleSelectionController } from '/overture/selection';
 
 import { state } from './state.js';
 

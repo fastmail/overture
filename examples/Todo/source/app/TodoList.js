@@ -1,6 +1,6 @@
-import { Class } from 'overture/core';
-import { attr, Record } from 'overture/datastore';
-import { loc } from 'overture/localisation';
+import { Class } from '/overture/core';
+import { attr, Record } from '/overture/datastore';
+import { loc } from '/overture/localisation';
 
 /*
     A TodoList is simply a name for a collection of todos. All todos belong
@@ -22,7 +22,7 @@ const TodoList = Class({
                 error = loc( 'Required' );
             }
             else if ( propValue.length > 25 ) {
-                error = loc( 'Too long: use at most [*2,_1,%n character,%n characters].', 25 );
+                error = loc( 'Too long: use at most 25 characters' );
             }
             return error;
         }

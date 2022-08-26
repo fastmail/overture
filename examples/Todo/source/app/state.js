@@ -1,5 +1,5 @@
-import { Router } from 'overture/application';
-import { DESTROYED, LOADING, LocalQuery, NON_EXISTENT } from 'overture/datastore';
+import { Router } from '/overture/application';
+import { DESTROYED, LOADING, LocalQuery, NON_EXISTENT } from '/overture/datastore';
 
 import { Todo } from './Todo.js';
 import { TodoList } from './TodoList.js';

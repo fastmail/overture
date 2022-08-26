@@ -1,9 +1,9 @@
-import { AnimatableView } from 'overture/animation';
-import { Class } from 'overture/core';
-import { el, lookupKey } from 'overture/dom';
-import { Draggable } from 'overture/drag';
-import { bind, bindTwoWay } from 'overture/foundation';
-import { CheckboxView, ListItemView, TextInputView, when } from 'overture/views';
+import { AnimatableView } from '/overture/animation';
+import { Class } from '/overture/core';
+import { el, lookupKey } from '/overture/dom';
+import { Draggable } from '/overture/drag';
+import { bind, bindTwoWay } from '/overture/foundation';
+import { CheckboxView, ListItemView, TextInputView, when } from '/overture/views';
 
 import { actions, selectedTodo, state, store } from '../app';
 

@@ -2,11 +2,11 @@
 
 /*global console, alert */
 
-import { Class, guid, isEqual, zip } from 'overture/core';
-import { Source } from 'overture/datastore';
-import { didError, queueFn } from 'overture/foundation';
-import { localise as loc } from 'overture/localisation';
-import { HttpRequest } from 'overture/io'
+import { Class, guid, isEqual, zip } from '/overture/core';
+import { Source } from '/overture/datastore';
+import { didError, queueFn } from '/overture/foundation';
+import { localise as loc } from '/overture/localisation';
+import { HttpRequest } from '/overture/io'
 
 // const auth = JMAP.auth;
 
@@ -307,7 +307,7 @@ const Connection = Class({
             break;
         // 500: Internal Server Error
         case 500:
-            alert( loc( 'FEEDBACK_SERVER_FAILED' ) );
+            alert( loc( 'Sorry, something went wrong' ) );
             discardRequest = true;
             break;
         // Presume a connection error. Try again if willRetry is set,

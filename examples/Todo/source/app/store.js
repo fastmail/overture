@@ -1,4 +1,4 @@
-import { Store, StoreUndoManager } from 'overture/datastore';
+import { Store, StoreUndoManager } from '/overture/datastore';
 
 import { source } from './source.js';
 

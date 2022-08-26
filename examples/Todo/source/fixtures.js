@@ -1,5 +1,5 @@
 /*global console, setTimeout, clearTimeout, window */
-import { zip } from 'overture/core';
+import { zip } from '/overture/core';
 
 const confirmCommit = function ( args, extras ) {
     const result = {};

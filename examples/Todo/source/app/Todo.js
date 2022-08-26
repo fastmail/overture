@@ -1,5 +1,5 @@
-import { Class } from 'overture/core';
-import { attr, NEW, Record, toOne } from 'overture/datastore';
+import { Class } from '/overture/core';
+import { attr, NEW, Record, toOne } from '/overture/datastore';
 
 import { TodoList } from './TodoList.js';
 

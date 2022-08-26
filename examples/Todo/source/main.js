@@ -15,10 +15,10 @@
 
     – Neil Jenkins (2014-12-19)
 */
-import 'overture/Global';
-import { classes } from 'overture/core';
-import { flushAllQueues } from 'overture/foundation';
-import { ButtonView, ClearSearchButtonView, KeyDownController, RootView, ShortcutOverlayView, when, getViewFromNode } from 'overture/views';
+import '/overture/Global';
+import { classes } from '/overture/core';
+import { flushAllQueues } from '/overture/foundation';
+import { ButtonView, ClearSearchButtonView, KeyDownController, RootView, ShortcutOverlayView, when, getViewFromNode } from '/overture/views';
 
 import './fixtures';
 import './locale';

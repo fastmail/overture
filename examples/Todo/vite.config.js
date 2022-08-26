@@ -1,12 +1,11 @@
 /*eslint-env node*/
-import { resolve } from 'path';
+import { join } from 'path';
+import { defineConfig } from 'vite';
 
-import importLang from '../../tooling/rollup/rollup-plugin-lang-import';
-
-export default {
-    alias: {
-        overture: resolve('../../source'),
-        strings: resolve('../../../../localisation/strings'),
+export default defineConfig({
+    resolve: {
+        alias: {
+            '/overture/': join(__dirname, '../../source/'),
+        },
     },
-    plugins: [importLang()],
-};
+});
