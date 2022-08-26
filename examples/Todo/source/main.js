@@ -18,14 +18,22 @@
 import '/overture/Global';
 import { classes } from '/overture/core';
 import { flushAllQueues } from '/overture/foundation';
-import { ButtonView, ClearSearchButtonView, KeyDownController, RootView, ShortcutOverlayView, when, getViewFromNode } from '/overture/views';
+import {
+    ButtonView,
+    ClearSearchButtonView,
+    KeyDownController,
+    RootView,
+    ShortcutOverlayView,
+    when,
+    getViewFromNode,
+} from '/overture/views';
 
 import './fixtures';
 import './locale';
-import { keyboardShortcuts, selectedTodo, state, undoManager } from './app';
+import { keyboardShortcuts, selectedTodo, state } from './app';
 import { AppView } from './views';
 
-/*globals document */
+/*globals document, window */
 
 // ---
 
@@ -36,13 +44,13 @@ import { AppView } from './views';
 /* A RootView instance is required for each browser window under the control of
    your app
 */
-const rootView = new RootView( document, {
-    selectNone: function ( event ) {
-        if ( !( event.targetView instanceof ButtonView ) ) {
-            state.set( 'editTodo', null );
-            selectedTodo.set( 'record', null );
+const rootView = new RootView(document, {
+    selectNone: function (event) {
+        if (!(event.targetView instanceof ButtonView)) {
+            state.set('editTodo', null);
+            selectedTodo.set('record', null);
         }
-    }.on( 'click' )
+    }.on('click'),
 });
 
 ClearSearchButtonView.prototype.icon = 'icon-clear';
@@ -50,19 +58,18 @@ ClearSearchButtonView.prototype.icon = 'icon-clear';
 const appView = new AppView();
 
 /* Insert the view we've constructred into the document */
-rootView.insertView( appView );
+rootView.insertView(appView);
 
 /* Create and insert the shortcut overlay */
 const shortcutOverlayController = new KeyDownController({
     delay: 400,
 });
 
-const shortcutOverlayView = when( shortcutOverlayController, 'isKeyDown' )
-    .show([
-        new ShortcutOverlayView({ shortcuts: keyboardShortcuts }),
-    ]).end();
+const shortcutOverlayView = when(shortcutOverlayController, 'isKeyDown')
+    .show([new ShortcutOverlayView({ shortcuts: keyboardShortcuts })])
+    .end();
 
-rootView.insertView( shortcutOverlayView );
+rootView.insertView(shortcutOverlayView);
 
 /*  Because this setup code is not being run inside a run loop, we now need to
     flush all queues. Other than this, the queues will be managed completely

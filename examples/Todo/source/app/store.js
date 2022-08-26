@@ -22,14 +22,14 @@ import { source } from './source.js';
 const store = new Store({
     source,
     autoCommit: false,
-    getPrimaryAccountIdForType (/* Type */) {
+    getPrimaryAccountIdForType(/* Type */) {
         return 'todo';
     },
 });
 
-store.addAccount ( 'todo', {
+store.addAccount('todo', {
     accountCapabilities: {
-        'https://overturejs.com/Todo/': {}
+        'https://overturejs.com/Todo/': {},
     },
 });
 
@@ -39,7 +39,7 @@ store.addAccount ( 'todo', {
 */
 const undoManager = new StoreUndoManager({
     store,
-    maxUndoCount: 10
+    maxUndoCount: 10,
 });
 
 export { store, undoManager };

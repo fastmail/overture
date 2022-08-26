@@ -6,119 +6,133 @@ import { Class, guid, isEqual, zip } from '/overture/core';
 import { Source } from '/overture/datastore';
 import { didError, queueFn } from '/overture/foundation';
 import { localise as loc } from '/overture/localisation';
-import { HttpRequest } from '/overture/io'
+import { HttpRequest } from '/overture/io';
 
 // const auth = JMAP.auth;
 
 // ---
 
-const applyPatch = function ( object, path, patch ) {
-    let slash; let key;
-    while ( true ) {
+const applyPatch = function (object, path, patch) {
+    let slash;
+    let key;
+    while (true) {
         // Invalid patch; path does not exist
-        if ( !object ) {
+        if (!object) {
             return;
         }
-        slash = path.indexOf( '/' );
-        if ( slash > -1 ) {
-            key = path.slice( 0, slash );
-            path = path.slice( slash + 1 );
+        slash = path.indexOf('/');
+        if (slash > -1) {
+            key = path.slice(0, slash);
+            path = path.slice(slash + 1);
         } else {
             key = path;
         }
-        key = key.replace( /~1/g, '/' ).replace( /~0/g, '~' );
-        if ( slash > -1 ) {
-            object = object[ key ];
+        key = key.replace(/~1/g, '/').replace(/~0/g, '~');
+        if (slash > -1) {
+            object = object[key];
         } else {
-            if ( patch !== null ) {
-                object[ key ] = patch;
+            if (patch !== null) {
+                object[key] = patch;
             } else {
-                delete object[ key ];
+                delete object[key];
             }
             break;
         }
     }
 };
 
-const makePatches = function ( path, patches, original, current ) {
+const makePatches = function (path, patches, original, current) {
     let key;
     let didPatch = false;
-    if ( original && current &&
-            typeof current === 'object' && !( current instanceof Array ) ) {
-        for ( key in current ) {
-            didPatch = makePatches(
-                path + '/' + key.replace( /~/g, '~0' ).replace( /\//g, '~1' ),
-                patches,
-                original[ key ],
-                current[ key ]
-            ) || didPatch;
-        }
-        for ( key in original ) {
-            if ( !( key in current ) ) {
-                didPatch = makePatches(
-                    path + '/' +
-                        key.replace( /~/g, '~0' ).replace( /\//g, '~1' ),
+    if (
+        original &&
+        current &&
+        typeof current === 'object' &&
+        !(current instanceof Array)
+    ) {
+        for (key in current) {
+            didPatch =
+                makePatches(
+                    path + '/' + key.replace(/~/g, '~0').replace(/\//g, '~1'),
                     patches,
-                    original[ key ],
-                    null
+                    original[key],
+                    current[key],
                 ) || didPatch;
+        }
+        for (key in original) {
+            if (!(key in current)) {
+                didPatch =
+                    makePatches(
+                        path +
+                            '/' +
+                            key.replace(/~/g, '~0').replace(/\//g, '~1'),
+                        patches,
+                        original[key],
+                        null,
+                    ) || didPatch;
             }
         }
-    } else if ( !isEqual( original, current ) ) {
-        patches[ path ] = current !== undefined ? current : null;
+    } else if (!isEqual(original, current)) {
+        patches[path] = current !== undefined ? current : null;
         didPatch = true;
     }
     return didPatch;
 };
 
-const makeUpdate = function ( primaryKey, update, noPatch, isCopy ) {
+const makeUpdate = function (primaryKey, update, noPatch, isCopy) {
     const storeKeys = update.storeKeys;
     const records = update.records;
     const changes = update.changes;
     const committed = update.committed;
     const updates = {};
-    let record; let change; let previous; let patches; let i; let l; let key;
-    for ( i = 0, l = records.length; i < l; i +=1 ) {
+    let record;
+    let change;
+    let previous;
+    let patches;
+    let i;
+    let l;
+    let key;
+    for (i = 0, l = records.length; i < l; i += 1) {
         record = records[i];
         change = changes[i];
         previous = committed[i];
         patches = {};
 
-        for ( key in change ) {
-            if ( change[ key ] && key !== 'accountId' ) {
-                if ( noPatch ) {
-                    patches[ key ] = record[ key ];
+        for (key in change) {
+            if (change[key] && key !== 'accountId') {
+                if (noPatch) {
+                    patches[key] = record[key];
                 } else {
-                    makePatches( key, patches, previous[ key ], record[ key ] );
+                    makePatches(key, patches, previous[key], record[key]);
                 }
             }
         }
-        if ( isCopy ) {
-            patches[ primaryKey ] = record[ primaryKey ];
+        if (isCopy) {
+            patches[primaryKey] = record[primaryKey];
         }
 
-        updates[ isCopy ? storeKeys[i] : record[ primaryKey ] ] = patches;
+        updates[isCopy ? storeKeys[i] : record[primaryKey]] = patches;
     }
-    return Object.keys( updates ).length ? updates : undefined;
+    return Object.keys(updates).length ? updates : undefined;
 };
 
-const makeSetRequest = function ( change, noPatch ) {
+const makeSetRequest = function (change, noPatch) {
     const create = change.create;
     const update = change.update;
     const destroy = change.destroy;
-    const toCreate = create.storeKeys.length ?
-        zip( create.storeKeys, create.records ) :
-        undefined;
-    const toUpdate = makeUpdate( change.primaryKey, update, noPatch, false );
-    const toDestroy = destroy.ids.length ?
-        destroy.ids :
-        undefined;
-    return toCreate || toUpdate || toDestroy ? {
-        accountId: change.accountId,
-        create: toCreate,
-        update: toUpdate,
-        destroy: toDestroy,
-    } : null;
+    const toCreate = create.storeKeys.length
+        ? zip(create.storeKeys, create.records)
+        : undefined;
+    const toUpdate = makeUpdate(change.primaryKey, update, noPatch, false);
+    const toDestroy = destroy.ids.length ? destroy.ids : undefined;
+    return toCreate || toUpdate || toDestroy
+        ? {
+              accountId: change.accountId,
+              create: toCreate,
+              update: toUpdate,
+              destroy: toDestroy,
+          }
+        : null;
 };
 
 const handleProps = {
@@ -173,7 +187,7 @@ const Connection = Class({
                     methods). If you don't specify this, your source isn't going
                     to do much!
     */
-    init: function ( mixin ) {
+    init: function (mixin) {
         // List of method/args queued for sending in the next request.
         this._sendQueue = [];
         // List of callback functions to be executed after the next request.
@@ -194,7 +208,7 @@ const Connection = Class({
         this.inFlightCallbacks = null;
         this.inFlightRequest = null;
 
-        Connection.parent.constructor.call( this, mixin );
+        Connection.parent.constructor.call(this, mixin);
     },
 
     prettyPrint: false,
@@ -233,27 +247,27 @@ const Connection = Class({
         Parameters:
             event - {IOEvent}
     */
-    ioDidSucceed: function ( event ) {
+    ioDidSucceed: function (event) {
         let methodResponses = event.data && event.data.methodResponses;
-        if ( !methodResponses ) {
+        if (!methodResponses) {
             didError({
                 name: 'JMAP.Connection#ioDidSucceed',
                 message: 'No method responses received.',
-                details: 'Request:\n' +
-                    JSON.stringify( this.get( 'inFlightRemoteCalls' ), null, 2 )
+                details:
+                    'Request:\n' +
+                    JSON.stringify(this.get('inFlightRemoteCalls'), null, 2),
             });
             methodResponses = [];
         }
 
         this.receive(
             methodResponses,
-            this.get( 'inFlightCallbacks' ),
-            this.get( 'inFlightRemoteCalls' )
+            this.get('inFlightCallbacks'),
+            this.get('inFlightRemoteCalls'),
         );
 
-        this.set( 'inFlightRemoteCalls', null )
-            .set( 'inFlightCallbacks', null );
-    }.on( 'io:success' ),
+        this.set('inFlightRemoteCalls', null).set('inFlightCallbacks', null);
+    }.on('io:success'),
 
     /**
         Method: JMAP.Connection#ioDidFail
@@ -263,74 +277,81 @@ const Connection = Class({
         Parameters:
             event - {IOEvent}
     */
-    ioDidFail: function ( event ) {
+    ioDidFail: function (event) {
         let discardRequest = false;
         const status = event.status;
 
-        switch ( status ) {
-        // 400: Bad Request
-        // 413: Payload Too Large
-        case 400:
-        case 413: {
-            const response = event.data;
-            didError({
-                name: 'JMAP.Connection#ioDidFail',
-                message: 'Bad request made: ' + status,
-                details: 'Request was:\n' +
-                    JSON.stringify(
-                        this.get( 'inFlightRemoteCalls' ), null, 2 ) +
-                    '\n\nResponse was:\n' +
-                    ( response ? JSON.stringify( response, null, 2 ) :
-                        '(no data, the response probably wasn’t valid JSON)' ),
-            });
-            discardRequest = true;
-            break;
-        }
-        // 401: Unauthorized
-        case 401:
-            // auth.didLoseAuthentication()
-            //     .connectionWillSend( this );
-            break;
-        // 404: Not Found
-        case 404:
-            // auth.fetchSessions()
-            //     .connectionWillSend( this );
-            break;
-        // 429: Rate Limited
-        // 502/503/504: Service Unavailable
-        // Wait a bit then try again
-        case 429:
-        case 502: // Bad Gateway
-        case 503: // Service Unavailable
-        case 504: // Gateway Timeout
-            // auth.connectionFailed( this, 30 );
-            break;
-        // 500: Internal Server Error
-        case 500:
-            alert( loc( 'Sorry, something went wrong' ) );
-            discardRequest = true;
-            break;
-        // Presume a connection error. Try again if willRetry is set,
-        // otherwise discard.
-        default:
-            if ( this.get( 'willRetry' ) ) {
-                // auth.connectionFailed( this );
-            } else {
+        switch (status) {
+            // 400: Bad Request
+            // 413: Payload Too Large
+            case 400:
+            case 413: {
+                const response = event.data;
+                didError({
+                    name: 'JMAP.Connection#ioDidFail',
+                    message: 'Bad request made: ' + status,
+                    details:
+                        'Request was:\n' +
+                        JSON.stringify(
+                            this.get('inFlightRemoteCalls'),
+                            null,
+                            2,
+                        ) +
+                        '\n\nResponse was:\n' +
+                        (response
+                            ? JSON.stringify(response, null, 2)
+                            : '(no data, the response probably wasn’t valid JSON)'),
+                });
                 discardRequest = true;
+                break;
             }
+            // 401: Unauthorized
+            case 401:
+                // auth.didLoseAuthentication()
+                //     .connectionWillSend( this );
+                break;
+            // 404: Not Found
+            case 404:
+                // auth.fetchSessions()
+                //     .connectionWillSend( this );
+                break;
+            // 429: Rate Limited
+            // 502/503/504: Service Unavailable
+            // Wait a bit then try again
+            case 429:
+            case 502: // Bad Gateway
+            case 503: // Service Unavailable
+            case 504: // Gateway Timeout
+                // auth.connectionFailed( this, 30 );
+                break;
+            // 500: Internal Server Error
+            case 500:
+                alert(loc('Sorry, something went wrong'));
+                discardRequest = true;
+                break;
+            // Presume a connection error. Try again if willRetry is set,
+            // otherwise discard.
+            default:
+                if (this.get('willRetry')) {
+                    // auth.connectionFailed( this );
+                } else {
+                    discardRequest = true;
+                }
         }
 
-        if ( discardRequest ) {
+        if (discardRequest) {
             this.receive(
                 [],
-                this.get( 'inFlightCallbacks' ),
-                this.get( 'inFlightRemoteCalls' )
+                this.get('inFlightCallbacks'),
+                this.get('inFlightRemoteCalls'),
             );
 
-            this.set( 'inFlightRemoteCalls', null )
-                .set( 'inFlightCallbacks', null );
+            this.set('inFlightRemoteCalls', null).set(
+                'inFlightCallbacks',
+                null,
+            );
         }
-    }.on( 'io:failure', 'io:abort' ),
+    }.on('io:failure', 'io:abort'),
 
     /**
         Method: JMAP.Connection#ioDidEnd
@@ -340,13 +361,12 @@ const Connection = Class({
         Parameters:
             event - {IOEvent}
     */
-    ioDidEnd: function ( event ) {
+    ioDidEnd: function (event) {
         // Send any waiting requests
-        this.set( 'inFlightRequest', null )
-            .send();
+        this.set('inFlightRequest', null).send();
         // Destroy old HttpRequest object.
         event.target.destroy();
-    }.on( 'io:end' ),
+    }.on('io:end'),
 
     /**
         Method: JMAP.Connection#callMethod
@@ -360,43 +380,43 @@ const Connection = Class({
             callback - {Function} (optional) A callback to execute after the
                         request completes successfully.
     */
-    callMethod ( name, args, callback ) {
+    callMethod(name, args, callback) {
         const id = this._sendQueue.length + '';
-        this._sendQueue.push([ name, args || {}, id ]);
-        if ( callback ) {
-            this._callbackQueue.push([ id, callback ]);
+        this._sendQueue.push([name, args || {}, id]);
+        if (callback) {
+            this._callbackQueue.push([id, callback]);
         }
         this.send();
         return this;
     },
 
-    getPreviousMethodId () {
-        return ( this._sendQueue.length - 1 ) + '';
+    getPreviousMethodId() {
+        return this._sendQueue.length - 1 + '';
     },
 
-    fetchType ( typeId, accountId, ids ) {
-        this.callMethod( typeId + '/get', {
+    fetchType(typeId, accountId, ids) {
+        this.callMethod(typeId + '/get', {
             accountId,
             ids,
         });
     },
 
-    refreshType ( typeId, accountId, ids, state ) {
+    refreshType(typeId, accountId, ids, state) {
         const get = typeId + '/get';
-        if ( ids ) {
-            this.callMethod( get, {
+        if (ids) {
+            this.callMethod(get, {
                 accountId,
                 ids,
             });
         } else {
             const changes = typeId + '/changes';
-            this.callMethod( changes, {
+            this.callMethod(changes, {
                 accountId,
                 sinceState: state,
                 maxChanges: 100,
             });
             const methodId = this.getPreviousMethodId();
-            this.callMethod( get, {
+            this.callMethod(get, {
                 accountId,
                 '#ids': {
                     resultOf: methodId,
@@ -404,7 +424,7 @@ const Connection = Class({
                     path: '/created',
                 },
             });
-            this.callMethod( get, {
+            this.callMethod(get, {
                 accountId,
                 '#ids': {
                     resultOf: methodId,
@@ -416,23 +436,25 @@ const Connection = Class({
         return this;
     },
 
-    commitType ( typeId, changes ) {
-        const setRequest = makeSetRequest( changes, false );
-        let moveFromAccount; let fromAccountId; let toAccountId;
-        if ( setRequest ) {
-            this.callMethod( typeId + '/set', setRequest );
+    commitType(typeId, changes) {
+        const setRequest = makeSetRequest(changes, false);
+        let moveFromAccount;
+        let fromAccountId;
+        let toAccountId;
+        if (setRequest) {
+            this.callMethod(typeId + '/set', setRequest);
         }
-        if (( moveFromAccount = changes.moveFromAccount )) {
+        if ((moveFromAccount = changes.moveFromAccount)) {
             toAccountId = changes.accountId;
-            for ( fromAccountId in moveFromAccount ) {
-                this.callMethod( typeId + '/copy', {
+            for (fromAccountId in moveFromAccount) {
+                this.callMethod(typeId + '/copy', {
                     fromAccountId,
                     toAccountId,
                     create: makeUpdate(
                         changes.primaryKey,
-                        moveFromAccount[ fromAccountId ],
+                        moveFromAccount[fromAccountId],
                         true,
-                        true
+                        true,
                     ),
                     onSuccessDestroyOriginal: true,
                 });
@@ -440,23 +462,23 @@ const Connection = Class({
         }
     },
 
-    addCallback ( callback ) {
-        this._callbackQueue.push([ '', callback ]);
+    addCallback(callback) {
+        this._callbackQueue.push(['', callback]);
         return this;
     },
 
-    hasRequests () {
+    hasRequests() {
         let id;
-        if ( this.get( 'inFlightRemoteCalls' ) || this._sendQueue.length ) {
+        if (this.get('inFlightRemoteCalls') || this._sendQueue.length) {
             return true;
         }
-        for ( id in this._queriesToFetch ) {
+        for (id in this._queriesToFetch) {
             return true;
         }
-        for ( id in this._recordsToFetch ) {
+        for (id in this._recordsToFetch) {
             return true;
         }
-        for ( id in this._recordsToRefresh ) {
+        for (id in this._recordsToRefresh) {
             return true;
         }
         return false;
@@ -467,7 +489,9 @@ const Connection = Class({
             'Content-type': 'application/json',
             'Accept': 'application/json',
         };
-    }.property().nocache(),
+    }
+        .property()
+        .nocache(),
 
     /**
         Method: JMAP.Connection#send
@@ -475,35 +499,42 @@ const Connection = Class({
         Send any queued method calls at the end of the current run loop.
     */
     send: function () {
-        if ( this.get( 'inFlightRequest' ) ) {
+        if (this.get('inFlightRequest')) {
             return;
         }
 
-        let remoteCalls = this.get( 'inFlightRemoteCalls' );
+        let remoteCalls = this.get('inFlightRemoteCalls');
         let request;
-        if ( !remoteCalls ) {
+        if (!remoteCalls) {
             request = this.makeRequest();
             remoteCalls = request[0];
-            if ( !remoteCalls.length ) { return; }
-            this.set( 'inFlightRemoteCalls', remoteCalls );
-            this.set( 'inFlightCallbacks', request[1] );
+            if (!remoteCalls.length) {
+                return;
+            }
+            this.set('inFlightRemoteCalls', remoteCalls);
+            this.set('inFlightCallbacks', request[1]);
         }
 
-        this.set( 'inFlightRequest',
+        this.set(
+            'inFlightRequest',
             new HttpRequest({
                 nextEventTarget: this,
-                timeout: this.get( 'timeout' ),
+                timeout: this.get('timeout'),
                 method: 'POST',
                 url: '/api/',
-                headers: this.get( 'headers' ),
+                headers: this.get('headers'),
                 withCredentials: true,
                 responseType: 'json',
-                data: JSON.stringify({
-                    methodCalls: remoteCalls,
-                }, null, this.get( 'prettyPrint' ) ? 2 : 0 ),
-            }).send()
+                data: JSON.stringify(
+                    {
+                        methodCalls: remoteCalls,
+                    },
+                    null,
+                    this.get('prettyPrint') ? 2 : 0,
+                ),
+            }).send(),
         );
-    }.queue( 'after' ),
+    }.queue('after'),
 
     /**
         Method: JMAP.Connection#receive
@@ -519,38 +550,38 @@ const Connection = Class({
             remoteCalls - {Array} The array of method calls that was executed on
                             the server.
     */
-    receive ( data, callbacks, remoteCalls ) {
+    receive(data, callbacks, remoteCalls) {
         const handlers = this.response;
-        for (let i = 0, l = data.length; i < l; i += 1 ) {
+        for (let i = 0, l = data.length; i < l; i += 1) {
             const response = data[i];
-            const handler = handlers[ response[0] ];
-            if ( handler ) {
+            const handler = handlers[response[0]];
+            if (handler) {
                 const id = response[2];
                 const request = remoteCalls[+id];
                 try {
-                    handler.call( this, response[1], request[0], request[1] );
-                } catch ( error ) {
-                    didError( error );
+                    handler.call(this, response[1], request[0], request[1]);
+                } catch (error) {
+                    didError(error);
                 }
             }
         }
         // Invoke after bindings to ensure all data has propagated through.
         let l;
-        if (( l = callbacks.length )) {
-            for (let i = 0; i < l; i += 1 ) {
+        if ((l = callbacks.length)) {
+            for (let i = 0; i < l; i += 1) {
                 const tuple = callbacks[i];
                 const id = tuple[0];
                 let callback = tuple[1];
-                if ( id ) {
+                if (id) {
                     const request = remoteCalls[+id];
                     /* jshint ignore:start */
-                    const response = data.filter( ( call ) => {
+                    const response = data.filter((call) => {
                         return call[2] === id;
                     });
                     /* jshint ignore:end */
-                    callback = callback.bind( null, response, request );
+                    callback = callback.bind(null, response, request);
                 }
-                queueFn( 'middle', callback );
+                queueFn('middle', callback);
             }
         }
     },
@@ -565,7 +596,7 @@ const Connection = Class({
         Returns:
             {Array} Tuple of method calls and callbacks.
     */
-    makeRequest () {
+    makeRequest() {
         const sendQueue = this._sendQueue;
         const callbacks = this._callbackQueue;
         const recordRefreshers = this.recordRefreshers;
@@ -575,77 +606,86 @@ const Connection = Class({
         const _recordsToRefresh = this._recordsToRefresh;
         const _typesToFetch = this._typesToFetch;
         const _recordsToFetch = this._recordsToFetch;
-        let typesToRefresh; let recordsToRefresh; let typesToFetch; let recordsToFetch;
-        let accountId; let typeId; let id; let req; let state; let ids; let handler;
+        let typesToRefresh;
+        let recordsToRefresh;
+        let typesToFetch;
+        let recordsToFetch;
+        let accountId;
+        let typeId;
+        let id;
+        let req;
+        let state;
+        let ids;
+        let handler;
 
         // Record Refreshers
-        for ( accountId in _typesToRefresh ) {
-            typesToRefresh = _typesToRefresh[ accountId ];
-            if ( !accountId ) {
+        for (accountId in _typesToRefresh) {
+            typesToRefresh = _typesToRefresh[accountId];
+            if (!accountId) {
                 accountId = undefined;
             }
-            for ( typeId in typesToRefresh ) {
-                state = typesToRefresh[ typeId ];
-                handler = recordRefreshers[ typeId ];
-                if ( typeof handler === 'string' ) {
-                    this.refreshType( handler, accountId, null, state );
+            for (typeId in typesToRefresh) {
+                state = typesToRefresh[typeId];
+                handler = recordRefreshers[typeId];
+                if (typeof handler === 'string') {
+                    this.refreshType(handler, accountId, null, state);
                 } else {
-                    handler.call( this, accountId, null, state );
+                    handler.call(this, accountId, null, state);
                 }
             }
         }
-        for ( accountId in _recordsToRefresh ) {
-            recordsToRefresh = _recordsToRefresh[ accountId ];
-            if ( !accountId ) {
+        for (accountId in _recordsToRefresh) {
+            recordsToRefresh = _recordsToRefresh[accountId];
+            if (!accountId) {
                 accountId = undefined;
             }
-            for ( typeId in recordsToRefresh ) {
-                handler = recordRefreshers[ typeId ];
-                ids = Object.keys( recordsToRefresh[ typeId ] );
-                if ( typeof handler === 'string' ) {
-                    this.fetchType( handler, accountId, ids );
+            for (typeId in recordsToRefresh) {
+                handler = recordRefreshers[typeId];
+                ids = Object.keys(recordsToRefresh[typeId]);
+                if (typeof handler === 'string') {
+                    this.fetchType(handler, accountId, ids);
                 } else {
-                    handler.call( this, accountId, ids );
+                    handler.call(this, accountId, ids);
                 }
             }
         }
 
         // Query Fetches
-        for ( id in _queriesToFetch ) {
-            req = _queriesToFetch[ id ];
-            handler = this.queryFetchers[ guid( req.constructor ) ];
-            if ( handler ) {
-                handler.call( this, req );
+        for (id in _queriesToFetch) {
+            req = _queriesToFetch[id];
+            handler = this.queryFetchers[guid(req.constructor)];
+            if (handler) {
+                handler.call(this, req);
             }
         }
 
         // Record fetches
-        for ( accountId in _typesToFetch ) {
-            typesToFetch = _typesToFetch[ accountId ];
-            if ( !accountId ) {
+        for (accountId in _typesToFetch) {
+            typesToFetch = _typesToFetch[accountId];
+            if (!accountId) {
                 accountId = undefined;
             }
-            for ( typeId in typesToFetch ) {
-                handler = recordFetchers[ typeId ];
-                if ( typeof handler === 'string' ) {
-                    this.fetchType( handler, accountId, null );
+            for (typeId in typesToFetch) {
+                handler = recordFetchers[typeId];
+                if (typeof handler === 'string') {
+                    this.fetchType(handler, accountId, null);
                 } else {
-                    handler.call( this, accountId, null );
+                    handler.call(this, accountId, null);
                 }
             }
         }
-        for ( accountId in _recordsToFetch ) {
-            recordsToFetch = _recordsToFetch[ accountId ];
-            if ( !accountId ) {
+        for (accountId in _recordsToFetch) {
+            recordsToFetch = _recordsToFetch[accountId];
+            if (!accountId) {
                 accountId = undefined;
             }
-            for ( typeId in recordsToFetch ) {
-                handler = recordFetchers[ typeId ];
-                ids = Object.keys( recordsToFetch[ typeId ] );
-                if ( typeof handler === 'string' ) {
-                    this.fetchType( handler, accountId, ids );
+            for (typeId in recordsToFetch) {
+                handler = recordFetchers[typeId];
+                ids = Object.keys(recordsToFetch[typeId]);
+                if (typeof handler === 'string') {
+                    this.fetchType(handler, accountId, ids);
                 } else {
-                    handler.call( this, accountId, ids );
+                    handler.call(this, accountId, ids);
                 }
             }
         }
@@ -660,7 +700,7 @@ const Connection = Class({
         this._typesToFetch = {};
         this._recordsToFetch = {};
 
-        return [ sendQueue, callbacks ];
+        return [sendQueue, callbacks];
     },
 
     // ---
@@ -680,9 +720,8 @@ const Connection = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchRecord ( accountId, Type, id, callback ) {
-        return this._fetchRecords(
-            accountId, Type, [ id ], callback, '', false );
+    fetchRecord(accountId, Type, id, callback) {
+        return this._fetchRecords(accountId, Type, [id], callback, '', false);
     },
 
     /**
@@ -700,9 +739,15 @@ const Connection = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchAllRecords ( accountId, Type, state, callback ) {
+    fetchAllRecords(accountId, Type, state, callback) {
         return this._fetchRecords(
-            accountId, Type, null, callback, state || '', !!state );
+            accountId,
+            Type,
+            null,
+            callback,
+            state || '',
+            !!state,
+        );
     },
 
     /**
@@ -721,42 +766,45 @@ const Connection = Class({
         Returns:
             {Boolean} Returns true if the source handled the refresh.
     */
-    refreshRecord ( accountId, Type, id, callback ) {
-        return this._fetchRecords(
-            accountId, Type, [ id ], callback, '', true );
+    refreshRecord(accountId, Type, id, callback) {
+        return this._fetchRecords(accountId, Type, [id], callback, '', true);
     },
 
-    _fetchRecords ( accountId, Type, ids, callback, state, refresh ) {
-        const typeId = guid( Type );
-        let handler = refresh ?
-                this.recordRefreshers[ typeId ] :
-                this.recordFetchers[ typeId ];
-        if ( refresh && !handler ) {
+    _fetchRecords(accountId, Type, ids, callback, state, refresh) {
+        const typeId = guid(Type);
+        let handler = refresh
+            ? this.recordRefreshers[typeId]
+            : this.recordFetchers[typeId];
+        if (refresh && !handler) {
             refresh = false;
-            handler = this.recordFetchers[ typeId ];
+            handler = this.recordFetchers[typeId];
         }
-        if ( !handler ) {
+        if (!handler) {
             return false;
         }
-        if ( ids ) {
-            const reqs = refresh ? this._recordsToRefresh : this._recordsToFetch;
-            const account = reqs[ accountId ] || ( reqs[ accountId ] = {} );
-            const set = account[ typeId ] || ( account[ typeId ] = {} );
+        if (ids) {
+            const reqs = refresh
+                ? this._recordsToRefresh
+                : this._recordsToFetch;
+            const account = reqs[accountId] || (reqs[accountId] = {});
+            const set = account[typeId] || (account[typeId] = {});
             let l = ids.length;
-            while ( l-- ) {
-                set[ ids[l] ] = true;
+            while (l--) {
+                set[ids[l]] = true;
             }
-        } else if ( refresh ) {
-            const typesToRefresh = this._typesToRefresh[ accountId ] ||
-                ( this._typesToRefresh[ accountId ] = {} );
-            typesToRefresh[ typeId ] = state;
+        } else if (refresh) {
+            const typesToRefresh =
+                this._typesToRefresh[accountId] ||
+                (this._typesToRefresh[accountId] = {});
+            typesToRefresh[typeId] = state;
         } else {
-            const typesToFetch = this._typesToFetch[ accountId ] ||
-                ( this._typesToFetch[ accountId ] = {} );
-            typesToFetch[ typeId ] = null;
+            const typesToFetch =
+                this._typesToFetch[accountId] ||
+                (this._typesToFetch[accountId] = {});
+            typesToFetch[typeId] = null;
         }
-        if ( callback ) {
-            this._callbackQueue.push([ '', callback ]);
+        if (callback) {
+            this._callbackQueue.push(['', callback]);
         }
         this.send();
         return true;
@@ -839,35 +887,39 @@ const Connection = Class({
             callback will only be called if the source is handling at least one
             of the types being committed.
     */
-    commitChanges ( changes, callback ) {
-        const ids = Object.keys( changes );
+    commitChanges(changes, callback) {
+        const ids = Object.keys(changes);
         let l = ids.length;
         const precedence = this.commitPrecedence;
         let handledAny = false;
-        let handler; let change; let id;
+        let handler;
+        let change;
+        let id;
 
-        if ( precedence ) {
-            ids.sort( ( a, b ) => {
-                return ( precedence[ changes[b].typeId ] || -1 ) -
-                    ( precedence[ changes[a].typeId ] || -1 );
+        if (precedence) {
+            ids.sort((a, b) => {
+                return (
+                    (precedence[changes[b].typeId] || -1) -
+                    (precedence[changes[a].typeId] || -1)
+                );
             });
         }
 
-        while ( l-- ) {
+        while (l--) {
             id = ids[l];
-            change = changes[ id ];
-            handler = this.recordCommitters[ change.typeId ];
-            if ( handler ) {
-                if ( typeof handler === 'string' ) {
-                    this.commitType( handler, change );
+            change = changes[id];
+            handler = this.recordCommitters[change.typeId];
+            if (handler) {
+                if (typeof handler === 'string') {
+                    this.commitType(handler, change);
                 } else {
-                    handler.call( this, change );
+                    handler.call(this, change);
                 }
                 handledAny = true;
             }
         }
-        if ( handledAny && callback ) {
-            this._callbackQueue.push([ '', callback ]);
+        if (handledAny && callback) {
+            this._callbackQueue.push(['', callback]);
         }
         return handledAny;
     },
@@ -883,16 +935,16 @@ const Connection = Class({
         Returns:
             {Boolean} Returns true if the source handled the fetch.
     */
-    fetchQuery ( query, callback ) {
-        if ( !this.queryFetchers[ guid( query.constructor ) ] ) {
+    fetchQuery(query, callback) {
+        if (!this.queryFetchers[guid(query.constructor)]) {
             return false;
         }
-        const id = query.get( 'id' );
+        const id = query.get('id');
 
-        this._queriesToFetch[ id ] = query;
+        this._queriesToFetch[id] = query;
 
-        if ( callback ) {
-            this._callbackQueue.push([ '', callback ]);
+        if (callback) {
+            this._callbackQueue.push(['', callback]);
         }
         this.send();
         return true;
@@ -921,23 +973,25 @@ const Connection = Class({
         Returns:
             {JMAP.Connection} Returns self.
     */
-    handle ( Type, handlers ) {
-        const typeId = guid( Type );
-        let action; let propName; let isResponse; let actionHandlers;
-        for ( action in handlers ) {
-            propName = handleProps[ action ];
+    handle(Type, handlers) {
+        const typeId = guid(Type);
+        let action;
+        let propName;
+        let isResponse;
+        let actionHandlers;
+        for (action in handlers) {
+            propName = handleProps[action];
             isResponse = !propName;
-            if ( isResponse ) {
+            if (isResponse) {
                 propName = 'response';
             }
-            actionHandlers = this[ propName ];
-            if ( !this.hasOwnProperty( propName ) ) {
-                this[ propName ] = actionHandlers =
-                    Object.create( actionHandlers );
+            actionHandlers = this[propName];
+            if (!this.hasOwnProperty(propName)) {
+                this[propName] = actionHandlers = Object.create(actionHandlers);
             }
-            actionHandlers[ isResponse ? action : typeId ] = handlers[ action ];
+            actionHandlers[isResponse ? action : typeId] = handlers[action];
         }
-        if ( Type ) {
+        if (Type) {
             Type.source = this;
         }
         return this;
@@ -984,99 +1038,113 @@ const Connection = Class({
     */
     queryFetchers: {},
 
-    didFetch ( Type, args, isAll ) {
-        const store = this.get( 'store' );
+    didFetch(Type, args, isAll) {
+        const store = this.get('store');
         const list = args.list;
         const state = args.state;
         const notFound = args.notFound;
         const accountId = args.accountId;
-        if ( list ) {
-            store.sourceDidFetchRecords( accountId, Type, list, state, isAll );
+        if (list) {
+            store.sourceDidFetchRecords(accountId, Type, list, state, isAll);
         }
-        if ( notFound && notFound.length ) {
-            store.sourceCouldNotFindRecords( accountId, Type, notFound );
+        if (notFound && notFound.length) {
+            store.sourceCouldNotFindRecords(accountId, Type, notFound);
         }
     },
 
-    didFetchUpdates ( Type, args, hasDataForUpdated ) {
-        this.get( 'store' )
-            .sourceDidFetchUpdates(
-                args.accountId,
-                Type,
-                hasDataForUpdated ? null : args.updated || null,
-                args.destroyed || null,
-                args.oldState,
-                args.newState
-            );
+    didFetchUpdates(Type, args, hasDataForUpdated) {
+        this.get('store').sourceDidFetchUpdates(
+            args.accountId,
+            Type,
+            hasDataForUpdated ? null : args.updated || null,
+            args.destroyed || null,
+            args.oldState,
+            args.newState,
+        );
     },
 
-    didCommit ( Type, args ) {
-        const store = this.get( 'store' );
+    didCommit(Type, args) {
+        const store = this.get('store');
         const accountId = args.accountId;
-        const toStoreKey = store.getStoreKey.bind( store, accountId, Type );
-        let list; let object;
+        const toStoreKey = store.getStoreKey.bind(store, accountId, Type);
+        let list;
+        let object;
 
-        if ( ( object = args.created ) && Object.keys( object ).length ) {
-            store.sourceDidCommitCreate( object );
+        if ((object = args.created) && Object.keys(object).length) {
+            store.sourceDidCommitCreate(object);
         }
-        if ( ( object = args.notCreated ) ) {
-            list = Object.keys( object );
-            if ( list.length ) {
-                store.sourceDidNotCreate( list, true, Object.values( object ) );
+        if ((object = args.notCreated)) {
+            list = Object.keys(object);
+            if (list.length) {
+                store.sourceDidNotCreate(list, true, Object.values(object));
             }
         }
-        if ( ( object = args.updated ) ) {
-            list = Object.keys( object );
-            if ( list.length ) {
-                store.sourceDidCommitUpdate( list.map( toStoreKey ) )
-                        .sourceDidFetchPartialRecords( accountId, Type, object );
+        if ((object = args.updated)) {
+            list = Object.keys(object);
+            if (list.length) {
+                store
+                    .sourceDidCommitUpdate(list.map(toStoreKey))
+                    .sourceDidFetchPartialRecords(accountId, Type, object);
             }
         }
-        if ( ( object = args.notUpdated ) ) {
-            list = Object.keys( object );
-            if ( list.length ) {
+        if ((object = args.notUpdated)) {
+            list = Object.keys(object);
+            if (list.length) {
                 store.sourceDidNotUpdate(
-                    list.map( toStoreKey ), true, Object.values( object ) );
+                    list.map(toStoreKey),
+                    true,
+                    Object.values(object),
+                );
             }
         }
-        if ( ( list = args.destroyed ) && list.length ) {
-            store.sourceDidCommitDestroy( list.map( toStoreKey ) );
+        if ((list = args.destroyed) && list.length) {
+            store.sourceDidCommitDestroy(list.map(toStoreKey));
         }
-        if ( ( object = args.notDestroyed ) ) {
-            list = Object.keys( object );
-            if ( list.length ) {
+        if ((object = args.notDestroyed)) {
+            list = Object.keys(object);
+            if (list.length) {
                 store.sourceDidNotDestroy(
-                    list.map( toStoreKey ), true, Object.values( object ) );
+                    list.map(toStoreKey),
+                    true,
+                    Object.values(object),
+                );
             }
         }
-        if ( args.newState ) {
+        if (args.newState) {
             store.sourceCommitDidChangeState(
-                accountId, Type, args.oldState, args.newState );
+                accountId,
+                Type,
+                args.oldState,
+                args.newState,
+            );
         }
     },
 
-    didCopy ( Type, args ) {
-        const store = this.get( 'store' );
-        let list; let object;
-        if (( object = args.created )) {
-            list = Object.keys( object );
-            if ( list.length ) {
-                store.sourceDidCommitUpdate( list )
-                        .sourceDidFetchPartialRecords(
+    didCopy(Type, args) {
+        const store = this.get('store');
+        let list;
+        let object;
+        if ((object = args.created)) {
+            list = Object.keys(object);
+            if (list.length) {
+                store
+                    .sourceDidCommitUpdate(list)
+                    .sourceDidFetchPartialRecords(
                         args.toAccountId,
                         Type,
                         zip(
-                            Object.keys( object )
-                                    .map( store.getIdFromStoreKey.bind( store ) ),
-                            Object.values( object )
-                        )
-                        );
+                            Object.keys(object).map(
+                                store.getIdFromStoreKey.bind(store),
+                            ),
+                            Object.values(object),
+                        ),
+                    );
             }
         }
-        if (( object = args.notCreated )) {
-            list = Object.keys( object );
-            if ( list.length ) {
-                store.sourceDidNotUpdate( list, true, Object.values( object ) );
+        if ((object = args.notCreated)) {
+            list = Object.keys(object);
+            if (list.length) {
+                store.sourceDidNotUpdate(list, true, Object.values(object));
             }
         }
     },
@@ -1089,45 +1157,42 @@ const Connection = Class({
         response to return data to the client.
     */
     response: {
-        error ( args, reqName, reqArgs ) {
+        error(args, reqName, reqArgs) {
             const type = args.type;
-                let method = 'error_' + reqName + '_' + type;
-                const response = this.response;
-            if ( !response[ method ] ) {
+            let method = 'error_' + reqName + '_' + type;
+            const response = this.response;
+            if (!response[method]) {
                 method = 'error_' + type;
             }
-            if ( response[ method ] ) {
-                response[ method ].call( this, args, reqName, reqArgs );
+            if (response[method]) {
+                response[method].call(this, args, reqName, reqArgs);
             }
         },
-        error_unknownMethod ( _, requestName ) {
+        error_unknownMethod(_, requestName) {
             // eslint-disable-next-line no-console
-            console.log( 'Unknown API call made: ' + requestName );
+            console.log('Unknown API call made: ' + requestName);
         },
-        error_invalidArguments ( _, requestName, requestArgs ) {
+        error_invalidArguments(_, requestName, requestArgs) {
             // eslint-disable-next-line no-console
-            console.log( 'API call to ' + requestName +
-                'made with invalid arguments: ', requestArgs );
+            console.log(
+                'API call to ' + requestName + 'made with invalid arguments: ',
+                requestArgs,
+            );
         },
-        error_anchorNotFound (/* args */) {
+        error_anchorNotFound(/* args */) {
             // Don't need to do anything; it's only used for doing indexOf,
             // and it will just check that it doesn't have it.
         },
-        error_accountNotFound () {
+        error_accountNotFound() {
             // TODO: refetch accounts list.
         },
-        error_accountReadOnly () {
+        error_accountReadOnly() {
             // TODO: refetch accounts list
         },
-        error_accountNotSupportedByMethod () {
+        error_accountNotSupportedByMethod() {
             // TODO: refetch accounts list
         },
-    }
+    },
 });
 
-export {
-    Connection,
-    makeSetRequest,
-    makePatches,
-    applyPatch,
-};
+export { Connection, makeSetRequest, makePatches, applyPatch };

@@ -6,9 +6,9 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  border: 0;
   padding: 6px 9px;
   line-height: 1.35;
-  border: 0;
   background: none;
   cursor: default;
   white-space: nowrap;
@@ -19,8 +19,8 @@
 .v-Button > .icon {
   position: absolute;
   top: 0;
-  margin: auto 0 auto 1px;
   bottom: 2px;
+  margin: auto 0 auto 1px;
   width: 16px;
   height: 16px;
   font-size: 16px;
@@ -34,8 +34,8 @@
   width: 32px;
 }
 .v-Button.v-Button--iconOnly > .icon {
-  left: 0;
   right: 0;
+  left: 0;
   margin: auto;
   text-align: center;
 }
@@ -45,18 +45,18 @@
 }
 
 .v-SearchInput > .v-TextInput-input {
-  padding-left: 29px;
   padding-right: 29px;
+  padding-left: 29px;
 }
 .v-SearchInput > .icon {
   position: absolute;
   top: 0;
   bottom: 5px;
-  margin: auto;
   left: 8px;
-  font-size: 18px;
+  margin: auto;
   height: 18px;
   color: #888;
+  font-size: 18px;
   text-shadow: none;
 }
 .v-ClearSearchButton {
@@ -74,35 +74,35 @@
 }
 
 .v-TextInput {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  width: 100%;
-  border: 1px solid #aaa;
-  border-radius: 3px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-  padding: 5px 0;
-  line-height: 1.25;
-  background-color: #fff;
   -webkit-transition: background-color 1s;
   -moz-transition: background-color 1s;
   -o-transition: background-color 1s;
   transition: background-color 1s;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border: 1px solid #aaa;
+  padding: 5px 0;
+  width: 100%;
+  line-height: 1.25;
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 .v-TextInput.is-disabled {
   background-color: #f6f6f6;
 }
 
 .v-TextInput-input {
+  -webkit-appearance: none;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   border: none;
-  outline: none;
   padding: 0 5px;
   width: 100%;
-  -webkit-appearance: none;
   background: none;
+  outline: none;
   word-wrap: break-word;
 }
 input.v-TextInput-input {
@@ -110,16 +110,16 @@ input.v-TextInput-input {
   padding: 5px 6px;
 }
 textarea.v-TextInput-input {
-  display: block;
   overflow: hidden;
+  display: block;
 }
 .v-TextInput-input::-webkit-input-placeholder,
 .v-TextInput-input::-moz-placeholder,
 .v-TextInput-input:-ms-input-placeholder {
-  color: #777777;
+  color: #777;
 }
 .v-TextInput-input--placeholder {
-  color: #777777;
+  color: #777;
 }
 
 .v-Toolbar {
@@ -139,18 +139,18 @@ textarea.v-TextInput-input {
 .v-Toolbar > .v-Button {
   float: left;
   margin-top: 1px;
-  border: 1px solid rgba(0,0,0,0.3);
-  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
   height: 34px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
   color: #fff;
-  background: rgba(0,0,0,0.1);
 }
 .v-Toolbar > .v-Button:not(.is-disabled):hover {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
 }
 .v-Toolbar > .v-Button:not(.is-disabled):active,
 .v-Toolbar > .v-Button:not(.is-disabled).is-active {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
 }
 .v-Toolbar > .v-Button:disabled,
 .v-Toolbar > .v-Button.is-disabled {
@@ -170,20 +170,20 @@ textarea.v-TextInput-input {
 }
 
 .v-Toolbar > .v-TextInput {
-  flex: 0 1 auto;
-  height: 34px;
-  border: 1px solid #c5c5c5;
-  border-color: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
-  padding-top: 7px;
-  padding-bottom: 7px;
-  background-color: rgba(255, 255, 255, 0.9);
-  background-clip: padding-box;
-  box-shadow: none;
   -webkit-transition: none;
   -moz-transition: none;
   -o-transition: none;
   transition: none;
+  flex: 0 1 auto;
+  border: 1px solid #c5c5c5;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  height: 34px;
+  background-clip: padding-box;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  box-shadow: none;
 }
 .v-Toolbar > .v-TextInput.is-focussed {
   background-color: #fff;

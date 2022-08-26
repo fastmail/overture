@@ -1,14 +1,33 @@
 /* Remove all default margins and padding */
 
 body,
-dl, dt, dd,
-ul, ol, li,
-h1, h2, h3, h4, h5, h6,
-pre, code,
-form, fieldset, legend, input, select, button, textarea,
+dl,
+ dt,
+ dd,
+ul,
+ ol,
+ li,
+h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6,
+pre,
+ code,
+form,
+ fieldset,
+ legend,
+ input,
+ select,
+ button,
+ textarea,
 p,
 blockquote,
-table, tr, th, td {
+table,
+ tr,
+ th,
+ td {
   margin: 0;
   padding: 0;
 }
@@ -66,7 +85,8 @@ iframe {
 
 /* Remove default list styling */
 
-ul, ol {
+ul,
+ ol {
   list-style: none;
 }
 
@@ -78,8 +98,8 @@ textarea {
 /* Colours and fonts */
 
 html {
-  color: #000;
   background: #fff;
+  color: #000;
   font: 13px/1.25 "Helvetica Neue", arial, sans-serif;
 }
 
@@ -87,17 +107,23 @@ a,
 button,
 span,
 div {
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-h1, h2, h3, h4, h5, h6,
+h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6,
 address,
 caption,
 cite,
 code,
 em,
 strong,
-table, th,
+table,
+ th,
 select,
 input,
 button,

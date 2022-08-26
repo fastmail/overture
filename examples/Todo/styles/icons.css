@@ -1,33 +1,34 @@
 @font-face {
-	font-family: 'icomoon';
-	src:url('fonts/icomoon.woff?tregbo') format('woff');
-	font-weight: normal;
-	font-style: normal;
+    font-family: 'icomoon';
+    font-style: normal;
+    font-weight: normal;
+    src: url('fonts/icomoon.woff?tregbo') format('woff');
 }
 
-[class^="icon-"], [class*=" icon-"] {
-	font-family: 'icomoon';
-	speak: none;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
+[class^='icon-'],
+[class*=' icon-'] {
+    line-height: 1;
+    font-family: 'icomoon', sans-serif;
 
-	/* Better Font Rendering =========== */
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    speak: none;
+    text-transform: none;
 }
 
-.icon-search:before {
-	content: "\f002";
+.icon-search::before {
+    content: '\f002';
 }
-.icon-clear:before {
-	content: "\f00d";
+.icon-clear::before {
+    content: '\f00d';
 }
-.icon-plus-circle:before {
-	content: "\f055";
+.icon-plus-circle::before {
+    content: '\f055';
 }
-.icon-rotate-left:before {
-	content: "\f0e2";
+.icon-rotate-left::before {
+    content: '\f0e2';
 }

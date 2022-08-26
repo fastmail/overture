@@ -14,41 +14,41 @@ import { TodoList } from './TodoList.js';
     requests the client is making to the server.
 */
 const source = new Connection({
-    url: '/api/'
+    url: '/api/',
 });
 
 /*
     We tell the source how to fetch, create, modify etc. TodoLists.
 */
-source.handle( TodoList, {
-    precedence: 1,
-    fetch: 'TodoList',
-    commit: 'TodoList',
+source.handle(TodoList, {
+    'precedence': 1,
+    'fetch': 'TodoList',
+    'commit': 'TodoList',
     // Response handlers
-    'TodoList/get' ( args, _, reqArgs ) {
-        const isAll = ( reqArgs.ids === null );
-        this.didFetch( TodoList, args, isAll );
+    'TodoList/get'(args, _, reqArgs) {
+        const isAll = reqArgs.ids === null;
+        this.didFetch(TodoList, args, isAll);
     },
-    'TodoList/set' ( args ) {
-        this.didCommit( TodoList, args );
-    }
+    'TodoList/set'(args) {
+        this.didCommit(TodoList, args);
+    },
 });
 
 /*
     And Todos.
 */
-source.handle( Todo, {
-    precedence: 2,
-    fetch: 'Todo',
-    commit: 'Todo',
+source.handle(Todo, {
+    'precedence': 2,
+    'fetch': 'Todo',
+    'commit': 'Todo',
     // Response handlers
-    'Todo/get' ( args, _, reqArgs ) {
-        const isAll = ( reqArgs.ids === null );
-        this.didFetch( Todo, args, isAll );
+    'Todo/get'(args, _, reqArgs) {
+        const isAll = reqArgs.ids === null;
+        this.didFetch(Todo, args, isAll);
     },
-    'Todo/set' ( args ) {
-        this.didCommit( Todo, args );
-    }
+    'Todo/set'(args) {
+        this.didCommit(Todo, args);
+    },
 });
 
 export { source };

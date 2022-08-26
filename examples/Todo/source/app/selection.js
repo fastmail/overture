@@ -10,7 +10,7 @@ import { state } from './state.js';
    currently used in this example app) for keeping track of a multi-selection.
 */
 const selectedTodo = new SingleSelectionController({
-    content: bind( state, 'todos' )
+    content: bind(state, 'todos'),
 });
 
 export { selectedTodo };

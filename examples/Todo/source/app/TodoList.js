@@ -14,19 +14,18 @@ const TodoList = Class({
 
     Extends: Record,
 
-    name: attr( String, {
+    name: attr(String, {
         defaultValue: '',
-        validate ( propValue/*, propKey, record*/ ) {
+        validate(propValue /*, propKey, record*/) {
             let error = '';
-            if ( !propValue ) {
-                error = loc( 'Required' );
-            }
-            else if ( propValue.length > 25 ) {
-                error = loc( 'Too long: use at most 25 characters' );
+            if (!propValue) {
+                error = loc('Required');
+            } else if (propValue.length > 25) {
+                error = loc('Too long: use at most 25 characters');
             }
             return error;
-        }
-    })
+        },
+    }),
 });
 TodoList.dataGroup = 'https://overturejs.com/Todo/';
 

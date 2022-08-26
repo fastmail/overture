@@ -10,22 +10,22 @@ const Todo = Class({
 
     list: toOne({
         Type: TodoList,
-        key: 'listId'
+        key: 'listId',
     }),
 
-    precedence: attr( Number, {
+    precedence: attr(Number, {
         isNullable: false,
-        defaultValue: 0
+        defaultValue: 0,
     }),
 
-    isComplete: attr( Boolean, {
+    isComplete: attr(Boolean, {
         isNullable: false,
-        defaultValue: false
+        defaultValue: false,
     }),
 
-    summary: attr( String, {
+    summary: attr(String, {
         isNullable: false,
-        defaultValue: ''
+        defaultValue: '',
     }),
 
     // Ran out of time! TODO: add support for scheduling todos in UI.
@@ -34,10 +34,10 @@ const Todo = Class({
     // }),
 
     autoCommitIsComplete: function () {
-        if ( !( this.get( 'status' ) & NEW ) ) {
+        if (!(this.get('status') & NEW)) {
             this.store.commitChanges();
         }
-    }.observes( 'isComplete' )
+    }.observes('isComplete'),
 });
 Todo.dataGroup = 'https://overturejs.com/Todo/';
 
