@@ -1,5 +1,4 @@
 import { Class } from '../../core/Core.js';
-import { create as el } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';
 import { when } from '../collections/SwitchView.js';
 import { Activatable } from './Activatable.js';
@@ -36,17 +35,6 @@ const SearchInputView = Class({
             (type ? ' ' + type : '')
         );
     }.property('type', 'isDisabled', 'isFocused'),
-
-    drawControl() {
-        return (this._domControl = el('input', {
-            id: this.get('id') + '-input',
-            className: this.get('baseClassName') + '-input',
-            name: this.get('name'),
-            disabled: this.get('isDisabled'),
-            placeholder: this.get('placeholder'),
-            value: this.get('value'),
-        }));
-    },
 
     draw(layer) {
         const control = this.drawControl();
