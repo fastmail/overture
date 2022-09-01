@@ -70,8 +70,6 @@ const TextInputView = Class({
         Default: "text"
 
         The type property for the <input> DOM node (e.g. "password", "tel" etc.)
-
-        This property *must not* be changed after the view has been rendered.
     */
     inputType: 'text',
 
@@ -232,7 +230,7 @@ const TextInputView = Class({
         if (isValue && this.get('isExpanding')) {
             this.propertyNeedsRedraw(self, 'textHeight', oldValue);
         }
-    }.observes('value', 'isExpanding', 'placeholder'),
+    }.observes('value', 'isExpanding', 'placeholder', 'inputType'),
 
     /**
         Method: O.TextInputView#redrawPlaceholder
@@ -242,6 +240,10 @@ const TextInputView = Class({
     */
     redrawPlaceholder() {
         this._domControl.placeholder = this.get('placeholder');
+    },
+
+    redrawInputType() {
+        this._domControl.type = this.get('inputType');
     },
 
     redrawTextHeight() {
