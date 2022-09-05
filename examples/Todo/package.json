@@ -9,15 +9,20 @@
         "lint": "npm run lint-eslint && npm run lint-prettier && npm run lint-stylelint",
         "lint-eslint": "eslint source",
         "lint-prettier": "prettier --check source",
-        "lint-stylelint": "stylelint 'styles/*.css'"
+        "lint-stylelint": "stylelint 'styles/*.css'",
+        "test": "START_SERVER_AND_TEST_INSECURE=1 start-server-and-test dev http://localhost:5173/ test-cypress",
+        "test-cypress": "cypress run",
+        "testdev": "cypress open"
     },
     "keywords": [],
     "author": "",
     "license": "MIT",
     "devDependencies": {
+        "cypress": "^10.7.0",
         "eslint": "^8.22.0",
         "eslint-plugin-cypress": "^2.12.1",
         "prettier": "^2.2.1",
+        "start-server-and-test": "^1.14.0",
         "stylelint": "^13.13.1",
         "stylelint-config-standard": "^20.0.0",
         "stylelint-order": "^4.1.0",
