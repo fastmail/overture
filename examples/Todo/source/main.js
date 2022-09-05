@@ -17,6 +17,7 @@
 */
 import '/overture/Global';
 import { classes } from '/overture/core';
+import { el } from '/overture/dom';
 import { flushAllQueues } from '/overture/foundation';
 import {
     ButtonView,
@@ -53,7 +54,9 @@ const rootView = new RootView(document, {
     }.on('click'),
 });
 
-ClearSearchButtonView.prototype.icon = 'icon-clear';
+ClearSearchButtonView.prototype.icon = el('i', {
+    className: 'icon icon-clear',
+});
 
 const appView = new AppView();
 

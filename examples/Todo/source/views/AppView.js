@@ -27,7 +27,9 @@ const AppView = Class({
             new ToolbarView({
                 left: [
                     new ButtonView({
-                        icon: 'icon-plus-circle',
+                        icon: el('i', {
+                            className: 'icon icon-plus-circle',
+                        }),
                         isDisabled: bind(state, 'isLoadingList'),
                         label: 'New Todo',
                         shortcut: 'Enter',
@@ -35,7 +37,9 @@ const AppView = Class({
                         method: 'create',
                     }),
                     new ButtonView({
-                        icon: 'icon-rotate-left',
+                        icon: el('i', {
+                            className: 'icon icon-rotate-left',
+                        }),
                         layout: { marginLeft: 10 },
                         isDisabled: bind(undoManager, 'canUndo', invert),
                         label: 'Undo',

@@ -17,10 +17,8 @@
   padding-left: 27px;
 }
 .v-Button > .icon {
-  position: absolute;
-  top: 0;
-  bottom: 2px;
-  margin: auto 0 auto 1px;
+  float: left;
+  margin: 0 4px -2px 0;
   width: 16px;
   height: 16px;
   font-size: 16px;
@@ -44,7 +42,7 @@
   top: 100%;
 }
 
-.v-SearchInput > .v-TextInput-input {
+.v-SearchInput > .v-SearchInput-input {
   padding-right: 29px;
   padding-left: 29px;
 }
@@ -65,7 +63,6 @@
   right: 0;
   bottom: 0;
   border: 0;
-  width: 26px;
   background: transparent;
   color: #888;
 }
