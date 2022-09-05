@@ -11,6 +11,9 @@ import { TodoList } from './TodoList.js';
 import { parseSearch } from './search.js';
 import { store } from './store.js';
 
+// Need to initialize our Todos:
+store.fetchAll(Todo);
+
 const state = new Router({
     listId: '',
     search: '',
