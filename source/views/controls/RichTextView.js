@@ -359,7 +359,7 @@ const RichTextView = Class({
                 ? this.getFromPath('toolbarView.pxHeight')
                 : 0;
         let scrollBy = 0;
-        const minimumGapToScrollEdge = 15;
+        const minimumGapToScrollEdge = 16;
         if (offsetTop < toolbarHeight + minimumGapToScrollEdge) {
             scrollBy = offsetTop - toolbarHeight - minimumGapToScrollEdge;
         } else if (offsetBottom > scrollViewHeight - minimumGapToScrollEdge) {
