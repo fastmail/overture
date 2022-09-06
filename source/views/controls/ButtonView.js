@@ -167,6 +167,11 @@ const ButtonView = Class({
     */
     draw(layer) {
         this._domControl = layer;
+        // This stops the button acting as a submit button when inside a <form>;
+        // this fixes some weird behaviour where the browser can simulate a
+        // click on the button when the user hits enter on another field inside
+        // the form.
+        layer.type = 'button';
 
         let icon = this.get('icon');
         if (!icon) {
