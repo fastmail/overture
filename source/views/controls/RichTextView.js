@@ -16,6 +16,7 @@ import { ToolbarView } from '../collections/ToolbarView.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { MenuView } from '../menu/MenuView.js';
 import { PopOverView } from '../panels/PopOverView.js';
+import { RootView } from '../RootView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ButtonView } from './ButtonView.js';
@@ -350,18 +351,15 @@ const RichTextView = Class({
             .getBoundingClientRect().top;
         const offsetTop = cursorPosition.top - scrollViewOffsetTop;
         const offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
-        let scrollViewHeight = scrollView.get('pxHeight');
+        const scrollViewHeight =
+            scrollView.get('pxHeight') -
+            scrollView.getParent(RootView).get('safeAreaInsetBottom');
         const toolbarHeight =
             this.get('showToolbar') === TOOLBAR_AT_TOP
                 ? this.getFromPath('toolbarView.pxHeight')
                 : 0;
         let scrollBy = 0;
         const minimumGapToScrollEdge = 15;
-        if (isIOS) {
-            scrollViewHeight -=
-                // Keyboard height (in WKWebView, but not Safari)
-                document.body.offsetHeight - window.innerHeight;
-        }
         if (offsetTop < toolbarHeight + minimumGapToScrollEdge) {
             scrollBy = offsetTop - toolbarHeight - minimumGapToScrollEdge;
         } else if (offsetBottom > scrollViewHeight - minimumGapToScrollEdge) {
