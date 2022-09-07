@@ -43,6 +43,7 @@ export { ClearSearchButtonView } from './controls/ClearSearchButtonView.js';
 export { FileButtonView } from './controls/FileButtonView.js';
 export { TextView } from './content/TextView.js';
 export { KeyDownController } from './controls/KeyDownController.js';
+export { PasswordInputView } from './controls/PasswordInputView.js';
 export { RadioGroupView } from './controls/RadioGroupView.js';
 export {
     ShortcutView,
