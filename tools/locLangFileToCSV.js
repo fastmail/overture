@@ -48,6 +48,11 @@ const readFileToObject = (name) => {
 const getLangCodeFromFileName = (name) =>
     name.split('/').pop().split('.').shift();
 
+const isFuzzy = (langObj) => {
+    const flags = langObj.flags;
+    return flags && flags.includes('fuzzy');
+};
+
 const locJsonToCSV = () => {
     const db = readFileToObject(process.argv[2]);
     const langFileNames = process.argv
@@ -67,19 +72,21 @@ const locJsonToCSV = () => {
 
     Object.keys(db).forEach((id) => {
         const dbObj = db[id];
-        // TODO: add flag for whether or not to export all strings
-        if (
-            langObjs.every((lang) => {
-                const thisLang = lang[id];
-                return !(thisLang.flags && thisLang.flags.includes('fuzzy'));
-            })
-        ) {
+        // Skip this row if none of these strings are fuzzy.  An empty string
+        // will always be fuzzy.
+        if (langObjs.every((lang) => !isFuzzy(lang[id]))) {
             return;
         }
         csvRows.push([
             id,
             dbObj.string,
-            ...langObjs.map((langObj) => langObj[id].translation),
+            ...langObjs.map((langObj) => {
+                const thisLangObj = langObj[id];
+                if (isFuzzy(thisLangObj)) {
+                    return '';
+                }
+                return thisLangObj.translation;
+            }),
             dbObj.description,
         ]);
     });
