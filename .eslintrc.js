@@ -38,6 +38,7 @@ module.exports = {
         'no-new-func': 'error',
         'no-new-wrappers': 'error',
         'no-octal-escape': 'error',
+        'no-plusplus': 'error',
         'no-return-assign': 'error',
         'no-script-url': 'error',
         'no-self-compare': 'error',
