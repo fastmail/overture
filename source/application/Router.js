@@ -236,7 +236,7 @@ const Router = Class({
         };
 
         // null them all to begin with,
-        for (let i = globalQueryProps.length; i--; ) {
+        for (let i = globalQueryProps.length - 1; i >= 0; i -= 1) {
             const prop = globalQueryProps[i];
             globalQueryPropsByName[knownGlobalQueryParams[prop]] = prop;
             globalQueryMixin[prop] = null;

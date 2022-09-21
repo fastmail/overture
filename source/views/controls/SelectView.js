@@ -126,11 +126,9 @@ const SelectView = Class({
     redrawValue() {
         const value = this.get('value');
         const options = this.get('options');
-        let l = options.length;
-
-        while (l--) {
-            if (isEqual(options[l].value, value)) {
-                this._domControl.value = l + '';
+        for (let i = options.length - 1; i >= 0; i -= 1) {
+            if (isEqual(options[i].value, value)) {
+                this._domControl.value = i + '';
                 break;
             }
         }

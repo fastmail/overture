@@ -15,9 +15,8 @@ const _setupTeardownPaths = function (object, method) {
     for (const key in pathObservers) {
         const paths = pathObservers[key];
         if (paths) {
-            let l = paths.length;
-            while (l--) {
-                object[method](paths[l], object, key);
+            for (let i = paths.length - 1; i >= 0; i -= 1) {
+                object[method](paths[i], object, key);
             }
         }
     }
@@ -169,9 +168,9 @@ const ObservableProps = {
         const observers = meta(this).observers;
         for (const key in observers) {
             const keyObservers = observers[key];
-            let l = keyObservers ? keyObservers.length : 0;
-            while (l--) {
-                const object = keyObservers[l].object;
+            const length = keyObservers ? keyObservers.length : 0;
+            for (let i = length - 1; i >= 0; i -= 1) {
+                const object = keyObservers[i].object;
                 if (
                     object &&
                     object !== this &&
@@ -265,18 +264,18 @@ const ObservableProps = {
         const dependents = isInitialised
             ? this.propertiesDependentOnKey(key)
             : [];
-        let l = dependents.length;
+        const length = dependents.length;
         const depth = metadata.depth;
         const hasGenericObservers = !!metadata.observers['*'];
-        const fastPath = !l && !depth && !hasGenericObservers;
+        const fastPath = !length && !depth && !hasGenericObservers;
         const changed = fastPath ? null : metadata.changed || {};
         const cache = metadata.cache;
 
         if (fastPath) {
             _notifyObserversOfKey(this, metadata, key, oldValue, newValue);
         } else {
-            while (l--) {
-                const prop = dependents[l];
+            for (let i = length - 1; i >= 0; i -= 1) {
+                const prop = dependents[i];
                 if (!changed[prop]) {
                     changed[prop] = {
                         oldValue: cache[prop],

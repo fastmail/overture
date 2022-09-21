@@ -317,10 +317,10 @@ const Drag = Class({
             // Safari 11.1 supports the current dataTransfer.items interface,
             // but does not return anything until drop, so appears to have no
             // types. Old interface must be used instead.
-            let l = items ? items.length : 0;
-            if (l) {
-                while (l--) {
-                    const item = items[l];
+            const length = items && items.length;
+            if (length) {
+                for (let i = length - 1; i >= 0; i -= 1) {
+                    const item = items[i];
                     const itemType = item.type;
                     if (!hasFiles) {
                         hasFiles = item.kind === 'file';

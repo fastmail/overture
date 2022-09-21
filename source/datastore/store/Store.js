@@ -49,7 +49,9 @@ const SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
 
 let nextStoreKey = 1;
 const generateStoreKey = function () {
-    return 'k' + nextStoreKey++;
+    const current = 'k' + nextStoreKey;
+    nextStoreKey += 1;
+    return current;
 };
 
 // ---
@@ -1767,9 +1769,8 @@ const Store = Class({
             let errorForAttribute;
             const attrs = meta(record).attrs;
             record.beginPropertyChanges();
-            let l = changedKeys.length;
-            while (l--) {
-                const attrKey = changedKeys[l];
+            for (let i = changedKeys.length - 1; i >= 0; i -= 1) {
+                const attrKey = changedKeys[i];
                 let propKey = attrs[attrKey];
                 // Server may return more data than is defined in the record;
                 // ignore the rest.
@@ -2083,10 +2084,9 @@ const Store = Class({
         const seen = {};
         const updates = {};
         const foreignRefAttrs = getForeignRefAttrs(Type);
-        let l = records.length;
 
-        while (l--) {
-            const data = records[l];
+        for (let i = records.length - 1; i >= 0; i -= 1) {
+            const data = records[i];
             const id = data[idAttrKey];
             const storeKey = this.getStoreKey(accountId, Type, id);
             const status = this.getStatus(storeKey);
@@ -2302,11 +2302,10 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceCouldNotFindRecords(accountId, Type, ids) {
-        let l = ids.length;
         const { _skToCommitted, _skToChanged } = this;
 
-        while (l--) {
-            const storeKey = this.getStoreKey(accountId, Type, ids[l]);
+        for (let i = ids.length - 1; i >= 0; i -= 1) {
+            const storeKey = this.getStoreKey(accountId, Type, ids[i]);
             const status = this.getStatus(storeKey);
             if (status & (EMPTY | NON_EXISTENT)) {
                 this.setStatus(storeKey, NON_EXISTENT);
@@ -2397,9 +2396,8 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidModifyRecords(accountId, Type, ids) {
-        let l = ids.length;
-        while (l--) {
-            const storeKey = this.getStoreKey(accountId, Type, ids[l]);
+        for (let i = ids.length - 1; i >= 0; i -= 1) {
+            const storeKey = this.getStoreKey(accountId, Type, ids[i]);
             const status = this.getStatus(storeKey);
             if (status & READY) {
                 this.setStatus(storeKey, status | OBSOLETE);
@@ -2425,9 +2423,8 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidDestroyRecords(accountId, Type, ids) {
-        let l = ids.length;
-        while (l--) {
-            const id = ids[l];
+        for (let i = ids.length - 1; i >= 0; i -= 1) {
+            const id = ids[i];
             const storeKey = this.getStoreKey(accountId, Type, id);
             // If we have an immutable record, an "update" may have actually
             // been a destroy and create. We may have updated the old record,
@@ -2577,11 +2574,10 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidNotCreate(storeKeys, isPermanent, errors) {
-        let l = storeKeys.length;
         const { _skToCommitted, _skToChanged, _created } = this;
 
-        while (l--) {
-            const storeKey = storeKeys[l];
+        for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const status = this.getStatus(storeKey);
             if (status & DESTROYED) {
                 this.setStatus(storeKey, DESTROYED);
@@ -2595,7 +2591,7 @@ const Store = Class({
                 _created[storeKey] = '';
                 if (
                     isPermanent &&
-                    (!errors || !this._notifyRecordOfError(storeKey, errors[l]))
+                    (!errors || !this._notifyRecordOfError(storeKey, errors[i]))
                 ) {
                     this.destroyRecord(storeKey);
                 }
@@ -2622,11 +2618,10 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidCommitUpdate(storeKeys) {
-        let l = storeKeys.length;
         const { _skToRollback } = this;
 
-        while (l--) {
-            const storeKey = storeKeys[l];
+        for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const status = this.getStatus(storeKey);
             delete _skToRollback[storeKey];
             if (status !== EMPTY) {
@@ -2674,7 +2669,6 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidNotUpdate(storeKeys, isPermanent, errors) {
-        let l = storeKeys.length;
         const {
             _skToData,
             _skToChanged,
@@ -2683,8 +2677,8 @@ const Store = Class({
             _skToType,
         } = this;
 
-        while (l--) {
-            const storeKey = storeKeys[l];
+        for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const status = this.getStatus(storeKey);
             // If destroyed now, but still in memory, revert the data so
             // that if the destroy fails we still have the right data.
@@ -2714,7 +2708,7 @@ const Store = Class({
             }
             if (
                 isPermanent &&
-                (!errors || !this._notifyRecordOfError(storeKey, errors[l]))
+                (!errors || !this._notifyRecordOfError(storeKey, errors[i]))
             ) {
                 this.revertData(storeKey);
             }
@@ -2740,9 +2734,8 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidCommitDestroy(storeKeys) {
-        let l = storeKeys.length;
-        while (l--) {
-            const storeKey = storeKeys[l];
+        for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const status = this.getStatus(storeKey);
 
             // If the record has been undestroyed while being committed
@@ -2806,11 +2799,10 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidNotDestroy(storeKeys, isPermanent, errors) {
-        let l = storeKeys.length;
         const { _created, _destroyed } = this;
 
-        while (l--) {
-            const storeKey = storeKeys[l];
+        for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const status = this.getStatus(storeKey);
             if ((status & ~DIRTY) === (READY | NEW | COMMITTING)) {
                 this.setStatus(storeKey, status & ~(COMMITTING | NEW));
@@ -2820,7 +2812,7 @@ const Store = Class({
                 _destroyed[storeKey] = '';
                 if (
                     isPermanent &&
-                    (!errors || !this._notifyRecordOfError(storeKey, errors[l]))
+                    (!errors || !this._notifyRecordOfError(storeKey, errors[i]))
                 ) {
                     this.undestroyRecord(storeKey);
                 }

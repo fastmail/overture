@@ -10,9 +10,9 @@ import { View } from '../View.js';
 import '../../foundation/Decorators.js';
 
 const forEachView = function (views, method, args) {
-    let l = views ? views.length : 0;
-    while (l--) {
-        const view = views[l];
+    const length = views ? views.length : 0;
+    for (let i = length - 1; i >= 0; i -= 1) {
+        const view = views[i];
         if (view instanceof View && !isDestroyed(view)) {
             if (args) {
                 view[method].apply(view, args);
@@ -55,26 +55,23 @@ const SwitchView = Class({
         this.isRendered = true;
 
         const views = this.get('views');
-        let l = views.length;
         let view;
-        while (l--) {
-            view = views[l];
+        for (let i = views.length - 1; i >= 0; i -= 1) {
+            view = views[i];
             if (view && !(view instanceof Array)) {
-                views[l] = [view];
+                views[i] = [view];
             }
         }
     },
 
     destroy() {
         let views = this.get('views');
-        let l = views.length;
-        while (l--) {
-            forEachView(views[l], 'destroy');
+        for (let i = views.length - 1; i >= 0; i -= 1) {
+            forEachView(views[i], 'destroy');
         }
         views = this.get('subViews');
-        l = views.length;
-        while (l--) {
-            forEachView(views[l], 'destroy');
+        for (let i = views.length - 1; i >= 0; i -= 1) {
+            forEachView(views[i], 'destroy');
         }
         SwitchView.parent.destroy.call(this);
     },
@@ -181,14 +178,14 @@ const SwitchView = Class({
             }
         }
 
-        let l = views ? views.length : 0;
-        while (l--) {
-            let node = views[l];
+        const length = views ? views.length : 0;
+        for (let i = length - 1; i >= 0; i -= 1) {
+            let node = views[i];
             if (node instanceof View) {
                 parent.insertView(node, this, 'after');
             } else {
                 if (typeof node !== 'object') {
-                    node = views[l] = document.createTextNode(node);
+                    node = views[i] = document.createTextNode(node);
                 }
                 const before = position.nextSibling;
                 if (before) {
@@ -218,9 +215,9 @@ const SwitchView = Class({
             forEachView(subViews, 'willLeaveDocument');
         }
 
-        let l = views ? views.length : 0;
-        while (l--) {
-            const node = views[l];
+        const length = views ? views.length : 0;
+        for (let i = length - 1; i >= 0; i -= 1) {
+            const node = views[i];
             if (node instanceof View) {
                 parent.removeView(node);
             } else {
@@ -234,18 +231,17 @@ const SwitchView = Class({
             }
             forEachView(subViews, 'set', ['parentView', null]);
             const childViews = parent.get('childViews');
-            l = subViews.length;
-            while (l--) {
-                const view = subViews[l];
+            for (let i = subViews.length - 1; i >= 0; i -= 1) {
+                const view = subViews[i];
                 let index = childViews.lastIndexOf(view);
                 let numToRemove = 1;
                 if (index > -1) {
                     while (
-                        l > 0 &&
+                        i > 0 &&
                         index > 0 &&
-                        subViews[l - 1] === childViews[index - 1]
+                        subViews[i - 1] === childViews[index - 1]
                     ) {
-                        l -= 1;
+                        i -= 1;
                         index -= 1;
                         numToRemove += 1;
                     }

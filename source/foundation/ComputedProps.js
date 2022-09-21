@@ -47,9 +47,8 @@ import '../core/Array.js'; // For Array#erase
 const computeDependentKeys = function (cache, key, results) {
     const dependents = cache[key];
     if (dependents) {
-        let l = dependents.length;
-        while (l--) {
-            const dependentKey = dependents[l];
+        for (let i = dependents.length - 1; i >= 0; i -= 1) {
+            const dependentKey = dependents[i];
             // May be multiple ways to get to this dependency.
             if (results.indexOf(dependentKey) === -1) {
                 results.push(dependentKey);
@@ -100,10 +99,9 @@ const ComputedProps = {
     */
     propertyDidChange(key /*, oldValue, newValue*/) {
         const dependents = this.propertiesDependentOnKey(key);
-        let l = dependents.length;
         const cache = meta(this).cache;
-        while (l--) {
-            delete cache[dependents[l]];
+        for (let i = dependents.length - 1; i >= 0; i -= 1) {
+            delete cache[dependents[i]];
         }
         return this;
     },

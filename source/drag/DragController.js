@@ -38,9 +38,8 @@ const getTouch = function (touches, touchId) {
     if (touchId === null) {
         return null;
     }
-    let l = touches.length;
-    while (l--) {
-        const touch = touches[l];
+    for (let i = touches.length - 1; i >= 0; i -= 1) {
+        const touch = touches[i];
         if (touch.identifier === touchId) {
             return touch;
         }

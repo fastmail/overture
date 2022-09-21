@@ -331,9 +331,8 @@ const isValidAttribute = function (nodeName, name, value, options) {
 const defangAttributes = function (node, options) {
     const attributes = Array.from(node.attributes);
     const nodeName = node.nodeName;
-    let l = attributes.length;
-    while (l--) {
-        const attr = attributes[l];
+    for (let i = attributes.length - 1; i >= 0; i -= 1) {
+        const attr = attributes[i];
         const name = attr.name.toLowerCase();
         const value = attr.value;
         if (

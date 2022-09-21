@@ -21,10 +21,9 @@ const gestureManager = new Obj({
     fire(type, event) {
         if (/^touch/.test(type)) {
             const gestures = this._gestures;
-            let l = gestures.length;
             type = type.slice(5);
-            while (l--) {
-                gestures[l][type](event);
+            for (let i = gestures.length - 1; i >= 0; i -= 1) {
+                gestures[i][type](event);
             }
         }
         if (!event.button) {

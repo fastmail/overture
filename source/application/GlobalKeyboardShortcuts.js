@@ -136,14 +136,13 @@ const GlobalKeyboardShortcuts = Class({
         key = toPlatformKey(key);
         const current = this._shortcuts[key];
         const length = current ? current.length : 0;
-        let l = length;
-        while (l--) {
-            const item = current[l];
+        for (let i = length - 1; i >= 0; i -= 1) {
+            const item = current[i];
             if (item[0] === object && item[1] === method) {
                 if (length === 1) {
                     delete this._shortcuts[key];
                 } else {
-                    current.splice(l, 1);
+                    current.splice(i, 1);
                 }
             }
         }

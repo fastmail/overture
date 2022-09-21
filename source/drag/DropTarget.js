@@ -64,9 +64,8 @@ const DropTarget = {
     willAcceptDrag(drag) {
         const acceptedTypes = this.get('dropAcceptedDataTypes');
         const availableTypes = drag.get('dataTypes');
-        let l = availableTypes.length;
-        while (l--) {
-            if (acceptedTypes[availableTypes[l]]) {
+        for (let i = availableTypes.length - 1; i >= 0; i -= 1) {
+            if (acceptedTypes[availableTypes[i]]) {
                 return true;
             }
         }

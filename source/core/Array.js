@@ -101,10 +101,9 @@ Object.assign(Array.prototype, {
             {Array} Returns self.
     */
     erase(item) {
-        let l = this.length;
-        while (l--) {
-            if (this[l] === item) {
-                this.splice(l, 1);
+        for (let i = this.length - 1; i >= 0; i -= 1) {
+            if (this[i] === item) {
+                this.splice(i, 1);
             }
         }
         return this;

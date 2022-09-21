@@ -170,16 +170,16 @@ class MemoryManager {
         const _skToLastAccess = store._skToLastAccess;
         const _skToData = store._skToData;
         const storeKeys = Object.keys(store._typeToSKToId[guid(Type)] || {});
-        let l = storeKeys.length;
-        let numberToDelete = l - max;
+        const length = storeKeys.length;
+        let numberToDelete = length - max;
         const deleted = [];
 
         storeKeys.sort((a, b) => {
             return _skToLastAccess[b] - _skToLastAccess[a];
         });
 
-        while (numberToDelete > 0 && l--) {
-            const storeKey = storeKeys[l];
+        for (let i = length - 1; numberToDelete > 0 && i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const data = _skToData[storeKey];
             if (store.unloadRecord(storeKey)) {
                 numberToDelete -= 1;
@@ -204,15 +204,15 @@ class MemoryManager {
         const queries = this._store.getAllQueries().filter((query) => {
             return query instanceof Type;
         });
-        let l = queries.length;
-        let numberToDelete = l - max;
+        const length = queries.length;
+        let numberToDelete = length - max;
         const deleted = [];
 
         queries.sort((a, b) => {
             return b.lastAccess - a.lastAccess;
         });
-        while (numberToDelete > 0 && l--) {
-            const query = queries[l];
+        for (let i = length - 1; numberToDelete > 0 && i >= 0; i -= 1) {
+            const query = queries[i];
             if (!query.hasObservers() && !query.hasRangeObservers()) {
                 query.destroy();
                 deleted.push(query);

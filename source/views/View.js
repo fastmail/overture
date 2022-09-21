@@ -219,13 +219,13 @@ const View = Class({
         View.parent.constructor.apply(this, arguments);
 
         if ((this._autoID = !this.get('id'))) {
-            this.set('id', 'v' + UID++);
+            this.set('id', 'v' + UID);
+            UID += 1;
         }
 
         const children = this.get('childViews') || (this.childViews = []);
-        let l = children.length;
-        while (l--) {
-            children[l].set('parentView', this);
+        for (let i = children.length - 1; i >= 0; i -= 1) {
+            children[i].set('parentView', this);
         }
         if (this.get('syncOnlyInDocument')) {
             this.suspendBindings();
@@ -238,9 +238,8 @@ const View = Class({
         }
 
         const children = this.get('childViews');
-        let l = children.length;
-        while (l--) {
-            children[l].destroy();
+        for (let i = children.length - 1; i >= 0; i -= 1) {
+            children[i].destroy();
         }
         if (this.get('isRendered')) {
             this.willDestroyLayer(this.get('layer'));
@@ -455,9 +454,8 @@ const View = Class({
         }
 
         const children = this.get('childViews');
-        let l = children.length;
-        while (l--) {
-            children[l].willLeaveDocument();
+        for (let i = children.length - 1; i >= 0; i -= 1) {
+            children[i].willLeaveDocument();
         }
 
         return this;
@@ -473,9 +471,8 @@ const View = Class({
     */
     didLeaveDocument() {
         const children = this.get('childViews');
-        let l = children.length;
-        while (l--) {
-            children[l].didLeaveDocument();
+        for (let i = children.length - 1; i >= 0; i -= 1) {
+            children[i].didLeaveDocument();
         }
         if (this.get('syncOnlyInDocument')) {
             this.suspend();
@@ -700,10 +697,9 @@ const View = Class({
     redrawLayer(layer) {
         const prevView = forView(this);
         let childViews = this.get('childViews');
-        let l = childViews.length;
 
-        while (l--) {
-            const view = childViews[l];
+        for (let i = childViews.length - 1; i >= 0; i -= 1) {
+            const view = childViews[i];
             this.removeView(view);
             view.destroy();
         }
@@ -816,9 +812,9 @@ const View = Class({
     didResize() {
         this.computedPropertyDidChange('pxLayout');
         const children = this.get('childViews');
-        let l = children.length;
-        while (l--) {
-            children[l].parentViewDidResize();
+
+        for (let i = children.length - 1; i >= 0; i -= 1) {
+            children[i].parentViewDidResize();
         }
     },
 
@@ -1222,18 +1218,21 @@ const View = Class({
             bParents.push(parent);
         }
 
-        let al = aParents.length;
-        let bl = bParents.length;
-        while (al-- && bl--) {
-            if ((a = aParents[al]) !== (b = bParents[bl])) {
+        for (
+            let al = aParents.length - 1, bl = bParents.length - 1;
+            al >= 0 && bl >= 0;
+            al -= 1, bl -= 1
+        ) {
+            a = aParents[al];
+            b = bParents[bl];
+            if (a !== b) {
                 parent = aParents[al + 1];
                 if (!parent) {
                     return POSITION_DISCONNECTED;
                 }
                 const children = parent.get('childViews');
-                let l = children.length;
-                while (l--) {
-                    const view = children[l];
+                for (let i = children.length - 1; i >= 0; i -= 1) {
+                    const view = children[i];
                     if (view === b) {
                         return POSITION_PRECEDING;
                     }

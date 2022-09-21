@@ -78,8 +78,8 @@ const firstMatch = function (patterns) {
 const longestMatch = function (patterns) {
     return function (parse) {
         const parses = [];
-        let l = patterns.length;
-        for (let i = 0; i < l; i += 1) {
+        const length = patterns.length;
+        for (let i = 0; i < length; i += 1) {
             const newParse = parse.clone();
             if (patterns[i](newParse)) {
                 parses.push(newParse);
@@ -90,12 +90,12 @@ const longestMatch = function (patterns) {
             }
         }
         // Find the parse with shortest string left over.
-        l = parses.length;
-        if (l--) {
-            let newParse = parses[l];
-            while (l--) {
-                if (parses[l].string.length <= newParse.string.length) {
-                    newParse = parses[l];
+        const parsesLength = parses.length;
+        if (parsesLength) {
+            let newParse = parses[parsesLength - 1];
+            for (let j = parsesLength - 2; j >= 0; j -= 1) {
+                if (parses[j].string.length <= newParse.string.length) {
+                    newParse = parses[j];
                 }
             }
             parse.assimilate(newParse);

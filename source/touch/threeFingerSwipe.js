@@ -4,11 +4,11 @@ import { Gesture } from './Gesture.js';
 
 const touchCenter = function (event) {
     const touchMap = [];
-    for (let i = 0; i < event.touches.length; i++) {
+    for (let i = 0; i < event.touches.length; i += 1) {
         const { identifier, screenX, screenY } = event.touches[i];
         touchMap[identifier] = { x: screenX, y: screenY };
     }
-    for (let i = 0; i < event.changedTouches.length; i++) {
+    for (let i = 0; i < event.changedTouches.length; i += 1) {
         const { identifier, screenX, screenY } = event.changedTouches[i];
         touchMap[identifier] = { x: screenX, y: screenY };
     }
@@ -16,7 +16,7 @@ const touchCenter = function (event) {
 
     let x = 0;
     let y = 0;
-    for (let i = 0; i < touches.length; i++) {
+    for (let i = 0; i < touches.length; i += 1) {
         x += touches[i].x;
         y += touches[i].y;
     }

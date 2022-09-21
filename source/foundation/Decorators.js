@@ -21,12 +21,11 @@ const setupComputed = function (metadata, key, object) {
         dependents = metadata.dependents = clone(dependents);
         metadata.allDependents = {};
     }
-    let l = dependencies.length;
     let method;
     let pathObservers;
     let methodObservers;
-    while (l--) {
-        const valueThisKeyDependsOn = dependencies[l];
+    for (let i = dependencies.length - 1; i >= 0; i -= 1) {
+        const valueThisKeyDependsOn = dependencies[i];
         if (valueThisKeyDependsOn.indexOf('.') === -1) {
             (
                 dependents[valueThisKeyDependsOn] ||
@@ -67,12 +66,11 @@ const teardownComputed = function (metadata, key) {
         dependents = metadata.dependents = clone(dependents);
         metadata.allDependents = {};
     }
-    let l = dependencies.length;
     let method;
     let pathObservers;
     let methodObservers;
-    while (l--) {
-        const valueThisKeyDependsOn = dependencies[l];
+    for (let i = dependencies.length - 1; i >= 0; i -= 1) {
+        const valueThisKeyDependsOn = dependencies[i];
         if (valueThisKeyDependsOn.indexOf('.') === -1) {
             dependents[valueThisKeyDependsOn].erase(key);
         } else {
@@ -99,11 +97,10 @@ const teardownComputed = function (metadata, key) {
 
 const setupObserver = function (metadata, method) {
     const observes = this.observedProperties;
-    let l = observes.length;
     let pathObservers;
 
-    while (l--) {
-        const key = observes[l];
+    for (let i = observes.length - 1; i >= 0; i -= 1) {
+        const key = observes[i];
         if (key.indexOf('.') === -1) {
             metadata.addObserver(key, { object: null, method });
         } else {
@@ -127,11 +124,10 @@ const setupObserver = function (metadata, method) {
 
 const teardownObserver = function (metadata, method) {
     const observes = this.observedProperties;
-    let l = observes.length;
     let pathObservers;
 
-    while (l--) {
-        const key = observes[l];
+    for (let i = observes.length - 1; i >= 0; i -= 1) {
+        const key = observes[i];
         if (key.indexOf('.') === -1) {
             metadata.removeObserver(key, { object: null, method });
         } else if (!pathObservers) {
@@ -226,9 +222,8 @@ Object.assign(Function.prototype, {
     observes() {
         const properties =
             this.observedProperties || (this.observedProperties = []);
-        let l = arguments.length;
-        while (l--) {
-            properties.push(arguments[l]);
+        for (let i = arguments.length - 1; i >= 0; i -= 1) {
+            properties.push(arguments[i]);
         }
         this.__setupProperty__ = setupObserver;
         this.__teardownProperty__ = teardownObserver;

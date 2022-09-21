@@ -58,7 +58,7 @@ const RootView = Class({
         const nodeIsDocument = node.nodeType === 9;
         const doc = nodeIsDocument ? node : node.ownerDocument;
         const win = doc.defaultView;
-        let events = [
+        [
             'click',
             'mousedown',
             'mouseup',
@@ -74,10 +74,9 @@ const RootView = Class({
             'wheel',
             'cut',
             'submit',
-        ];
-        for (let l = events.length; l--; ) {
+        ].forEach((event) => {
             node.addEventListener(
-                events[l],
+                event,
                 this,
                 passiveSupported
                     ? {
@@ -85,20 +84,18 @@ const RootView = Class({
                       }
                     : false,
             );
-        }
+        });
         // These events don't bubble: have to capture.
         // In IE, we use a version of focus and blur which will bubble, but
         // there's no way of bubbling/capturing change and input.
         // These events are automatically added to all inputs when created
         // instead.
-        events = ['focus', 'blur', 'change', 'input'];
-        for (let l = events.length; l--; ) {
-            node.addEventListener(events[l], this, true);
-        }
-        events = ['resize', 'scroll'];
-        for (let l = events.length; l--; ) {
-            win.addEventListener(events[l], this, false);
-        }
+        ['focus', 'blur', 'change', 'input'].forEach((event) => {
+            node.addEventListener(event, this, true);
+        });
+        ['resize', 'scroll'].forEach((event) => {
+            win.addEventListener(event, this, false);
+        });
 
         this.isRendered = true;
         this.isInDocument = true;

@@ -83,9 +83,8 @@ const OverflowMenuView = Class({
 const viewIsBeforeFlex = function (view, flex) {
     const layer = view.get('layer');
     const childNodes = flex.parentNode.childNodes;
-    let l = childNodes.length;
-    while (l--) {
-        const node = childNodes[l];
+    for (let i = childNodes.length - 1; i >= 0; i -= 1) {
+        const node = childNodes[i];
         if (node === layer) {
             return false;
         }
@@ -237,13 +236,12 @@ const ToolbarView = Class({
             if (pxWidth < 0 || i < l) {
                 pxWidth -= widths.overflow;
 
-                while (pxWidth < 0 && i--) {
+                while (pxWidth < 0 && i > 0) {
+                    i -= 1;
                     pxWidth += widths[leftConfig[i]];
                 }
 
-                if (i < 0) {
-                    i = 0;
-                } else if (leftConfig[i] === '-') {
+                if (leftConfig[i] === '-') {
                     i -= 1;
                 }
 
@@ -320,9 +318,8 @@ const ToolbarView = Class({
             containerBoundingClientRect.left;
 
         this.removeView(measureView);
-        let l = unused.length;
-        while (l--) {
-            measureView.removeView(unused[l]);
+        for (let i = unused.length - 1; i >= 0; i -= 1) {
+            measureView.removeView(unused[i]);
         }
         measureView.destroy();
         this._measureView = null;

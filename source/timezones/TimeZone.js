@@ -6,10 +6,10 @@ import '../core/String.js'; // For String#format
 // e.g. [ +new Date(), -3600, 'EU', 'CE%sT' ]
 
 const getPeriod = function (periods, date, isUTC) {
-    let l = periods.length - 1;
-    let period = periods[l];
-    while (l--) {
-        const candidate = periods[l];
+    const lastIndex = periods.length - 1;
+    let period = periods[lastIndex];
+    for (let i = lastIndex - 1; i >= 0; i -= 1) {
+        const candidate = periods[i];
         if (candidate[0] < date - (isUTC ? 0 : candidate[1])) {
             break;
         }
@@ -24,13 +24,12 @@ const getPeriod = function (periods, date, isUTC) {
 // e.g. [ 1987, 2006, 4, 3, 0, 0, 2, 0, 2, 3600, 'BST' ]
 
 const getRule = function (rules, offset, datetime, isUTC, recurse) {
-    let l = rules.length;
     const year = datetime.getUTCFullYear();
     let ruleInEffect = null;
     let prevRule;
     let dateInEffect;
-    while (l--) {
-        const rule = rules[l];
+    for (let i = rules.length - 1; i >= 0; i -= 1) {
+        const rule = rules[i];
         // Sorted by end year. So if ends before this date, no further rules
         // can apply.
         if (rule[1] < year) {

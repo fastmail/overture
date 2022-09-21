@@ -146,9 +146,9 @@ const ObservableRange = {
     */
     hasRangeObservers() {
         const rangeObservers = meta(this).rangeObservers;
-        let l = rangeObservers ? rangeObservers.length : 0;
-        while (l--) {
-            const object = rangeObservers[l].object;
+        const length = rangeObservers ? rangeObservers.length : 0;
+        for (let i = length - 1; i >= 0; i -= 1) {
+            const object = rangeObservers[i].object;
             if (object && object !== this) {
                 return true;
             }

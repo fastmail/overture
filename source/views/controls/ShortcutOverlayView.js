@@ -44,7 +44,7 @@ const ShortcutOverlayView = Class({
         const styleCache = new Map();
         const getEffectiveZIndex = function (node) {
             const ancestors = getAncestors(node);
-            for (let i = 0; i < ancestors.length; i++) {
+            for (let i = 0; i < ancestors.length; i += 1) {
                 const values = styleCache.get(ancestors[i]);
                 let position;
                 let zIndex;

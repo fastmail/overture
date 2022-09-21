@@ -249,10 +249,9 @@ class StyleAnimation extends Animation {
             animated,
             element,
         } = this;
-        let l = animated.length;
 
-        while (l--) {
-            let property = animated[l];
+        for (let i = animated.length - 1; i >= 0; i -= 1) {
+            let property = animated[i];
             const delta = deltaValue[property];
             const isTopTransform = property === 'tt';
             if (isTopTransform) {

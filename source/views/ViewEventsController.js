@@ -117,15 +117,14 @@ const ViewEventsController = {
     */
     handleEvent: function (event, view, _rootView, elEventCallback) {
         const eventTargets = this._eventTargets;
-        let l = eventTargets.length;
 
         if (!view) {
             view = getViewFromNode(event.target) || _rootView;
         }
         event.targetView = view;
 
-        while (l--) {
-            let eventTarget = eventTargets[l][1];
+        for (let i = eventTargets.length - 1; i >= 0; i -= 1) {
+            let eventTarget = eventTargets[i][1];
             if (eventTarget === this) {
                 if (elEventCallback) {
                     elEventCallback(event);

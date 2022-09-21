@@ -19,24 +19,24 @@ const animations = [];
 const nextFrame = function () {
     // Cache to local variable for speed
     const anims = animations;
-    let l = anims.length;
+    const length = anims.length;
     const time = frameStartTime;
 
-    if (l) {
+    if (length) {
         // Request first to get in shortest time.
         invokeInNextFrame(nextFrame);
 
-        while (l--) {
-            const objAnimations = anims[l];
-            let i = objAnimations.length;
+        for (let i = length - 1; i >= 0; i -= 1) {
+            const objAnimations = anims[i];
+            const objLength = objAnimations.length;
             const hasMultiple = i > 1;
             let object;
             if (hasMultiple) {
                 object = objAnimations[0].object;
                 object.beginPropertyChanges();
             }
-            while (i--) {
-                const animation = objAnimations[i];
+            for (let j = objLength - 1; j >= 0; j -= 1) {
+                const animation = objAnimations[j];
                 let animTime = animation.startTime;
                 // We start the animation clock at the first frame *after* the
                 // animation begins. This is becaues there are often a lot of

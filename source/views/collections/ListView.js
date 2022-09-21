@@ -353,9 +353,9 @@ const ListView = Class({
     redrawSelection() {
         const selection = this.get('selection');
         const itemViews = this.get('childViews');
-        let l = itemViews.length;
-        while (l--) {
-            const view = itemViews[l];
+
+        for (let i = itemViews.length - 1; i >= 0; i -= 1) {
+            const view = itemViews[i];
             const storeKey = view.getFromPath('content.storeKey');
             if (storeKey) {
                 view.set('isSelected', selection.isStoreKeySelected(storeKey));

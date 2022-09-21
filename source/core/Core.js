@@ -365,9 +365,8 @@ const clone = function (value) {
     if (value && typeof value === 'object') {
         if (value instanceof Array) {
             cloned = [];
-            let l = value.length;
-            while (l--) {
-                cloned[l] = clone(value[l]);
+            for (let i = value.length - 1; i >= 0; i -= 1) {
+                cloned[i] = clone(value[i]);
             }
         } else if (value instanceof Date) {
             cloned = new Date(value);

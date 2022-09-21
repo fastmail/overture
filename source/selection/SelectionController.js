@@ -60,11 +60,10 @@ const SelectionController = Class({
             set[storeKey] = true;
             return set;
         }, {});
-        let l = removed.length;
         let storeKey;
 
-        while (l--) {
-            storeKey = removed[l];
+        for (let i = removed.length - 1; i >= 0; i -= 1) {
+            storeKey = removed[i];
             if (_selectedStoreKeys[storeKey] && !added[storeKey]) {
                 length -= 1;
                 delete _selectedStoreKeys[storeKey];
@@ -106,10 +105,9 @@ const SelectionController = Class({
 
         const _selectedStoreKeys = this._selectedStoreKeys;
         let howManyChanged = 0;
-        let l = storeKeys.length;
 
-        while (l--) {
-            const storeKey = storeKeys[l];
+        for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
+            const storeKey = storeKeys[i];
             const wasSelected = !!_selectedStoreKeys[storeKey];
             if (isSelected !== wasSelected) {
                 if (isSelected) {
