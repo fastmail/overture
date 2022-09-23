@@ -42,14 +42,9 @@ const state = new Router({
         }
 
         // eslint-disable-next-line no-new-func
-        const filter = new Function(
-            'data',
-            'return' +
-                '(data.listId==="' +
-                listId.replace(/"/g, '\\"') +
-                '")' +
-                (searchTree ? '&&' + searchTree.toFunctionString() : ''),
-        );
+        const filter = (data) =>
+            data.listId === listId.replace(/"/g, '\\"') &&
+            (!searchTree || searchTree.toFunctionMethods()(data));
 
         return new LocalQuery({
             store,

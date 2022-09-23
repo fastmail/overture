@@ -102,41 +102,34 @@ class SearchTreeNode {
         return node;
     }
 
-    toFunctionString() {
+    toFunctionMethods() {
         const type = this.type;
         const value = this.value;
         const children = this.children;
         switch (type) {
             case 'isComplete':
-                return (value ? '' : '!') + 'data.isComplete';
-            case 'text':
-                return (
-                    '/\\b' + value.escapeRegExp() + '/i.test( data.summary )'
-                );
+                // XNOR
+                return (data) => !!value === data.isComplete;
+            case 'text': {
+                return (data) =>
+                    new RegExp('\\b' + value.escapeRegExp(), 'i').test(
+                        data.summary,
+                    );
+            }
             case 'NOT':
-                return '!' + children[0].toFunctionString();
+                return (data) => !children[0].toFunctionMethods()(data);
             case 'OR':
-                return (
-                    '(' +
+                return (data) =>
                     children
-                        .map((child) => {
-                            return child.toFunctionString();
-                        })
-                        .join('||') +
-                    ')'
-                );
+                        .map((child) => child.toFunctionMethods()(data))
+                        .some((x) => x);
             case 'AND':
-                return (
-                    '(' +
+                return (data) =>
                     children
-                        .map((child) => {
-                            return child.toFunctionString();
-                        })
-                        .join('&&') +
-                    ')'
-                );
+                        .map((child) => child.toFunctionMethods()(data))
+                        .every((x) => x);
         }
-        return '';
+        return () => {};
     }
 }
 
