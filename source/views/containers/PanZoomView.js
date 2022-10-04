@@ -50,6 +50,7 @@ const PanZoomView = Class({
         if (this.get('isInDocument')) {
             layer.addEventListener('load', this, true);
             layer.addEventListener('transitionend', this, true);
+            this.contentDidResize();
         } else {
             layer.removeEventListener('load', this, true);
             layer.removeEventListener('transitionend', this, true);
