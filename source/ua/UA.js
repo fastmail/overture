@@ -1,4 +1,4 @@
-/*global window, document, navigator */
+/*global document, navigator */
 
 /**
     Module: UA
@@ -113,15 +113,3 @@ export const canTouch = 'ontouchstart' in document.documentElement;
     Does the browser support pointer events?
 */
 export const canPointer = 'onpointerdown' in document.documentElement;
-
-/**
-    Property: O.UA.canU2F
-    Type: Boolean
-
-    Does the browser probably support U2F?
-*/
-// See http://caniuse.com/#feat=u2f
-// Chrome 41+ supports it but exposes no obvious global; Firefox has it
-// disabled by default but if enabled by security.webauth.u2f exposes a
-// global called U2F.
-export const canU2F = (browser === 'chrome' && version >= 41) || !!window.U2F;

@@ -10,5 +10,4 @@ export {
     version,
     canTouch,
     canPointer,
-    canU2F,
 } from './UA.js';
