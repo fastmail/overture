@@ -9,6 +9,9 @@
 
 const ua = navigator.userAgent.toLowerCase();
 const other = ['other', '0'];
+// Support loading UA in workers, which don't define document
+const documentElement =
+    typeof document !== 'undefined' ? document.documentElement : {};
 
 /**
     Namespace: O.UA
@@ -104,7 +107,7 @@ export const version = parseFloat(
 
     Does the browser support touch events?
 */
-export const canTouch = 'ontouchstart' in document.documentElement;
+export const canTouch = 'ontouchstart' in documentElement;
 
 /**
     Property: O.UA.canPointer
@@ -112,4 +115,4 @@ export const canTouch = 'ontouchstart' in document.documentElement;
 
     Does the browser support pointer events?
 */
-export const canPointer = 'onpointerdown' in document.documentElement;
+export const canPointer = 'onpointerdown' in documentElement;
