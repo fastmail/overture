@@ -2,7 +2,6 @@ import { createFilter } from '@rollup/pluginutils';
 
 import { compile, compileTranslation } from '../i18n/compile-translation.js';
 
-// eslint-disable-next-line import/no-default-export
 export default function langImport(options) {
     const filter = createFilter(options.include, options.exclude);
     const { filterChunk = () => true } = options;

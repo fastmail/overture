@@ -4,7 +4,6 @@
 
 import { transformSync } from '@swc/core';
 
-// eslint-disable-next-line import/no-default-export
 export default function swcTransformLate(options) {
     if (!options) {
         options = {};

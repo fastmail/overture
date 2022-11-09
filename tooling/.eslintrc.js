@@ -12,5 +12,7 @@ module.exports = {
     rules: {
         'no-constant-condition': ['error', { checkLoops: false }],
         'no-empty': ['error', { allowEmptyCatch: true }],
+        'import/no-default-export': 'off',
+        'import/no-namespace': 'off',
     },
 };

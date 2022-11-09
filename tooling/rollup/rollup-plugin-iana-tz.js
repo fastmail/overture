@@ -10,6 +10,7 @@ export default function ianaTZ(options = {}) {
             if (!filter(id)) {
                 return;
             }
+            // eslint-disable-next-line consistent-return
             return compile(id, code);
         },
     };

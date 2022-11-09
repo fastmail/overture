@@ -4,7 +4,6 @@
 
 import { minifySync } from '@swc/core';
 
-// eslint-disable-next-line import/no-default-export
 export default function swcMinifyLate(options) {
     // if it is exactly the boolean true, make it an object instead
     if (typeof options === 'undefined' || options === true) {
