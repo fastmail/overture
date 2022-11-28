@@ -110,7 +110,6 @@ class AbstractEventSource {
             this.readyState = CLOSED;
             if (this._abortController) {
                 this._abortController.abort();
-                this._abortController = null;
             } else if (this._reconnectTimeout) {
                 clearTimeout(this._reconnectTimeout);
                 this._reconnectTimeout = null;
@@ -248,12 +247,19 @@ class AbstractEventSource {
         return [options, resetTimeout];
     }
 
-    _didFinishFetch(didNetworkError, status, response) {
+    _didFinishFetch(abortController, didNetworkError, status, response) {
+        // Have we already started a new fetch? If you call close().open(),
+        // we can start fetching a new screen before the old one's finished;
+        // nothing to do in that case.
+        if (abortController !== this._abortController) {
+            return;
+        }
         // Temp errors, retry with exponential backoff:
         // * Network issue
         // * Rate limit response (429)
         // * Server error (>=500)
         clearTimeout(this._abortTimeout);
+        this._abortController = null;
         if (this.readyState === CLOSED) {
             // Nothing to do
         } else if (didNetworkError || status === 429 || status >= 500) {

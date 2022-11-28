@@ -76,9 +76,13 @@ class ModernEventSource extends AbstractEventSource {
         } else {
             abortController.abort();
         }
-        this._abortController = null;
 
-        this._didFinishFetch(didNetworkError, status, response);
+        this._didFinishFetch(
+            abortController,
+            didNetworkError,
+            status,
+            response,
+        );
     }
 }
 
