@@ -41,6 +41,7 @@ const SearchInputView = Class({
 
         this.redrawInputAttributes(layer);
         this.redrawTabIndex(layer);
+        this.redrawTooltip(layer);
 
         return [
             control,
@@ -55,6 +56,14 @@ const SearchInputView = Class({
                 ])
                 .end(),
         ];
+    },
+
+    // Only draw the tooltip on the _domControl
+    redrawTooltip() {
+        const domControl = this._domControl;
+        if (domControl) {
+            Activatable.redrawTooltip.call(this, domControl);
+        }
     },
 
     /**
