@@ -1,1 +1,1 @@
-export { TimeZone } from './TimeZone.js';
+export { TimeZone, getTimeZoneById } from './TimeZone.js';

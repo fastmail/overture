@@ -23,6 +23,10 @@ const getPeriod = function (periods, date, isUTC) {
 //      utc=0/local=1/wall=2, offset (secs), suffix ]
 // e.g. [ 1987, 2006, 4, 3, 0, 0, 2, 0, 2, 3600, 'BST' ]
 
+const tzRules = {
+    '-': [],
+};
+
 const getRule = function (rules, offset, datetime, isUTC, recurse) {
     const year = datetime.getUTCFullYear();
     let ruleInEffect = null;
@@ -139,6 +143,9 @@ const switchSign = function (string) {
     return string.replace(/[+-]/, (sign) => (sign === '+' ? '-' : '+'));
 };
 
+const idToTZ = new Map();
+const getTimeZoneById = (id) => idToTZ.get(id) || null;
+
 class TimeZone {
     constructor(id, periods) {
         let name = id.replace(/_/g, ' ');
@@ -157,7 +164,7 @@ class TimeZone {
         const period = getPeriod(this.periods, date);
         let offset = period[1];
         const rule = getRule(
-            TimeZone.rules[period[2]] || [],
+            tzRules[period[2]] || [],
             offset,
             date,
             toTimeZone,
@@ -180,13 +187,7 @@ class TimeZone {
     getSuffix(date) {
         const period = getPeriod(this.periods, date, false);
         const offset = period[1];
-        let rule = getRule(
-            TimeZone.rules[period[2]],
-            offset,
-            date,
-            false,
-            true,
-        );
+        let rule = getRule(tzRules[period[2]], offset, date, false, true);
         let suffix = period[3];
         const slashIndex = suffix.indexOf('/');
         // If there's a slash, e.g. "GMT/BST", presume first if no time offset,
@@ -204,7 +205,7 @@ class TimeZone {
     }
 
     static fromJSON(id) {
-        return TimeZone[id] || null;
+        return getTimeZoneById(id);
     }
 
     static isEqual(a, b) {
@@ -217,26 +218,22 @@ class TimeZone {
         const alias = json.alias;
 
         for (const id in zones) {
-            addTimeZone(new TimeZone(id, zones[id]));
+            idToTZ.set(id, new TimeZone(id, zones[id]));
         }
         for (const id in link) {
-            addTimeZone(
-                new TimeZone(id, zones[link[id]] || TimeZone[link[id]].periods),
+            idToTZ.set(
+                id,
+                new TimeZone(
+                    id,
+                    zones[link[id]] || idToTZ.get(link[id]).periods,
+                ),
             );
         }
         for (const id in alias) {
-            TimeZone[id] = TimeZone[alias[id]];
+            idToTZ.set(id, idToTZ.get(alias[id]));
         }
-        Object.assign(TimeZone.rules, json.rules);
+        Object.assign(tzRules, json.rules);
     }
 }
 
-const addTimeZone = function (timeZone) {
-    TimeZone[timeZone.id] = timeZone;
-};
-
-TimeZone.rules = {
-    '-': [],
-};
-
-export { TimeZone };
+export { TimeZone, getTimeZoneById };
