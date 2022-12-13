@@ -9,7 +9,7 @@ const parseYear = function (year) {
     if ('only'.indexOf(year) === 0) {
         return 0;
     }
-    var num = parseInt(year, 10);
+    const num = parseInt(year, 10);
     if (isNaN(num)) {
         throw 'Cannot parse year ' + year;
     }
@@ -32,7 +32,7 @@ const months = {
 };
 
 const parseMonth = function (month) {
-    var monthNum = months[month.toLowerCase()];
+    const monthNum = months[month.toLowerCase()];
     if (isNaN(monthNum)) {
         throw 'Cannot parse month ' + month;
     }
@@ -76,9 +76,8 @@ const parseTime = function (time) {
     if (time === '-') {
         return [0, 0, 0, 2];
     }
-    const parts = /([+-])?([012]?\d)(?::([0-5]\d))?(?::([0-5]\d))?([wsguz])?/.exec(
-        time,
-    );
+    const parts =
+        /([+-])?([012]?\d)(?::([0-5]\d))?(?::([0-5]\d))?([wsguz])?/.exec(time);
     if (!parts) {
         throw 'Cannot parse time ' + time;
     }
@@ -158,7 +157,7 @@ const sortRules = function (a, b) {
 
 // The following obsolete names are aliases rather than linked
 const alwaysAlias = {
-    GMT: true,
+    'GMT': true,
     'Etc/Universal': true,
     'Etc/Zulu': true,
     'Etc/Greenwich': true,
@@ -196,25 +195,25 @@ const obsoleteZones = {
 };
 
 const convertFile = function (text, isLinkAlias) {
-    var lines = text.replace(/#.*$/gm, '').split('\n'),
-        zones = {},
-        rules = {},
-        usedRules = {},
-        result = {
-            alias: {},
-            link: {},
-            zones: zones,
-            rules: rules,
-        },
-        i,
-        l,
-        line,
-        parts,
-        zone,
-        rule,
-        parsedZone,
-        id,
-        periods;
+    const lines = text.replace(/#.*$/gm, '').split('\n');
+    const zones = {};
+    const rules = {};
+    const usedRules = {};
+    const result = {
+        alias: {},
+        link: {},
+        zones,
+        rules,
+    };
+    let i;
+    let l;
+    let line;
+    let parts;
+    let zone;
+    let rule;
+    let parsedZone;
+    let id;
+    let periods;
     for (i = 0, l = lines.length; i < l; i += 1) {
         line = lines[i].trim();
         // Comment
@@ -247,7 +246,7 @@ const convertFile = function (text, isLinkAlias) {
                 zone = parts[1];
                 // Handle obsolete legacy timezones.
                 if (zone.indexOf('/') === -1) {
-                    var alias = obsoleteZones[zone];
+                    const alias = obsoleteZones[zone];
                     if (alias) {
                         result.alias[zone] = alias;
                     } else {
@@ -274,7 +273,7 @@ const convertFile = function (text, isLinkAlias) {
         periods.sort(sortZones);
         // If the only rules are pre 1970, we may not have a rule block at all,
         // but the period could still reference it.
-        periods.forEach(function (period) {
+        periods.forEach((period) => {
             if (!rules[period[2]]) {
                 period[2] = '-';
             }
