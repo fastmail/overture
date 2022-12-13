@@ -182,7 +182,7 @@ const alwaysLink = {
 // The following obsolete zones are defined in Olsen: alias them into an
 // equivalent modern zone
 const obsoleteZones = {
-    WET: 'Europe/Lisbon ',
+    WET: 'Europe/Lisbon',
     CET: 'Europe/Paris',
     MET: 'Europe/Paris',
     EET: 'Europe/Helsinki',
