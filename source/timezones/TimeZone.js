@@ -232,21 +232,11 @@ class TimeZone {
 }
 
 const addTimeZone = function (timeZone) {
-    let area = TimeZone.areas;
-    const parts = timeZone.name.split('/');
-    const l = parts.length - 1;
-    let i;
-    for (i = 0; i < l; i += 1) {
-        area = area[parts[i]] || (area[parts[i]] = {});
-    }
-    area[parts[l]] = timeZone;
-
     TimeZone[timeZone.id] = timeZone;
 };
 
 TimeZone.rules = {
     '-': [],
 };
-TimeZone.areas = {};
 
 export { TimeZone };
