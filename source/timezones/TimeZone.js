@@ -198,7 +198,12 @@ class TimeZone {
                 : suffix.slice(0, slashIndex);
             rule = null;
         }
-        return suffix.format(rule ? rule[10] : '');
+        suffix = suffix.format(rule ? rule[10] : '');
+        // If a bare number, prefix with GMT
+        if (/^[-+]/.test(suffix)) {
+            suffix = 'GMT' + suffix;
+        }
+        return suffix;
     }
     toJSON() {
         return this.id;
