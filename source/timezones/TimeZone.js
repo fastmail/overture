@@ -1,3 +1,5 @@
+import { mod } from '../core/Math.js';
+
 import '../core/Date.js'; // For Date#add
 import '../core/String.js'; // For String#format
 
@@ -185,6 +187,10 @@ class TimeZone {
         return this.convert(date, true);
     }
     getSuffix(date) {
+        return this.getTZAbbr(date) || this.getGMTAbbr(date);
+    }
+
+    getTZAbbr(date) {
         const period = getPeriod(this.periods, date, false);
         const offset = period[1];
         let rule = getRule(tzRules[period[2]], offset, date, false, true);
@@ -199,12 +205,26 @@ class TimeZone {
             rule = null;
         }
         suffix = suffix.format(rule ? rule[10] : '');
-        // If a bare number, prefix with GMT
+        // If it's just +/- (number), there's no abbreviation for a name.
         if (/^[-+]/.test(suffix)) {
-            suffix = 'GMT' + suffix;
+            return '';
         }
         return suffix;
     }
+
+    getGMTAbbr(date) {
+        const offset = (this.convertDateToTimeZone(date) - date) / 60000;
+        if (!offset) {
+            return 'GMT';
+        }
+        const hours = Math.abs(Math.floor(offset / 60));
+        const minutes = Math.abs(mod(offset, 60));
+        const offsetString = minutes
+            ? "%n:%'02n".format(hours, minutes)
+            : '%n'.format(hours);
+        return 'GMT' + (offset < 0 ? '−' : '+') + offsetString;
+    }
+
     toJSON() {
         return this.id;
     }
