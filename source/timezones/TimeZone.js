@@ -141,24 +141,12 @@ const getRule = function (rules, offset, datetime, isUTC, recurse) {
     return ruleInEffect;
 };
 
-const switchSign = function (string) {
-    return string.replace(/[+-]/, (sign) => (sign === '+' ? '-' : '+'));
-};
-
 const idToTZ = new Map();
 const getTimeZoneById = (id) => idToTZ.get(id) || null;
 
 class TimeZone {
     constructor(id, periods) {
-        let name = id.replace(/_/g, ' ');
-        // The IANA ids have the +/- the wrong way round for historical reasons.
-        // Display correctly for the user.
-        if (/GMT[+-]/.test(name)) {
-            name = switchSign(name);
-        }
-
         this.id = id;
-        this.name = name;
         this.periods = periods;
     }
 
@@ -180,12 +168,15 @@ class TimeZone {
         }
         return new Date(+date + offset * 1000);
     }
+
     convertDateToUTC(date) {
         return this.convert(date, false);
     }
+
     convertDateToTimeZone(date) {
         return this.convert(date, true);
     }
+
     getSuffix(date) {
         return this.getTZAbbr(date) || this.getGMTAbbr(date);
     }
