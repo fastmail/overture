@@ -57,6 +57,9 @@ const isFuzzy = (langObj) => {
 
 const padDate = (date) => String(date).padStart(2, '0');
 
+const wrapQuotes = (string) =>
+    string ? string.replaceAll(/"/g, '""') : string;
+
 const locJsonToCSV = () => {
     const db = readFileToObject(process.argv[2]);
     const langFileNames = process.argv
@@ -89,15 +92,17 @@ const locJsonToCSV = () => {
         }
         csvRows.push([
             id,
-            dbObj.string,
+            // Strings with nested quotes will break in Crowdin. We
+            // need to wrap the quotes in quotes to maintain structure.
+            wrapQuotes(dbObj.string),
             ...langObjs.map((langObj) => {
                 const thisLangObj = langObj[id];
                 if (isFuzzy(thisLangObj)) {
                     return '';
                 }
-                return thisLangObj.translation;
+                return wrapQuotes(thisLangObj.translation);
             }),
-            dbObj.description,
+            wrapQuotes(dbObj.description),
         ]);
     });
 
