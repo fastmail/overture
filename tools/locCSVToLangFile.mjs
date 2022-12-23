@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import prettier from 'prettier';
 import { parseICUString } from '../tooling/i18n/compile-translation.js';
+import { execSync } from 'child_process';
 
 /* globals console, process */
 
@@ -170,16 +171,41 @@ const loadTarget = (pathToTarget) =>
 const locCSVToJson = () => {
     const langFilePath = process.argv[3];
     const langCode = /\/([-\w]+).lang.js$/.exec(langFilePath)[1];
-    const csv = loadCSV(process.argv[2]);
+    const fileArg = process.argv[2];
+    const csv = loadCSV(fileArg);
     const lang = loadTarget(langFilePath);
     const targetLanguageIndex = csv[0].findIndex(
         (header) => header === codeToLanguage[langCode],
     );
+    let langAtExport;
+    let commit;
 
     if (targetLanguageIndex === -1) {
         const language = codeToLanguage[langCode] || langCode;
         console.log('No column exists for language: "' + language + '"');
         return;
+    }
+
+    try {
+        commit = /SHA([a-zA-Z0-9]+).csv$/.exec(fileArg)?.[1];
+
+        if (!commit) {
+            throw new Error('No commit to check out');
+        }
+
+        //Sanitize langFilePath
+        if (!/^[a-zA-Z0-9\-_ \/\.]+$/.test(langFilePath)) {
+            throw new Error('Invalid file path');
+        }
+
+        // eslint-disable-next-line no-eval
+        langAtExport = eval(
+            execSync(`git show ${commit}:./${langFilePath}`)
+                .toString()
+                .replace('export default ', '(function () {return ') + '})();',
+        );
+    } catch (error) {
+        console.log('Unable to find origin commit for CSV file.');
     }
 
     csv.forEach((line) => {
@@ -195,6 +221,16 @@ const locCSVToJson = () => {
         }
         if (!target) {
             console.log(`${id} does not exist in target dictionary.`);
+            return;
+        }
+        if (
+            langAtExport &&
+            langAtExport[id].translation !== target.translation
+        ) {
+            console.log(
+                id +
+                    `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.`,
+            );
             return;
         }
         // Reject if same as source string

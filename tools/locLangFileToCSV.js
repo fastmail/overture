@@ -1,9 +1,11 @@
 // usage: node locLangFileToCSV.js path/to/db.json ...paths/to/dictionaries.lang.js
+// output: translation-{YYYYMMDD}-SHA{SHA of HEAD}.csv
 
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-/* globals require, process, console */
+/* globals require, process */
 
 const languages = {
     'bg': 'Bulgarian',
@@ -53,6 +55,8 @@ const isFuzzy = (langObj) => {
     return flags && flags.includes('fuzzy');
 };
 
+const padDate = (date) => String(date).padStart(2, '0');
+
 const locJsonToCSV = () => {
     const db = readFileToObject(process.argv[2]);
     const langFileNames = process.argv
@@ -60,6 +64,12 @@ const locJsonToCSV = () => {
         .filter((name) => languages[getLangCodeFromFileName(name)]);
     const langObjs = langFileNames.map((name) => readFileToObject(name));
     const langCodes = langFileNames.map(getLangCodeFromFileName);
+    const now = new Date();
+    const fileName = `translations-${now.getFullYear()}${padDate(
+        now.getMonth() + 1,
+    )}${padDate(now.getDate())}-SHA${execSync('git rev-parse --short HEAD')
+        .toString()
+        .trim()}.csv`;
 
     const csvRows = [
         [
@@ -91,17 +101,20 @@ const locJsonToCSV = () => {
         ]);
     });
 
-    return csvRows.reduce(
-        (body, currentRow, index) =>
-            body +
-            (index ? '\n' : '') +
-            currentRow.reduce(
-                (row, cell, rowIndex) =>
-                    row + `${rowIndex ? ',' : ''}"${cell}"`,
-                '',
-            ),
-        '',
+    fs.writeFileSync(
+        fileName,
+        csvRows.reduce(
+            (body, currentRow, index) =>
+                body +
+                (index ? '\n' : '') +
+                currentRow.reduce(
+                    (row, cell, rowIndex) =>
+                        row + `${rowIndex ? ',' : ''}"${cell}"`,
+                    '',
+                ),
+            '',
+        ),
     );
 };
 
-console.log(locJsonToCSV());
+locJsonToCSV();
