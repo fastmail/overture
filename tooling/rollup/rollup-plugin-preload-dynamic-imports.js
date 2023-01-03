@@ -8,8 +8,8 @@ export default function (config) {
             }
             const module = targetModuleId.replace(trimPrefix, '/');
             return {
-                left: `(FM.preloadModuleDependencies('${module}'),import(`,
-                right: '))',
+                left: `FM.import(() => import(`,
+                right: `),'${module}')`,
             };
         },
     };
