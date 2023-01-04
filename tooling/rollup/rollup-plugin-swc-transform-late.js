@@ -2,22 +2,28 @@
 // code that will become unreachable after the first pass (because of, say,
 // build-time constants which are replaced)
 
-import { transformSync } from '@swc/core';
+import { minifySync, transformSync } from '@swc/core';
 
 export default function swcTransformLate(options) {
     if (!options) {
         options = {};
     }
-
-    if (typeof options.sourceMaps === 'undefined') {
-        options.sourceMaps = true;
+    if (!options.jsc) {
+        options.jsc = {};
     }
+
+    const minifyOptions = options.jsc.minify || {};
+    options.jsc.minify = undefined;
+
+    // Always force sourceMap generation.
+    options.sourceMaps = 'inline';
+    minifyOptions.sourceMap = true;
 
     return {
         name: 'swc-transform-late',
         renderChunk(code /* , _chunk, _options */) {
             try {
-                return transformSync(code, options);
+                return minifySync(transformSync(code, options), minifyOptions);
             } catch (e) {
                 e.plugin = 'swc-transform-late';
                 e.frame = e.snippet;

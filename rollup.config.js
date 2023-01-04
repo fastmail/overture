@@ -1,6 +1,5 @@
 import replace from '@rollup/plugin-replace';
 import swcTransformLate from './tooling/rollup/rollup-plugin-swc-transform-late';
-import swcMinifyLate from './tooling/rollup/rollup-plugin-swc-minify-late';
 
 // eslint-disable-next-line import/no-default-export
 export default {
@@ -19,11 +18,6 @@ export default {
             name: 'O',
             compact: true,
             sourcemap: true,
-            plugins: [
-                swcMinifyLate({
-                    sourceMap: true,
-                }),
-            ],
         },
     ],
     plugins: [
@@ -32,9 +26,7 @@ export default {
             'preventAssignment': true,
         }),
         swcTransformLate({
-            env: { targets: 'bb 10, iOS >= 9, ie >= 11, last 5 years' },
-
-            sourceMaps: true,
+            env: { target: 'es5' },
         }),
     ],
 };
