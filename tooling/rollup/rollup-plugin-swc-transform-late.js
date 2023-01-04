@@ -16,14 +16,25 @@ export default function swcTransformLate(options) {
     options.jsc.minify = undefined;
 
     // Always force sourceMap generation.
-    options.sourceMaps = 'inline';
+    options.sourceMaps = true;
     minifyOptions.sourceMap = true;
 
     return {
         name: 'swc-transform-late',
         renderChunk(code /* , _chunk, _options */) {
             try {
-                return minifySync(transformSync(code, options), minifyOptions);
+                const transformed = transformSync(code, options);
+                let transformedCode = transformed.code;
+
+                if (options.jsc.target === 'es5') {
+                    transformedCode =
+                        '!function () {' + transformedCode + '}();';
+                }
+                transformedCode +=
+                    '\n//# sourceMappingURL=data:application/json;base64,' +
+                    Buffer.from(transformedCode).toString('base64');
+
+                return minifySync(transformedCode, minifyOptions);
             } catch (e) {
                 e.plugin = 'swc-transform-late';
                 e.frame = e.snippet;
