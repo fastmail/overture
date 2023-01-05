@@ -76,15 +76,19 @@ const compareSourceAndTranslation = (source, translation, languageCode) => {
                 let substitutionKeys = Object.keys(
                     translationObj.substitutions,
                 );
-                if (sourceSubstitutionKeys.includes('=0')) {
-                    if (!substitutionKeys.includes('=0')) {
+
+                // Check exact # (=0, =12) plurality equivalence
+                if (
+                    sourceSubstitutionKeys.some(
+                        (sub) =>
+                            sub.startsWith('=') &&
+                            !substitutionKeys.includes(sub),
+                    )
+                ) {
                         return false;
                     }
-                }
-                // Some languages include =0, but we don't need to check it if
-                // it is not included in source string
                 substitutionKeys = substitutionKeys.filter(
-                    (sub) => sub !== '=0',
+                    (sub) => !sub.startsWith('='),
                 );
 
                 switch (languageCode) {
