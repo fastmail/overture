@@ -85,8 +85,8 @@ const compareSourceAndTranslation = (source, translation, languageCode) => {
                             !substitutionKeys.includes(sub),
                     )
                 ) {
-                        return false;
-                    }
+                    return false;
+                }
                 substitutionKeys = substitutionKeys.filter(
                     (sub) => !sub.startsWith('='),
                 );
@@ -227,16 +227,25 @@ const locCSVToJson = () => {
             console.log(`${id} does not exist in target dictionary.`);
             return;
         }
-        if (
-            langAtExport &&
-            langAtExport[id].translation !== target.translation
-        ) {
-            console.log(
-                id +
-                    `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.`,
-            );
-            return;
+
+        if (langAtExport) {
+            const exportSource = langAtExport[id];
+            if (exportSource.string !== target.string) {
+                console.log(
+                    id +
+                        ': Source string has changed since translation cycle was initiated. This string will not be updated.',
+                );
+                return;
+            }
+            if (exportSource.translation !== target.translation) {
+                console.log(
+                    id +
+                        `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.`,
+                );
+                return;
+            }
         }
+
         // Reject if same as source string
         if (translation === sourceString) {
             return;
