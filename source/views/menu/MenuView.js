@@ -109,6 +109,7 @@ const MenuView = Class({
 
     isMenuView: true,
     showFilter: false,
+    filterPlaceholder: null,
     closeOnActivate: true,
 
     controller: function () {
@@ -157,6 +158,7 @@ const MenuView = Class({
         return [
             (this.filterView = this.get('showFilter')
                 ? new MenuFilterView({
+                      placeholder: this.get('filterPlaceholder'),
                       controller,
                   })
                 : null),
