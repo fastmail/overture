@@ -133,13 +133,14 @@ const ListView = Class({
         const itemHeight = this.get('itemHeight');
         let height = length ? this.indexToOffset(length - 1) + itemHeight : 0;
         // Firefox breaks in weird and wonderful ways when a scroll area is
-        // over a certain height, somewhere between 2^24 and 2^25px tall.
-        // 2^24 = 16,777,216
-        // (2019-07-03 update: in a test in the Fastmail message list on
-        // cmorgan’s 2× laptop on Windows, Firefox flat-out ignores a height
-        // value over 17895697px. log₂(that) is around 24.093.)
-        if (isFirefox && height > 16777216) {
-            height = 16777216;
+        // over 17895697px tall. CSS lengths in Gecko are limited to at most
+        // (1<<30)-1 app units, with 1<<30 treated as an infinite value. App
+        // units are 1/60 of a CSS pixel. Lengths larger than that effectively
+        // overflow the integer datatype used to store lengths.
+        // ((1<<30)-1)/60 == 17895697
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=552412
+        if (isFirefox && height > 17895697) {
+            height = 17895697;
         }
         return itemHeight ? { height } : {};
     }.property('itemLayout', 'contentLength'),
