@@ -8,7 +8,6 @@ import { create as el, nearest } from '../../dom/Element.js';
 import { COPY } from '../../drag/DragEffect.js';
 import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
-import { didError } from '../../foundation/RunLoop.js';
 import { isEqualToValue } from '../../foundation/Transform.js';
 import { loc } from '../../localisation/i18n.js';
 import { isAndroid, isApple, isIOS } from '../../ua/UA.js';
@@ -165,8 +164,8 @@ const RichTextView = Class({
     editor: null,
     editorId: undefined,
     editorClassName: '',
+    editorConfig: null,
     styles: null,
-    blockDefaults: null,
 
     _value: '',
     value: function (html) {
@@ -212,16 +211,10 @@ const RichTextView = Class({
         const selection = this.get('savedSelection');
         const editor = this.get('editor');
         if (selection) {
-            editor
-                .setSelection(
-                    editor.createRange(
-                        selection.sc,
-                        selection.so,
-                        selection.ec,
-                        selection.eo,
-                    ),
-                )
-                .focus();
+            const range = document.createRange();
+            range.setStart(selection.sc, selection.so);
+            range.setEnd(selection.ec, selection.eo);
+            editor.setSelection(range).focus();
             this.set('savedSelection', null);
         } else {
             editor.moveCursorToStart();
@@ -288,7 +281,7 @@ const RichTextView = Class({
         document.createDocumentFragment().appendChild(editingLayer);
         const editor = this.createEditor(
             editingLayer,
-            this.get('blockDefaults'),
+            this.get('editorConfig'),
         );
         editor
             .setHTML(this._value)
@@ -297,8 +290,7 @@ const RichTextView = Class({
             .addEventListener('cursor', this)
             .addEventListener('pathChange', this)
             .addEventListener('undoStateChange', this)
-            .addEventListener('dragover', this)
-            .addEventListener('drop', this).didError = didError;
+            .addEventListener('pasteImage', this);
         this.set('editor', editor).set('path', editor.getPath());
 
         if (this.get('isDisabled')) {
@@ -668,8 +660,10 @@ const RichTextView = Class({
                     label: loc('Quote'),
                     tooltip:
                         loc('Quote') + '\n' + formatKeyForPlatform('Cmd-]'),
-                    target: richTextView,
-                    method: 'increaseQuoteLevel',
+                    activate() {
+                        richTextView.increaseQuoteLevel();
+                        this.fire('button:activate');
+                    },
                 }),
                 unquote: new ButtonView({
                     tabIndex: -1,
@@ -678,8 +672,10 @@ const RichTextView = Class({
                     label: loc('Unquote'),
                     tooltip:
                         loc('Unquote') + '\n' + formatKeyForPlatform('Cmd-['),
-                    target: richTextView,
-                    method: 'decreaseQuoteLevel',
+                    activate() {
+                        richTextView.decreaseQuoteLevel();
+                        this.fire('button:activate');
+                    },
                 }),
                 ul: new ButtonView({
                     tabIndex: -1,
@@ -1031,8 +1027,8 @@ const RichTextView = Class({
     setFontFace: execCommand('setFontFace'),
     setFontSize: execCommand('setFontSize'),
 
-    setTextColor: execCommand('setTextColour'),
-    setHighlightColor: execCommand('setHighlightColour'),
+    setTextColor: execCommand('setTextColor'),
+    setHighlightColor: execCommand('setHighlightColor'),
 
     setTextAlignment: execCommand('setTextAlignment'),
     setTextDirection: execCommand('setTextDirection'),
@@ -1114,14 +1110,17 @@ const RichTextView = Class({
     canRedo: false,
 
     setUndoState: function (event) {
-        this.set('canUndo', event.canUndo).set('canRedo', event.canRedo);
+        this.set('canUndo', event.detail.canUndo).set(
+            'canRedo',
+            event.detail.canRedo,
+        );
         event.stopPropagation();
     }.on('undoStateChange'),
 
     path: '',
 
     setPath: function (event) {
-        this.set('path', event.path);
+        this.set('path', event.detail.path);
         event.stopPropagation();
     }.on('pathChange'),
 
@@ -1191,13 +1190,6 @@ const RichTextView = Class({
     // --- Keep state in sync with render ---
 
     handleEvent(event) {
-        // Ignore real dragover/drop events from Squire. They wil be handled
-        // by the standard event delegation system. We only observe these
-        // to get the image paste fake dragover/drop events.
-        const type = event.type;
-        if ((type === 'dragover' || type === 'drop') && event.stopPropagation) {
-            return;
-        }
         ViewEventsController.handleEvent(event, this);
     },
 
@@ -1230,6 +1222,18 @@ const RichTextView = Class({
             event.preventDefault();
         }
     }.on('click'),
+
+    // --- Page image ---
+
+    pasteImage: function (event) {
+        const dropAcceptedDataTypes = this.get('dropAcceptedDataTypes');
+        const images = Array.from(event.detail.clipboardData.items)
+            .filter((item) => dropAcceptedDataTypes[item.type])
+            .map((item) => item.getAsFile());
+        if (images.length) {
+            this.insertImagesFromFiles(images);
+        }
+    }.on('pasteImage'),
 
     // -- Drag and drop ---
 
