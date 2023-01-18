@@ -172,6 +172,12 @@ const loadTarget = (pathToTarget) =>
             .replace('export default ', '(function () {return ') + '})();',
     );
 
+// Single ' characters within a translation can cause it to be parsed
+// incorrectly, as it can create a quote pair with the surrounding " characters.
+// Converting ' to rsquo; avoids this.
+const escapeAccents = (string) =>
+    string ? string.replaceAll(/'/g, '’') : string;
+
 const locCSVToJson = () => {
     const langFilePath = process.argv[3];
     const langCode = /\/([-\w]+).lang.js$/.exec(langFilePath)[1];
@@ -181,8 +187,6 @@ const locCSVToJson = () => {
     const targetLanguageIndex = csv[0].findIndex(
         (header) => header === codeToLanguage[langCode],
     );
-    let langAtExport;
-    let commit;
 
     if (targetLanguageIndex === -1) {
         const language = codeToLanguage[langCode] || langCode;
@@ -190,6 +194,8 @@ const locCSVToJson = () => {
         return;
     }
 
+    let langAtExport;
+    let commit;
     try {
         commit = /SHA([a-zA-Z0-9]+).csv$/.exec(fileArg)?.[1];
 
@@ -218,7 +224,18 @@ const locCSVToJson = () => {
         if (id === 'String ID') {
             return;
         }
-        const translation = line[targetLanguageIndex];
+
+        const rawTranslation = line[targetLanguageIndex];
+        const translation = escapeAccents(rawTranslation);
+        // There's a circumstance in which an intentionally single-quoted phrase
+        // exists, and the single-quotes will be replaced by the escapeAccents
+        // function. However, multiple accents in a translation have already led
+        // to erroneously single-quoted phrases slipping through.
+        let warnForMultiReplace = false;
+        if (rawTranslation.match(/'/g)?.length > 1) {
+            warnForMultiReplace = true;
+        }
+
         const target = lang[id];
         if (!translation) {
             return;
@@ -247,7 +264,7 @@ const locCSVToJson = () => {
         }
 
         // Reject if same as source string
-        if (translation === sourceString) {
+        if (translation === escapeAccents(sourceString)) {
             return;
         }
         if (!compareSourceAndTranslation(sourceString, translation, langCode)) {
@@ -259,6 +276,12 @@ const locCSVToJson = () => {
                     translation,
             );
             return;
+        }
+
+        // If multiple single-quotes in a translation were replaced, and the
+        // translation has actually changed, log a warning.
+        if (target.translation !== translation && warnForMultiReplace) {
+            console.log(`WARNING: Replaced multiple single quotes in ${id}\n`);
         }
 
         target.translation = translation;
