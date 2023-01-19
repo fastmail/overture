@@ -233,6 +233,23 @@ const Enumerable = {
         return results;
     },
 
+    take(max, fn, bind) {
+        if (!fn) {
+            fn = () => true;
+        }
+        const accept = createCallback(fn, bind);
+        let count = 0;
+        const results = [];
+        for (let i = 0, l = this.get('length'); i < l && count < max; i += 1) {
+            const value = this.getObjectAt(i);
+            if (accept(value, i, this)) {
+                results.push(value);
+                count += 1;
+            }
+        }
+        return results;
+    },
+
     /**
         Method: O.Enumerable#map
 
