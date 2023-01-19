@@ -331,8 +331,10 @@ const PopOverView = Class({
         this.set('options', options);
         alignWithView.getParent(RootView).insertView(this);
 
-        const eventHandler = this.get('eventHandler');
-        ViewEventsController.addEventTarget(eventHandler, 10);
+        if (!options.allowEventsOutside) {
+            const eventHandler = this.get('eventHandler');
+            ViewEventsController.addEventTarget(eventHandler, 10);
+        }
         this.set('isVisible', true);
 
         return this;
