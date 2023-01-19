@@ -112,6 +112,7 @@ Object.assign(Array.prototype, {
     first: Enumerable.first,
     last: Enumerable.last,
     binarySearch: Enumerable.binarySearch,
+    take: Enumerable.take,
 });
 
 // TODO(cmorgan/modulify): do something about these exports:
