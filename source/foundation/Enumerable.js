@@ -261,6 +261,20 @@ const Enumerable = {
         return results;
     },
 
+    flatMap(fn, bind) {
+        const callback = createCallback(fn, bind);
+        const results = [];
+        for (let i = 0, l = this.get('length'); i < l; i += 1) {
+            const result = callback(this.getObjectAt(i), i, this);
+            if (Array.isArray(result)) {
+                results.push(...result.flat());
+            } else {
+                results.push(result);
+            }
+        }
+        return results;
+    },
+
     /**
         Method: O.Enumerable#reduce
 
@@ -354,6 +368,20 @@ const Enumerable = {
             }
         }
         return false;
+    },
+
+    slice(start = 0, end) {
+        const length = this.get('length');
+        if (!end) {
+            end = length;
+        } else if (end < 0) {
+            end = Math.max(0, length + end);
+        }
+        const array = new Array(end - start);
+        for (let i = start, l = end; i < l; i += 1) {
+            array[i] = this.getObjectAt(i);
+        }
+        return array;
     },
 };
 
