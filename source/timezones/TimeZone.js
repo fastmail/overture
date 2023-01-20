@@ -151,22 +151,22 @@ class TimeZone {
     }
 
     convert(date, toTimeZone) {
-        const period = getPeriod(this.periods, date);
-        let offset = period[1];
+        const [, offset, daylightSavingsRule] = getPeriod(this.periods, date);
         const rule = getRule(
-            tzRules[period[2]] || [],
+            tzRules[daylightSavingsRule || '-'],
             offset,
             date,
             toTimeZone,
             true,
         );
+        let effectiveOffset = offset;
         if (rule) {
-            offset += rule[9];
+            effectiveOffset += rule[9];
         }
         if (!toTimeZone) {
-            offset = -offset;
+            effectiveOffset = -effectiveOffset;
         }
-        return new Date(+date + offset * 1000);
+        return new Date(+date + effectiveOffset * 1000);
     }
 
     convertDateToUTC(date) {
@@ -182,25 +182,34 @@ class TimeZone {
     }
 
     getTZAbbr(date) {
-        const period = getPeriod(this.periods, date, false);
-        const offset = period[1];
-        let rule = getRule(tzRules[period[2]], offset, date, false, true);
-        let suffix = period[3];
+        const [, offset, daylightSavingsRule, suffix] = getPeriod(
+            this.periods,
+            date,
+            false,
+        );
+        let rule = getRule(
+            tzRules[daylightSavingsRule || '-'],
+            offset,
+            date,
+            false,
+            true,
+        );
+        let abbr = suffix;
         const slashIndex = suffix.indexOf('/');
         // If there's a slash, e.g. "GMT/BST", presume first if no time offset,
         // second if time offset.
         if (rule && slashIndex > -1) {
-            suffix = rule[9]
-                ? suffix.slice(slashIndex + 1)
-                : suffix.slice(0, slashIndex);
+            abbr = rule[9]
+                ? abbr.slice(slashIndex + 1)
+                : abbr.slice(0, slashIndex);
             rule = null;
         }
-        suffix = suffix.format(rule ? rule[10] : '');
+        abbr = abbr.format(rule ? rule[10] : '');
         // If it's just +/- (number), there's no abbreviation for a name.
-        if (/^[-+]/.test(suffix)) {
+        if (/^[-+]/.test(abbr)) {
             return '';
         }
-        return suffix;
+        return abbr;
     }
 
     getGMTAbbr(date) {
