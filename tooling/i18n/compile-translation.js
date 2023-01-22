@@ -338,6 +338,7 @@ const transformPluralStringResult = (string) =>
 const compileTranslationParts = (
     translationParts,
     pluralisationFunctionName = 'p',
+    isModern,
 ) => {
     const compiled = translationParts.map((translationPart) => {
         if (translationPart.type === 'string') {
@@ -404,10 +405,17 @@ const compileTranslationParts = (
         result = compiled[0];
     }
 
+    if (!isModern) {
+        return `function(x,a){return ${result || '""'}}`;
+    }
     return `(x,a) => ${result || '""'}`;
 };
 
-const compileTranslation = function (translationObj, fallbackRules = {}) {
+const compileTranslation = function (
+    translationObj,
+    fallbackRules = {},
+    isModern = true,
+) {
     let string = translationObj.translation;
     let useFallback = false;
     if (!string) {
@@ -419,7 +427,11 @@ const compileTranslation = function (translationObj, fallbackRules = {}) {
 
     const translationParts = parseICUString(string);
 
-    return compileTranslationParts(translationParts, useFallback ? 'f' : 'p');
+    return compileTranslationParts(
+        translationParts,
+        useFallback ? 'f' : 'p',
+        isModern,
+    );
 };
 
 const enliven = (code) => {
@@ -530,7 +542,7 @@ const makeLocale = function (id, stringIds, idToEntry, outputTranslationsAsFn) {
                     return other.replace(
                         '%n',
                         this.getFormattedInt(number, this),
-                    )
+                    );
                 } else if (ones === 1 && tens !== 11) {
                     return one.replace(
                         '%n',

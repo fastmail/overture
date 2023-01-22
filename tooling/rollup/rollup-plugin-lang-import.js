@@ -70,12 +70,13 @@ export default function langImport(options) {
                         return match;
                     }
                     const translations = [];
-                    const { idsInUse, idToIndex } = options;
+                    const { idsInUse, idToIndex, isModern = true } = options;
                     idsInUse.forEach((stringId) => {
                         const index = idToIndex.get(stringId);
                         const compiled = compileTranslation(
                             JSON.parse(data[stringId]),
                             fallbackRules,
+                            isModern,
                         );
                         translations[index] = compiled;
                     });
