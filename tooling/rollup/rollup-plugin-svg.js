@@ -18,9 +18,8 @@ export default function svg(options = {}) {
             code = `import { setAttributes } from '/overture/dom';
 
 var src = \`${code}\`;
-
 var cachedNode = null;
-var drawIcon${name} = (props) => {
+function drawIcon${name} (props) {
     if (!cachedNode) {
         cachedNode = new DOMParser().parseFromString(src, 'image/svg+xml').firstChild;
         cachedNode.setAttribute('role', 'presentation');
