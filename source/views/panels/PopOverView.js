@@ -95,23 +95,23 @@ const PopOverView = Class({
         this.insertView(options.view, this._popOver);
 
         if (safeAreaInsetBottom) {
-            layout.paddingBottom = safeAreaInsetBottom;
+            layout.marginBottom = safeAreaInsetBottom;
         }
         switch (positionToThe) {
             case 'top':
-                layout.paddingBottom = Math.max(
+                layout.marginBottom = Math.max(
                     safeAreaInsetBottom,
                     rootView.get('pxHeight') - posTop - offsetTop,
                 );
                 break;
             case 'right':
-                layout.paddingLeft = posLeft + posWidth + offsetLeft;
+                layout.marginLeft = posLeft + posWidth + offsetLeft;
                 break;
             case 'bottom':
-                layout.paddingTop = posTop + posHeight + offsetTop;
+                layout.marginTop = posTop + posHeight + offsetTop;
                 break;
             case 'left':
-                layout.paddingRight =
+                layout.marginRight =
                     rootView.get('pxWidth') - posLeft - offsetLeft;
                 break;
         }
