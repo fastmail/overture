@@ -5,6 +5,7 @@ import { Obj } from '../../foundation/Object.js';
 import { ObservableArray } from '../../foundation/ObservableArray.js';
 import { invokeInNextFrame, queueFn } from '../../foundation/RunLoop.js';
 import { toBoolean } from '../../foundation/Transform.js';
+import { makeSearchRegExp } from '../../localisation/i18n.js';
 import { OptionsController } from '../../selection/OptionsController.js';
 import { canPointer } from '../../ua/UA.js';
 import { OptionsListView } from '../collections/OptionsListView.js';
@@ -23,9 +24,10 @@ const MenuOption = Class({
 
     Extends: Obj,
 
-    init: function (button, controller) {
+    init: function (button, controller, showAll) {
         this.button = button;
         this.controller = controller;
+        this.showAll = showAll;
     },
 
     isDisabled: function () {
@@ -47,15 +49,61 @@ const MenuController = Class({
 
     Extends: OptionsController,
 
-    init: function (view, content, isFiltering) {
+    init: function (view, content, isFiltering, showAllButton) {
         this.options = new ObservableArray();
         this.view = view;
-        this.content = content
-            .filter(toBoolean)
-            .map((button) => new MenuOption(button, this));
+        this.content = function (_content) {
+            return _content
+                .filter(toBoolean)
+                .map((button) => new MenuOption(button, this));
+        }.property();
+        this.set('content', content);
+        this.showAllButton = function (_showAllButton) {
+            return _showAllButton
+                ? new MenuOption(_showAllButton, this, true)
+                : null;
+        }.property();
+        this.set('showAllButton', showAllButton);
         MenuController.parent.constructor.call(this, {
             isFiltering,
         });
+    },
+
+    optionsWillChange: function () {
+        this.setOptions();
+    }
+        .queue('before')
+        .observes('content', 'search', 'isFiltering', 'showAllButton'),
+
+    filterOptions(content, search /*, isFiltering*/) {
+        const patterns = search
+            ? search.split(/\s+/).map(makeSearchRegExp)
+            : null;
+        const results = patterns
+            ? content.filter((option) => {
+                  const name = option.get('name');
+                  return patterns.every((pattern) => {
+                      return pattern.test(name);
+                  });
+              })
+            : Array.isArray(content)
+            ? content
+            : content.get('[]');
+        const showAllButton = this.get('showAllButton');
+        if (showAllButton && results.last() !== showAllButton) {
+            results.push(showAllButton);
+        }
+        return results;
+    },
+
+    selectFocused() {
+        const focused = this.get('focused');
+        if (focused) {
+            this.select(focused);
+            if (!focused.get('showAll')) {
+                this.resetSearch();
+            }
+        }
     },
 
     collapseFocused() {
@@ -117,6 +165,7 @@ const MenuView = Class({
             this,
             this.get('options'),
             this.get('showFilter'),
+            this.get('showAllButton'),
         );
     }.property(),
 
