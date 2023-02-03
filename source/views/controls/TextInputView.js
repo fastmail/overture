@@ -271,6 +271,7 @@ const TextInputView = Class({
         if (scrollView) {
             scrollView.redrawScroll();
         }
+        this.didResize();
     },
 
     redrawIsExpanding() {
@@ -278,6 +279,7 @@ const TextInputView = Class({
             this.redrawTextHeight();
         } else {
             this._domControl.style.height = 'auto';
+            this.didResize();
             // Scroll to cursor
             if (this.get('isFocused')) {
                 this.blur().focus();
