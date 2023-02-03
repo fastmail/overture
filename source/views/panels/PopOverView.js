@@ -196,10 +196,10 @@ const PopOverView = Class({
         of the parent view.
     */
     parentMargin: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 10,
+        top: 12,
+        left: 12,
+        right: 12,
+        bottom: 12,
     },
 
     keepInBounds: function () {
