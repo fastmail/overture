@@ -64,7 +64,7 @@ const nodesToText = function (
                 }
                 break;
             case 'UL':
-                listStack.push('*');
+                listStack.push('•');
                 break;
             case 'OL':
                 listStack.push(1);
