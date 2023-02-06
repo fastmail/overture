@@ -324,6 +324,7 @@ const TextInputView = Class({
     */
     didEnterDocument() {
         TextInputView.parent.didEnterDocument.call(this);
+        const control = this._domControl;
         if (this.get('isMultiline')) {
             if (this.get('isExpanding')) {
                 const style = getComputedStyle(this._domControl);
@@ -335,7 +336,6 @@ const TextInputView = Class({
                 this.redrawTextHeight();
             }
             // Restore scroll positions:
-            const control = this._domControl;
             const left = this.get('scrollLeft');
             const top = this.get('scrollTop');
             if (left) {
@@ -344,8 +344,8 @@ const TextInputView = Class({
             if (top) {
                 control.scrollTop = top;
             }
-            control.addEventListener('scroll', this, false);
         }
+        control.addEventListener('scroll', this, false);
         const selection = this.get('savedSelection');
         if (selection) {
             this.set('selection', selection).focus();
@@ -367,9 +367,7 @@ const TextInputView = Class({
             this.blur();
         }
         // Stop listening for scrolls:
-        if (this.get('isMultiline')) {
-            this._domControl.removeEventListener('scroll', this, false);
-        }
+        this._domControl.removeEventListener('scroll', this, false);
         return TextInputView.parent.willLeaveDocument.call(this);
     },
 
