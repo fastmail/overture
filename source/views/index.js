@@ -61,6 +61,7 @@ export {
     RichTextView,
     TOOLBAR_HIDDEN,
     TOOLBAR_AT_TOP,
+    TOOLBAR_ABOVE_KEYBOARD,
 } from './controls/RichTextView.js';
 export { SearchInputView } from './controls/SearchInputView.js';
 export { SelectView } from './controls/SelectView.js';

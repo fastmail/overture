@@ -8,9 +8,11 @@ import { create as el, nearest } from '../../dom/Element.js';
 import { COPY } from '../../drag/DragEffect.js';
 import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
 import { isEqualToValue } from '../../foundation/Transform.js';
 import { loc } from '../../localisation/i18n.js';
 import { isAndroid, isApple, isIOS } from '../../ua/UA.js';
+import { when } from '../collections/SwitchView.js';
 import { ToolbarView } from '../collections/ToolbarView.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { MenuView } from '../menu/MenuView.js';
@@ -52,6 +54,7 @@ const urlRegExp =
 
 const TOOLBAR_HIDDEN = 0;
 const TOOLBAR_AT_TOP = 1;
+const TOOLBAR_ABOVE_KEYBOARD = 2;
 
 const URLPickerView = Class({
     Name: 'URLPickerView',
@@ -124,6 +127,15 @@ const RichTextView = Class({
     tabIndex: undefined,
     label: undefined,
 
+    isToolbarShown: false,
+
+    checkToolbarShown() {
+        this.set(
+            'isToolbarShown',
+            this.get('isFocused') || this.get('popOver').get('isVisible'),
+        );
+    },
+
     popOver: function () {
         return new PopOverView();
     }.property(),
@@ -139,7 +151,7 @@ const RichTextView = Class({
 
     // ---
 
-    showToolbar: isIOS || isAndroid ? TOOLBAR_HIDDEN : TOOLBAR_AT_TOP,
+    showToolbar: isIOS || isAndroid ? TOOLBAR_ABOVE_KEYBOARD : TOOLBAR_AT_TOP,
     fontFaceOptions: function () {
         return [
             [loc('Default'), null],
@@ -303,11 +315,19 @@ const RichTextView = Class({
             this.redrawIsDisabled();
         }
 
+        const showToolbar = this.get('showToolbar');
+        let toolbarView = null;
+        if (showToolbar === TOOLBAR_AT_TOP) {
+            toolbarView = this.get('toolbarView');
+        } else if (showToolbar === TOOLBAR_ABOVE_KEYBOARD) {
+            toolbarView = when(this, 'isToolbarShown')
+                .show([this.get('toolbarView')])
+                .end();
+        }
+
         return [
             el('style', { type: 'text/css' }, [this.get('styles')]),
-            this.get('showToolbar') !== TOOLBAR_HIDDEN
-                ? this.get('toolbarView')
-                : null,
+            toolbarView,
         ];
     },
 
@@ -414,13 +434,27 @@ const RichTextView = Class({
 
     toolbarView: function () {
         const richTextView = this;
+        const rootView = this.getParent(RootView);
         const showToolbar = this.get('showToolbar');
 
         return new ToolbarView({
             className: 'v-Toolbar v-Toolbar--preventOverlap v-RichText-toolbar',
             overflowMenuType: '',
-            positioning: 'sticky',
+            positioning:
+                showToolbar === TOOLBAR_ABOVE_KEYBOARD ? 'fixed' : 'sticky',
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
+            ...(showToolbar === TOOLBAR_ABOVE_KEYBOARD
+                ? {
+                      layout: bind(
+                          rootView,
+                          'safeAreaInsetBottom',
+                          (bottom) => ({ bottom }),
+                      ),
+                      mousedown: function (event) {
+                          event.preventDefault();
+                      }.on('mousedown'),
+                  }
+                : {}),
         })
             .registerViews({
                 bold: new ButtonView({
@@ -941,6 +975,9 @@ const RichTextView = Class({
     },
 
     showOverlay(view, buttonView) {
+        const aboveKeyboard =
+            this.get('showToolbar') === TOOLBAR_ABOVE_KEYBOARD;
+
         // If we're in the overflow menu, align with the "More" button.
         if (buttonView.getParent(MenuView)) {
             buttonView = this.get('toolbarView').getView('overflow');
@@ -948,12 +985,21 @@ const RichTextView = Class({
         const richTextView = this;
         this.get('popOver').show({
             view,
+            positionToThe: aboveKeyboard ? 'top' : 'bottom',
             alignWithView: buttonView,
+            alignEdge:
+                !aboveKeyboard && view instanceof URLPickerView
+                    ? 'left'
+                    : 'centre',
             showCallout: true,
-            offsetTop: 2,
-            offsetLeft: -4,
+            offsetTop: aboveKeyboard ? 0 : 2,
+            offsetLeft: aboveKeyboard ? 0 : -4,
             onHide() {
                 richTextView.focus();
+                invokeInNextEventLoop(
+                    richTextView.checkToolbarShown,
+                    richTextView,
+                );
             },
         });
     },
@@ -1163,10 +1209,12 @@ const RichTextView = Class({
 
     _onFocus: function () {
         this.set('isFocused', true);
+        this.set('isToolbarShown', true);
     }.on('focus'),
 
     _onBlur: function () {
         this.set('isFocused', false);
+        invokeInNextEventLoop(this.checkToolbarShown, this);
     }.on('blur'),
 
     blurOnEsc: function (event) {
@@ -1225,4 +1273,4 @@ const RichTextView = Class({
     },
 });
 
-export { RichTextView, TOOLBAR_HIDDEN, TOOLBAR_AT_TOP };
+export { RichTextView, TOOLBAR_HIDDEN, TOOLBAR_AT_TOP, TOOLBAR_ABOVE_KEYBOARD };
