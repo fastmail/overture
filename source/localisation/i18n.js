@@ -266,6 +266,8 @@ let compare = function (a, b) {
     Basic glob syntax is supported, so the user can type "*" to match zero
     or more characters or "?" to match any single character.
 
+    Spaces are treated as dividing ORed tokens.
+
     Parameters:
         string - {String} The string to search for.
 
@@ -278,6 +280,7 @@ const makeSearchRegExp = function (string) {
                 .escapeRegExp()
                 .replace(/\\\*/g, '.*')
                 .replace(/\\\?/g, '.')
+                .replace(/ /g, '|')
                 .replace(
                     /[A-Z]/gi,
                     (letter) => alternatives[letter.toUpperCase()],
