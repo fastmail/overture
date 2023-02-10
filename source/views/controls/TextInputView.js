@@ -109,9 +109,6 @@ const TextInputView = Class({
         set the selection, or if you just want to give it a cursor position, you
         can pass a number instead.
 
-        Note, this property is *not observable* and cannot be used to monitor
-        changes in selection/cursor position.
-
     */
     selection: function (selection) {
         const control = this._domControl;
@@ -150,6 +147,10 @@ const TextInputView = Class({
     }
         .property()
         .nocache(),
+
+    invalidateSelection: function () {
+        this.computedPropertyDidChange('selection');
+    }.on('click', 'selectionchange'),
 
     /**
         Property: O.TextInputView#blurOnKeys
