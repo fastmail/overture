@@ -197,6 +197,7 @@ const ListView = Class({
             index,
             list,
             isAdded,
+            focused,
         });
         if (focused) {
             view.set('isFocused', content === focused.get('record'));
