@@ -753,17 +753,7 @@ const RichTextView = Class({
     }.property(),
 
     showFontSizeMenu(buttonView) {
-        // If we're in the overflow menu, align with the "More" button.
-        if (buttonView.getParent(MenuView)) {
-            buttonView = this.get('toolbarView').getView('overflow');
-        }
-        popOver.show({
-            view: this.get('fontSizeMenuView'),
-            alignWithView: buttonView,
-            alignEdge: 'centre',
-            showCallout: true,
-            offsetTop: 2,
-        });
+        this.showOverlay(this.get('fontSizeMenuView'), buttonView);
     },
 
     fontFaceMenuView: function () {
@@ -789,17 +779,7 @@ const RichTextView = Class({
     }.property(),
 
     showFontFaceMenu(buttonView) {
-        // If we're in the overflow menu, align with the "More" button.
-        if (buttonView.getParent(MenuView)) {
-            buttonView = this.get('toolbarView').getView('overflow');
-        }
-        popOver.show({
-            view: this.get('fontFaceMenuView'),
-            alignWithView: buttonView,
-            alignEdge: 'centre',
-            showCallout: true,
-            offsetTop: 2,
-        });
+        this.showOverlay(this.get('fontFaceMenuView'), buttonView);
     },
 
     _colorText: true,
@@ -872,32 +852,12 @@ const RichTextView = Class({
 
     showTextColorMenu(buttonView) {
         this._colorText = true;
-        // If we're in the overflow menu, align with the "More" button.
-        if (buttonView.getParent(MenuView)) {
-            buttonView = this.get('toolbarView').getView('overflow');
-        }
-        popOver.show({
-            view: this.get('textColorMenuView'),
-            alignWithView: buttonView,
-            alignEdge: 'centre',
-            showCallout: true,
-            offsetTop: 2,
-        });
+        this.showOverlay(this.get('textColorMenuView'), buttonView);
     },
 
     showTextHighlightColorMenu(buttonView) {
         this._colorText = false;
-        // If we're in the overflow menu, align with the "More" button.
-        if (buttonView.getParent(MenuView)) {
-            buttonView = this.get('toolbarView').getView('overflow');
-        }
-        popOver.show({
-            view: this.get('textColorMenuView'),
-            alignWithView: buttonView,
-            alignEdge: 'centre',
-            showCallout: true,
-            offsetTop: 2,
-        });
+        this.showOverlay(this.get('textColorMenuView'), buttonView);
     },
 
     linkOverlayView: function () {
