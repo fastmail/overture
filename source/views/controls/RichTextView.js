@@ -1,7 +1,7 @@
 /*global window, document, FileReader, Squire */
 
 import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
-import { Class } from '../../core/Core.js';
+import { Class, meta } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';
 import { isClickModified, lookupKey } from '../../dom/DOMEvent.js';
 import { create as el, nearest } from '../../dom/Element.js';
@@ -50,8 +50,6 @@ const queryCommandState = function (tag) {
 const urlRegExp =
     /^(?:https?:\/\/)?[\w.]+[.][a-z]{2,4}(?:\/[^\s()<>]+|\([^\s()<>]+\))*/i;
 
-const popOver = new PopOverView();
-
 const TOOLBAR_HIDDEN = 0;
 const TOOLBAR_AT_TOP = 1;
 
@@ -85,7 +83,7 @@ const URLPickerView = Class({
                 new ButtonView({
                     type: 'v-Button--standard v-Button--sizeM',
                     label: loc('Cancel'),
-                    target: popOver,
+                    target: this.get('popOver'),
                     method: 'hide',
                 }),
             ]),
@@ -125,6 +123,10 @@ const RichTextView = Class({
     isDisabled: false,
     tabIndex: undefined,
     label: undefined,
+
+    popOver: function () {
+        return new PopOverView();
+    }.property(),
 
     // ---
 
@@ -192,6 +194,10 @@ const RichTextView = Class({
         const editor = this.get('editor');
         if (editor) {
             editor.destroy();
+        }
+        const popOver = meta(this).cache.popOver;
+        if (popOver) {
+            popOver.destroy();
         }
         RichTextView.parent.destroy.call(this);
     },
@@ -866,6 +872,7 @@ const RichTextView = Class({
             prompt: loc('Add a link to the following URL or email:'),
             placeholder: 'e.g. www.example.com',
             confirm: loc('Add link'),
+            popOver: richTextView.get('popOver'),
             add() {
                 let url = this.get('value').trim();
                 let email;
@@ -889,7 +896,7 @@ const RichTextView = Class({
                     }
                 }
                 richTextView.makeLink(url);
-                popOver.hide();
+                this.get('popOver').hide();
             },
         });
     }.property(),
@@ -910,6 +917,7 @@ const RichTextView = Class({
             prompt: loc('Insert an image from the following URL:'),
             placeholder: 'e.g. https://example.com/path/to/image.jpg',
             confirm: loc('Insert image'),
+            popOver: richTextView.get('popOver'),
             add() {
                 let url = this.get('value').trim();
                 if (!/^(?:https?|data):/i.test(url)) {
@@ -921,7 +929,7 @@ const RichTextView = Class({
                     url = 'http://' + url;
                 }
                 richTextView.insertImage(url);
-                popOver.hide();
+                this.get('popOver').hide();
             },
         });
     }.property(),
@@ -938,7 +946,7 @@ const RichTextView = Class({
             buttonView = this.get('toolbarView').getView('overflow');
         }
         const richTextView = this;
-        popOver.show({
+        this.get('popOver').show({
             view,
             alignWithView: buttonView,
             showCallout: true,
