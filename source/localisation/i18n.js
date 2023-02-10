@@ -275,7 +275,7 @@ let compare = function (a, b) {
 */
 const makeSearchRegExp = function (string) {
     return new RegExp(
-        '(?:^|\\W|_)' +
+        '(^|\\W|_)(' +
             string
                 .escapeRegExp()
                 .replace(/\\\*/g, '.*')
@@ -284,7 +284,8 @@ const makeSearchRegExp = function (string) {
                 .replace(
                     /[A-Z]/gi,
                     (letter) => alternatives[letter.toUpperCase()],
-                ),
+                ) +
+            ')',
         'i',
     );
 };
