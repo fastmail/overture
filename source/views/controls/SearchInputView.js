@@ -24,17 +24,7 @@ const SearchInputView = Class({
     // Helps password managers know this is not a username input!
     name: 'search',
 
-    baseClassName: 'v-SearchInput',
-
-    className: function () {
-        const type = this.get('type');
-        return (
-            this.get('baseClassName') +
-            (this.get('isDisabled') ? ' is-disabled' : '') +
-            (this.get('isFocused') ? ' is-focused' : '') +
-            (type ? ' ' + type : '')
-        );
-    }.property('type', 'isDisabled', 'isFocused'),
+    baseClassName: 'v-TextInput v-SearchInput',
 
     draw(layer) {
         const control = this.drawControl();
@@ -76,7 +66,7 @@ const SearchInputView = Class({
     },
 
     reset() {
-        this.set('value', '').focus();
+        this.set('ghost', null).set('value', '').focus();
     },
 });
 

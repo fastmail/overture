@@ -29,7 +29,8 @@ const PasswordInputView = Class({
     icon: null,
 
     drawControl() {
-        const controlEl = PasswordInputView.parent.drawControl.call(this);
+        const controlEl =
+            PasswordInputView.parent.drawControl.call(this).firstChild;
         controlEl.className = 'v-PasswordInput-input';
         return el('div.v-PasswordInput-wrapper.v-TextInput-input.u-flex', [
             controlEl,

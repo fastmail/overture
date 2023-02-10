@@ -12,6 +12,8 @@ export {
 } from './View.js';
 export { activeViews, getViewFromNode } from './activeViews.js';
 export { ViewEventsController } from './ViewEventsController.js';
+export { AutoCompleteView } from './autocomplete/AutoCompleteView.js';
+export { AutoCompleteOptionView } from './autocomplete/AutoCompleteOptionView.js';
 export { ListItemView } from './collections/ListItemView.js';
 export { ListKBFocusView } from './collections/ListKBFocusView.js';
 export { ListView } from './collections/ListView.js';

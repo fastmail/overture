@@ -32,6 +32,16 @@ const TextInputView = Class({
     },
 
     /**
+        Property: O.TextInputView#autocomplete
+        Type: AutoCompleteController | null
+        Default: null
+
+        Can be set to an instance of the AutoCompleteController class to show
+        autocomplete suggestions for this input.
+    */
+    autocomplete: null,
+
+    /**
         Property: O.TextInputView#isMultiline
         Type: Boolean
         Default: false
@@ -81,6 +91,16 @@ const TextInputView = Class({
         Placeholder text to be displayed in the text input when it is empty.
     */
     placeholder: undefined,
+
+    /**
+        Property: O.TextInputView#ghost
+        Type: Change | null
+        Default: null
+
+        The ghost property is a Change object, which causes the input view to
+        draw the change as ghost text if desired.
+    */
+    ghost: null,
 
     /**
         Property: O.TextInputView#value
@@ -178,17 +198,19 @@ const TextInputView = Class({
         is-focused  - The <#isFocused> property is true.
         is-invalid   - The <#isValid> property is false.
         is-disabled  - The <#isDisabled> property is true.
+        has-ghost  - The <#ghost> property is set.
     */
     className: function () {
         const type = this.get('type');
         return (
-            'v-TextInput' +
+            this.get('baseClassName') +
             (this.get('isExpanding') ? ' v-TextInput--expanding' : '') +
             (this.get('isMultiline') ? ' v-TextInput--multiline' : '') +
             (this.get('isHighlighted') ? ' is-highlighted' : '') +
             (this.get('isFocused') ? ' is-focused' : '') +
             (this.get('isValid') ? '' : ' is-invalid') +
             (this.get('isDisabled') ? ' is-disabled' : '') +
+            (this.get('ghost') ? ' has-ghost' : '') +
             (type ? ' ' + type : '')
         );
     }.property(
@@ -198,21 +220,33 @@ const TextInputView = Class({
         'isFocused',
         'isValid',
         'isDisabled',
+        'ghost',
     ),
+
+    drawGhost() {
+        const change = this.get('ghost');
+        this._ghost = change
+            ? el(`span.v-TextInput-ghost`, change.draw(this.get('value')))
+            : document.createComment('ghost');
+        return this._ghost;
+    },
 
     drawControl() {
         const isMultiline = this.get('isMultiline');
-        return (this._domControl = el(isMultiline ? 'textarea' : 'input', {
-            id: this.get('id') + '-input',
-            className: this.get('baseClassName') + '-input',
-            rows: isMultiline ? '1' : undefined,
-            name: this.get('name'),
-            type: this.get('inputType'),
-            disabled: this.get('isDisabled'),
-            tabIndex: this.get('tabIndex'),
-            placeholder: this.get('placeholder') || undefined,
-            value: this.get('value'),
-        }));
+        return el('div.v-TextInput-control', [
+            (this._domControl = el(isMultiline ? 'textarea' : 'input', {
+                id: this.get('id') + '-input',
+                className: 'v-TextInput-input',
+                rows: isMultiline ? '1' : undefined,
+                name: this.get('name'),
+                type: this.get('inputType'),
+                disabled: this.get('isDisabled'),
+                tabIndex: this.get('tabIndex'),
+                placeholder: this.get('placeholder') || undefined,
+                value: this.get('value'),
+            })),
+            this.drawGhost(),
+        ]);
     },
 
     // --- Keep render in sync with state ---
@@ -231,7 +265,7 @@ const TextInputView = Class({
         if (isValue && this.get('isExpanding')) {
             this.propertyNeedsRedraw(self, 'textHeight', oldValue);
         }
-    }.observes('value', 'isExpanding', 'placeholder', 'inputType'),
+    }.observes('value', 'isExpanding', 'placeholder', 'inputType', 'ghost'),
 
     /**
         Method: O.TextInputView#redrawPlaceholder
@@ -245,6 +279,19 @@ const TextInputView = Class({
 
     redrawInputType() {
         this._domControl.type = this.get('inputType');
+    },
+
+    redrawGhost() {
+        const oldGhost = this._ghost;
+        oldGhost.parentNode.replaceChild(this.drawGhost(), oldGhost);
+        this.updateGhostScroll();
+    },
+
+    updateGhostScroll() {
+        const ghost = this._ghost;
+        if (ghost.nodeType === 1) {
+            ghost.scrollLeft = this.get('scrollLeft');
+        }
     },
 
     redrawTextHeight() {
@@ -390,6 +437,7 @@ const TextInputView = Class({
             .set('scrollLeft', left)
             .set('scrollTop', top)
             .endPropertyChanges();
+        this.updateGhostScroll();
 
         event.stopPropagation();
     }.on('scroll'),
@@ -461,6 +509,13 @@ const TextInputView = Class({
             this.blur();
         }
     }.on('keyup'),
+
+    attachAutoComplete: function () {
+        const autocomplete = this.get('autocomplete');
+        if (autocomplete) {
+            autocomplete.attach(this);
+        }
+    }.on('focus'),
 });
 
 /* Don't redraw when the user is typing; we handle redrawing value in
