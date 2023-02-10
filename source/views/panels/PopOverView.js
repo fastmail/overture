@@ -212,7 +212,7 @@ const PopOverView = Class({
         const positionToThe = options.positionToThe;
         const positionToTheLeftOrRight =
             positionToThe === 'left' || positionToThe === 'right';
-        const parentMargin = this.get('parentMargin');
+        const parentMargin = options.parentMargin || this.get('parentMargin');
         let keepInVerticalBounds = options.keepInVerticalBounds;
         let keepInHorizontalBounds = options.keepInHorizontalBounds;
         const calloutOffsetLeft = options.calloutOffsetLeft || 0;
