@@ -2,6 +2,7 @@ import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
 import { bind } from '../../foundation/Binding.js';
 import { ObservableArray } from '../../foundation/ObservableArray.js';
+import { loc } from '../../localisation/i18n.js';
 import { canPointer } from '../../ua/UA.js';
 import { ListView } from '../collections/ListView.js';
 import { ProgressiveListView } from '../collections/ProgressiveListView.js';
@@ -47,7 +48,7 @@ const AutocompleteSourceView = Class({
                                 el('span.u-flex-1'),
                                 new ButtonView({
                                     type: 'v-Button--sizeS v-Button--subtle',
-                                    label: 'Clear all',
+                                    label: loc('Clear all'),
                                     target: source,
                                     method: 'clear',
                                 }),
