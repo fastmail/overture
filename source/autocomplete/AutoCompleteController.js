@@ -61,7 +61,7 @@ const AutoCompleteController = Class({
         this.inputView = null;
         this.isVisible = false;
         this.context = null;
-        this.suggestions = null;
+        this.suggestions = { top: null, middle: null, bottom: null };
     },
 
     /** @type {AutoCompleteSuggestionSource[]} */
