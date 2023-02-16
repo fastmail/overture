@@ -146,15 +146,15 @@ const ScrollView = Class({
 
     willEnterDocument() {
         ScrollView.parent.willEnterDocument.call(this);
+        this.getParent(RootView).addObserverForKey(
+            'safeAreaInsetBottom',
+            this,
+            'redrawSafeArea',
+        );
         if (this.get('isFixedDimensions')) {
             const scrollContents = this._scrollContents || this.get('layer');
             scrollContents.appendChild(
                 (this._safeAreaPadding = el('div.v-Scroll-safeAreaPadding')),
-            );
-            this.getParent(RootView).addObserverForKey(
-                'safeAreaInsetBottom',
-                this,
-                'redrawSafeArea',
             );
             this.redrawSafeArea();
         }
@@ -190,14 +190,14 @@ const ScrollView = Class({
     didLeaveDocument() {
         const safeAreaPadding = this._safeAreaPadding;
         if (safeAreaPadding) {
-            this.getParent(RootView).removeObserverForKey(
-                'safeAreaInsetBottom',
-                this,
-                'redrawSafeArea',
-            );
             safeAreaPadding.parentNode.removeChild(safeAreaPadding);
             this._safeAreaPadding = null;
         }
+        this.getParent(RootView).removeObserverForKey(
+            'safeAreaInsetBottom',
+            this,
+            'redrawSafeArea',
+        );
         return ScrollView.parent.didLeaveDocument.call(this);
     },
 
@@ -211,8 +211,13 @@ const ScrollView = Class({
     },
 
     redrawSafeArea() {
-        this._safeAreaPadding.style.height =
-            this.getParent(RootView).get('safeAreaInsetBottom') + 'px';
+        const safeAreaPadding = this._safeAreaPadding;
+        if (safeAreaPadding) {
+            this._safeAreaPadding.style.height =
+                this.getParent(RootView).get('safeAreaInsetBottom') + 'px';
+        } else {
+            this.didResize();
+        }
     },
 
     // ---
