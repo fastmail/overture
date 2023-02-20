@@ -29,10 +29,7 @@ import '../../foundation/Decorators.js';
 
 const execCommand = function (command) {
     return function (arg) {
-        const editor = this.get('editor');
-        if (editor) {
-            editor[command](arg);
-        }
+        this.get('editor')?.[command](arg);
         return this;
     };
 };
@@ -1052,23 +1049,23 @@ const RichTextView = Class({
     // --- Commands ---
 
     focus() {
-        const editor = this.get('editor');
-        if (editor) {
-            editor.focus();
-        }
+        this.get('editor')?.focus();
         return this;
     },
 
     blur() {
-        const editor = this.get('editor');
-        if (editor) {
-            editor.blur();
-        }
+        this.get('editor')?.blur();
         return this;
     },
 
-    undo: execCommand('undo'),
-    redo: execCommand('redo'),
+    undo() {
+        this.get('editor')?.undo().focus();
+        return this;
+    },
+    redo() {
+        this.get('editor')?.redo().focus();
+        return this;
+    },
 
     bold: execCommand('bold'),
     italic: execCommand('italic'),
