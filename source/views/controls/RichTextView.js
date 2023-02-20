@@ -4,7 +4,7 @@ import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js'
 import { Class, meta } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';
 import { isClickModified, lookupKey } from '../../dom/DOMEvent.js';
-import { create as el, nearest } from '../../dom/Element.js';
+import { create as el, getStyle, nearest } from '../../dom/Element.js';
 import { COPY } from '../../drag/DragEffect.js';
 import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
@@ -372,16 +372,35 @@ const RichTextView = Class({
         const scrollViewHeight =
             scrollView.get('pxHeight') -
             scrollView.getParent(RootView).get('safeAreaInsetBottom');
-        const toolbarHeight =
-            this.get('showToolbar') === TOOLBAR_AT_TOP
-                ? this.getFromPath('toolbarView.pxHeight')
+        const showToolbar = this.get('showToolbar');
+        const toolbarView =
+            showToolbar !== TOOLBAR_HIDDEN ? this.get('toolbarView') : null;
+        const toolbarHeight = toolbarView?.get('pxHeight') || 0;
+        const topToolbarHeight =
+            showToolbar === TOOLBAR_AT_TOP ? toolbarHeight : 0;
+        const bottomToolbarHeight =
+            showToolbar === TOOLBAR_ABOVE_KEYBOARD
+                ? toolbarHeight +
+                  (toolbarView.get('isInDocument')
+                      ? parseInt(
+                            getStyle(toolbarView.get('layer'), 'margin-bottom'),
+                            10,
+                        ) || 0
+                      : 0)
                 : 0;
         let scrollBy = 0;
         const minimumGapToScrollEdge = 16;
-        if (offsetTop < toolbarHeight + minimumGapToScrollEdge) {
-            scrollBy = offsetTop - toolbarHeight - minimumGapToScrollEdge;
-        } else if (offsetBottom > scrollViewHeight - minimumGapToScrollEdge) {
-            scrollBy = offsetBottom + minimumGapToScrollEdge - scrollViewHeight;
+        if (offsetTop < topToolbarHeight + minimumGapToScrollEdge) {
+            scrollBy = offsetTop - topToolbarHeight - minimumGapToScrollEdge;
+        } else if (
+            offsetBottom >
+            scrollViewHeight - bottomToolbarHeight - minimumGapToScrollEdge
+        ) {
+            scrollBy =
+                offsetBottom +
+                bottomToolbarHeight +
+                minimumGapToScrollEdge -
+                scrollViewHeight;
         }
         if (scrollBy) {
             scrollView.scrollBy(0, Math.round(scrollBy), true);
