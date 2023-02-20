@@ -9,7 +9,7 @@ import { COPY } from '../../drag/DragEffect.js';
 import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
-import { isEqualToValue } from '../../foundation/Transform.js';
+import { invert, isEqualToValue } from '../../foundation/Transform.js';
 import { loc } from '../../localisation/i18n.js';
 import { isAndroid, isApple, isIOS } from '../../ua/UA.js';
 import { when } from '../collections/SwitchView.js';
@@ -779,6 +779,26 @@ const RichTextView = Class({
                         }
                         this.fire('button:activate');
                     },
+                }),
+                undo: new ButtonView({
+                    tabIndex: -1,
+                    isDisabled: bind(this, 'canUndo', invert),
+                    type: 'v-Button--iconOnly',
+                    icon: this.getIcon('undo'),
+                    label: loc('Undo'),
+                    tooltip: loc('Undo'),
+                    target: this,
+                    method: 'undo',
+                }),
+                redo: new ButtonView({
+                    tabIndex: -1,
+                    isDisabled: bind(this, 'canRedo', invert),
+                    type: 'v-Button--iconOnly',
+                    icon: this.getIcon('redo'),
+                    label: loc('Redo'),
+                    tooltip: loc('Redo'),
+                    target: this,
+                    method: 'redo',
                 }),
                 unformat: new ButtonView({
                     tabIndex: -1,
