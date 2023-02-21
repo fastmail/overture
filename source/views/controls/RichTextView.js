@@ -72,6 +72,12 @@ const URLPickerView = Class({
     draw(/* layer */) {
         return [
             (this._input = new TextInputView({
+                inputAttributes: {
+                    autocapitalize: 'off',
+                    autocomplete: 'off',
+                    autocorrect: 'off',
+                    spellcheck: 'false',
+                },
                 label: this.get('prompt'),
                 value: bindTwoWay(this, 'value'),
                 placeholder: this.get('placeholder'),
