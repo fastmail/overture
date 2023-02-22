@@ -302,7 +302,7 @@ const AutoCompleteController = Class({
         if (event.targetView?.getParentWhere((x) => x === view)) {
             event.seenByModal = true;
         }
-    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel'),
+    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel', 'touchstart'),
 
     select(suggestion, shouldSubmit) {
         const context = this.get('context');
