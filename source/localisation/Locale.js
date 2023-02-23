@@ -1,6 +1,11 @@
 import { merge } from '../core/Core.js';
+import { regionNames } from './regionNames.js';
 
 import '../core/Date.js'; // For Date#format
+
+// ---
+
+/*global Intl */
 
 /**
     Class: O.Locale
@@ -33,6 +38,18 @@ class Locale {
     constructor(mixin) {
         this.dateFormats = Object.create(this.dateFormats);
         merge(this, mixin);
+        if (
+            typeof Intl !== 'undefined' &&
+            typeof Intl.DisplayNames !== 'undefined'
+        ) {
+            const displayNames = new Intl.DisplayNames(this.code, {
+                type: 'region',
+            });
+            this.getRegionName = (isoCode) => {
+                const name = displayNames.of(isoCode);
+                return name === isoCode ? '' : name;
+            };
+        }
     }
 }
 
@@ -327,6 +344,22 @@ Object.assign(Locale.prototype, {
     },
 
     // === Strings ===
+
+    /**
+        Method: O.Locale#getRegionName
+
+        Get the localised region (mostly country) name from the two-letter
+        ISO 3166 region code.
+
+        Parameters:
+            isoCode - {String} The region code to get the name for.
+
+        Returns:
+            {String} The localised region name.
+    */
+    getRegionName(isoCode) {
+        return regionNames[isoCode] || '';
+    },
 
     /**
         Method (private): Method: O.Locale#_lr

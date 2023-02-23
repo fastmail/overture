@@ -164,6 +164,20 @@ const localise = (text, ...args) => {
 };
 
 /**
+    Function: O.i18n.regionName
+
+    Get the localised region (mostly country) name from the two-letter
+    ISO 3166 region code.
+
+    Parameters:
+        isoCode - {String} The region code to get the name for.
+
+    Returns:
+        {String} The localised region name.
+*/
+const localiseRegionName = (isoCode) => active.getRegionName(isoCode);
+
+/**
     Function: O.i18n.date
 
     Get a date or time formatted according to local conventions.
@@ -295,6 +309,7 @@ export {
     get,
     localise,
     localise as loc,
+    localiseRegionName as regionName,
     localiseDate as date,
     localiseNumber as number,
     ordinal,
