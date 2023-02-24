@@ -36,7 +36,7 @@ const etSearch = function (candidate, b) {
 */
 const ViewEventsController = {
     /**
-        Property (private): O.ViewEventsController._eventTargets
+        Property (private): O.ViewEventsController#_eventTargets
         Type: [Number,O.EventTarget][]
 
         List of event targets to dispatch events to.
@@ -44,7 +44,7 @@ const ViewEventsController = {
     _eventTargets: [],
 
     /**
-        Method: O.ViewEventsController.addEventTarget
+        Method: O.ViewEventsController#addEventTarget
 
         Adds an event target to queue to receive view events. The position in
         the queue is determined by the priority argument:
@@ -81,10 +81,10 @@ const ViewEventsController = {
     },
 
     /**
-        Method: O.ViewEventsController.removeEventTarget
+        Method: O.ViewEventsController#removeEventTarget
 
         Removes an event target from the queue that was previously added via
-        <O.ViewEventsController.addEventTarget>.
+        <O.ViewEventsController#addEventTarget>.
 
         Parameters:
             eventTarget - {O.EventTarget} The event target to remove from the
@@ -101,7 +101,7 @@ const ViewEventsController = {
     },
 
     /**
-        Method: O.ViewEventsController.handleEvent
+        Method: O.ViewEventsController#handleEvent
 
         Dispatches an event to each of the targets registered with the
         controller, until it reaches the end of the list or one of them calls
