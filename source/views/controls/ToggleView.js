@@ -31,7 +31,7 @@ const ToggleView = Class({
         Type: String
         Default: 'v-Toggle'
 
-        A string prepended to class names used by this view.
+        Overrides default in <O.AbstractControlView#baseClassName>.
     */
     baseClassName: 'v-Toggle',
 
@@ -53,6 +53,13 @@ const ToggleView = Class({
         );
     }.property('baseClassName', 'type', 'value', 'isDisabled', 'isFocused'),
 
+    /**
+        Method: O.ToggleView#drawControl
+        Type: String
+        Default: 'v-Toggle'
+
+        Overrides default in <O.AbstractInputView#drawControl>.
+    */
     drawControl() {
         return (this._domControl = el('input', {
             type: 'checkbox',
@@ -64,6 +71,13 @@ const ToggleView = Class({
         }));
     },
 
+    /**
+        Method: O.ToggleView#drawLabel
+        Type: String
+        Default: 'v-Toggle'
+
+        Overrides default in <O.AbstractInputView#drawLabel>.
+    */
     drawLabel(label) {
         return el('p', [label]);
     },
