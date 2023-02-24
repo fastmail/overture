@@ -92,7 +92,7 @@ const POSITION_CONTAINED_BY = 0x10;
     been called. The `isInDocument` property indicates whether the layer has
     been inserted into the document (so is part of the live/visible DOM).
     Methods on the view instance are called before and after adding or removing
-    the layer to the document; it is occassionally required to run some code at
+    the layer to the document; it is occasionally required to run some code at
     one of these stages, for example the scroll position on a DOM element is
     lost when it is removed from the document, and needs to be restored
     immediately after the element is reappended to the document. If you do
@@ -1160,6 +1160,15 @@ const View = Class({
         return this;
     },
 
+    /**
+        Method: O.View#detach
+
+        Removes this view from its parentView. Has no effect if this view
+        does not have a parentView.
+
+        Returns:
+            {O.View} Returns self.
+    */
     detach() {
         const parentView = this.get('parentView');
         if (parentView) {
