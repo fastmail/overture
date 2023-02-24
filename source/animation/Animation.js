@@ -147,10 +147,10 @@ class Animation {
         if (this.isRunning) {
             this.stop();
         }
-        if (duration != null) {
+        if (duration) {
             this.duration = duration;
         }
-        if (easing != null) {
+        if (easing) {
             this.ease = easing;
         }
 
