@@ -23,7 +23,7 @@ const AbstractInputView = Class({
     /**
         Property: O.AbstractInputView#label
         Type: String|Element|null
-        Default: ''
+        Default: null
 
         A label for the control, to be displayed next to it.
     */
@@ -32,7 +32,7 @@ const AbstractInputView = Class({
     /**
         Property: O.AbstractInputView#label
         Type: String|Element|null
-        Default: ''
+        Default: null
 
         A description for the control, to be displayed next to it.
     */
@@ -126,21 +126,40 @@ const AbstractInputView = Class({
     /**
         Method: O.AbstractInputView#drawControl
 
-        Overridden to set properties and add label. See <O.View#draw>.
+        Overridden by subclasses to create a DOM input control. Must set
+        this._domControl for O.AbstractInputView#drawLabel.
     */
     drawControl() {
-        throw new Error('drawControl() must be overriden in subclass');
+        throw new Error('drawControl() must be overridden in subclass');
     },
 
+    /**
+        Method: O.AbstractInputView#drawLabel
+
+        Creates a label element for the DOM input control returned by
+        O.AbstractInputView#drawControl.
+    */
     drawLabel(label) {
         const control = this._domControl;
         return el('label', { for: control && control.id }, [label]);
     },
 
+    /**
+        Method: O.AbstractInputView#drawDescription
+
+        Creates a label element for the DOM input control returned by
+        O.AbstractInputView#drawControl.
+    */
     drawDescription(description) {
         return el('p', [description]);
     },
 
+    /**
+        Method: O.AbstractInputView#drawHelp
+
+        Indirection for O.AbstractInputView#drawDescription to allow
+        conditionally drawing descriptions e.g. for input validity.
+    */
     drawHelp() {
         const description = this.get('description');
         return description ? this.drawDescription(description) : null;
