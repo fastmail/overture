@@ -60,7 +60,9 @@ const AbstractControlView = Class({
         Type: String
         Default: ''
 
-        A string prepended to class names used by this view.
+        A string used as the base-level class name by this view; expected to be
+        static. Other class names are appended to this string to create the full
+        list of class names for a view's state.
     */
     baseClassName: '',
 
