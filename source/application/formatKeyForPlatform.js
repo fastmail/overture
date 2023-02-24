@@ -27,6 +27,10 @@ const modifierOrder = (
     return order;
 }, {});
 
+/**
+ Used by formatKeyForPlatform to make sure that modifier keys in a keyboard
+ shortcut are sorted in a consistent order, as expected for a user's platform.
+*/
 const sortModifierKeys = function (a, b) {
     return (modifierOrder[a] || 9) - (modifierOrder[b] || 9);
 };

@@ -227,15 +227,22 @@ const parseNumber = (string, max) => {
     return number < 0 ? 0 : number > max ? max : number || 0;
 };
 
+/**
+ Parent class representing a color, subclassed by specific Color instances in
+ RGB, LAB, or HSL color space.  Each child class has a method to cast to each
+ other color space.
+*/
 class Color {
     constructor(opacity) {
         this.opacity = opacity;
     }
 
+    // Helper method to get JSON representation of a color.
     toJSON() {
         return this.toString();
     }
 
+    // Creates a new Color object from a CSS color value.
     static fromCSSColorValue(color) {
         let opacity = 1;
         let r;
@@ -283,6 +290,7 @@ class Color {
         return new RGB(r, g, b, opacity);
     }
 
+    // Creates a Color object from a JSON representation of a color.
     static fromJSON(color) {
         return color ? Color.fromCSSColorValue(color) : null;
     }

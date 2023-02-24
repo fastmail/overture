@@ -325,7 +325,7 @@ const ObservableProps = {
         argument: this object.
 
         Parameters:
-            key    - {String} The property to observer.
+            key    - {String} The property to observe.
             object - {Object} The object on which to call the callback method.
             method - {String} The name of the callback method.
 

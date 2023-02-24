@@ -3,7 +3,7 @@ import { isApple } from '../ua/UA.js';
 /**
     Function: O.toPlatformKey
 
-    Remap a key combination to it's platform specific counterpart.
+    Remap a key combination to its platform-specific counterpart.
 
     Parameters:
         key - {String} The key combination to remap

@@ -1,3 +1,10 @@
+/**
+ This file is the main entrypoint for Overture.
+
+ Files are exported directly, with some exceptions for modifying the global
+ environment and creating additional references for constant values.
+*/
+
 import * as Easing from './animation/Easing.js';
 import {
     ACTIVE_IN_INPUT,
@@ -61,6 +68,7 @@ import {
     View,
 } from './views/View.js';
 
+// Add to the global window object:
 import './Global.js';
 
 export {

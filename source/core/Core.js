@@ -56,47 +56,47 @@
 
         {
             object: {
-                w: O.bind( 'z.b' ),
+                w: O.bind('z.b'),
                 x: 5,
                 y: function () {
-                    return this.get( 'x' ) * 2;
-                }.property( 'x' ),
+                    return this.get('x') * 2;
+                }.property('x'),
                 z: function () {
                     [...]
-                }.property( 'y' ),
+                }.property('y'),
                 onX: function () {
                     [...]
-                }.observes( 'x', 'z.a' )
+                }.observes('x', 'z.a'),
             },
             dependents: {
-                x: [ 'y' ],
-                y: [ 'z' ]
+                x: ['y'],
+                y: ['z'],
             },
             allDependents: {
-                x: [ 'y', 'z' ]
+                x: ['y', 'z'],
                 // Note, in this example 'y' has not yet been calculated, since
                 // it has not been required yet.
             },
             cache: {
-                y: 10
+                y: 10,
             },
             observers: {
-                x: [ { object: null, method: 'onX' } ]
+                x: [{ object: null, method: 'onX' }],
             },
             changed: null,
             depth: 0,
             pathObservers: {
-                onX: [ 'z.a' ]
+                onX: ['z.a'],
             },
             bindings: {
-                w: Binding
+                w: Binding,
             },
             inits: {
                 Bindings: 1,
-                Observers: 1
+                Observers: 1,
             },
-            lifestage: 2
-        }
+            lifestage: 2,
+        };
 
     Parameters:
         object - {Object} The object to fetch the metadata for.
@@ -117,6 +117,11 @@ const OBJECT_ALLOCATED = 0;
 const OBJECT_INITIALISED = 1;
 const OBJECT_DESTROYED = 2;
 
+/**
+ Class: Metadata
+
+ Should not be used directly:  use O.meta to construct!
+*/
 class Metadata {
     constructor(object) {
         this.object = object;
@@ -134,11 +139,29 @@ class Metadata {
         object.__meta__ = this;
     }
 
-    // When firing observers we always iterate forwards and cache the length
-    // before we start. This means we can use Array.push rather than replacing
-    // the whole array; the semantics are the same. We rewrite the array if we
-    // remove an observer, but this is less common and is more expensive
-    // regardless as you have to do a splice otherwise.
+    /**
+        Method: Metadata#addObserver
+
+        Called by observer-managing utilities; you should use one of those
+        instead! (You probably want to use a decorator to add an observer, or,
+        rarely, ObservableProps#addObserverForKey.)
+
+        Add an observer to this Metadata object.
+
+        When firing observers we always iterate forwards and cache the length
+        before we start. This means we can use Array.push rather than replacing
+        the whole array; the semantics are the same. We rewrite the array if we
+        remove an observer, but this is less common and is more expensive
+        regardless as you have to do a splice otherwise.
+
+        Parameters:
+            key      - {String} The property to observe.
+            observer - {Object} An object which contains an 'object' and
+                                'method' key.
+
+        Returns:
+            {Metadata} Returns self.
+    */
     addObserver(key, observer) {
         const observers = this.observers;
         let keyObservers = observers[key];
@@ -152,6 +175,22 @@ class Metadata {
         return this;
     }
 
+    /**
+        Method: Metadata#hasObserver
+
+        Called by observer-managing utilities; you should use one of those
+        instead!
+
+        Check to see if an observer exists on this Metadata object.
+
+        Parameters:
+            key      - {String} The property to observe.
+            observer - {Object} An object which contains an 'object' and
+                                'method' key.
+
+        Returns:
+            {Metadata} Returns self.
+    */
     hasObserver(key, observer) {
         const observers = this.observers;
         const keyObservers = observers[key];
@@ -168,6 +207,22 @@ class Metadata {
         return false;
     }
 
+    /**
+        Method: Metadata#removeObserver
+
+        Called by observer-managing utilities; you should use one of those
+        instead!
+
+        Remove the observer from this Metadata object.
+
+        Parameters:
+            key      - {String} The property to observe.
+            observer - {Object} An object which contains an 'object' and
+                                'method' key.
+
+        Returns:
+            {Metadata} Returns self.
+    */
     removeObserver(key, observer) {
         const observers = this.observers;
         const keyObservers = observers[key];
@@ -193,7 +248,7 @@ const meta = function (object) {
         data = new Metadata(object);
     } else if (data.object !== object) {
         // Until the set of computed properties on the object changes, the
-        // 'dependents' information is identical to that of the parent so
+        // 'dependents' information is identical to that of the parent and
         // can be shared. The computed allDependents will be calculated
         // when needed and stored in the parent meta object, so as to be
         // available to all other objects of the same type. The dependents
@@ -223,6 +278,20 @@ const meta = function (object) {
     return data;
 };
 
+/**
+    Function: O.isDestroyed
+
+    Has the object been marked as destroyed?  Checks the value of the lifestage
+    on an object's metadata.
+
+    See O.Object#destroy.
+
+    Parameters:
+        object - {Object} Any object.
+
+    Returns:
+        {boolean} Whether or not the object has been marked as destroyed.
+ */
 const isDestroyed = function (object) {
     return meta(object).lifestage === OBJECT_DESTROYED;
 };
@@ -468,8 +537,8 @@ const classes = {};
         const MyClass = O.Class({
             Name: 'MyClass',
             Extends: O.Object,
-            sayBoo () {
-                alert( 'boo' );
+            sayBoo() {
+                alert('boo');
             },
         });
         let instance = new MyClass();
@@ -509,14 +578,14 @@ const classes = {};
         const Foo = Class({
             Name: 'Foo',
             Extends: Bar,
-            Mixin: [ Baz, Quux ],
+            Mixin: [Baz, Quux],
 
-            init: function ( … ) {
-                Foo.parent.constructor.call( this, … );
+            init: function (…) {
+                Foo.parent.constructor.call(this, …);
                 …
             },
 
-            foo () {
+            foo() {
                 …
             },
 
@@ -528,18 +597,18 @@ const classes = {};
     And the ES6 classes way:
 
         class Foo extends Bar {
-            constructor ( … ) {
-                super( … );
+            constructor(…) {
+                super(…);
                 …
             }
 
-            foo () {
+            foo() {
                 …
             }
         }
-        mixin( Foo.prototype, Baz );
-        mixin( Foo.prototype, Quux );
-        mixin( Foo.prototype, {
+        mixin(Foo.prototype, Baz);
+        mixin(Foo.prototype, Quux);
+        mixin(Foo.prototype, {
             bar: function () {
                 …
             }.property(),
@@ -556,9 +625,9 @@ const Class = function (params) {
     // critical case; it means that you mustn’t write this:
     //
     //     Class({
-    //         init () { },
-    //         foo () { },
-    //         bar () { },
+    //         init() { },
+    //         foo() { },
+    //         bar() { },
     //         baz: 42,
     //     })
     //
@@ -566,8 +635,8 @@ const Class = function (params) {
     //
     //     Class({
     //         init: function () { },
-    //         foo () { },
-    //         bar () { },
+    //         foo() { },
+    //         bar() { },
     //         baz: 42,
     //     })
     const parent = params.Extends;

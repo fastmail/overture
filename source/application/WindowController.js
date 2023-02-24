@@ -104,14 +104,36 @@ const WindowController = Class({
         WindowController.parent.destroy.call(this);
     },
 
+    /**
+        Method: O.WindowController#start
+
+        Sends a message to let other windows know a new one has been created.
+    */
     start() {
         this.broadcast('wc:hello');
     },
 
+    /**
+        Method: O.WindowController#end
+
+        Sends a message to let other windows know this one has been destroyed.
+
+        Parameters:
+            broadcastKey - {String} The broadcast key.
+    */
     end(broadcastKey) {
         this.broadcast('wc:bye', null, broadcastKey);
     },
 
+    /**
+        Method: O.WindowController#broadcastKeyDidChange
+
+        Observes changes to the broadcastKey and synchronizes with other
+        windows.
+
+        Parameters:
+            oldBroadcastKey - {String} The previous broadcast key.
+    */
     broadcastKeyDidChange: function (_, __, oldBroadcastKey) {
         this.end(oldBroadcastKey);
         this.start();

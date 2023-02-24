@@ -14,6 +14,10 @@ import { toPlatformKey } from './toPlatformKey.js';
 /* { on } from */
 import '../foundation/Decorators.js';
 
+/**
+ A set of elements for which global keyboard shortcuts should still apply. Used
+ by GlobalKeyboardShortcuts#trigger.
+*/
 const allowedInputs = {
     checkbox: 1,
     radio: 1,
@@ -21,6 +25,10 @@ const allowedInputs = {
     submit: 1,
 };
 
+/**
+ A set of shortcuts which should be applied on (and only on) the 'keydown'
+ event. Used by GlobalKeyboardShortcuts#trigger.
+*/
 const handleOnDown = {};
 
 /**
@@ -29,6 +37,8 @@ const handleOnDown = {};
     Extends: O.Object
 
     This class facilitates adding keyboard shortcuts to your application.
+    Registers with ViewEventsController on initialisation — intended to generate
+    a singleton.
 */
 const GlobalKeyboardShortcuts = Class({
     Name: 'GlobalKeyboardShortcuts',
@@ -160,7 +170,8 @@ const GlobalKeyboardShortcuts = Class({
 
         Returns:
             {Array|null} Returns the [ object, method ] tuple to be triggered by
-            the event, or null if nothing is registered for this key press.
+            the event, or null if nothing is registered for this key press or if
+            isEnabled is false.
     */
     getHandlerForKey(key) {
         const shortcuts = this._shortcuts[key];

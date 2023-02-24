@@ -143,12 +143,15 @@ const Router = Class({
         contain the current values of global query parameters, create a binding
         to this as in this example:
 
-            el( 'a', {
-                href: bind( router, 'globalQueryStringPart',
-                    () => router.getUrlForEncodedState( 'foo' ) ),
-            }, [
-                'Foo',
-            ]),
+            el(
+                'a',
+                {
+                    href: bind(router, 'globalQueryStringPart', () =>
+                        router.getUrlForEncodedState('foo'),
+                    ),
+                },
+                ['Foo'],
+            );
 
         If the URL needs to depend on other properties, I’m sure you can figure
         it out from here.
@@ -165,7 +168,7 @@ const Router = Class({
 
         The encoded version of your application's current state. Whenever this
         changes, the URL will automatically be updated to match, therefore it
-        should not contain any characters which are illegal in URLS. It may be a
+        should not contain any characters which are illegal in URLs. It may be a
         computed property with dependencies or set manually when state changes.
     */
     encodedState: '',
@@ -316,7 +319,7 @@ const Router = Class({
     /**
         Method: O.Router#restoreEncodedState
 
-        Iterates throught the <O.Router#routes> until it finds a match, then
+        Iterates through the <O.Router#routes> until it finds a match, then
         uses that to decode the state. Called automatically whenever the URL
         changes, via <O.Router#doRouting>.
 

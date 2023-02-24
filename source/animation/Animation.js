@@ -39,7 +39,7 @@ const nextFrame = function () {
                 const animation = objAnimations[j];
                 let animTime = animation.startTime;
                 // We start the animation clock at the first frame *after* the
-                // animation begins. This is becaues there are often a lot of
+                // animation begins. This is because there are often a lot of
                 // changes happening as well as the animation beginning, and
                 // it's better to start the animation a frame later than have
                 // a slow first frame and thus stuttery start to the animation
@@ -222,10 +222,14 @@ class Animation {
         different when drawing a frame.
 
         Parameters:
-            position - {Number} A number, normally between 0 and 1, giving the
-                       position in the animation, modified by the easing
-                       function (the easing function may cause the number to go
-                       beyond 0 and 1).
+            position    - {Number} A number, normally between 0 and 1, giving
+                          the position in the animation, modified by the easing
+                          function (the easing function may cause the number to
+                          go beyond 0 and 1).
+            time        - {Number} (optional) (unused) The length of the
+                          animation (in ms). Can be used in override methods.
+            isLastFrame - {Boolean} (optional) Indicates that no more frames
+                          come after this one.
     */
     drawFrame(position, time, isLastFrame) {
         // And interpolate to find new value.

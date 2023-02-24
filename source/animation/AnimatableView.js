@@ -64,7 +64,7 @@ const AnimatableView = {
     /**
         Method: O.AnimatableView#didAnimate
 
-        This method is called by the <O.Animation> class when it finshes
+        This method is called by the <O.Animation> class when it finishes
         animating a property on the object. Decrements the <#animating>
         property.
     */
