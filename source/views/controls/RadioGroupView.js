@@ -60,6 +60,17 @@ const RadioGroupView = Class({
 
     baseClassName: 'v-RadioGroup',
 
+    /**
+        Method: O.RadioGroupView#drawControl
+        Parameters:
+            option - {Object} The object that represents the radio option. The 
+                      properties of this object are defined in 
+                      O.RadioGroupView#options.
+            index  - {Number} Index of the option in the group
+
+        Returns radio button for provided option. Accessed in
+        <O.RadioGroupView#drawOption>.
+    */
     drawControl(option, index) {
         const id = this.get('id');
         const control = el('input', {
@@ -88,9 +99,17 @@ const RadioGroupView = Class({
     },
 
     /**
-        Method: O.ToggleView#draw
+        Method: O.RadioGroupView#drawOption
+        Parameters:
+            option - {Object} The object that represents the radio option
+                value - {*} Value to be returned if option is selected
+                label - {String} Label for the option
+                description = {String} Descriptive text for option
+                isDisabled - {Boolean} Is the option disabled?
+            index - {Number} Index of the option in the group
 
-        Overridden to draw toggle in layer. See <O.View#draw>.
+        Returns an individual labelled radio option, with DOM control from
+        <O.RadioGroupView#drawControl>
     */
     drawOption(option, index) {
         const baseClassName = this.get('baseClassName');
