@@ -18,18 +18,13 @@ import '../foundation/Decorators.js';
  A set of elements for which global keyboard shortcuts should still apply. Used
  by GlobalKeyboardShortcuts#trigger.
 */
-const allowedInputs = {
-    checkbox: 1,
-    radio: 1,
-    file: 1,
-    submit: 1,
-};
+const allowedInputs = new Set(['checkbox', 'radio', 'file', 'submit']);
 
 /**
  A set of shortcuts which should be applied on (and only on) the 'keydown'
  event. Used by GlobalKeyboardShortcuts#trigger.
 */
-const handleOnDown = {};
+const handleOnDown = new Set();
 
 /**
     Class: O.GlobalKeyboardShortcuts
@@ -200,11 +195,11 @@ const GlobalKeyboardShortcuts = Class({
         const inputIsFocused =
             nodeName === 'TEXTAREA' ||
             nodeName === 'SELECT' ||
-            (nodeName === 'INPUT' && !allowedInputs[target.type]) ||
+            (nodeName === 'INPUT' && !allowedInputs.has(target.type)) ||
             event.targetView instanceof RichTextView;
         if (event.type === 'keydown') {
-            handleOnDown[key] = true;
-        } else if (handleOnDown[key]) {
+            handleOnDown.add(key);
+        } else if (handleOnDown.has(key)) {
             return;
         }
         const handler = this.getHandlerForKey(key);
