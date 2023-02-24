@@ -96,7 +96,7 @@ Date.formatDuration = formatDuration;
         date   - {Date} Date to compare it to.
         approx - {Boolean} (optional) If true, only return a string for the
                  most significant part of the relative time (e.g. just "5
-                 hours ago" instead of "5 hours 34 mintues ago").
+                 hours ago" instead of "5 hours 34 minutes ago").
         mustNotBeFuture - {Boolean} (optional) If true and a date is supplied in
                           the future, it is assumed this is due to clock skew
                           and the string "just now" is always returned.

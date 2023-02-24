@@ -29,7 +29,7 @@ class Locale {
         translations - {Object} A mapping of key to string or function
                        specifying specific translations for this locale.
         dateFormats  - {Object} A mapping of key to (String|Date->String), each
-                       taking a single Date object as an argument and outputing
+                       taking a single Date object as an argument and outputting
                        a formatted date.
 
         Parameters:
@@ -210,7 +210,7 @@ Object.assign(Locale.prototype, {
         Property: O.Locale#abbreviatedDayNames
         Type: String[]
 
-        Abbeviated names of days of the week, starting from Sunday at index 0.
+        Abbreviated names of days of the week, starting from Sunday at index 0.
     */
     abbreviatedDayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 
@@ -239,7 +239,7 @@ Object.assign(Locale.prototype, {
         Property: O.Locale#abbreviatedMonthNames
         Type: String[]
 
-        Abbeviated names of months of the year, starting from January.
+        Abbreviated names of months of the year, starting from January.
     */
     abbreviatedMonthNames: [
         'Jan',
@@ -266,7 +266,7 @@ Object.assign(Locale.prototype, {
     amDesignator: 'AM',
 
     /**
-        Property: O.Locale#amDesignator
+        Property: O.Locale#pmDesignator
         Type: String
 
         The string used to designate PM. Will be the empty string in locales
@@ -283,7 +283,7 @@ Object.assign(Locale.prototype, {
     use24hClock: true,
 
     /**
-        Property: O.Locale#dateElementOrde
+        Property: O.Locale#dateElementOrder
         Type: String
 
         Either 'dmy', 'mdy' or 'ymd', representing the order of day/month/year
@@ -319,7 +319,7 @@ Object.assign(Locale.prototype, {
         Property: O.Locale#datePatterns
         Type: String[RegExp]
 
-        A set of regular expresions for matching key words used in dates.
+        A set of regular expressions for matching key words used in dates.
     */
     datePatterns: {},
 
