@@ -21,7 +21,7 @@ import '../core/Array.js'; // For Array#erase
     called the value will be provided as the sole argument to the function; this
     will be undefined otherwise. Any changes made to public properties not using
     the set method must call the propertyDidChange method after the change to
-    keep the cache consistent and possibly notify observers in overriden
+    keep the cache consistent and possibly notify observers in overridden
     versions of this method.
 */
 
