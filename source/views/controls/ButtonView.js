@@ -250,7 +250,7 @@ const ButtonView = Class({
 
         The name of the event to fire on the <#target> when the button is
         activated. Note, you should set *either* the action property or the
-        <#method> property. If both are set, the method property will be
+        <#method> property. If both are set, the action property will be
         ignored.
     */
     action: null,
@@ -262,7 +262,7 @@ const ButtonView = Class({
 
         The name of the method to call on the <#target> when the button is
         activated. Note, you should set *either* the <#action> property or the
-        method property. If both are set, the method property will be ignored.
+        method property. If both are set, the action property will be ignored.
     */
     method: null,
 
@@ -271,10 +271,10 @@ const ButtonView = Class({
 
         This method is called when the button is triggered, either by being
         clicked/tapped on, or via a keyboard shortcut. If the button is
-        disabled, it will do nothing. Otherwise, it fires an event with the name
-        given in the <#action> property on the <#target> object. Or, if no
-        action is defined, calls the method named in the <#method> property on
-        the object instead.
+        disabled, it will do nothing. Otherwise, it calls the method named in
+        the <#method> property on the object instead. Or, if no method is
+        defined, it fires an event with the name given in the <#action> property
+        on the <#target> object.
 
         If an event is fired, the `originView` property of the event object
         provides a reference back to the button that fired it. If a method is
