@@ -128,6 +128,13 @@ const ButtonView = Class({
     */
     layerTag: 'button',
 
+    /**
+        Property: O.ButtonView#baseClassName
+        Type: String
+        Default: 'v-Button'
+
+        Overrides default in <O.AbstractControlView#baseClassName>.
+    */
     baseClassName: 'v-Button',
 
     /**
@@ -274,7 +281,7 @@ const ButtonView = Class({
         disabled, it will do nothing. Otherwise, it calls the method named in
         the <#method> property on the object instead. Or, if no method is
         defined, it fires an event with the name given in the <#action> property
-        on the <#target> object.
+        on the <#target> object, if one is set.
 
         If an event is fired, the `originView` property of the event object
         provides a reference back to the button that fired it. If a method is
