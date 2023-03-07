@@ -16,16 +16,26 @@ import { compare } from '../localisation/i18n.js';
         properties - {String[]} The properties to sort the objects by, in
                      order of precedence. Can also supply just a String for one
                      property.
+        sortLast   - {String[]} Values that should be sorted last. Can also
+                     supply just a String for one property.
+        isAscending- {Boolean} Are the values sorted in ascending order?
 
     Returns:
         {Function} This function may be passed to the Array#sort method to
         sort the array of objects by the properties specified.
 */
-const sortByProperties = function (properties) {
+const sortByProperties = function (properties, sortLast, isAscending = true) {
     if (!(properties instanceof Array)) {
         properties = [properties];
     }
     const l = properties.length;
+
+    if (sortLast && !(sortLast instanceof Array)) {
+        sortLast = [sortLast];
+    }
+    const shouldSortLast = function (value) {
+        return sortLast.includes(value);
+    };
 
     return function (a, b) {
         const hasGet = !!a.get;
@@ -45,6 +55,18 @@ const sortByProperties = function (properties) {
                 const temp = aVal;
                 aVal = bVal;
                 bVal = temp;
+            }
+
+            if (sortLast) {
+                const aLast = shouldSortLast(aVal);
+                const bLast = shouldSortLast(bVal);
+                if (aLast !== bLast) {
+                    return (
+                        (aLast ? 1 : -1) *
+                        (isAscending ? 1 : -1) *
+                        (reverse ? -1 : 1)
+                    );
+                }
             }
 
             // Must be the same type
