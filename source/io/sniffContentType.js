@@ -29,7 +29,7 @@ const sniffContentType = (type, name) => {
             }
             break;
     }
-    return type;
+    return type || 'application/octet-stream';
 };
 
 export { sniffContentType };
