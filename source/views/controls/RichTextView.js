@@ -323,7 +323,7 @@ const RichTextView = Class({
     // ---
 
     scrollIntoView: function () {
-        if (!this.get('isFocused')) {
+        if (!this.get('isFocused') || !this.get('isInDocument')) {
             return;
         }
 
