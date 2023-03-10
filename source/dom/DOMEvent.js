@@ -84,16 +84,16 @@ const lookupKey = function (event, noModifiers) {
         // special key and so it should be looked up in the table of function
         // keys. Anything from code 32 downwards must also be a special char.
         const code = event.keyCode || event.which;
-        const preferAsci =
+        const preferAscii =
             isKeyPress &&
             code > 32 &&
             event.which !== 0 &&
             event.charCode !== 0;
         const str = String.fromCharCode(code);
-        key = (!preferAsci && keys[code]) || str;
+        key = (!preferAscii && keys[code]) || str;
 
         // Function keys
-        if (!preferAsci && 111 < code && code < 124) {
+        if (!preferAscii && 111 < code && code < 124) {
             key = 'F' + (code - 111);
         }
     } else {
