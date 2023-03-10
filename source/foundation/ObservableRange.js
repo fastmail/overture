@@ -80,7 +80,7 @@ const ObservableRange = {
                      values, indexed from 0, negative values index from the end
                      of the enumerable object. If start is omitted it is taken
                      to be 0 (the first element in the enumerable). If end is
-                     ommitted it is taken to be the length of the enumerable.
+                     omitted it is taken to be the length of the enumerable.
                      start is inclusive and end is exclusive, e.g. {start: 1,
                      end: 2} will only fire if index 1 changes.
             object - {Object} The object on which to call the callback method.
