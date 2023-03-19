@@ -29,6 +29,13 @@ const AutoCompleteOptionView = Class({
         );
     }.property('isFocused'),
 
+    layout: function () {
+        const listView = this.get('parentView');
+        return {
+            height: listView.get('itemHeight'),
+        };
+    }.property(),
+
     drawIcon(suggestion, context) {
         return suggestion.drawIcon(context);
     },
@@ -156,8 +163,9 @@ const ProgressiveAutocompleteOptionView = Class({
         const top = listView.indexToOffset(this.get('index'));
         return {
             top,
+            height: listView.get('itemHeight'),
         };
-    }.property(),
+    }.property('index'),
 });
 
 // ---
