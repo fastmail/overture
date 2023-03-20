@@ -52,6 +52,11 @@ const cubicBezier = function (p1x, p1y, p2x, p2y) {
     };
 
     const output = (x) => {
+        // Ends of the curve. Avoids divide by 0 issues with newton-raphson
+        // method.
+        if (x === 0 || x === 1) {
+            return x;
+        }
         const t = newtonRaphson(x);
         // This is y given t on the bezier curve.
         return t * (cY + t * (bY + t * aY));
