@@ -331,4 +331,4 @@ const AutoCompleteController = Class({
 
 // ---
 
-export { AutoCompleteController };
+export { AutoCompleteController, OptionsFocusedController };
