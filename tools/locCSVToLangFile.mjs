@@ -190,7 +190,7 @@ const locCSVToJson = () => {
 
     if (targetLanguageIndex === -1) {
         const language = codeToLanguage[langCode] || langCode;
-        console.log('No column exists for language: "' + language + '"');
+        console.log('No column exists for language: "' + language + '"\n');
         return;
     }
 
@@ -215,7 +215,7 @@ const locCSVToJson = () => {
                 .replace('export default ', '(function () {return ') + '})();',
         );
     } catch (error) {
-        console.log('Unable to find origin commit for CSV file.');
+        console.log('Unable to find origin commit for CSV file.\n');
     }
 
     csv.forEach((line) => {
@@ -241,7 +241,7 @@ const locCSVToJson = () => {
             return;
         }
         if (!target) {
-            console.log(`${id} does not exist in target dictionary.`);
+            console.log(`${id} does not exist in target dictionary.\n`);
             return;
         }
 
@@ -250,14 +250,14 @@ const locCSVToJson = () => {
             if (exportSource.string !== target.string) {
                 console.log(
                     id +
-                        ': Source string has changed since translation cycle was initiated. This string will not be updated.',
+                        ': Source string has changed since translation cycle was initiated. This string will not be updated.\n',
                 );
                 return;
             }
             if (exportSource.translation !== target.translation) {
                 console.log(
                     id +
-                        `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.`,
+                        `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.\n`,
                 );
                 return;
             }
@@ -274,6 +274,7 @@ const locCSVToJson = () => {
                     sourceString +
                     '\nTranslation: ' +
                     translation,
+                '\n',
             );
             return;
         }
