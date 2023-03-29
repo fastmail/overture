@@ -15,15 +15,15 @@ import { compare } from '../localisation/i18n.js';
     Parameters:
         properties - {String[]} The properties to sort the objects by, in
                      order of precedence. Can also supply just a String for one
-                     property.
-        emptyIsFirst - {Boolean} Should null/undefined/empty string/false
-                       sort before other values? Default is true.
+                     property. Prefixing `-` to a property reverses the sort
+                     order. Prefixing `!` to a property sorts null/undefined/
+                     empty string/false values last.
 
     Returns:
         {Function} This function may be passed to the Array#sort method to
         sort the array of objects by the properties specified.
 */
-const sortByProperties = function (properties, emptyIsFirst = true) {
+const sortByProperties = function (properties) {
     if (!(properties instanceof Array)) {
         properties = [properties];
     }
@@ -34,9 +34,14 @@ const sortByProperties = function (properties, emptyIsFirst = true) {
         for (let i = 0; i < l; i += 1) {
             let prop = properties[i];
             let reverse = false;
+            let emptyIsFirst = true;
             if (prop.startsWith('-')) {
                 prop = prop.slice(1);
                 reverse = true;
+            }
+            if (prop.startsWith('!')) {
+                prop = prop.slice(1);
+                emptyIsFirst = false;
             }
 
             let aVal = hasGet ? a.get(prop) : a[prop];
