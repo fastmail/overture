@@ -16,21 +16,20 @@ import { compare } from '../localisation/i18n.js';
         properties - {String[]} The properties to sort the objects by, in
                      order of precedence. Can also supply just a String for one
                      property.
-        sortLast   - {String[]} Values that should be sorted last. Can also
-                     supply just a String for one property.
-        isAscending- {Boolean} Are the values sorted in ascending order?
+        emptyIsFirst - {Boolean} Should null/undefined/empty string/false
+                       sort before other values? Default is true.
 
     Returns:
         {Function} This function may be passed to the Array#sort method to
         sort the array of objects by the properties specified.
 */
-const sortByProperties = function (properties, emptyStringIsFirst = true) {
+const sortByProperties = function (properties, emptyIsFirst = true) {
     if (!(properties instanceof Array)) {
         properties = [properties];
     }
     const l = properties.length;
 
-    return function (a, b) {
+    return (a, b) => {
         const hasGet = !!a.get;
         for (let i = 0; i < l; i += 1) {
             let prop = properties[i];
@@ -44,28 +43,33 @@ const sortByProperties = function (properties, emptyStringIsFirst = true) {
             let bVal = hasGet ? b.get(prop) : b[prop];
             let type = typeof aVal;
 
+            // Must be the same type. Stringify if not.
+            if (type !== typeof bVal) {
+                aVal = aVal ? String(aVal) : '';
+                bVal = bVal ? String(bVal) : '';
+                type = 'string';
+            }
+
+            // If they're identical, try the next property
+            if (aVal === bVal) {
+                continue;
+            }
+
             if (reverse) {
                 const temp = aVal;
                 aVal = bVal;
                 bVal = temp;
             }
 
-            // Must be the same type. Stringify if not.
-            if (!!aVal !== !!bVal || type !== typeof bVal) {
-                aVal = aVal ? String(aVal) : '';
-                bVal = bVal ? String(bVal) : '';
-                type = 'string';
-            }
-            if (type === 'boolean' && aVal !== bVal) {
-                return aVal ? -1 : 1;
-            }
-            if (type === 'string' && aVal !== bVal) {
+            if (type !== 'number') {
                 if (!aVal) {
-                    return emptyStringIsFirst ? -1 : 1;
+                    return emptyIsFirst ? -1 : 1;
                 }
                 if (!bVal) {
-                    return emptyStringIsFirst ? 1 : -1;
+                    return emptyIsFirst ? 1 : -1;
                 }
+            }
+            if (type === 'string') {
                 return compare(aVal, bVal);
             }
             if (aVal < bVal) {
