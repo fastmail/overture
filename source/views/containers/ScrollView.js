@@ -108,7 +108,9 @@ const ScrollView = Class({
         const styles = View.prototype.layerStyles.call(this);
         styles.overflowX = this.get('showScrollbarX') ? 'auto' : 'hidden';
         styles.overflowY = this.get('showScrollbarY') ? 'auto' : 'hidden';
-        styles.WebkitOverflowScrolling = 'touch';
+        if (isIOS && version < 13) {
+            styles.WebkitOverflowScrolling = 'touch';
+        }
         return styles;
     }.property('layout', 'positioning', 'showScrollbarX', 'showScrollbarY'),
 
