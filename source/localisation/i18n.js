@@ -164,6 +164,27 @@ const localise = (text, ...args) => {
 };
 
 /**
+    Function: O.i18n.localiseList
+
+    Get a localised list of items. The default type is "conjunction", so you
+    get "A, B, and C". Change to "disjunction" to get "A, B, or C".
+
+    Parameters:
+        items - {String[]} The list of items.
+        type  - {String} (optional) "conjunction" or "disjunction".
+
+    Returns:
+        {String} The items joined together as a list per locale conventions.
+*/
+const localiseList = (items, type = 'conjunction') =>
+    typeof Intl !== undefined && Intl.ListFormat
+        ? new Intl.ListFormat(activeLocaleCode, {
+              style: 'short',
+              type,
+          }).format(items)
+        : items.join(', ');
+
+/**
     Function: O.i18n.regionName
 
     Get the localised region (mostly country) name from the two-letter
@@ -309,6 +330,7 @@ export {
     get,
     localise,
     localise as loc,
+    localiseList as list,
     localiseRegionName as regionName,
     localiseDate as date,
     localiseNumber as number,

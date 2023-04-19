@@ -7,6 +7,7 @@ export {
     get,
     loc,
     localise,
+    list,
     regionName,
     date,
     number,
