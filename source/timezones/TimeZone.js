@@ -204,7 +204,15 @@ class TimeZone {
                 : abbr.slice(0, slashIndex);
             rule = null;
         }
-        abbr = abbr.format(rule ? rule[10] : '');
+        // If there's no rule but the time zone abbreviation includes %s, use
+        // "S" for standard. The format description doesn't specify exactly
+        // what should happen here, but the only two letters used are "S" (for
+        // standard) and "D" (for daylight), and if there's no rule there's no
+        // DST, therefore using "S" in the absence of a rule makes sense.
+        //
+        // This affects time zones where there used to be DST, but isn't any
+        // more such as Perth and Brisbane.
+        abbr = abbr.format(rule ? rule[10] : 'S');
         // If it's just +/- (number), there's no abbreviation for a name.
         if (/^[-+]/.test(abbr)) {
             return '';
