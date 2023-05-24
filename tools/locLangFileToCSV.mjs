@@ -1,11 +1,11 @@
-// usage: node locLangFileToCSV.js path/to/db.json ...paths/to/dictionaries.lang.js
+// usage: node locLangFileToCSV.mjs path/to/db.json ...paths/to/dictionaries.lang.js
 // output: translation-{YYYYMMDD}-SHA{SHA of HEAD}.csv
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-/* globals require, process */
+/* globals process */
 
 const languages = {
     'bg': 'Bulgarian',
