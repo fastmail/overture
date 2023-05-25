@@ -492,6 +492,7 @@ const DragController = new Obj({
             event - {Event} The drop event.
     */
     _onDrop: function (event) {
+        this._nativeRefCount = 0;
         const drag = this.drag;
         if (drag) {
             if (drag.get('dropEffect') !== DEFAULT) {
@@ -512,6 +513,7 @@ const DragController = new Obj({
             event - {Event} The dragend event.
     */
     _onDragend: function (/* event */) {
+        this._nativeRefCount = 0;
         const drag = this.drag;
         if (drag) {
             drag.endDrag();
