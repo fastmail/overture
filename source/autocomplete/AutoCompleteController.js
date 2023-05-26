@@ -322,7 +322,8 @@ const AutoCompleteController = Class({
             .set('ghost', null)
             .set('value', change.apply(text))
             .set('selection', change.updateSelection(selection))
-            .focus();
+            .focus()
+            .fire('autocomplete');
         return this;
     },
 
