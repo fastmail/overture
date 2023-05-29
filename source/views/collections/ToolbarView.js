@@ -202,6 +202,7 @@ const ToolbarView = Class({
 
     left: function () {
         let leftConfig = this.get('leftConfig');
+        let overflowConfig = null;
         if (this.get('preventOverlap')) {
             const rightConfig = this.get('rightConfig');
             const widths = this._widths;
@@ -244,29 +245,37 @@ const ToolbarView = Class({
                 if (leftConfig[i] === '-') {
                     i -= 1;
                 }
-
-                const overflowMenuButton = this._views.overflow;
-                if (overflowMenuButton.get('isActive')) {
-                    overflowMenuButton.get('popOverView').hide();
-                }
-                overflowMenuButton.set(
-                    'menuView',
-                    new MenuView({
-                        showFilter: false,
-                        options: leftConfig
-                            .slice(i)
-                            .map(toView, this)
-                            .filter((view) => view instanceof View),
-                    }),
-                );
-
                 if (i > 0) {
+                    overflowConfig = leftConfig.slice(i);
                     leftConfig = leftConfig.slice(0, i);
                     leftConfig.push('overflow');
                 } else {
+                    overflowConfig = leftConfig;
                     leftConfig = ['overflow'];
                 }
             }
+        } else {
+            const i = leftConfig.indexOf('*');
+            if (i > -1) {
+                overflowConfig = leftConfig.slice(i);
+                leftConfig = leftConfig.slice(0, i);
+                leftConfig.push('overflow');
+            }
+        }
+        if (overflowConfig) {
+            const overflowMenuButton = this._views.overflow;
+            if (overflowMenuButton.get('isActive')) {
+                overflowMenuButton.get('popOverView').hide();
+            }
+            overflowMenuButton.set(
+                'menuView',
+                new MenuView({
+                    showFilter: false,
+                    options: overflowConfig
+                        .map(toView, this)
+                        .filter((view) => view instanceof View),
+                }),
+            );
         }
         return leftConfig.map(toView, this);
     }.property('leftConfig', 'rightConfig', 'pxWidth'),
