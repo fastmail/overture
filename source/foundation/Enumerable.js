@@ -174,6 +174,36 @@ const Enumerable = {
         return null;
     },
 
+    /**
+        Method: O.Enumerable#findLast
+
+        Tests each item in the enumerable with a given function and returns the
+        last item for which the function returned a truthy value. The function
+        will be supplied with 3 parameters when called:
+
+        1. The value.
+        2. The index of the value in the enumerable.
+        3. The enumerable itself.
+
+        Parameters:
+            fn   - {Function} The function to test each value with.
+            bind - {Object} (optional) The object to bind the 'this' parameter
+                   to on each call of the function.
+
+        Returns:
+            {*} The object found, or null if none found.
+    */
+    findLast(fn, bind) {
+        const callback = createCallback(fn, bind);
+        for (let i = this.get('length') - 1; i >= 0; i -= 1) {
+            const value = this.getObjectAt(i);
+            if (callback(value, i, this)) {
+                return value;
+            }
+        }
+        return null;
+    },
+
     // :: Iteration methods ====================================================
 
     /**
