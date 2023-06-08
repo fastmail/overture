@@ -233,6 +233,29 @@ const Enumerable = {
         return results;
     },
 
+    /**
+        Method: O.Enumerable#take
+
+        Filters the array with an acceptance function, stopping when the max
+        desired number of elements have been found, thereby preventing iteration
+        of the entire list.
+
+        The acceptance function will be supplied with 3 parameters when called:
+
+        1. The value.
+        2. The index of the value in the enumerable.
+        3. The enumerable itself.
+
+        Parameters:
+            max  - {Number} The max number of elements in the returned array.
+            fn   - {Function} The function to test each value with.
+            bind - {Object} (optional) The object to bind the 'this' parameter
+                   to on each call of the function.
+
+        Returns:
+            {Array} The items which were accepted by the function, limited by
+            the `max` number allowed.
+    */
     take(max, fn, bind) {
         if (!fn) {
             fn = () => true;
@@ -277,6 +300,27 @@ const Enumerable = {
         }
         return results;
     },
+
+    /**
+        Method: O.Enumerable#flatMap
+
+        Applies the given function to each item in the enumerable and returns an
+        array of all the results, and then flattening the result by one level.
+
+        The function will be supplied with 3 parameters when called:
+
+        1. The value.
+        2. The index of the value in the enumerable.
+        3. The enumerable itself.
+
+        Parameters:
+            fn   - {Function} The function to apply to each value.
+            bind - {Object} (optional) The object to bind the 'this' parameter
+                   to on each call of the function.
+
+        Returns:
+            {Array} The result of each function call.
+    */
 
     flatMap(fn, bind) {
         const callback = createCallback(fn, bind);
@@ -387,6 +431,23 @@ const Enumerable = {
         return false;
     },
 
+    /**
+        Method: O.Enumerable#slice
+
+        Returns a new array consisting of the elements from the 'start' index to
+        the 'end' index (not inclusive) of the array upon which this method is
+        called. The original array will not be modified.
+
+        Parameters:
+            start - {Number} (optional) The index at which to begin copying
+                    elements from the original array.
+            end   - {Number} (optional) The index at which to stop copying
+                    elements from the original array. The item at this index is
+                    not copied.
+
+        Returns:
+            {Array} The new array containing the extracted elements.
+    */
     slice(start = 0, end) {
         const length = this.get('length');
         if (!end) {
