@@ -1,3 +1,9 @@
+/**
+    Class: Heap
+
+    Represents a binary heap data structure. Uses the Heap#comparator function
+    to maintain Heap order.
+*/
 class Heap {
     constructor(comparator) {
         this.data = [];
@@ -5,6 +11,20 @@ class Heap {
         this.comparator = comparator;
     }
 
+    /**
+     Method (private): Heap#_up
+
+        Moves an element up the heap until the heap's comparator is satisfied. It
+        starts with the element at the provided index and uses the comparator
+        function to compare it to its parent node, swapping positions as
+        necessary.
+
+        Parameters:
+            i - {Number} The index of the element to be moved up.
+
+        Returns:
+            {Number} The index of the element after moving it up.
+     */
     _up(i) {
         const data = this.data;
         const comparator = this.comparator;
@@ -27,6 +47,20 @@ class Heap {
         return i;
     }
 
+    /**
+     Method (private): Heap#_down
+
+        Moves an element down the heap until the heap's comparator is satisfied. It
+        starts with the element at the provided index and uses the comparator
+        function to compare it to its children nodes, swapping positions as
+        necessary.
+
+        Parameters:
+            i - {Number} The index of the element to be moved down.
+
+        Returns:
+            {Number} The index of the element after moving it down.
+     */
     _down(i) {
         const data = this.data;
         const length = this.length;
@@ -62,6 +96,20 @@ class Heap {
         return i;
     }
 
+    /**
+     Method: Heap#push
+
+        Adds an element to the heap. It initially adds the provided element to
+        the bottom of the Heap instance. It maintains the heap's comparator by
+        incrementing the length and calling Heap#_up using the incremented
+        length as the provided index.
+
+        Parameters:
+            node - {*} The element to be added to the heap.
+
+        Returns:
+            {Object} The Heap instance.
+     */
     push(node) {
         if (node != null) {
             const length = this.length;
@@ -72,6 +120,16 @@ class Heap {
         return this;
     }
 
+    /**
+     Method: Heap#pop
+
+        Removes and returns the top element from the Heap instance. It then
+        decrements the length and calls Heap#_down from index 0 to maintain
+        the heap's comparator.
+
+        Returns:
+            {*} The element that was removed from the heap.
+    */
     pop() {
         const data = this.data;
         let length = this.length;
@@ -92,10 +150,31 @@ class Heap {
         return nodeToReturn;
     }
 
+    /**
+     Method: Heap#peek
+
+        Returns the top element of the Heap instance without removing it.
+
+        Returns:
+            {*} The top element of the Heap.
+     */
     peek() {
         return this.data[0];
     }
 
+    /**
+     Method: Heap#remove
+
+        Removes the provided element from the heap. If the element is found, it
+        decrements the length and, if necessary, calls Heap#_up followed by
+        Heap#_down to maintain the heap's comparator.
+
+        Parameters:
+            node - {*} The element to be removed from the heap.
+
+        Returns:
+            {Object} The Heap instance.
+     */
     remove(node) {
         const data = this.data;
         let length = this.length;
@@ -122,6 +201,16 @@ class Heap {
         return this;
     }
 
+    /**
+     Method: Heap#forEach
+
+        Iterates over each element in the Heap instance and applies the provided
+        function to it.
+
+        Parameters:
+            fn - {Function} The function to call with each element in the Heap
+                  instance.
+     */
     forEach(fn) {
         const data = this.data;
         for (let i = 0, l = this.length; i < l; i += 1) {
