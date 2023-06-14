@@ -125,7 +125,6 @@ const ToolbarView = Class({
                 right: [],
             },
         };
-        this._measureView = null;
         this._widths = {};
         this._flex = null;
     },
@@ -148,7 +147,7 @@ const ToolbarView = Class({
             this.get('isInDocument') &&
             this.get('preventOverlap')
         ) {
-            this.preMeasure().postMeasure();
+            this.measureViews();
         }
         return this;
     },
@@ -158,7 +157,7 @@ const ToolbarView = Class({
             this.registerView(name, views[name], true);
         }
         if (this.get('isInDocument') && this.get('preventOverlap')) {
-            this.preMeasure().postMeasure();
+            this.measureViews();
         }
         return this;
     },
@@ -284,31 +283,24 @@ const ToolbarView = Class({
         return this.get('rightConfig').map(toView, this);
     }.property('rightConfig'),
 
-    preMeasure() {
-        this.insertView(
-            (this._measureView = new View({
-                className: 'v-Toolbar-measure',
-                layerStyles: {},
-                childViews: Object.values(this._views).filter(
-                    (view) => !view.get('parentView'),
-                ),
-                draw(layer) {
-                    return [
-                        el('span.v-Toolbar-divider'),
-                        View.prototype.draw.call(this, layer),
-                    ];
-                },
-            })),
-            null,
-            'top',
-        );
-        return this;
-    },
-
-    postMeasure() {
+    measureViews() {
         const widths = this._widths;
         const views = this._views;
-        const measureView = this._measureView;
+        const measureView = new View({
+            className: 'v-Toolbar-measure',
+            layerStyles: {},
+            childViews: Object.values(views).filter(
+                (view) => !view.get('parentView'),
+            ),
+            draw(layer) {
+                return [
+                    el('span.v-Toolbar-divider'),
+                    View.prototype.draw.call(this, layer),
+                ];
+            },
+        });
+        this.insertView(measureView, null, 'top');
+
         const unused = measureView.get('childViews');
         const container = measureView.get('layer');
         const containerBoundingClientRect = container.getBoundingClientRect();
@@ -331,23 +323,14 @@ const ToolbarView = Class({
             measureView.removeView(unused[i]);
         }
         measureView.destroy();
-        this._measureView = null;
 
-        return this;
-    },
-
-    willEnterDocument() {
-        ToolbarView.parent.willEnterDocument.call(this);
-        if (this.get('preventOverlap')) {
-            this.preMeasure();
-        }
         return this;
     },
 
     didEnterDocument() {
         ToolbarView.parent.didEnterDocument.call(this);
         if (this.get('preventOverlap')) {
-            this.postMeasure();
+            this.measureViews();
         }
         return this;
     },
@@ -419,7 +402,7 @@ const ToolbarView = Class({
 
     preventOverlapDidChange: function () {
         if (this.get('preventOverlap') && this.get('isInDocument')) {
-            this.preMeasure().postMeasure().computedPropertyDidChange('left');
+            this.measureViews().computedPropertyDidChange('left');
         }
     }
         .queue('after')
