@@ -46,6 +46,9 @@ class Locale {
                 type: 'region',
             });
             this.getRegionName = (isoCode) => {
+                if (!isoCode) {
+                    return '';
+                }
                 const name = displayNames.of(isoCode);
                 return name === isoCode ? '' : name;
             };
