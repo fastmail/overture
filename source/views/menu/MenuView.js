@@ -143,7 +143,7 @@ const MenuController = Class({
         this.get('view').parentViewDidResize();
     }
         .queue('after')
-        .observes('search'),
+        .observes('search', 'content'),
 });
 
 const moveEventType = canPointer ? 'pointermove' : 'mousemove';
