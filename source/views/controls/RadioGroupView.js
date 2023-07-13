@@ -1,5 +1,5 @@
 import { Class, isEqual } from '../../core/Core.js';
-import { create as el } from '../../dom/Element.js';
+import { create as el, nearest } from '../../dom/Element.js';
 import { AbstractInputView } from './AbstractInputView.js';
 
 // ---
@@ -63,21 +63,22 @@ const RadioGroupView = Class({
     /**
         Method: O.RadioGroupView#drawControl
         Parameters:
-            option - {Object} The object that represents the radio option. The 
-                      properties of this object are defined in 
+            option - {Object} The object that represents the radio option. The
+                      properties of this object are defined in
                       O.RadioGroupView#options.
             index  - {Number} Index of the option in the group
+            isChecked - {Boolean} Is this option currently selected?
 
         Returns radio button for provided option. Accessed in
         <O.RadioGroupView#drawOption>.
     */
-    drawControl(option, index) {
+    drawControl(option, index, isChecked) {
         const id = this.get('id');
         const control = el('input', {
             type: 'radio',
             id: id + '-option-' + index,
             className: this.get('baseClassName') + '-input',
-            checked: isEqual(this.get('value'), option.value),
+            checked: isChecked,
             disabled: this.get('isDisabled') || option.isDisabled,
             name: this.get('name') || id + '-value',
             tabIndex: '-1',
@@ -107,15 +108,14 @@ const RadioGroupView = Class({
                 description = {String} Descriptive text for option
                 isDisabled - {Boolean} Is the option disabled?
             index - {Number} Index of the option in the group
+            isChecked - {Boolean} Is this option currently selected?
 
         Returns an individual labelled radio option, with DOM control from
         <O.RadioGroupView#drawControl>
     */
-    drawOption(option, index) {
+    drawOption(option, index, isChecked) {
         const baseClassName = this.get('baseClassName');
-
-        const control = this.drawControl(option, index);
-
+        const control = this.drawControl(option, index, isChecked);
         const label = this.drawLabel(option.label, option);
 
         let description = option.description;
@@ -123,10 +123,13 @@ const RadioGroupView = Class({
             description = this.drawDescription(description, option);
         }
 
-        return el(`label.${baseClassName}-option`, [
-            control,
-            el(`div.${baseClassName}-text`, [label, description]),
-        ]);
+        return el(
+            `label.${baseClassName}-option`,
+            {
+                className: isChecked ? 'is-checked' : undefined,
+            },
+            [control, el(`div.${baseClassName}-text`, [label, description])],
+        );
     },
 
     /**
@@ -145,8 +148,11 @@ const RadioGroupView = Class({
             description = this.drawDescription(description);
         }
 
+        const selectedIndex = this.get('selectedIndex');
         const options = el(`div.${this.get('baseClassName')}-options`, [
-            this.get('options').map(this.drawOption, this),
+            this.get('options').map((option, index) =>
+                this.drawOption(option, index, index === selectedIndex),
+            ),
         ]);
 
         this.redrawTabIndex();
@@ -176,9 +182,12 @@ const RadioGroupView = Class({
         const options = this.get('options');
         if (!isEqual(options, oldOptions)) {
             this._domControls = [];
+            const selectedIndex = this.get('selectedIndex');
             layer.replaceChild(
                 el(`div.${this.get('baseClassName')}-options`, [
-                    options.map(this.drawOption, this),
+                    options.map((option, index) =>
+                        this.drawOption(option, index, index === selectedIndex),
+                    ),
                 ]),
                 layer.lastChild,
             );
@@ -221,9 +230,18 @@ const RadioGroupView = Class({
         const oldControl = this._domControl;
         oldControl.checked = false;
         oldControl.tabIndex = '-1';
+        const optionsNode = this.get('layer').lastChild;
+        nearest(
+            oldControl,
+            (node) => node.parentNode === optionsNode,
+        ).classList.remove('is-checked');
 
         control.checked = isChecked;
         control.tabIndex = this.get('tabIndex');
+        nearest(
+            control,
+            (node) => node.parentNode === optionsNode,
+        ).classList.add('is-checked');
         if (this.get('isFocused')) {
             control.focus();
         }
