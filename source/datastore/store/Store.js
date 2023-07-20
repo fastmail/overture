@@ -808,15 +808,25 @@ const Store = Class({
         for (const storeKey in _skToChanged) {
             const status = _skToStatus[storeKey];
             const Type = _skToType[storeKey];
-            const changed = _skToChanged[storeKey];
+            const changed = filterObject(
+                _skToChanged[storeKey],
+                Record.getClientSettableAttributes(Type),
+            );
+
             let previous = _skToCommitted[storeKey];
+            delete _skToCommitted[storeKey];
+            // If all updates for a record are to noSync attributes, don't
+            // commit update to source
+            if (!Object.keys(changed).length) {
+                this.setStatus(storeKey, status & ~DIRTY);
+                continue;
+            }
             let data = _skToData[storeKey];
             const accountId = data.accountId;
             const update = getEntry(Type, accountId).update;
 
             _skToRollback[storeKey] = previous;
             previous = convertForeignKeysToId(this, Type, previous);
-            delete _skToCommitted[storeKey];
             data = convertForeignKeysToId(this, Type, data);
 
             update.storeKeys.push(storeKey);
@@ -1614,8 +1624,9 @@ const Store = Class({
             storeKey      - {String} The store key for the record.
             data          - {Object} An object of new attribute values for the
                             record.
-            changeIsDirty - {Boolean} Should the change be committed back to the
-                            server?
+            changeIsDirty - {Boolean} Should any of the change be committed back
+                            to the server? noSync attributes are filtered out of
+                            commits to the server in the commitChanges method.
 
         Returns:
             {Boolean} Was the data actually written? Will be false if the
