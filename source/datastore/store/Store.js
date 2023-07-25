@@ -2246,6 +2246,14 @@ const Store = Class({
                 );
             }
 
+            const newId = update[idAttrKey];
+            if (newId && newId !== id) {
+                // Don't delete the old idToSk mapping, as references to the
+                // old id may still appear in queryChanges responses
+                _skToId[storeKey] = newId;
+                _idToSk[newId] = storeKey;
+            }
+
             if (status & DIRTY) {
                 // If we have a conflict we can either rebase on top, or discard
                 // our local changes.
@@ -2280,14 +2288,6 @@ const Store = Class({
                 }
                 delete _skToChanged[storeKey];
                 delete _skToCommitted[storeKey];
-            }
-
-            const newId = update[idAttrKey];
-            if (newId && newId !== id) {
-                // Don't delete the old idToSk mapping, as references to the
-                // old id may still appear in queryChanges responses
-                _skToId[storeKey] = newId;
-                _idToSk[newId] = storeKey;
             }
 
             this.updateData(storeKey, update, false);
