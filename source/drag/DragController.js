@@ -23,8 +23,25 @@ class TouchDragEvent {
     constructor(touch) {
         const clientX = touch.clientX;
         const clientY = touch.clientY;
-        const target =
-            document.elementFromPoint(clientX, clientY) || touch.target;
+
+        let target;
+        // Occasionally, we hit a "The provided double value is non-finite."
+        // error here. Let's log more info to see if we should normalize clientX
+        // and clientY.
+        try {
+            target =
+                document.elementFromPoint(clientX, clientY) || touch.target;
+        } catch (error) {
+            const newError = new Error(
+                'Invalid value provided to document.elementFromPoint',
+            );
+            newError.details = {
+                clientX,
+                clientY,
+                target: touch.target,
+            };
+            throw newError;
+        }
         this.touch = touch;
         this.clientX = clientX;
         this.clientY = clientY;
