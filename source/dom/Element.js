@@ -157,6 +157,7 @@ const booleanProperties = {
     hidden: 1,
     indeterminate: 1,
     multiple: 1,
+    open: 1,
     readOnly: 1,
     required: 1,
     selected: 1,
