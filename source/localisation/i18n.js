@@ -300,15 +300,29 @@ let compare = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
 const makeSearchRegExp = (string) =>
     new RegExp(
         '(^|\\W|_)(' +
-            string
-                .escapeRegExp()
-                .replace(/\\\*/g, '.*')
-                .replace(/\\\?/g, '.')
-                .replace(/ /g, '|')
-                .replace(
-                    /[A-Z]/gi,
-                    (letter) => alternatives[letter.toUpperCase()],
-                ) +
+            string.replace(
+                /[-.*+?^${}()|[\]/\\ A-Z]/gi,
+                (char, index, _string) => {
+                    switch (char) {
+                        case '*': {
+                            const next = _string.charAt(index + 1);
+                            if (!next) {
+                                return '';
+                            }
+                            return '[^' + next.escapeRegExp() + ']*';
+                        }
+                        case '?':
+                            return '.';
+                        case ' ':
+                            return '|';
+                        default:
+                            if (/[A-Z]/i.test(char)) {
+                                return alternatives[char.toUpperCase()];
+                            }
+                            return '\\' + char;
+                    }
+                },
+            ) +
             ')',
         'i',
     );
