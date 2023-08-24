@@ -19,7 +19,7 @@ const PasswordInputView = Class({
     }.property('showPassword'),
 
     inputAttributes: {
-        name: 'password',
+        name: 'current-password',
         autocapitalize: 'off',
         autocomplete: 'current-password webauthn',
         autocorrect: 'off',
