@@ -3,14 +3,11 @@
 import { Class, meta } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el, nearest } from '../../dom/Element.js';
-import { browser } from '../../ua/UA.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { AbstractInputView } from './AbstractInputView.js';
 
 /* { property, nocache, on, observes } from */
 import '../../foundation/Decorators.js';
-
-const isFirefox = browser === 'firefox';
 
 /**
     Class: O.TextInputView
@@ -295,14 +292,6 @@ const TextInputView = Class({
     },
 
     redrawTextHeight() {
-        // Firefox gets pathologically slow when resizing really large text
-        // areas, so automatically turn this off in such a case.
-        // 2^13 chars is an arbitrary cut off point that seems to be reasonable
-        // in practice
-        if (isFirefox && (this.get('value') || '').length > 8192) {
-            this.set('isExpanding', false);
-            return;
-        }
         const control = this._domControl;
         const style = control.style;
         const scrollView = this.getParent(ScrollView);
