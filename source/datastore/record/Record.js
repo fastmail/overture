@@ -578,23 +578,50 @@ const Record = Class({
 
     */
     ifSuccess(mixin) {
-        return new Promise(
-            (resolve, reject) =>
-                new RecordResult(
-                    this,
-                    (result) => {
-                        const record = result.record;
-                        if (result.error || record.is(NON_EXISTENT)) {
-                            reject(result);
-                        } else {
-                            resolve(record);
-                        }
-                    },
-                    mixin,
-                ),
-        );
+        return promisifyResult(this, mixin);
+    },
+
+    /**
+        Method: O.Record#ifLoaded
+        Returns: {Promise<O.Record|O.RecordResult>}
+
+        The promise returned will either resolve to the record when it has
+        finished loading, or be rejected with a RecordResult, which is an object 
+        containing two properties to care about, `record` and `error`.
+
+        This is useful when calling <O.Record#fetch> on an <O.Record> that has
+        already been marked `READY` and are expecting changes as a result of the
+        fetch request.
+     */
+    ifLoaded(mixin) {
+        return promisifyResult(this, {
+            statusDidChange(_, __, ___, newStatus) {
+                if (!(newStatus & LOADING)) {
+                    this.done();
+                }
+            },
+            ...mixin,
+        });
     },
 });
+
+function promisifyResult(record, mixin) {
+    return new Promise(
+        (resolve, reject) =>
+            new RecordResult(
+                record,
+                (result) => {
+                    const _record = result.record;
+                    if (result.error || _record.is(NON_EXISTENT)) {
+                        reject(result);
+                    } else {
+                        resolve(_record);
+                    }
+                },
+                mixin,
+            ),
+    );
+}
 
 Record.getClientSettableAttributes = function (Type) {
     let clientSettableAttributes = Type.clientSettableAttributes;
