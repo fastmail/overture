@@ -22,7 +22,6 @@ const nodesToText = function (
     markupInline,
 ) {
     let newQuotePrefix = quotePrefix;
-    let href;
     for (let i = 0, l = nodes.length; i < l; i += 1) {
         const node = nodes[i];
         const children = node.childNodes;
@@ -141,16 +140,15 @@ const nodesToText = function (
         switch (tag) {
             case 'A':
                 if (markupInline) {
-                    href = node.href;
-                    href = href.slice(href.indexOf(':') + 1);
-                    if (href.charAt(0) === '/' && href.charAt(1) === '/') {
-                        href = href.slice(2);
-                    }
-                    if (href.charAt(href.length - 1) === '/') {
-                        href = href.slice(0, -1);
-                    }
-                    if (!node.textContent.includes(href)) {
-                        stringBuilder.push(' <' + node.href + '>');
+                    const href = node.getAttribute('href');
+                    if (href) {
+                        let simpleHref = href.replace(/^[a-z]+:(?:\/\/)?/i, '');
+                        if (simpleHref.charAt(simpleHref.length - 1) === '/') {
+                            simpleHref = simpleHref.slice(0, -1);
+                        }
+                        if (!node.textContent.includes(simpleHref)) {
+                            stringBuilder.push(' <' + href + '>');
+                        }
                     }
                 }
                 break;
