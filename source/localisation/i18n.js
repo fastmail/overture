@@ -177,7 +177,7 @@ const localise = (text, ...args) => {
         {String} The items joined together as a list per locale conventions.
 */
 const localiseList = (items, type = 'conjunction') =>
-    typeof Intl !== undefined && Intl.ListFormat
+    typeof Intl !== 'undefined' && Intl.ListFormat
         ? new Intl.ListFormat(activeLocaleCode, {
               style: 'short',
               type,
