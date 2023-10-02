@@ -1,7 +1,10 @@
 import { Class } from '../../core/Core.js';
+import { getViewFromNode } from '../activeViews.js';
 import { ButtonView } from '../controls/ButtonView.js';
+import { FileButtonView } from '../controls/FileButtonView.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { RootView } from '../RootView.js';
+import { MenuFilterView } from './MenuFilterView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
 /* { observes, on, property, queue } from */
@@ -252,6 +255,90 @@ const MenuButtonView = Class({
         }
         this.activate(event);
     }.on('mousedown'),
+
+    _activateOnTouchstart: function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this._didMove = false;
+        this._touchedView = null;
+        this.activate(event);
+    }.on('touchstart'),
+
+    _handleTouchmove: function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this._didMove = true;
+        const touch = event.changedTouches[0];
+        if (!touch) {
+            return;
+        }
+        const clientX =
+            touch.clientX > -Infinity && touch.clientX < Infinity
+                ? touch.clientX
+                : null;
+        const clientY =
+            touch.clientY > -Infinity && touch.clientY < Infinity
+                ? touch.clientY
+                : null;
+
+        if (!clientX || !clientY) {
+            return;
+        }
+
+        const node = document.elementFromPoint(clientX, clientY);
+        if (!node) {
+            return;
+        }
+        const view = getViewFromNode(node);
+        if (!view) {
+            return;
+        }
+
+        const menuOption =
+            (view instanceof MenuOptionView && view) ||
+            view.getParent(MenuOptionView);
+        if (menuOption) {
+            menuOption.takeFocus();
+            this._touchedView = menuOption;
+            return;
+        }
+
+        const menuFilter =
+            (view instanceof MenuFilterView && view) ||
+            view.getParent(MenuFilterView);
+        if (menuFilter) {
+            this._touchedView = menuFilter;
+            return;
+        }
+
+        this._touchedView = view;
+    }.on('touchmove'),
+
+    _handleTouchend: function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const view = this._touchedView;
+        if (
+            !this._didMove ||
+            view === this ||
+            view === this.get('popOverView')
+        ) {
+            return;
+        }
+        if (view instanceof MenuOptionView) {
+            const button = view.getFromPath('content.button');
+            if (button instanceof FileButtonView) {
+                button.fire('confirm', event);
+                this.get('popOverView').hide();
+            } else {
+                view.get('controller').selectFocused();
+            }
+        } else if (view instanceof MenuFilterView) {
+            view.focus();
+        } else {
+            this.get('popOverView').hide();
+        }
+    }.on('touchend'),
 });
 
 export { MenuButtonView };
