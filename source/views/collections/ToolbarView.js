@@ -1,4 +1,4 @@
-import { Class } from '../../core/Core.js';
+import { Class, isEqual } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';
@@ -261,7 +261,10 @@ const ToolbarView = Class({
                 leftConfig.push('overflow');
             }
         }
-        if (overflowConfig) {
+        if (
+            overflowConfig &&
+            !isEqual(this._oldOverflowConfig, overflowConfig)
+        ) {
             const overflowMenuButton = this._views.overflow;
             if (overflowMenuButton.get('isActive')) {
                 overflowMenuButton.get('popOverView').hide();
@@ -276,6 +279,7 @@ const ToolbarView = Class({
                 }),
             );
         }
+        this._oldOverflowConfig = overflowConfig;
         return leftConfig.map(toView, this);
     }.property('leftConfig', 'rightConfig', 'pxWidth'),
 
