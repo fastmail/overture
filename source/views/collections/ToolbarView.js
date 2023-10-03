@@ -362,23 +362,23 @@ const ToolbarView = Class({
 
     redrawSide(layer, isLeft, oldViews, newViews) {
         let start = 0;
-        let isEqual = true;
+        let isSideEqual = true;
         const flex = this._flex;
 
         for (let i = start, l = oldViews.length; i < l; i += 1) {
             const view = oldViews[i];
             if (view instanceof View) {
-                if (isEqual && view === newViews[i]) {
+                if (isSideEqual && view === newViews[i]) {
                     start += 1;
                 } else {
-                    isEqual = false;
+                    isSideEqual = false;
                     // Check it hasn't already swapped sides!
                     if (viewIsBeforeFlex(view, flex) === isLeft) {
                         this.removeView(view);
                     }
                 }
             } else {
-                if (isEqual && !(newViews[i] instanceof View)) {
+                if (isSideEqual && !(newViews[i] instanceof View)) {
                     start += 1;
                     newViews[i] = view;
                 } else {
