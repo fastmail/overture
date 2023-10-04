@@ -6,7 +6,7 @@ import { ButtonView } from './ButtonView.js';
 /* { on } from */
 import '../../foundation/Decorators.js';
 
-/* global File */
+/* global File, Blob */
 
 function _cloneFiles(files) {
     const promises = [];
@@ -163,7 +163,7 @@ const FileButtonView = Class({
         // On Android Chromium based browsers, selecting files from Google Drive
         // will fail to upload unless they are cloned first.
         // Tracker: https://bugs.chromium.org/p/chromium/issues/detail?id=1063576
-        if (isAndroid) {
+        if (isAndroid && Blob.prototype.arrayBuffer) {
             _cloneFiles(inputFiles).then(_notify);
         } else {
             _notify(inputFiles);
