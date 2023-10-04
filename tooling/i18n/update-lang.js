@@ -6,14 +6,18 @@ import prettier from 'prettier';
 // ---
 
 const writeLang = function (obj, filePath) {
-    return prettier.resolveConfig(filePath).then((options) => {
-        const json = JSON.stringify(obj, null, 4);
-        const lang =
-            '/* eslint-disable import/no-default-export */\nexport default' +
-            json;
-        const formatted = prettier.format(lang, options);
-        writeFileSync(filePath, formatted);
-    });
+    return prettier
+        .resolveConfig(filePath)
+        .then((options) => {
+            const json = JSON.stringify(obj, null, 4);
+            const lang =
+                '/* eslint-disable import/no-default-export */\nexport default' +
+                json;
+            return prettier.format(lang, options);
+        })
+        .then((formatted) => {
+            writeFileSync(filePath, formatted);
+        });
 };
 
 const updateLang = async function (dbPath, langPath) {

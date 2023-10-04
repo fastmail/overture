@@ -528,7 +528,7 @@ const insertEnglish = function (englishDbPath, input, output) {
     fs.writeFileSync(output, input);
 };
 
-const updatePo = function (
+const updatePo = async function (
     englishDbPath,
     usagePath,
     inputPoPath,
@@ -559,10 +559,10 @@ const updatePo = function (
         }
     });
 
-    fs.writeFileSync(outputPoPath, stringify(inputPo));
+    fs.writeFileSync(outputPoPath, await stringify(inputPo));
 };
 
-const dbToPo = function (englishDbPath, outputPoPath, /* makePot */) {
+const dbToPo = async function (englishDbPath, outputPoPath /* makePot */) {
     const db = parseDb(fs.readFileSync(englishDbPath, 'utf8'));
 
     const addFuzzy = outputPoPath.slice(-10) !== 'en.lang.js';
@@ -574,10 +574,10 @@ const dbToPo = function (englishDbPath, outputPoPath, /* makePot */) {
         }
     });
 
-    fs.writeFileSync(outputPoPath, stringify(db));
+    fs.writeFileSync(outputPoPath, await stringify(db));
 };
 
-const removeUnusedDB = function (dbPath, usagePath, outputPath) {
+const removeUnusedDB = async function (dbPath, usagePath, outputPath) {
     const db = parseDb(fs.readFileSync(dbPath, 'utf8'));
     const usage = JSON.parse(fs.readFileSync(usagePath, 'utf8'));
     Object.keys(db).forEach((key) => {
@@ -585,7 +585,7 @@ const removeUnusedDB = function (dbPath, usagePath, outputPath) {
             delete db[key];
         }
     });
-    fs.writeFileSync(outputPath, stringify(db));
+    fs.writeFileSync(outputPath, await stringify(db));
 };
 
 (function () {
