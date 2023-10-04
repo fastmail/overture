@@ -9,7 +9,11 @@ import { COPY } from '../../drag/DragEffect.js';
 import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
-import { invert, isEqualToValue } from '../../foundation/Transform.js';
+import {
+    invert,
+    isEqualToValue,
+    toBoolean,
+} from '../../foundation/Transform.js';
 import { loc } from '../../localisation/i18n.js';
 import { isAndroid, isApple, isIOS } from '../../ua/UA.js';
 import { when } from '../collections/SwitchView.js';
@@ -1287,7 +1291,8 @@ const RichTextView = Class({
         const dropAcceptedDataTypes = this.get('dropAcceptedDataTypes');
         const images = Array.from(event.detail.clipboardData.items)
             .filter((item) => dropAcceptedDataTypes[item.type])
-            .map((item) => item.getAsFile());
+            .map((item) => item.getAsFile())
+            .filter(toBoolean);
         if (images.length) {
             this.insertImagesFromFiles(images);
         }
