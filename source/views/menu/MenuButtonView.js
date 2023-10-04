@@ -321,7 +321,8 @@ const MenuButtonView = Class({
         if (
             !this._didMove ||
             view === this ||
-            view === this.get('popOverView')
+            view === this.get('popOverView') ||
+            view.getParent(MenuButtonView) === this
         ) {
             return;
         }
