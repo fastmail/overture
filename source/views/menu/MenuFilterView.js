@@ -63,6 +63,11 @@ const MenuFilterView = Class({
         }
     }.observes('isInDocument'),
 
+    willLeaveDocument() {
+        this.blur();
+        return MenuFilterView.parent.willLeaveDocument.call(this);
+    },
+
     // ---
 
     didFocus: function () {
