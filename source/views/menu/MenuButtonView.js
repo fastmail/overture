@@ -297,27 +297,27 @@ const MenuButtonView = Class({
         const menuOption =
             (view instanceof MenuOptionView && view) ||
             view.getParent(MenuOptionView);
+        const lastView = this._touchedView;
         if (menuOption) {
-            menuOption.takeFocus();
-            this._touchedView = menuOption;
-            return;
+            if (menuOption !== lastView) {
+                menuOption.takeFocus();
+            }
+        } else if (lastView instanceof MenuOptionView) {
+            lastView.loseFocus();
         }
 
-        const menuFilter =
-            (view instanceof MenuFilterView && view) ||
-            view.getParent(MenuFilterView);
-        if (menuFilter) {
-            this._touchedView = menuFilter;
-            return;
-        }
-
-        this._touchedView = view;
+        this._touchedView =
+            menuOption ||
+            (!(view instanceof MenuFilterView) &&
+                view.getParent(MenuFilterView)) ||
+            view;
     }.on('touchmove'),
 
     _handleTouchend: function (event) {
         event.preventDefault();
         event.stopPropagation();
         const view = this._touchedView;
+        this._touchedView = null;
         if (
             !this._didMove ||
             view === this ||
