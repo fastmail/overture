@@ -1,4 +1,4 @@
-import { Class } from '../../core/Core.js';
+import { Class, isEqual } from '../../core/Core.js';
 import { getViewFromNode } from '../activeViews.js';
 import { ButtonView } from '../controls/ButtonView.js';
 import { FileButtonView } from '../controls/FileButtonView.js';
@@ -11,6 +11,18 @@ import { MenuOptionView } from './MenuOptionView.js';
 import '../../foundation/Decorators.js';
 
 /*global document */
+
+function getClientCoords(touch) {
+    const clientX =
+        -Infinity < touch.clientX && touch.clientX < Infinity
+            ? touch.clientX
+            : null;
+    const clientY =
+        -Infinity < touch.clientY && touch.clientY < Infinity
+            ? touch.clientY
+            : null;
+    return { x: clientX, y: clientY };
+}
 
 /**
     Class: O.MenuButtonView
@@ -261,6 +273,7 @@ const MenuButtonView = Class({
         event.stopPropagation();
         this._didMove = false;
         this._touchedView = null;
+        this._initialCoords = getClientCoords(event.touches[0]);
         this.activate(event);
     }.on('touchstart'),
 
@@ -272,20 +285,18 @@ const MenuButtonView = Class({
         if (!touch) {
             return;
         }
-        const clientX =
-            touch.clientX > -Infinity && touch.clientX < Infinity
-                ? touch.clientX
-                : null;
-        const clientY =
-            touch.clientY > -Infinity && touch.clientY < Infinity
-                ? touch.clientY
-                : null;
 
-        if (!clientX || !clientY) {
+        const coords = getClientCoords(touch);
+        if (coords.x === null || coords.y === null) {
             return;
         }
 
-        const node = document.elementFromPoint(clientX, clientY);
+        const initialCoords = this._initialCoords;
+        if (isEqual(coords, initialCoords)) {
+            return;
+        }
+
+        const node = document.elementFromPoint(coords.x, coords.y);
         if (!node) {
             return;
         }
@@ -300,6 +311,7 @@ const MenuButtonView = Class({
         const lastView = this._touchedView;
         if (menuOption) {
             if (menuOption !== lastView) {
+                this._initialCoords = coords;
                 menuOption.takeFocus();
             }
         } else if (lastView instanceof MenuOptionView) {
@@ -318,6 +330,7 @@ const MenuButtonView = Class({
         event.stopPropagation();
         const view = this._touchedView;
         this._touchedView = null;
+        this._initialCoords = null;
         if (
             !this._didMove ||
             !view ||
