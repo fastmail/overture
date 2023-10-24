@@ -269,6 +269,9 @@ const MenuButtonView = Class({
     }.on('mousedown'),
 
     _activateOnTouchstart: function (event) {
+        if (this.get('isInMenu')) {
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
         this._didMove = false;
@@ -278,21 +281,21 @@ const MenuButtonView = Class({
     }.on('touchstart'),
 
     _handleTouchmove: function (event) {
+        const initialCoords = this._initialCoords;
+        const touch = event.changedTouches[0];
+        if (!initialCoords || !touch) {
+            return;
+        }
+
         event.preventDefault();
         event.stopPropagation();
-        this._didMove = true;
-        const touch = event.changedTouches[0];
-        if (!touch) {
-            return;
-        }
 
         const coords = getClientCoords(touch);
-        if (coords.x === null || coords.y === null) {
-            return;
-        }
-
-        const initialCoords = this._initialCoords;
-        if (isEqual(coords, initialCoords)) {
+        if (
+            coords.x === null ||
+            coords.y === null ||
+            isEqual(coords, initialCoords)
+        ) {
             return;
         }
 
@@ -304,6 +307,8 @@ const MenuButtonView = Class({
         if (!view) {
             return;
         }
+
+        this._didMove = true;
 
         const menuOption =
             (view instanceof MenuOptionView && view) ||
@@ -326,13 +331,18 @@ const MenuButtonView = Class({
     }.on('touchmove'),
 
     _handleTouchend: function (event) {
+        if (!this._initialCoords) {
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
         const view = this._touchedView;
+        const didMove = this._didMove;
+        this._didMove = false;
         this._touchedView = null;
         this._initialCoords = null;
         if (
-            !this._didMove ||
+            !didMove ||
             !view ||
             view === this ||
             view === this.get('popOverView') ||
