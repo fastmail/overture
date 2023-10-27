@@ -177,7 +177,7 @@ const loadTarget = (pathToTarget) =>
 const escapeAccents = (string) =>
     string ? string.replaceAll(/'/g, '’') : string;
 
-const locCSVToJson = (csvPath, langFile) => {
+const locCSVToJson = async (csvPath, langFile) => {
     const fileArg = csvPath || process.argv[2];
     const langFilePath = langFile || process.argv[3];
     const langCode = /\/([-\w]+).lang.js$/.exec(langFilePath)[1];
@@ -250,14 +250,14 @@ const locCSVToJson = (csvPath, langFile) => {
             if (exportSource.string !== target.string) {
                 warnings.push(
                     id +
-                        ': Source string has changed since translation cycle was initiated. This string will not be updated.\n',
+                    ': Source string has changed since translation cycle was initiated. This string will not be updated.\n',
                 );
                 return;
             }
             if (exportSource.translation !== target.translation) {
                 warnings.push(
                     id +
-                        `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.\n`,
+                    `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.\n`,
                 );
                 return;
             }
@@ -270,10 +270,10 @@ const locCSVToJson = (csvPath, langFile) => {
         if (!compareSourceAndTranslation(sourceString, translation, langCode)) {
             warnings.push(
                 id +
-                    ': Source String and Translation do not match. \nSource String: ' +
-                    sourceString +
-                    '\nTranslation: ' +
-                    translation,
+                ': Source String and Translation do not match. \nSource String: ' +
+                sourceString +
+                '\nTranslation: ' +
+                translation,
                 '\n',
             );
             return;
@@ -297,19 +297,21 @@ const locCSVToJson = (csvPath, langFile) => {
         }
     });
 
+    const formatted = await prettier.format(
+        '/* eslint-disable import/no-default-export */\nexport default ' +
+        JSON.stringify(lang),
+        {
+            singleQuote: false,
+            tabWidth: 4,
+            quoteProps: 'as-needed',
+            trailingComma: 'all',
+            parser: 'babel',
+        },
+    );
+
     fs.writeFileSync(
         langFilePath,
-        prettier.format(
-            '/* eslint-disable import/no-default-export */\nexport default ' +
-                JSON.stringify(lang),
-            {
-                singleQuote: false,
-                tabWidth: 4,
-                quoteProps: 'as-needed',
-                trailingComma: 'all',
-                parser: 'babel',
-            },
-        ),
+        formatted
     );
 
     return warnings;

@@ -3,5 +3,7 @@ import { locCSVToJson } from './locCSVToJSON.mjs';
 
 /* global console */
 
-const warnings = locCSVToJson();
-console.log(warnings.join(''));
+(async () => {
+    const warnings = await locCSVToJson();
+    console.log(warnings.join(''));
+})();
