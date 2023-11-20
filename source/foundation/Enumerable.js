@@ -457,7 +457,7 @@ const Enumerable = {
         }
         const array = new Array(end - start);
         for (let i = start, l = end; i < l; i += 1) {
-            array[i] = this.getObjectAt(i);
+            array[i - start] = this.getObjectAt(i);
         }
         return array;
     },
