@@ -277,6 +277,7 @@ const MenuButtonView = Class({
         this._didMove = false;
         this._touchedView = null;
         this._initialCoords = getClientCoords(event.touches[0]);
+        this.focus();
         this.activate(event);
     }.on('touchstart'),
 
