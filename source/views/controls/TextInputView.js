@@ -223,7 +223,7 @@ const TextInputView = Class({
     drawGhost() {
         const change = this.get('ghost');
         this._ghost = change
-            ? el(`span.v-TextInput-ghost`, change.draw(this.get('value')))
+            ? el('span.v-TextInput-ghost', change.draw(this.get('value')))
             : document.createComment('ghost');
         return this._ghost;
     },
