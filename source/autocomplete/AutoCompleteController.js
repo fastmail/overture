@@ -207,7 +207,9 @@ const AutoCompleteController = Class({
             .addObserverForKey('value', this, 'updateContext')
             .addObserverForKey('isInDocument', this, 'detach');
         ViewEventsController.addEventTarget(this, 15);
-        this.get('focused').addObserverForKey('record', this, 'setGhost');
+        this.get('focused')
+            .addObserverForKey('record', this, 'setGhost')
+            .addObserverForKey('list', this, 'setGhost');
         this.updateContext();
     },
 
@@ -215,11 +217,9 @@ const AutoCompleteController = Class({
         const inputView = this.get('inputView');
         if (inputView) {
             this.set('isVisible', false);
-            this.get('focused').removeObserverForKey(
-                'record',
-                this,
-                'setGhost',
-            );
+            this.get('focused')
+                .removeObserverForKey('list', this, 'setGhost')
+                .removeObserverForKey('record', this, 'setGhost');
             ViewEventsController.removeEventTarget(this);
             inputView
                 .removeObserverForKey('isInDocument', this, 'detach')
@@ -232,14 +232,20 @@ const AutoCompleteController = Class({
     setGhost: function () {
         let ghost = null;
         if (this.get('showGhost') && this.get('isVisible')) {
-            const record = this.getFromPath('focused.record');
             const context = this.get('context');
+            const focused = this.get('focused');
+            let record = focused.get('record');
+            if (!record && context.selectedNode) {
+                record = focused.getAdjacent(1);
+            }
             if (record && context) {
                 ghost = record.getChange(context);
             }
         }
-        this.inputView.set('ghost', ghost);
-    }.observes('isVisible'),
+        this.inputView?.set('ghost', ghost);
+    }
+        .queue('before')
+        .observes('isVisible'),
 
     // Rather than detaching on blur, we check if we are blurred after a click
     // or keydown. This allows us to activate autocomplete options on click
@@ -259,19 +265,24 @@ const AutoCompleteController = Class({
         if (!this.get('isVisible')) {
             return;
         }
-        let shouldSubmit = true;
         const focused = this.get('focused');
         switch (lookupKey(event)) {
-            case 'Tab':
-                shouldSubmit = false;
-            /* falls through */
+            case 'Tab': {
+                const suggestion =
+                    focused.get('record') || focused.getAdjacent(1);
+                if (!suggestion) {
+                    return;
+                }
+                this.select(suggestion, false);
+                break;
+            }
             case 'Enter': {
                 const suggestion = focused.get('record');
                 if (!suggestion) {
                     this.submit();
                     return;
                 }
-                this.select(suggestion, shouldSubmit);
+                this.select(suggestion, true);
                 break;
             }
             case 'ArrowUp':

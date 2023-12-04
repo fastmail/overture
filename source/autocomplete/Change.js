@@ -59,13 +59,13 @@ class Change {
             ) {
                 prefixOffset = replaced.length;
             } else {
-                return [string];
+                return [string, el('mark', [' ⇥ ' + content.trim()])];
             }
         }
         return [
-            string.slice(0, this.start + prefixOffset),
-            el('mark', [this.content.slice(prefixOffset)]),
-            string.slice(this.end),
+            string.slice(0, start + prefixOffset),
+            el('mark', [content.slice(prefixOffset)]),
+            string.slice(end),
         ];
     }
 
