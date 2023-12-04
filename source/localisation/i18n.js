@@ -297,35 +297,43 @@ let compare = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
 
     Returns: {RegExp} A regular expression that will search for the string.
 */
-const makeSearchRegExp = (string) =>
-    new RegExp(
-        '(^|\\W|_)(' +
-            string.replace(
-                /[-.*+?^${}()|[\]/\\ A-Z]/gi,
-                (char, index, _string) => {
-                    switch (char) {
-                        case '*': {
-                            const next = _string.charAt(index + 1);
-                            if (!next) {
-                                return '';
-                            }
-                            return '[^' + next.escapeRegExp() + ']*';
-                        }
-                        case '?':
-                            return '.';
-                        case ' ':
-                            return '|';
-                        default:
-                            if (/[A-Z]/i.test(char)) {
-                                return alternatives[char.toUpperCase()];
-                            }
-                            return '\\' + char;
+const makeSearchRegExp = (string) => {
+    let anchorToStart = true;
+    let source = string.replace(
+        /[-.*+?^${}()|[\]/\\ A-Z]/gi,
+        (char, index, _string) => {
+            switch (char) {
+                case '*': {
+                    if (!index) {
+                        anchorToStart = false;
+                        return '';
                     }
-                },
-            ) +
-            ')',
-        'i',
+                    const next = _string.charAt(index + 1);
+                    if (!next) {
+                        return '';
+                    }
+                    return '[^' + next.escapeRegExp() + ']*';
+                }
+                case '?':
+                    return '.';
+                case ' ':
+                    return '|';
+                default:
+                    if (/[A-Z]/i.test(char)) {
+                        return alternatives[char.toUpperCase()];
+                    }
+                    return '\\' + char;
+            }
+        },
     );
+    if (anchorToStart) {
+        source = '(^|\\W|_)(' + source + ')';
+    } else {
+        // Ensure 2nd capture group is always the match.
+        source = '()(' + source + ')';
+    }
+    return new RegExp(source, 'i');
+};
 
 /**
     Property: O.i18n.letterAlternatives
