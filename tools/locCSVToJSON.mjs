@@ -227,14 +227,6 @@ const locCSVToJson = async (csvPath, langFile) => {
 
         const rawTranslation = line[targetLanguageIndex];
         const translation = escapeAccents(rawTranslation);
-        // There's a circumstance in which an intentionally single-quoted phrase
-        // exists, and the single-quotes will be replaced by the escapeAccents
-        // function. However, multiple accents in a translation have already led
-        // to erroneously single-quoted phrases slipping through.
-        let warnForMultiReplace = false;
-        if (rawTranslation.match(/'/g)?.length > 1) {
-            warnForMultiReplace = true;
-        }
 
         const target = lang[id];
         if (!translation) {
@@ -245,19 +237,42 @@ const locCSVToJson = async (csvPath, langFile) => {
             return;
         }
 
+        // There's a circumstance in which an intentionally single-quoted phrase
+        // exists, and the single-quotes will be replaced by the escapeAccents
+        // function. However, multiple accents in a translation have already led
+        // to erroneously single-quoted phrases slipping through.
+        let warnForMultiReplace = false;
+        if (rawTranslation.match(/'/g)?.length > 1) {
+            warnForMultiReplace = true;
+        }
+
         if (langAtExport) {
             const exportSource = langAtExport[id];
-            if (exportSource.string !== target.string) {
+            const exportString = exportSource.string;
+            const targetString = target.string;
+            if (exportString !== targetString) {
                 warnings.push(
                     id +
-                    ': Source string has changed since translation cycle was initiated. This string will not be updated.\n',
+                        ': Source string has changed since translation cycle was initiated. This string will not be updated.\n',
+                    'Source at export: ',
+                    exportString,
+                    'Source at import: ',
+                    targetString,
+                    '\n',
                 );
                 return;
             }
-            if (exportSource.translation !== target.translation) {
+            const exportTranslation = exportSource.translation;
+            const targetTranslation = target.translation;
+            if (exportTranslation !== targetTranslation) {
                 warnings.push(
                     id +
-                    `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.\n`,
+                        `: The translation at the time of export (${commit}) does not match the translation at the current HEAD.\n`,
+                    'Source at export: ',
+                    exportTranslation,
+                    'Source at import: ',
+                    targetTranslation,
+                    '\n',
                 );
                 return;
             }
@@ -270,10 +285,10 @@ const locCSVToJson = async (csvPath, langFile) => {
         if (!compareSourceAndTranslation(sourceString, translation, langCode)) {
             warnings.push(
                 id +
-                ': Source String and Translation do not match. \nSource String: ' +
-                sourceString +
-                '\nTranslation: ' +
-                translation,
+                    ': Source String and Translation do not match. \nSource String: ' +
+                    sourceString +
+                    '\nTranslation: ' +
+                    translation,
                 '\n',
             );
             return;
@@ -299,7 +314,7 @@ const locCSVToJson = async (csvPath, langFile) => {
 
     const formatted = await prettier.format(
         '/* eslint-disable import/no-default-export */\nexport default ' +
-        JSON.stringify(lang),
+            JSON.stringify(lang),
         {
             singleQuote: false,
             tabWidth: 4,
@@ -309,10 +324,7 @@ const locCSVToJson = async (csvPath, langFile) => {
         },
     );
 
-    fs.writeFileSync(
-        langFilePath,
-        formatted
-    );
+    fs.writeFileSync(langFilePath, formatted);
 
     return warnings;
 };
