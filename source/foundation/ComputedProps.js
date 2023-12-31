@@ -156,6 +156,7 @@ const ComputedProps = {
                 const cache = meta(this).cache;
                 oldValue = cache[key];
                 cache[key] = value;
+                silent = silent || oldValue === value;
             } else {
                 oldValue = undefined;
             }
