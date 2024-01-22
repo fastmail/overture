@@ -216,7 +216,7 @@ const RichTextView = Class({
         }
         const popOver = meta(this).cache.popOver;
         if (popOver) {
-            popOver.destroy();
+            popOver.hide().destroy();
         }
         RichTextView.parent.destroy.call(this);
     },
