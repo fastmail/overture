@@ -1,7 +1,10 @@
 import { Animation } from '../../animation/Animation.js';
 import { Class, mixin } from '../../core/Core.js';
 import { appendChildren, create as el, setStyle } from '../../dom/Element.js';
-import { queueFn } from '../../foundation/RunLoop.js';
+import {
+    invokeAfterDelay,
+    queueFn,
+} from '../../foundation/RunLoop.js';
 import { browser, isIOS, version } from '../../ua/UA.js';
 import { RootView } from '../RootView.js';
 import { LAYOUT_FILL_PARENT, View } from '../View.js';
@@ -9,6 +12,10 @@ import { ViewEventsController } from '../ViewEventsController.js';
 
 /* { property, on, observes, queue } from */
 import '../../foundation/Decorators.js';
+
+// ---
+
+/*global document */
 
 class ScrollAnimation extends Animation {
     prepare(coordinates) {
@@ -39,6 +46,8 @@ class ScrollAnimation extends Animation {
 
 ScrollAnimation.prototype.duration = 250;
 
+const supportsScrollEnd = 'onscrollend' in document;
+
 /**
     Class: O.ScrollView
 
@@ -53,6 +62,12 @@ const ScrollView = Class({
     Name: 'ScrollView',
 
     Extends: View,
+
+    init: function () {
+        this._scrollendTimer = null;
+        this._scrollendCounter = 0;
+        ScrollView.parent.init.apply(this, arguments);
+    },
 
     /**
         Property: O.ScrollView#showScrollbarX
@@ -164,7 +179,9 @@ const ScrollView = Class({
     },
 
     didEnterDocument() {
-        this.get('layer').addEventListener('scroll', this, false);
+        const layer = this.get('layer');
+        layer.addEventListener('scroll', this, false);
+        layer.addEventListener('scrollend', this, false);
 
         // Add keyboard shortcuts:
         const keys = this.get('keys');
@@ -184,7 +201,9 @@ const ScrollView = Class({
             shortcuts.deregister(key, this, keys[key]);
         }
 
-        this.get('layer').removeEventListener('scroll', this, false);
+        const layer = this.get('layer');
+        layer.removeEventListener('scroll', this, false);
+        layer.removeEventListener('scrollend', this, false);
 
         return ScrollView.parent.willLeaveDocument.call(this);
     },
@@ -265,7 +284,7 @@ const ScrollView = Class({
     },
 
     didAnimate() {
-        this.set('isAnimating', false);
+        this.set('isAnimating', false).fire('scrollend');
     },
 
     /**
@@ -411,7 +430,8 @@ const ScrollView = Class({
                 .set('scrollLeft', x)
                 .set('scrollTop', y)
                 .propertyNeedsRedraw(this, 'scroll')
-                .endPropertyChanges();
+                .endPropertyChanges()
+                .fire('scrollend');
         }
         return this;
     },
@@ -480,7 +500,25 @@ const ScrollView = Class({
         if (event) {
             event.stopPropagation();
         }
+        if (!supportsScrollEnd && !this.get('isAnimating')) {
+            this._simulateScrollEnd();
+        }
     }.on('scroll'),
+
+    _simulateScrollEnd() {
+        const counter = (this._scrollendCounter += 1);
+        if (this._scrollendTimer) {
+            return;
+        }
+        this._scrollendTimer = invokeAfterDelay(() => {
+            this._scrollendTimer = null;
+            if (counter === this._scrollendCounter) {
+                this.fire('scrollend');
+            } else {
+                this._simulateScrollEnd();
+            }
+        }, 1000);
+    },
 
     // ---
 
