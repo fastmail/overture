@@ -3,6 +3,8 @@ import { Class, mixin } from '../../core/Core.js';
 import { appendChildren, create as el, setStyle } from '../../dom/Element.js';
 import {
     invokeAfterDelay,
+    invokeInNextEventLoop,
+    invokeInNextFrame,
     queueFn,
 } from '../../foundation/RunLoop.js';
 import { browser, isIOS, version } from '../../ua/UA.js';
@@ -64,6 +66,9 @@ const ScrollView = Class({
     Extends: View,
 
     init: function () {
+        this._scrollSnap = '';
+        this._scrollSnapPause = 0;
+        this._scrollSnapResuming = false;
         this._scrollendTimer = null;
         this._scrollendCounter = 0;
         ScrollView.parent.init.apply(this, arguments);
@@ -175,7 +180,7 @@ const ScrollView = Class({
             );
             this.redrawSafeArea();
         }
-        return this;
+        return this.pauseScrollSnap();
     },
 
     didEnterDocument() {
@@ -190,7 +195,8 @@ const ScrollView = Class({
             shortcuts.register(key, this, keys[key]);
         }
 
-        return ScrollView.parent.didEnterDocument.call(this);
+        ScrollView.parent.didEnterDocument.call(this);
+        return this.resumeScrollSnap();
     },
 
     willLeaveDocument() {
@@ -426,12 +432,14 @@ const ScrollView = Class({
                 y,
             });
         } else {
+            this.pauseScrollSnap();
             this.beginPropertyChanges()
                 .set('scrollLeft', x)
                 .set('scrollTop', y)
                 .propertyNeedsRedraw(this, 'scroll')
                 .endPropertyChanges()
                 .fire('scrollend');
+            this.resumeScrollSnap();
         }
         return this;
     },
@@ -476,6 +484,44 @@ const ScrollView = Class({
         if (x || y) {
             queueFn('after', this.syncBackScroll, this);
         }
+    },
+
+    pauseSnapWhileAnimating: function () {
+        if (this.get('isAnimating')) {
+            this.pauseScrollSnap();
+        } else {
+            this.resumeScrollSnap();
+        }
+    }.observes('isAnimating'),
+
+    pauseScrollSnap() {
+        if ((this._scrollSnapPause += 1) === 1 && !this._scrollSnapResuming) {
+            const layer = this.get('layer');
+            const scrollSnapType = layer.style.scrollSnapType;
+            layer.style.scrollSnapType = 'none';
+            this._scrollSnap = scrollSnapType;
+        }
+        return this;
+    },
+
+    resumeScrollSnap() {
+        const scrollSnapType = this._scrollSnap;
+        if (
+            (this._scrollSnapPause -= 1) === 0 &&
+            scrollSnapType !== 'none' &&
+            !this._scrollSnapResuming
+        ) {
+            this._scrollSnapResuming = true;
+            invokeInNextFrame(() => {
+                invokeInNextEventLoop(() => {
+                    this._scrollSnapResuming = false;
+                    if (this._scrollSnapPause === 0) {
+                        this.get('layer').style.scrollSnapType = scrollSnapType;
+                    }
+                });
+            });
+        }
+        return this;
     },
 
     /**

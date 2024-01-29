@@ -658,6 +658,14 @@ const TouchScrollView = Class({
     proxyTouchEvents: function (event) {
         this.get('scrollAnimation').fire(event.type, event);
     }.on('touchstart', 'touchmove', 'touchend', 'touchcancel'),
+
+    pauseScrollSnap() {
+        return this;
+    },
+
+    resumeScrollSnap() {
+        return this;
+    },
 });
 
 // ---
