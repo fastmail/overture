@@ -63,7 +63,8 @@ class CacheManager {
                 this.setIn(cacheName, cacheUrl, null, request);
             }
             return processResponse(request, response);
-        } else if (!rules) {
+        }
+        if (!rules) {
             return fetch(request);
         }
         return this.fetchAndCacheIn(cacheName, request);
