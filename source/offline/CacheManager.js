@@ -158,46 +158,55 @@ class CacheManager {
             ? Date.now() - 1000 * maxLastAccess
             : 0;
         const entriesToDelete = [];
-        await db.transaction(cacheName, 'readonly', async (transaction) => {
-            // Iterate starting from most recently used
-            const cursor = transaction
-                .objectStore(cacheName)
-                .index('byLastUsed')
-                .openCursor(null, 'prev');
-            let count = 0;
-            for await (const result of iterate(cursor)) {
-                const entry = result.value;
-                if (entry.lastAccess < minLastAccess || count >= maxNumber) {
-                    entriesToDelete.push(entry);
-                } else {
-                    count += 1;
+        try {
+            await db.transaction(cacheName, 'readonly', async (transaction) => {
+                // Iterate starting from most recently used
+                const cursor = transaction
+                    .objectStore(cacheName)
+                    .index('byLastUsed')
+                    .openCursor(null, 'prev');
+                let count = 0;
+                for await (const result of iterate(cursor)) {
+                    const entry = result.value;
+                    if (
+                        entry.lastAccess < minLastAccess ||
+                        count >= maxNumber
+                    ) {
+                        entriesToDelete.push(entry);
+                    } else {
+                        count += 1;
+                    }
                 }
+            });
+            if (entriesToDelete.length) {
+                const cache = await caches.open(cacheName);
+                await Promise.all(
+                    entriesToDelete.map(({ url }) => cache.delete(url)),
+                );
+                await db.transaction(
+                    cacheName,
+                    'readwrite',
+                    async (transaction) => {
+                        const store = transaction.objectStore(cacheName);
+                        // We check the lastAccess time has not changed so we
+                        // don't delete an updated entry if setInCache has
+                        // interleaved.
+                        await Promise.all(
+                            entriesToDelete.map(async (entryToDelete) => {
+                                const key = entryToDelete.url;
+                                const entry = await _(store.get(key));
+                                if (
+                                    entry.lastAccess ===
+                                    entryToDelete.lastAccess
+                                ) {
+                                    await _(store.delete(key));
+                                }
+                            }),
+                        );
+                    },
+                );
             }
-        });
-        if (entriesToDelete.length) {
-            const cache = await caches.open(cacheName);
-            await Promise.all(
-                entriesToDelete.map(({ url }) => cache.delete(url)),
-            );
-            await db.transaction(
-                cacheName,
-                'readwrite',
-                async (transaction) => {
-                    const store = transaction.objectStore(cacheName);
-                    // We check the lastAccess time has not changed so we don't
-                    // delete an updated entry if setInCache has interleaved.
-                    await Promise.all(
-                        entriesToDelete.map(async (entryToDelete) => {
-                            const key = entryToDelete.url;
-                            const entry = await _(store.get(key));
-                            if (entry.lastAccess === entryToDelete.lastAccess) {
-                                await _(store.delete(key));
-                            }
-                        }),
-                    );
-                },
-            );
-        }
+        } catch (error) {}
         if (rules.expiryInProgress > 1) {
             setTimeout(() => this.removeExpiredIn(cacheName), 0);
         }
