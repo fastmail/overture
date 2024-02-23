@@ -101,10 +101,15 @@ const ProgressiveListView = Class({
             const visible = this.get('visibleRect');
             const extension = this.get('numItemsPastVisible');
             const batchSize = this.get('batchSize');
+            const x = visible.x;
             const y = visible.y;
+            const width = visible.width;
             const height = visible.height;
-            const firstVisible = this.offsetToIndex(y);
-            const lastVisible = this.offsetToIndex(y + height);
+            const firstVisible = this.offsetToIndex(y, x);
+            const lastVisible = this.offsetToIndex(
+                y + height - 1,
+                x + width - 1,
+            );
             // Index (inclusive) of first item we want rendered
             const start = Math.max(
                 0,

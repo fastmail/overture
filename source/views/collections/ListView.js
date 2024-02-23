@@ -171,8 +171,8 @@ const ListView = Class({
         this.propertyNeedsRedraw(this, 'layer');
     }.observes('itemLayout'),
 
-    offsetToIndex(offsetInPx) {
-        return Math.floor(offsetInPx / this.get('itemHeight'));
+    offsetToIndex(yOffsetInPx /* , xOffsetInPx */) {
+        return Math.floor(yOffsetInPx / this.get('itemHeight'));
     },
 
     indexToOffset(index) {
