@@ -5,6 +5,7 @@ class Gesture {
     cancel() {}
     start() {}
     move() {}
+    scroll() {}
     end() {}
 }
 

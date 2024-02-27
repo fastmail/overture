@@ -135,6 +135,10 @@ const tap = new Gesture({
         }
     },
 
+    scroll() {
+        this.cancel();
+    },
+
     end(event) {
         const touches = event.changedTouches;
         const tracking = this._tracking;
