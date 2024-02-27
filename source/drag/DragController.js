@@ -146,7 +146,7 @@ const DragController = new Obj({
     register(drag) {
         const oldDrag = this.drag;
         if (oldDrag) {
-            oldDrag.endDrag();
+            oldDrag.set('isCanceled', true).endDrag();
         }
         this.set('drag', drag);
     },
@@ -328,7 +328,7 @@ const DragController = new Obj({
         if (this._touchId !== null) {
             const touch = getTouch(event.touches, this._touchId);
             if (!touch) {
-                this.drag.endDrag();
+                this.drag.set('isCanceled', true).endDrag();
             }
         }
     }.on('touchstart'),
@@ -371,7 +371,7 @@ const DragController = new Obj({
     _onTouchcancel: function (event) {
         const touch = getTouch(event.changedTouches, this._touchId);
         if (touch) {
-            this.drag.endDrag();
+            this.drag.set('isCanceled', true).endDrag();
         }
     }.on('touchcancel'),
 
@@ -496,7 +496,7 @@ const DragController = new Obj({
     _onDragleave: function (/* event */) {
         const drag = this.drag;
         if (!(this._nativeRefCount -= 1) && drag) {
-            drag.endDrag();
+            drag.set('isCanceled', true).endDrag();
         }
     }.on('dragleave'),
 
@@ -551,7 +551,7 @@ const DragController = new Obj({
     _escCancel: function (event) {
         const drag = this.drag;
         if (drag && lookupKey(event) === 'Escape') {
-            drag.endDrag();
+            drag.set('isCanceled', true).endDrag();
         }
     }.on('keydown'),
 });

@@ -83,6 +83,7 @@ const Drag = Class({
         this._lastTargetView = null;
 
         this.isNative = false;
+        this.isCanceled = false;
         this.dragSource = null;
         this.allowedEffects = ALL;
         this.dataSource = null;
@@ -108,6 +109,13 @@ const Drag = Class({
 
         Is this drag triggered by native drag/drop events rather than mouse
         up/down events?
+    */
+
+    /**
+        Property: O.Drag#isCanceled
+        Type: Boolean
+
+        Has this drag been canceled (so no effect should take place)?
     */
 
     /**
