@@ -168,17 +168,22 @@ const ScrollView = Class({
 
     willEnterDocument() {
         ScrollView.parent.willEnterDocument.call(this);
-        this.getParent(RootView).addObserverForKey(
-            'safeAreaInsetBottom',
-            this,
-            'redrawSafeArea',
-        );
-        if (this.get('isFixedDimensions')) {
-            const scrollContents = this._scrollContents || this.get('layer');
-            scrollContents.appendChild(
-                (this._safeAreaPadding = el('div.v-Scroll-safeAreaPadding')),
+        if (this.get('showScrollbarY')) {
+            this.getParent(RootView).addObserverForKey(
+                'safeAreaInsetBottom',
+                this,
+                'redrawSafeArea',
             );
-            this.redrawSafeArea();
+            if (this.get('isFixedDimensions')) {
+                const scrollContents =
+                    this._scrollContents || this.get('layer');
+                scrollContents.appendChild(
+                    (this._safeAreaPadding = el(
+                        'div.v-Scroll-safeAreaPadding',
+                    )),
+                );
+                this.redrawSafeArea();
+            }
         }
         return this.pauseScrollSnap();
     },
@@ -220,11 +225,13 @@ const ScrollView = Class({
             safeAreaPadding.parentNode.removeChild(safeAreaPadding);
             this._safeAreaPadding = null;
         }
-        this.getParent(RootView).removeObserverForKey(
-            'safeAreaInsetBottom',
-            this,
-            'redrawSafeArea',
-        );
+        if (this.get('showScrollbarY')) {
+            this.getParent(RootView).removeObserverForKey(
+                'safeAreaInsetBottom',
+                this,
+                'redrawSafeArea',
+            );
+        }
         return ScrollView.parent.didLeaveDocument.call(this);
     },
 
