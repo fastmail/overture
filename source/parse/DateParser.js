@@ -1,5 +1,5 @@
 import { mod } from '../core/Math.js';
-import { getLocale } from '../localisation/i18n.js';
+import { getLocale, loc } from '../localisation/i18n.js';
 import {
     define,
     firstMatch,
@@ -29,7 +29,7 @@ const generateLocalisedDateParser = function (locale, mode) {
         );
     };
 
-    const whitespace = define('whitespace', /^(?:[\s"']+|$)/);
+    const whitespace = define('whitespace', /^(?:[\s"'()]+|$)/);
 
     const hours = define('hour', /^(?:2[0-3]|[01]?\d)/);
     const shorthours = define('hour', /^[12]/);
@@ -93,7 +93,26 @@ const generateLocalisedDateParser = function (locale, mode) {
     ]);
     const searchMethod = anyInLocale('searchMethod', 'past future');
 
-    const dateDelimiter = define('dateDelimiter', /^(?:[\s\-.,'/]|of)+/);
+    const format = loc('%A, %B %d, %Y %X');
+    const delimiters = new Set(['-', '.', ',', "'", '/']);
+    for (let i = 0, l = format.length; i < l; i += 1) {
+        const char = format.charAt(i);
+        if (char === '%') {
+            i += 1;
+            if (format.charAt(i) === '-') {
+                i += 1;
+            }
+            continue;
+        }
+        delimiters.add(char);
+    }
+
+    const dateDelimiter = define(
+        'dateDelimiter',
+        new RegExp(
+            '^(?:[\\s' + [...delimiters].join('').escapeRegExp() + ']|of)+',
+        ),
+    );
 
     const relativeDate = anyInLocale(
         'relativeDate',
