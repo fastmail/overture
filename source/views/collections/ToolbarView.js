@@ -367,8 +367,9 @@ const ToolbarView = Class({
 
         for (let i = start, l = oldViews.length; i < l; i += 1) {
             const view = oldViews[i];
+            const newView = newViews[i];
             if (view instanceof View) {
-                if (isSideEqual && view === newViews[i]) {
+                if (isSideEqual && view === newView) {
                     start += 1;
                 } else {
                     isSideEqual = false;
@@ -378,7 +379,7 @@ const ToolbarView = Class({
                     }
                 }
             } else {
-                if (isSideEqual && !(newViews[i] instanceof View)) {
+                if (isSideEqual && newView && !(newView instanceof View)) {
                     start += 1;
                     newViews[i] = view;
                 } else {
