@@ -430,23 +430,28 @@ const ScrollView = Class({
         x = x < 0 ? 0 : Math.round(x);
         y = y < 0 ? 0 : Math.round(y);
 
+        const isInDocument = this.get('isInDocument');
         const scrollAnimation = this.get('scrollAnimation');
         scrollAnimation.stop();
 
-        if (withAnimation && this.get('isInDocument')) {
+        if (withAnimation && isInDocument) {
             scrollAnimation.animate({
                 x,
                 y,
             });
         } else {
-            this.pauseScrollSnap();
+            if (isInDocument) {
+                this.pauseScrollSnap();
+            }
             this.beginPropertyChanges()
                 .set('scrollLeft', x)
                 .set('scrollTop', y)
                 .propertyNeedsRedraw(this, 'scroll')
                 .endPropertyChanges()
                 .fire('scrollend');
-            this.resumeScrollSnap();
+            if (isInDocument) {
+                this.resumeScrollSnap();
+            }
         }
         return this;
     },
