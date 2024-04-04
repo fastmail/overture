@@ -32,6 +32,7 @@ const SplitDividerView = Class({
             this,
             controller
                 ? {
+                      controller,
                       direction: controller.get('direction'),
                       flex: controller.get('flex'),
                       min: bind(controller, 'minStaticPaneLength'),
@@ -167,6 +168,7 @@ const SplitDividerView = Class({
         Records the offset at the time the drag starts.
     */
     dragStarted() {
+        this.get('controller').set('isResizing', true);
         this._offset = this.get('offset');
         this._dir = this.get('direction') === VERTICAL ? 'x' : 'y';
     },
@@ -194,6 +196,10 @@ const SplitDividerView = Class({
                 this.get('max'),
             ),
         );
+    },
+
+    dragEnded() {
+        this.get('controller').set('isResizing', false);
     },
 });
 

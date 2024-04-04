@@ -21,6 +21,11 @@ const SplitViewController = Class({
 
     Extends: Obj,
 
+    init: function () {
+        this.isResizing = false;
+        SplitViewController.parent.init.apply(this, arguments);
+    },
+
     /**
         Property: O.SplitViewController#direction
         Type: Number
