@@ -13,11 +13,6 @@ const MenuOptionView = Class({
 
     Extends: View,
 
-    destroy() {
-        this.removeView(this.get('childViews')[0]);
-        MenuOptionView.parent.destroy.call(this);
-    },
-
     isFocused: false,
 
     layerTag: 'li',
