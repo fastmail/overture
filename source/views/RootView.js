@@ -74,6 +74,7 @@ const RootView = Class({
             'wheel',
             'cut',
             'submit',
+            'contextmenu',
         ].forEach((event) => {
             node.addEventListener(
                 event,

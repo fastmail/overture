@@ -43,10 +43,16 @@ const ModalEventHandler = Class({
         const view = this.get('view');
         const type = event.type;
         if (!event.seenByModal && !this.inView(view, event)) {
-            event.stopPropagation();
+            if (type !== 'contextmenu') {
+                event.stopPropagation();
+            }
             if (type === 'mousedown') {
                 this._seenMouseDown = true;
-            } else if (type === 'click' || type === 'tap') {
+            } else if (
+                type === 'click' ||
+                type === 'tap' ||
+                type === 'contextmenu'
+            ) {
                 event.preventDefault();
                 if (this._seenMouseDown) {
                     if (view.clickedOutside) {
@@ -61,7 +67,7 @@ const ModalEventHandler = Class({
             }
         }
         event.seenByModal = true;
-    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel'),
+    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel', 'contextmenu'),
 
     // If the user clicks on a scroll bar to scroll (I know, who does that
     // these days right?), we don't want to count that as a click. So cancel

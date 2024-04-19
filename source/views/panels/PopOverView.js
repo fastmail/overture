@@ -450,6 +450,7 @@ const PopOverView = Class({
         'keydown',
         'keyup',
         'tap',
+        'contextmenu',
     ),
 });
 
