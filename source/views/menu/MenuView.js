@@ -311,6 +311,10 @@ const MenuView = Class({
     keypress: function (event) {
         this._shortcutHandler(event);
     }.on('keypress'),
+
+    contextmenu: function (event) {
+        event.preventDefault();
+    }.on('contextmenu'),
 });
 
 export { MenuView };
