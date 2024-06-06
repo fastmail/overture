@@ -53,6 +53,9 @@ class Database {
     // Mode = readwrite or readonly
     async transaction(storeNames, mode, fn) {
         const db = await this.open();
+        if (!storeNames) {
+            storeNames = this.objectStoreNames;
+        }
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             const transaction = db.transaction(storeNames, mode);
