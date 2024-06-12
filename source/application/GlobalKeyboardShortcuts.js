@@ -148,6 +148,7 @@ const GlobalKeyboardShortcuts = Class({
                     delete this._shortcuts[key];
                 } else {
                     current.splice(i, 1);
+                    break;
                 }
             }
         }
