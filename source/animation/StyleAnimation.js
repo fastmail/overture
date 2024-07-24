@@ -45,6 +45,14 @@ const styleAnimators = {
             return position ? deltaValue : startValue;
         },
     },
+    overflow: {
+        calcDelta(startValue, endValue) {
+            return endValue === 'hidden' ? endValue : startValue;
+        },
+        calcValue(position, deltaValue, startValue) {
+            return position ? deltaValue : startValue;
+        },
+    },
     transform: {
         calcDelta(startValue, endValue) {
             let start = splitTransform(startValue || '');
@@ -90,6 +98,7 @@ const styleAnimators = {
 
 const supported = {
     display: 1,
+    overflow: 1,
 
     top: 1,
     right: 1,
