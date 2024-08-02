@@ -493,7 +493,7 @@ const ScrollView = Class({
             styles.overflowY = this.get('showScrollbarY') ? 'auto' : 'hidden';
         }
         // In case we've gone past the end.
-        if (x || y) {
+        if ((x || y) && this.get('isInDocument')) {
             queueFn('after', this.syncBackScroll, this);
         }
     },
