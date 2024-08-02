@@ -20,8 +20,8 @@ const toView = function (name) {
     return name === '-'
         ? el('span.v-Toolbar-divider')
         : name === '*'
-        ? null
-        : this._views[name];
+          ? null
+          : this._views[name];
 };
 
 const OverflowMenuView = Class({

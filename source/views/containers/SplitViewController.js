@@ -101,8 +101,8 @@ const SplitViewController = Class({
                     flexDir === HORIZONTAL
                         ? '100%'
                         : flexPane === TOP_LEFT
-                        ? auto
-                        : staticLength,
+                          ? auto
+                          : staticLength,
                 bottom:
                     flexDir === HORIZONTAL && flexPane === TOP_LEFT
                         ? staticLength
@@ -111,8 +111,8 @@ const SplitViewController = Class({
                     flexDir === VERTICAL
                         ? '100%'
                         : flexPane === TOP_LEFT
-                        ? auto
-                        : staticLength,
+                          ? auto
+                          : staticLength,
             }
         );
     }.property('flex', 'direction', 'staticPaneLength'),
@@ -139,8 +139,8 @@ const SplitViewController = Class({
                     flexDir === HORIZONTAL
                         ? '100%'
                         : flexPane === BOTTOM_RIGHT
-                        ? auto
-                        : staticLength,
+                          ? auto
+                          : staticLength,
                 top:
                     flexDir === HORIZONTAL && flexPane === BOTTOM_RIGHT
                         ? staticLength
@@ -149,8 +149,8 @@ const SplitViewController = Class({
                     flexDir === VERTICAL
                         ? '100%'
                         : flexPane === BOTTOM_RIGHT
-                        ? auto
-                        : staticLength,
+                          ? auto
+                          : staticLength,
             }
         );
     }.property('flex', 'direction', 'staticPaneLength'),

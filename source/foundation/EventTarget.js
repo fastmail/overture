@@ -143,8 +143,8 @@ const EventTarget = {
             target = event.propagationStopped
                 ? null
                 : target.get
-                ? target.get('nextEventTarget')
-                : target.nextEventTarget;
+                  ? target.get('nextEventTarget')
+                  : target.nextEventTarget;
         }
 
         return this;

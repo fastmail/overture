@@ -63,8 +63,8 @@ const OptionsController = Class({
                   });
               })
             : Array.isArray(content)
-            ? content
-            : content.get('[]');
+              ? content
+              : content.get('[]');
     },
 
     // ---

@@ -129,7 +129,7 @@ export const isEqualToValue = function (value) {
         return syncForward
             ? syncValue === value
             : syncValue
-            ? value
-            : undefined;
+              ? value
+              : undefined;
     };
 };

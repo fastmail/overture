@@ -87,8 +87,8 @@ const MenuController = Class({
                   });
               })
             : Array.isArray(content)
-            ? content
-            : content.get('[]');
+              ? content
+              : content.get('[]');
         const showAllButton = this.get('showAllButton');
         if (showAllButton && results.last() !== showAllButton) {
             results.push(showAllButton);

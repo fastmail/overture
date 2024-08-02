@@ -316,8 +316,8 @@ Object.assign(RecordAttribute.prototype, {
                 const attrValue = this.toJSON
                     ? this.toJSON(propValue, propKey, record)
                     : propValue && propValue.toJSON
-                    ? propValue.toJSON()
-                    : propValue;
+                      ? propValue.toJSON()
+                      : propValue;
 
                 if (!isEqual(attrValue, currentAttrValue)) {
                     // May have changed if willSet moved the account this record

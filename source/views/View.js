@@ -1049,10 +1049,10 @@ const View = Class({
                 where === 'before'
                     ? relativeTo
                     : where === 'top'
-                    ? relativeTo.firstChild
-                    : where === 'after'
-                    ? relativeTo.nextSibling
-                    : null;
+                      ? relativeTo.firstChild
+                      : where === 'after'
+                        ? relativeTo.nextSibling
+                        : null;
             const layer = view.render().get('layer');
             if (isInDocument) {
                 view.willEnterDocument();

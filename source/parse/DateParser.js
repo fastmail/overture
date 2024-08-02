@@ -199,24 +199,24 @@ const generateLocalisedDateParser = function (locale, mode) {
                           yearMonth,
                       ]
                     : locale.dateElementOrder === 'mdy'
-                    ? [
-                          monthDayYear,
-                          monthDay,
-                          monthYear,
-                          dayMonthYear,
-                          dayMonth,
-                          yearMonthDay,
-                          yearMonth,
-                      ]
-                    : [
-                          yearMonthDay,
-                          yearMonth,
-                          dayMonthYear,
-                          dayMonth,
-                          monthYear,
-                          monthDayYear,
-                          monthDay,
-                      ],
+                      ? [
+                            monthDayYear,
+                            monthDay,
+                            monthYear,
+                            dayMonthYear,
+                            dayMonth,
+                            yearMonthDay,
+                            yearMonth,
+                        ]
+                      : [
+                            yearMonthDay,
+                            yearMonth,
+                            dayMonthYear,
+                            dayMonth,
+                            monthYear,
+                            monthDayYear,
+                            monthDay,
+                        ],
             ),
         ]),
         not(define('', /^\d/)),

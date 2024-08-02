@@ -310,8 +310,8 @@ const PanZoomView = Class({
                 scale < minScale / 2
                     ? minScale / 2
                     : scale > maxScale
-                    ? maxScale
-                    : scale;
+                      ? maxScale
+                      : scale;
 
             // Find position of current centre point between touches
             x = (aX + bX) / 2;

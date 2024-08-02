@@ -237,8 +237,8 @@ const itemListTouchSelect = {
             xy.y < this.scrollTop
                 ? TOP
                 : xy.y > this.scrollBottom
-                ? BOTTOM
-                : NONE;
+                  ? BOTTOM
+                  : NONE;
         let scrollState = this.scrollState;
         if (scrollState & WAITING && !(scrollState & scrollSection)) {
             cancel(this.scrollTimeout);

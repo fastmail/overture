@@ -32,8 +32,8 @@ const getFromPath = function (root, path) {
             root.getObjectAt && isNum.test(key)
                 ? root.getObjectAt(+key)
                 : root.get
-                ? root.get(key)
-                : root[key];
+                  ? root.get(key)
+                  : root[key];
         currentPosition = nextDot + 1;
     }
     return root;

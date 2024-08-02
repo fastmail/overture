@@ -392,8 +392,8 @@ const Drag = Class({
                             const entry = item.getAsEntry
                                 ? item.getAsEntry()
                                 : item.webkitGetAsEntry
-                                ? item.webkitGetAsEntry()
-                                : null;
+                                  ? item.webkitGetAsEntry()
+                                  : null;
                             if (entry && !entry.isFile) {
                                 continue;
                             }
@@ -750,17 +750,17 @@ const Drag = Class({
             const deltaX = !scroll.mayX
                 ? 0
                 : x < scroll.hl
-                ? -10
-                : x > scroll.hr
-                ? 10
-                : 0;
+                  ? -10
+                  : x > scroll.hr
+                    ? 10
+                    : 0;
             const deltaY = !scroll.mayY
                 ? 0
                 : y < scroll.ht
-                ? -10
-                : y > scroll.hb
-                ? 10
-                : 0;
+                  ? -10
+                  : y > scroll.hb
+                    ? 10
+                    : 0;
             if (deltaX || deltaY) {
                 this._scrollBy = { x: deltaX, y: deltaY };
                 this._scrollInterval = invokePeriodically(

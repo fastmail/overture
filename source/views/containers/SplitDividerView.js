@@ -122,8 +122,8 @@ const SplitDividerView = Class({
                 ? 'right'
                 : 'left'
             : flexTL
-            ? 'bottom'
-            : 'top';
+              ? 'bottom'
+              : 'top';
     }.property('flex', 'direction'),
 
     /**

@@ -221,11 +221,11 @@ const MenuButtonView = Class({
                         preferLeft && position.left > position.width
                             ? 'left'
                             : !preferLeft &&
-                              rootViewWidth - position.right > position.width
-                            ? 'right'
-                            : position.left < rootViewWidth - position.right
-                            ? 'right'
-                            : 'left';
+                                rootViewWidth - position.right > position.width
+                              ? 'right'
+                              : position.left < rootViewWidth - position.right
+                                ? 'right'
+                                : 'left';
                     popOverOptions.keepInHorizontalBounds = true;
                     popOverOptions.alignEdge = 'top';
                     popOverOptions.offsetTop = popOverOptions.view.get(

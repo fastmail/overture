@@ -126,20 +126,20 @@ const convertForeignKeysToSK = function (
                 (idType === STRING_ID
                     ? store.getStoreKey(accountId, AttrType, value)
                     : idType === ARRAY_IDS
-                    ? value.map(
-                          store.getStoreKey.bind(store, accountId, AttrType),
-                      )
-                    : // idType === SET_IDS ?
-                      zip(
-                          Object.keys(value).map(
-                              store.getStoreKey.bind(
-                                  store,
-                                  accountId,
-                                  AttrType,
-                              ),
-                          ),
-                          Object.values(value),
-                      ));
+                      ? value.map(
+                            store.getStoreKey.bind(store, accountId, AttrType),
+                        )
+                      : // idType === SET_IDS ?
+                        zip(
+                            Object.keys(value).map(
+                                store.getStoreKey.bind(
+                                    store,
+                                    accountId,
+                                    AttrType,
+                                ),
+                            ),
+                            Object.values(value),
+                        ));
         }
     }
 };
@@ -166,12 +166,12 @@ const convertForeignKeysToId = function (store, Type, data) {
                 (idType === STRING_ID
                     ? toId(store, value)
                     : idType === ARRAY_IDS
-                    ? value.map(toId.bind(null, store))
-                    : // idType === SET_IDS ?
-                      zip(
-                          Object.keys(value).map(toId.bind(null, store)),
-                          Object.values(value),
-                      ));
+                      ? value.map(toId.bind(null, store))
+                      : // idType === SET_IDS ?
+                        zip(
+                            Object.keys(value).map(toId.bind(null, store)),
+                            Object.values(value),
+                        ));
         }
     }
     return result;

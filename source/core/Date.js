@@ -506,8 +506,8 @@ Object.assign(Date.prototype, {
                               return nopad
                                   ? num + ''
                                   : num < 100
-                                  ? '0' + pad(num)
-                                  : pad(num);
+                                    ? '0' + pad(num)
+                                    : pad(num);
                           }
                           case 'k':
                               // Hour of the day in 12h clock (0-23), padded with a space if

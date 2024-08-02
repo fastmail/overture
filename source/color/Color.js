@@ -386,8 +386,8 @@ class RGB extends Color {
                 r === max
                     ? (g - b) / d
                     : g === max
-                    ? (b - r) / d + 2
-                    : (r - g) / d + 4;
+                      ? (b - r) / d + 2
+                      : (r - g) / d + 4;
             if (h < 0) {
                 h += 6;
             }

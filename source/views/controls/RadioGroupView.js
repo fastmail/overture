@@ -129,8 +129,8 @@ const RadioGroupView = Class({
                 className: isChecked
                     ? 'is-checked'
                     : option.isDisabled
-                    ? 'is-disabled'
-                    : undefined,
+                      ? 'is-disabled'
+                      : undefined,
             },
             [control, el(`div.${baseClassName}-text`, [label, description])],
         );
