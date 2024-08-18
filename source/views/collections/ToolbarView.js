@@ -110,14 +110,18 @@ const ToolbarView = Class({
 
     init: function (/* ...mixins */) {
         ToolbarView.parent.constructor.apply(this, arguments);
+        const config = {
+            type: this.get('overflowMenuType'),
+            label: loc('More'),
+            shortcut: '.',
+            popOverView: this.popOverView || new PopOverView(),
+        };
+        const popOverOptions = this.get('popOverOptions');
+        if (popOverOptions) {
+            config.popOverOptions = popOverOptions;
+        }
         this._views = {
-            overflow: new OverflowMenuView({
-                type: this.get('overflowMenuType'),
-                label: loc('More'),
-                shortcut: '.',
-                popOverView: this.popOverView || new PopOverView(),
-                popOverOptions: this.get('popOverOptions'),
-            }),
+            overflow: new OverflowMenuView(config),
         };
         this._configs = {
             standard: {
