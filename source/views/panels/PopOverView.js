@@ -182,7 +182,7 @@ const PopOverView = Class({
             ? 'v-PopOverContainer-bottom'
             : 'v-PopOverContainer-right';
         bFlexEl.style.cssText = 'flex:' + bFlex;
-        popOverEl.style.cssText = '';
+        popOverEl.classList.remove('is-positioned');
         calloutEl.style.cssText = calloutStyle;
 
         this.set('layout', layout).redraw().keepInBounds();
@@ -269,22 +269,27 @@ const PopOverView = Class({
             }
         }
 
-        setStyle(
-            this._popOver,
-            'transform',
-            'translate(' + deltaLeft + 'px,' + deltaTop + 'px)',
-        );
-        setStyle(
-            this._callout,
-            'transform',
-            'translate(' +
-                (calloutOffsetLeft +
-                    (positionToTheLeftOrRight ? 0 : -deltaLeft)) +
-                'px,' +
-                (calloutOffsetTop +
-                    (positionToTheLeftOrRight ? -deltaTop : 0)) +
-                'px)',
-        );
+        if (deltaLeft || deltaTop) {
+            setStyle(
+                this.get('layer'),
+                'transform',
+                'translate(' + deltaLeft + 'px,' + deltaTop + 'px)',
+            );
+        }
+        if (options.showCallout) {
+            setStyle(
+                this._callout,
+                'transform',
+                'translate(' +
+                    (calloutOffsetLeft +
+                        (positionToTheLeftOrRight ? 0 : -deltaLeft)) +
+                    'px,' +
+                    (calloutOffsetTop +
+                        (positionToTheLeftOrRight ? -deltaTop : 0)) +
+                    'px)',
+            );
+        }
+        popOverEl.classList.add('is-positioned');
     }.queue('after'),
 
     viewNeedsRedraw: function () {
