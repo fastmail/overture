@@ -1170,10 +1170,8 @@ const RichTextView = Class({
     canRedo: false,
 
     setUndoState: function (event) {
-        this.set('canUndo', event.detail.canUndo).set(
-            'canRedo',
-            event.detail.canRedo,
-        );
+        const detail = event.detail;
+        this.set('canUndo', detail.canUndo).set('canRedo', detail.canRedo);
         event.stopPropagation();
     }.on('undoStateChange'),
 
