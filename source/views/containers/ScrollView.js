@@ -395,15 +395,35 @@ const ScrollView = Class({
                             number of pixels to offset the subview from the top
                             left of the scroll view.
             withAnimation - {Boolean} (optional) If true, animate the scroll.
+            onlyIfNotVisible - {Boolean} (optional) Don't scroll if visible.
 
         Returns:
             {O.ScrollView} Returns self.
     */
-    scrollToView(view, offset, withAnimation) {
+    scrollToView(view, offset, withAnimation, onlyIfNotVisible) {
         const position = view.getPositionRelativeTo(this);
+        const offsetX = (offset && offset.x) || 0;
+        const offsetY = (offset && offset.y) || 0;
+        if (onlyIfNotVisible) {
+            const offsetTop = position.top - this.get('scrollTop');
+            const offsetBottom = offsetTop + view.get('pxHeight');
+            const scrollViewHeight =
+                this.get('pxHeight') -
+                this.getParent(RootView).get('safeAreaInsetBottom');
+            let scrollBy = 0;
+            if (offsetTop < 0) {
+                scrollBy = offsetTop - offsetY;
+            } else if (offsetBottom > scrollViewHeight) {
+                scrollBy = offsetBottom + offsetY - scrollViewHeight;
+            }
+            if (scrollBy) {
+                this.scrollBy(0, Math.round(scrollBy), withAnimation);
+            }
+            return this;
+        }
         return this.scrollTo(
-            position.left + ((offset && offset.x) || 0),
-            position.top + ((offset && offset.y) || 0),
+            position.left + offsetX,
+            position.top + offsetY,
             withAnimation,
         );
     },
