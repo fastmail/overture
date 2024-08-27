@@ -114,6 +114,7 @@ const AutoCompleteView = Class({
                       positioning: 'relative',
                       className: 'v-Scroll',
                       childViews: this.drawSources(middle, focused, context),
+                      _restoreScroll: null,
                   })
                 : null,
             bottom ? this.drawSources(bottom, focused, context) : null,
