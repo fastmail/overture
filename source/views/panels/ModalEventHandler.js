@@ -48,6 +48,9 @@ const ModalEventHandler = Class({
             }
             if (type === 'mousedown') {
                 this._seenMouseDown = true;
+                if (event.target.nodeName === 'INPUT') {
+                    event.preventDefault();
+                }
             } else if (
                 type === 'click' ||
                 type === 'tap' ||
