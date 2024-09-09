@@ -162,6 +162,12 @@ const ScrollView = Class({
     */
     keys: {},
 
+    handleEvent(event) {
+        if (event.type !== 'scrollend' || !this.get('isAnimating')) {
+            ScrollView.parent.handleEvent.call(this, event);
+        }
+    },
+
     didCreateLayer(layer) {
         layer.tabIndex = -1;
     },
