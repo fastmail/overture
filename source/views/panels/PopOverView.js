@@ -182,7 +182,9 @@ const PopOverView = Class({
             ? 'v-PopOverContainer-bottom'
             : 'v-PopOverContainer-right';
         bFlexEl.style.cssText = 'flex:' + bFlex;
-        popOverEl.classList.remove('is-positioned');
+        if (!this.get('isVisible')) {
+            popOverEl.classList.remove('is-positioned');
+        }
         calloutEl.style.cssText = calloutStyle;
 
         this.set('layout', layout).redraw().keepInBounds();
