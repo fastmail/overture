@@ -58,7 +58,9 @@ const isFuzzy = (langObj) => {
 const padDate = (date) => String(date).padStart(2, '0');
 
 const wrapQuotes = (string) =>
-    string ? string.replaceAll(/"/g, '""') : string;
+    string
+        ? string.replaceAll(/"([\p{L}\p{N}\p{Z}\p{S}]+?[^ "]?)"/gu, '“$1”')
+        : string;
 
 const locJsonToCSV = () => {
     const db = readFileToObject(process.argv[2]);
