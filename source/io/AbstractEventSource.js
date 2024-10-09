@@ -12,9 +12,10 @@ class ServerSentEvent {
 
 // ---
 
-const CONNECTING = 0;
-const OPEN = 1;
-const CLOSED = 2;
+const CLOSED = 0;
+const WAITING = 1;
+const CONNECTING = 2;
+const OPEN = 3;
 
 const inert = () => {};
 
@@ -33,10 +34,11 @@ const inert = () => {};
         connection will be aborted and restarted.
     * onreadystatechange: (oldState: Number, newState: Number) => ()
         Callback fn. Gets old/new ready states whenever it changes. States are:
+        CLOSED: We are not connected or trying to connect to the server.
+        WAITING: We are not connected or trying to connect to the server.
         CONNECTING: We are establishing a connection to the server, or waiting
             to do so.
         OPEN: We are connected to the server and receiving events.
-        CLOSED: We are not connected or trying to connect to the server.
     * onevent: (event: ServerSentEvent) => ()
         Callback fn. Gets an event object whenever the server pushes an event
         to the client.
@@ -292,7 +294,7 @@ class AbstractEventSource {
                 // User server-instructed minimum delay if set.
                 Math.max(reconnectAfter, this._minReconnectDelay),
             );
-            this.readyState = CONNECTING;
+            this.readyState = WAITING;
         } else {
             this.close();
             this.onerror(status, response);
