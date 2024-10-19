@@ -1,0 +1,54 @@
+)]}'
+{
+  "id": "fd7c3a85b99e12b64ff312483e0dff57be04327f",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "763fd543ad4ad154b8010ece1169dba395712e66",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "67d54ab129df10e54341c49b8177639fdbbe1134",
+      "name": "bootstrapResult"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "2280ce8fa0461fb283ce42c6aad49e3fce9060f0",
+      "name": "butler"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "61bbe826b24a755df77f1bc1ea979f6beeff84eb",
+      "name": "butlerlib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4d897a2074fe26ee599dfa9843bee48389ebffe6",
+      "name": "cli"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b85e17c01ed008c8ed7ecf00dc231b58353ed659",
+      "name": "cmd"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "04a2490d93c5e54d376f6b89bdf1439ce71a1169",
+      "name": "coordinator"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fa0a91f8d25613e66a332c714af5a10bccbb7439",
+      "name": "pubsubprotocol"
+    }
+  ]
+}
