@@ -66,14 +66,20 @@ const SelectView = Class({
                 className: this.get('baseClassName') + '-input',
                 disabled: this.get('isDisabled'),
             },
-            options.map((option, i) =>
-                el('option', {
-                    text: option.label,
-                    value: i,
-                    selected: isEqual(option.value, selected),
-                    disabled: !!option.isDisabled,
-                }),
-            ),
+            options.reduce((children, option, i, array) => {
+                children.push(
+                    el('option', {
+                        text: option.label,
+                        value: i,
+                        selected: isEqual(option.value, selected),
+                        disabled: !!option.isDisabled,
+                    }),
+                );
+                if (option.isLastOfSection && i + 1 < array.length) {
+                    children.push(el('hr'));
+                }
+                return children;
+            }, []),
         ));
         return select;
     },
