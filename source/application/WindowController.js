@@ -5,7 +5,6 @@ import { Obj } from '../foundation/Object.js';
 import { invokeInNextEventLoop } from '../foundation/RunLoop.js';
 
 import '../core/Date.js'; // For Date#format
-import '../core/String.js'; // For String#escapeHTML
 /* { on, invokeInRunLoop } from */
 import '../foundation/Decorators.js';
 

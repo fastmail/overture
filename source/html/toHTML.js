@@ -1,3 +1,7 @@
+import { escapeHTML } from '../core/String.js';
+
+// ---
+
 /* Taken from Squire
 const linkRegExp = new RegExp(
 // Only look on boundaries
@@ -52,7 +56,7 @@ const linkRegExp =
     /\b(?:((?:(?:ht|f)tps?:\/\/|www\d{0,3}[.]|[a-z0-9][a-z0-9.\-]*[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:[^\s?&`!()\[\]{};:'".,<>«»“”‘’]|\([^\s()<>]+\)))|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/gi;
 
 const escapeHTMLPreservingWS = (string) => {
-    return string.escapeHTML().replace(/ (?=(?: |$))/g, '&nbsp;');
+    return escapeHTML(string).replace(/ (?=(?: |$))/g, '&nbsp;');
 };
 
 const toHTML = (plainText, style) => {
@@ -80,16 +84,17 @@ const toHTML = (plainText, style) => {
                         );
                     }
                     lineAsHTML += '<a href="';
-                    lineAsHTML += (
+                    lineAsHTML += escapeHTML(
                         match[1]
                             ? /^(?:ht|f)tps?:/i.test(match[1])
                                 ? match[1]
                                 : 'http://' + match[1]
                             : 'mailto:' +
-                              encodeURIComponent(match[0]).replace(/%40/g, '@')
-                    )
-                        .escapeHTML()
-                        .replace(/"/g, '&quot;');
+                                  encodeURIComponent(match[0]).replace(
+                                      /%40/g,
+                                      '@',
+                                  ),
+                    ).replace(/"/g, '&quot;');
                     lineAsHTML += '">';
                     lineAsHTML += escapeHTMLPreservingWS(
                         line.slice(index, endIndex),

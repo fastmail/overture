@@ -1,4 +1,5 @@
 import { mod } from '../core/Math.js';
+import { escapeRegExp } from '../core/String.js';
 import { getLocale, loc } from '../localisation/i18n.js';
 import {
     define,
@@ -9,8 +10,6 @@ import {
     ParseResult,
     sequence,
 } from './Parse.js';
-
-import '../core/String.js'; // For String#escapeRegExp
 
 // --- Date Grammar ---
 
@@ -110,7 +109,7 @@ const generateLocalisedDateParser = function (locale, mode) {
     const dateDelimiter = define(
         'dateDelimiter',
         new RegExp(
-            '^(?:[\\s' + [...delimiters].join('').escapeRegExp() + ']|of)+',
+            '^(?:[\\s' + escapeRegExp([...delimiters].join('')) + ']|of)+',
         ),
     );
 
@@ -150,7 +149,7 @@ const generateLocalisedDateParser = function (locale, mode) {
                 } else if (part) {
                     return define(
                         'dateDelimiter',
-                        new RegExp('^' + part.escapeRegExp()),
+                        new RegExp('^' + escapeRegExp(part)),
                     );
                 }
                 return null;

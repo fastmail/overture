@@ -1,6 +1,7 @@
+import { capitalise } from '../core/String.js';
 import { isApple } from '../ua/UA.js';
 
-import '../core/String.js'; // For String#capitalise
+// ---
 
 const platformKeys = {
     ArrowUp: '↑',
@@ -49,8 +50,10 @@ const formatKeyForPlatform = function (shortcut) {
     return shortcut
         .split('-')
         .sort(sortModifierKeys)
-        .map((key) => platformKeys[key] || key.capitalise())
+        .map((key) => platformKeys[key] || capitalise(key))
         .join('');
 };
+
+// ---
 
 export { formatKeyForPlatform };

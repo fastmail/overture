@@ -1,7 +1,7 @@
 import { mod } from '../core/Math.js';
+import { formatString } from '../core/String.js';
 
 import '../core/Date.js'; // For Date#add
-import '../core/String.js'; // For String#format
 
 // Periods format:
 // until posix time, offset (secs), rules name, suffix
@@ -212,7 +212,7 @@ class TimeZone {
         //
         // This affects time zones where there used to be DST, but isn't any
         // more such as Perth and Brisbane.
-        abbr = abbr.format(rule ? rule[10] : 'S');
+        abbr = formatString(abbr, rule ? rule[10] : 'S');
         // If it's just +/- (number), there's no abbreviation for a name.
         if (/^[-+]/.test(abbr)) {
             return '';
@@ -228,8 +228,8 @@ class TimeZone {
         const hours = Math.abs(Math.floor(offset / 60));
         const minutes = Math.abs(mod(offset, 60));
         const offsetString = minutes
-            ? "%n:%'02n".format(hours, minutes)
-            : '%n'.format(hours);
+            ? formatString("%n:%'02n", hours, minutes)
+            : formatString('%n', hours);
         return 'GMT' + (offset < 0 ? '−' : '+') + offsetString;
     }
 

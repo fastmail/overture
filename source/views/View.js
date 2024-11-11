@@ -1,5 +1,6 @@
 import { setView } from '../_codependent/_View.js';
 import { Class, isDestroyed } from '../core/Core.js';
+import { capitalise } from '../core/String.js';
 import {
     appendChildren,
     create as el,
@@ -12,9 +13,10 @@ import { queueFn } from '../foundation/RunLoop.js';
 import { activeViews } from './activeViews.js';
 import { ViewEventsController } from './ViewEventsController.js';
 
-import '../core/String.js'; // For String#capitalise
 /* { property, observes } from */
 import '../foundation/Decorators.js';
+
+// ---
 
 let UID = 0;
 
@@ -677,7 +679,7 @@ const View = Class({
             this._needsRedraw = null;
             for (let i = 0, l = needsRedraw.length; i < l; i += 1) {
                 const prop = needsRedraw[i];
-                this['redraw' + prop[0].capitalise()](layer, prop[1]);
+                this['redraw' + capitalise(prop[0])](layer, prop[1]);
             }
         }
         return this;
@@ -1336,6 +1338,8 @@ const LAYOUT_FILL_PARENT = {
 const peekId = function () {
     return 'v' + UID;
 };
+
+// ---
 
 export {
     View,

@@ -2,10 +2,11 @@
 
 import { Binding } from '../_codependent/_Binding.js';
 import { View } from '../_codependent/_View.js';
+import { camelCase, hyphenate } from '../core/String.js';
 import { browser } from '../ua/UA.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 
-import '../core/String.js'; // For String#camelCase, #hyphenate
+// ---
 
 /**
     Module: DOM
@@ -413,7 +414,7 @@ const getStyle = function (el, style) {
 */
 const setStyle = function (el, style, value) {
     if (value !== undefined) {
-        style = style.camelCase();
+        style = camelCase(style);
         style = styleNames[style] || style;
         if (typeof value === 'number' && !cssNoPx[style]) {
             value += 'px';
@@ -651,7 +652,7 @@ const cssStringFromKeyValue = function (object) {
             if (typeof value === 'number' && !cssNoPx[key]) {
                 value += 'px';
             }
-            key = key.hyphenate();
+            key = hyphenate(key);
             if (key === 'user-select') {
                 key = userSelectProperty;
             }
@@ -663,6 +664,8 @@ const cssStringFromKeyValue = function (object) {
     }
     return result;
 };
+
+// ---
 
 export {
     forView,

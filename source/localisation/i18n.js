@@ -1,6 +1,8 @@
-/*global Intl */
+import { escapeRegExp } from '../core/String.js';
 
-import '../core/String.js'; // For String#escapeRegExp
+// ---
+
+/*global Intl */
 
 /**
     Module: Localisation
@@ -312,7 +314,7 @@ const makeSearchRegExp = (string) => {
                     if (!next) {
                         return '';
                     }
-                    return '[^' + next.escapeRegExp() + ']*';
+                    return '[^' + escapeRegExp(next) + ']*';
                 }
                 case '?':
                     return '.';

@@ -3,6 +3,7 @@ import {
     get as getLocalised,
 } from '../localisation/i18n.js';
 import { mod } from './Math.js';
+import { formatString } from './String.js';
 
 const isLeapYear = function (year) {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -628,8 +629,8 @@ Object.assign(Date.prototype, {
                               const minutesOffset = offset - 60 * hoursOffset;
                               return (
                                   sign +
-                                  "%'02n".format(hoursOffset) +
-                                  ":%'02n".format(minutesOffset)
+                                  formatString("%'02n", hoursOffset) +
+                                  formatString(":%'02n", minutesOffset)
                               );
                           }
                           case 'Z':
