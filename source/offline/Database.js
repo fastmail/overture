@@ -87,6 +87,14 @@ class Database {
 
 const promisify = (request) =>
     new Promise((resolve, reject) => {
+        if (request.readyState === 'done') {
+            if (request.error) {
+                reject(request.error);
+            } else {
+                resolve(request.result);
+            }
+            return;
+        }
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
