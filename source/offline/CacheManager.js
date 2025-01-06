@@ -122,11 +122,13 @@ class CacheManager {
                 !maxLastAccess ||
                 existing.lastAccess + 1000 * maxLastAccess >= now
             ) {
-                store.put({
-                    url: cacheUrl,
-                    created,
-                    lastAccess: now,
-                });
+                await _(
+                    store.put({
+                        url: cacheUrl,
+                        created,
+                        lastAccess: now,
+                    }),
+                );
             }
             if (
                 rules.refetchIfOlderThan &&
