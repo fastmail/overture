@@ -4,7 +4,12 @@ import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js'
 import { Class, meta } from '../../core/Core.js';
 import { email as emailRegExp } from '../../core/RegExp.js';
 import { isClickModified, lookupKey } from '../../dom/DOMEvent.js';
-import { create as el, getStyle, nearest } from '../../dom/Element.js';
+import {
+    create as el,
+    getRawBoundingClientRect,
+    getStyle,
+    nearest,
+} from '../../dom/Element.js';
 import { COPY } from '../../drag/DragEffect.js';
 import { DropTarget } from '../../drag/DropTarget.js';
 import { bind, bindTwoWay } from '../../foundation/Binding.js';
@@ -371,9 +376,9 @@ const RichTextView = Class({
             return;
         }
 
-        const scrollViewOffsetTop = scrollView
-            .get('layer')
-            .getBoundingClientRect().top;
+        const scrollViewOffsetTop = getRawBoundingClientRect(
+            scrollView.get('layer'),
+        ).top;
         const offsetTop = cursorPosition.top - scrollViewOffsetTop;
         const offsetBottom = cursorPosition.bottom - scrollViewOffsetTop;
         const scrollViewHeight =

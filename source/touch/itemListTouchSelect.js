@@ -1,6 +1,7 @@
 /*global document */
 
 import { linear } from '../animation/Easing.js';
+import { getRawBoundingClientRect } from '../dom/Element.js';
 import { cancel, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
@@ -103,7 +104,7 @@ const itemListTouchSelect = {
         const index = view.get('index');
         const scrollView = view.getParent(ScrollView);
         const bounds =
-            scrollView && scrollView.get('layer').getBoundingClientRect();
+            scrollView && getRawBoundingClientRect(scrollView.get('layer'));
         const xy = getXY(event);
 
         this.state = SELECT;

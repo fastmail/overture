@@ -1,6 +1,10 @@
 import { Class, meta } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import { create as el, setStyle } from '../../dom/Element.js';
+import {
+    create as el,
+    getRawBoundingClientRect,
+    setStyle,
+} from '../../dom/Element.js';
 import { RootView } from '../RootView.js';
 import { View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
@@ -79,7 +83,7 @@ const PopOverView = Class({
         const offsetTop = options.offsetTop || 0;
         const offsetLeft = options.offsetLeft || 0;
         const rootView = alignWithView.getParent(RootView);
-        const position = atNode.getBoundingClientRect();
+        const position = getRawBoundingClientRect(atNode);
         const posTop = position.top;
         const posLeft = position.left;
         const posWidth = position.width;
@@ -232,7 +236,7 @@ const PopOverView = Class({
         // Check not run off screen. We only move it on the axis the pop over
         // has been positioned along. It is up to the contents to ensure the
         // pop over is not too long in the other direction.
-        const position = popOverEl.getBoundingClientRect();
+        const position = getRawBoundingClientRect(popOverEl);
         let gap;
 
         if (keepInHorizontalBounds) {

@@ -1,6 +1,11 @@
 import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { Class } from '../../core/Core.js';
-import { create as el, getAncestors, getStyle } from '../../dom/Element.js';
+import {
+    create as el,
+    getAncestors,
+    getRawBoundingClientRect,
+    getStyle,
+} from '../../dom/Element.js';
 import { LAYOUT_FILL_PARENT, View } from '../View.js';
 
 const ShortcutView = Class({
@@ -77,7 +82,7 @@ const ShortcutOverlayView = Class({
             );
 
             return targets.map((_target) => {
-                const bbox = _target.getBoundingClientRect();
+                const bbox = getRawBoundingClientRect(_target);
                 const zIndex = getEffectiveZIndex(_target);
                 return new ShortcutView({
                     key,

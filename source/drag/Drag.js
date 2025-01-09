@@ -2,7 +2,7 @@
 
 import { DragController } from '../_codependent/_DragController.js';
 import { Class } from '../core/Core.js';
-import { create as el } from '../dom/Element.js';
+import { create as el, getRawBoundingClientRect } from '../dom/Element.js';
 import { create as createStylesheet } from '../dom/Stylesheet.js';
 import { Obj } from '../foundation/Object.js';
 import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
@@ -718,9 +718,9 @@ const Drag = Class({
                     scrollView = scrollView.getParent(ScrollView);
                 }
                 if (scrollView) {
-                    const bounds = scrollView
-                        .get('layer')
-                        .getBoundingClientRect();
+                    const bounds = getRawBoundingClientRect(
+                        scrollView.get('layer'),
+                    );
                     scroll = {
                         l: bounds.left - outsideTriggerRegionWidth,
                         r: bounds.right + outsideTriggerRegionWidth,

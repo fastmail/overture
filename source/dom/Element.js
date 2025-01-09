@@ -527,7 +527,7 @@ const nearest = function (el, test, limit) {
         - height: `Number`
 */
 const getPosition = function (el, ancestor) {
-    let rect = el.getBoundingClientRect();
+    let rect = getRawBoundingClientRect(el);
     const position = {
         top: rect.top,
         left: rect.left,

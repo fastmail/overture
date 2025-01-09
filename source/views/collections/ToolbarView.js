@@ -1,6 +1,6 @@
 import { Class, isEqual } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import { create as el } from '../../dom/Element.js';
+import { create as el, getRawBoundingClientRect } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';
 import { MenuButtonView } from '../menu/MenuButtonView.js';
 import { MenuView } from '../menu/MenuView.js';
@@ -311,7 +311,7 @@ const ToolbarView = Class({
 
         const unused = measureView.get('childViews');
         const container = measureView.get('layer');
-        const containerBoundingClientRect = container.getBoundingClientRect();
+        const containerBoundingClientRect = getRawBoundingClientRect(container);
         const firstButton = unused.length ? unused[0].get('layer') : null;
 
         for (const name in views) {
@@ -322,7 +322,7 @@ const ToolbarView = Class({
         // edge of first button and start of container
         widths['-'] =
             (firstButton
-                ? firstButton.getBoundingClientRect().left
+                ? getRawBoundingClientRect(firstButton).left
                 : containerBoundingClientRect.right) -
             containerBoundingClientRect.left;
 

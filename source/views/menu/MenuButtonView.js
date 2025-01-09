@@ -1,4 +1,5 @@
 import { Class, isEqual } from '../../core/Core.js';
+import { getRawBoundingClientRect } from '../../dom/Element.js';
 import { getViewFromNode } from '../activeViews.js';
 import { ButtonView } from '../controls/ButtonView.js';
 import { FileButtonView } from '../controls/FileButtonView.js';
@@ -213,7 +214,9 @@ const MenuButtonView = Class({
                     const preferLeft = parentOptions.positionToThe === 'left';
                     const rootViewWidth =
                         this.getParent(RootView).get('pxWidth');
-                    const position = this.get('layer').getBoundingClientRect();
+                    const position = getRawBoundingClientRect(
+                        this.get('layer'),
+                    );
                     menuOptionView = this.get('parentView');
                     popOverOptions.alignWithView = popOverView;
                     popOverOptions.atNode = this.get('layer');

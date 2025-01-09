@@ -2,7 +2,11 @@ import { Animation } from '../../animation/Animation.js';
 import { linear } from '../../animation/Easing.js';
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
-import { appendChildren, setStyle } from '../../dom/Element.js';
+import {
+    appendChildren,
+    getRawBoundingClientRect,
+    setStyle,
+} from '../../dom/Element.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ScrollView } from './ScrollView.js';
 import { TouchScrollView } from './TouchScrollView.js';
@@ -223,7 +227,7 @@ const PanZoomView = Class({
 
             // Adjust so that it is offset from the top left of the content
             // area as ( 0, 0 ) instead of the screen.
-            const position = this.get('layer').getBoundingClientRect();
+            const position = getRawBoundingClientRect(this.get('layer'));
             let posX = position.left;
             let posY = position.top;
             x -= posX;
