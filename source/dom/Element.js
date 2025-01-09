@@ -665,6 +665,36 @@ const cssStringFromKeyValue = function (object) {
     return result;
 };
 
+/**
+    Function: O.Element.getRawBoundingClientRect
+
+    Gets the bounds of an element while also accounting for the effect of CSS
+    zoom if applicable.
+
+    Parameters:
+        el - {Element} The element for which to retrieve bounds.
+
+    Returns:
+        {Object} A plain object with same keys as a `DOMRect` object.
+*/
+const getRawBoundingClientRect = (el) => {
+    const scaledRect = el.getBoundingClientRect();
+    const zoom = el.currentCSSZoom || 1;
+    if (zoom === 1) {
+        return scaledRect;
+    }
+    const rawRect = {};
+    for (
+        let i = 0, keys = Object.keys(scaledRect.toJSON());
+        i < keys.length;
+        i += 1
+    ) {
+        const key = keys[i];
+        rawRect[key] = scaledRect[key] / zoom;
+    }
+    return rawRect;
+};
+
 // ---
 
 export {
@@ -680,6 +710,7 @@ export {
     getPosition,
     getAncestors,
     cssStringFromKeyValue,
+    getRawBoundingClientRect,
 };
 
 // TODO(cmorgan/modulify): do something about these exports:

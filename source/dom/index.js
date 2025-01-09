@@ -12,5 +12,6 @@ export {
     getPosition,
     getAncestors,
     cssStringFromKeyValue,
+    getRawBoundingClientRect,
 } from './Element.js';
 export { create as createStylesheet } from './Stylesheet.js';
