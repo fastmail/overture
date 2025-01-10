@@ -138,7 +138,8 @@ class AbstractEventSource {
             this._nextTimeout < Date.now();
         if (shouldRetryNetwork) {
             const mayBeOnline = navigator.onLine;
-            if (this.readyState === OPEN) {
+            const readyState = this.readyState;
+            if (readyState === CONNECTING || readyState === OPEN) {
                 // If we've changed networks, our TCP connection may be dead;
                 // restart to be sure. The "online" event fires whenever we
                 // change networks from testing, but it's not supported in
@@ -147,10 +148,10 @@ class AbstractEventSource {
                 // cases. We drop the event source connection way too frequently
                 // if we abort every time this fires, so only do so when we go
                 // offline.
-                if (!mayBeOnline || event.type === 'online') {
+                if (!mayBeOnline || event.type !== 'change') {
                     this._abortController.abort();
                 }
-            } else if (mayBeOnline && this._reconnectTimeout) {
+            } else if (mayBeOnline && readyState === WAITING) {
                 // Waiting to reconnect; try immediately as we may have network.
                 clearTimeout(this._reconnectTimeout);
                 this._fetchStream();
