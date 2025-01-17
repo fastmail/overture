@@ -305,4 +305,4 @@ class AbstractEventSource {
 
 // ---
 
-export { AbstractEventSource, CONNECTING, OPEN, CLOSED };
+export { AbstractEventSource, CLOSED, WAITING, CONNECTING, OPEN };
