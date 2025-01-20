@@ -217,6 +217,45 @@ const ObservableArray = Class({
         return this;
     },
 
+    /**
+        Method: O.ObservableArray#include
+
+        Adds an item to the end of the array if it is not already present (as
+        determined by strict '===' equality).
+
+        Parameters:
+            item - {*} The item to add to the array.
+
+        Returns:
+            {O.ObservableArray} Returns self.
+    */
+    include(item) {
+        if (!this.includes(item)) {
+            this.push(item);
+        }
+        return this;
+    },
+
+    /**
+        Method: O.ObservableArray#erase
+
+        Removes all occurrences (as determined by strict '===' equality) of the
+        item from the array.
+
+        Parameters:
+            item - {*} The item to be removed from the array.
+
+        Returns:
+            {O.ObservableArray} Returns self.
+    */
+    erase(item) {
+        let index = 0;
+        while ((index = this.indexOf(item, index)) > -1) {
+            this.replaceObjectsAt(index, 1);
+        }
+        return this;
+    },
+
     // :: Accessor methods =====================================================
 
     /**
