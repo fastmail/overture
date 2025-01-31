@@ -49,6 +49,8 @@ const PanZoomView = Class({
         this._scrollParent = null;
     },
 
+    className: 'v-PanZoom',
+
     setListeners: function () {
         const layer = this.get('layer');
         if (this.get('isInDocument')) {
