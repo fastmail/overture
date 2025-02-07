@@ -18,7 +18,11 @@ const AutoCompleteOptionView = Class({
 
     Extends: View,
 
-    isFocused: false,
+    init: function () {
+        this._focusFromPointer = false;
+        this.isFocused = false;
+        AutoCompleteOptionView.parent.init.apply(this, arguments);
+    },
 
     layerTag: 'li',
 
@@ -104,6 +108,9 @@ const AutoCompleteOptionView = Class({
     }.observes('isInDocument'),
 
     takeFocus: function () {
+        this._focusFromPointer = true;
+        this.set('isFocused', true);
+        this._focusFromPointer = false;
         this.get('focused').set('record', this.get('content'));
     }.on(moveEvent, 'touchstart'),
 
@@ -124,7 +131,7 @@ const AutoCompleteOptionView = Class({
     }.on('click'),
 
     isFocusedDidChange: function () {
-        if (this.get('isFocused')) {
+        if (this.get('isFocused') && !this._focusFromPointer) {
             this.scrollIntoView();
         }
     }.observes('isFocused'),
