@@ -6,6 +6,7 @@
 */
 
 import * as Easing from './animation/Easing.js';
+import * as SpringUtils from './animation/SpringUtils.js';
 import {
     ACTIVE_IN_INPUT,
     DEFAULT_IN_INPUT,
@@ -108,6 +109,7 @@ export { Color } from './color/Color.js';
 export { AnimatableView } from './animation/AnimatableView.js';
 export { Animation } from './animation/Animation.js';
 export { Easing };
+export { SpringUtils };
 export { StyleAnimation } from './animation/StyleAnimation.js';
 export { keyboardShortcuts };
 export { formatKeyForPlatform } from './application/formatKeyForPlatform.js';

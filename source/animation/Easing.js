@@ -147,4 +147,64 @@ const linear = function (n) {
 };
 linear.cssName = 'linear';
 
-export { cubicBezier, ease, easeIn, easeOut, easeInOut, linear };
+/**
+    Function: O.Easing#bouncelessSpring
+
+    Creates a critically damped spring system (i.e. no bounce). A CSS
+    representation is not available, see: 
+    https://github.com/w3c/csswg-drafts/issues/280
+
+    To make choosing parameters easier, the output of the system can be viewed
+    and modified here:
+    https://www.desmos.com/calculator/5vrrmsijq4
+
+    Parameters:
+        args - {Object} (optional) An object to configure the spring's initial
+               conditions. Accepted properties are:
+                        
+               - mass: {Number} The weight of the object to displace. Larger
+                 values round and reduce the steepness of the curve. Usually
+                 represented as `m` formally.
+               - stiffness: {Number} How rigid the spring is. A greater value
+                 makes the spring more resistent to kickback as velocity
+                 increases and steepens the output curve. Usually represented as
+                 `k` formally.
+               - velocity: {Number} The initial velocity of the system. Greater
+                 values can result in kickback where the animation overshoots
+                 the target before settling. Usually represented as `v_0`
+                 formally.
+               - offset: {Number} The initial offset of the system. This shifts
+                 the y-intercept of the growth rate. Useful when wanting to map
+                 smaller values of x to larger output values.
+    Returns:
+        {Function} A function representing the spring system created by the
+        inputs given.
+ */
+const bouncelessSpring = ({
+    mass = 1,
+    stiffness = 100,
+    velocity = 0,
+    offset = 0,
+} = {}) => {
+    const undampedAngularFrequency = Math.sqrt(stiffness / mass); // omega_0
+    const A = 1 + offset;
+    const B = -velocity + undampedAngularFrequency;
+    const output = (x) => {
+        const growth = A + B * x;
+        const decay = Math.exp(-x * undampedAngularFrequency);
+        const t = growth * decay;
+        return 1 - t; // [1..0] -> [0..1]
+    };
+    return output;
+};
+bouncelessSpring.cssName = null;
+
+export {
+    cubicBezier,
+    ease,
+    easeIn,
+    easeOut,
+    easeInOut,
+    linear,
+    bouncelessSpring,
+};
