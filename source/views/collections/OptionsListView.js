@@ -21,6 +21,7 @@ const OptionsListView = Class({
 
     // ---
 
+    autoScroll: true,
     focusedOption: bind('controller*focused'),
     selectedOption: bind('controller*selected'),
 
@@ -79,7 +80,9 @@ const OptionsListView = Class({
             }
             if (newView) {
                 newView.set('isFocused', true);
-                this.scrollIntoView();
+                if (this.get('autoScroll')) {
+                    this.scrollIntoView();
+                }
             }
             this._focusedOption = newView;
         }
@@ -95,7 +98,9 @@ const OptionsListView = Class({
             }
             if (newView) {
                 newView.set('isSelected', true);
-                this.scrollIntoView();
+                if (this.get('autoScroll')) {
+                    this.scrollIntoView();
+                }
             }
             this._selectedOption = newView;
         }
