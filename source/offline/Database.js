@@ -30,7 +30,7 @@ class Database {
             };
             request.onsuccess = () => {
                 const db = request.result;
-                this.objectStoreNames = db.objectStoreNames;
+                this.objectStoreNames = Array.from(db.objectStoreNames);
                 db.onversionchange = () => this.needsUpdate();
                 db.onclose = () => {
                     if (this._db === _db) {
