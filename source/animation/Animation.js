@@ -268,6 +268,22 @@ class Animation {
 
         return this;
     }
+
+    /**
+        Method: O.Animation#reset
+
+        Reset the animation to it's initial position.
+
+        Returns:
+            {O.Animation} Returns self.
+     */
+    reset() {
+        if (this.isRunning) {
+            this.drawFrame(this.startValue, this.startTime, false);
+            this.stop();
+        }
+        return this;
+    }
 }
 
 /**
