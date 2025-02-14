@@ -147,7 +147,7 @@ const AnimatableView = {
     /**
         Method: O.AnimatableView#resetAnimation
 
-        Restores the view's animation to it's initial position.
+        Restores the view's animation to its initial position.
      */
     resetAnimation() {
         this.get('layerAnimation').reset();

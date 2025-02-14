@@ -2,7 +2,7 @@ import { limit } from '../core';
 import { bouncelessSpring } from './Easing';
 
 /**
-    Function (private): O.SpringUtil#estimateSpringDuration
+    Function (private): O.SpringUtils#estimateSpringDuration
 
     Provides an estimated duration of the given easing function.
 

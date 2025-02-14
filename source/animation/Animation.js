@@ -272,7 +272,7 @@ class Animation {
     /**
         Method: O.Animation#reset
 
-        Reset the animation to it's initial position.
+        Reset the animation to its initial position.
 
         Returns:
             {O.Animation} Returns self.
