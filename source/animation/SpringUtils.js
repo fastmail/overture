@@ -40,8 +40,8 @@ const estimateSpringDuration = (easing, maxDuration = 1000) => {
         - duration: {Number} the estimated duration of the animation
         - easing: {Function} the easing function that describes the animation
  */
-const createSpringTransition = ({ mass, stiffness, velocity, offset } = {}) => {
-    const easing = bouncelessSpring({ velocity, mass, stiffness, offset });
+const createSpringTransition = (springOptions) => {
+    const easing = bouncelessSpring(springOptions);
     const duration = estimateSpringDuration(easing);
     return { duration, easing };
 };
