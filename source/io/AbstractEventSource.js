@@ -271,7 +271,12 @@ class AbstractEventSource {
             // Nothing to do
         } else if (didNetworkError || status === 429 || status >= 500) {
             let reconnectAfter = this._reconnectAfter;
-            if (!reconnectAfter) {
+            const retryAfter = response
+                ? parseInt(response.headers.get('Retry-After'), 10) * 1000
+                : 0;
+            if (retryAfter) {
+                reconnectAfter = retryAfter + Math.round(Math.random() * 5000);
+            } else if (!reconnectAfter) {
                 // Add jitter to avoid flood of reconnections if server
                 // drops connection to many clients at once
                 reconnectAfter = Math.round(Math.random() * 3000);
