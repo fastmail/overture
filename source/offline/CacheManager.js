@@ -105,6 +105,11 @@ class CacheManager {
             const existing = await _(store.get(cacheUrl));
             const now = Date.now();
             const created = existing && !response ? existing.created : now;
+            const size =
+                (existing && existing.size) ||
+                (response &&
+                    parseInt(response.headers.get('Content-Length'), 10)) ||
+                0;
             const maxLastAccess = rules.maxLastAccess;
             if (existing && noExpire === undefined) {
                 noExpire = existing.noExpire;
@@ -123,6 +128,7 @@ class CacheManager {
                         url: cacheUrl,
                         created,
                         lastAccess: now,
+                        size,
                         noExpire: !!noExpire,
                     }),
                 );
@@ -153,6 +159,7 @@ class CacheManager {
         const db = this.db;
         const maxLastAccess = rules.maxLastAccess;
         const maxNumber = rules.maxNumber || Infinity;
+        const maxSize = rules.maxSize || Infinity;
         const minLastAccess = maxLastAccess
             ? Date.now() - 1000 * maxLastAccess
             : 0;
@@ -165,15 +172,19 @@ class CacheManager {
                     .index('byLastUsed')
                     .openCursor(null, 'prev');
                 let count = 0;
+                let bytes = 0;
                 for await (const result of iterate(cursor)) {
                     const entry = result.value;
                     if (
                         !entry.noExpire &&
-                        (entry.lastAccess < minLastAccess || count >= maxNumber)
+                        (entry.lastAccess < minLastAccess ||
+                            count >= maxNumber ||
+                            bytes >= maxSize)
                     ) {
                         entriesToDelete.push(entry);
                     } else {
                         count += 1;
+                        bytes += result.size || 0;
                     }
                 }
             });
