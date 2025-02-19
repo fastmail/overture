@@ -1,6 +1,6 @@
 import { Database, iterate, promisify as _ } from './Database.js';
 
-/*global caches, fetch, setTimeout, Request, Response */
+/*global caches, fetch, setTimeout, Request, Response, navigator */
 
 const bearerParam = /[?&]access_token=[^&]+/;
 const downloadParam = /[?&]download=1\b/;
@@ -156,6 +156,8 @@ class CacheManager {
         if (rules.expiryInProgress > 1) {
             return;
         }
+        const estimate = await navigator.storage?.estimate?.();
+        const availableSize = estimate ? estimate.quota - estimate.usage : 0;
         const db = this.db;
         const maxLastAccess = rules.maxLastAccess;
         const maxNumber = rules.maxNumber || Infinity;
@@ -185,6 +187,21 @@ class CacheManager {
                     } else {
                         count += 1;
                         bytes += result.size || 0;
+                    }
+                }
+                if (
+                    availableSize &&
+                    availableSize + bytes + 100_000_000 < maxSize
+                ) {
+                    rules.maxSize = availableSize + bytes;
+                    // Reduce the max size to give some headroom for other
+                    // storage
+                    if (rules.maxSize > 500_000_000) {
+                        rules.maxSize -= 100_000_000;
+                    } else if (rules.maxSize > 50_000_000) {
+                        rules.maxSize -= 10_000_000;
+                    } else {
+                        rules.maxSize = 10_000_000;
                     }
                 }
             });
