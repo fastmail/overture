@@ -97,7 +97,7 @@ class CacheManager {
         }
     }
 
-    async setIn(cacheName, cacheUrl, response, request) {
+    async setIn(cacheName, cacheUrl, response, request, noExpire) {
         const rules = this.rules[cacheName];
         const db = this.db;
         await db.transaction(cacheName, 'readwrite', async (transaction) => {
@@ -106,6 +106,9 @@ class CacheManager {
             const now = Date.now();
             const created = existing && !response ? existing.created : now;
             const maxLastAccess = rules.maxLastAccess;
+            if (existing && noExpire === undefined) {
+                noExpire = existing.noExpire;
+            }
             // We've already returned the result, but if it should have expired,
             // don't update the cache time so we'll flush it from the cache
             // before next time.
@@ -120,6 +123,7 @@ class CacheManager {
                         url: cacheUrl,
                         created,
                         lastAccess: now,
+                        noExpire: !!noExpire,
                     }),
                 );
             }
@@ -164,8 +168,8 @@ class CacheManager {
                 for await (const result of iterate(cursor)) {
                     const entry = result.value;
                     if (
-                        entry.lastAccess < minLastAccess ||
-                        count >= maxNumber
+                        !entry.noExpire &&
+                        (entry.lastAccess < minLastAccess || count >= maxNumber)
                     ) {
                         entriesToDelete.push(entry);
                     } else {
