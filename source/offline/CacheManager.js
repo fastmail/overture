@@ -36,9 +36,6 @@ class CacheManager {
             version: 1,
             setup(db /*, newVersion, oldVersion, transaction*/) {
                 for (const cacheName in rules) {
-                    if (rules.noExpire) {
-                        continue;
-                    }
                     const store = db.createObjectStore(cacheName, {
                         keyPath: 'url',
                     });
@@ -102,10 +99,6 @@ class CacheManager {
 
     async setIn(cacheName, cacheUrl, response, request) {
         const rules = this.rules[cacheName];
-        if (rules.noExpire) {
-            this.putIn(cacheName, cacheUrl, response);
-            return;
-        }
         const db = this.db;
         await db.transaction(cacheName, 'readwrite', async (transaction) => {
             const store = transaction.objectStore(cacheName);
