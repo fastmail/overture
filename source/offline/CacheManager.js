@@ -147,6 +147,29 @@ class CacheManager {
         this.removeExpiredIn(cacheName);
     }
 
+    async setNoExpire(cacheName, cacheUrls, noExpire, isUnwanted) {
+        const db = this.db;
+        return db.transaction(cacheName, 'readwrite', async (transaction) => {
+            const store = transaction.objectStore(cacheName);
+            const existing = await Promise.all(
+                cacheUrls.map((cacheUrl) => _(store.get(cacheUrl))),
+            );
+            let last = null;
+            for (const record of existing) {
+                if (record) {
+                    record.noExpire = noExpire;
+                    if (isUnwanted) {
+                        record.lastAccess = 0;
+                    }
+                    last = store.put(record);
+                }
+            }
+            if (last) {
+                await _(last);
+            }
+        });
+    }
+
     async removeExpiredIn(cacheName) {
         const rules = this.rules[cacheName];
         // This is safe because we're always dispatched from the sw thread. If
