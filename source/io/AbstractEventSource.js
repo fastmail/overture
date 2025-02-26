@@ -95,6 +95,7 @@ class AbstractEventSource {
             self.addEventListener('visibilitychange', this, false);
             if ('ononline' in self) {
                 self.addEventListener('online', this, false);
+                self.addEventListener('offline', this, false);
             } else if (typeof navigator.connection !== 'undefined') {
                 navigator.connection.addEventListener('change', this, false);
             }
@@ -118,6 +119,7 @@ class AbstractEventSource {
             self.removeEventListener('visibilitychange', this, false);
             if ('ononline' in self) {
                 self.removeEventListener('online', this, false);
+                self.removeEventListener('offline', this, false);
             } else if (typeof navigator.connection !== 'undefined') {
                 navigator.connection.removeEventListener('change', this, false);
             }
