@@ -7,6 +7,7 @@ class Database {
     // needsUpdate (optional)
     constructor(mixin) {
         this._db = null;
+        this._transactions = new Set();
         Object.assign(this, mixin);
     }
 
@@ -59,10 +60,13 @@ class Database {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             const transaction = db.transaction(storeNames, mode);
+            this._transactions.add(transaction);
             transaction.onabort = () => {
+                this._transactions.delete(transaction);
                 reject(transaction.error);
             };
             transaction.oncomplete = () => {
+                this._transactions.delete(transaction);
                 resolve();
             };
             try {
@@ -78,6 +82,7 @@ class Database {
     async close() {
         const _db = this._db;
         if (_db) {
+            this._transactions.forEach((transaction) => transaction.abort());
             this._db = null;
             const db = await _db;
             db.close();
