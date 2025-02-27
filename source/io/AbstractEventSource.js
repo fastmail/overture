@@ -78,6 +78,7 @@ class AbstractEventSource {
         this._eventName = '';
         this._data = '';
         this._origin = '';
+        this._debounce = null;
     }
 
     get readyState() {
@@ -131,7 +132,20 @@ class AbstractEventSource {
 
     // ---
 
-    handleEvent(event) {
+    handleEvent(event, isDebounced) {
+        // Chrome has a race condition: the network change event can fire before
+        // it updates the navigator.onLine property. It also fires multiple
+        // changes in rapid succession. Debouncing 50ms seems to do the trick.
+        if (event.type === 'change' && !isDebounced) {
+            if (!this._debounce) {
+                this._debounce = setTimeout(
+                    () => this.handleEvent(event, true),
+                    50,
+                );
+            }
+            return;
+        }
+        this._debounce = null;
         const shouldRetryNetwork =
             event.type !== 'visibilitychange' ||
             // We've awakened from sleep, the connection is probably dead.
