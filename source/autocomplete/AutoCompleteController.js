@@ -262,7 +262,7 @@ const AutoCompleteController = Class({
     // If key is up/down/enter, intercept and preventDefault/stopPropagation if
     // necessary
     keydown: function (event) {
-        if (!this.get('isVisible')) {
+        if (!this.get('isVisible') || event.isComposing) {
             return;
         }
         const focused = this.get('focused');
