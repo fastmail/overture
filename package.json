@@ -30,13 +30,12 @@
         "url": "https://github.com/fastmail/overture/issues"
     },
     "devDependencies": {
-        "esbuild": "^0.23.0",
-        "eslint": "^8.57.0",
-        "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-import": "^2.29.1",
+        "esbuild": "^0.25.1",
+        "eslint": "^9.22.0",
+        "eslint-plugin-import": "^2.31.0",
         "eslint-plugin-overture": "file:eslint-plugin-overture",
-        "eslint-plugin-simple-import-sort": "^10.0.0",
+        "eslint-plugin-simple-import-sort": "^12.1.1",
         "jest": "^29.7.0",
-        "prettier": "^3.3.3"
+        "prettier": "^3.5.3"
     }
 }

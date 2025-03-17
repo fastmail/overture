@@ -19,7 +19,7 @@ import {
     OBSOLETE, // Record may have changes not yet loaded
     READY,
 } from '../record/Status.js';
-// eslint-disable-next-line no-duplicate-imports, import/no-namespace
+// eslint-disable-next-line import/no-namespace
 import * as Status from '../record/Status.js';
 import { ToManyAttribute } from '../record/toMany.js';
 import { ToOneAttribute } from '../record/toOne.js';

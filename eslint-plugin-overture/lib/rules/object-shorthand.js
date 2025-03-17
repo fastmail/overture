@@ -114,18 +114,18 @@ module.exports = {
     },
 
     create(context) {
+        const sourceCode = context.sourceCode ?? context.getSourceCode();
         const APPLY = context.options[0] || OPTIONS.always;
         const APPLY_TO_METHODS = APPLY === OPTIONS.methods || APPLY === OPTIONS.always;
         const APPLY_TO_PROPS = APPLY === OPTIONS.properties || APPLY === OPTIONS.always;
         const APPLY_NEVER = APPLY === OPTIONS.never;
         const APPLY_CONSISTENT = APPLY === OPTIONS.consistent;
-        const APPLY_CONSISTENT_AS_NEEDED = APPLY === OPTIONS.consistentAsNeeded;
 
+        const APPLY_CONSISTENT_AS_NEEDED = APPLY === OPTIONS.consistentAsNeeded;
         const PARAMS = context.options[1] || {};
         const CONSTRUCTORS = PARAMS.constructors || (PARAMS.ignoreConstructors ? { ignore: true } : null);
         const AVOID_QUOTES = PARAMS.avoidQuotes;
         const AVOID_EXPLICIT_RETURN_ARROWS = !!PARAMS.avoidExplicitReturnArrows;
-        const sourceCode = context.getSourceCode();
 
         //--------------------------------------------------------------------------
         // Helpers
@@ -371,7 +371,7 @@ module.exports = {
          */
         function enterFunction() {
             lexicalScopeStack.unshift(new Set());
-            context.getScope().variables.filter(variable => variable.name === "arguments").forEach(variable => {
+            (sourceCode.getScope ? sourceCode.getScope(context) : context.getScope()).variables.filter(variable => variable.name === "arguments").forEach(variable => {
                 variable.references.map(ref => ref.identifier).forEach(identifier => argumentsIdentifiers.add(identifier));
             });
         }

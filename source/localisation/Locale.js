@@ -5,8 +5,6 @@ import '../core/Date.js'; // For Date#format
 
 // ---
 
-/*global Intl */
-
 /**
     Class: O.Locale
 
