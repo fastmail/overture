@@ -1,4 +1,14 @@
+import { platform } from '../ua/UA.js';
+
+// ---
+
 /*global indexedDB */
+
+// https://bugs.webkit.org/show_bug.cgi?id=288682
+// In WebKit, if the worker running the transaction is killed, it does not
+// perform micro tasks, so promise resolution never happens, and it ends up
+// thinking there are no more requests so automatically commits the transaction.
+const needsKeepAlive = platform === 'ios';
 
 class Database {
     // name: string
@@ -56,6 +66,8 @@ class Database {
         const db = await this.open();
         if (!storeNames) {
             storeNames = this.objectStoreNames;
+        } else if (typeof storeNames === 'string') {
+            storeNames = [storeNames];
         }
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
@@ -69,11 +81,28 @@ class Database {
                 this._transactions.delete(transaction);
                 resolve();
             };
+
+            // Keep-alive for WebKit bug
+            let shouldKeepTransactionAlive =
+                needsKeepAlive && mode === 'readwrite';
+            function keepTransactionAlive(txn) {
+                if (!shouldKeepTransactionAlive) {
+                    return;
+                }
+                const request = txn.objectStore(storeNames[0]).get('');
+                request.onsuccess = (event) => {
+                    keepTransactionAlive(event.target.transaction);
+                };
+            }
+
             try {
+                keepTransactionAlive(transaction);
                 await fn(transaction);
+                shouldKeepTransactionAlive = false;
                 transaction.commit();
             } catch (error) {
                 reject(error);
+                shouldKeepTransactionAlive = false;
                 transaction.abort();
             }
         });
