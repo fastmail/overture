@@ -30,16 +30,16 @@ const SplitDividerView = Class({
         const controller = mixin.controller;
         SplitDividerView.parent.init.call(
             this,
+            mixin,
             controller
                 ? {
-                      controller,
                       direction: controller.get('direction'),
                       flex: controller.get('flex'),
                       min: bind(controller, 'minStaticPaneLength'),
                       max: bind(controller, 'maxStaticPaneLength'),
                       offset: bindTwoWay(controller, 'staticPaneLength'),
                   }
-                : mixin,
+                : null,
         );
     },
 
