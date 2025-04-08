@@ -41,6 +41,7 @@ const SplitDividerView = Class({
                   }
                 : null,
         );
+        this.clickAfterDrag = false;
     },
 
     /**
@@ -199,8 +200,15 @@ const SplitDividerView = Class({
     },
 
     dragEnded() {
+        this.clickAfterDrag = true;
         this.get('controller').set('isResizing', false);
     },
+
+    resetClickAfterDrag: function () {
+        this.clickAfterDrag = false;
+    }
+        .queue('before')
+        .on('click'),
 });
 
 export { SplitDividerView };
