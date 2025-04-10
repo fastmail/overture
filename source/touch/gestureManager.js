@@ -1,4 +1,5 @@
 import { Obj } from '../foundation/Object.js';
+import { POINTER_DOWN, POINTER_UP } from '../views/View.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 
 import '../core/Array.js'; // For Array#erase
@@ -31,10 +32,10 @@ const gestureManager = new Obj({
             }
         }
         if (!event.button) {
-            if (type === 'mousedown') {
+            if (type === POINTER_DOWN) {
                 this.set('isMouseDown', true);
             }
-            if (type === 'mouseup') {
+            if (type === POINTER_UP) {
                 this.set('isMouseDown', false);
             }
         }

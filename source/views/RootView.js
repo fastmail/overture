@@ -1,9 +1,10 @@
 /*global window */
 
 import { Class } from '../core/Core.js';
+import { canPointer } from '../ua/UA.js';
 import { getViewFromNode } from './activeViews.js';
 import { AbstractControlView } from './controls/AbstractControlView.js';
-import { View } from './View.js';
+import { POINTER_DOWN, POINTER_MOVE, POINTER_UP, View } from './View.js';
 import { ViewEventsController } from './ViewEventsController.js';
 
 /* { on, invokeInRunLoop } from */
@@ -60,9 +61,9 @@ const RootView = Class({
         const win = doc.defaultView;
         [
             'click',
-            'mousedown',
-            'mouseup',
             'dblclick',
+            POINTER_DOWN,
+            POINTER_UP,
             'keypress',
             'keydown',
             'keyup',
@@ -139,16 +140,22 @@ const RootView = Class({
     handleEvent: function (event) {
         switch (event.type) {
             // We observe mousemove when mousedown.
-            case 'mousedown':
+            case POINTER_DOWN:
+                if (canPointer && event.pointerType !== 'mouse') {
+                    return;
+                }
                 this.get('layer').ownerDocument.addEventListener(
-                    'mousemove',
+                    POINTER_MOVE,
                     this,
                     false,
                 );
                 break;
-            case 'mouseup':
+            case POINTER_UP:
+                if (canPointer && event.pointerType !== 'mouse') {
+                    return;
+                }
                 this.get('layer').ownerDocument.removeEventListener(
-                    'mousemove',
+                    POINTER_MOVE,
                     this,
                     false,
                 );

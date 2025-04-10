@@ -6,7 +6,7 @@ import {
     setStyle,
 } from '../../dom/Element.js';
 import { RootView } from '../RootView.js';
-import { View } from '../View.js';
+import { POINTER_DOWN, POINTER_UP, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ModalEventHandler } from './ModalEventHandler.js';
 
@@ -455,8 +455,8 @@ const PopOverView = Class({
         event.stopPropagation();
     }.on(
         'click',
-        'mousedown',
-        'mouseup',
+        POINTER_DOWN,
+        POINTER_UP,
         'keypress',
         'keydown',
         'keyup',

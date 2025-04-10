@@ -4,6 +4,7 @@ import { Class } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
 import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
+import { POINTER_UP } from '../View.js';
 import { AbstractControlView } from './AbstractControlView.js';
 import { Activatable } from './Activatable.js';
 
@@ -360,7 +361,7 @@ const ButtonView = Class({
             return;
         }
         if (
-            event.type !== 'mouseup' ||
+            event.type !== POINTER_UP ||
             this.getParentWhere((x) => x.isMenuView)
         ) {
             this._ignoreUntil = 4102444800000; // 1st Jan 2100...
@@ -371,7 +372,7 @@ const ButtonView = Class({
             // then hits "space", it will activate the button again!
             this.blur();
         }
-    }.on('mouseup', 'click'),
+    }.on(POINTER_UP, 'click'),
 
     /**
         Method: O.ButtonView#keyboardActivate

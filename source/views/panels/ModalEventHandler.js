@@ -1,6 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { Obj } from '../../foundation/Object.js';
 import { ScrollView } from '../containers/ScrollView.js';
+import { POINTER_DOWN, POINTER_UP } from '../View.js';
 
 /* { on } from */
 import '../../foundation/Decorators.js';
@@ -46,7 +47,7 @@ const ModalEventHandler = Class({
             if (type !== 'contextmenu') {
                 event.stopPropagation();
             }
-            if (type === 'mousedown') {
+            if (type === POINTER_DOWN) {
                 this._seenMouseDown = true;
                 if (event.target.nodeName === 'INPUT') {
                     event.preventDefault();
@@ -70,7 +71,7 @@ const ModalEventHandler = Class({
             }
         }
         event.seenByModal = true;
-    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel', 'contextmenu'),
+    }.on('click', POINTER_DOWN, POINTER_UP, 'tap', 'wheel', 'contextmenu'),
 
     // If the user clicks on a scroll bar to scroll (I know, who does that
     // these days right?), we don't want to count that as a click. So cancel

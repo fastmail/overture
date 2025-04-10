@@ -10,6 +10,7 @@ import {
 } from '../dom/Element.js';
 import { Obj } from '../foundation/Object.js';
 import { queueFn } from '../foundation/RunLoop.js';
+import { canPointer } from '../ua/UA.js';
 import { activeViews } from './activeViews.js';
 import { ViewEventsController } from './ViewEventsController.js';
 
@@ -26,6 +27,10 @@ const POSITION_PRECEDING = 0x02;
 const POSITION_FOLLOWING = 0x04;
 const POSITION_CONTAINS = 0x08;
 const POSITION_CONTAINED_BY = 0x10;
+
+const POINTER_DOWN = canPointer ? 'pointerdown' : 'mousedown';
+const POINTER_UP = canPointer ? 'pointerup' : 'mouseup';
+const POINTER_MOVE = canPointer ? 'pointermove' : 'mousemove';
 
 /**
     Class: O.View
@@ -1351,4 +1356,7 @@ export {
     POSITION_CONTAINS,
     POSITION_CONTAINED_BY,
     LAYOUT_FILL_PARENT,
+    POINTER_DOWN,
+    POINTER_UP,
+    POINTER_MOVE,
 };

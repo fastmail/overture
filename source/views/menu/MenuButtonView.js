@@ -5,6 +5,7 @@ import { ButtonView } from '../controls/ButtonView.js';
 import { FileButtonView } from '../controls/FileButtonView.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { RootView } from '../RootView.js';
+import { POINTER_DOWN } from '../View.js';
 import { MenuFilterView } from './MenuFilterView.js';
 import { MenuOptionView } from './MenuOptionView.js';
 
@@ -269,7 +270,7 @@ const MenuButtonView = Class({
             return;
         }
         this.activate(event);
-    }.on('mousedown'),
+    }.on(POINTER_DOWN),
 
     _activateOnTouchstart: function (event) {
         if (this.get('isInMenu')) {

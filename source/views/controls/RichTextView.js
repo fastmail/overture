@@ -27,7 +27,7 @@ import { ScrollView } from '../containers/ScrollView.js';
 import { MenuView } from '../menu/MenuView.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { RootView } from '../RootView.js';
-import { View } from '../View.js';
+import { POINTER_DOWN, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 import { ButtonView } from './ButtonView.js';
 import { FileButtonView } from './FileButtonView.js';
@@ -483,7 +483,7 @@ const RichTextView = Class({
                       ),
                       mousedown: function (event) {
                           event.preventDefault();
-                      }.on('mousedown'),
+                      }.on(POINTER_DOWN),
                   }
                 : {}),
         })

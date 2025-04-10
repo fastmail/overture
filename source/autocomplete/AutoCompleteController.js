@@ -7,6 +7,7 @@ import { Obj } from '../foundation/Object.js';
 import { AutoCompleteView } from '../views/autocomplete/AutoCompleteView.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
 import { PopOverView } from '../views/panels/PopOverView.js';
+import { POINTER_DOWN, POINTER_UP } from '../views/View.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 
 // ---
@@ -313,7 +314,7 @@ const AutoCompleteController = Class({
         if (event.targetView?.getParentWhere((x) => x === view)) {
             event.seenByModal = true;
         }
-    }.on('click', 'mousedown', 'mouseup', 'tap', 'wheel', 'touchstart'),
+    }.on('click', POINTER_DOWN, POINTER_UP, 'tap', 'wheel', 'touchstart'),
 
     select(suggestion, shouldSubmit) {
         const context = this.get('context');

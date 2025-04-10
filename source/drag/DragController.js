@@ -4,6 +4,7 @@ import { setDragController } from '../_codependent/_DragController.js';
 import { lookupKey } from '../dom/DOMEvent.js';
 import { Obj } from '../foundation/Object.js';
 import { getViewFromNode } from '../views/activeViews.js';
+import { POINTER_DOWN, POINTER_MOVE, POINTER_UP } from '../views/View.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import { Drag } from './Drag.js';
 import { ALL, DEFAULT, effectToString } from './DragEffect.js';
@@ -232,7 +233,7 @@ const DragController = new Obj({
             this._targetView = event.targetView;
             this._ignore = false;
         }
-    }.on('mousedown'),
+    }.on(POINTER_DOWN),
 
     /**
         Method (private): O.DragController._onMousemove
@@ -274,7 +275,7 @@ const DragController = new Obj({
                 this._ignore = true;
             }
         }
-    }.on('mousemove'),
+    }.on(POINTER_MOVE),
 
     /**
         Method (private): O.DragController._onMouseup
@@ -292,7 +293,7 @@ const DragController = new Obj({
         if (drag && this._touchId === null) {
             drag.drop(event).endDrag();
         }
-    }.on('mouseup'),
+    }.on(POINTER_UP),
 
     // === Non-native touch API version ===
 

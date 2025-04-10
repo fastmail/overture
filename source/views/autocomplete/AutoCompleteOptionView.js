@@ -4,11 +4,10 @@ import { loc } from '../../localisation/i18n.js';
 import { canPointer } from '../../ua/UA.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { ButtonView } from '../controls/ButtonView.js';
-import { View } from '../View.js';
+import { POINTER_MOVE, View } from '../View.js';
 
 // ---
 
-const moveEvent = canPointer ? 'pointermove' : 'mousemove';
 const leaveEvent = canPointer ? 'pointerleave' : 'mouseleave';
 
 // ---
@@ -105,11 +104,11 @@ const AutoCompleteOptionView = Class({
     isInDocumentDidChange: function () {
         const layer = this.get('layer');
         if (this.get('isInDocument')) {
-            layer.addEventListener(moveEvent, this, false);
+            layer.addEventListener(POINTER_MOVE, this, false);
             layer.addEventListener(leaveEvent, this, false);
         } else {
             layer.removeEventListener(leaveEvent, this, false);
-            layer.removeEventListener(moveEvent, this, false);
+            layer.removeEventListener(POINTER_MOVE, this, false);
         }
     }.observes('isInDocument'),
 
@@ -118,7 +117,7 @@ const AutoCompleteOptionView = Class({
         this.set('isFocused', true);
         this._focusFromPointer = false;
         this.get('focused').set('record', this.get('content'));
-    }.on(moveEvent, 'touchstart'),
+    }.on(POINTER_MOVE, 'touchstart'),
 
     releaseFocus: function () {
         if (this.get('isFocused')) {

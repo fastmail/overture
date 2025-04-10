@@ -9,6 +9,9 @@ export {
     POSITION_CONTAINS,
     POSITION_CONTAINED_BY,
     LAYOUT_FILL_PARENT,
+    POINTER_DOWN,
+    POINTER_UP,
+    POINTER_MOVE,
 } from './View.js';
 export { activeViews, getViewFromNode } from './activeViews.js';
 export { ViewEventsController } from './ViewEventsController.js';

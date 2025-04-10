@@ -3,21 +3,18 @@ import { create as el } from '../../dom/Element.js';
 import { bind } from '../../foundation/Binding.js';
 import { ObservableArray } from '../../foundation/ObservableArray.js';
 import { loc } from '../../localisation/i18n.js';
-import { canPointer } from '../../ua/UA.js';
 import { ListView } from '../collections/ListView.js';
 import { ProgressiveListView } from '../collections/ProgressiveListView.js';
 import { TrueVisibleRect } from '../collections/TrueVisibleRect.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { ButtonView } from '../controls/ButtonView.js';
-import { View } from '../View.js';
+import { POINTER_DOWN, POINTER_MOVE, View } from '../View.js';
 import {
     AutoCompleteOptionView,
     ProgressiveAutocompleteOptionView,
 } from './AutoCompleteOptionView.js';
 
 // ---
-
-const moveEvent = canPointer ? 'pointermove' : 'mousemove';
 
 const AutocompleteSourceView = Class({
     Name: 'AutocompleteSourceView',
@@ -128,17 +125,17 @@ const AutoCompleteView = Class({
     listen: function () {
         const layer = this.get('layer');
         if (this.get('isInDocument')) {
-            layer.addEventListener(moveEvent, this, false);
+            layer.addEventListener(POINTER_MOVE, this, false);
             layer.addEventListener('mouseout', this, false);
         } else {
             layer.removeEventListener('mouseout', this, false);
-            layer.removeEventListener(moveEvent, this, false);
+            layer.removeEventListener(POINTER_MOVE, this, false);
         }
     }.observes('isInDocument'),
 
     mousedown: function (event) {
         event.preventDefault();
-    }.on('mousedown'),
+    }.on(POINTER_DOWN),
 });
 
 // ---
