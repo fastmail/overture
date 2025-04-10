@@ -77,20 +77,26 @@ const AutoCompleteOptionView = Class({
         const context = this.get('controller');
         const suggestion = this.get('content');
         return el('div.v-AutoCompleteOption-contents', [
-            el('span.u-flex-1.u-flex.u-items-center.u-space-x-3_5', [
-                suggestion.drawIcon(context),
-                el(
-                    'span.u-flex.u-flex-col.u-space-y-2.u-min-w-0.u-pointer-events-none',
-                    this.drawContent(suggestion, context),
-                ),
-                el('div.u-flex-1', {
-                    style: 'margin-left: 0',
-                }),
-                this.drawHelpText(suggestion, context),
-                suggestion.isRemovable(context)
-                    ? this.drawRemove(suggestion, context)
-                    : null,
-            ]),
+            el(
+                'span.u-flex-1.u-flex.u-items-center',
+                {
+                    className: MOBILE ? 'u-space-x-4' : 'u-space-x-3_5',
+                },
+                [
+                    suggestion.drawIcon(context),
+                    el(
+                        'span.u-flex.u-flex-col.u-space-y-2.u-min-w-0.u-pointer-events-none',
+                        this.drawContent(suggestion, context),
+                    ),
+                    el('div.u-flex-1', {
+                        style: 'margin-left: 0',
+                    }),
+                    this.drawHelpText(suggestion, context),
+                    suggestion.isRemovable(context)
+                        ? this.drawRemove(suggestion, context)
+                        : null,
+                ],
+            ),
         ]);
     },
 
