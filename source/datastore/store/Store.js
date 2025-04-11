@@ -2297,6 +2297,47 @@ const Store = Class({
     },
 
     /**
+        Method: O.Store#sourceDidChangeIds
+
+        Callback made by the <O.Source> object associated with this store when
+        the server has unilaterally changed the ids of some objects.
+
+        Parameters:
+            accountId    - {String} The account id.
+            Type         - {O.Class} The record type.
+            oldIdToNewId - {Id[Id]} Map of old to new id
+
+        Returns:
+            {O.Store} Returns self.
+    */
+    sourceDidChangeIds(accountId, Type, oldIdToNewId) {
+        const account = this.getAccount(accountId, Type);
+        const typeId = guid(Type);
+        const _idToSk = account.typeToIdToSK[typeId] || {};
+        const _skToId = this._typeToSKToId[typeId] || {};
+        const idPropKey = Type.primaryKey || 'id';
+        const idAttrKey = Type.prototype[idPropKey].key || idPropKey;
+
+        for (const oldId in oldIdToNewId) {
+            const storeKey = _idToSk[oldId];
+            if (!storeKey) {
+                continue;
+            }
+            const newId = oldIdToNewId[oldId];
+            if (newId && newId !== oldId) {
+                // Don't delete the old idToSk mapping, as references to the
+                // old id may still appear in queryChanges responses
+                _skToId[storeKey] = newId;
+                _idToSk[newId] = storeKey;
+            }
+            if (this.getStatus(storeKey) & READY) {
+                this.updateData(storeKey, { [idAttrKey]: newId }, false);
+            }
+        }
+        return mayHaveChanges(this);
+    },
+
+    /**
         Method: O.Store#sourceCouldNotFindRecords
 
         Callback made by the <O.Source> object associated with this store when
