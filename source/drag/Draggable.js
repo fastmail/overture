@@ -23,6 +23,15 @@ const Draggable = {
     isDragging: false,
 
     /**
+        Property: O.Draggable#isTouchDraggable
+        Type: Boolean
+        Default: true
+
+        If true, the view will initiate drag-drop on touch hold.
+    */
+    isTouchDraggable: true,
+
+    /**
         Method: O.Draggable#dragStarted
 
         Called when a drag is initiated with this view.

@@ -307,7 +307,11 @@ const DragController = new Obj({
         const touch = event.touch;
         const touchEvent = new TouchDragEvent(touch);
         const view = this.getNearestDragView(touchEvent.targetView);
-        if (view && !isControl[touchEvent.target.nodeName]) {
+        if (
+            view &&
+            !isControl[touchEvent.target.nodeName] &&
+            view.get('isTouchDraggable')
+        ) {
             this._touchId = touch.identifier;
             new Drag({
                 pointerType: 'touch',
