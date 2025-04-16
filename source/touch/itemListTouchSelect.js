@@ -340,7 +340,15 @@ const itemListTouchSelect = {
                 ) {
                     this.goSelect(event);
                 }
-                event.preventDefault();
+                // Apple Pencil is very sensitive and just tapping will trigger
+                // some move events. If you preventDefault, you won't get a
+                // click event so the tap won't select the checkbox.
+                if (
+                    event.touches.length !== 1 ||
+                    event.touches[0].touchType !== 'stylus'
+                ) {
+                    event.preventDefault();
+                }
                 break;
             }
             case SELECT: {
