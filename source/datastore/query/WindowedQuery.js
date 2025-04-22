@@ -933,7 +933,7 @@ const WindowedQuery = Class({
             return this.setObsolete();
         }
         // Set new query state
-        this.set('queryState', update.newQueryState);
+        this.set('queryState', update.newQueryState || '');
 
         // Map ids to store keys
         const toStoreKey = this.get('_toStoreKey');
@@ -1164,7 +1164,7 @@ const WindowedQuery = Class({
                 informAllRangeObservers = true;
             }
         }
-        this.set('queryState', args.queryState);
+        this.set('queryState', args.queryState || '');
 
         // Map ids to store keys
         const toStoreKey = this.get('_toStoreKey');
