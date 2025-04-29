@@ -35,7 +35,7 @@ const ListItemView = Class({
 
     layout: function () {
         const listView = this.get('parentView');
-        let top = listView.indexToOffset(this.get('index'));
+        let top = listView.indexToOffset(this.get('index'), this);
         const animateIn = this.get('animateIn');
         const isNew = animateIn && !this.get('isInDocument');
         if (isNew) {

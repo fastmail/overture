@@ -175,7 +175,7 @@ const ListView = Class({
         return Math.floor(yOffsetInPx / this.get('itemHeight'));
     },
 
-    indexToOffset(index) {
+    indexToOffset(index /* , itemView */) {
         return index * this.get('itemHeight');
     },
 
