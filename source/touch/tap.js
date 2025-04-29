@@ -51,7 +51,9 @@ class TrackedTouch {
             }
         } while ((target = target.parentNode));
         this._ignore = false;
-        invokeAfterDelay(fireHoldEvent, 750, this);
+        // If this delay is 400ms or lower, WebKit will reintroduce the 350ms
+        // click delay!
+        invokeAfterDelay(fireHoldEvent, 450, this);
     }
 
     done() {
