@@ -19,6 +19,7 @@ const SelectionController = Class({
 
         this.isLoadingSelection = false;
         this.length = 0;
+        this.hasSelection = false;
 
         SelectionController.parent.constructor.apply(this, arguments);
 
@@ -90,6 +91,12 @@ const SelectionController = Class({
             store.getRecordFromStoreKey(storeKey),
         );
     },
+
+    // ---
+
+    setHasSelection: function () {
+        this.set('hasSelection', !!this.get('length'));
+    }.observes('length'),
 
     // ---
 
@@ -209,7 +216,8 @@ const SelectionController = Class({
         this._selectedStoreKeys = {};
         this.set('length', 0)
             .propertyDidChange('selectedStoreKeys')
-            .set('isLoadingSelection', false);
+            .set('isLoadingSelection', false)
+            .setHasSelection();
 
         return this;
     },
