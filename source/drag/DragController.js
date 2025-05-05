@@ -118,6 +118,15 @@ const DragController = new Obj({
     _ignore: true,
 
     /**
+        Property (private): O.DragController._ignoreClick
+        Type: Boolean
+
+        If a mouse-down generated a drag, ignore clicks until we see another
+        mouse down.
+    */
+    _ignoreClick: false,
+
+    /**
         Property (private): O.DragController._touchId
         Type: String|null
 
@@ -222,6 +231,7 @@ const DragController = new Obj({
             event - {Event} The mousedown event.
     */
     _onMousedown: function (event) {
+        this._ignoreClick = false;
         if (event.button || event.metaKey || event.ctrlKey) {
             return;
         }
@@ -292,8 +302,16 @@ const DragController = new Obj({
         const drag = this.drag;
         if (drag && this._touchId === null) {
             drag.drop(event).endDrag();
+            this._ignoreClick = true;
         }
     }.on(POINTER_UP),
+
+    _onClick: function (event) {
+        if (this._ignoreClick) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }.on('click'),
 
     // === Non-native touch API version ===
 
