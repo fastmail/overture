@@ -3,6 +3,7 @@ import { lookupKey } from '../dom/DOMEvent.js';
 import { Obj } from '../foundation/Object.js';
 import { isApple } from '../ua/UA.js';
 import { RichTextView } from '../views/controls/RichTextView.js';
+import { POINTER_MOVE } from '../views/View.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import {
     ACTIVE_IN_INPUT,
@@ -13,6 +14,10 @@ import { toPlatformKey } from './toPlatformKey.js';
 
 /* { on } from */
 import '../foundation/Decorators.js';
+
+// ---
+
+/*global document */
 
 /**
  A set of elements for which global keyboard shortcuts should still apply. Used
@@ -61,6 +66,7 @@ const GlobalKeyboardShortcuts = Class({
     */
     init: function (/* ...mixins */) {
         this.isEnabled = true;
+        this.inKBMode = false;
         this._shortcuts = {};
 
         GlobalKeyboardShortcuts.parent.constructor.apply(this, arguments);
@@ -217,13 +223,32 @@ const GlobalKeyboardShortcuts = Class({
             ) {
                 return;
             }
+            this.set('inKBMode', true);
             handler[0][handler[1]](event);
             if (!event.doDefault) {
                 event.preventDefault();
             }
         }
     }.on('keydown', 'keypress'),
+
+    mousemove: function () {
+        this.set('inKBMode', false);
+    }.on(POINTER_MOVE),
+
+    handleEvent(event) {
+        this.fire(event.type, event);
+    },
+
+    setupMouseMove: function () {
+        if (this.get('inKBMode')) {
+            document.addEventListener(POINTER_MOVE, this, false);
+        } else {
+            document.removeEventListener(POINTER_MOVE, this, false);
+        }
+    }.observes('inKBMode'),
 });
+
+// ---
 
 export {
     GlobalKeyboardShortcuts,
