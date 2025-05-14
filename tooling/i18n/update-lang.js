@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { writeFileSync, readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import prettier from 'prettier';
 
@@ -32,8 +32,15 @@ const updateLang = async function (dbPath, langPath) {
             description: value.description,
             translation: oldValue ? oldValue.translation : '',
         };
-        if (!oldValue || oldValue.flags || oldValue.string !== value.string) {
-            lang[key].flags = ['fuzzy'];
+        const flags = (oldValue && oldValue.flags) || [];
+        if (
+            (!oldValue || oldValue.string !== value.string) &&
+            !flags.includes('fuzzy')
+        ) {
+            flags.push('fuzzy');
+        }
+        if (flags.length) {
+            lang[key].flags = flags;
         }
     });
     writeLang(lang, langPath);
