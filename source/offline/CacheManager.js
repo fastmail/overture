@@ -70,7 +70,7 @@ class CacheManager {
     async fetchAndCacheIn(cacheName, request) {
         const ignoreSearch = this.rules[cacheName].ignoreSearch;
         const requestUrl = request.url;
-        let fetchUrl = ignoreSearch
+        const fetchUrl = ignoreSearch
             ? removeSearch(requestUrl)
             : requestUrl.replace(downloadParam, '');
         if (request.mode === 'no-cors' || fetchUrl !== requestUrl) {
@@ -82,8 +82,8 @@ class CacheManager {
         let response = await fetch(request);
         // Cache if valid
         if (response && response.status === 200) {
-            fetchUrl = fetchUrl.replace(bearerParam, '');
-            this.setIn(cacheName, fetchUrl, response.clone(), null);
+            const cacheUrl = fetchUrl.replace(bearerParam, '');
+            this.setIn(cacheName, cacheUrl, response.clone(), null);
             response = processResponse(request, response);
         }
         return response;
