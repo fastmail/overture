@@ -64,10 +64,10 @@ class CacheManager {
         if (!rules) {
             return fetch(request);
         }
-        return this.fetchAndCacheIn(cacheName, request);
+        return this.fetchAndCacheIn(cacheName, request, false);
     }
 
-    async fetchAndCacheIn(cacheName, request) {
+    async fetchAndCacheIn(cacheName, request, isUpdatingExisting) {
         const ignoreSearch = this.rules[cacheName].ignoreSearch;
         const requestUrl = request.url;
         const fetchUrl = ignoreSearch
@@ -85,6 +85,21 @@ class CacheManager {
             const cacheUrl = fetchUrl.replace(bearerParam, '');
             this.setIn(cacheName, cacheUrl, response.clone(), null);
             response = processResponse(request, response);
+        }
+        // Remove if the resource has now gone
+        if (isUpdatingExisting && response && response.status === 404) {
+            const db = this.db;
+            const cacheUrl = fetchUrl.replace(bearerParam, '');
+            const cache = await caches.open(cacheName);
+            await cache.delete(cacheUrl);
+            await db.transaction(
+                cacheName,
+                'readwrite',
+                async (transaction) => {
+                    const store = transaction.objectStore(cacheName);
+                    await _(store.delete(cacheUrl));
+                },
+            );
         }
         return response;
     }
@@ -137,7 +152,7 @@ class CacheManager {
                 rules.refetchIfOlderThan &&
                 created + 1000 * rules.refetchIfOlderThan < now
             ) {
-                this.fetchAndCacheIn(cacheName, request);
+                this.fetchAndCacheIn(cacheName, request, true);
             }
         });
         // Wait for transaction to complete before adding to cache to ensure
