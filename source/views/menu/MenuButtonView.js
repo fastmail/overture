@@ -135,6 +135,15 @@ const MenuButtonView = Class({
     */
     activateOnMenuFocus: true,
 
+    /**
+        Property: O.MenuButtonView#activateOnTouchStart
+        Type: Boolean
+
+        For touch input, should this activate on touch start, or only on
+        tap (after touch end).
+    */
+    activateOnTouchStart: false,
+
     // --- Accessibility ---
 
     didCreateLayer(layer) {
@@ -273,7 +282,7 @@ const MenuButtonView = Class({
     }.on(POINTER_DOWN),
 
     _activateOnTouchstart: function (event) {
-        if (this.get('isInMenu')) {
+        if (!this.get('activateOnTouchStart') || this.get('isInMenu')) {
             return;
         }
         event.preventDefault();
