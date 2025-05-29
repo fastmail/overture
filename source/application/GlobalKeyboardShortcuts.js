@@ -177,7 +177,7 @@ const GlobalKeyboardShortcuts = Class({
     */
     getHandlerForKey(key) {
         const shortcuts = this._shortcuts[key];
-        if (shortcuts && this.get('isEnabled')) {
+        if (shortcuts) {
             return shortcuts[shortcuts.length - 1];
         }
         return null;
@@ -207,6 +207,9 @@ const GlobalKeyboardShortcuts = Class({
         if (event.type === 'keydown') {
             handleOnDown.add(key);
         } else if (handleOnDown.has(key)) {
+            return;
+        }
+        if (!this.get('isEnabled')) {
             return;
         }
         const handler = this.getHandlerForKey(key);
@@ -246,6 +249,13 @@ const GlobalKeyboardShortcuts = Class({
             document.removeEventListener(POINTER_MOVE, this, false);
         }
     }.observes('inKBMode'),
+
+    activateKey(key) {
+        const handler = this.getHandlerForKey(key);
+        if (handler) {
+            handler[0][handler[1]]({ type: 'activateKey' });
+        }
+    },
 });
 
 // ---
