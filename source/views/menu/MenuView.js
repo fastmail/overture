@@ -275,6 +275,7 @@ const MenuView = Class({
     keydown: function (event) {
         const key = lookupKey(event);
         const controller = this.get('controller');
+        ViewEventsController.kbShortcuts.set('inKBMode', true);
         switch (key) {
             case 'Enter':
                 controller.selectFocused();

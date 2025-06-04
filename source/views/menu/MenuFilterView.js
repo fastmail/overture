@@ -108,6 +108,7 @@ const MenuFilterView = Class({
     keydown: function (event) {
         const controller = this.get('controller');
         let scrollView;
+        ViewEventsController.kbShortcuts.set('inKBMode', true);
         switch (lookupKey(event)) {
             case 'Escape':
                 if (controller.get('search')) {
