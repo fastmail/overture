@@ -1,7 +1,5 @@
-import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { DEFAULT_IN_INPUT } from '../../application/keyboardShortcuts.js';
 import { toPlatformKey } from '../../application/toPlatformKey.js';
-import { loc } from '../../localisation/i18n.js';
 import { ViewEventsController } from '../ViewEventsController.js';
 
 /* { property, observes } from */
@@ -36,23 +34,11 @@ const Activatable = {
     /**
         Property: O.Activatable#tooltip
         Type: String
-        Default: '' or 'Shortcut: <shortcut>'
+        Default: ''
 
-        A tooltip to show when the mouse hovers over the view. Defaults to
-        informing the user of the keyboard shortcut for the control, if set.
+        A tooltip to show when the mouse hovers over the view.
     */
-    tooltip: function () {
-        const shortcut = this.get('shortcut');
-        return shortcut
-            ? loc(
-                  'Shortcut: {value1}',
-                  shortcut
-                      .split(' ')
-                      .map(formatKeyForPlatform)
-                      .join(' ' + loc('or') + ' '),
-              )
-            : '';
-    }.property('shortcut'),
+    tooltip: '',
 
     didCreateLayer(layer) {
         this.redrawTooltip(layer);
