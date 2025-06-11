@@ -318,34 +318,24 @@ const Drag = Class({
         }
         if (this.isNative) {
             const dataTransfer = this.event.dataTransfer;
-            // Current HTML5 DnD interface
-            const items = dataTransfer && dataTransfer.items;
             const types = [];
+            const items = dataTransfer && dataTransfer.items;
+            const length = (items && items.length) || 0;
             let hasFiles = false;
-            // Safari 11.1 supports the current dataTransfer.items interface,
-            // but does not return anything until drop, so appears to have no
-            // types. Old interface must be used instead.
-            const length = items && items.length;
-            if (length) {
-                for (let i = length - 1; i >= 0; i -= 1) {
-                    const item = items[i];
-                    const itemType = item.type;
-                    if (!hasFiles) {
-                        hasFiles = item.kind === 'file';
-                    }
-                    if (itemType) {
-                        types.include(itemType);
-                    }
+            for (let i = length - 1; i >= 0; i -= 1) {
+                const item = items[i];
+                const itemType = item.type;
+                if (!hasFiles) {
+                    hasFiles = item.kind === 'file';
                 }
-                if (hasFiles) {
-                    types.push('Files');
+                if (itemType) {
+                    types.include(itemType);
                 }
-                return types;
             }
-            // Deprecated HTML5 DnD interface
-            if (dataTransfer && dataTransfer.types) {
-                return Array.from(dataTransfer.types);
+            if (hasFiles) {
+                types.push('Files');
             }
+            return types;
         }
         return [];
     }.property(),

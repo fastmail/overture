@@ -343,23 +343,7 @@ const defangAttributes = function (node, options) {
         ) {
             continue;
         }
-        // Safari (iOS + Mac), last tested v8.0.5, crashes if you try to
-        // remove a "name" attribute from an <img> tag that has an "id"
-        // attribute at the time.
-        if (name === 'name' && nodeName === 'IMG' && attributes.id) {
-            const id = attributes.id.value;
-            node.removeAttribute('id');
-            node.removeAttribute(name);
-            node.setAttribute('id', id);
-        } else {
-            // This avoids a crash in Safari v9.0 with double-ids.
-            // The trick is to first set the id to be empty and then to
-            // remove the attribute
-            if (name === 'id') {
-                node.setAttribute(name, '');
-            }
-            node.removeAttribute(name);
-        }
+        node.removeAttribute(name);
     }
 };
 

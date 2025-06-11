@@ -1,13 +1,13 @@
 import { Animation } from '../../animation/Animation.js';
-import { Class, mixin } from '../../core/Core.js';
-import { appendChildren, create as el, setStyle } from '../../dom/Element.js';
+import { Class } from '../../core/Core.js';
+import { create as el, setStyle } from '../../dom/Element.js';
 import {
     invokeAfterDelay,
     invokeInNextEventLoop,
     invokeInNextFrame,
     queueFn,
 } from '../../foundation/RunLoop.js';
-import { browser, isIOS, version } from '../../ua/UA.js';
+import { isIOS } from '../../ua/UA.js';
 import { RootView } from '../RootView.js';
 import { LAYOUT_FILL_PARENT, View } from '../View.js';
 import { ViewEventsController } from '../ViewEventsController.js';
@@ -128,9 +128,6 @@ const ScrollView = Class({
         const styles = View.prototype.layerStyles.call(this);
         styles.overflowX = this.get('showScrollbarX') ? 'auto' : 'hidden';
         styles.overflowY = this.get('showScrollbarY') ? 'auto' : 'hidden';
-        if (isIOS && version < 13) {
-            styles.WebkitOverflowScrolling = 'touch';
-        }
         return styles;
     }.property('layout', 'positioning', 'showScrollbarX', 'showScrollbarY'),
 
@@ -640,100 +637,5 @@ const ScrollView = Class({
         }
     }.on('focus', 'blur'),
 });
-
-if (isIOS && version < 13) {
-    const isOldOrSafari = version < 11 || browser === 'safari';
-
-    mixin(ScrollView.prototype, {
-        draw(layer) {
-            const isFixedDimensions = this.get('isFixedDimensions');
-            let scrollFixerHeight = 1;
-
-            // Render the children.
-            const children = ScrollView.parent.draw.call(this, layer);
-
-            // Following platform conventions, we assume a fixed height
-            // ScrollView should always scroll, regardless of whether the
-            // content is taller than the view, whereas a variable height
-            // ScrollView just needs to scroll if the content requires it.
-            // Therefore, if it's a fixed height view, we add an extra
-            // invisible div permanently 1px below the height, so it always
-            // has scrollable content.
-            // From iOS 11, if not in Safari, it appears that the view will
-            // always be scrollable as long as the content is at longer; you
-            // don't need to ensure you are not at the very top
-            if (isFixedDimensions && isOldOrSafari) {
-                scrollFixerHeight = 2;
-                layer.appendChild(el('div', { style: 'height:1px' }));
-            }
-
-            // Append the actual children of the scroll view.
-            appendChildren(layer, children);
-
-            if (isFixedDimensions) {
-                layer.appendChild(
-                    el('div', {
-                        style:
-                            'position:absolute;top:100%;left:0px;' +
-                            'width:1px;height:' +
-                            scrollFixerHeight +
-                            'px;',
-                    }),
-                );
-                this.on('scroll', this, '_setNotAtEnd').addObserverForKey(
-                    'isInDocument',
-                    this,
-                    '_setNotAtEnd',
-                );
-            }
-        },
-
-        _setNotAtEnd: function () {
-            if (this.get('isInDocument')) {
-                const scrollTop = this.get('scrollTop');
-                const scrollLeft = this.get('scrollLeft');
-                if (!scrollTop && isOldOrSafari) {
-                    this.scrollTo(scrollLeft, 1);
-                } else if (
-                    scrollTop + this.get('pxHeight') ===
-                    this.get('layer').scrollHeight
-                ) {
-                    this.scrollTo(scrollLeft, scrollTop - 1);
-                }
-            }
-        }.queue('after'),
-
-        preventRootScroll: function (event) {
-            if (!this.get('isFixedDimensions')) {
-                const layer = this.get('layer');
-                if (layer.scrollHeight <= layer.offsetHeight) {
-                    event.preventDefault();
-                }
-            }
-        }.on('touchmove'),
-
-        insertView(view, relativeTo, where) {
-            const safeAreaPadding = this._safeAreaPadding;
-            if (!relativeTo && safeAreaPadding) {
-                relativeTo = this.get('layer');
-                if (where === 'top') {
-                    relativeTo = relativeTo.firstChild;
-                    where = 'after';
-                } else if (!where || where === 'bottom') {
-                    relativeTo = this.get('isFixedDimensions')
-                        ? safeAreaPadding.previousSibling
-                        : safeAreaPadding;
-                    where = 'before';
-                }
-            }
-            return ScrollView.parent.insertView.call(
-                this,
-                view,
-                relativeTo,
-                where,
-            );
-        },
-    });
-}
 
 export { ScrollView };
