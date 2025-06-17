@@ -317,25 +317,9 @@ const Drag = Class({
             return dataSource.get('dragDataTypes');
         }
         if (this.isNative) {
-            const dataTransfer = this.event.dataTransfer;
-            const types = [];
-            const items = dataTransfer && dataTransfer.items;
-            const length = (items && items.length) || 0;
-            let hasFiles = false;
-            for (let i = length - 1; i >= 0; i -= 1) {
-                const item = items[i];
-                const itemType = item.type;
-                if (!hasFiles) {
-                    hasFiles = item.kind === 'file';
-                }
-                if (itemType) {
-                    types.include(itemType);
-                }
-            }
-            if (hasFiles) {
-                types.push('Files');
-            }
-            return types;
+            // This is simpler than calculating from dataTransfer.items, and
+            // also in Safari `items` is empty until drop for privacy reasons.
+            return Array.from(this.event.dataTransfer.types);
         }
         return [];
     }.property(),
@@ -367,52 +351,31 @@ const Drag = Class({
     */
     getFiles(typeRegExp) {
         const files = [];
-        const dataTransfer = this.event.dataTransfer;
-        if (dataTransfer) {
-            let items;
-            if ((items = dataTransfer.items)) {
-                // Current HTML5 DnD interface (Chrome, Firefox 50+, Edge)
-                const l = items.length;
-                for (let i = 0; i < l; i += 1) {
-                    const item = items[i];
-                    const itemType = item.type;
-                    if (item.kind === 'file') {
-                        // Ignore folders
-                        if (!itemType) {
-                            const entry = item.getAsEntry
-                                ? item.getAsEntry()
-                                : item.webkitGetAsEntry
-                                  ? item.webkitGetAsEntry()
-                                  : null;
-                            if (entry && !entry.isFile) {
-                                continue;
-                            }
-                        }
-                        // Add to files if type matches.
-                        if (!typeRegExp || typeRegExp.test(itemType)) {
-                            // Error logs show Chrome may return null for
-                            // getAsFile; not sure why, but we should ignore
-                            // these, nothing we can do.
-                            const file = item.getAsFile();
-                            if (file) {
-                                files.push(file);
-                            }
-                        }
+        const items = this.getFromPath('event.dataTransfer.items');
+        const l = items ? items.length : 0;
+        for (let i = 0; i < l; i += 1) {
+            const item = items[i];
+            const itemType = item.type;
+            if (item.kind === 'file') {
+                // Ignore folders
+                if (!itemType) {
+                    const entry = item.getAsEntry
+                        ? item.getAsEntry()
+                        : item.webkitGetAsEntry
+                          ? item.webkitGetAsEntry()
+                          : null;
+                    if (entry && !entry.isFile) {
+                        continue;
                     }
                 }
-            } else if ((items = dataTransfer.files)) {
-                // Deprecated HTML5 DnD interface (Firefox <50, IE)
-                const l = items.length;
-                for (let i = 0; i < l; i += 1) {
-                    const item = items[i];
-                    const itemType = item.type;
-                    // Check it's not a folder (size > 0) and it matches any
-                    // type requirements
-                    if (
-                        item.size &&
-                        (!typeRegExp || typeRegExp.test(itemType))
-                    ) {
-                        files.push(item);
+                // Add to files if type matches.
+                if (!typeRegExp || typeRegExp.test(itemType)) {
+                    // Error logs show Chrome may return null for
+                    // getAsFile; not sure why, but we should ignore
+                    // these, nothing we can do.
+                    const file = item.getAsFile();
+                    if (file) {
+                        files.push(file);
                     }
                 }
             }
@@ -428,24 +391,22 @@ const Drag = Class({
             represented by the drag.
     */
     getFileSystemEntries() {
-        const items = this.getFromPath('event.dataTransfer.items');
         let entries = null;
-        if (items) {
-            const l = items.length;
-            for (let i = 0; i < l; i += 1) {
-                const item = items[i];
-                if (item.kind === 'file') {
-                    if (item.getAsEntry) {
-                        if (!entries) {
-                            entries = [];
-                        }
-                        entries.push(item.getAsEntry());
-                    } else if (item.webkitGetAsEntry) {
-                        if (!entries) {
-                            entries = [];
-                        }
-                        entries.push(item.webkitGetAsEntry());
+        const items = this.getFromPath('event.dataTransfer.items');
+        const l = items ? items.length : 0;
+        for (let i = 0; i < l; i += 1) {
+            const item = items[i];
+            if (item.kind === 'file') {
+                if (item.getAsEntry) {
+                    if (!entries) {
+                        entries = [];
                     }
+                    entries.push(item.getAsEntry());
+                } else if (item.webkitGetAsEntry) {
+                    if (!entries) {
+                        entries = [];
+                    }
+                    entries.push(item.webkitGetAsEntry());
                 }
             }
         }
@@ -474,23 +435,15 @@ const Drag = Class({
             callback(dataSource.getDragDataOfType(type, this));
             dataFound = true;
         } else if (this.isNative) {
-            const dataTransfer = this.event.dataTransfer;
-            const items = dataTransfer.items;
-            if (items) {
-                // Current HTML5 DnD interface
-                const l = items.length;
-                for (let i = 0; i < l; i += 1) {
-                    const item = items[i];
-                    if (item.type === type) {
-                        item.getAsString(callback);
-                        dataFound = true;
-                        break;
-                    }
+            const items = this.getFromPath('event.dataTransfer.items');
+            const l = items ? items.length : 0;
+            for (let i = 0; i < l; i += 1) {
+                const item = items[i];
+                if (item.type === type) {
+                    item.getAsString(callback);
+                    dataFound = true;
+                    break;
                 }
-            } else if (dataTransfer.getData) {
-                // Deprecated HTML5 DnD interface
-                callback(dataTransfer.getData(type));
-                dataFound = true;
             }
         }
         if (!dataFound) {
@@ -537,13 +490,7 @@ const Drag = Class({
                                 type,
                                 this,
                             );
-                            if (dataTransfer.items) {
-                                // Current HTML5 DnD interface
-                                dataTransfer.items.add(data, type);
-                            } else if (dataTransfer.setData) {
-                                // Deprecated HTML5 DnD interface
-                                dataTransfer.setData(type, data);
-                            }
+                            dataTransfer.items.add(data, type);
                             dataIsSet = true;
                         }
                     });
