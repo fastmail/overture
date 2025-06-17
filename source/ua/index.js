@@ -9,5 +9,4 @@ export {
     browser,
     version,
     canTouch,
-    canPointer,
 } from './UA.js';

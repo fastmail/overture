@@ -1,7 +1,6 @@
 import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
 import { cancel, invokeAfterDelay } from '../../foundation/RunLoop.js';
-import { canPointer } from '../../ua/UA.js';
 import { PopOverView } from '../panels/PopOverView.js';
 import { View } from '../View.js';
 
@@ -58,7 +57,7 @@ const MenuOptionView = Class({
                 this.takeFocus();
             }
         }
-    }.on(canPointer ? 'pointermove' : 'mousemove'),
+    }.on('pointermove'),
 
     mouseout: function () {
         if (this._focusTimeout) {
@@ -71,7 +70,7 @@ const MenuOptionView = Class({
         ) {
             this.loseFocus();
         }
-    }.on(canPointer ? 'pointerout' : 'mouseout'),
+    }.on('pointerout'),
 });
 
 export { MenuOptionView };

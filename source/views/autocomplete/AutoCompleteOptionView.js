@@ -1,14 +1,9 @@
 import { Class } from '../../core/Core.js';
 import { create as el } from '../../dom/Element.js';
 import { loc } from '../../localisation/i18n.js';
-import { canPointer } from '../../ua/UA.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { ButtonView } from '../controls/ButtonView.js';
 import { POINTER_MOVE, View } from '../View.js';
-
-// ---
-
-const leaveEvent = canPointer ? 'pointerleave' : 'mouseleave';
 
 // ---
 
@@ -105,9 +100,9 @@ const AutoCompleteOptionView = Class({
         const layer = this.get('layer');
         if (this.get('isInDocument')) {
             layer.addEventListener(POINTER_MOVE, this, false);
-            layer.addEventListener(leaveEvent, this, false);
+            layer.addEventListener('pointerleave', this, false);
         } else {
-            layer.removeEventListener(leaveEvent, this, false);
+            layer.removeEventListener('pointerleave', this, false);
             layer.removeEventListener(POINTER_MOVE, this, false);
         }
     }.observes('isInDocument'),
@@ -123,7 +118,7 @@ const AutoCompleteOptionView = Class({
         if (this.get('isFocused')) {
             this.get('focused').set('record', null);
         }
-    }.on(leaveEvent, 'touchend'),
+    }.on('pointerleave', 'touchend'),
 
     click: function (event) {
         if (event.targetView !== this) {

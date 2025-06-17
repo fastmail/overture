@@ -7,7 +7,6 @@ import { invokeInNextFrame, queueFn } from '../../foundation/RunLoop.js';
 import { toBoolean } from '../../foundation/Transform.js';
 import { makeSearchRegExp } from '../../localisation/i18n.js';
 import { OptionsController } from '../../selection/OptionsController.js';
-import { canPointer } from '../../ua/UA.js';
 import { OptionsListView } from '../collections/OptionsListView.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { PopOverView } from '../panels/PopOverView.js';
@@ -146,8 +145,6 @@ const MenuController = Class({
         .observes('search', 'content'),
 });
 
-const moveEventType = canPointer ? 'pointermove' : 'mousemove';
-const outEventType = canPointer ? 'pointerout' : 'mouseout';
 const MenuView = Class({
     Name: 'MenuView',
 
@@ -173,8 +170,8 @@ const MenuView = Class({
         MenuView.parent.didEnterDocument.call(this);
 
         const layer = this.get('layer');
-        layer.addEventListener(moveEventType, this, false);
-        layer.addEventListener(outEventType, this, false);
+        layer.addEventListener('pointermove', this, false);
+        layer.addEventListener('pointerout', this, false);
 
         if (!this.showFilter) {
             const scrollView = this.scrollView;
@@ -194,8 +191,8 @@ const MenuView = Class({
             controller.focus(null);
         }
 
-        layer.removeEventListener(outEventType, this, false);
-        layer.removeEventListener(moveEventType, this, false);
+        layer.removeEventListener('pointerout', this, false);
+        layer.removeEventListener('pointermove', this, false);
 
         return MenuView.parent.didLeaveDocument.call(this);
     },

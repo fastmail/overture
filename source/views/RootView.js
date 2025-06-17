@@ -1,7 +1,6 @@
 /*global window */
 
 import { Class } from '../core/Core.js';
-import { canPointer } from '../ua/UA.js';
 import { getViewFromNode } from './activeViews.js';
 import { AbstractControlView } from './controls/AbstractControlView.js';
 import { POINTER_DOWN, POINTER_MOVE, POINTER_UP, View } from './View.js';
@@ -141,7 +140,7 @@ const RootView = Class({
         switch (event.type) {
             // We observe mousemove when mousedown.
             case POINTER_DOWN:
-                if (canPointer && event.pointerType !== 'mouse') {
+                if (event.pointerType !== 'mouse') {
                     return;
                 }
                 this.get('layer').ownerDocument.addEventListener(
@@ -151,7 +150,7 @@ const RootView = Class({
                 );
                 break;
             case POINTER_UP:
-                if (canPointer && event.pointerType !== 'mouse') {
+                if (event.pointerType !== 'mouse') {
                     return;
                 }
                 this.get('layer').ownerDocument.removeEventListener(
