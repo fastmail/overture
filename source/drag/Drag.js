@@ -317,9 +317,32 @@ const Drag = Class({
             return dataSource.get('dragDataTypes');
         }
         if (this.isNative) {
-            // This is simpler than calculating from dataTransfer.items, and
-            // also in Safari `items` is empty until drop for privacy reasons.
-            return Array.from(this.event.dataTransfer.types);
+            const dataTransfer = this.event.dataTransfer;
+            // The `types` property only contains "Files" and not the actual
+            // types of the items, so you need to iterate through items to get
+            // the real set of types. However, in Safari `items` is empty until
+            // drop for privacy reasons, so fallback to using it if items empty.
+            const types = [];
+            let hasFiles = false;
+            const items = dataTransfer.items;
+            const length = items.length;
+            if (length) {
+                for (let i = length - 1; i >= 0; i -= 1) {
+                    const item = items[i];
+                    const itemType = item.type;
+                    if (!hasFiles) {
+                        hasFiles = item.kind === 'file';
+                    }
+                    if (itemType) {
+                        types.include(itemType);
+                    }
+                }
+                if (hasFiles) {
+                    types.push('Files');
+                }
+                return types;
+            }
+            return Array.from(dataTransfer.types);
         }
         return [];
     }.property(),
