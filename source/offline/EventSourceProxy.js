@@ -1,4 +1,4 @@
-import { EventSource } from '../io/ModernEventSource.js';
+import { EventSource } from '../io/EventSource.js';
 
 /*global Response, ReadableStream, TextEncoder */
 
