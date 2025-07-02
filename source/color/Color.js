@@ -328,7 +328,8 @@ const f1 = function (t) {
 // ---
 
 const printHex = function (number) {
-    let string = Math.round(number).toString(16);
+    number = Math.round(number);
+    let string = number.toString(16);
     if (number < 16) {
         string = '0' + string;
     }
