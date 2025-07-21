@@ -170,7 +170,7 @@ const ThemeManager = Class({
 
         const sheet = document.getElementById(theme + '-' + id);
         if (sheet) {
-            sheet.parentNode.removeChild(sheet);
+            sheet.remove();
             this._activeStylesheets[id] -= 1;
         }
 

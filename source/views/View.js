@@ -1155,7 +1155,7 @@ const View = Class({
             if (isInDocument) {
                 view.willLeaveDocument();
             }
-            layer.parentNode.removeChild(layer);
+            layer.remove();
             if (isInDocument) {
                 view.didLeaveDocument();
             }

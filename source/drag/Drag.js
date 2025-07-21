@@ -276,7 +276,7 @@ const Drag = Class({
         let stylesheet = this._stylesheet;
         let cursor = this.get('defaultCursor');
         if (stylesheet) {
-            stylesheet.parentNode.removeChild(stylesheet);
+            stylesheet.remove();
             stylesheet = null;
         }
         if (set) {

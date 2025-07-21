@@ -221,7 +221,7 @@ const SwitchView = Class({
             if (node instanceof View) {
                 parent.removeView(node);
             } else {
-                node.parentNode.removeChild(node);
+                node.remove();
             }
         }
 

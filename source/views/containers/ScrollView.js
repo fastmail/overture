@@ -225,7 +225,7 @@ const ScrollView = Class({
     didLeaveDocument() {
         const safeAreaPadding = this._safeAreaPadding;
         if (safeAreaPadding) {
-            safeAreaPadding.parentNode.removeChild(safeAreaPadding);
+            safeAreaPadding.remove();
             this._safeAreaPadding = null;
         }
         if (this.get('showScrollbarY')) {
