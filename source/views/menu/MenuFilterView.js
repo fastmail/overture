@@ -36,6 +36,9 @@ const MenuFilterView = Class({
             tabIndex: -1,
             blurOnKeys: {},
             value: bindTwoWay(controller, 'search'),
+            getShortcutTarget() {
+                return null;
+            },
         }));
 
         return searchTextView;
