@@ -297,9 +297,9 @@ let compare = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
 */
 const makeSearchRegExp = (string) => {
     let anchorToStart = true;
-    let source = string.replace(
-        /[-.*+?^${}()|[\]/\\ A-Z]/gi,
-        (char, index, _string) => {
+    let source = string
+        .trim()
+        .replace(/[-.*+?^${}()|[\]/\\ A-Z]/gi, (char, index, _string) => {
             switch (char) {
                 case '*': {
                     if (!index) {
@@ -322,8 +322,7 @@ const makeSearchRegExp = (string) => {
                     }
                     return '\\' + char;
             }
-        },
-    );
+        });
     if (anchorToStart) {
         source = '(^|\\W|_)(' + source + ')';
     } else {
