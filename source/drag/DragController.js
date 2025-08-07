@@ -3,6 +3,7 @@
 import { setDragController } from '../_codependent/_DragController.js';
 import { lookupKey } from '../dom/DOMEvent.js';
 import { Obj } from '../foundation/Object.js';
+import { browser } from '../ua/UA.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { POINTER_DOWN, POINTER_MOVE, POINTER_UP } from '../views/View.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
@@ -535,6 +536,10 @@ const DragController = new Obj({
         this._nativeRefCount = 0;
         const drag = this.drag;
         if (drag) {
+            // For privacy reasons, Safari only reveals the data types on drop
+            if (browser === 'safari' && drag.isNative) {
+                drag.computedPropertyDidChange('dataTypes');
+            }
             if (drag.get('dropEffect') !== DEFAULT) {
                 event.preventDefault();
             }
