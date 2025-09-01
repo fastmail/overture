@@ -13,6 +13,8 @@ export {
     b64urltob64,
     b64UrlEncode,
     b64UrlDecode,
+    bytesToBase64Url,
+    base64UrlToBytes,
 } from './base64.js';
 export { defangFilename } from './defangFilename.js';
 export { sniffContentType } from './sniffContentType.js';
