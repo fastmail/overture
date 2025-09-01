@@ -1,7 +1,7 @@
 import { Class } from '../../core/Core.js';
 import { limit } from '../../core/Math.js';
 import { Draggable } from '../../drag/Draggable.js';
-import { bind, bindTwoWay } from '../../foundation/Binding.js';
+import { bind } from '../../foundation/Binding.js';
 import { View } from '../View.js';
 import { TOP_LEFT, VERTICAL } from './SplitViewController.js';
 
@@ -28,19 +28,11 @@ const SplitDividerView = Class({
 
     init: function (mixin) {
         const controller = mixin.controller;
-        SplitDividerView.parent.init.call(
-            this,
-            mixin,
-            controller
-                ? {
-                      direction: controller.get('direction'),
-                      flex: controller.get('flex'),
-                      min: bind(controller, 'minStaticPaneLength'),
-                      max: bind(controller, 'maxStaticPaneLength'),
-                      offset: bindTwoWay(controller, 'staticPaneLength'),
-                  }
-                : null,
-        );
+        SplitDividerView.parent.init.call(this, mixin, {
+            direction: controller.get('direction'),
+            flex: controller.get('flex'),
+            offset: bind(controller, 'staticPaneLength'),
+        });
         this.clickAfterDrag = false;
     },
 
@@ -86,24 +78,10 @@ const SplitDividerView = Class({
     */
 
     /**
-        Property: O.SplitDividerView#min
-        Type: Number
-
-        Bound to the <O.SplitViewController#minStaticPaneLength>.
-    */
-
-    /**
-        Property: O.SplitDividerView#max
-        Type: Number
-
-        Bound to the <O.SplitViewController#maxStaticPaneLength>.
-    */
-
-    /**
         Property: O.SplitDividerView#offset
         Type: Number
 
-        Bound two-way to the <O.SplitViewController#staticPaneLength>. It is
+        Bound to the <O.SplitViewController#staticPaneLength>. It is
         the distance from the edge of the split view that the split divider
         view should be positioned.
     */
@@ -188,15 +166,15 @@ const SplitDividerView = Class({
         const delta =
             drag.get('cursorPosition')[dir] - drag.get('startPosition')[dir];
         const sign = this.get('flex') === TOP_LEFT ? -1 : 1;
-
-        this.set(
-            'offset',
-            limit(
-                this._offset + sign * delta,
-                this.get('min'),
-                this.get('max'),
-            ),
+        const controller = this.get('controller');
+        const offset = limit(
+            this._offset + sign * delta,
+            controller.get('minStaticPaneLength'),
+            controller.get('maxStaticPaneLength'),
         );
+
+        this.set('offset', offset);
+        controller.userDidResize(offset);
     },
 
     dragEnded() {

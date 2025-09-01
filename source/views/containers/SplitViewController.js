@@ -154,6 +154,22 @@ const SplitViewController = Class({
             }
         );
     }.property('flex', 'direction', 'staticPaneLength'),
+
+    /**
+        Method: O.SplitViewController#userDidResize
+        Type: Object
+
+        Called when the user drags to resize the split.
+
+        Parameters:
+            staticPaneLength - {Number} The new pane width.
+
+        Returns:
+            {O.SplitViewController} Returns self.
+    */
+    userDidResize(staticPaneLength) {
+        return this.set('staticPaneLength', staticPaneLength);
+    },
 });
 
 export { SplitViewController, VERTICAL, HORIZONTAL, TOP_LEFT, BOTTOM_RIGHT };
