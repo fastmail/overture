@@ -239,7 +239,7 @@ const MenuView = Class({
                 while ((parent = popOverView.get('parentPopOverView'))) {
                     popOverView = parent;
                 }
-                popOverView.hide();
+                popOverView.hide?.();
             }
         }
     }
