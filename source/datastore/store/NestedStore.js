@@ -188,8 +188,8 @@ const NestedStore = Class({
         if (_skToStatus.hasOwnProperty(storeKey)) {
             previous = _skToStatus[storeKey];
             if (status & DESTROYED) {
-                if (!(previous & DESTROYED)) {
-                    // Ready dirty -> ready clean.
+                // Ready dirty -> ready clean.
+                if (previous & READY && previous & DIRTY) {
                     this.setData(storeKey, this._skToCommitted[storeKey]);
                     delete this._skToCommitted[storeKey];
                     delete this._skToChanged[storeKey];
