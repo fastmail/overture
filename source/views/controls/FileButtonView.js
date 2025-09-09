@@ -109,7 +109,8 @@ const FileButtonView = Class({
     */
     draw(layer) {
         const children = FileButtonView.parent.draw.call(this, layer);
-        return [this.drawControl(), ...children];
+        children.push(this.drawControl());
+        return children;
     },
 
     // --- Activate ---
