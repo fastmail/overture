@@ -273,7 +273,37 @@ class EventSource {
 
     async _fetchStream() {
         const abortController = new AbortController();
-        const [options, resetTimeout] = this._didStartFetch(abortController);
+        const headers = {
+            'Accept': 'text/event-stream',
+            'Cache-Control': 'no-store',
+        };
+        if (this.lastEventId) {
+            headers['Last-Event-ID'] = this.lastEventId;
+        }
+        const options = this.willFetchWithOptions({
+            headers,
+            signal: abortController.signal,
+            cache: 'no-store',
+        });
+
+        this._reconnectTimeout = null;
+        this._abortController = abortController;
+        this._lastEventId = '';
+        this._eventName = '';
+        this._data = '';
+
+        this.readyState = CONNECTING;
+
+        // We can't reliably detect a broken TCP stream except by checking
+        // for missing pings.
+        const abort = abortController.abort.bind(abortController);
+        const resetTimeout = () => {
+            clearTimeout(this._abortTimeout);
+            const inactivityTimeout = this.inactivityTimeout;
+            this._abortTimeout = setTimeout(abort, inactivityTimeout);
+            this._nextTimeout = Date.now() + inactivityTimeout;
+        };
+        resetTimeout();
 
         let response = null;
         let didNetworkError = false;
@@ -313,51 +343,6 @@ class EventSource {
             abortController.abort();
         }
 
-        this._didFinishFetch(
-            abortController,
-            didNetworkError,
-            status,
-            response,
-        );
-    }
-
-    _didStartFetch(abortController) {
-        const headers = {
-            'Accept': 'text/event-stream',
-            'Cache-Control': 'no-store',
-        };
-        if (this.lastEventId) {
-            headers['Last-Event-ID'] = this.lastEventId;
-        }
-        const options = this.willFetchWithOptions({
-            headers,
-            signal: abortController.signal,
-            cache: 'no-store',
-        });
-
-        this._reconnectTimeout = null;
-        this._abortController = abortController;
-        this._lastEventId = '';
-        this._eventName = '';
-        this._data = '';
-
-        this.readyState = CONNECTING;
-
-        // We can't reliably detect a broken TCP stream except by checking
-        // for missing pings.
-        const abort = abortController.abort.bind(abortController);
-        const resetTimeout = () => {
-            clearTimeout(this._abortTimeout);
-            const inactivityTimeout = this.inactivityTimeout;
-            this._abortTimeout = setTimeout(abort, inactivityTimeout);
-            this._nextTimeout = Date.now() + inactivityTimeout;
-        };
-        resetTimeout();
-
-        return [options, resetTimeout];
-    }
-
-    _didFinishFetch(abortController, didNetworkError, status, response) {
         // Have we already started a new fetch? If you call close().open(),
         // we can start fetching a new screen before the old one's finished;
         // nothing to do in that case.
