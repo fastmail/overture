@@ -299,7 +299,8 @@ class EventSource {
         const abort = abortController.abort.bind(abortController);
         const resetTimeout = () => {
             clearTimeout(this._abortTimeout);
-            const inactivityTimeout = this.inactivityTimeout;
+            const inactivityTimeout =
+                this.readyState === CONNECTING ? 5000 : this.inactivityTimeout;
             this._abortTimeout = setTimeout(abort, inactivityTimeout);
             this._nextTimeout = Date.now() + inactivityTimeout;
         };
@@ -323,6 +324,7 @@ class EventSource {
             this._reconnectAfter = 0;
             this._origin = new URL(response.url).origin;
             this.readyState = OPEN;
+            resetTimeout();
 
             try {
                 const reader = response.body.getReader();
