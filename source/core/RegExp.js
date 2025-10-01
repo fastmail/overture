@@ -15,7 +15,7 @@ const email =
 */
 
 // Domain-like:
-// (?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}
+// (?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,4})?
 
 // Path-chars
 // [a-z0-9\-._~:/?#@!$&'*+,;=%\[\]()]
@@ -30,7 +30,7 @@ const email =
 // \([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\)
 
 // Part 1a: URLs with Protocol
-// https?:\/\/(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}
+// https?:\/\/{Domain-like}
 // This matches URLs starting with http:// or https://. The domain portion
 // follows RFC specifications where each subdomain segment can be up to 63
 // characters long (the {0,61} allows for 61 characters in the middle, plus one
@@ -39,7 +39,7 @@ const email =
 // domain must end with a top-level domain of at least 2 letters.
 //
 // Part 1b: URLs without Protocol
-// (?!<@)(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?!@)
+// (?!<@){Domain-like}(?!@)
 // This matches domain-like patterns without explicit protocols. The negative
 // lookaheads (?!<@) and (?!@) prevent matching email addresses by ensuring the
 // domain isn't preceded by <@ or followed by @. This helps distinguish between
@@ -61,6 +61,6 @@ const email =
 // these specific characters: -_~/$*=
 
 const url =
-    /\b(?:https?:\/\/(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}|(?!<@)(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?!@))(?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?/i;
+    /\b(?:https?:\/\/(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,4})?|(?!<@)(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,4})?(?!@))(?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?/i;
 
 export { email, url };
