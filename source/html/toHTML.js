@@ -8,38 +8,7 @@ const linkRegExp = new RegExp(
 '\\b(?:' +
 // Capture group 1: URLs
 '(' +
-    // Add links to URLS
-    // Starts with:
-    '(?:' +
-        // http(s):// or ftp://
-        '(?:ht|f)tps?:\\/\\/' +
-        // or
-        '|' +
-        // www.
-        'www\\d{0,3}[.]' +
-        // or
-        '|' +
-        // foo90.com/
-        '[a-z0-9][a-z0-9.\\-]*[.][a-z]{2,}\\/' +
-    ')' +
-    // Then we get one or more:
-    '(?:' +
-        // Run of non-spaces, non ()<>
-        '[^\\s()<>]+' +
-        // or
-        '|' +
-        // balanced parentheses (one level deep only)
-        '\\([^\\s()<>]+\\)' +
-    ')+' +
-    // And we finish with
-    '(?:' +
-        // Not a space or punctuation character
-        '[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]' +
-        // or
-        '|' +
-        // Balanced parentheses.
-        '\\([^\\s()<>]+\\)' +
-    ')' +
+    // See RegExp.url
 // Capture group 2: Emails
 ')|(' +
     // Add links to emails
@@ -53,7 +22,7 @@ const linkRegExp = new RegExp(
 */
 
 const linkRegExp =
-    /\b(?:((?:(?:ht|f)tps?:\/\/|www\d{0,3}[.]|[a-z0-9][a-z0-9.\-]*[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:[^\s?&`!()\[\]{};:'".,<>«»“”‘’]|\([^\s()<>]+\)))|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/gi;
+    /\b(?:((?:https?:\/\/(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,4})?|(?!<@)(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,4})?(?!@))(?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?)|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/gi;
 
 const escapeHTMLPreservingWS = (string) => {
     return escapeHTML(string).replace(/ (?=(?: |$))/g, '&nbsp;');
