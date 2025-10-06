@@ -343,7 +343,7 @@ const defangAttributes = function (node, options) {
         ) {
             continue;
         }
-        node.removeAttribute(name);
+        node.removeAttributeNode(attr);
     }
 };
 
