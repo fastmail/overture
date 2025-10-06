@@ -368,6 +368,16 @@ const defangElement = function (node, options) {
     if (node.nodeType === 8 /* Node.COMMENT_NODE */ || isClobbered(node)) {
         return false;
     }
+    // This is way in excess of any reasonable number of attributes for a node.
+    // Anything with this many attributes is malicious - trying to sanitise the
+    // attributes individually is pathologically slow in browsers, which
+    // presumably do not optimise for this!
+    if (
+        node.nodeType === 1 /* Node.ELEMENT_NODE */ &&
+        node.attributes.length > 256
+    ) {
+        return false;
+    }
     const nodeName = node.nodeName;
     if (!options.onElement.every((fn) => fn(node, nodeName, options))) {
         return false;
