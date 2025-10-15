@@ -17,6 +17,7 @@ export {
     PAST,
     NOW,
     FUTURE,
+    PREFER_LAST_DAY_OF_MONTH,
     JUST_TIME,
     JUST_DATE,
     DATE_AND_TIME,

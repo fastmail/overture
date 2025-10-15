@@ -287,8 +287,9 @@ const isLeapYear = Date.isLeapYear;
 const getDaysInMonth = Date.getDaysInMonth;
 
 const NOW = 0;
-const PAST = -1;
-const FUTURE = 1;
+const PAST = 1;
+const FUTURE = 2;
+const PREFER_LAST_DAY_OF_MONTH = 4;
 
 const interpreter = {
     interpret(tokens, expectedTense) {
@@ -346,13 +347,15 @@ const interpreter = {
             date.setFullYear(year);
             date.setMonth(month);
             if (hasWeekday) {
-                if (searchMethod !== PAST) {
+                if (!(searchMethod & PAST)) {
                     // Date is currently 1.
                     day = mod(weekday - date.getDay(), 7) + 1;
                 } else {
                     date.setDate((day = getDaysInMonth(month, year)));
                     day = day - mod(date.getDay() - weekday, 7);
                 }
+            } else if (searchMethod & PREFER_LAST_DAY_OF_MONTH) {
+                day = getDaysInMonth(month, year);
             } else {
                 day = 1;
             }
@@ -363,7 +366,7 @@ const interpreter = {
             // We just use the current year if searchMethod === NOW
             // If it's FUTURE or PAST though, make sure the date conforms to
             // that.
-            if (searchMethod === FUTURE) {
+            if (searchMethod & FUTURE) {
                 if (
                     month < currentMonth ||
                     (month === currentMonth && day <= currentDay)
@@ -371,7 +374,7 @@ const interpreter = {
                     year += 1;
                 }
             }
-            if (searchMethod === PAST) {
+            if (searchMethod & PAST) {
                 if (
                     month > currentMonth ||
                     (month === currentMonth && day >= currentDay)
@@ -409,7 +412,7 @@ const interpreter = {
             if (hasWeekday) {
                 // Find month which satisfies this.
                 while (date.getDay() !== weekday || date.getDate() !== day) {
-                    if (searchMethod === PAST) {
+                    if (searchMethod & PAST) {
                         if (month) {
                             month -= 1;
                         } else {
@@ -428,9 +431,9 @@ const interpreter = {
                     date.setMonth(month);
                     date.setDate(day);
                 }
-            } else if (searchMethod === PAST && day > currentDay) {
+            } else if (searchMethod & PAST && day > currentDay) {
                 date.setMonth(month - 1);
-            } else if (searchMethod === FUTURE && day < currentDay) {
+            } else if (searchMethod & FUTURE && day < currentDay) {
                 date.setMonth(month + 1);
             }
         } else if (hasMonth) {
@@ -439,29 +442,31 @@ const interpreter = {
             // We just use the current year if searchMethod === NOW
             // If it's FUTURE or PAST though, make sure the date conforms to
             // that.
-            if (searchMethod === FUTURE && month <= currentMonth) {
+            if (searchMethod & FUTURE && month <= currentMonth) {
                 year += 1;
             }
-            if (searchMethod === PAST && month > currentMonth) {
+            if (searchMethod & PAST && month > currentMonth) {
                 year -= 1;
             }
             date.setFullYear(year);
             date.setMonth(month);
 
             if (hasWeekday) {
-                if (searchMethod !== PAST) {
+                if (!(searchMethod & PAST)) {
                     day = mod(weekday - date.getDay(), 7) + 1;
                 } else {
                     date.setDate((day = getDaysInMonth(month, year)));
                     day = day - mod(date.getDay() - weekday, 7);
                 }
                 date.setDate(day);
+            } else if (searchMethod & PREFER_LAST_DAY_OF_MONTH) {
+                date.setDate(getDaysInMonth(month, year));
             }
         } else if (year) {
             date.setFullYear(year);
             date.setMonth(0);
             if (hasWeekday) {
-                if (searchMethod !== PAST) {
+                if (!(searchMethod & PAST)) {
                     day = mod(weekday - date.getDay(), 7) + 1;
                 } else {
                     date.setMonth(11);
@@ -472,7 +477,7 @@ const interpreter = {
             }
         } else if (hasWeekday) {
             date.setDate(currentDay);
-            if (searchMethod === PAST) {
+            if (searchMethod & PAST) {
                 date.setTime(date.getTime() - dayInMs);
                 date.setTime(
                     date.getTime() - dayInMs * mod(date.getDay() - weekday, 7),
@@ -638,6 +643,7 @@ export {
     PAST,
     NOW,
     FUTURE,
+    PREFER_LAST_DAY_OF_MONTH,
     JUST_TIME,
     JUST_DATE,
     DATE_AND_TIME,
