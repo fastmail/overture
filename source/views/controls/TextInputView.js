@@ -443,7 +443,14 @@ const TextInputView = Class({
     */
     syncBackValue: function () {
         this._settingFromInput = true;
-        this.userDidInput(this._domControl.value);
+        this.userDidInput(
+            // Remove control chars (0x00-0x1F, 0x7F)
+            // except tab (0x09), LF (0x0A), CR (0x0D)
+            this._domControl.value.replace(
+                /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,
+                '',
+            ),
+        );
         this._settingFromInput = false;
     }.on('input'),
 
