@@ -13,7 +13,11 @@ export { HEX_TO_4_BITS, BYTE_TO_HEX } from './hex.js';
 export { sortByProperties } from './sortByProperties.js';
 export { keyOf, filter, zip, fromQueryString } from './KeyValue.js';
 export { limit, mod } from './Math.js';
-export { email as emailRegExp, url as urlRegExp } from './RegExp.js';
+export {
+    email as emailRegExp,
+    url as urlRegExp,
+    urlPattern,
+} from './RegExp.js';
 export {
     runeAt,
     formatString,

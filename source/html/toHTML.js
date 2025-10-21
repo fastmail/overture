@@ -1,28 +1,26 @@
+import { urlPattern } from '../core/RegExp.js';
 import { escapeHTML } from '../core/String.js';
 
 // ---
 
-/* Taken from Squire
 const linkRegExp = new RegExp(
-// Only look on boundaries
-'\\b(?:' +
-// Capture group 1: URLs
-'(' +
-    // See RegExp.url
-// Capture group 2: Emails
-')|(' +
-    // Add links to emails
-    '[\\w\\-.%+]+@(?:[\\w\\-]+\\.)+[a-z]{2,}\\b' +
-    // Allow query parameters in the mailto: style
-    '(?:' +
+    // Only look on boundaries
+    '\\b(?:' +
+        // Capture group 1: URLs
+        '(' +
+        urlPattern +
+        // Capture group 2: Emails
+        ')|(' +
+        // Add links to emails
+        '[\\w\\-.%+]+@(?:[\\w\\-]+\\.)+[a-z]{2,}\\b' +
+        // Allow query parameters in the mailto: style
+        '(?:' +
         '[?][^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+' +
         '(?:&[^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+)*' +
-    ')?' +
-'))', 'i' );
-*/
-
-const linkRegExp =
-    /\b(?:((?:https?:\/\/(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?|(?!<@)(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?(?!@))(?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?)|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/gi;
+        ')?' +
+        '))',
+    'gi',
+);
 
 const escapeHTMLPreservingWS = (string) => {
     return escapeHTML(string).replace(/ (?=(?: |$))/g, '&nbsp;');

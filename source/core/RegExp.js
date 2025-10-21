@@ -39,11 +39,12 @@ const email =
 // domain must end with a top-level domain of at least 2 letters.
 //
 // Part 1b: URLs without Protocol
-// (?!<@){Domain-like}(?!@)
+// (?<![@/]){Domain-like}(?!@)
 // This matches domain-like patterns without explicit protocols. The negative
-// lookaheads (?!<@) and (?!@) prevent matching email addresses by ensuring the
-// domain isn't preceded by <@ or followed by @. This helps distinguish between
-// example.com (a URL) and user@example.com (an email).
+// lookbehind (?<![@/]) and lookahead (?!@) prevent matching email addresses or
+// file paths by ensuring the domain isn't preceded by @ or /, or followed by
+// @. This helps distinguish between example.com (a URL) and user@example.com
+// (an email), or /foo/bar.txt
 //
 // Part 2: Path and Query String (Optional)
 // (?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?
@@ -60,7 +61,16 @@ const email =
 // itself - it requires the URL to end with an alphanumeric character or one of
 // these specific characters: -_~/$*=
 
-const url =
-    /\b(?:https?:\/\/(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?|(?!<@)(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?(?!@))(?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?/i;
+let urlPattern =
+    "(?:https?://(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}(?:[:]\\d{2,5})?|(?<![@/])(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}(?:[:]\\d{2,5})?(?!@))(?:[/?#](?:[a-z0-9\\-._~:/?#@!$&'*+,;=%]*[a-z0-9\\-_~/$*=]|\\([a-z0-9\\-._~:/?#@!$&'*+,;=%\\[\\]]+?\\))+)?";
+try {
+    new RegExp(urlPattern);
+} catch (error) {
+    // We still support a few old browsers that don't support negative
+    // lookbehind.
+    urlPattern = urlPattern.replace('(?<![@/])', '');
+}
 
-export { email, url };
+const url = new RegExp('\\b' + urlPattern, 'i');
+
+export { email, url, urlPattern };
