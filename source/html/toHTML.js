@@ -1,4 +1,4 @@
-import { urlPattern } from '../core/RegExp.js';
+import { emailAndQueryParamsPattern, urlPattern } from '../core/RegExp.js';
 import { escapeHTML } from '../core/String.js';
 
 // ---
@@ -11,13 +11,7 @@ const linkRegExp = new RegExp(
         urlPattern +
         // Capture group 2: Emails
         ')|(' +
-        // Add links to emails
-        '[\\w\\-.%+]+@(?:[\\w\\-]+\\.)+[a-z]{2,}\\b' +
-        // Allow query parameters in the mailto: style
-        '(?:' +
-        '[?][^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+' +
-        '(?:&[^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+)*' +
-        ')?' +
+        emailAndQueryParamsPattern +
         '))',
     'gi',
 );

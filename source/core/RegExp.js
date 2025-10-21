@@ -1,11 +1,23 @@
+// Domain-like:
+// (?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?
+const domainPattern = '(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}';
+const domainAndPortPattern = domainPattern + '(?:[:]\\d{2,5})?';
+
 /**
     Property: RegExp.email
     Type: RegExp
 
     A regular expression for detecting an email address.
 */
-const email =
-    /([\w!$&*\-=^`|~#%'+/?{}]+(?:\.[\w!$&*\-=^`|~#%'+/?{}]+)*@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,})\b/;
+const emailPattern = '[\\w\\-.%+]+@' + domainPattern + '\\b';
+const emailAndQueryParamsPattern =
+    emailPattern +
+    // Allow query parameters in the mailto: style
+    '(?:' +
+    '[?][^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+' +
+    '(?:&[^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+)*' +
+    ')?';
+const email = new RegExp('(' + emailPattern + ')');
 
 /**
     Property: RegExp.url
@@ -13,9 +25,6 @@ const email =
 
     A regular expression for detecting a url.
 */
-
-// Domain-like:
-// (?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?
 
 // Path-chars
 // [a-z0-9\-._~:/?#@!$&'*+,;=%\[\]()]
@@ -62,7 +71,13 @@ const email =
 // these specific characters: -_~/$*=
 
 let urlPattern =
-    "(?:https?://(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}(?:[:]\\d{2,5})?|(?<![@/])(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}(?:[:]\\d{2,5})?(?!@))(?:[/?#](?:[a-z0-9\\-._~:/?#@!$&'*+,;=%]*[a-z0-9\\-_~/$*=]|\\([a-z0-9\\-._~:/?#@!$&'*+,;=%\\[\\]]+?\\))+)?";
+    '(?:https?://' +
+    domainAndPortPattern +
+    '|' +
+    '(?<![@/])' +
+    domainAndPortPattern +
+    '(?!@))' +
+    "(?:[/?#](?:[a-z0-9\\-._~:/?#@!$&'*+,;=%]*[a-z0-9\\-_~/$*=]|\\([a-z0-9\\-._~:/?#@!$&'*+,;=%\\[\\]]+?\\))+)?";
 try {
     new RegExp(urlPattern);
 } catch (error) {
@@ -73,4 +88,4 @@ try {
 
 const url = new RegExp('\\b' + urlPattern, 'i');
 
-export { email, url, urlPattern };
+export { email, url, emailPattern, emailAndQueryParamsPattern, urlPattern };

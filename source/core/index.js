@@ -16,6 +16,8 @@ export { limit, mod } from './Math.js';
 export {
     email as emailRegExp,
     url as urlRegExp,
+    emailPattern,
+    emailAndQueryParamsPattern,
     urlPattern,
 } from './RegExp.js';
 export {
