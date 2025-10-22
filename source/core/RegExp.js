@@ -74,9 +74,7 @@ let urlPattern =
     '(?:https?://' +
     domainAndPortPattern +
     '|' +
-    // TEMP: Disable this until we fix the build system stripping the feature
-    // detection below.
-    // '(?<![@/])' +
+    '(?<![@/])' +
     domainAndPortPattern +
     '(?!@))' +
     "(?:[/?#](?:[a-z0-9\\-._~:/?#@!$&'*+,;=%]*[a-z0-9\\-_~/$*=]|\\([a-z0-9\\-._~:/?#@!$&'*+,;=%\\[\\]]+?\\))+)?";
