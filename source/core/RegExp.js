@@ -17,7 +17,7 @@ const emailAndQueryParamsPattern =
     '[?][^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+' +
     '(?:&[^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+)*' +
     ')?';
-const email = new RegExp('(' + emailPattern + ')');
+const email = new RegExp('(' + emailPattern + ')', 'i');
 
 /**
     Property: RegExp.url
