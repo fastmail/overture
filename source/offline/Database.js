@@ -111,7 +111,13 @@ class Database {
     async close() {
         const _db = this._db;
         if (_db) {
-            this._transactions.forEach((transaction) => transaction.abort());
+            this._transactions.forEach((transaction) => {
+                // This will throw an InvalidStateError if the transaction
+                // has already completed/aborted
+                try {
+                    transaction.abort();
+                } catch (error) {}
+            });
             this._db = null;
             const db = await _db;
             db.close();
