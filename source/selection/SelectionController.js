@@ -57,15 +57,11 @@ const SelectionController = Class({
         const _selectedStoreKeys = this._selectedStoreKeys;
         let length = this.get('length');
         const removed = event.removed;
-        const added = event.added.reduce((set, storeKey) => {
-            set[storeKey] = true;
-            return set;
-        }, {});
-        let storeKey;
+        const added = new Set(event.added);
 
         for (let i = removed.length - 1; i >= 0; i -= 1) {
-            storeKey = removed[i];
-            if (_selectedStoreKeys[storeKey] && !added[storeKey]) {
+            const storeKey = removed[i];
+            if (_selectedStoreKeys[storeKey] && !added.has(storeKey)) {
                 length -= 1;
                 delete _selectedStoreKeys[storeKey];
             }
