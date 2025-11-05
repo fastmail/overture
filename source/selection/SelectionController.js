@@ -67,6 +67,12 @@ const SelectionController = Class({
             }
         }
 
+        const lastSelectedIndex = this._lastSelectedIndex;
+        this._lastSelectedIndex =
+            lastSelectedIndex +
+            event.addedIndexes.binarySearch(lastSelectedIndex) -
+            event.removedIndexes.binarySearch(lastSelectedIndex);
+
         this.set('length', length).propertyDidChange('selectedStoreKeys');
     },
 
