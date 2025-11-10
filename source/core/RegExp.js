@@ -2,6 +2,7 @@
 // (?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:[:]\d{2,5})?
 const domainPattern = '(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}';
 const domainAndPortPattern = domainPattern + '(?:[:]\\d{2,5})?';
+const domain = new RegExp('^' + domainPattern + '$', 'i');
 
 /**
     Property: RegExp.email
@@ -88,4 +89,12 @@ try {
 
 const url = new RegExp('\\b' + urlPattern, 'i');
 
-export { email, url, emailPattern, emailAndQueryParamsPattern, urlPattern };
+export {
+    domain,
+    email,
+    url,
+    domainPattern,
+    emailPattern,
+    emailAndQueryParamsPattern,
+    urlPattern,
+};

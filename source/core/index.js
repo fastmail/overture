@@ -14,8 +14,10 @@ export { sortByProperties } from './sortByProperties.js';
 export { keyOf, filter, zip, fromQueryString } from './KeyValue.js';
 export { limit, mod } from './Math.js';
 export {
+    domain as domainRegExp,
     email as emailRegExp,
     url as urlRegExp,
+    domainPattern,
     emailPattern,
     emailAndQueryParamsPattern,
     urlPattern,
