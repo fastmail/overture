@@ -70,7 +70,14 @@ const AnimatableView = {
     */
     didAnimate(animation) {
         this.increment('animating', -1);
-        if (!this.get('animating') && animation instanceof StyleAnimation) {
+        if (
+            !this.get('animating') &&
+            animation instanceof StyleAnimation &&
+            animation.animated.some(
+                (property) =>
+                    property !== 'opacity' && property !== 'transform',
+            )
+        ) {
             this.parentViewDidResize();
         }
     },
