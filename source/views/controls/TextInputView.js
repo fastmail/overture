@@ -2,7 +2,7 @@
 
 import { Class, meta } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
-import { create as el, nearest } from '../../dom/Element.js';
+import { create as el } from '../../dom/Element.js';
 import { ScrollView } from '../containers/ScrollView.js';
 import { AbstractInputView } from './AbstractInputView.js';
 
@@ -467,28 +467,6 @@ const TextInputView = Class({
             this.set('selection', this.get('value').length).focus();
         }
     }.on('click'),
-
-    /**
-        Method (private): O.TextInputView#_onKeypress
-
-        Stop IE automatically focussing the nearest button when the user hits
-        enter in single line text inputs.
-
-        Parameters:
-            event - {Event} The keypress event.
-    */
-    _onKeypress: function (event) {
-        // If key == enter, IE will automatically focus the nearest button
-        // (presumably as though it were submitting the form). Stop this
-        // unless we're actually in a form.
-        if (
-            !this.get('isMultiline') &&
-            lookupKey(event, true) === 'Enter' &&
-            !nearest(this.get('layer'), 'FORM')
-        ) {
-            event.preventDefault();
-        }
-    }.on('keypress'),
 
     /**
         Method (private): O.TextInputView#_blurOnKey
