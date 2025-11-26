@@ -478,6 +478,9 @@ const TextInputView = Class({
             event - {Event} The keyup event.
     */
     _blurOnKey: function (event) {
+        if (event.isComposing) {
+            return;
+        }
         const key = lookupKey(event, true);
         if (this.get('blurOnKeys')[key]) {
             this.blur();
