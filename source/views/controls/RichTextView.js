@@ -122,6 +122,8 @@ const URLPickerView = Class({
 
     addOnEnter: function (event) {
         if (lookupKey(event) === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
             this.add();
         }
     }.on('keypress'),
