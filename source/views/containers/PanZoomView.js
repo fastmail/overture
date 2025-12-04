@@ -103,7 +103,8 @@ const PanZoomView = Class({
         return {
             height:
                 this.get('isInDocument') && scale !== 1
-                    ? this.get('scrollHeight') * scale
+                    ? this.get('scrollHeight') *
+                      Math.max(scale, this.get('minScale'))
                     : 'auto',
         };
     }.property('scrollHeight', 'scale'),
