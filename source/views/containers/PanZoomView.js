@@ -243,6 +243,10 @@ const PanZoomView = Class({
             if (scrollParent) {
                 posX += scrollParent.get('scrollLeft');
                 posY += scrollParent.get('scrollTop');
+                scrollParent.set(
+                    'scrollPaddingY',
+                    scrollParent.get('pxHeight'),
+                );
             }
 
             x += this.get('scrollLeft');
@@ -259,7 +263,11 @@ const PanZoomView = Class({
             this._posY = posY;
             this._scrollParent = scrollParent;
         } else if (oldTouchCount === 2 && newTouchCount !== 2) {
-            this._scrollParent = null;
+            const scrollParent = this._scrollParent;
+            if (scrollParent) {
+                scrollParent.set('scrollPaddingY', 0);
+                this._scrollParent = null;
+            }
 
             // Either continue scrolling, or animate back to min/max bounds.
             if (newTouchCount === 1) {

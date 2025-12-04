@@ -71,6 +71,7 @@ const ScrollView = Class({
         this._scrollSnapResuming = false;
         this._scrollendTimer = null;
         this._scrollendCounter = 0;
+        this.scrollPaddingY = 0;
         ScrollView.parent.init.apply(this, arguments);
     },
 
@@ -247,15 +248,18 @@ const ScrollView = Class({
         return ScrollView.parent.insertView.call(this, view, relativeTo, where);
     },
 
-    redrawSafeArea() {
+    redrawSafeArea: function () {
         const safeAreaPadding = this._safeAreaPadding;
         if (safeAreaPadding) {
             this._safeAreaPadding.style.height =
-                this.getParent(RootView).get('safeAreaInsetBottom') + 'px';
+                Math.max(
+                    this.get('scrollPaddingY'),
+                    this.getParent(RootView).get('safeAreaInsetBottom'),
+                ) + 'px';
         } else {
             this.didResize();
         }
-    },
+    }.observes('scrollPaddingY'),
 
     // ---
 
