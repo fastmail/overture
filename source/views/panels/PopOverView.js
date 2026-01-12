@@ -415,13 +415,13 @@ const PopOverView = Class({
         return new ModalEventHandler({ view: this });
     }.property(),
 
-    softHide() {
+    softHide(isEscape) {
         const options = this.get('options');
         if (
             this.get('isVisible') &&
             (!options.resistHiding ||
                 (typeof options.resistHiding === 'function' &&
-                    !options.resistHiding()))
+                    !options.resistHiding(isEscape)))
         ) {
             this.hide();
         }
@@ -438,7 +438,7 @@ const PopOverView = Class({
         ) {
             view = parent;
         }
-        view.softHide();
+        view.softHide(false);
     },
 
     keyOutside(event) {
@@ -447,7 +447,7 @@ const PopOverView = Class({
 
     closeOnEsc: function (event) {
         if (lookupKey(event) === 'Escape') {
-            this.softHide();
+            this.softHide(true);
         }
     }.on('keydown'),
 
