@@ -146,6 +146,9 @@ const MenuButtonView = Class({
 
     // --- Accessibility ---
 
+    // Cache in case menuView is nocache.
+    menuViewId: '',
+
     didCreateLayer(layer) {
         MenuButtonView.parent.didCreateLayer.call(this, layer);
         layer.setAttribute('aria-expanded', 'false');
@@ -158,7 +161,7 @@ const MenuButtonView = Class({
     redrawAria(layer) {
         // Set ARIA attribute to link the menu DOM element to this
         // button, so screen readers know what has opened.
-        layer.setAttribute('aria-controls', this.getFromPath('menuView.id'));
+        layer.setAttribute('aria-controls', this.get('menuViewId'));
         // And set ARIA attribute to say that the menu is now open
         layer.setAttribute('aria-expanded', this.get('isActive') + '');
     },
@@ -188,6 +191,7 @@ const MenuButtonView = Class({
             const buttonView = this;
             const wasFocused = this.get('isFocused');
             const menuView = this.get('menuView');
+            this.set('menuViewId', menuView.get('id'));
             let popOverView;
             let menuOptionView;
             const popOverOptions = Object.assign(
