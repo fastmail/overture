@@ -299,7 +299,7 @@ const interpreter = {
             const token = tokens[i];
             const name = token[0];
             if (this[name]) {
-                this[name](date, token[1], token[2], tokens);
+                this[name](date, token[1], token[2], tokens, expectedTense);
             }
         }
         return this.findDate(date, date.searchMethod || expectedTense);
@@ -574,9 +574,9 @@ const interpreter = {
         }
         date.adjust.push([sign === '+' ? 1 : -1, 'day']);
     },
-    adjustNumber(date, number) {
+    adjustNumber(date, number, _, __, expectedTense) {
         if (!date.adjust) {
-            date.adjust = [[-1, 'day']];
+            date.adjust = [[expectedTense ? 1 : -1, 'day']];
         }
         date.adjust.last()[0] *= number;
     },
