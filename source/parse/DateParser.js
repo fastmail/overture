@@ -576,7 +576,7 @@ const interpreter = {
     },
     adjustNumber(date, number, _, __, expectedTense) {
         if (!date.adjust) {
-            date.adjust = [[expectedTense ? 1 : -1, 'day']];
+            date.adjust = [[expectedTense === FUTURE ? 1 : -1, 'day']];
         }
         date.adjust.last()[0] *= number;
     },
