@@ -712,25 +712,26 @@ const Drag = Class({
         }
         // And set a new timer if we are currently in a hotspot.
         if (scroll) {
+            const pxPerFrame = 8;
             const deltaX = !scroll.mayX
                 ? 0
                 : x < scroll.hl
-                  ? -10
+                  ? -pxPerFrame
                   : x > scroll.hr
-                    ? 10
+                    ? pxPerFrame
                     : 0;
             const deltaY = !scroll.mayY
                 ? 0
                 : y < scroll.ht
-                  ? -10
+                  ? -pxPerFrame
                   : y > scroll.hb
-                    ? 10
+                    ? pxPerFrame
                     : 0;
             if (deltaX || deltaY) {
                 this._scrollBy = { x: deltaX, y: deltaY };
                 this._scrollInterval = invokePeriodically(
                     this._scroll,
-                    100,
+                    32,
                     this,
                 );
             }
