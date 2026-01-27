@@ -8,6 +8,7 @@ import { Obj } from '../foundation/Object.js';
 import { cancel, invokePeriodically } from '../foundation/RunLoop.js';
 import { getViewFromNode } from '../views/activeViews.js';
 import { ScrollView } from '../views/containers/ScrollView.js';
+import { RootView } from '../views/RootView.js';
 import {
     ALL,
     COPY,
@@ -658,7 +659,7 @@ const Drag = Class({
     */
     _check(view, x, y) {
         let scroll = this._scrollBounds;
-        const outsideTriggerRegionWidth = 15;
+        const outsideTriggerRegionWidth = 32;
 
         // If we don't have any containing scroll container bounds, recalculate.
         if (
@@ -678,6 +679,7 @@ const Drag = Class({
                     scrollView = scrollView.getParent(ScrollView);
                 }
                 if (scrollView) {
+                    const rootView = scrollView.getParent(RootView);
                     const bounds = getRawBoundingClientRect(
                         scrollView.get('layer'),
                     );
@@ -685,7 +687,10 @@ const Drag = Class({
                         l: bounds.left - outsideTriggerRegionWidth,
                         r: bounds.right + outsideTriggerRegionWidth,
                         t: bounds.top - outsideTriggerRegionWidth,
-                        b: bounds.bottom + outsideTriggerRegionWidth,
+                        b:
+                            bounds.bottom +
+                            outsideTriggerRegionWidth -
+                            rootView.get('safeAreaInsetBottom'),
                     };
                     const deltaX = Math.min(75, bounds.width >> 2);
                     const deltaY = Math.min(75, bounds.height >> 2);
