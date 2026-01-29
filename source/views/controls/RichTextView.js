@@ -637,7 +637,7 @@ const RichTextView = Class({
                     label: loc('Insert image'),
                     tooltip: loc('Insert image'),
                     acceptMultiple: true,
-                    acceptOnlyTypes: 'image/jpeg, image/png, image/gif',
+                    acceptOnlyTypes: 'image/*',
                     target: this,
                     method: 'insertImagesFromFiles',
                 }),
