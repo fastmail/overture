@@ -304,6 +304,10 @@ const RichTextView = Class({
             'aria-multiline': 'true',
             'aria-label': this.get('label'),
             'tabIndex': this.get('tabIndex'),
+            // While this should be enabled by default, Android WebView doesn't
+            // perform spellchecking unless the attribute is set explicitly.
+            // https://issues.chromium.org/issues/40455129#comment30
+            'spellcheck': 'true',
             'className':
                 'v-RichText-input' +
                 (editorClassName ? ' ' + editorClassName : ''),
