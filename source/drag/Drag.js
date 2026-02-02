@@ -670,7 +670,7 @@ const Drag = Class({
             y > scroll.b
         ) {
             scroll = null;
-            // Optimise by only reclaculating scrollView bounds when we mouse
+            // Optimise by only recalculating scrollView bounds when we mouse
             // over a new view.
             if (this.autoScroll && view && this._lastTargetView !== view) {
                 let scrollView = (this._lastTargetView = view);
@@ -705,12 +705,6 @@ const Drag = Class({
                 this._scrollBounds = scroll;
             }
         }
-        // Clear the timer if we used to be in a hotspot.
-        if (this._scrollInterval) {
-            cancel(this._scrollInterval);
-            this._scrollInterval = null;
-        }
-        // And set a new timer if we are currently in a hotspot.
         if (scroll) {
             const pxPerFrame = 8;
             const deltaX = !scroll.mayX
@@ -727,14 +721,18 @@ const Drag = Class({
                   : y > scroll.hb
                     ? pxPerFrame
                     : 0;
-            if (deltaX || deltaY) {
-                this._scrollBy = { x: deltaX, y: deltaY };
-                this._scrollInterval = invokePeriodically(
-                    this._scroll,
-                    32,
-                    this,
-                );
-            }
+            this._scrollBy = deltaX || deltaY ? { x: deltaX, y: deltaY } : null;
+        } else {
+            this._scrollBy = null;
+        }
+        // Clear the timer if we used to be in a hotspot.
+        if (!this._scrollBy && this._scrollInterval) {
+            cancel(this._scrollInterval);
+            this._scrollInterval = null;
+        }
+        // And set a new timer if we are currently in a hotspot.
+        if (this._scrollBy && !this._scrollInterval) {
+            this._scrollInterval = invokePeriodically(this._scroll, 32, this);
         }
     },
 
