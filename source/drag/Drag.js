@@ -752,6 +752,11 @@ const Drag = Class({
             if (target) {
                 this._update(getViewFromNode(target));
             }
+        } else {
+            // We've hit the end of the scroll view
+            cancel(this._scrollInterval);
+            this._scrollInterval = null;
+            this._scrollBy = null;
         }
     },
 
