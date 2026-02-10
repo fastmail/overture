@@ -433,6 +433,8 @@ const RichTextView = Class({
         return null;
     },
 
+    buttonType: '',
+
     toolbarConfig: {
         left: [
             'bold',
@@ -473,10 +475,14 @@ const RichTextView = Class({
         const richTextView = this;
         const rootView = this.getParent(RootView);
         const showToolbar = this.get('showToolbar');
+        const buttonType = this.get('buttonType');
+        const iconOnlyButtonType = buttonType
+            ? buttonType + ' v-Button--iconOnly'
+            : 'v-Button--iconOnly';
 
         return new ToolbarView({
             className: 'v-Toolbar v-Toolbar--preventOverlap v-RichText-toolbar',
-            overflowMenuType: '',
+            overflowMenuType: buttonType,
             positioning:
                 showToolbar === TOOLBAR_ABOVE_KEYBOARD ? 'fixed' : 'sticky',
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
@@ -496,7 +502,7 @@ const RichTextView = Class({
             .registerViews({
                 bold: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('bold'),
                     isActive: bind(this, 'isBold'),
                     label: loc('Bold'),
@@ -512,7 +518,7 @@ const RichTextView = Class({
                 }),
                 italic: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('italic'),
                     isActive: bind(this, 'isItalic'),
                     label: loc('Italic'),
@@ -529,7 +535,7 @@ const RichTextView = Class({
                 }),
                 underline: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('underline'),
                     isActive: bind(this, 'isUnderlined'),
                     label: loc('Underline'),
@@ -546,7 +552,7 @@ const RichTextView = Class({
                 }),
                 strikethrough: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('strikethrough'),
                     isActive: bind(this, 'isStriked'),
                     label: loc('Strikethrough'),
@@ -565,7 +571,7 @@ const RichTextView = Class({
                 }),
                 size: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('size'),
                     label: loc('Text size'),
                     tooltip: loc('Text size'),
@@ -574,7 +580,7 @@ const RichTextView = Class({
                 }),
                 font: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('font'),
                     label: loc('Font face'),
                     tooltip: loc('Font face'),
@@ -583,7 +589,7 @@ const RichTextView = Class({
                 }),
                 color: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('color'),
                     label: loc('Text color'),
                     tooltip: loc('Text color'),
@@ -592,7 +598,7 @@ const RichTextView = Class({
                 }),
                 bgcolor: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('bgcolor'),
                     label: loc('Text highlight'),
                     tooltip: loc('Text highlight'),
@@ -601,7 +607,7 @@ const RichTextView = Class({
                 }),
                 link: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('link'),
                     isActive: bind(this, 'isLink'),
                     label: loc('Link'),
@@ -617,7 +623,7 @@ const RichTextView = Class({
                 }),
                 code: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('code'),
                     isActive: bind(this, 'isCode'),
                     label: loc('Preformatted text'),
@@ -636,7 +642,7 @@ const RichTextView = Class({
                 }),
                 image: new FileButtonView({
                     tabIndex: -1,
-                    type: 'v-FileButton v-Button--iconOnly',
+                    type: 'v-FileButton v-Button--subtle v-Button--iconOnly',
                     icon: this.getIcon('image'),
                     label: loc('Insert image'),
                     tooltip: loc('Insert image'),
@@ -647,7 +653,7 @@ const RichTextView = Class({
                 }),
                 remoteImage: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('image'),
                     label: loc('Insert image'),
                     tooltip: loc('Insert image'),
@@ -656,7 +662,7 @@ const RichTextView = Class({
                 }),
                 left: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('left'),
                     isActive: bind(this, 'alignment', isEqualToValue('left')),
                     label: loc('Left'),
@@ -668,7 +674,7 @@ const RichTextView = Class({
                 }),
                 centre: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('centre'),
                     isActive: bind(this, 'alignment', isEqualToValue('center')),
                     label: loc('Center'),
@@ -680,7 +686,7 @@ const RichTextView = Class({
                 }),
                 right: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('right'),
                     isActive: bind(this, 'alignment', isEqualToValue('right')),
                     label: loc('Right'),
@@ -692,7 +698,7 @@ const RichTextView = Class({
                 }),
                 justify: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('justify'),
                     isActive: bind(
                         this,
@@ -708,7 +714,7 @@ const RichTextView = Class({
                 }),
                 ltr: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('ltr'),
                     isActive: bind(this, 'direction', isEqualToValue('ltr')),
                     label: loc('Text direction: left to right'),
@@ -720,7 +726,7 @@ const RichTextView = Class({
                 }),
                 rtl: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('rtl'),
                     isActive: bind(this, 'direction', isEqualToValue('rtl')),
                     label: loc('Text direction: right to left'),
@@ -732,7 +738,7 @@ const RichTextView = Class({
                 }),
                 quote: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('quote'),
                     label: loc('Quote'),
                     tooltip:
@@ -744,7 +750,7 @@ const RichTextView = Class({
                 }),
                 unquote: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('unquote'),
                     label: loc('Unquote'),
                     tooltip:
@@ -756,7 +762,7 @@ const RichTextView = Class({
                 }),
                 ul: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('ul'),
                     isActive: bind(this, 'isUnorderedList'),
                     label: loc('Unordered list'),
@@ -775,7 +781,7 @@ const RichTextView = Class({
                 }),
                 ol: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('ol'),
                     isActive: bind(this, 'isOrderedList'),
                     label: loc('Ordered list'),
@@ -795,7 +801,7 @@ const RichTextView = Class({
                 undo: new ButtonView({
                     tabIndex: -1,
                     isDisabled: bind(this, 'canUndo', invert),
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('undo'),
                     label: loc('Undo'),
                     tooltip: loc('Undo'),
@@ -805,7 +811,7 @@ const RichTextView = Class({
                 redo: new ButtonView({
                     tabIndex: -1,
                     isDisabled: bind(this, 'canRedo', invert),
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('redo'),
                     label: loc('Redo'),
                     tooltip: loc('Redo'),
@@ -814,7 +820,7 @@ const RichTextView = Class({
                 }),
                 unformat: new ButtonView({
                     tabIndex: -1,
-                    type: 'v-Button--iconOnly',
+                    type: iconOnlyButtonType,
                     icon: this.getIcon('unformat'),
                     label: loc('Clear formatting'),
                     tooltip: loc('Clear formatting'),
