@@ -364,11 +364,6 @@ const ListView = Class({
             }
         }
     },
-
-    // --- Can't add views by hand; just bound to content ---
-
-    insertView: null,
-    replaceView: null,
 });
 
 export { ListView };
