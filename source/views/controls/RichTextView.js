@@ -366,6 +366,9 @@ const RichTextView = Class({
 
     // ---
 
+    topAutoScrollMargin: 16,
+    bottomAutoScrollMargin: 16,
+
     scrollIntoView: function () {
         if (!this.get('isFocused') || !this.get('isInDocument')) {
             return;
@@ -407,17 +410,18 @@ const RichTextView = Class({
                       : 0)
                 : 0;
         let scrollBy = 0;
-        const minimumGapToScrollEdge = 16;
-        if (offsetTop < topToolbarHeight + minimumGapToScrollEdge) {
-            scrollBy = offsetTop - topToolbarHeight - minimumGapToScrollEdge;
+        const topAutoScrollMargin = this.get('topAutoScrollMargin');
+        const bottomAutoScrollMargin = this.get('bottomAutoScrollMargin');
+        if (offsetTop < topToolbarHeight + topAutoScrollMargin) {
+            scrollBy = offsetTop - topToolbarHeight - topAutoScrollMargin;
         } else if (
             offsetBottom >
-            scrollViewHeight - bottomToolbarHeight - minimumGapToScrollEdge
+            scrollViewHeight - bottomToolbarHeight - bottomAutoScrollMargin
         ) {
             scrollBy =
                 offsetBottom +
                 bottomToolbarHeight +
-                minimumGapToScrollEdge -
+                bottomAutoScrollMargin -
                 scrollViewHeight;
         }
         if (scrollBy) {
