@@ -1,4 +1,4 @@
-/*global window, document, localStorage */
+/*global window, document, BroadcastChannel */
 
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
@@ -41,7 +41,7 @@ const WindowController = Class({
         Type: String
         Default: "owm:broadcast"
 
-        The key to use for the local storage property that will be set to
+        The name to use for the BroadcastChannel that will be used to
         broadcast messages to other tabs.
     */
     broadcastKey: 'owm:broadcast',
@@ -79,10 +79,13 @@ const WindowController = Class({
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
 
         this._seenWCs = {};
+        this._channel = null;
 
         WindowController.parent.constructor.apply(this, arguments);
 
-        window.addEventListener('storage', this, false);
+        if (!this._channel) {
+            this._openChannel(this.get('broadcastKey'));
+        }
         window.addEventListener('unload', this, false);
         window.addEventListener('focus', this, false);
         window.addEventListener('blur', this, false);
@@ -93,14 +96,19 @@ const WindowController = Class({
     },
 
     destroy() {
-        this.end(this.get('broadcastKey'));
+        this.end();
 
-        window.removeEventListener('storage', this, false);
+        this._channel.close();
         window.removeEventListener('unload', this, false);
         window.removeEventListener('focus', this, false);
         window.removeEventListener('blur', this, false);
 
         WindowController.parent.destroy.call(this);
+    },
+
+    _openChannel(name) {
+        this._channel = new BroadcastChannel(name);
+        this._channel.addEventListener('message', this, false);
     },
 
     /**
@@ -116,12 +124,9 @@ const WindowController = Class({
         Method: O.WindowController#end
 
         Sends a message to let other windows know this one has been destroyed.
-
-        Parameters:
-            broadcastKey - {String} The broadcast key.
     */
-    end(broadcastKey) {
-        this.broadcast('wc:bye', null, broadcastKey);
+    end() {
+        this.broadcast('wc:bye');
     },
 
     /**
@@ -129,37 +134,29 @@ const WindowController = Class({
 
         Observes changes to the broadcastKey and synchronizes with other
         windows.
-
-        Parameters:
-            oldBroadcastKey - {String} The previous broadcast key.
     */
-    broadcastKeyDidChange: function (_, __, oldBroadcastKey) {
-        this.end(oldBroadcastKey);
+    broadcastKeyDidChange: function () {
+        this.end();
+        this._channel.close();
+        this._openChannel(this.get('broadcastKey'));
         this.start();
     }.observes('broadcastKey'),
 
     /**
         Method (protected): O.WindowController#handleEvent
 
-        Handles storage, unload, focus and blur events.
+        Handles message, unload, focus and blur events.
 
         Parameters:
             event - {Event} The event object.
     */
     handleEvent: function (event) {
         switch (event.type) {
-            case 'storage':
-                if (event.key === this.get('broadcastKey')) {
-                    try {
-                        const data = JSON.parse(event.newValue);
-                        // IE fires events in the same window that set the
-                        // property. Ignore these.
-                        if (data.wcId !== this.id) {
-                            this.fire(data.type, data);
-                        }
-                    } catch (error) {}
-                }
+            case 'message': {
+                const data = event.data;
+                this.fire(data.type, data);
                 break;
+            }
             case 'unload':
                 this.destroy();
                 break;
@@ -246,26 +243,19 @@ const WindowController = Class({
         Broadcast an event with JSON-serialisable data to other tabs.
 
         Parameters:
-            type         - {String} The name of the event being broadcast.
-            data         - {Object} (optional). The data to broadcast.
-            broadcastKey - {String} (optional). The key to use; otherwise the
-                           key will be taken from the broadcastKey property.
+            type - {String} The name of the event being broadcast.
+            data - {Object} (optional). The data to broadcast.
     */
-    broadcast(type, data, broadcastKey) {
-        try {
-            localStorage.setItem(
-                broadcastKey || this.get('broadcastKey'),
-                JSON.stringify(
-                    Object.assign(
-                        {
-                            wcId: this.id,
-                            type,
-                        },
-                        data,
-                    ),
-                ),
-            );
-        } catch (error) {}
+    broadcast(type, data) {
+        this._channel.postMessage(
+            Object.assign(
+                {
+                    wcId: this.id,
+                    type,
+                },
+                data,
+            ),
+        );
     },
 });
 
