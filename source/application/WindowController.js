@@ -77,8 +77,7 @@ const WindowController = Class({
         this.id = new Date().format('%y%m%d%H%M%S') + Math.random();
         this.isMaster = false;
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
-
-        this._seenWCs = new Map();
+        this.otherWindows = new Map();
         this._channel = null;
 
         WindowController.parent.constructor.apply(this, arguments);
@@ -201,7 +200,8 @@ const WindowController = Class({
     */
     _ping: function (event) {
         const wcId = event.wcId;
-        this._seenWCs.set(wcId, event.url);
+        this.otherWindows.set(wcId, event.url);
+        this.propertyDidChange('otherWindows');
         if (wcId < this.id) {
             this.checkMaster();
         }
@@ -216,7 +216,8 @@ const WindowController = Class({
             event - {Event} An event object containing the window id.
     */
     _bye: function (event) {
-        this._seenWCs.delete(event.wcId);
+        this.otherWindows.delete(event.wcId);
+        this.propertyDidChange('otherWindows');
         this.checkMaster();
     }.on('wc:bye'),
 
@@ -229,7 +230,7 @@ const WindowController = Class({
     checkMaster() {
         let isMaster = true;
         const ourId = this.id;
-        for (const id of this._seenWCs.keys()) {
+        for (const id of this.otherWindows.keys()) {
             if (id < ourId) {
                 isMaster = false;
                 break;
