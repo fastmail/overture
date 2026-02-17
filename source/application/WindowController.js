@@ -74,7 +74,9 @@ const WindowController = Class({
     */
 
     init: function (/* ...mixins */) {
-        this.id = new Date().format('%y%m%d%H%M%S') + Math.random();
+        this.id =
+            window.name || new Date().format('%y%m%d%H%M%S') + Math.random();
+        window.name = this.id;
         this.isMaster = false;
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
         this.otherWindows = new Map();
