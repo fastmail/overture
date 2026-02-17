@@ -14,8 +14,6 @@ import '../foundation/Decorators.js';
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-let doRouting;
-
 const globalQueryStringPart = function () {
     // We don’t actually *depend* on a stable order here, but it’s desirable.
     // The specs don’t quite guarantee us that, but all current browsers provide
@@ -73,16 +71,9 @@ const Router = Class({
         Default: the origin, plus a trailing slash.
 
         The path to the base of the URL space that maps to application state.
-        There’s also a different default for the file: scheme, using the hash,
-        but realise that it may have issues if you have links that use the hash,
-        or if you try loading the page without “#/” added on the end.
-
         This property must not be modified after router construction time.
     */
-    baseUrl:
-        location.protocol === 'file:'
-            ? location.href.replace(/#.*/, '') + '#/'
-            : location.protocol + '//' + location.host + '/',
+    baseUrl: location.origin + '/',
 
     /**
         Property: O.Router#knownGlobalQueryParams
@@ -271,6 +262,7 @@ const Router = Class({
         Router.parent.constructor.call(this, mixin, globalQueryMixin);
 
         this._win = win;
+        this.url = win.location.href;
         this.doRouting();
         win.addEventListener('popstate', this, false);
     },
@@ -296,16 +288,16 @@ const Router = Class({
         may lead to confusion with the noun “route”, referring to the current
         route. Hence the clumsy name doRouting.)
     */
-    doRouting: (doRouting = function () {
+    doRouting: function () {
         const baseUrl = this.baseUrl;
-        const href = this._win.location.href;
-        if (!href.startsWith(baseUrl)) {
+        const url = this.get('url');
+        if (!url.startsWith(baseUrl)) {
             const error = new Error('Bad Router.baseUrl');
-            error.details = { href, baseUrl };
+            error.details = { href: url, baseUrl };
             throw error;
         }
-        this.restoreEncodedState(href.slice(baseUrl.length), null);
-    }.observes('routes')),
+        this.restoreEncodedState(url.slice(baseUrl.length), null);
+    }.observes('routes'),
 
     /**
         Method: O.Router#handleEvent
@@ -314,7 +306,10 @@ const Router = Class({
         set value and if different, invoke <O.Router#restoreEncodedState> with
         the new URL.
     */
-    handleEvent: doRouting.invokeInRunLoop(),
+    handleEvent() {
+        this.set('url', this._win.location.href);
+        this.doRouting();
+    },
 
     /**
         Method: O.Router#restoreEncodedState
@@ -444,6 +439,7 @@ const Router = Class({
         } else {
             history.pushState(null, title, url);
         }
+        this.set('url', url);
     }
         .queue('after')
         .observes('encodedState', 'globalQueryStringPart'),
