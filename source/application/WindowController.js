@@ -1,4 +1,4 @@
-/*global window, document, BroadcastChannel */
+/*global window, document, location, BroadcastChannel */
 
 import { Class } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
@@ -78,7 +78,7 @@ const WindowController = Class({
         this.isMaster = false;
         this.isFocused = document.hasFocus ? document.hasFocus() : true;
 
-        this._seenWCs = {};
+        this._seenWCs = new Map();
         this._channel = null;
 
         WindowController.parent.constructor.apply(this, arguments);
@@ -117,7 +117,7 @@ const WindowController = Class({
         Sends a message to let other windows know a new one has been created.
     */
     start() {
-        this.broadcast('wc:hello');
+        this.broadcast('wc:hello', { url: location.href });
     },
 
     /**
@@ -175,7 +175,7 @@ const WindowController = Class({
         Sends a ping to let other windows know about the existence of this one.
     */
     sendPing() {
-        this.broadcast('wc:ping');
+        this.broadcast('wc:ping', { url: location.href });
     },
 
     /**
@@ -201,7 +201,7 @@ const WindowController = Class({
     */
     _ping: function (event) {
         const wcId = event.wcId;
-        this._seenWCs[wcId] = true;
+        this._seenWCs.set(wcId, event.url);
         if (wcId < this.id) {
             this.checkMaster();
         }
@@ -216,7 +216,7 @@ const WindowController = Class({
             event - {Event} An event object containing the window id.
     */
     _bye: function (event) {
-        delete this._seenWCs[event.wcId];
+        this._seenWCs.delete(event.wcId);
         this.checkMaster();
     }.on('wc:bye'),
 
@@ -229,9 +229,10 @@ const WindowController = Class({
     checkMaster() {
         let isMaster = true;
         const ourId = this.id;
-        for (const id in this._seenWCs) {
+        for (const id of this._seenWCs.keys()) {
             if (id < ourId) {
                 isMaster = false;
+                break;
             }
         }
         this.set('isMaster', isMaster);
