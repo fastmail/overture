@@ -87,7 +87,7 @@ const WindowController = Class({
         if (!this._channel) {
             this._openChannel(this.get('broadcastKey'));
         }
-        window.addEventListener('unload', this, false);
+        window.addEventListener('pagehide', this, false);
         window.addEventListener('focus', this, false);
         window.addEventListener('blur', this, false);
 
@@ -100,7 +100,7 @@ const WindowController = Class({
         this.end();
 
         this._channel.close();
-        window.removeEventListener('unload', this, false);
+        window.removeEventListener('pagehide', this, false);
         window.removeEventListener('focus', this, false);
         window.removeEventListener('blur', this, false);
 
@@ -146,7 +146,7 @@ const WindowController = Class({
     /**
         Method (protected): O.WindowController#handleEvent
 
-        Handles message, unload, focus and blur events.
+        Handles message, pagehide, focus and blur events.
 
         Parameters:
             event - {Event} The event object.
@@ -158,7 +158,7 @@ const WindowController = Class({
                 this.fire(data.type, data);
                 break;
             }
-            case 'unload':
+            case 'pagehide':
                 this.destroy();
                 break;
             case 'focus':
