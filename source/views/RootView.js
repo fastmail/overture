@@ -9,6 +9,10 @@ import { ViewEventsController } from './ViewEventsController.js';
 /* { on, invokeInRunLoop } from */
 import '../foundation/Decorators.js';
 
+// ---
+
+/* global setTimeout */
+
 let passiveSupported = false;
 
 try {
@@ -98,6 +102,9 @@ const RootView = Class({
             win.addEventListener(event, this, false);
         });
 
+        this._resizeTimer = null;
+        this._lastWindowWidth = win.innerWidth;
+        this._lastWindowHeight = win.innerHeight;
         this.isRendered = true;
         this.isInDocument = true;
         this.layer = nodeIsDocument ? node.body : node;
@@ -159,9 +166,24 @@ const RootView = Class({
                     false,
                 );
                 break;
-            // Window resize events: just notify parent has resized.
+            // Window resize events: throttle and check size actually changed.
             case 'resize':
-                this.didResize();
+                if (this._resizeTimer) {
+                    return;
+                }
+                this._resizeTimer = setTimeout(() => {
+                    this._resizeTimer = null;
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    if (
+                        width !== this._lastWindowWidth ||
+                        height !== this._lastWindowHeight
+                    ) {
+                        this._lastWindowWidth = width;
+                        this._lastWindowHeight = height;
+                        this.didResize();
+                    }
+                }, 100);
                 return;
             // Scroll events are special.
             case 'scroll':
