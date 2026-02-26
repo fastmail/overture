@@ -111,9 +111,11 @@ const DropTarget = {
         Parameters:
             drag - {O.Drag} The drag instance.
     */
-    dropExited(drag) {
-        drag.set('dropEffect', DEFAULT);
+    dropExited(drag, isDragEnd) {
         this.set('hasDragOver', false);
+        if (!isDragEnd) {
+            drag.set('dropEffect', DEFAULT);
+        }
     },
 
     /**

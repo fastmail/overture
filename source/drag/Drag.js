@@ -548,7 +548,7 @@ const Drag = Class({
         const dropTarget = this.get('dropTarget');
         const dragSource = this.get('dragSource');
         if (dropTarget) {
-            dropTarget.dropExited(this);
+            dropTarget.dropExited(this, true);
         }
         if (dragSource) {
             dragSource.set('isDragging', false).dragEnded(this);
@@ -787,7 +787,7 @@ const Drag = Class({
         // Update targets on status
         if (view !== currentDrop) {
             if (currentDrop) {
-                currentDrop.dropExited(this);
+                currentDrop.dropExited(this, false);
             }
             if (view) {
                 view.dropEntered(this);
