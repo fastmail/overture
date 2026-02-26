@@ -11,7 +11,7 @@ const domain = new RegExp('^' + domainPattern + '$', 'i');
 
     A regular expression for detecting an email address.
 */
-const emailPattern = '[\\w\\-.%+]+@' + domainPattern + '\\b';
+const emailPattern = '[\\w\\-.%+]+@' + domainPattern;
 const emailAndQueryParamsPattern =
     emailPattern +
     // Allow query parameters in the mailto: style
