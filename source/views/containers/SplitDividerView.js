@@ -28,11 +28,15 @@ const SplitDividerView = Class({
 
     init: function (mixin) {
         const controller = mixin.controller;
-        SplitDividerView.parent.init.call(this, mixin, {
-            direction: controller.get('direction'),
-            flex: controller.get('flex'),
-            offset: bind(controller, 'staticPaneLength'),
-        });
+        SplitDividerView.parent.init.call(
+            this,
+            {
+                direction: controller.get('direction'),
+                flex: controller.get('flex'),
+                offset: bind(controller, 'staticPaneLength'),
+            },
+            mixin,
+        );
         this.clickAfterDrag = false;
     },
 
