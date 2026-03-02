@@ -54,10 +54,12 @@ const PanZoomView = Class({
     setListeners: function () {
         const layer = this.get('layer');
         if (this.get('isInDocument')) {
+            layer.addEventListener('toggle', this, true);
             layer.addEventListener('load', this, true);
             layer.addEventListener('transitionend', this, true);
             this.contentDidResize();
         } else {
+            layer.removeEventListener('toggle', this, true);
             layer.removeEventListener('load', this, true);
             layer.removeEventListener('transitionend', this, true);
         }
@@ -94,7 +96,7 @@ const PanZoomView = Class({
     }
         .nextLoop()
         .nextFrame()
-        .on('load', 'transitionend'),
+        .on('toggle', 'load', 'transitionend'),
 
     positioning: 'relative',
 
