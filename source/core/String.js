@@ -130,14 +130,10 @@ const formatString = (string, ...args) => {
         }
 
         // (4) Check minimum width
-        let padLength = (part[4] || 0) - toInsert.length;
+        const padLength = (part[4] || 0) - toInsert.length;
         if (padLength > 0) {
             // Padding character is (2) or a space
-            const padChar = part[2] || ' ';
-            let padding = padChar;
-            while ((padLength -= 1)) {
-                padding += padChar;
-            }
+            const padding = (part[2] || ' ').repeat(padLength);
             // Insert padding before unless (3) is set.
             if (part[3]) {
                 toInsert += padding;
@@ -168,12 +164,9 @@ const formatString = (string, ...args) => {
 */
 const escapeHTML = (string) => {
     return string
-        .split('&')
-        .join('&amp;')
-        .split('<')
-        .join('&lt;')
-        .split('>')
-        .join('&gt;');
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
 };
 
 /**
@@ -298,6 +291,8 @@ const hash = (string) => {
     Returns:
         {String} The 128 bit hash in the form of a hexadecimal string.
 */
+/*global TextEncoder */
+
 const md5 = (function () {
     const r = [
         7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14,
@@ -320,37 +315,21 @@ const md5 = (function () {
         0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
     ];
 
-    const utf16To8 = (string) => {
-        let utf8 = '';
-        for (let i = 0, l = string.length; i < l; i += 1) {
-            const c = string.charCodeAt(i);
-            if (c < 128) {
-                utf8 += string.charAt(i);
-            } else if (c < 2048) {
-                utf8 += String.fromCharCode((c >> 6) | 192);
-                utf8 += String.fromCharCode((c & 63) | 128);
-            } else {
-                utf8 += String.fromCharCode((c >> 12) | 224);
-                utf8 += String.fromCharCode(((c >> 6) & 63) | 128);
-                utf8 += String.fromCharCode((c & 63) | 128);
-            }
-        }
-        return utf8;
-    };
+    const encoder = new TextEncoder();
 
-    const stringToWords = (string) => {
-        // Each character is 8 bits. Pack into an array of 32 bit numbers
+    const bytesToWords = (bytes) => {
+        // Each byte is 8 bits. Pack into an array of 32 bit numbers
         // then pad the end as specified by the MD5 standard: a single one
         // bit followed by as many zeros as need to make the length in bits
         // === 448 mod 512, then finally the length of the input, in bits,
         // as a 64 bit little-endian long int.
-        const length = string.length;
+        const length = bytes.length;
         const blocks = [0];
         let i;
         let j;
         let k;
         for (i = 0, j = 0, k = 0; j < length; j += 1) {
-            blocks[i] |= string.charCodeAt(j) << k;
+            blocks[i] |= bytes[j] << k;
             k += 8;
             if (k === 32) {
                 k = 0;
@@ -365,7 +344,7 @@ const md5 = (function () {
             blocks[i] = 0;
         }
 
-        // Each char is 8 bits.
+        // Each byte is 8 bits.
         blocks[i] = length << 3;
         blocks[i + 1] = length >>> 29;
 
@@ -392,7 +371,7 @@ const md5 = (function () {
     };
 
     return function (string) {
-        const words = stringToWords(utf16To8(string));
+        const words = bytesToWords(encoder.encode(string));
         let h0 = 0x67452301;
         let h1 = 0xefcdab89;
         let h2 = 0x98badcfe;

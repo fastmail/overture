@@ -1,3 +1,5 @@
+/* global structuredClone */
+
 /**
     Module: Core
 
@@ -399,19 +401,17 @@ const mixin = function (object, extras, doNotOverwrite) {
         {Object} Returns base.
 */
 const merge = function (base, extras) {
-    for (const key in extras) {
-        if (extras.hasOwnProperty(key)) {
-            if (
-                base.hasOwnProperty(key) &&
-                base[key] &&
-                extras[key] &&
-                typeof base[key] === 'object' &&
-                typeof extras[key] === 'object'
-            ) {
-                merge(base[key], extras[key]);
-            } else {
-                base[key] = extras[key];
-            }
+    for (const key of Object.keys(extras)) {
+        if (
+            base.hasOwnProperty(key) &&
+            base[key] &&
+            extras[key] &&
+            typeof base[key] === 'object' &&
+            typeof extras[key] === 'object'
+        ) {
+            merge(base[key], extras[key]);
+        } else {
+            base[key] = extras[key];
         }
     }
     return base;
@@ -429,25 +429,28 @@ const merge = function (base, extras) {
     Returns:
         {*} The clone of the value.
 */
-const clone = function (value) {
-    let cloned = value;
-    if (value && typeof value === 'object') {
-        if (value instanceof Array) {
-            cloned = [];
-            for (let i = value.length - 1; i >= 0; i -= 1) {
-                cloned[i] = clone(value[i]);
-            }
-        } else if (value instanceof Date) {
-            cloned = new Date(value);
-        } else {
-            cloned = {};
-            for (const key in value) {
-                cloned[key] = clone(value[key]);
-            }
-        }
-    }
-    return cloned;
-};
+const clone =
+    typeof structuredClone !== 'undefined'
+        ? structuredClone
+        : function (value) {
+              let cloned = value;
+              if (value && typeof value === 'object') {
+                  if (value instanceof Array) {
+                      cloned = [];
+                      for (let i = value.length - 1; i >= 0; i -= 1) {
+                          cloned[i] = clone(value[i]);
+                      }
+                  } else if (value instanceof Date) {
+                      cloned = new Date(value);
+                  } else {
+                      cloned = {};
+                      for (const key in value) {
+                          cloned[key] = clone(value[key]);
+                      }
+                  }
+              }
+              return cloned;
+          };
 
 /**
     Function: O.isEqual
@@ -649,14 +652,10 @@ const Class = function (params) {
     let name = null;
     if (params.hasOwnProperty('Name')) {
         name = params.Name;
-        // iOS 9 and Blackberry 10 (and presumably other very old browsers)
-        // will throw an exception if you try to do this.
-        try {
-            Object.defineProperty(init, 'name', {
-                configurable: true,
-                value: params.Name,
-            });
-        } catch (error) {}
+        Object.defineProperty(init, 'name', {
+            configurable: true,
+            value: params.Name,
+        });
         delete params.Name;
     }
 

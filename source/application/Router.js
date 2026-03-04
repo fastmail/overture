@@ -12,26 +12,22 @@ import '../foundation/Decorators.js';
     The Application module contains classes for managing an HTML5 application.
 */
 
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
 const globalQueryStringPart = function () {
     // We don’t actually *depend* on a stable order here, but it’s desirable.
     // The specs don’t quite guarantee us that, but all current browsers provide
     // it. See https://stackoverflow.com/q/30076219/30919039 for details.
     const { knownGlobalQueryParams } = this;
     let returnValue = '';
-    for (const property in knownGlobalQueryParams) {
-        if (hasOwnProperty.call(knownGlobalQueryParams, property)) {
-            const value = this.get(property);
-            if (value !== null) {
-                if (returnValue) {
-                    returnValue += '&';
-                }
-                returnValue +=
-                    knownGlobalQueryParams[property] +
-                    '=' +
-                    encodeURIComponent(value);
+    for (const property of Object.keys(knownGlobalQueryParams)) {
+        const value = this.get(property);
+        if (value !== null) {
+            if (returnValue) {
+                returnValue += '&';
             }
+            returnValue +=
+                knownGlobalQueryParams[property] +
+                '=' +
+                encodeURIComponent(value);
         }
     }
     return returnValue;

@@ -295,10 +295,10 @@ const PanZoomView = Class({
     }.on('touchstart', 'touchend'),
 
     zoom: function (event) {
-        // It seems some platforms (iOS 9, Firefox Mobile) fire a touchmove
-        // event without a corresponding touchstart/end event (or at least,
-        // it's out of order). So must double check here to make sure we
-        // actually have the number of touches we think we do.
+        // Some platforms may fire a touchmove event without a corresponding
+        // touchstart/end event (or at least, out of order). So double check
+        // here to make sure we actually have the number of touches we think
+        // we do.
         this.countTouches(event);
 
         if (this._tCount === 2) {

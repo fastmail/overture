@@ -5,53 +5,6 @@
 */
 
 /**
-    Property: O.DOMEvent.keys
-    Type: Object
-
-    Maps the names of special keys to their key code.
-*/
-const keys = {
-    8: 'Backspace',
-    9: 'Tab',
-    13: 'Enter',
-    16: 'Shift',
-    17: 'Control',
-    18: 'Alt',
-    20: 'CapsLock',
-    27: 'Escape',
-    32: 'Space',
-    33: 'PageUp',
-    34: 'PageDown',
-    35: 'End',
-    36: 'Home',
-    37: 'ArrowLeft',
-    38: 'ArrowUp',
-    39: 'ArrowRight',
-    40: 'ArrowDown',
-    46: 'Delete',
-    144: 'NumLock',
-};
-
-const keyReplacements = {
-    // For our own convenience
-    ' ': 'Space',
-
-    // For some older browsers (specifically, Firefox < 37)
-    'Left': 'ArrowLeft',
-    'Right': 'ArrowRight',
-    'Up': 'ArrowUp',
-    'Down': 'ArrowDown',
-
-    // For iOS Safari/WKWebView, to work around
-    // https://bugreport.apple.com/web/?problemID=37144181
-    'UIKeyInputEscape': 'Escape',
-    'UIKeyInputLeftArrow': 'ArrowLeft',
-    'UIKeyInputRightArrow': 'ArrowRight',
-    'UIKeyInputUpArrow': 'ArrowUp',
-    'UIKeyInputDownArrow': 'ArrowDown',
-};
-
-/**
     Function: O.DOMEvent.lookupKey
 
     Determines which key was pressed to generate the event supplied as an
@@ -70,34 +23,20 @@ const keyReplacements = {
 */
 const lookupKey = function (event, noModifiers) {
     const isKeyPress = event.type === 'keypress';
-    // Newer browser API: gives the character that would be inserted. This is
-    // normally what we want, but if Alt is held down then you get extra
-    // alternate characters when we really want to return Alt-{key}, where
-    // {key} is the letter printed on the keyboard.
 
-    // If alt key is held down we will get
     let key = event.key;
-    if (!key || event.altKey) {
-        // See http://unixpapa.com/js/key.html. Short summary:
-        // event.keyCode || event.which gives the ASCII code for any normal
-        // keypress on all browsers. However, if event.which === 0 then it was a
-        // special key and so it should be looked up in the table of function
-        // keys. Anything from code 32 downwards must also be a special char.
-        const code = event.keyCode || event.which;
-        const preferAscii =
-            isKeyPress &&
-            code > 32 &&
-            event.which !== 0 &&
-            event.charCode !== 0;
-        const str = String.fromCharCode(code);
-        key = (!preferAscii && keys[code]) || str;
-
-        // Function keys
-        if (!preferAscii && 111 < code && code < 124) {
-            key = 'F' + (code - 111);
+    if (event.altKey) {
+        // event.key gives alternate characters when Alt is held (e.g. å for
+        // Alt-A on Mac); use event.code to get the base key instead.
+        const code = event.code;
+        if (code.startsWith('Key')) {
+            key = code.charAt(3);
+        } else if (code.startsWith('Digit')) {
+            key = code.charAt(5);
         }
-    } else {
-        key = keyReplacements[key] || key;
+    }
+    if (key === ' ') {
+        key = 'Space';
     }
 
     // Ignore caps-lock
@@ -150,4 +89,4 @@ const isClickModified = function (event) {
     );
 };
 
-export { keys, lookupKey, isClickModified };
+export { lookupKey, isClickModified };

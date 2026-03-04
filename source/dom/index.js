@@ -1,4 +1,4 @@
-export { keys, lookupKey, isClickModified } from './DOMEvent.js';
+export { lookupKey, isClickModified } from './DOMEvent.js';
 export {
     forView,
     create as el,

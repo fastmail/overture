@@ -188,14 +188,7 @@ Object.assign(XHR.prototype, {
 
         xhr.open(method, url, true);
         xhr.withCredentials = !!withCredentials;
-        responseType = responseType || '';
-        xhr.responseType = responseType;
-        // If a browser doesn’t support a particular value (IE 11 with 'json'),
-        // xhr.responseType becomes an empty string, and we will need to
-        // simulate it ourselves later. (We don’t support IE≤9 which don’t do
-        // responseType at all. We assume all the other values will work fine.)
-        this._actualResponseType =
-            xhr.responseType !== responseType ? responseType : '';
+        xhr.responseType = responseType || '';
         for (const name in headers || {}) {
             // Let the browser set the Content-type automatically if submitting
             // FormData, otherwise it might be missing the boundary marker.
@@ -269,20 +262,8 @@ Object.assign(XHR.prototype, {
         if (io) {
             const allHeaders = xhr.getAllResponseHeaders();
             const responseHeaders = parseHeaders(allHeaders);
-            let response = this.getResponse();
-            if (this._actualResponseType === 'json') {
-                try {
-                    response = JSON.parse(response);
-                } catch (error) {
-                    response = null;
-                }
-            }
-            // IE returns 200 status code when there's no network! But for a
-            // real connection there must have been at least one header, so
-            // check that's not empty. Except for cross-domain requests no
-            // headers may be returned, so also check for a body
-            const isSuccess =
-                status >= 200 && status < 300 && (!!allHeaders || !!response);
+            const response = this.getResponse();
+            const isSuccess = status >= 200 && status < 300;
             io.set('uploadProgress', 100)
                 .set('progress', 100)
                 .set('status', status)

@@ -13,21 +13,6 @@ import '../foundation/Decorators.js';
 
 /* global setTimeout */
 
-let passiveSupported = false;
-
-try {
-    const options = Object.defineProperty({}, 'passive', {
-        // eslint-disable-next-line getter-return
-        get() {
-            passiveSupported = true;
-        },
-    });
-    window.addEventListener('test', options, options);
-    window.removeEventListener('test', options, options);
-} catch (error) {
-    passiveSupported = false;
-}
-
 /**
     Class: O.RootView
 
@@ -80,19 +65,9 @@ const RootView = Class({
             'submit',
             'contextmenu',
         ].forEach((event) => {
-            node.addEventListener(
-                event,
-                this,
-                passiveSupported
-                    ? {
-                          passive: false,
-                      }
-                    : false,
-            );
+            node.addEventListener(event, this, { passive: false });
         });
         // These events don't bubble: have to capture.
-        // In IE, we use a version of focus and blur which will bubble, but
-        // there's no way of bubbling/capturing change and input.
         // These events are automatically added to all inputs when created
         // instead.
         ['focus', 'blur', 'change', 'input'].forEach((event) => {

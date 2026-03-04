@@ -13,6 +13,15 @@ const other = ['other', '0'];
 const documentElement =
     typeof document !== 'undefined' ? document.documentElement : {};
 
+// navigator.platform is deprecated; prefer navigator.userAgentData.platform
+// where available (Chromium-based browsers), with navigator.platform as
+// fallback (Firefox, Safari).
+const platformHint = (
+    navigator.userAgentData?.platform ||
+    navigator.platform ||
+    ''
+).toLowerCase();
+
 /**
     Namespace: O.UA
 
@@ -29,10 +38,10 @@ const documentElement =
 */
 export const platform =
     /ip(?:ad|hone|od)/.test(ua) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    (platformHint.startsWith('mac') && navigator.maxTouchPoints > 1)
         ? 'ios'
         : (/android/.exec(ua) ||
-              /mac|win|linux/.exec(navigator.platform.toLowerCase()) ||
+              /mac|win|linux/.exec(platformHint) ||
               other)[0];
 
 /**
