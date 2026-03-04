@@ -4,7 +4,7 @@ import { Obj } from '../foundation/Object.js';
 /* { observes, invokeInRunLoop, queue } from */
 import '../foundation/Decorators.js';
 
-/*global window, document, location */
+/*global window, document, location, URLSearchParams */
 
 /**
     Module: Application
@@ -190,12 +190,12 @@ const Router = Class({
         handle - {Function} The handler for decoding the state if the regular
                  expression matches. This will be given the full encoded state
                  minus any query string as the first parameter, the query string
-                 decoded as an object for the second parameter, followed by any
-                 capturing groups in the regular expression. Concerning the
-                 query string object: if there is no query string, that second
-                 parameter will be an empty object, not null. Also, global query
-                 string parameters, which correspond to properties on the Router
-                 instance, are excluded from the object.
+                 decoded as a URLSearchParams for the second parameter, followed
+                 by any capturing groups in the regular expression. Concerning
+                 the query string: if there is no query string, that second
+                 parameter will be an empty URLSearchParams, not null. Also,
+                 global query string parameters, which correspond to properties
+                 on the Router instance, are excluded.
 
         Handlers SHOULD be idempotent.
     */
@@ -326,8 +326,8 @@ const Router = Class({
         Parameters:
             encodedState - {String} The encodedState to restore state from, with
                            or without query string
-            queryParams - {(Object|null)} (optional) The already-decoded query
-                          string; passing a value for this requires that
+            queryParams - {(URLSearchParams|null)} (optional) The already-decoded
+                          query string; passing a value for this requires that
                           encodedState not contain a query string
 
         Returns:
@@ -337,29 +337,28 @@ const Router = Class({
         this.beginPropertyChanges();
 
         if (!queryParams) {
-            // We pass {} even if there is no query string; null would be
-            // annoying for route handlers.
-            queryParams = {};
+            // We pass an empty URLSearchParams even if there is no query
+            // string; null would be annoying for route handlers.
+            queryParams = new URLSearchParams();
 
             const queryStringStart = encodedState.indexOf('?');
             if (queryStringStart !== -1) {
-                // Parse the query string
-                const globalNames = this._knownGlobalQueryParamNames;
+                queryParams = new URLSearchParams(
+                    encodedState.slice(queryStringStart + 1),
+                );
+
+                // Delete global query parameters (they’re handled as
+                // properties on the Router instance instead).
                 // On checking globalNames: we casually support the notion of
                 // sub-routers by borrowing the restoreEncodedState method from
                 // Router; if that’s done, then globalNames will be undefined,
                 // signifying “there are no global parameters”.
-                encodedState
-                    .slice(queryStringStart + 1)
-                    .replace(/\+/g, ' ')
-                    .split('&')
-                    .map((entry) => entry.split('=', 2).map(decodeURIComponent))
-                    .forEach(([name, value]) => {
-                        if (!globalNames || !globalNames.has(name)) {
-                            // It’s a local parameter.
-                            queryParams[name] = value;
-                        }
-                    });
+                const globalNames = this._knownGlobalQueryParamNames;
+                if (globalNames) {
+                    for (const name of globalNames) {
+                        queryParams.delete(name);
+                    }
+                }
 
                 encodedState = encodedState.slice(0, queryStringStart);
             }
