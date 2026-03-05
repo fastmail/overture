@@ -78,7 +78,7 @@ const ShortcutOverlayView = Class({
             // Get target(s) and filter nulls
             const target = view.getShortcutTarget(key);
             const targets = (Array.isArray(target) ? target : [target]).filter(
-                (_target) => _target !== null,
+                (_target) => _target != null,
             );
 
             return targets.map((_target) => {
