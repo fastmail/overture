@@ -490,6 +490,7 @@ const RichTextView = Class({
             positioning:
                 showToolbar === TOOLBAR_ABOVE_KEYBOARD ? 'fixed' : 'sticky',
             preventOverlap: showToolbar === TOOLBAR_AT_TOP,
+            minimumGap: 0,
             ...(showToolbar === TOOLBAR_ABOVE_KEYBOARD
                 ? {
                       layout: bind(
