@@ -116,7 +116,11 @@ const PanZoomView = Class({
     }.property('isInDocument'),
 
     scrollHeight: function () {
-        return this._scrollContents.scrollHeight;
+        const scrollContents = this._scrollContents;
+        scrollContents.style.minHeight = '0';
+        const scrollHeight = scrollContents.scrollHeight;
+        scrollContents.style.minHeight = '100%';
+        return scrollHeight;
     }.property('isInDocument'),
 
     _setAllowBounce: function () {
