@@ -209,14 +209,27 @@ const ListView = Class({
         view.destroy();
     },
 
+    getRangeIterator(list) {
+        const renderRange = this._renderRange;
+        let index = Math.max(0, renderRange.start);
+        const end = Math.min(list.get('length'), renderRange.end);
+        return {
+            next() {
+                const value = index;
+                const done = index >= end;
+                index += 1;
+                return { value, done };
+            },
+            [Symbol.iterator]() {
+                return this;
+            },
+        };
+    },
+
     redrawLayer(layer) {
         const list = this.get('content') || [];
         const childViews = this.get('childViews');
         const isInDocument = this.get('isInDocument');
-        // Limit to this range in the content array.
-        const renderRange = this._renderRange;
-        const start = Math.max(0, renderRange.start);
-        const end = Math.min(list.get('length'), renderRange.end);
         // Set of already rendered views.
         const rendered = this._rendered;
         const newRendered = (this._rendered = {});
@@ -230,7 +243,7 @@ const ListView = Class({
         let currentViewIndex;
 
         // Mark views we still need
-        for (let i = start, l = end; i < l; i += 1) {
+        for (const i of this.getRangeIterator(list)) {
             const item = list.getObjectAt(i);
             const id = item ? guid(item) : 'null:' + i;
             const view = rendered[id];
@@ -255,7 +268,7 @@ const ListView = Class({
 
         // Create/update views in render range
         const itemLayout = this.get('itemLayout');
-        for (let i = start, l = end; i < l; i += 1) {
+        for (const i of this.getRangeIterator(list)) {
             const item = list.getObjectAt(i);
             const id = item ? guid(item) : 'null:' + i;
             let view = newRendered[id];
