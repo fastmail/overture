@@ -25,9 +25,10 @@ const lookupKey = function (event, noModifiers) {
     const isKeyPress = event.type === 'keypress';
 
     let key = event.key;
-    if (event.altKey) {
+    if (event.altKey && !/^[ -~]$/.test(key)) {
         // event.key gives alternate characters when Alt is held (e.g. å for
-        // Alt-A on Mac); use event.code to get the base key instead.
+        // Alt-A on Mac); use event.code to get the base key instead if it's not
+        // an ASCII character (need to allow Alt-3 for # on UK keyboard etc.)
         const code = event.code;
         if (code.startsWith('Key')) {
             key = code.charAt(3);
