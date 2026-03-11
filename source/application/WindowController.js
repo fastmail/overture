@@ -1,6 +1,6 @@
 /*global window, document, location, BroadcastChannel */
 
-import { Class } from '../core/Core.js';
+import { Class, isDestroyed } from '../core/Core.js';
 import { Obj } from '../foundation/Object.js';
 import { invokeInNextEventLoop } from '../foundation/RunLoop.js';
 
@@ -251,6 +251,9 @@ const WindowController = Class({
             data - {Object} (optional). The data to broadcast.
     */
     broadcast(type, data) {
+        if (isDestroyed(this)) {
+            return;
+        }
         this._channel.postMessage(
             Object.assign(
                 {
