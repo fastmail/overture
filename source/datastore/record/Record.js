@@ -234,18 +234,8 @@ const Record = Class({
             ? store.getAccountIdFromStoreKey(storeKey)
             : this._data.accountId;
         if (toAccountId !== undefined && toAccountId !== accountId) {
-            if (this.get('status') === READY_NEW_DIRTY) {
-                if (storeKey) {
-                    store.updateData(
-                        storeKey,
-                        {
-                            accountId: toAccountId,
-                        },
-                        true,
-                    );
-                } else {
-                    this._data.accountId = toAccountId;
-                }
+            if (!storeKey) {
+                this._data.accountId = toAccountId;
             } else {
                 store.moveRecord(storeKey, toAccountId);
             }
@@ -588,7 +578,7 @@ const Record = Class({
         Returns: {Promise<O.Record|O.RecordResult>}
 
         The promise returned will either resolve to the record when it has
-        finished loading, or be rejected with a RecordResult, which is an object 
+        finished loading, or be rejected with a RecordResult, which is an object
         containing two properties to care about, `record` and `error`.
 
         This is useful when calling <O.Record#fetch> on an <O.Record> that has

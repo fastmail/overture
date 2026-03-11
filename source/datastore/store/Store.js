@@ -1339,6 +1339,21 @@ const Store = Class({
             {String} The store key of the copy.
     */
     moveRecord(storeKey, toAccountId, copyStoreKey) {
+        if (
+            this.getStatus(storeKey) === (READY | NEW | DIRTY) &&
+            (!this._created[storeKey] ||
+                toAccountId !==
+                    this.getAccountIdFromStoreKey(this._created[storeKey]))
+        ) {
+            this.updateData(
+                storeKey,
+                {
+                    accountId: toAccountId,
+                },
+                true,
+            );
+            return storeKey;
+        }
         const Type = this._skToType[storeKey];
         const copyData = clone(this._skToData[storeKey]);
         copyStoreKey = copyStoreKey || this._created[storeKey];
