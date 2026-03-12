@@ -182,7 +182,7 @@ const renderView = function (view) {
     return view.render().get('layer');
 };
 
-let isRedrawingLayer = false;
+let isRedrawingLayer = 0;
 
 const View = Class({
     Name: 'View',
@@ -714,9 +714,9 @@ const View = Class({
             layer.removeChild(node);
         }
 
-        isRedrawingLayer = true;
+        isRedrawingLayer += 1;
         appendChildren(layer, this.draw(layer));
-        isRedrawingLayer = false;
+        isRedrawingLayer -= 1;
 
         if (this.get('isInDocument')) {
             childViews = this.get('childViews');
@@ -1125,7 +1125,9 @@ const View = Class({
             }
             oldLayer.parentNode.replaceChild(view.get('layer'), oldLayer);
             if (isInDocument) {
-                view.didEnterDocument();
+                if (!isRedrawingLayer) {
+                    view.didEnterDocument();
+                }
                 oldView.didLeaveDocument();
             }
         }
