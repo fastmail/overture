@@ -435,12 +435,12 @@ const clone =
         : function (value) {
               let cloned = value;
               if (value && typeof value === 'object') {
-                  if (value instanceof Array) {
+                  if (Array.isArray(value)) {
                       cloned = [];
                       for (let i = value.length - 1; i >= 0; i -= 1) {
                           cloned[i] = clone(value[i]);
                       }
-                  } else if (value instanceof Date) {
+                  } else if (value.constructor === Date) {
                       cloned = new Date(value);
                   } else {
                       cloned = {};
@@ -471,8 +471,8 @@ const isEqual = function (a, b) {
         return true;
     }
     if (a && b && typeof a === 'object' && typeof b === 'object') {
-        if (a instanceof Array) {
-            if (b instanceof Array && a.length === b.length) {
+        if (Array.isArray(a)) {
+            if (Array.isArray(b) && a.length === b.length) {
                 for (let i = 0, l = a.length; i < l; i += 1) {
                     if (!isEqual(a[i], b[i])) {
                         return false;
@@ -480,12 +480,13 @@ const isEqual = function (a, b) {
                 }
                 return true;
             }
-        } else if (a instanceof Date) {
-            return +a === +b;
         } else {
             const constructor = a.constructor;
-            if (a.constructor !== b.constructor) {
+            if (constructor !== b.constructor) {
                 return false;
+            }
+            if (constructor === Date) {
+                return +a === +b;
             }
             if (constructor.isEqual) {
                 return constructor.isEqual(a, b);
@@ -667,7 +668,7 @@ const Class = function (params) {
 
     let mixins = params.Mixin;
     if (mixins) {
-        if (!(mixins instanceof Array)) {
+        if (!Array.isArray(mixins)) {
             mixins = [mixins];
         }
         for (let i = 0, l = mixins.length; i < l; i += 1) {
