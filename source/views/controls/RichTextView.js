@@ -1050,11 +1050,22 @@ const RichTextView = Class({
         if (buttonView.getParent(MenuView)) {
             buttonView = this.get('toolbarView').getView('overflow');
         }
+        // If the button is not in the document (e.g. toolbar is hidden),
+        // align the pop over with the current text selection instead. Use
+        // width to detect this, so it works if just hidden by CSS but is in
+        // the document
+        let atNode;
+        if (!buttonView.get('layer').getBoundingClientRect().width) {
+            const editor = this.get('editor');
+            atNode = editor && editor.getSelection();
+            buttonView = this;
+        }
         const richTextView = this;
         this.get('popOver').show({
             view,
             positionToThe: aboveKeyboard ? 'top' : 'bottom',
             alignWithView: buttonView,
+            atNode,
             alignEdge:
                 !aboveKeyboard && view instanceof URLPickerView
                     ? 'left'
