@@ -136,7 +136,6 @@ const Query = Class({
     init: function (/* ...mixins */) {
         this._storeKeys = [];
         this._awaitingIdFetch = [];
-        this._refresh = false;
 
         this.id = guid(this);
         this.source = null;
@@ -270,9 +269,6 @@ const Query = Class({
     fetch(force, callback) {
         const status = this.get('status');
         if (force || status === EMPTY || status & OBSOLETE) {
-            if (status !== EMPTY) {
-                this._refresh = true;
-            }
             this.get('source').fetchQuery(this, callback);
         } else if (callback) {
             callback();
@@ -293,7 +289,6 @@ const Query = Class({
         const length = this.get('length');
 
         this._storeKeys.length = 0;
-        this._refresh = false;
 
         return this.set('queryState', '')
             .set('status', EMPTY)
@@ -578,9 +573,9 @@ const Query = Class({
             has an efficient way of calculating changes from the queryState).
     */
     sourceWillFetchQuery() {
-        const refresh = this._refresh;
-        this._refresh = false;
-        this.set('status', (this.get('status') | LOADING) & ~OBSOLETE);
+        const status = this.get('status');
+        const refresh = !!(status & OBSOLETE);
+        this.set('status', (status | LOADING) & ~OBSOLETE);
         return refresh;
     },
 

@@ -507,10 +507,6 @@ const WindowedQuery = Class({
         const windows = this._windows;
         let doFetch = false;
 
-        if (status & OBSOLETE) {
-            this.fetch();
-        }
-
         if (prefetch === undefined) {
             prefetch = this.get('prefetch');
         }
@@ -1266,11 +1262,12 @@ const WindowedQuery = Class({
     sourceWillFetchQuery() {
         // If optimise and no longer observed -> remove request
         // Move from requested -> loading
+        let status = this.get('status');
         const windowSize = this.get('windowSize');
         const windows = this._windows;
         const isAnExplicitIdFetch = this._isAnExplicitIdFetch;
         const indexOfRequested = this._indexOfRequested;
-        const refreshRequested = this._refresh;
+        const refreshRequested = !!(status & OBSOLETE);
         const recordRequests = [];
         const idRequests = [];
         const optimiseFetching = this.get('optimiseFetching');
@@ -1283,18 +1280,17 @@ const WindowedQuery = Class({
 
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];
-        this._refresh = false;
         let rPrev;
         let iPrev;
 
         for (let i = 0, l = windows.length; i < l; i += 1) {
-            let status = windows[i];
-            if (status & (WINDOW_REQUESTED | WINDOW_RECORDS_REQUESTED)) {
+            let windowStatus = windows[i];
+            if (windowStatus & (WINDOW_REQUESTED | WINDOW_RECORDS_REQUESTED)) {
                 const inUse =
                     !optimiseFetching ||
                     windowIsStillInUse(i, windowSize, prefetch, ranges);
-                if (status & WINDOW_RECORDS_REQUESTED) {
-                    status &= ~WINDOW_RECORDS_REQUESTED;
+                if (windowStatus & WINDOW_RECORDS_REQUESTED) {
+                    windowStatus &= ~WINDOW_RECORDS_REQUESTED;
                     if (inUse) {
                         const start = i * windowSize;
                         if (rPrev && rPrev.start + rPrev.count === start) {
@@ -1307,18 +1303,18 @@ const WindowedQuery = Class({
                                 }),
                             );
                         }
-                        status |= WINDOW_LOADING;
-                        status |= WINDOW_RECORDS_LOADING;
+                        windowStatus |= WINDOW_LOADING;
+                        windowStatus |= WINDOW_RECORDS_LOADING;
                     }
                     // If not requesting records and an explicit id fetch, leave
                     // WINDOW_REQUESTED flag set the ids are still requested.
                     if (inUse || !isAnExplicitIdFetch) {
-                        status &= ~WINDOW_REQUESTED;
+                        windowStatus &= ~WINDOW_REQUESTED;
                     } else {
-                        status |= WINDOW_REQUESTED;
+                        windowStatus |= WINDOW_REQUESTED;
                     }
                 }
-                if (status & WINDOW_REQUESTED) {
+                if (windowStatus & WINDOW_REQUESTED) {
                     if (inUse || isAnExplicitIdFetch) {
                         const start = i * windowSize;
                         if (iPrev && iPrev.start + iPrev.count === start) {
@@ -1331,9 +1327,9 @@ const WindowedQuery = Class({
                                 }),
                             );
                         }
-                        status |= WINDOW_LOADING;
+                        windowStatus |= WINDOW_LOADING;
                     }
-                    status &= ~WINDOW_REQUESTED;
+                    windowStatus &= ~WINDOW_REQUESTED;
                 }
             } else if (fetchAllObservedIds) {
                 const inUse = windowIsStillInUse(
@@ -1356,11 +1352,10 @@ const WindowedQuery = Class({
                     }
                 }
             }
-            windows[i] = status;
+            windows[i] = windowStatus;
         }
 
         if (refreshRequested || this.is(EMPTY)) {
-            let status = this.get('status');
             status |= LOADING;
             status &= ~OBSOLETE;
             // If we have applied pre-emptive updates since the last refresh,
@@ -1386,8 +1381,9 @@ const WindowedQuery = Class({
             refresh: refreshRequested,
             callback: () => {
                 this._windows = this._windows.map(
-                    (status) =>
-                        status & ~(WINDOW_LOADING | WINDOW_RECORDS_LOADING),
+                    (windowStatus) =>
+                        windowStatus &
+                        ~(WINDOW_LOADING | WINDOW_RECORDS_LOADING),
                 );
                 this.set('status', this.get('status') & ~LOADING);
                 if (this.is(DIRTY) && !this.is(OBSOLETE)) {
