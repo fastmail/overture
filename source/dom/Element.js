@@ -6,6 +6,8 @@ import { camelCase, hyphenate } from '../core/String.js';
 import { browser } from '../ua/UA.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 
+/* global Range */
+
 // ---
 
 /**
@@ -672,14 +674,17 @@ const cssStringFromKeyValue = function (object) {
     zoom if applicable.
 
     Parameters:
-        el - {Element} The element for which to retrieve bounds.
+        el - {Element|Range} The element or ragne for which to retrieve bounds.
 
     Returns:
         {Object} A plain object with same keys as a `DOMRect` object.
 */
 const getRawBoundingClientRect = (el) => {
+    const zoom =
+        (el instanceof Range
+            ? el.commonAncestorContainer.parentNode.currentCSSZoom
+            : el.currentCSSZoom) || 1;
     const scaledRect = el.getBoundingClientRect();
-    const zoom = el.currentCSSZoom || 1;
     if (zoom === 1) {
         return scaledRect;
     }
