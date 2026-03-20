@@ -466,6 +466,9 @@ const WindowedQuery = Class({
     // If within trigger distance of window edge, fetches adjacent window as
     // well.
     fetchDataForObjectAt(index) {
+        if (this._storeKeys[index] && !this.get('prefetch')) {
+            return false;
+        }
         // Load all headers in window containing index.
         const windowSize = this.get('windowSize');
         const trigger = this.get('triggerPoint');
