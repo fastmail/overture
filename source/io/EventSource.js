@@ -364,12 +364,13 @@ class EventSource {
             const retryAfter = response
                 ? parseInt(response.headers.get('Retry-After'), 10) * 1000
                 : 0;
+            // Add jitter to avoid flood of reconnections if server
+            // drops connection to many clients at once
+            const jitter = Math.round(Math.random() * 15_000);
             if (retryAfter) {
-                reconnectAfter = retryAfter + Math.round(Math.random() * 5000);
+                reconnectAfter = retryAfter + jitter;
             } else if (!reconnectAfter) {
-                // Add jitter to avoid flood of reconnections if server
-                // drops connection to many clients at once
-                reconnectAfter = Math.round(Math.random() * 3000);
+                reconnectAfter = jitter;
             } else {
                 // Exponential backoff, max 5 minutes.
                 reconnectAfter = Math.min(2 * reconnectAfter, 300000);
