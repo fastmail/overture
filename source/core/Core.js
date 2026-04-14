@@ -488,8 +488,13 @@ const isEqual = function (a, b) {
             if (constructor === Date) {
                 return +a === +b;
             }
-            if (constructor.isEqual) {
-                return constructor.isEqual(a, b);
+            if (constructor) {
+                if (constructor.isEqual) {
+                    return constructor.isEqual(a, b);
+                }
+                if (constructor !== Object) {
+                    return false;
+                }
             }
             for (const key in a) {
                 if (!isEqual(a[key], b[key])) {
