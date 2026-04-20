@@ -147,7 +147,7 @@ const ListView = Class({
     }.property('itemLayout', 'contentLength'),
 
     itemLayoutDidChange: function () {
-        this.increment('itemLayout');
+        this.increment('itemLayout', 1);
     }.observes('itemHeight'),
 
     draw(layer) {
