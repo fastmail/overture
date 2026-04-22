@@ -241,13 +241,11 @@ const PopOverView = Class({
 
         if (keepInHorizontalBounds) {
             // Check right edge
-            if (!rootView.get('showScrollbarX')) {
-                gap = rootView.get('pxWidth') - position.right;
-                // If gap is negative, move the view.
-                if (gap < 0) {
-                    deltaLeft += gap;
-                    deltaLeft -= parentMargin.right;
-                }
+            gap = rootView.get('pxWidth') - position.right;
+            // If gap is negative, move the view.
+            if (gap < 0) {
+                deltaLeft += gap;
+                deltaLeft -= parentMargin.right;
             }
 
             // Check left edge
@@ -259,12 +257,13 @@ const PopOverView = Class({
         }
         if (keepInVerticalBounds) {
             // Check bottom edge
-            if (!rootView.get('showScrollbarY')) {
-                gap = rootView.get('pxHeight') - position.bottom;
-                if (gap < 0) {
-                    deltaTop += gap;
-                    deltaTop -= parentMargin.bottom;
-                }
+            gap =
+                rootView.get('pxHeight') -
+                rootView.get('safeAreaInsetBottom') -
+                position.bottom;
+            if (gap < 0) {
+                deltaTop += gap;
+                deltaTop -= parentMargin.bottom;
             }
 
             // Check top edge
