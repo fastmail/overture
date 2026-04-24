@@ -341,7 +341,7 @@ class EventSource {
             }
             // Also reconnect if the server just closed the connection.
             didNetworkError = true;
-        } else {
+        } else if (response) {
             abortController.abort();
         }
 
@@ -361,21 +361,25 @@ class EventSource {
             // Nothing to do
         } else if (didNetworkError || status === 429 || status >= 500) {
             let reconnectAfter = this._reconnectAfter;
-            const retryAfter = response
-                ? parseInt(response.headers.get('Retry-After'), 10) * 1000
-                : 0;
-            // Add jitter to avoid flood of reconnections if server
-            // drops connection to many clients at once
-            const jitter = Math.round(Math.random() * 15_000);
-            if (retryAfter) {
-                reconnectAfter = retryAfter + jitter;
-            } else if (!reconnectAfter) {
-                reconnectAfter = jitter;
-            } else {
-                // Exponential backoff, max 5 minutes.
-                reconnectAfter = Math.min(2 * reconnectAfter, 300000);
+            // If we deliberately restarted the connection (e.g. because we
+            // switched networks), don't need to add jitter or delay.
+            if (reconnectAfter || !abortController.signal.aborted) {
+                const retryAfter = response
+                    ? parseInt(response.headers.get('Retry-After'), 10) * 1000
+                    : 0;
+                // Add jitter to avoid flood of reconnections if server
+                // drops connection to many clients at once.
+                const jitter = Math.round(Math.random() * 15_000);
+                if (retryAfter) {
+                    reconnectAfter = retryAfter + jitter;
+                } else if (!reconnectAfter) {
+                    reconnectAfter = jitter;
+                } else {
+                    // Exponential backoff, max 5 minutes.
+                    reconnectAfter = Math.min(2 * reconnectAfter, 300000);
+                }
+                this._reconnectAfter = reconnectAfter;
             }
-            this._reconnectAfter = reconnectAfter;
             this._reconnectTimeout = setTimeout(
                 this._fetchStream.bind(this),
                 // User server-instructed minimum delay if set.
