@@ -374,13 +374,9 @@ const WindowedQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        WindowedQuery.parent.constructor.apply(this, arguments);
+        this.log = [];
 
-        const where = this.get('where');
-        this.log =
-            where?.operator === 'AND' && where.conditions.some((x) => x.text)
-                ? []
-                : null;
+        WindowedQuery.parent.constructor.apply(this, arguments);
     },
 
     reset() {
@@ -391,7 +387,7 @@ const WindowedQuery = Class({
 
         this._isAnExplicitIdFetch = false;
 
-        this.log?.push(['reset']);
+        this.log.push(['reset']);
 
         WindowedQuery.parent.reset.call(this);
     },
@@ -881,7 +877,7 @@ const WindowedQuery = Class({
     clientDidGenerateUpdate(update) {
         const store = this.get('store');
         const toId = store.getIdFromStoreKey.bind(store);
-        this.log?.push([
+        this.log.push([
             'client',
             {
                 ...update,
@@ -931,7 +927,7 @@ const WindowedQuery = Class({
             {O.WindowedQuery} Returns self.
     */
     sourceDidFetchUpdate(update) {
-        this.log?.push(['source', update]);
+        this.log.push(['source', update]);
         const queryState = this.get('queryState');
         const status = this.get('status');
         const preemptives = this._preemptiveUpdates;
@@ -1160,7 +1156,7 @@ const WindowedQuery = Class({
             {O.WindowedQuery} Returns self.
     */
     sourceDidFetchIds(args) {
-        this.log?.push(['ids', args]);
+        this.log.push(['ids', args]);
         const queryState = this.get('queryState');
         const status = this.get('status');
         const oldLength = this.get('length') || 0;
