@@ -151,7 +151,11 @@ class TimeZone {
     }
 
     convert(date, toTimeZone) {
-        const [, offset, daylightSavingsRule] = getPeriod(this.periods, date);
+        const [, offset, daylightSavingsRule] = getPeriod(
+            this.periods,
+            date,
+            toTimeZone,
+        );
         const rule = getRule(
             tzRules[daylightSavingsRule || '-'],
             offset,
