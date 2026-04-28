@@ -12,7 +12,7 @@ const getPeriod = function (periods, date, isUTC) {
     let period = periods[lastIndex];
     for (let i = lastIndex - 1; i >= 0; i -= 1) {
         const candidate = periods[i];
-        if (candidate[0] < date - (isUTC ? 0 : candidate[1])) {
+        if (candidate[0] < date - (isUTC ? 0 : candidate[1] * 1000)) {
             break;
         }
         period = candidate;
