@@ -341,8 +341,6 @@ class EventSource {
             }
             // Also reconnect if the server just closed the connection.
             didNetworkError = true;
-        } else if (response) {
-            abortController.abort();
         }
 
         // Have we already started a new fetch? If you call close().open(),
