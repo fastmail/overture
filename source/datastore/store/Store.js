@@ -1,5 +1,5 @@
 import { Class, clone, guid, isEqual, meta } from '../../core/Core.js';
-import { filter as filterObject, keyOf, zip } from '../../core/KeyValue.js';
+import { filter as filterObject, keyOf } from '../../core/KeyValue.js';
 import { Event } from '../../foundation/Event.js';
 import { EventTarget } from '../../foundation/EventTarget.js';
 import { Obj } from '../../foundation/Object.js';
@@ -45,9 +45,12 @@ const SOURCE_COMMIT_DESTROY_MISMATCH_ERROR =
 
 // ---
 
+// Store keys are small integers, kept as V8 SMIs / Uint32s. Cheaper than
+// strings as object identity, and faster as Map keys. Generation starts at
+// 1 so that 0 can serve as a "no copy" sentinel in _created/_destroyed.
 let nextStoreKey = 1;
 const generateStoreKey = function () {
-    const current = 'k' + nextStoreKey;
+    const current = nextStoreKey;
     nextStoreKey += 1;
     return current;
 };
@@ -68,7 +71,7 @@ const acceptStoreKey = function (accept, storeKey) {
 const compareStoreKeys = function (compare, a, b) {
     const { _skToData } = this;
     const aIsFirst = compare(_skToData.get(a), _skToData.get(b), this, a, b);
-    return aIsFirst || ~~a.slice(1) - ~~b.slice(1);
+    return aIsFirst || a - b;
 };
 
 // ---
@@ -118,25 +121,25 @@ const convertForeignKeysToSK = function (
         const idType = foreignRef[1];
         if (attrKey in data) {
             const value = data[attrKey];
-            data[attrKey] =
-                value &&
-                (idType === STRING_ID
-                    ? store.getStoreKey(accountId, AttrType, value)
-                    : idType === ARRAY_IDS
-                      ? value.map(
-                            store.getStoreKey.bind(store, accountId, AttrType),
-                        )
-                      : // idType === SET_IDS ?
-                        zip(
-                            Object.keys(value).map(
-                                store.getStoreKey.bind(
-                                    store,
-                                    accountId,
-                                    AttrType,
-                                ),
-                            ),
-                            Object.values(value),
-                        ));
+            if (!value) {
+                data[attrKey] = value;
+            } else if (idType === STRING_ID) {
+                data[attrKey] = store.getStoreKey(accountId, AttrType, value);
+            } else if (idType === ARRAY_IDS) {
+                const len = value.length;
+                const arr = new Array(len);
+                for (let k = 0; k < len; k += 1) {
+                    arr[k] = store.getStoreKey(accountId, AttrType, value[k]);
+                }
+                data[attrKey] = arr;
+            } else {
+                // idType === SET_IDS
+                const obj = {};
+                for (const id in value) {
+                    obj[store.getStoreKey(accountId, AttrType, id)] = value[id];
+                }
+                data[attrKey] = obj;
+            }
         }
     }
 };
@@ -158,17 +161,26 @@ const convertForeignKeysToId = function (store, Type, data) {
                 result = clone(data);
             }
             const value = data[attrKey];
-            result[attrKey] =
-                value &&
-                (idType === STRING_ID
-                    ? toId(store, value)
-                    : idType === ARRAY_IDS
-                      ? value.map(toId.bind(null, store))
-                      : // idType === SET_IDS ?
-                        zip(
-                            Object.keys(value).map(toId.bind(null, store)),
-                            Object.values(value),
-                        ));
+            if (!value) {
+                result[attrKey] = value;
+            } else if (idType === STRING_ID) {
+                result[attrKey] = toId(store, value);
+            } else if (idType === ARRAY_IDS) {
+                const len = value.length;
+                const arr = new Array(len);
+                for (let k = 0; k < len; k += 1) {
+                    arr[k] = toId(store, value[k]);
+                }
+                result[attrKey] = arr;
+            } else {
+                // idType === SET_IDS. Keys are storeKeys (numeric); JS
+                // object keys are strings, so coerce back before resolving.
+                const obj = {};
+                for (const sk in value) {
+                    obj[toId(store, +sk)] = value[sk];
+                }
+                result[attrKey] = obj;
+            }
         }
     }
     return result;
@@ -605,7 +617,7 @@ const Store = Class({
             return null;
         }
         if (id.charAt(0) === '#') {
-            storeKey = id.slice(1);
+            storeKey = +id.slice(1);
             if (this._skToType.get(storeKey) !== Type) {
                 return null;
             }
@@ -1316,7 +1328,7 @@ const Store = Class({
         }
         data.accountId = this.getAccountIdFromStoreKey(storeKey);
 
-        this._created.set(storeKey, _isCopyOfStoreKey || '');
+        this._created.set(storeKey, _isCopyOfStoreKey || 0);
         this._skToData.set(storeKey, data);
 
         this.setStatus(storeKey, READY | NEW | DIRTY);
@@ -1423,7 +1435,7 @@ const Store = Class({
                     this._skToData.delete(storeKey);
                 }
             }
-            this._destroyed.set(storeKey, _ifCopiedStoreKey || '');
+            this._destroyed.set(storeKey, _ifCopiedStoreKey || 0);
             // Maintain COMMITTING flag so we know to wait for that to finish
             // before committing the destroy.
             // Maintain NEW flag as we have to wait for commit to finish (so we
@@ -1450,7 +1462,7 @@ const Store = Class({
         } else {
             if ((status & ~(OBSOLETE | LOADING)) === (DESTROYED | COMMITTING)) {
                 this.setStatus(storeKey, READY | NEW | COMMITTING);
-                this._created.set(storeKey, _isCopyOfStoreKey || '');
+                this._created.set(storeKey, _isCopyOfStoreKey || 0);
             } else if (status & DESTROYED) {
                 this.setStatus(
                     storeKey,
@@ -2569,7 +2581,9 @@ const Store = Class({
     */
     sourceDidCommitCreate(skToPartialData) {
         const { _skToType, _skToData, _typeToSKToId, _accounts } = this;
-        for (const storeKey in skToPartialData) {
+        // Plain-object keys are strings; storeKeys are numeric internally.
+        for (const storeKeyStr in skToPartialData) {
+            const storeKey = +storeKeyStr;
             const status = this.getStatus(storeKey);
             if (status & NEW) {
                 const data = skToPartialData[storeKey];
@@ -2670,7 +2684,7 @@ const Store = Class({
                     _skToChanged.delete(storeKey);
                 }
                 this.setStatus(storeKey, READY | NEW | DIRTY);
-                _created.set(storeKey, '');
+                _created.set(storeKey, 0);
                 if (
                     isPermanent &&
                     (!errors || !this._notifyRecordOfError(storeKey, errors[i]))
@@ -2896,7 +2910,7 @@ const Store = Class({
                 _created.delete(storeKey);
             } else if (status & DESTROYED) {
                 this.setStatus(storeKey, (status & ~COMMITTING) | DIRTY);
-                _destroyed.set(storeKey, '');
+                _destroyed.set(storeKey, 0);
                 if (
                     isPermanent &&
                     (!errors || !this._notifyRecordOfError(storeKey, errors[i]))

@@ -61,8 +61,10 @@ const ToManyRecordArray = Class({
             if (!list) {
                 list = [];
             } else if (record[propKey].Type === Object) {
-                list = Object.keys(list);
-                list.sort();
+                // Keys are storeKeys (numeric); JS object keys are strings,
+                // so coerce back when extracting and sort numerically.
+                list = Object.keys(list).map(Number);
+                list.sort((a, b) => a - b);
             } else {
                 list = list.slice();
             }

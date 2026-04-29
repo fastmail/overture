@@ -601,7 +601,7 @@ const Query = Class({
         const oldTotal = this.get('length');
         const total = storeKeys.length;
         const minTotal = Math.min(total, oldTotal || 0);
-        const index = {};
+        const index = new Map();
         const removedIndexes = [];
         const removedStoreKeys = [];
         const addedIndexes = [];
@@ -630,13 +630,13 @@ const Query = Class({
 
             for (let i = firstChange; i <= lastChangeOld; i += 1) {
                 const storeKey = oldStoreKeys[i];
-                index[storeKey] = i;
+                index.set(storeKey, i);
             }
 
             for (let i = firstChange; i <= lastChangeNew; i += 1) {
                 const storeKey = storeKeys[i];
-                if (index[storeKey] === i) {
-                    index[storeKey] = -1;
+                if (index.get(storeKey) === i) {
+                    index.set(storeKey, -1);
                 } else {
                     addedIndexes.push(i);
                     addedStoreKeys.push(storeKey);
@@ -645,7 +645,7 @@ const Query = Class({
 
             for (let i = firstChange; i <= lastChangeOld; i += 1) {
                 const storeKey = oldStoreKeys[i];
-                if (index[storeKey] !== -1) {
+                if (index.get(storeKey) !== -1) {
                     removedIndexes.push(i);
                     removedStoreKeys.push(storeKey);
                 }

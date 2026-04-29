@@ -20,7 +20,9 @@ class ToOneAttribute extends RecordAttribute {
 
     call(record, propValue, propKey) {
         let result = super.call(record, propValue, propKey);
-        if (result && typeof result === 'string') {
+        // The raw value in data is the foreign storeKey (numeric); resolve
+        // it to a Record. After a setter call result is already a Record.
+        if (result && typeof result === 'number') {
             result = record.get('store').getRecordFromStoreKey(result);
         }
         return result || null;

@@ -958,7 +958,7 @@ const WindowedQuery = Class({
             index: item.index,
             storeKey: toStoreKey(item.id),
         }));
-        const seenStorekey = {};
+        const seenStorekey = new Set();
         const removed = update.removed.reduce((_removed, id) => {
             // Need to deduplicate removed; if an id is rewritten, we keep the
             // old id => store key mapping so we can remove it from a query.
@@ -968,8 +968,8 @@ const WindowedQuery = Class({
             // the query rather than moved to the correct place if we don't
             // deduplicate.
             const storeKey = toStoreKey(id);
-            if (!seenStorekey[storeKey]) {
-                seenStorekey[storeKey] = true;
+            if (!seenStorekey.has(storeKey)) {
+                seenStorekey.add(storeKey);
                 _removed.push(storeKey);
             }
             return _removed;

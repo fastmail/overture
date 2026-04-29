@@ -15,7 +15,7 @@ const SelectionController = Class({
     init: function (/* ...mixins */) {
         this._selectionId = 0;
         this._lastSelectedIndex = 0;
-        this._selectedStoreKeys = {};
+        this._selectedStoreKeys = new Set();
 
         this.isLoadingSelection = false;
         this.length = 0;
@@ -61,9 +61,9 @@ const SelectionController = Class({
 
         for (let i = removed.length - 1; i >= 0; i -= 1) {
             const storeKey = removed[i];
-            if (_selectedStoreKeys[storeKey] && !added.has(storeKey)) {
+            if (_selectedStoreKeys.has(storeKey) && !added.has(storeKey)) {
                 length -= 1;
-                delete _selectedStoreKeys[storeKey];
+                _selectedStoreKeys.delete(storeKey);
             }
         }
 
@@ -79,13 +79,13 @@ const SelectionController = Class({
     // ---
 
     selectedStoreKeys: function () {
-        return Object.keys(this._selectedStoreKeys);
+        return [...this._selectedStoreKeys];
     }
         .property()
         .nocache(),
 
     isStoreKeySelected(storeKey) {
-        return !!this._selectedStoreKeys[storeKey];
+        return this._selectedStoreKeys.has(storeKey);
     },
 
     getSelectedRecords(store) {
@@ -117,12 +117,12 @@ const SelectionController = Class({
 
         for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
             const storeKey = storeKeys[i];
-            const wasSelected = !!_selectedStoreKeys[storeKey];
+            const wasSelected = _selectedStoreKeys.has(storeKey);
             if (isSelected !== wasSelected) {
                 if (isSelected) {
-                    _selectedStoreKeys[storeKey] = true;
+                    _selectedStoreKeys.add(storeKey);
                 } else {
-                    delete _selectedStoreKeys[storeKey];
+                    _selectedStoreKeys.delete(storeKey);
                 }
                 howManyChanged += 1;
             }
@@ -215,7 +215,7 @@ const SelectionController = Class({
 
     selectNone() {
         this._lastSelectedIndex = 0;
-        this._selectedStoreKeys = {};
+        this._selectedStoreKeys = new Set();
         this.set('length', 0)
             .propertyDidChange('selectedStoreKeys')
             .set('isLoadingSelection', false)

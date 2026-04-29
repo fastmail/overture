@@ -111,7 +111,7 @@ const itemListTouchSelect = {
         this.selection = selection;
         this.index = index;
         this.lastIndex = index;
-        this.wasSelected = {};
+        this.wasSelected = new Map();
         this.isSelected = isSelected;
         this.scrollView = scrollView;
         this.scrollTop = bounds ? bounds.top + scrollTriggerPx : 0;
@@ -159,7 +159,7 @@ const itemListTouchSelect = {
             const toUnselect = [];
             for (let i = 0, l = storeKeys.length; i < l; i += 1) {
                 const storeKey = storeKeys[i];
-                if (wasSelected[storeKey]) {
+                if (wasSelected.get(storeKey)) {
                     toSelect.push(storeKey);
                 } else {
                     toUnselect.push(storeKey);
@@ -184,9 +184,11 @@ const itemListTouchSelect = {
             const wasSelected = this.wasSelected;
             for (let i = 0, l = storeKeys.length; i < l; i += 1) {
                 const storeKey = storeKeys[i];
-                if (!(storeKey in wasSelected)) {
-                    wasSelected[storeKey] =
-                        selection.isStoreKeySelected(storeKey);
+                if (!wasSelected.has(storeKey)) {
+                    wasSelected.set(
+                        storeKey,
+                        selection.isStoreKeySelected(storeKey),
+                    );
                 }
             }
             selection.selectStoreKeys(storeKeys, isSelected);
