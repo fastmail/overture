@@ -80,6 +80,20 @@ const STRING_ID = 0;
 const ARRAY_IDS = 1;
 const SET_IDS = 2;
 
+const typeToIdAttrKey = new WeakMap();
+
+// The serialised JSON key for a Type's primary id attribute. Settled at
+// class-definition time and constant thereafter, so cached per-Type.
+const getIdAttrKey = function (Type) {
+    let idAttrKey = typeToIdAttrKey.get(Type);
+    if (idAttrKey === undefined) {
+        const idPropKey = Type.primaryKey || 'id';
+        idAttrKey = Type.prototype[idPropKey].key || idPropKey;
+        typeToIdAttrKey.set(Type, idAttrKey);
+    }
+    return idAttrKey;
+};
+
 const typeToForeignRefAttrs = new WeakMap();
 
 const getForeignRefAttrs = function (Type) {
@@ -749,13 +763,11 @@ const Store = Class({
             let entry = changes[compositeKey];
             if (!entry) {
                 const account = _accounts.get(accountId);
-                const idPropKey = Type.primaryKey || 'id';
-                const idAttrKey = Type.prototype[idPropKey].key || idPropKey;
                 entry = changes[compositeKey] = {
                     Type,
                     typeId,
                     accountId,
-                    primaryKey: idAttrKey,
+                    primaryKey: getIdAttrKey(Type),
                     create: { storeKeys: [], records: [] },
                     update: {
                         storeKeys: [],
@@ -2124,8 +2136,7 @@ const Store = Class({
             accountId = this.getPrimaryAccountIdForType(Type);
         }
         const account = this._accounts.get(accountId);
-        const idPropKey = Type.primaryKey || 'id';
-        const idAttrKey = Type.prototype[idPropKey].key || idPropKey;
+        const idAttrKey = getIdAttrKey(Type);
         const now = Date.now();
         const seen = new Set();
         const updates = {};
@@ -2250,8 +2261,7 @@ const Store = Class({
         const { _skToData, _skToStatus, _skToChanged, _skToCommitted } = this;
         const _idToSk = account.typeToIdToSK.get(Type);
         const _skToId = this._typeToSKToId.get(Type);
-        const idPropKey = Type.primaryKey || 'id';
-        const idAttrKey = Type.prototype[idPropKey].key || idPropKey;
+        const idAttrKey = getIdAttrKey(Type);
         const foreignRefAttrs = _idsAreSKs ? [] : getForeignRefAttrs(Type);
 
         for (const id in updates) {
@@ -2350,8 +2360,7 @@ const Store = Class({
         const account = this.getAccount(accountId, Type);
         const _idToSk = account.typeToIdToSK.get(Type);
         const _skToId = this._typeToSKToId.get(Type);
-        const idPropKey = Type.primaryKey || 'id';
-        const idAttrKey = Type.prototype[idPropKey].key || idPropKey;
+        const idAttrKey = getIdAttrKey(Type);
 
         if (!_idToSk) {
             return mayHaveChanges(this);
@@ -2589,8 +2598,7 @@ const Store = Class({
                 const data = skToPartialData[storeKey];
 
                 const Type = _skToType.get(storeKey);
-                const idPropKey = Type.primaryKey || 'id';
-                const idAttrKey = Type.prototype[idPropKey].key || idPropKey;
+                const idAttrKey = getIdAttrKey(Type);
                 const accountId = _skToData.get(storeKey).accountId;
                 const id = data[idAttrKey];
                 const typeToIdToSK = _accounts.get(accountId).typeToIdToSK;
