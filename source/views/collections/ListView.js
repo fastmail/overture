@@ -292,7 +292,11 @@ const ListView = Class({
                     } catch (error) {
                         didError({
                             name: 'Model bug',
-                            details: list.log,
+                            details: {
+                                log: list.log,
+                                where: list.get('where'),
+                                sort: list.get('sort'),
+                            },
                         });
                     }
                     if (isInDocument) {
