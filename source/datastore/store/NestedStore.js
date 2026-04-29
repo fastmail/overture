@@ -15,6 +15,38 @@ import {
 } from '../record/Status.js';
 import { Store } from './Store.js';
 
+// ---
+
+// A Map with an optional parent: get() cascades up the chain, set/delete
+// only affect this level. Replaces the Object.create(parent) pattern
+// previously used for nested-store copy-on-write of _skToData/_skToStatus.
+//
+// Store never set()s undefined as a value, so a `value !== undefined` check
+// is sufficient to distinguish "own has it" from "own doesn't have it".
+class ChainedMap {
+    constructor(parent) {
+        this._own = new Map();
+        this._parent = parent;
+    }
+    get(key) {
+        const v = this._own.get(key);
+        if (v !== undefined) {
+            return v;
+        }
+        return this._parent.get(key);
+    }
+    set(key, value) {
+        this._own.set(key, value);
+        return this;
+    }
+    delete(key) {
+        return this._own.delete(key);
+    }
+    ownHas(key) {
+        return this._own.has(key);
+    }
+}
+
 /**
     Class: O.NestedStore
 
@@ -48,9 +80,9 @@ const NestedStore = Class({
         this._accounts = store._accounts;
         this._defaultAccountId = store._defaultAccountId;
 
-        // Copy on write, shared status/data
-        this._skToStatus = Object.create(store._skToStatus);
-        this._skToData = Object.create(store._skToData);
+        // Copy on write, layered on parent's status/data
+        this._skToStatus = new ChainedMap(store._skToStatus);
+        this._skToData = new ChainedMap(store._skToData);
 
         store.addNested(this);
 
@@ -85,42 +117,39 @@ const NestedStore = Class({
             this;
         const parent = this._parentStore;
 
-        for (const storeKey in _created) {
-            const isCopyOfStoreKey = _created[storeKey];
+        for (const [storeKey, isCopyOfStoreKey] of _created) {
             if (isCopyOfStoreKey) {
-                const data = _skToData[storeKey];
+                const data = _skToData.get(storeKey);
                 parent.moveRecord(
                     isCopyOfStoreKey,
                     this.getAccountIdFromStoreKey(storeKey),
                     storeKey,
                 );
-                delete _skToData[storeKey];
+                _skToData.delete(storeKey);
                 parent.updateData(storeKey, data, true);
             } else {
-                const data = _skToData[storeKey];
-                const Type = _skToType[storeKey];
+                const data = _skToData.get(storeKey);
+                const Type = _skToType.get(storeKey);
                 parent.undestroyRecord(storeKey, Type, data);
             }
         }
-        for (const storeKey in _skToChanged) {
-            const changed = _skToChanged[storeKey];
-            const data = _skToData[storeKey];
+        for (const [storeKey, changed] of _skToChanged) {
+            const data = _skToData.get(storeKey);
             parent.updateData(storeKey, filter(data, changed), true);
         }
-        for (const storeKey in _destroyed) {
-            const ifCopiedStoreKey = _destroyed[storeKey];
+        for (const [storeKey, ifCopiedStoreKey] of _destroyed) {
             // Check if already handled by moveFromAccount in create.
-            if (!ifCopiedStoreKey || !_created[ifCopiedStoreKey]) {
+            if (!ifCopiedStoreKey || !_created.has(ifCopiedStoreKey)) {
                 parent.destroyRecord(storeKey);
             }
         }
 
-        this._skToData = Object.create(parent._skToData);
-        this._skToStatus = Object.create(parent._skToStatus);
-        this._skToChanged = {};
-        this._skToCommitted = {};
-        this._created = {};
-        this._destroyed = {};
+        this._skToData = new ChainedMap(parent._skToData);
+        this._skToStatus = new ChainedMap(parent._skToStatus);
+        this._skToChanged = new Map();
+        this._skToCommitted = new Map();
+        this._created = new Map();
+        this._destroyed = new Map();
 
         return this.set('hasChanges', false).fire('didCommit');
     },
@@ -139,8 +168,8 @@ const NestedStore = Class({
 
         const parent = this._parentStore;
 
-        this._skToData = Object.create(parent._skToData);
-        this._skToStatus = Object.create(parent._skToStatus);
+        this._skToData = new ChainedMap(parent._skToData);
+        this._skToStatus = new ChainedMap(parent._skToStatus);
 
         return this;
     },
@@ -148,8 +177,8 @@ const NestedStore = Class({
     // === Low level (primarily internal) API: uses storeKey ===================
 
     getStatus(storeKey) {
-        const status = this._skToStatus[storeKey] || EMPTY;
-        return this._skToData.hasOwnProperty(storeKey) || status & DESTROYED
+        const status = this._skToStatus.get(storeKey) || EMPTY;
+        return this._skToData.ownHas(storeKey) || status & DESTROYED
             ? status
             : status & ~(NEW | COMMITTING | DIRTY);
     },
@@ -184,23 +213,23 @@ const NestedStore = Class({
         let status = newStatus & ~(NEW | COMMITTING | DIRTY);
 
         const _skToStatus = this._skToStatus;
-        if (_skToStatus.hasOwnProperty(storeKey)) {
-            previous = _skToStatus[storeKey];
+        if (_skToStatus.ownHas(storeKey)) {
+            previous = _skToStatus.get(storeKey);
             if (status & DESTROYED) {
                 // Ready dirty -> ready clean.
                 if (previous & READY && previous & DIRTY) {
-                    this.setData(storeKey, this._skToCommitted[storeKey]);
-                    delete this._skToCommitted[storeKey];
-                    delete this._skToChanged[storeKey];
+                    this.setData(storeKey, this._skToCommitted.get(storeKey));
+                    this._skToCommitted.delete(storeKey);
+                    this._skToChanged.delete(storeKey);
                 }
                 // Ready clean/Destroyed dirty -> destroyed clean.
-                delete this._skToData[storeKey];
-                delete _skToStatus[storeKey];
+                this._skToData.delete(storeKey);
+                _skToStatus.delete(storeKey);
             } else if (!(previous & NEW)) {
                 // If NEW, parent status means it's been committed, which means
                 // we're going to clear _skToStatus so we're already correct
-                _skToStatus[storeKey] = status =
-                    previous | (status & (OBSOLETE | LOADING));
+                status = previous | (status & (OBSOLETE | LOADING));
+                _skToStatus.set(storeKey, status);
             }
         }
 
@@ -209,13 +238,13 @@ const NestedStore = Class({
             if ((previous ^ status) & READY) {
                 this._recordDidChange(storeKey);
             }
-            const record = this._skToRecord[storeKey];
+            const record = this._skToRecord.get(storeKey);
             if (record) {
                 record.propertyDidChange('status', previous, status);
             }
-            this._nestedStores.forEach((store) => {
-                store.parentDidChangeStatus(storeKey, previous, status);
-            });
+            for (const nested of this._nestedStores) {
+                nested.parentDidChangeStatus(storeKey, previous, status);
+            }
         }
     },
 
@@ -233,9 +262,9 @@ const NestedStore = Class({
     */
     parentDidSetData(storeKey, changedKeys) {
         this._notifyRecordOfChanges(storeKey, changedKeys);
-        this._nestedStores.forEach((store) => {
-            store.parentDidSetData(storeKey, changedKeys);
-        });
+        for (const nested of this._nestedStores) {
+            nested.parentDidSetData(storeKey, changedKeys);
+        }
     },
 
     /**
@@ -253,12 +282,12 @@ const NestedStore = Class({
     */
     parentDidUpdateData(storeKey, changedKeys) {
         const { _skToData, _skToChanged, _skToCommitted } = this;
-        const oldChanged = _skToChanged[storeKey];
-        if (oldChanged && _skToData.hasOwnProperty(storeKey)) {
+        const oldChanged = _skToChanged.get(storeKey);
+        if (oldChanged && _skToData.ownHas(storeKey)) {
             const parent = this._parentStore;
             const rebase = this.rebaseConflicts;
             const newBase = parent.getData(storeKey);
-            const oldData = _skToData[storeKey];
+            const oldData = _skToData.get(storeKey);
             const newData = {};
             const newChanged = {};
             let clean = true;
@@ -281,8 +310,8 @@ const NestedStore = Class({
                 }
             }
             if (!clean) {
-                _skToChanged[storeKey] = newChanged;
-                _skToCommitted[storeKey] = clone(newBase);
+                _skToChanged.set(storeKey, newChanged);
+                _skToCommitted.set(storeKey, clone(newBase));
                 this.setData(storeKey, newData);
                 return;
             }
@@ -290,15 +319,15 @@ const NestedStore = Class({
                 storeKey,
                 parent.getStatus(storeKey) & ~(NEW | COMMITTING | DIRTY),
             );
-            delete _skToData[storeKey];
-            delete _skToChanged[storeKey];
-            delete _skToCommitted[storeKey];
-            delete this._skToStatus[storeKey];
+            _skToData.delete(storeKey);
+            _skToChanged.delete(storeKey);
+            _skToCommitted.delete(storeKey);
+            this._skToStatus.delete(storeKey);
         }
         this._notifyRecordOfChanges(storeKey, changedKeys);
-        this._nestedStores.forEach((store) => {
-            store.parentDidUpdateData(storeKey, changedKeys);
-        });
+        for (const nested of this._nestedStores) {
+            nested.parentDidUpdateData(storeKey, changedKeys);
+        }
         this._recordDidChange(storeKey);
         queueFn('before', this.checkForChanges, this);
     },

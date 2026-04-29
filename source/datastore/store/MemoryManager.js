@@ -1,4 +1,3 @@
-import { guid } from '../../core/Core.js';
 import {
     invokeAfterDelay,
     invokeInNextEventLoop,
@@ -169,18 +168,19 @@ class MemoryManager {
         const store = this._store;
         const _skToLastAccess = store._skToLastAccess;
         const _skToData = store._skToData;
-        const storeKeys = Object.keys(store._typeToSKToId[guid(Type)] || {});
+        const skToId = store._typeToSKToId.get(Type);
+        const storeKeys = skToId ? [...skToId.keys()] : [];
         const length = storeKeys.length;
         let numberToDelete = length - max;
         const deleted = [];
 
         storeKeys.sort((a, b) => {
-            return _skToLastAccess[b] - _skToLastAccess[a];
+            return _skToLastAccess.get(b) - _skToLastAccess.get(a);
         });
 
         for (let i = length - 1; numberToDelete > 0 && i >= 0; i -= 1) {
             const storeKey = storeKeys[i];
-            const data = _skToData[storeKey];
+            const data = _skToData.get(storeKey);
             if (store.unloadRecord(storeKey)) {
                 numberToDelete -= 1;
                 if (data) {
