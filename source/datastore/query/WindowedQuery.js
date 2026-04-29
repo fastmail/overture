@@ -840,12 +840,17 @@ const WindowedQuery = Class({
 
     _applyWaitingPackets() {
         let didDropPackets = false;
-        const waitingPackets = this._waitingPackets;
         const queryState = this.get('queryState');
-        let packet;
 
-        for (let i = waitingPackets.length - 1; i >= 0; i -= 1) {
-            packet = waitingPackets.shift();
+        // Detach the current queue first so we drain only the snapshot;
+        // sourceDidFetchIds may push back if a fresh queryState mismatch
+        // is detected, and those need to wait for the next drain.
+        // Iterating with .shift() inside a length-bounded loop made the
+        // whole pass accidentally O(n²) on the packet list.
+        const packets = this._waitingPackets;
+        this._waitingPackets = [];
+
+        for (const packet of packets) {
             // If these values aren't now the same, the packet must
             // be OLDER than our current queryState, so just discard.
             if (packet.queryState !== queryState) {
@@ -856,6 +861,7 @@ const WindowedQuery = Class({
                 this.sourceDidFetchIds(packet);
             }
         }
+
         if (didDropPackets) {
             this._fetchObservedWindows();
         }
