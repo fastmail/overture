@@ -64,6 +64,31 @@ const sortLinkedArrays = function (a1, a2) {
     });
 };
 
+// Build a Map from each value in `arr` to its index. Falsy values are skipped
+// (matching mapIndexes's treatment of holes in the storeKey list).
+const arrayToIndexMap = function (arr) {
+    const map = new Map();
+    for (let i = 0, l = arr.length; i < l; i += 1) {
+        const value = arr[i];
+        if (value) {
+            map.set(value, i);
+        }
+    }
+    return map;
+};
+
+// After splicing removedStoreKeys/removedIndexes at position `j`, every
+// remaining storeKey whose mapped index was > j has shifted down by one.
+// This keeps a parallel Map<storeKey, currentLiveIndex> in sync without an
+// O(N) rebuild. Total work is O(remaining), the same as the splice itself.
+const decrementMapAfter = function (map, j) {
+    for (const [key, value] of map) {
+        if (value > j) {
+            map.set(key, value - 1);
+        }
+    }
+};
+
 const mapIndexes = function (list, storeKeys) {
     const indexOf = {};
     const indexes = [];
@@ -659,16 +684,22 @@ const WindowedQuery = Class({
         // But truncate at first gap.
         const truncateAtFirstGap = !!i;
 
+        // Index removedStoreKeys by storeKey for O(1) lookup. The Map is
+        // maintained alongside splices so subsequent lookups continue to see
+        // the live (post-shift) position.
+        const removedSKToJ = arrayToIndexMap(removedStoreKeys);
         for (i = 0, l = added.length; i < l; i += 1) {
             const { index, storeKey } = added[i];
-            const j = removedStoreKeys.indexOf(storeKey);
+            const j = removedSKToJ.get(storeKey);
 
             if (
-                j > -1 &&
+                j !== undefined &&
                 removedIndexes[j] - j + addedIndexes.length === index
             ) {
                 removedIndexes.splice(j, 1);
                 removedStoreKeys.splice(j, 1);
+                removedSKToJ.delete(storeKey);
+                decrementMapAfter(removedSKToJ, j);
             } else {
                 addedIndexes.push(index);
                 addedStoreKeys.push(storeKey);
@@ -1020,15 +1051,19 @@ const WindowedQuery = Class({
             let wasSuccessfulPreemptive = false;
 
             let allPreemptives = composed[preemptivesLength - 1];
+            const allPreemptiveSKToIdx = arrayToIndexMap(
+                allPreemptives.removedStoreKeys,
+            );
+            const listSKToIdx = arrayToIndexMap(list);
             for (let i = 0, l = removed.length; i < l; i += 1) {
                 const storeKey = removed[i];
-                let index = allPreemptives.removedStoreKeys.indexOf(storeKey);
-                if (index > -1) {
+                let index = allPreemptiveSKToIdx.get(storeKey);
+                if (index !== undefined) {
                     removedIndexes.push(allPreemptives.removedIndexes[index]);
                     removedStoreKeys.push(storeKey);
                 } else {
-                    index = list.indexOf(storeKey);
-                    if (index > -1) {
+                    index = listSKToIdx.get(storeKey);
+                    if (index !== undefined) {
                         indexesToRemove.push(index);
                         storeKeysToRemove.push(storeKey);
                     } else {
@@ -1045,10 +1080,11 @@ const WindowedQuery = Class({
                 });
                 const composedRemovedSKs = composedUpdate.removedStoreKeys;
                 const composedRemovedIndexes = composedUpdate.removedIndexes;
+                const composedSKToIdx = arrayToIndexMap(composedRemovedSKs);
                 for (let i = 0, l = storeKeysToRemove.length; i < l; i += 1) {
                     const storeKey = storeKeysToRemove[i];
-                    const index = composedRemovedSKs.indexOf(storeKey);
-                    if (index > -1) {
+                    const index = composedSKToIdx.get(storeKey);
+                    if (index !== undefined) {
                         removedIndexes.push(composedRemovedIndexes[index]);
                         removedStoreKeys.push(storeKey);
                     } else {
@@ -1061,18 +1097,24 @@ const WindowedQuery = Class({
             // Now remove any idempotent operations
             const addedIndexes = normalisedUpdate.addedIndexes;
             const addedStoreKeys = normalisedUpdate.addedStoreKeys;
+            const removedSKToJ = arrayToIndexMap(removedStoreKeys);
             for (let i = addedIndexes.length - 1; i >= 0; i -= 1) {
                 const storeKey = addedStoreKeys[i];
-                const j = removedStoreKeys.indexOf(storeKey);
+                const j = removedSKToJ.get(storeKey);
                 // j => Number of items removed before this one
                 // i => Number of items added before this one
                 // Therefore old index - j + i => new index. If it is being
                 // added at this index, the whole operation is inert.
-                if (j > -1 && removedIndexes[j] - j + i === addedIndexes[i]) {
+                if (
+                    j !== undefined &&
+                    removedIndexes[j] - j + i === addedIndexes[i]
+                ) {
                     removedIndexes.splice(j, 1);
                     removedStoreKeys.splice(j, 1);
                     addedIndexes.splice(i, 1);
                     addedStoreKeys.splice(i, 1);
+                    removedSKToJ.delete(storeKey);
+                    decrementMapAfter(removedSKToJ, j);
                 }
             }
 
