@@ -224,7 +224,7 @@ const View = Class({
 
         View.parent.constructor.apply(this, arguments);
 
-        if ((this._autoID = !this.get('id'))) {
+        if (!this.get('id')) {
             this.set('id', 'v' + UID);
             UID += 1;
         }
@@ -423,12 +423,7 @@ const View = Class({
         this.set('isInDocument', true);
 
         const id = this.get('id');
-        if (this._autoID) {
-            // Automatically-generated ID: bypass `set` for performance.
-            activeViews[id] = this;
-        } else {
-            activeViews.set(id, this);
-        }
+        activeViews.set(id, this);
 
         this.computedPropertyDidChange('pxLayout');
 
@@ -452,12 +447,7 @@ const View = Class({
         this.set('isInDocument', false);
 
         const id = this.get('id');
-        if (this._autoID) {
-            // Automatically-generated ID: bypass `set` for performance.
-            delete activeViews[id];
-        } else {
-            activeViews.set(id, null);
-        }
+        activeViews.delete(id);
 
         const children = this.get('childViews');
         for (let i = children.length - 1; i >= 0; i -= 1) {
