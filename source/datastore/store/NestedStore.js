@@ -175,16 +175,15 @@ const NestedStore = Class({
         instances belonging to it of the change.
 
         Parameters:
-            storeKey - {String} The store key for the record.
-            previous - {O.Status} The previous status value.
-            status   - {O.Status} The new status value.
+            storeKey  - {String} The store key for the record.
+            oldStatus - {O.Status} The previous status value.
+            newStatus - {O.Status} The new status value.
     */
-    parentDidChangeStatus(storeKey, previous, status) {
-        const { _skToStatus } = this;
+    parentDidChangeStatus(storeKey, oldStatus, newStatus) {
+        let previous = oldStatus & ~(NEW | COMMITTING | DIRTY);
+        let status = newStatus & ~(NEW | COMMITTING | DIRTY);
 
-        previous = previous & ~(NEW | COMMITTING | DIRTY);
-        status = status & ~(NEW | COMMITTING | DIRTY);
-
+        const _skToStatus = this._skToStatus;
         if (_skToStatus.hasOwnProperty(storeKey)) {
             previous = _skToStatus[storeKey];
             if (status & DESTROYED) {
