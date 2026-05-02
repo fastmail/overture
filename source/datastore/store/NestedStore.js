@@ -149,7 +149,7 @@ const NestedStore = Class({
 
     getStatus(storeKey) {
         const status = this._skToStatus[storeKey] || EMPTY;
-        return this._skToData.hasOwnProperty(storeKey)
+        return this._skToData.hasOwnProperty(storeKey) || status & DESTROYED
             ? status
             : status & ~(NEW | COMMITTING | DIRTY);
     },
