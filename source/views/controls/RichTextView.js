@@ -1332,10 +1332,14 @@ const RichTextView = Class({
     // -- Drag and drop ---
 
     dropAcceptedDataTypes: {
+        'image/avif-sequence': true,
+        'image/avif': true,
         'image/gif': true,
         'image/jpeg': true,
         'image/png': true,
+        'image/svg+xml': true,
         'image/tiff': true,
+        'image/webp': true,
     },
 
     dropEffect: COPY,
