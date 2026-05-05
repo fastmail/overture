@@ -1,4 +1,4 @@
-import { Class, guid } from '../../core/Core.js';
+import { Class } from '../../core/Core.js';
 import { appendChildren } from '../../dom/Element.js';
 import { bind } from '../../foundation/Binding.js';
 import { didError } from '../../foundation/RunLoop.js';
@@ -30,7 +30,7 @@ const getNextViewIndex = function (childViews, newRendered, fromIndex) {
         // (kept in childViews until its slide-out completes) shares its
         // content's id with any freshly-created replacement; treating it
         // as the kept view here would desync currentViewIndex.
-        if (item && newRendered[guid(item)] === view) {
+        if (item && newRendered.get(item) === view) {
             break;
         }
         fromIndex += 1;
@@ -52,7 +52,7 @@ const ListView = Class({
     init: function (/* ...mixins */) {
         this._added = null;
         this._removed = null;
-        this._rendered = {};
+        this._rendered = new Map();
         this._renderRange = {
             start: 0,
             end: 0x7fffffff, // Max positive signed 32bit int: 2^31 - 1
@@ -237,7 +237,7 @@ const ListView = Class({
         const isInDocument = this.get('isInDocument');
         // Set of already rendered views.
         const rendered = this._rendered;
-        const newRendered = (this._rendered = {});
+        const newRendered = (this._rendered = new Map());
         // Are they new or always been there?
         const added = this._added;
         const removed = this._removed;
@@ -250,19 +250,18 @@ const ListView = Class({
         // Mark views we still need
         for (const i of this.getRangeIterator(list)) {
             const item = list.getObjectAt(i);
-            const id = item ? guid(item) : 'null:' + i;
-            const view = rendered[id];
+            const id = item || 'null:' + i;
+            const view = rendered.get(id);
             if (view && this.isCorrectItemView(view, item, i)) {
-                newRendered[id] = view;
+                newRendered.set(id, view);
             }
         }
 
         this.beginPropertyChanges();
 
         // Remove ones which are no longer needed
-        for (const id in rendered) {
-            if (!newRendered[id]) {
-                const view = rendered[id];
+        for (const [id, view] of rendered) {
+            if (!newRendered.get(id)) {
                 const item = removed ? view.get('content') : null;
                 const isRemoved = item
                     ? removed.has(item.get('storeKey'))
@@ -277,8 +276,8 @@ const ListView = Class({
         const itemLayout = this.get('itemLayout');
         for (const i of this.getRangeIterator(list)) {
             const item = list.getObjectAt(i);
-            const id = item ? guid(item) : 'null:' + i;
-            let view = newRendered[id];
+            const id = item || 'null:' + i;
+            let view = newRendered.get(id);
             // Was the view already in the list?
             if (view) {
                 // Is it in the correct position?
@@ -333,7 +332,7 @@ const ListView = Class({
                 if (!view) {
                     continue;
                 }
-                newRendered[id] = view;
+                newRendered.set(id, view);
                 childViews.push(view);
             }
             if (!frag) {
@@ -370,13 +369,13 @@ const ListView = Class({
         const rendered = this._rendered;
         const newRecord = this.get('focused').get('record');
         if (oldRecord) {
-            const view = rendered[guid(oldRecord)];
+            const view = rendered.get(oldRecord);
             if (view) {
                 view.set('isFocused', false);
             }
         }
         if (newRecord) {
-            const view = rendered[guid(newRecord)];
+            const view = rendered.get(newRecord);
             if (view) {
                 view.set('isFocused', true);
             }

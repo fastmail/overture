@@ -36,7 +36,6 @@ const ProgressiveListView = Class({
             let top = ~~(y / itemHeight);
             const removedIndexes = event.removedIndexes;
             const addedIndexes = event.addedIndexes;
-            const rendered = this._rendered;
             let change = 0;
 
             // If we are within 3 items of the top, don't change anything.
@@ -64,8 +63,7 @@ const ProgressiveListView = Class({
                 }
             }
             if (change) {
-                for (const id in rendered) {
-                    const view = rendered[id];
+                for (const view of this._rendered.values()) {
                     view.set('animateLayer', false)
                         .set('index', view.get('index') + change)
                         .redraw()
