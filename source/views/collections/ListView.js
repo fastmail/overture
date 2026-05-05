@@ -14,11 +14,11 @@ const byIndex = function (a, b) {
     return a.get('index') - b.get('index');
 };
 
-const addToTable = function (array, table) {
+const addToSet = function (array, set) {
     for (let i = 0, l = array.length; i < l; i += 1) {
-        table[array[i]] = true;
+        set.add(array[i]);
     }
-    return table;
+    return set;
 };
 
 const getNextViewIndex = function (childViews, newRendered, fromIndex) {
@@ -128,8 +128,8 @@ const ListView = Class({
 
     contentWasUpdated(event) {
         if (this.get('isInDocument')) {
-            this._added = addToTable(event.added, this._added || {});
-            this._removed = addToTable(event.removed, this._removed || {});
+            this._added = addToSet(event.added, this._added || new Set());
+            this._removed = addToSet(event.removed, this._removed || new Set());
         }
     },
 
@@ -264,7 +264,9 @@ const ListView = Class({
             if (!newRendered[id]) {
                 const view = rendered[id];
                 const item = removed ? view.get('content') : null;
-                const isRemoved = item ? removed[item.get('storeKey')] : false;
+                const isRemoved = item
+                    ? removed.has(item.get('storeKey'))
+                    : false;
                 view.detach(isRemoved);
                 this.destroyItemView(view);
             }
@@ -326,7 +328,7 @@ const ListView = Class({
                 }
             } else {
                 const isAdded =
-                    added && item ? added[item.get('storeKey')] : false;
+                    added && item ? added.has(item.get('storeKey')) : false;
                 view = this.createItemView(item, i, list, isAdded);
                 if (!view) {
                     continue;
