@@ -1438,14 +1438,23 @@ const Store = Class({
             this.setStatus(storeKey, DESTROYED);
             this.unloadRecord(storeKey);
         } else if (status & READY) {
-            // Discard changes if dirty.
+            // Discard changes if dirty. Revert the data without firing
+            // change notifications: observers should react to the DESTROYED
+            // status change, not to attribute reverts. Notifying about the
+            // reverts can cause two-way bindings to write back to the
+            // now-destroyed record.
             if (status & DIRTY) {
-                this.setData(storeKey, this._skToCommitted.get(storeKey));
+                if (this.isNested) {
+                    // Reads will fall through to the parent store.
+                    this._skToData.delete(storeKey);
+                } else {
+                    this._skToData.set(
+                        storeKey,
+                        this._skToCommitted.get(storeKey),
+                    );
+                }
                 this._skToCommitted.delete(storeKey);
                 this._skToChanged.delete(storeKey);
-                if (this.isNested) {
-                    this._skToData.delete(storeKey);
-                }
             }
             this._destroyed.set(storeKey, _ifCopiedStoreKey || 0);
             // Maintain COMMITTING flag so we know to wait for that to finish
