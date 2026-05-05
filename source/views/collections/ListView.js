@@ -295,12 +295,35 @@ const ListView = Class({
                     try {
                         layer.removeChild(view.get('layer'));
                     } catch (error) {
+                        const viewLayer = view.get('layer');
+                        const parent = viewLayer && viewLayer.parentNode;
+                        let layerParent;
+                        if (!parent) {
+                            layerParent = 'none';
+                        } else if (parent === layer) {
+                            layerParent = 'self';
+                        } else if (parent.nodeType === 11) {
+                            layerParent = 'document-fragment';
+                        } else {
+                            layerParent = 'other:' + parent.nodeName;
+                        }
                         didError({
                             name: 'Model bug',
                             details: {
                                 log: list.log,
                                 where: list.get('where'),
                                 sort: list.get('sort'),
+                                index: i,
+                                errorName: error && error.name,
+                                errorMessage: error && error.message,
+                                layerParent,
+                                renderedSize: rendered.size,
+                                newRenderedSize: newRendered.size,
+                                childViewsLength: childViews.length,
+                                currentViewIndex,
+                                viewIsInChildViews: childViews.indexOf(view),
+                                viewIsRemoved: view.get('isRemoved'),
+                                viewIsDestroyed: !!view.isDestroyed,
                             },
                         });
                     }
