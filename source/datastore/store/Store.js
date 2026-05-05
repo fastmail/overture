@@ -2856,6 +2856,10 @@ const Store = Class({
                     this._skToChanged.delete(storeKey);
                 }
                 this.setStatus(storeKey, READY | NEW | DIRTY);
+            } else if (status === EMPTY || status === DESTROYED) {
+                // Already unloaded (e.g. by a concurrent notFound on
+                // Foo/get, or a server-side destroy via Foo/changes); the
+                // commit response is now redundant.
             } else if (status & DESTROYED) {
                 this.setStatus(storeKey, DESTROYED);
                 this.unloadRecord(storeKey);
