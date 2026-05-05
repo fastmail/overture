@@ -26,7 +26,11 @@ const getNextViewIndex = function (childViews, newRendered, fromIndex) {
     while (fromIndex < length) {
         const view = childViews[fromIndex];
         const item = view.get('content');
-        if (item && newRendered[guid(item)]) {
+        // Match by identity, not just by id. An animating-out view
+        // (kept in childViews until its slide-out completes) shares its
+        // content's id with any freshly-created replacement; treating it
+        // as the kept view here would desync currentViewIndex.
+        if (item && newRendered[guid(item)] === view) {
             break;
         }
         fromIndex += 1;
