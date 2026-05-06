@@ -383,14 +383,17 @@ const defangElement = function (node, options) {
         return false;
     }
     if (!options.allowTags[nodeName] || options.forbidTags[nodeName]) {
-        if (
-            !TAGS_FORBID_CONTENTS[nodeName] &&
-            typeof node.innerHTML === 'string' &&
-            typeof node.insertAdjacentHTML === 'function'
-        ) {
-            try {
-                node.insertAdjacentHTML('AfterEnd', node.innerHTML);
-            } catch (error) {}
+        if (!TAGS_FORBID_CONTENTS[nodeName]) {
+            // Unwrap at the DOM level; serialize+reparse is mXSS-prone.
+            const parent = node.parentNode;
+            if (parent && typeof parent.insertBefore === 'function') {
+                const after = node.nextSibling;
+                try {
+                    while (node.firstChild) {
+                        parent.insertBefore(node.firstChild, after);
+                    }
+                } catch (error) {}
+            }
         }
         return false;
     }
