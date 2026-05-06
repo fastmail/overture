@@ -38,6 +38,18 @@ const getNextViewIndex = function (childViews, newRendered, fromIndex) {
     return fromIndex;
 };
 
+const getRenderKey = (item, i) => {
+    if (typeof item === 'object') {
+        if (item === null) {
+            return 'null:' + i;
+        }
+        if (item.constructor === Date) {
+            return +item;
+        }
+    }
+    return item;
+};
+
 const ListView = Class({
     Name: 'ListView',
 
@@ -250,7 +262,7 @@ const ListView = Class({
         // Mark views we still need
         for (const i of this.getRangeIterator(list)) {
             const item = list.getObjectAt(i);
-            const id = item || 'null:' + i;
+            const id = getRenderKey(item, i);
             const view = rendered.get(id);
             if (view && this.isCorrectItemView(view, item, i)) {
                 newRendered.set(id, view);
@@ -276,7 +288,7 @@ const ListView = Class({
         const itemLayout = this.get('itemLayout');
         for (const i of this.getRangeIterator(list)) {
             const item = list.getObjectAt(i);
-            const id = item || 'null:' + i;
+            const id = getRenderKey(item, i);
             let view = newRendered.get(id);
             // Was the view already in the list?
             if (view) {
