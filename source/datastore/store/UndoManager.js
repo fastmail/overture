@@ -72,11 +72,11 @@ const UndoManager = Class({
 
     redo() {
         if (this.get('canRedo')) {
-            this._pushState(
-                this._undoStack,
-                this.applyChange(this._redoStack.pop(), true),
-            );
-            this.set('canUndo', true)
+            const undoData = this.applyChange(this._redoStack.pop(), true);
+            if (undoData) {
+                this._pushState(this._undoStack, undoData);
+            }
+            this.set('canUndo', !!this._undoStack.length)
                 .set('canRedo', !!this._redoStack.length)
                 .fire('redo');
         }
