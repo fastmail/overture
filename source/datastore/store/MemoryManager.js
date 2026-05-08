@@ -169,17 +169,32 @@ class MemoryManager {
         const _skToLastAccess = store._skToLastAccess;
         const _skToData = store._skToData;
         const skToId = store._typeToSKToId.get(Type);
-        const storeKeys = skToId ? [...skToId.keys()] : [];
-        const length = storeKeys.length;
+        const length = skToId ? skToId.size : 0;
         let numberToDelete = length - max;
         const deleted = [];
 
-        storeKeys.sort((a, b) => {
-            return _skToLastAccess.get(b) - _skToLastAccess.get(a);
-        });
+        if (numberToDelete <= 0) {
+            return deleted;
+        }
 
-        for (let i = length - 1; numberToDelete > 0 && i >= 0; i -= 1) {
-            const storeKey = storeKeys[i];
+        // Materialise storeKeys and lastAccess values into two parallel
+        // flat arrays, then sort an index array by access. The comparator
+        // is a plain numeric compare rather than two Map lookups per call,
+        // and we avoid allocating one tuple object per record.
+        const storeKeys = new Array(length);
+        const accesses = new Array(length);
+        const order = new Array(length);
+        let i = 0;
+        for (const sk of skToId.keys()) {
+            storeKeys[i] = sk;
+            accesses[i] = _skToLastAccess.get(sk);
+            order[i] = i;
+            i += 1;
+        }
+        order.sort((a, b) => accesses[a] - accesses[b]);
+
+        for (i = 0; numberToDelete > 0 && i < length; i += 1) {
+            const storeKey = storeKeys[order[i]];
             const data = _skToData.get(storeKey);
             if (store.unloadRecord(storeKey)) {
                 numberToDelete -= 1;
