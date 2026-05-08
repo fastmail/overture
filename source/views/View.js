@@ -612,10 +612,11 @@ const View = Class({
 
     /**
         Property (private): O.View#_needsRedraw
-        Type: Array|null
+        Type: Map|null
 
-        Array of tuples for properties that need a redraw. Each tuple has the
-        property name as the first item and the old value as the second.
+        Map from property name to the old value, for properties needing a
+        redraw. The first old value seen is preserved if the same property
+        changes more than once before redraw runs.
     */
 
     /**
@@ -635,14 +636,12 @@ const View = Class({
     */
     propertyNeedsRedraw: function (_, layerProperty, oldProp) {
         if (this.get('isRendered')) {
-            const needsRedraw = this._needsRedraw || (this._needsRedraw = []);
-            const l = needsRedraw.length;
-            for (let i = 0; i < l; i += 1) {
-                if (needsRedraw[i][0] === layerProperty) {
-                    return this;
-                }
+            const needsRedraw =
+                this._needsRedraw || (this._needsRedraw = new Map());
+            if (needsRedraw.has(layerProperty)) {
+                return this;
             }
-            needsRedraw[l] = [layerProperty, oldProp];
+            needsRedraw.set(layerProperty, oldProp);
             if (!this._suspendRedraw && this.get('isInDocument')) {
                 queueFn('render', this.redraw, this);
             }
@@ -671,9 +670,8 @@ const View = Class({
         ) {
             const layer = this.get('layer');
             this._needsRedraw = null;
-            for (let i = 0, l = needsRedraw.length; i < l; i += 1) {
-                const prop = needsRedraw[i];
-                this['redraw' + capitalise(prop[0])](layer, prop[1]);
+            for (const [property, oldValue] of needsRedraw) {
+                this['redraw' + capitalise(property)](layer, oldValue);
             }
         }
         return this;

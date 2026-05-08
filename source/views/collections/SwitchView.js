@@ -113,7 +113,7 @@ const SwitchView = Class({
         // automatically soon.
         if (oldIndex > -1 && oldIndex !== newIndex && !isDestroyed(this)) {
             if (this._suspendRedraw) {
-                this._needsRedraw = [];
+                this._needsRedraw = new Map();
             } else {
                 this._needsRedraw = null;
                 const parentView = this.get('parentView');
@@ -128,7 +128,7 @@ const SwitchView = Class({
     switchNeedsRedraw: function () {
         if (this.get('isInDocument')) {
             if (this._suspendRedraw) {
-                this._needsRedraw = [];
+                this._needsRedraw = new Map();
             } else {
                 queueFn('render', this.redraw, this);
             }
