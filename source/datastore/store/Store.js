@@ -2531,6 +2531,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidDestroyRecords(accountId, Type, ids) {
+        const { _skToCommitted, _skToChanged, _destroyed } = this;
         for (let i = ids.length - 1; i >= 0; i -= 1) {
             const id = ids[i];
             const storeKey = this.getStoreKey(accountId, Type, id);
@@ -2540,11 +2541,20 @@ const Store = Class({
             // to work. So we need to check the reverse mapping gives the
             // original id before updating the store with the destroy.
             if (this.getIdFromStoreKey(storeKey) === id) {
+                // Drop any local change tracking before unloading. setStatus
+                // to DESTROYED clears DIRTY/COMMITTING, so unloadRecord
+                // will succeed; if we left these populated, _skToData would
+                // be deleted while _skToChanged/_destroyed still referenced
+                // the storeKey, and the next commitChanges would crash
+                // dereferencing the missing data.
+                _skToCommitted.delete(storeKey);
+                _skToChanged.delete(storeKey);
+                _destroyed.delete(storeKey);
                 this.setStatus(storeKey, DESTROYED);
                 this.unloadRecord(storeKey);
             }
         }
-        return this;
+        return mayHaveChanges(this);
     },
 
     // ---
