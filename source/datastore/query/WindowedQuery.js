@@ -913,7 +913,7 @@ const WindowedQuery = Class({
     */
     clientDidGenerateUpdate(update) {
         const store = this.get('store');
-        const toId = store.getIdFromStoreKey.bind(store);
+        const toId = (sk) => store.getIdFromStoreKey(sk) || '#' + sk;
         this.log.push([
             'client',
             {
