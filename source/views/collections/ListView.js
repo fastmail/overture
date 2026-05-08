@@ -319,6 +319,27 @@ const ListView = Class({
                         } else {
                             layerParent = 'other:' + parent.nodeName;
                         }
+                        const viewContent = view.get('content');
+                        const itemAtI = list.getObjectAt(i);
+                        const storeKeys =
+                            typeof list.getStoreKeys === 'function'
+                                ? list.getStoreKeys().slice()
+                                : null;
+                        const renderRange = this._renderRange;
+                        const renderedStoreKeys = [];
+                        for (const renderedView of rendered.values()) {
+                            const content = renderedView.get('content');
+                            renderedStoreKeys.push(
+                                content && content.get('storeKey'),
+                            );
+                        }
+                        const childViewsContent = childViews.map((v) => {
+                            const content = v.get('content');
+                            return [
+                                content && content.get('storeKey'),
+                                v.get('index'),
+                            ];
+                        });
                         didError({
                             name: 'Model bug',
                             details: {
@@ -326,6 +347,18 @@ const ListView = Class({
                                 where: list.get('where'),
                                 sort: list.get('sort'),
                                 index: i,
+                                viewStoreKey:
+                                    viewContent && viewContent.get('storeKey'),
+                                itemStoreKey:
+                                    itemAtI && itemAtI.get('storeKey'),
+                                storeKeys,
+                                renderRangeStart: renderRange.start,
+                                renderRangeEnd: renderRange.end,
+                                listLength: list.get('length'),
+                                renderedStoreKeys,
+                                childViewsContent,
+                                addedStoreKeys: added ? [...added] : null,
+                                removedStoreKeys: removed ? [...removed] : null,
                                 errorName: error && error.name,
                                 errorMessage: error && error.message,
                                 layerParent,
