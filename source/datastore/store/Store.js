@@ -55,6 +55,8 @@ const generateStoreKey = function () {
     return current;
 };
 
+let nextAccessSeq = 0;
+
 // ---
 
 const mayHaveChanges = function (store) {
@@ -1169,7 +1171,7 @@ const Store = Class({
             this.fetchData(storeKey);
         }
         // Add timestamp for memory manager.
-        this._skToLastAccess.set(storeKey, Date.now());
+        this._skToLastAccess.set(storeKey, (nextAccessSeq += 1));
         return record;
     },
 
@@ -2146,7 +2148,6 @@ const Store = Class({
         }
         const account = this._accounts.get(accountId);
         const idAttrKey = getIdAttrKey(Type);
-        const now = Date.now();
         const seen = new Set();
         const updates = {};
         const foreignRefAttrs = getForeignRefAttrs(Type);
@@ -2181,7 +2182,7 @@ const Store = Class({
                 }
                 this.setData(storeKey, data);
                 this.setStatus(storeKey, READY);
-                _skToLastAccess.set(storeKey, now);
+                _skToLastAccess.set(storeKey, (nextAccessSeq += 1));
             }
         }
 
