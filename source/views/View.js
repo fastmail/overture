@@ -841,9 +841,26 @@ const View = Class({
         - height: The height of the view in pixels.
     */
     pxLayout: function () {
+        if (!this.get('isInDocument')) {
+            return { top: 0, left: 0, width: 0, height: 0 };
+        }
+        const parent = this.get('parentView').get('layer');
+        const parentOffsetParent = parent.offsetParent;
+        let layer = this.get('layer');
+        let top = 0;
+        let left = 0;
+        do {
+            if (layer === parentOffsetParent) {
+                top -= parent.offsetTop;
+                left -= parent.offsetLeft;
+                break;
+            }
+            top += layer.offsetTop;
+            left += layer.offsetLeft;
+        } while ((layer = layer.offsetParent) && layer !== parent);
         return {
-            top: this.get('pxTop'),
-            left: this.get('pxLeft'),
+            top,
+            left,
             width: this.get('pxWidth'),
             height: this.get('pxHeight'),
         };
@@ -857,21 +874,7 @@ const View = Class({
         the parent view's layer.
     */
     pxTop: function () {
-        if (!this.get('isInDocument')) {
-            return 0;
-        }
-        const parent = this.get('parentView').get('layer');
-        const parentOffsetParent = parent.offsetParent;
-        let layer = this.get('layer');
-        let offset = 0;
-        do {
-            if (layer === parentOffsetParent) {
-                offset -= parent.offsetTop;
-                break;
-            }
-            offset += layer.offsetTop;
-        } while ((layer = layer.offsetParent) && layer !== parent);
-        return offset;
+        return this.get('pxLayout').top;
     }.property('pxLayout'),
 
     /**
@@ -882,21 +885,7 @@ const View = Class({
         of the parent view's layer.
     */
     pxLeft: function () {
-        if (!this.get('isInDocument')) {
-            return 0;
-        }
-        const parent = this.get('parentView').get('layer');
-        const parentOffsetParent = parent.offsetParent;
-        let layer = this.get('layer');
-        let offset = 0;
-        do {
-            if (layer === parentOffsetParent) {
-                offset -= parent.offsetLeft;
-                break;
-            }
-            offset += layer.offsetLeft;
-        } while ((layer = layer.offsetParent) && layer !== parent);
-        return offset;
+        return this.get('pxLayout').left;
     }.property('pxLayout'),
 
     /**

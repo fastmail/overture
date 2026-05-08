@@ -17,10 +17,7 @@ const TrueVisibleRect = {
             return { x: 0, y: 0, width: 0, height: 0 };
         }
         // Calculate current visible rect.
-        const x = this.get('pxLeft');
-        const y = this.get('pxTop');
-        const width = this.get('pxWidth');
-        const height = this.get('pxHeight');
+        const { left: x, top: y, width, height } = this.get('pxLayout');
         const parent = this.get('parentView').get('visibleRect');
 
         const left = Math.max(x, parent.x);
