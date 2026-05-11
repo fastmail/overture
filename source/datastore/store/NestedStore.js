@@ -216,13 +216,16 @@ const NestedStore = Class({
         if (_skToStatus.ownHas(storeKey)) {
             previous = _skToStatus.get(storeKey);
             if (status & DESTROYED) {
-                // Ready dirty -> ready clean.
+                // Discard any dirty changes without firing change
+                // notifications: observers should react to the DESTROYED
+                // status change, not to attribute reverts. Notifying about
+                // the reverts can cause two-way bindings to write back to
+                // the now-destroyed record.
                 if (previous & READY && previous & DIRTY) {
-                    this.setData(storeKey, this._skToCommitted.get(storeKey));
                     this._skToCommitted.delete(storeKey);
                     this._skToChanged.delete(storeKey);
                 }
-                // Ready clean/Destroyed dirty -> destroyed clean.
+                // Reads will fall through to the parent store.
                 this._skToData.delete(storeKey);
                 _skToStatus.delete(storeKey);
             } else if (!(previous & NEW)) {
