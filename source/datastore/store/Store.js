@@ -2940,6 +2940,10 @@ const Store = Class({
             if ((status & ~DIRTY) === (READY | NEW | COMMITTING)) {
                 this.setStatus(storeKey, status & ~(COMMITTING | NEW));
                 _created.delete(storeKey);
+            } else if (status === EMPTY || status === DESTROYED) {
+                // Already unloaded (e.g. by a concurrent notFound on
+                // Foo/get, or a server-side destroy via Foo/changes); the
+                // revert is now redundant.
             } else if (status & DESTROYED) {
                 this.setStatus(storeKey, (status & ~COMMITTING) | DIRTY);
                 _destroyed.set(storeKey, 0);
