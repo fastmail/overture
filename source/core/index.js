@@ -9,6 +9,7 @@ export {
     classes,
     Class,
 } from './Core.js';
+export { decodeURIComponentIfValid } from './decodeURIComponentIfValid.js';
 export { HEX_TO_4_BITS, BYTE_TO_HEX } from './hex.js';
 export { sortByProperties } from './sortByProperties.js';
 export { keyOf, filter, zip, fromQueryString } from './KeyValue.js';

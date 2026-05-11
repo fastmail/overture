@@ -1,4 +1,5 @@
 import { Class } from '../core/Core.js';
+import { decodeURIComponentIfValid } from '../core/decodeURIComponentIfValid.js';
 import { Obj } from '../foundation/Object.js';
 
 /* { observes, invokeInRunLoop, queue } from */
@@ -247,7 +248,9 @@ const Router = Class({
                 .slice(1)
                 .replace(/\+/g, ' ')
                 .split('&')
-                .map((entry) => entry.split('=', 2).map(decodeURIComponent))
+                .map((entry) =>
+                    entry.split('=', 2).map(decodeURIComponentIfValid),
+                )
                 .forEach(([name, value]) => {
                     if (globalQueryNames.has(name)) {
                         globalQueryMixin[globalQueryPropsByName[name]] = value;
@@ -394,7 +397,7 @@ const Router = Class({
                 .filter(
                     (entry) =>
                         !globalNames.has(
-                            decodeURIComponent(entry.split('=', 1)[0]),
+                            decodeURIComponentIfValid(entry.split('=', 1)[0]),
                         ),
                 )
                 .join('&');
@@ -471,4 +474,4 @@ const Router = Class({
     },
 });
 
-export { Router };
+export { Router, decodeURIComponentIfValid };

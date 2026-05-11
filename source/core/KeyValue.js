@@ -1,3 +1,5 @@
+import { decodeURIComponentIfValid } from './decodeURIComponentIfValid.js';
+
 /**
     Function: KeyValue.keyOf
 
@@ -82,7 +84,7 @@ const zip = (keys, values) => {
 const fromQueryString = (query) => {
     const result = {};
     query.split('&').forEach((pair) => {
-        const parts = pair.split('=').map(decodeURIComponent);
+        const parts = pair.split('=').map(decodeURIComponentIfValid);
         result[parts[0]] = parts[1];
     });
     return result;
