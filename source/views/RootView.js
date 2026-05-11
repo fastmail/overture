@@ -118,6 +118,15 @@ const RootView = Class({
     pxTop: 0,
     pxLeft: 0,
 
+    pxLayout: function () {
+        return {
+            top: 0,
+            left: 0,
+            width: this.get('pxWidth'),
+            height: this.get('pxHeight'),
+        };
+    }.property(),
+
     handleEvent: function (event) {
         switch (event.type) {
             // We observe mousemove when mousedown.
