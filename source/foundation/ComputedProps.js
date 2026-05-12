@@ -122,9 +122,10 @@ const ComputedProps = {
     computedPropertyDidChange(key, newValue) {
         const cache = meta(this).cache;
         const oldValue = cache[key];
-        delete cache[key];
         if (newValue !== undefined) {
             cache[key] = newValue;
+        } else {
+            delete cache[key];
         }
         return this.propertyDidChange(key, oldValue, newValue);
     },
