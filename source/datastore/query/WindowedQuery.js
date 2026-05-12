@@ -1228,6 +1228,15 @@ const WindowedQuery = Class({
             } else {
                 list.length = windows.length = preemptives.length = 0;
                 informAllRangeObservers = true;
+                // The cached length/hasTotal came from a different
+                // queryState, and Adapter#didQuery already used them to
+                // back-fill args.total. Re-derive total from this slice
+                // alone (with +1 so the next window past the slice still
+                // gets fetched, in case there is more), and mark hasTotal
+                // as unknown so the next packet recomputes instead of
+                // resurrecting the stale length.
+                total = position + length + 1;
+                this.set('hasTotal', false);
             }
         }
         this.set('queryState', args.queryState || '');
