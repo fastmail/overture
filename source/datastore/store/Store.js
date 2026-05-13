@@ -2412,7 +2412,7 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceCouldNotFindRecords(accountId, Type, ids) {
-        const { _skToCommitted, _skToChanged } = this;
+        const { _skToCommitted, _skToChanged, _destroyed } = this;
 
         for (let i = ids.length - 1; i >= 0; i -= 1) {
             const storeKey = this.getStoreKey(accountId, Type, ids[i]);
@@ -2425,6 +2425,11 @@ const Store = Class({
                     _skToCommitted.delete(storeKey);
                     _skToChanged.delete(storeKey);
                 }
+                // Drop any pending destroy tracking before unloading;
+                // otherwise _skToData would be cleared while _destroyed
+                // still referenced the storeKey, and the next commitChanges
+                // would crash dereferencing the missing data.
+                _destroyed.delete(storeKey);
                 this.setStatus(storeKey, DESTROYED);
                 this.unloadRecord(storeKey);
             }
@@ -2698,12 +2703,18 @@ const Store = Class({
             {O.Store} Returns self.
     */
     sourceDidNotCreate(storeKeys, isPermanent, errors) {
-        const { _skToCommitted, _skToChanged, _created } = this;
+        const { _skToCommitted, _skToChanged, _created, _destroyed } = this;
 
         for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
             const storeKey = storeKeys[i];
             const status = this.getStatus(storeKey);
             if (status & DESTROYED) {
+                // Record was destroyed locally while the create was in
+                // flight. Drop the destroy tracking before unloading;
+                // otherwise _skToData would be cleared while _destroyed
+                // still referenced the storeKey, and the next commitChanges
+                // would crash dereferencing the missing data.
+                _destroyed.delete(storeKey);
                 this.setStatus(storeKey, DESTROYED);
                 this.unloadRecord(storeKey);
             } else {
