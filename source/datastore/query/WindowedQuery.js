@@ -766,6 +766,7 @@ const WindowedQuery = Class({
                 firstChange = index;
             }
         }
+        listLength = list.length;
 
         if (args.truncateAtFirstGap) {
             // Truncate the list so it does not contain any gaps; anything after
