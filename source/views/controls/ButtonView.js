@@ -3,7 +3,10 @@
 import { Class } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el } from '../../dom/Element.js';
-import { invokeInNextEventLoop } from '../../foundation/RunLoop.js';
+import {
+    flushAllQueues,
+    invokeInNextEventLoop,
+} from '../../foundation/RunLoop.js';
 import { POINTER_UP } from '../View.js';
 import { AbstractControlView } from './AbstractControlView.js';
 import { Activatable } from './Activatable.js';
@@ -292,8 +295,16 @@ const ButtonView = Class({
     */
     activate(event) {
         if (!this.get('isDisabled') && !this.get('isWaiting')) {
-            this.isKeyActivation =
+            const isKeyActivation =
                 !!event && !!event.type && event.type.startsWith('key');
+            this.isKeyActivation = isKeyActivation;
+            if (!isKeyActivation) {
+                // This ensures that IME events have fired in text inputs, so
+                // if we're about to save or discard a record, we write any
+                // bindings through to it first.
+                this.focus();
+                flushAllQueues();
+            }
             const target = this.get('target') || this;
             const action = this.get('action');
             const method = action ? null : this.get('method');
