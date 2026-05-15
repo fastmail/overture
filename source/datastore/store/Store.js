@@ -1653,6 +1653,20 @@ const Store = Class({
             this.updateData(storeKey, data, false);
         } else {
             const changedKeys = Object.keys(data);
+            // Include keys present in the old data but missing from the new
+            // data so observers/computed properties depending on a now-removed
+            // attribute are invalidated too. Without this, replacing data
+            // wholesale (e.g. when a destroyed record is recreated with the
+            // same id) silently leaves stale cached values for any attribute
+            // that was set before but not in the new payload.
+            const oldData = this._skToData.get(storeKey);
+            if (oldData) {
+                for (const key in oldData) {
+                    if (!(key in data)) {
+                        changedKeys.push(key);
+                    }
+                }
+            }
             this._skToData.set(storeKey, data);
             this._notifyRecordOfChanges(storeKey, changedKeys);
             for (const nested of this._nestedStores) {
