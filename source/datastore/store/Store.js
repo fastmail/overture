@@ -1,5 +1,5 @@
 import { Class, clone, guid, isEqual, meta } from '../../core/Core.js';
-import { filter as filterObject, keyOf } from '../../core/KeyValue.js';
+import { filter as filterObject } from '../../core/KeyValue.js';
 import { Event } from '../../foundation/Event.js';
 import { EventTarget } from '../../foundation/EventTarget.js';
 import { Obj } from '../../foundation/Object.js';
@@ -19,8 +19,6 @@ import {
     OBSOLETE, // Record may have changes not yet loaded
     READY,
 } from '../record/Status.js';
-// eslint-disable-next-line import/no-namespace
-import * as Status from '../record/Status.js';
 import { ToManyAttribute } from '../record/toMany.js';
 import { ToOneAttribute } from '../record/toOne.js';
 
@@ -1329,10 +1327,7 @@ const Store = Class({
             didError({
                 name: CANNOT_CREATE_EXISTING_RECORD_ERROR,
                 message:
-                    '\nStatus: ' +
-                    (keyOf(Status, status) || status) +
-                    '\nData: ' +
-                    JSON.stringify(data),
+                    '\nStatus: ' + status + '\nData: ' + JSON.stringify(data),
             });
             return this;
         }
@@ -1705,10 +1700,7 @@ const Store = Class({
             didError({
                 name: CANNOT_WRITE_TO_UNREADY_RECORD_ERROR,
                 message:
-                    '\nStatus: ' +
-                    (keyOf(Status, status) || status) +
-                    '\nData: ' +
-                    JSON.stringify(data),
+                    '\nStatus: ' + status + '\nData: ' + JSON.stringify(data),
             });
             return false;
         }
