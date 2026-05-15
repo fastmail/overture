@@ -36,9 +36,7 @@ class MemoryManager {
         An array of objects, each containing the properties:
         - Type: The constructor for the Record or Query subclass.
         - max: The maximum number allowed.
-        - afterCleanup: An optional callback after cleanup, which will be given
-          an array of removed objects of the given type, every time some are
-          removed from the store.
+        - afterCleanup: An optional callback after cleanup.
     */
 
     /**
@@ -59,10 +57,7 @@ class MemoryManager {
                            * Type: The constructor for the Record or Query
                              subclass.
                            * max: The maximum number allowed.
-                           * afterCleanup: An optional callback after cleanup,
-                             which will be given an array of removed objects of
-                             the given type, every time some are removed from
-                             the store.
+                           * afterCleanup: An optional callback after cleanup.
             timeout      - {Number} (optional) How long after a change the
                            cleanup function is called in milliseconds. Default
                            is 30000.
@@ -123,7 +118,6 @@ class MemoryManager {
         let ParentType = Type;
         const max = restrictions.max;
         const afterFn = restrictions.afterCleanup;
-        let deleted;
 
         if (!this._isRunning && this.isPaused) {
             this.needsCleanup();
@@ -133,16 +127,16 @@ class MemoryManager {
 
         do {
             if (ParentType === Record) {
-                deleted = this.cleanupRecordType(Type, max);
+                this.cleanupRecordType(Type, max);
                 break;
             } else if (ParentType === Query) {
-                deleted = this.cleanupQueryType(Type, max);
+                this.cleanupQueryType(Type, max);
                 break;
             }
         } while ((ParentType = ParentType.parent.constructor));
 
         if (afterFn) {
-            afterFn(deleted);
+            afterFn();
         }
 
         this._index = index = (index + 1) % this._restrictions.length;
@@ -167,14 +161,12 @@ class MemoryManager {
     cleanupRecordType(Type, max) {
         const store = this._store;
         const _skToLastAccess = store._skToLastAccess;
-        const _skToData = store._skToData;
         const skToId = store._typeToSKToId.get(Type);
         const length = skToId ? skToId.size : 0;
         let numberToDelete = length - max;
-        const deleted = [];
 
         if (numberToDelete <= 0) {
-            return deleted;
+            return;
         }
 
         // Materialise storeKeys and lastAccess values into two parallel
@@ -195,15 +187,10 @@ class MemoryManager {
 
         for (i = 0; numberToDelete > 0 && i < length; i += 1) {
             const storeKey = storeKeys[order[i]];
-            const data = _skToData.get(storeKey);
             if (store.unloadRecord(storeKey)) {
                 numberToDelete -= 1;
-                if (data) {
-                    deleted.push(data);
-                }
             }
         }
-        return deleted;
     }
 
     /**
@@ -221,7 +208,10 @@ class MemoryManager {
         });
         const length = queries.length;
         let numberToDelete = length - max;
-        const deleted = [];
+
+        if (numberToDelete <= 0) {
+            return;
+        }
 
         queries.sort((a, b) => {
             return b.lastAccess - a.lastAccess;
@@ -230,11 +220,9 @@ class MemoryManager {
             const query = queries[i];
             if (!query.hasObservers() && !query.hasRangeObservers()) {
                 query.destroy();
-                deleted.push(query);
                 numberToDelete -= 1;
             }
         }
-        return deleted;
     }
 }
 
