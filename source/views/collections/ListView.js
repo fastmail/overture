@@ -319,6 +319,10 @@ const ListView = Class({
                         } else {
                             layerParent = 'other:' + parent.nodeName;
                         }
+                        const getStoreKey = (content) =>
+                            content && typeof content.get === 'function'
+                                ? content.get('storeKey')
+                                : content;
                         const viewContent = view.get('content');
                         const itemAtI = list.getObjectAt(i);
                         const storeKeys =
@@ -328,18 +332,14 @@ const ListView = Class({
                         const renderRange = this._renderRange;
                         const renderedStoreKeys = [];
                         for (const renderedView of rendered.values()) {
-                            const content = renderedView.get('content');
                             renderedStoreKeys.push(
-                                content && content.get('storeKey'),
+                                getStoreKey(renderedView.get('content')),
                             );
                         }
-                        const childViewsContent = childViews.map((v) => {
-                            const content = v.get('content');
-                            return [
-                                content && content.get('storeKey'),
-                                v.get('index'),
-                            ];
-                        });
+                        const childViewsContent = childViews.map((v) => [
+                            getStoreKey(v.get('content')),
+                            v.get('index'),
+                        ]);
                         didError({
                             name: 'Model bug',
                             details: {
@@ -347,10 +347,8 @@ const ListView = Class({
                                 where: list.get('where'),
                                 sort: list.get('sort'),
                                 index: i,
-                                viewStoreKey:
-                                    viewContent && viewContent.get('storeKey'),
-                                itemStoreKey:
-                                    itemAtI && itemAtI.get('storeKey'),
+                                viewStoreKey: getStoreKey(viewContent),
+                                itemStoreKey: getStoreKey(itemAtI),
                                 storeKeys,
                                 renderRangeStart: renderRange.start,
                                 renderRangeEnd: renderRange.end,
