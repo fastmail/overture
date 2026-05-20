@@ -2314,6 +2314,17 @@ const Store = Class({
                 // old id may still appear in queryChanges responses
                 _skToId.set(storeKey, newId);
                 _idToSk.set(newId, storeKey);
+                didError({
+                    name: 'O.Store: Id change',
+                    details: {
+                        type: Type.__guid__,
+                        storeKey,
+                        oldId: id,
+                        newId,
+                        status,
+                        update,
+                    },
+                });
             }
 
             if (status & DIRTY) {
