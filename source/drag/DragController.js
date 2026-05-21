@@ -364,9 +364,19 @@ const DragController = new Obj({
             event - {Event} The touchmove event.
     */
     _onTouchmove: function (event) {
+        const drag = this.drag;
+        if (!drag) {
+            return;
+        }
+        // We need to double check since you can mix inputs on Android when you
+        // have a mouse connected.
+        if (drag.get('pointerType') !== 'touch') {
+            drag.set('isCanceled', true).endDrag();
+            return;
+        }
         const touch = getTouch(event.changedTouches, this._touchId);
         if (touch) {
-            this.drag.move(new TouchDragEvent(touch));
+            drag.move(new TouchDragEvent(touch));
             // Don't propagate to views and don't trigger scroll.
             event.preventDefault();
             event.stopPropagation();
@@ -380,9 +390,18 @@ const DragController = new Obj({
             event - {Event} The touchend event.
     */
     _onTouchend: function (event) {
+        const drag = this.drag;
+        if (!drag) {
+            return;
+        }
+        // See _onTouchMove
+        if (drag.get('pointerType') !== 'touch') {
+            drag.set('isCanceled', true).endDrag();
+            return;
+        }
         const touch = getTouch(event.changedTouches, this._touchId);
         if (touch) {
-            this.drag.drop(new TouchDragEvent(touch)).endDrag();
+            drag.drop(new TouchDragEvent(touch)).endDrag();
         }
     }.on('touchend'),
 
@@ -393,9 +412,14 @@ const DragController = new Obj({
             event - {Event} The touchcancel event.
     */
     _onTouchcancel: function (event) {
+        const drag = this.drag;
+        if (!drag) {
+            return;
+        }
         const touch = getTouch(event.changedTouches, this._touchId);
-        if (touch) {
-            this.drag.set('isCanceled', true).endDrag();
+        // See _onTouchMove
+        if (touch || drag.get('pointerType') !== 'touch') {
+            drag.set('isCanceled', true).endDrag();
         }
     }.on('touchcancel'),
 
