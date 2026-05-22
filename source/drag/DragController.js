@@ -119,6 +119,26 @@ const DragController = new Obj({
     _ignore: true,
 
     /**
+        Property (private): O.DragController._mousedownTime
+        Type: Number
+
+        The event.timeStamp of the most recent mousedown. Compared against the
+        timestamp of subsequent mousemove events to enforce <mouseHoldDelay>.
+    */
+    _mousedownTime: 0,
+
+    /**
+        Property: O.DragController.mouseHoldDelay
+        Type: Number
+
+        Minimum number of milliseconds that the mouse button must be held down
+        before a mouse-initiated drag can start. Defaults to 0 (no hold
+        required). Designed to be exposed as an accessibility setting that helps
+        prevent accidental drags.
+    */
+    mouseHoldDelay: 0,
+
+    /**
         Property (private): O.DragController._ignoreClick
         Type: Boolean
 
@@ -233,6 +253,7 @@ const DragController = new Obj({
     */
     _onMousedown: function (event) {
         this._ignoreClick = false;
+        this._mousedownTime = event.timeStamp;
         if (event.button || event.metaKey || event.ctrlKey) {
             return;
         }
@@ -271,6 +292,12 @@ const DragController = new Obj({
             const y = event.clientY - this._y;
 
             if (x * x + y * y > 25) {
+                if (
+                    event.timeStamp - this._mousedownTime <
+                    this.mouseHoldDelay
+                ) {
+                    return;
+                }
                 const view = this.getNearestDragView(this._targetView);
                 if (view) {
                     new Drag({
