@@ -22,7 +22,7 @@ const fireHoldEvent = function () {
 };
 
 class TrackedTouch {
-    constructor(touch) {
+    constructor(touch, delay) {
         const activeEls = [];
         let target = touch.target;
         let view = getViewFromNode(target);
@@ -51,9 +51,7 @@ class TrackedTouch {
             }
         } while ((target = target.parentNode));
         this._ignore = false;
-        // If this delay is 400ms or lower, WebKit will reintroduce the 350ms
-        // click delay!
-        invokeAfterDelay(fireHoldEvent, 450, this);
+        invokeAfterDelay(fireHoldEvent, delay, this);
     }
 
     done() {
@@ -97,12 +95,27 @@ const getCommonAncestor = function (a, b) {
 const tap = new Gesture({
     _tracking: {},
 
+    // If this delay is 400ms or lower, WebKit will reintroduce the 350ms
+    // click delay!
+    _holdDelay: 450,
+
     cancel() {
         const tracking = this._tracking;
         for (const id in tracking) {
             tracking[id].done();
         }
         this._tracking = {};
+    },
+
+    setHoldDelay(ms) {
+        if (ms < 450) {
+            throw new Error(
+                `Invalid hold delay passed: ${ms}. ` +
+                    'Value needs to be >= 450ms to avoid click delay on ' +
+                    'WebKit browsers.',
+            );
+        }
+        this._holdDelay = ms;
     },
 
     start(event) {
@@ -113,7 +126,7 @@ const tap = new Gesture({
             const touch = touches[i];
             const id = touch.identifier;
             if (!tracking[id]) {
-                tracking[id] = new TrackedTouch(touch);
+                tracking[id] = new TrackedTouch(touch, this._holdDelay);
             }
         }
     },
