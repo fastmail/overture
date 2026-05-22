@@ -186,7 +186,7 @@ export { TimeZone } from './timezones/TimeZone.js';
 
 export { Gesture } from './touch/Gesture.js';
 export { gestureManager } from './touch/gestureManager.js';
-export { tap } from './touch/tap.js';
+export { tap, MINIMUM_HOLD_DELAY } from './touch/tap.js';
 export { UA };
 
 export { RootView } from './views/RootView.js';

@@ -6,6 +6,12 @@ import { getViewFromNode } from '../views/activeViews.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import { Gesture } from './Gesture.js';
 
+/**
+ * If this delay is 400ms or lower, WebKit will reintroduce the 350ms
+ * click delay!
+ */
+const MINIMUM_HOLD_DELAY = 450;
+
 class TapEvent extends Event {}
 
 class HoldEvent extends Event {
@@ -95,9 +101,7 @@ const getCommonAncestor = function (a, b) {
 const tap = new Gesture({
     _tracking: {},
 
-    // If this delay is 400ms or lower, WebKit will reintroduce the 350ms
-    // click delay!
-    _holdDelay: 450,
+    _holdDelay: MINIMUM_HOLD_DELAY,
 
     cancel() {
         const tracking = this._tracking;
@@ -192,4 +196,4 @@ const tap = new Gesture({
     },
 });
 
-export { tap };
+export { tap, MINIMUM_HOLD_DELAY };
