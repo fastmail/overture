@@ -80,6 +80,11 @@ const readLineFromStream = async function* (reader, resetTimeout) {
         Callback fn. Gets the HTTP status code we received that indicated a
         permanent failure, causing the connection to be closed (and we will not
         try to reconnect automatically).
+    * onwake: () => ()
+        Callback fn. Called on a visibilitychange when the inactivity timeout
+        should already have fired, which strongly implies the host has just
+        woken from sleep. Useful for callers that want to abandon other
+        long-lived network state that's likely on dead connections.
 
     The EventSource is in the CLOSED state after construction. When ready to
     receive events from the server, call #open(). If you no longer wish to
@@ -96,6 +101,7 @@ class EventSource {
         this.onreadystatechange = inert;
         this.onevent = inert;
         this.onerror = inert;
+        this.onwake = inert;
 
         Object.assign(this, options);
 
@@ -180,10 +186,16 @@ class EventSource {
             return;
         }
         this._debounce = null;
-        const shouldRetryNetwork =
-            event.type !== 'visibilitychange' ||
-            // We've awakened from sleep, the connection is probably dead.
+        const wokeFromSleep =
+            event.type === 'visibilitychange' &&
+            // The inactivity timer should already have fired, so JS execution
+            // must have been suspended — i.e. the host has just woken.
             this._nextTimeout < Date.now();
+        if (wokeFromSleep) {
+            this.onwake();
+        }
+        const shouldRetryNetwork =
+            wokeFromSleep || event.type !== 'visibilitychange';
         if (shouldRetryNetwork) {
             const mayBeOnline = navigator.onLine;
             const readyState = this.readyState;
