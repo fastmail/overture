@@ -1399,6 +1399,10 @@ const Store = Class({
         const { _skToRecord } = this;
         const record = _skToRecord.get(oldStoreKey);
         if (record) {
+            const existingRecord = _skToRecord.get(newStoreKey);
+            if (existingRecord) {
+                existingRecord.storeWillUnload();
+            }
             _skToRecord.delete(oldStoreKey);
             _skToRecord.set(newStoreKey, record);
             record
@@ -2400,6 +2404,32 @@ const Store = Class({
             }
             const newId = oldIdToNewId[oldId];
             if (newId && newId !== oldId) {
+                const existingStoreKey = _idToSk.get(newId);
+                if (existingStoreKey && existingStoreKey !== storeKey) {
+                    // We already have a (different) store key for newId. This
+                    // happens when the real record was synced in under its own
+                    // store key in the window between an offline create getting
+                    // a local id and that create syncing out to the server
+                    // (where it resolves to the already-existing server id).
+                    //
+                    // We must NOT rewrite storeKey -> newId: that would leave
+                    // two store keys claiming newId, with _skToId and _idToSk
+                    // disagreeing, so a commit confirmation resolved via
+                    // _idToSk could land on the wrong (never-committed) record.
+                    //
+                    // Instead, collapse the two: move any live record(s) from
+                    // our local-id store key onto the canonical
+                    // (already-synced) store key, so all in-memory references
+                    // follow the real identity. We deliberately leave the
+                    // local-id store key's id mapping untouched (note the
+                    // `continue` below skips the rewrite), so it remains a
+                    // tombstone for the local id: the proxy tracks the two
+                    // records separately and will report the local id as
+                    // destroyed via the normal changes flow, which then cleans
+                    // up the tombstone.
+                    this._changeRecordStoreKey(storeKey, existingStoreKey);
+                    continue;
+                }
                 // Don't delete the old idToSk mapping, as references to the
                 // old id may still appear in queryChanges responses
                 _skToId.set(storeKey, newId);
