@@ -117,6 +117,9 @@ const SelectionController = Class({
 
         for (let i = storeKeys.length - 1; i >= 0; i -= 1) {
             const storeKey = storeKeys[i];
+            if (!storeKey) {
+                continue;
+            }
             const wasSelected = _selectedStoreKeys.has(storeKey);
             if (isSelected !== wasSelected) {
                 if (isSelected) {
