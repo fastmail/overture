@@ -1218,7 +1218,6 @@ const WindowedQuery = Class({
         const windows = this._windows;
         const preemptives = this._preemptiveUpdates;
         let informAllRangeObservers = false;
-        let beginningOfWindowIsFetched = true;
 
         // If the query state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
@@ -1295,36 +1294,57 @@ const WindowedQuery = Class({
         }
 
         // Have we fetched any windows?
-        const windowSize = this.get('windowSize');
-        let windowIndex = Math.floor(position / windowSize);
-        const withinWindowIndex = position % windowSize;
-        if (withinWindowIndex) {
-            for (
-                let i = windowIndex * windowSize, l = i + withinWindowIndex;
-                i < l;
-                i += 1
-            ) {
-                if (!list[i]) {
-                    beginningOfWindowIsFetched = false;
-                    break;
+        if (preemptives.length) {
+            // The preemptive adjustment above shifted `position` and may
+            // have left existing slot content inside [position, end) from
+            // the optimistic _applyUpdate. We can't infer window
+            // completeness from the contiguous write alone without risking
+            // a WINDOW_READY flag on a window that still has an empty
+            // slot, so fall back to scanning `list` directly. Same
+            // recompute _applyUpdate uses.
+            this.recalculateFetchedWindows(position, total);
+        } else {
+            // Fast path: no preemptives in play (either there were none,
+            // or the !canGetDeltaUpdates branch above unwound and cleared
+            // them), so `position` is the unshifted server position and
+            // the only newly-populated slots are the contiguous write we
+            // just did. Counting what we wrote, plus a peek at the first
+            // window's leading edge to merge with prior packets, is
+            // sufficient and avoids the O(total - position) scan.
+            const windowSize = this.get('windowSize');
+            let windowIndex = Math.floor(position / windowSize);
+            const withinWindowIndex = position % windowSize;
+            let beginningOfWindowIsFetched = true;
+            if (withinWindowIndex) {
+                for (
+                    let i = windowIndex * windowSize, l = i + withinWindowIndex;
+                    i < l;
+                    i += 1
+                ) {
+                    if (!list[i]) {
+                        beginningOfWindowIsFetched = false;
+                        break;
+                    }
+                }
+                if (beginningOfWindowIsFetched) {
+                    length += withinWindowIndex;
+                } else {
+                    windowIndex += 1;
+                    length -= windowSize - withinWindowIndex;
                 }
             }
-            if (beginningOfWindowIsFetched) {
-                length += withinWindowIndex;
-            } else {
+            // Now, for each set of windowSize records, we have a complete
+            // window.
+            while ((length -= windowSize) >= 0) {
+                windows[windowIndex] |= WINDOW_READY;
                 windowIndex += 1;
-                length -= windowSize - withinWindowIndex;
             }
-        }
-        // Now, for each set of windowSize records, we have a complete window.
-        while ((length -= windowSize) >= 0) {
-            windows[windowIndex] |= WINDOW_READY;
-            windowIndex += 1;
-        }
-        // Need to check if the final window was loaded (may not be full-sized).
-        length += windowSize;
-        if (length && end === total && length === total % windowSize) {
-            windows[windowIndex] |= WINDOW_READY;
+            // Need to check if the final window was loaded (may not be
+            // full-sized).
+            length += windowSize;
+            if (length && end === total && length === total % windowSize) {
+                windows[windowIndex] |= WINDOW_READY;
+            }
         }
 
         // All that's left is to inform observers of the changes.
