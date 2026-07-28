@@ -63,7 +63,7 @@ const readLineFromStream = async function* (reader, resetTimeout) {
         Extra header name:values to add to the fetch, e.g. Authorization
     * lastEventId: String
         A last event id to send on first connection to the event source.
-    * inactivityTimeout: Number (in ms, default 6 minutes)
+    * inactivityTimeout: Number (in ms, default 1 minute)
         If no bytes of data have been received within this timespan, the
         connection will be aborted and restarted.
     * onreadystatechange: (oldState: Number, newState: Number) => ()
@@ -96,7 +96,7 @@ class EventSource {
         this.url = '';
         this.headers = null;
         this.lastEventId = '';
-        this.inactivityTimeout = 360000;
+        this.inactivityTimeout = 60000;
 
         this.onreadystatechange = inert;
         this.onevent = inert;
