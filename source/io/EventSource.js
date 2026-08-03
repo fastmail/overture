@@ -1,4 +1,4 @@
-/*global setTimeout, clearTimeout, navigator, self, AbortController, TextDecoder, URL, fetch */
+/*global setTimeout, clearTimeout, navigator, self, AbortController, TextDecoder, URL, fetch, document */
 
 class ServerSentEvent {
     constructor(target, type, data, origin, lastEventId) {
@@ -50,6 +50,14 @@ const readLineFromStream = async function* (reader, resetTimeout) {
         remainder += chunk;
     }
 };
+
+const doc =
+    typeof document !== 'undefined'
+        ? document
+        : {
+              addEventListener() {},
+              removeEventListener() {},
+          };
 
 // ---
 
@@ -135,7 +143,7 @@ class EventSource {
 
     open() {
         if (this.readyState === CLOSED) {
-            self.addEventListener('visibilitychange', this, false);
+            doc.addEventListener('visibilitychange', this, false);
             if ('ononline' in self) {
                 self.addEventListener('online', this, false);
                 self.addEventListener('offline', this, false);
@@ -159,7 +167,7 @@ class EventSource {
                 this._reconnectTimeout = null;
             }
             this._reconnectAfter = 0;
-            self.removeEventListener('visibilitychange', this, false);
+            doc.removeEventListener('visibilitychange', this, false);
             if ('ononline' in self) {
                 self.removeEventListener('online', this, false);
                 self.removeEventListener('offline', this, false);
