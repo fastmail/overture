@@ -57,6 +57,7 @@ const doc =
         : {
               addEventListener() {},
               removeEventListener() {},
+              visibilityState: 'hidden',
           };
 
 // ---
@@ -204,10 +205,13 @@ class EventSource {
         }
         const shouldRetryNetwork =
             wokeFromSleep || event.type !== 'visibilitychange';
-        if (shouldRetryNetwork) {
+        if (shouldRetryNetwork || doc.visibilityState === 'visible') {
             const mayBeOnline = navigator.onLine;
             const readyState = this.readyState;
-            if (readyState === CONNECTING || readyState === OPEN) {
+            if (
+                readyState === CONNECTING ||
+                (shouldRetryNetwork && readyState === OPEN)
+            ) {
                 // If we've changed networks, our TCP connection may be dead;
                 // restart to be sure. The "online" event fires whenever we
                 // change networks from testing, but it's not supported in
