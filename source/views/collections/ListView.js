@@ -10,9 +10,9 @@ import '../../foundation/Decorators.js';
 
 const isFirefox = browser === 'firefox';
 
-const byIndex = function (a, b) {
-    return a.get('index') - b.get('index');
-};
+const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
+const byIndex = (a, b) =>
+    (a.get('index') ?? MAX_SAFE_INTEGER) - (b.get('index') ?? MAX_SAFE_INTEGER);
 
 const addToSet = function (array, set) {
     for (let i = 0, l = array.length; i < l; i += 1) {
