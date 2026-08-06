@@ -1007,7 +1007,10 @@ const View = Class({
             relativeTo - {(Element|O.View)} (optional) The DOM node or child
                          view to insert the new child view's layer relative to.
                          If not supplied, or null/undefined, the child will be
-                         inserted relative to this view's layer.
+                         inserted relative to this view's layer for top/bottom,
+                         or relative to this view's first/last existing child
+                         for before/after respectively (simply appended as the
+                         last child if there are none yet).
             where      - {String} (optional) Specifies where the view's layer
                          should be placed in the DOM tree relative to the
                          relativeView node. Defaults to 'bottom' (appended to
@@ -1024,14 +1027,27 @@ const View = Class({
             return this;
         }
 
-        if (!relativeTo && (where === 'before' || where === 'after')) {
-            this.get('parentView').insertView(view, this, where);
-            return this;
-        }
-
         if (oldParent) {
             oldParent.removeView(view);
         }
+
+        // With no reference node, position before/after relative to our
+        // existing children rather than our own layer: they may live inside a
+        // wrapper element a subclass has drawn, or have trailing nodes after
+        // them that are not child views. (Resolved after the removeView above,
+        // as observers it fires may have changed our children.) If we have no
+        // children to anchor to, this is simply an append; go back through
+        // insertView so any subclass override gets to place it.
+        if (!relativeTo && (where === 'before' || where === 'after')) {
+            relativeTo =
+                where === 'before'
+                    ? childViews[0]
+                    : childViews[childViews.length - 1];
+            if (!relativeTo) {
+                return this.insertView(view, null, 'bottom');
+            }
+        }
+
         view.set('parentView', this);
 
         if (relativeTo instanceof View) {
@@ -1053,9 +1069,6 @@ const View = Class({
         if (this.get('isRendered')) {
             if (!relativeTo) {
                 relativeTo = this.get('layer');
-                if (where === 'before' || where === 'after') {
-                    where = '';
-                }
             }
             const isInDocument = this.get('isInDocument');
             const parent =
