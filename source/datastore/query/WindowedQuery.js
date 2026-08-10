@@ -941,6 +941,47 @@ const WindowedQuery = Class({
     },
 
     /**
+        Method: O.WindowedQuery#getUpToStoreKey
+
+        The store key to send as the `upToId` argument when asking the source
+        for a delta update, or null if the update must not be limited.
+
+        The server calculates the changes only as far as this record and we then
+        throw away everything after it (see <sourceDidFetchUpdate>), so it has
+        to be a record the server has told us is in the list: it scopes its
+        answer to the position *it* has for the record, whereas we apply the
+        truncation at the position *we* have for it. A record we have only added
+        preemptively may be somewhere else entirely in the server's list, so
+        sending one of those would leave us holding ids from beyond the range
+        the update actually covered.
+
+        Returns:
+            {(String|null)} The store key of the last record in the list which
+            the server has confirmed is there, or null if there isn't one (or we
+            have the whole list, so there is nothing past the end to discard).
+    */
+    getUpToStoreKey() {
+        const list = this._storeKeys;
+        const length = list.length;
+        if (length === this.get('length')) {
+            return null;
+        }
+        const preemptivelyAdded = new Set();
+        for (const update of this._preemptiveUpdates) {
+            for (const storeKey of update.addedStoreKeys) {
+                preemptivelyAdded.add(storeKey);
+            }
+        }
+        for (let i = length - 1; i >= 0; i -= 1) {
+            const storeKey = list[i];
+            if (storeKey && !preemptivelyAdded.has(storeKey)) {
+                return storeKey;
+            }
+        }
+        return null;
+    },
+
+    /**
         Method: O.WindowedQuery#sourceDidFetchUpdate
 
         The source should call this when it fetches a delta update for the

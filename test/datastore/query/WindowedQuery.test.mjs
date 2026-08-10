@@ -204,6 +204,62 @@ describe('WindowedQuery: upToId truncation', () => {
     });
 });
 
+describe('WindowedQuery: choosing upToId for a delta update', () => {
+    // Sentry 7387395044: the client sent `upToId` from the tail of its own
+    // list, which was a record it had only added preemptively (mail-model
+    // guesses a position for new arrivals). The server scoped its update to the
+    // position *it* had for that record — 77 places earlier — so the truncation
+    // the update asked for was applied at the wrong index, the list silently
+    // kept ids the update never covered, and the next id packet duplicated a
+    // run of 17 store keys.
+    test('returns null when the whole list is loaded', () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.ids(range(0, 10), 0, 'qs1', 10);
+        assert.equal(wq.query.getUpToStoreKey(), null);
+    });
+
+    test('returns the last id when only part of the list is loaded', () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.ids(range(0, 30), 0, 'qs1', 90);
+        assert.equal(wq.query.getUpToStoreKey(), wq.sk('id29'));
+    });
+
+    test('never returns a record we only added preemptively', () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.ids(range(0, 30), 0, 'qs1', 314);
+        wq.ids(range(30, 30), 30, 'qs1', 314);
+
+        // New mail arrives and the client guesses it belongs at the end of the
+        // portion of the list it has loaded (the server puts it at the top).
+        wq.clientAdd([
+            { index: 60, id: 'new0' },
+            { index: 61, id: 'new1' },
+        ]);
+        wq.clientAdd([{ index: 62, id: 'new2' }]);
+
+        assert.equal(
+            wq.query.getUpToStoreKey(),
+            wq.sk('id59'),
+            'sends the last server-confirmed id, not a guessed one',
+        );
+    });
+
+    test('skips gaps left by a preemptive add past the loaded ids', () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.ids(range(0, 30), 0, 'qs1', 90);
+        wq.clientAdd([{ index: 40, id: 'new0' }]);
+        assert.equal(wq.query.getUpToStoreKey(), wq.sk('id29'));
+    });
+
+    test('returns null when everything we hold is preemptive', () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.ids(range(0, 5), 0, 'qs1', 5);
+        wq.clientRemove(range(0, 5));
+        wq.clientAdd([{ index: 0, id: 'new0' }]);
+        assert.equal(wq.query.getUpToStoreKey(), null);
+    });
+});
+
 describe('WindowedQuery: windows and ranges', () => {
     test('allIdsAreLoaded reflects whether every window is present', () => {
         const wq = makeWindowedQuery({ windowSize: 30 });
