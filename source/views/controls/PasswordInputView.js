@@ -29,11 +29,10 @@ const PasswordInputView = Class({
     icon: null,
 
     drawControl() {
-        const controlEl =
-            PasswordInputView.parent.drawControl.call(this).firstChild;
-        controlEl.className = 'v-PasswordInput-input';
+        const controlEl = PasswordInputView.parent.drawControl.call(this);
+        controlEl.firstChild.className = 'v-PasswordInput-input';
         return el('div.v-PasswordInput-wrapper.v-TextInput-input.u-flex', [
-            controlEl,
+            Array.from(controlEl.childNodes),
             new ButtonView({
                 // This is purely visual presentation so not helpful for screen
                 // readers; hide the button entirely.
