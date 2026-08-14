@@ -12,7 +12,12 @@ import { Gesture } from './Gesture.js';
  */
 const MINIMUM_HOLD_DELAY = 450;
 
-class TapEvent extends Event {}
+class TapEvent extends Event {
+    preventDefault() {
+        this.event.preventDefault();
+        return super.preventDefault();
+    }
+}
 
 class HoldEvent extends Event {
     constructor(touch) {
@@ -186,6 +191,7 @@ const tap = new Gesture({
                     const tapEvent = new TapEvent('tap', target, {
                         duration,
                         touch,
+                        event,
                     });
                     ViewEventsController.handleEvent(tapEvent);
                 }
