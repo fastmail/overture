@@ -344,8 +344,9 @@ const Store = Class({
 
         // id -> query
         this._idToQuery = new Map();
-        // Types that have had data changed during this run loop
-        this._changedTypes = new Set();
+        // Type -> Set of store keys of records of that type which changed
+        // during this run loop (empty if only the type's status changed)
+        this._changedTypes = new Map();
 
         // Set of nested stores
         this._nestedStores = new Set();
@@ -1902,19 +1903,30 @@ const Store = Class({
             storeKey - {String} The store key of the record.
     */
     _recordDidChange(storeKey) {
-        this._changedTypes.add(this._skToType.get(storeKey));
+        const Type = this._skToType.get(storeKey);
+        let storeKeys = this._changedTypes.get(Type);
+        if (!storeKeys) {
+            storeKeys = new Set();
+            this._changedTypes.set(Type, storeKeys);
+        }
+        storeKeys.add(storeKey);
         queueFn('middle', this._fireTypeChanges, this);
     },
 
     /**
         Method: O.Store#_fireTypeChanges
+
+        Fires an event named by the guid of each Type with changes this run
+        loop. The event's `storeKeys` property is the Set of store keys whose
+        record changed, so observers can update incrementally rather than
+        rescanning the type.
     */
     _fireTypeChanges() {
         const { _changedTypes } = this;
-        this._changedTypes = new Set();
+        this._changedTypes = new Map();
 
-        for (const Type of _changedTypes) {
-            this.fire(guid(Type));
+        for (const [Type, storeKeys] of _changedTypes) {
+            this.fire(guid(Type), { storeKeys });
         }
 
         return this;
@@ -2274,7 +2286,9 @@ const Store = Class({
         }
 
         // Notify LocalQuery we're now ready even if no records loaded.
-        this._changedTypes.add(Type);
+        if (!this._changedTypes.has(Type)) {
+            this._changedTypes.set(Type, new Set());
+        }
         queueFn('middle', this._fireTypeChanges, this);
 
         return this;
@@ -2458,6 +2472,10 @@ const Store = Class({
                     for (const nested of this._nestedStores) {
                         nested.parentDidSetData(existingStoreKey, attrKeys);
                     }
+                    // Both store keys now have a different record behind
+                    // them, which type observers may be holding on to.
+                    this._recordDidChange(storeKey);
+                    this._recordDidChange(existingStoreKey);
                     continue;
                 }
                 // Don't delete the old idToSk mapping, as references to the

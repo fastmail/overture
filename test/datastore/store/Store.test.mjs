@@ -110,6 +110,31 @@ describe('Store: fetching records from the source', () => {
         // Not in the existing data, so falls back to the default
         assert.equal(record.get('priority'), 0);
     });
+
+    test('sourceDidChangeIds onto a known id reports both store keys', () => {
+        const { store, flush } = makeStore();
+        const [realSK, localSK] = seedRecords(store, Todo, [
+            { id: 'real', title: 'one' },
+            { id: '-local', title: 'one' },
+        ]);
+        store.getRecordFromStoreKey(localSK);
+        flush();
+        let changed = null;
+        store.on(
+            guid(Todo),
+            {
+                fire: (event) => {
+                    changed = event.storeKeys;
+                },
+            },
+            'fire',
+        );
+
+        store.sourceDidChangeIds(ACCOUNT_ID, Todo, { '-local': 'real' });
+        flush();
+
+        assert.deepEqual([...changed].sort(), [realSK, localSK].sort());
+    });
 });
 
 describe('Store: in-memory data mutation', () => {
