@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { firstDuplicate, makeWindowedQuery } from '../helpers.mjs';
+import { firstDuplicate, makeWindowedQuery, Status } from '../helpers.mjs';
 import * as Sentry from './windowed-query-sentry.fixture.mjs';
 
 // Build a contiguous list of synthetic ids ('id0', 'id1', ...).
@@ -444,5 +444,144 @@ describe('WindowedQuery: Sentry 7380278134 regression', () => {
             Sentry.EXPECTED_FINAL_IDS,
             'final list matches the correct, de-duplicated result',
         );
+    });
+});
+
+describe('WindowedQuery: preemptives without delta updates', () => {
+    // A query that can't get delta updates refetches its ids on every
+    // refresh. Whether the preemptives survive that depends only on whether
+    // the query is DIRTY: if it is, a preemptive was applied after the fetch
+    // began and the server may not have seen it yet, so we keep it; if not,
+    // the server has seen everything we did and anything left must be wrong.
+    const makeNonDelta = () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.query.set('canGetDeltaUpdates', false);
+        wq.ids(range(0, 10), 0, 'qs1', 10);
+        return wq;
+    };
+
+    test('a DIRTY remove is re-applied to ids from a new state', () => {
+        const wq = makeNonDelta();
+        wq.clientRemove(['id2']);
+        assert.ok(wq.query.is(Status.DIRTY));
+
+        // The server's list changed (id10 arrived) but still has id2.
+        wq.ids(['id10', ...range(0, 10)], 0, 'qs2', 11);
+        const list = wq.query.getStoreKeys();
+        const ids = wq.idsAt(list);
+        assert.equal(firstDuplicate(list), null);
+        assert.ok(!ids.includes('id2'));
+        assert.ok(ids.includes('id10'));
+        assert.equal(wq.query.get('length'), 10);
+        assert.equal(list.length, 10);
+        assert.equal(wq.query._preemptiveUpdates.length, 1);
+        // The kept preemptive is now relative to the new list.
+        assert.deepEqual(wq.query._preemptiveUpdates[0].removedIndexes, [3]);
+    });
+
+    test('a DIRTY add is re-applied but never duplicated', () => {
+        const wq = makeNonDelta();
+        wq.clientAdd([
+            { index: 1, id: 'idNew' },
+            { index: 5, id: 'idOther' },
+        ]);
+
+        // The server has already picked up idNew, but not idOther.
+        wq.ids(['id0', 'idNew', ...range(1, 9)], 0, 'qs2', 11);
+        const list = wq.query.getStoreKeys();
+        const ids = wq.idsAt(list);
+        assert.equal(firstDuplicate(list), null);
+        assert.equal(ids.filter((id) => id === 'idNew').length, 1);
+        assert.ok(ids.includes('idOther'));
+        assert.equal(wq.query.get('length'), 12);
+        assert.equal(list.length, 12);
+        assert.equal(wq.query._preemptiveUpdates.length, 1);
+    });
+
+    test('a DIRTY add past the end of the new list is pulled back to it', () => {
+        const wq = makeNonDelta();
+        wq.clientAdd([{ index: 40, id: 'idNew' }]);
+
+        // The server's new list is far shorter than the one we guessed
+        // against, so the add can't go where we put it.
+        wq.ids(range(0, 5), 0, 'qs2', 5);
+        const list = wq.query.getStoreKeys();
+        assert.ok(list.every(Boolean), 'no gap');
+        assert.deepEqual(wq.idsAt(list), [...range(0, 5), 'idNew']);
+        assert.equal(wq.query.get('length'), 6);
+        assert.equal(wq.query._preemptiveUpdates.length, 1);
+    });
+
+    test('a packet drained during the re-apply is shifted by the re-applied preemptive', () => {
+        const wq = makeNonDelta();
+        wq.clientRemove(['id2']);
+        // A packet from a newer state arrives while we can still get delta
+        // updates, so it waits for the refresh...
+        wq.query.set('canGetDeltaUpdates', true);
+        wq.ids(range(10, 10), 10, 'qs2', 20);
+        assert.equal(wq.query._waitingPackets.length, 1);
+
+        // ...but the refresh comes back unable to calculate changes.
+        wq.query.set('canGetDeltaUpdates', false);
+        wq.ids(range(0, 10), 0, 'qs2', 20);
+        const list = wq.query.getStoreKeys();
+        assert.equal(wq.query._waitingPackets.length, 0);
+        assert.ok(list.every(Boolean), 'no gap');
+        assert.equal(firstDuplicate(list), null);
+        assert.deepEqual(wq.idsAt(list), [...range(0, 2), ...range(3, 17)]);
+        assert.equal(wq.query.get('length'), 19);
+    });
+
+    test('a DIRTY preemptive already absent from the new state is dropped', () => {
+        const wq = makeNonDelta();
+        wq.clientRemove(['id2']);
+
+        // The server has already removed id2.
+        wq.ids([...range(0, 2), ...range(3, 7)], 0, 'qs2', 9);
+        const ids = wq.idsAt(wq.query.getStoreKeys());
+        assert.ok(!ids.includes('id2'));
+        assert.equal(wq.query.get('length'), 9);
+        assert.equal(wq.query._preemptiveUpdates.length, 0);
+    });
+
+    test('a DIRTY preemptive survives further ids at the same state', () => {
+        const wq = makeNonDelta();
+        wq.clientRemove(['id2']);
+        // A second window arrives for the state the preemptive was made
+        // against; unwinding here would make id2 pop back in.
+        wq.ids(range(0, 10), 0, 'qs1', 10);
+        const list = wq.query.getStoreKeys();
+        assert.equal(firstDuplicate(list), null);
+        assert.ok(!wq.idsAt(list).includes('id2'));
+        assert.equal(wq.query.get('length'), 9);
+        assert.equal(wq.query._preemptiveUpdates.length, 1);
+    });
+
+    test('once clean, preemptives are dropped for ids from a new state', () => {
+        const wq = makeNonDelta();
+        wq.clientRemove(['id2']);
+        wq.commitRoundTrip();
+        assert.ok(!wq.query.is(Status.DIRTY));
+
+        // The server disagrees: id2 is still there, id7 has gone.
+        wq.ids([...range(0, 7), ...range(8, 2)], 0, 'qs2', 9);
+        const ids = wq.idsAt(wq.query.getStoreKeys());
+        assert.ok(ids.includes('id2'));
+        assert.ok(!ids.includes('id7'));
+        assert.equal(wq.query.get('length'), 9);
+        assert.equal(wq.query._preemptiveUpdates.length, 0);
+    });
+
+    test('once clean, preemptives are unwound for ids at the same state', () => {
+        const wq = makeNonDelta();
+        wq.clientRemove(['id2']);
+        wq.commitRoundTrip();
+
+        wq.ids(range(0, 10), 0, 'qs1', 10);
+        const list = wq.query.getStoreKeys();
+        assert.equal(firstDuplicate(list), null);
+        assert.ok(wq.idsAt(list).includes('id2'));
+        assert.equal(wq.query.get('length'), 10);
+        assert.equal(wq.query._preemptiveUpdates.length, 0);
     });
 });

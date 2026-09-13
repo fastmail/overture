@@ -1318,7 +1318,11 @@ const WindowedQuery = Class({
         const list = this._storeKeys;
         const windows = this._windows;
         const preemptives = this._preemptiveUpdates;
+        const isDirty = !!(status & DIRTY);
         let informAllRangeObservers = false;
+        // The composed preemptive updates to put back on top of the list
+        // once it has been rebuilt from a new query state (see below).
+        let preemptivesToReapply = null;
 
         // If the query state does not match, the list has changed since we last
         // queried it, so we must get the intervening updates first.
@@ -1327,6 +1331,16 @@ const WindowedQuery = Class({
                 this._waitingPackets.push(args);
                 return this.setObsolete().fetch();
             } else {
+                // We have to throw the list away and rebuild it from what the
+                // server sends. If we're DIRTY, a preemptive update was
+                // applied after this fetch was initiated, so the server may
+                // not have seen the change yet and we keep it by re-applying
+                // it to the new list. If we're not, the server has seen
+                // everything we've done, so its list is the truth and the
+                // preemptives are simply dropped along with the old list.
+                if (isDirty && preemptives.length) {
+                    preemptivesToReapply = preemptives.reduce(composeUpdates);
+                }
                 list.length = windows.length = preemptives.length = 0;
                 informAllRangeObservers = true;
                 // If we don't have the new total, make it 1 past the last
@@ -1369,7 +1383,13 @@ const WindowedQuery = Class({
             const addedStoreKeys = allPreemptives.addedStoreKeys;
             const removedIndexes = allPreemptives.removedIndexes;
 
-            if (canGetDeltaUpdates) {
+            // These ids are from the same query state our preemptives were
+            // made against, so shift them to match. If we can't get delta
+            // updates, the same state means the server hasn't changed, so
+            // unless we're DIRTY (a preemptive was applied after the fetch
+            // began, and the server may just not have seen it yet) the
+            // preemptive change was clearly incorrect and we unwind it.
+            if (canGetDeltaUpdates || isDirty) {
                 for (let i = removedIndexes.length - 1; i >= 0; i -= 1) {
                     const index = removedIndexes[i] - position;
                     if (index < length) {
@@ -1394,8 +1414,6 @@ const WindowedQuery = Class({
                 }
                 total = allPreemptives.total;
             } else {
-                // The preemptive change we made was clearly incorrect as no
-                // change has actually occurred, so we need to unwind it.
                 // Clear the preemptives *before* applying the inverse: that
                 // _applyUpdate drains any waiting id packets at its tail, and
                 // those reads of _preemptiveUpdates must see the post-unwind
@@ -1464,6 +1482,53 @@ const WindowedQuery = Class({
             length += windowSize;
             if (length && end === total && length === total % windowSize) {
                 windows[windowIndex] |= WINDOW_READY;
+            }
+        }
+
+        // Put our preemptive changes back on top of the rebuilt list. The
+        // list we have now is exactly the slice we were sent, so anything the
+        // server already has we don't add again, and anything it has already
+        // removed (or we haven't loaded) is skipped by _normaliseUpdate. The
+        // indexes we insert at were guesses against the old list; they're
+        // still the best guess we have, except that one past the end of the
+        // new list would leave a gap no fetch can fill, so those are pulled
+        // back to the end.
+        if (preemptivesToReapply) {
+            const inList = new Set(storeKeys);
+            const addedStoreKeys = preemptivesToReapply.addedStoreKeys;
+            const addedIndexes = preemptivesToReapply.addedIndexes;
+            const added = [];
+            for (let i = 0, l = addedStoreKeys.length; i < l; i += 1) {
+                const storeKey = addedStoreKeys[i];
+                if (!inList.has(storeKey)) {
+                    added.push({ index: addedIndexes[i], storeKey });
+                }
+            }
+            const update = this._normaliseUpdate({
+                removed: preemptivesToReapply.removedStoreKeys,
+                added,
+            });
+            if (
+                update.removedStoreKeys.length ||
+                update.addedStoreKeys.length
+            ) {
+                // Each add goes in after the removes and the adds before it.
+                const endIndex = total - update.removedStoreKeys.length;
+                update.addedIndexes = update.addedIndexes.map((index, i) =>
+                    Math.min(index, endIndex + i),
+                );
+                update.truncateAtFirstGap = false;
+                update.total =
+                    total -
+                    update.removedStoreKeys.length +
+                    update.addedStoreKeys.length;
+                // Push *before* applying: _applyUpdate drains any waiting id
+                // packets at its tail, and those are shifted by whatever is
+                // in _preemptiveUpdates at the time, which must include
+                // this update.
+                preemptives.push(update);
+                this._applyUpdate(update);
+                total = update.total;
             }
         }
 
