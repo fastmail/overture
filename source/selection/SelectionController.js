@@ -40,6 +40,7 @@ const SelectionController = Class({
         const content = this.get('content');
         if (content) {
             content.on('query:updated', this, 'contentWasUpdated');
+            content.on('query:idsLoaded', this, 'checkSelectionPresence');
         }
     },
 
@@ -47,6 +48,7 @@ const SelectionController = Class({
         const content = this.get('content');
         if (content) {
             content.off('query:updated', this, 'contentWasUpdated');
+            content.off('query:idsLoaded', this, 'checkSelectionPresence');
         }
         SelectionController.parent.destroy.call(this);
     },
@@ -54,9 +56,11 @@ const SelectionController = Class({
     contentDidChange: function (_, __, oldContent, newContent) {
         if (oldContent) {
             oldContent.off('query:updated', this, 'contentWasUpdated');
+            oldContent.off('query:idsLoaded', this, 'checkSelectionPresence');
         }
         if (newContent) {
             newContent.on('query:updated', this, 'contentWasUpdated');
+            newContent.on('query:idsLoaded', this, 'checkSelectionPresence');
         }
         this.selectNone();
     }.observes('content'),
@@ -85,6 +89,27 @@ const SelectionController = Class({
         this._cursorIndex = adjustIndex(this._cursorIndex, event);
 
         this.set('length', length).propertyDidChange('selectedStoreKeys');
+    },
+
+    checkSelectionPresence(event) {
+        if (!event.isStateChange) {
+            return;
+        }
+        const _selectedStoreKeys = this._selectedStoreKeys;
+        if (!_selectedStoreKeys.size) {
+            return;
+        }
+        const knownStoreKeys = new Set(this.get('content').getStoreKeys());
+        for (const storeKey of _selectedStoreKeys) {
+            if (!knownStoreKeys.has(storeKey)) {
+                _selectedStoreKeys.delete(storeKey);
+            }
+        }
+        if (_selectedStoreKeys.size !== this.get('length')) {
+            this.set('length', _selectedStoreKeys.size).propertyDidChange(
+                'selectedStoreKeys',
+            );
+        }
     },
 
     // ---

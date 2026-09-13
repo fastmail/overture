@@ -1476,7 +1476,9 @@ const WindowedQuery = Class({
                 informAllRangeObservers ? 0 : position,
                 informAllRangeObservers ? Math.max(oldLength, end) : end,
             )
-            .fire('query:idsLoaded');
+            .fire('query:idsLoaded', {
+                isStateChange: informAllRangeObservers,
+            });
     },
 
     sourceWillFetchQuery() {
