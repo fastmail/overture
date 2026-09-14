@@ -12,6 +12,15 @@ const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion:reduce)');
 let reduceMotion = reduceMotionQuery.matches;
 reduceMotionQuery.addListener((ev) => (reduceMotion = ev.matches));
 
+/**
+    Function: O.Animation.prefersReducedMotion
+
+    Returns:
+        {Boolean} Has the user asked for reduced motion? Animations should
+        then jump straight to their end state.
+*/
+const prefersReducedMotion = () => reduceMotion;
+
 // List of currently active animations
 const animations = [];
 
@@ -304,4 +313,4 @@ Animation.prototype.duration = 300;
 */
 Animation.prototype.ease = ease;
 
-export { Animation };
+export { Animation, prefersReducedMotion };

@@ -23,6 +23,9 @@ them directly.
 
 ```
 test/
+  animation/
+    helpers.mjs                       # DOM stubs, fake element + Web Animations
+    StyleAnimation.test.mjs
   datastore/
     helpers.mjs                       # shared store/query factories
     Status.test.mjs

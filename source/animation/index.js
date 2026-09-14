@@ -1,5 +1,5 @@
 export { AnimatableView } from './AnimatableView.js';
-export { Animation } from './Animation.js';
+export { Animation, prefersReducedMotion } from './Animation.js';
 export {
     cubicBezier,
     ease,
@@ -14,4 +14,4 @@ export {
     createScreenTransition,
     defaultScreenTransition,
 } from './SpringUtils.js';
-export { StyleAnimation } from './StyleAnimation.js';
+export { StyleAnimation, cssEasing } from './StyleAnimation.js';

@@ -1,4 +1,3 @@
-import { setStyle } from '../dom/Element.js';
 import { ease } from './Easing.js';
 import { StyleAnimation } from './StyleAnimation.js';
 
@@ -10,6 +9,12 @@ import '../foundation/Decorators.js';
 
     Mix this into an <O.View> class to automatically animate all changes to the
     view's <O.View#layerStyles> property.
+
+    The animation is run by the browser (see <O.StyleAnimation>), so changes
+    to `transform` and `opacity`, and to `top` in px, run on the compositor
+    thread and stay smooth even when the main thread is busy. Other layout
+    properties are still animated, but need layout on every frame; prefer
+    expressing a change as a transform where you can.
 */
 const AnimatableView = {
     /**
@@ -38,6 +43,9 @@ const AnimatableView = {
         Default: O.Easing.ease
 
         The easing function to use for the animation of the view's layer styles.
+        Cubic beziers from <O.Easing> are passed to the browser exactly; other
+        functions are approximated with a CSS `linear()` timing function, or
+        the closest cubic bezier where the browser lacks `linear()`.
     */
     animateLayerEasing: ease,
 
@@ -53,9 +61,9 @@ const AnimatableView = {
     /**
         Method: O.AnimatableView#willAnimate
 
-        This method is called by the <O.Animation> class when it begins
-        animating a property on the object. Increments the <#animating>
-        property.
+        This method is called by the <O.Animation> and <O.StyleAnimation>
+        classes when they begin animating a property on the object. Increments
+        the <#animating> property.
     */
     willAnimate() {
         this.increment('animating', 1);
@@ -64,9 +72,9 @@ const AnimatableView = {
     /**
         Method: O.AnimatableView#didAnimate
 
-        This method is called by the <O.Animation> class when it finishes
-        animating a property on the object. Decrements the <#animating>
-        property.
+        This method is called by the <O.Animation> and <O.StyleAnimation>
+        classes when they finish animating a property on the object. Decrements
+        the <#animating> property.
     */
     didAnimate(animation) {
         this.increment('animating', -1);
@@ -86,8 +94,8 @@ const AnimatableView = {
         Property: O.AnimatableView#layerAnimation
         Type: O.StyleAnimation
 
-        An appropriate animation object (depending on browser support) to
-        animate the layer styles. Automatically generated when first accessed.
+        The animation object for the layer styles. Automatically generated
+        when first accessed.
     */
     layerAnimation: function () {
         return new StyleAnimation({
@@ -110,54 +118,38 @@ const AnimatableView = {
         const newStyles = this.get('layerStyles');
         const layerAnimation = this.get('layerAnimation');
 
+        if (!layerAnimation.current) {
+            layerAnimation.current = oldStyles || newStyles;
+        }
+
         if (this.get('animateLayer') && this.get('isInDocument')) {
-            // Animate
-            if (!layerAnimation.current) {
-                layerAnimation.current = oldStyles || newStyles;
-            }
             layerAnimation.animate(
                 newStyles,
                 this.get('animateLayerDuration'),
                 this.get('animateLayerEasing'),
             );
+            // Nothing needed animating; still tell observers of `animating`
+            // that the change has been drawn.
             if (!layerAnimation.isRunning) {
                 this.willAnimate(layerAnimation);
                 this.didAnimate(layerAnimation);
             }
         } else {
-            // Or just set.
-            layerAnimation.stop();
-            if (layerAnimation.current) {
-                oldStyles = layerAnimation.current;
-            }
-            layerAnimation.current = newStyles;
-            for (const property in newStyles) {
-                const value = newStyles[property];
-                if (value !== oldStyles[property]) {
-                    setStyle(layer, property, value);
-                }
-            }
+            layerAnimation.set(newStyles);
             this.parentViewDidResize();
-        }
-        // Just remove styles that are not specified in the new styles, but were
-        // in the old styles
-        for (const property in oldStyles) {
-            if (!(property in newStyles)) {
-                setStyle(layer, property, null);
-                if (layerAnimation.current) {
-                    delete layerAnimation.current[property];
-                }
-            }
         }
     },
 
     /**
         Method: O.AnimatableView#resetAnimation
 
-        Restores the view's animation to its initial position.
+        Stops any running layer animation, jumping the view straight to the
+        layout it was animating towards. Use this before setting a new layout
+        when the view must not continue from part way through the old
+        animation.
      */
     resetAnimation() {
-        this.get('layerAnimation').reset();
+        this.get('layerAnimation').stop();
     },
 };
 
