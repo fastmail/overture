@@ -306,10 +306,13 @@ const PopOverView = Class({
             // We redraw layer styles as part of redrawing layer; don't get
             // stuck in infinite call stack!
             this._inResize = true;
-            if (this.get('options').alignWithView.get('isInDocument')) {
-                this.redrawLayer();
-            } else {
-                this.hide();
+            const options = this.get('options');
+            if (options) {
+                if (options.alignWithView.get('isInDocument')) {
+                    this.redrawLayer();
+                } else {
+                    this.hide();
+                }
             }
             this._inResize = false;
         }

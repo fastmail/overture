@@ -61,6 +61,7 @@ const AutoCompleteController = Class({
         AutoCompleteController.parent.init.apply(this, arguments);
         this.inputView = null;
         this.isVisible = false;
+        this._shownOptions = null;
         this.context = null;
         this.suggestions = { top: null, middle: null, bottom: null };
     },
@@ -166,35 +167,46 @@ const AutoCompleteController = Class({
     isVisibleDidChange: function (_, __, wasVisible) {
         const popOver = this.get('popOver');
         const isVisible = this.get('isVisible');
-        const inputView = this.get('inputView');
-        const scrollView = inputView.getParent(ScrollView);
         if (isVisible && !wasVisible) {
-            // Show popover
-            const autoCompleteView = this.get('view');
-            popOver.show({
+            const inputView = this.get('inputView');
+            const scrollView = inputView.getParent(ScrollView);
+            const popOverOptions = this.get('popOverOptions');
+            const options = {
                 className: 'u-overflow-hidden',
-                view: autoCompleteView,
+                view: this.get('view'),
                 alignWithView: inputView,
                 alignEdge: 'left',
                 offsetTop: 0,
                 allowEventsOutside: true,
                 resistHiding: true,
-                ...this.get('popOverOptions'),
-            });
+                ...popOverOptions,
+                onHide: (hiddenOptions, hiddenPopOver) => {
+                    if (scrollView) {
+                        scrollView.removeObserverForKey(
+                            'scrollTop',
+                            popOver,
+                            'didResize',
+                        );
+                    }
+                    inputView.removeObserverForKey(
+                        'pxLayout',
+                        popOver,
+                        'didResize',
+                    );
+                    popOverOptions.onHide?.(hiddenOptions, hiddenPopOver);
+                    if (this._shownOptions === options) {
+                        this._shownOptions = null;
+                        this.set('isVisible', false);
+                    }
+                },
+            };
+            this._shownOptions = options;
+            popOver.show(options);
             if (scrollView) {
                 scrollView.addObserverForKey('scrollTop', popOver, 'didResize');
             }
             inputView.addObserverForKey('pxLayout', popOver, 'didResize');
         } else if (!isVisible && wasVisible) {
-            // Hide popover
-            if (scrollView) {
-                scrollView.removeObserverForKey(
-                    'scrollTop',
-                    popOver,
-                    'didResize',
-                );
-            }
-            inputView.removeObserverForKey('pxLayout', popOver, 'didResize');
             popOver.hide();
         }
     }.observes('isVisible'),
