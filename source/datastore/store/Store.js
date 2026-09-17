@@ -1494,6 +1494,19 @@ const Store = Class({
                 );
                 this._destroyed.delete(storeKey);
             }
+            if (status & DESTROYED) {
+                // The data may have been replaced silently while the record
+                // was destroyed (see sourceDidFetchRecords), so any cached
+                // values could describe attributes that changed or vanished.
+                const attrKeys = Object.keys(
+                    meta((Type || this._skToType.get(storeKey)).prototype)
+                        .attrs,
+                );
+                this._notifyRecordOfChanges(storeKey, attrKeys);
+                for (const nested of this._nestedStores) {
+                    nested.parentDidSetData(storeKey, attrKeys);
+                }
+            }
             if (data) {
                 this.updateData(storeKey, data, true);
             }
@@ -2181,7 +2194,9 @@ const Store = Class({
                 updates[id] = data;
             } else if (status & DESTROYED && status & (DIRTY | COMMITTING)) {
                 // We're in the middle of destroying it. Update the data in case
-                // we need to roll back.
+                // we need to roll back. Don't notify the record: observers
+                // could write back to the destroyed record. undestroyRecord
+                // notifies every attribute if the data is needed again.
                 _skToData.set(storeKey, data);
                 this.setStatus(storeKey, status & ~LOADING);
             } else {

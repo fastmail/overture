@@ -309,6 +309,52 @@ describe('Store: commit confirmation and server-driven updates', () => {
         assert.equal(store.getData(sk).title, 'from-server');
         assert.equal(store.getStatus(sk) & DIRTY, 0);
     });
+
+    test('a fetch that lands mid-destroy invalidates cached attributes on rollback', () => {
+        const { store, flush } = makeStore();
+        const [sk] = seedRecords(store, Todo, [
+            { id: 't1', title: 'orig', priority: 5 },
+        ]);
+        const record = store.getRecord(ACCOUNT_ID, Todo, 't1');
+        // Populate the record's computed-property cache.
+        assert.equal(record.get('priority'), 5);
+
+        record.destroy();
+        store.commitChanges();
+        flush();
+        assert.ok(store.getStatus(sk) & DESTROYED);
+        assert.ok(store.getStatus(sk) & COMMITTING);
+
+        // Attribute observers must stay quiet while the record is destroyed,
+        // otherwise two-way bindings would write back to it.
+        let priorityChanges = 0;
+        record.addObserverForKey(
+            'priority',
+            {
+                fire: () => {
+                    priorityChanges += 1;
+                },
+            },
+            'fire',
+        );
+
+        // The server returns the record without `priority` while the destroy
+        // is still in flight, then the destroy fails and is rolled back.
+        store.sourceDidFetchRecords(
+            ACCOUNT_ID,
+            Todo,
+            [{ id: 't1', title: 'from-server' }],
+            'state-1',
+        );
+        assert.equal(priorityChanges, 0);
+        store.sourceDidNotDestroy([sk], true);
+        assert.equal(priorityChanges, 1);
+
+        assert.ok(store.getStatus(sk) & READY);
+        assert.equal(record.get('title'), 'from-server');
+        // Must fall back to the default, not the stale cached 5.
+        assert.equal(record.get('priority'), 0);
+    });
 });
 
 describe('Store: unloading records', () => {
