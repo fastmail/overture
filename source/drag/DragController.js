@@ -13,7 +13,7 @@ import {
 } from '../views/View.js';
 import { ViewEventsController } from '../views/ViewEventsController.js';
 import { Drag } from './Drag.js';
-import { ALL, DEFAULT, effectToString } from './DragEffect.js';
+import { DEFAULT, effectToString } from './DragEffect.js';
 
 /* { on, invokeInRunLoop } from */
 import '../foundation/Decorators.js';
@@ -525,25 +525,27 @@ const DragController = new Obj({
         let drag = this.drag;
         const dataTransfer = event.dataTransfer;
         let notify = true;
+        // Browser-generated dragover events always have a dataTransfer;
+        // synthetic ones (extensions, automation tools) may not. We listen
+        // on document so we see those too, and there's nothing we can do
+        // with them.
+        if (!dataTransfer) {
+            return;
+        }
         // Probably hasn't come via root view controller, so doesn't have target
         // view property
         if (!event.targetView) {
             event.targetView = getViewFromNode(event.target);
         }
         if (!drag) {
-            let effectAllowed;
-            // IE10 will throw an error when you try to access this property!
-            try {
-                effectAllowed = dataTransfer.effectAllowed;
-            } catch (error) {
-                effectAllowed = ALL;
-            }
             // Drag from external source
             drag = new Drag({
                 pointerType: 'unknown',
                 event,
                 isNative: true,
-                allowedEffects: effectToString.indexOf(effectAllowed),
+                allowedEffects: effectToString.indexOf(
+                    dataTransfer.effectAllowed,
+                ),
             });
         } else {
             const x = event.clientX;
