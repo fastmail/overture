@@ -71,16 +71,22 @@ export const MockSource = Class({
         this.calls.push({ method: 'fetchRecord', accountId, Type, id });
         return true;
     },
-    fetchAllRecords(accountId, Type, state /*, callback */) {
-        this.calls.push({ method: 'fetchAllRecords', accountId, Type, state });
+    fetchAllRecords(accountId, Type, state, callback) {
+        this.calls.push({
+            method: 'fetchAllRecords',
+            accountId,
+            Type,
+            state,
+            callback,
+        });
         return true;
     },
     fetchQuery(query /*, callback */) {
         this.calls.push({ method: 'fetchQuery', query });
         return true;
     },
-    commitChanges(changes /*, callback */) {
-        this.calls.push({ method: 'commitChanges', changes });
+    commitChanges(changes, callback) {
+        this.calls.push({ method: 'commitChanges', changes, callback });
         return true;
     },
 

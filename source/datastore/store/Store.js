@@ -2102,7 +2102,9 @@ const Store = Class({
         Call this method to notify the store of a change in the state of a
         particular record type in the source. The store will wait for any
         loading or committing of this type to finish, then check its state. If
-        it doesn't match, it will then request updates.
+        it doesn't match, it will then request updates. Remote queries on the
+        type are invalidated immediately unless only committing, as the push
+        may just be for the change being committed.
 
         Parameters:
             accountId - {String|null} The account id.
@@ -2129,17 +2131,20 @@ const Store = Class({
                 Type,
                 oldState || !clientState ? newState : clientState,
             );
-            if (
-                newState !== clientState &&
-                !account.ignoreServerState &&
-                !(account.status.get(Type) & (LOADING | COMMITTING))
-            ) {
-                if (clientState) {
-                    this.fetchAll(accountId, Type, true);
+            if (newState !== clientState && !account.ignoreServerState) {
+                const status = account.status.get(Type) || 0;
+                if (!(status & (LOADING | COMMITTING))) {
+                    if (clientState) {
+                        this.fetchAll(accountId, Type, true);
+                    }
+                    // We have a query but not matches yet; we still need to
+                    // refresh the queries in case there are now matches.
+                    this.fire(guid(Type) + ':server:' + accountId);
+                } else if (status & LOADING) {
+                    // The load will likely reach newState, and then
+                    // sourceDidFetchUpdates won't fire as serverState matches.
+                    this.fire(guid(Type) + ':server:' + accountId);
                 }
-                // We have a query but not matches yet; we still need to
-                // refresh the queries in case there are now matches.
-                this.fire(guid(Type) + ':server:' + accountId);
             }
         }
 

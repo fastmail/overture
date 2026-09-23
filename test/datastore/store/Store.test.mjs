@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, test } from 'node:test';
 
+import { guid } from '../../../source/core/Core.js';
 import {
     ACCOUNT_ID,
     makeStore,
@@ -365,5 +366,115 @@ describe('Store: unloading records', () => {
 
         store.getRecord(ACCOUNT_ID, Todo, 't1').set('title', 'dirty');
         assert.equal(store.mayUnloadRecord(sk), false);
+    });
+});
+
+describe('Store: server state changes during loads and commits', () => {
+    let store;
+    let source;
+    let flush;
+    let serverEvents;
+    beforeEach(() => {
+        ({ store, source, flush } = makeStore());
+        seedRecords(store, Todo, [{ id: 't1', title: 'orig' }], 'state-0');
+        serverEvents = 0;
+        store.on(
+            guid(Todo) + ':server:' + ACCOUNT_ID,
+            {
+                fire: () => {
+                    serverEvents += 1;
+                },
+            },
+            'fire',
+        );
+    });
+
+    const startCommit = () => {
+        store.getRecord(ACCOUNT_ID, Todo, 't1').set('title', 'edited');
+        store.commitChanges();
+        flush();
+        const commits = source.callsTo('commitChanges');
+        return commits[commits.length - 1].callback;
+    };
+
+    test('a push while loading still invalidates queries when the load reaches that state', () => {
+        store.fetchAll(ACCOUNT_ID, Todo, true);
+        const [{ callback: loadDone }] = source.callsTo('fetchAllRecords');
+
+        store.sourceStateDidChange(ACCOUNT_ID, Todo, 'state-1');
+        store.sourceDidFetchUpdates(
+            ACCOUNT_ID,
+            Todo,
+            ['t1'],
+            [],
+            'state-0',
+            'state-1',
+        );
+        loadDone();
+
+        assert.ok(serverEvents > 0);
+        assert.equal(source.callsTo('fetchAllRecords').length, 1);
+    });
+
+    test('a push while loading and committing still invalidates queries', () => {
+        store.fetchAll(ACCOUNT_ID, Todo, true);
+        const [{ callback: loadDone }] = source.callsTo('fetchAllRecords');
+        const commitDone = startCommit();
+
+        // Another client moves the server to state-1, which the in-flight load
+        // picks up; our commit then takes it to state-2.
+        store.sourceStateDidChange(ACCOUNT_ID, Todo, 'state-1');
+        store.sourceDidFetchUpdates(
+            ACCOUNT_ID,
+            Todo,
+            ['t1'],
+            [],
+            'state-0',
+            'state-1',
+        );
+        loadDone();
+        store.sourceCommitDidChangeState(
+            ACCOUNT_ID,
+            Todo,
+            'state-1',
+            'state-2',
+        );
+        commitDone();
+
+        assert.ok(serverEvents > 0);
+    });
+
+    test('a push for our own commit arriving mid-commit is ignored', () => {
+        const commitDone = startCommit();
+
+        store.sourceStateDidChange(ACCOUNT_ID, Todo, 'state-1');
+        store.sourceCommitDidChangeState(
+            ACCOUNT_ID,
+            Todo,
+            'state-0',
+            'state-1',
+        );
+        commitDone();
+
+        assert.equal(serverEvents, 0);
+        assert.equal(source.callsTo('fetchAllRecords').length, 0);
+    });
+
+    test('a push past our own commit arriving mid-commit fetches updates', () => {
+        const commitDone = startCommit();
+
+        store.sourceStateDidChange(ACCOUNT_ID, Todo, 'state-2');
+        store.sourceCommitDidChangeState(
+            ACCOUNT_ID,
+            Todo,
+            'state-0',
+            'state-1',
+        );
+        commitDone();
+
+        assert.ok(serverEvents > 0);
+        const fetches = source.callsTo('fetchAllRecords');
+        assert.equal(fetches.length, 1);
+        assert.equal(fetches[0].state, 'state-1');
     });
 });
