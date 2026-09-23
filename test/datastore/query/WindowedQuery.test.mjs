@@ -585,3 +585,79 @@ describe('WindowedQuery: preemptives without delta updates', () => {
         assert.equal(wq.query._preemptiveUpdates.length, 0);
     });
 });
+
+describe('WindowedQuery: refreshing while DIRTY', () => {
+    const makeDirty = () => {
+        const wq = makeWindowedQuery({ windowSize: 30 });
+        wq.ids(range(0, 10), 0, 'qs1', 10);
+        wq.clientRemove(['id2']);
+        return wq;
+    };
+
+    test('refreshes again at once if the change has been committed', () => {
+        const wq = makeDirty();
+        // The change is committed after the refresh goes out, so the refresh
+        // may not reflect it.
+        wq.store.hasChanges = true;
+        const { callback } = wq.query.sourceWillFetchQuery();
+        wq.store.hasChanges = false;
+        callback();
+        assert.ok(wq.query.is(Status.OBSOLETE));
+    });
+
+    test('waits for an uncommitted change to commit before refreshing', () => {
+        const wq = makeDirty();
+        const { store, query } = wq;
+        store.hasChanges = true;
+        store.set('isCommitting', true);
+
+        // The refresh can't reflect the change, and nor could another one.
+        const { callback } = query.sourceWillFetchQuery();
+        wq.sourceUpdate('qs1', 'qs1', [], [], 10);
+        callback();
+        assert.ok(query.is(Status.DIRTY));
+        assert.ok(!query.is(Status.OBSOLETE), 'no refresh while uncommitted');
+
+        // The store's commit completes, sending the change.
+        store.hasChanges = false;
+        store.set('isCommitting', false);
+        assert.ok(query.is(Status.OBSOLETE), 'refreshes after the commit');
+
+        // It only waits once.
+        const { callback: callback2 } = query.sourceWillFetchQuery();
+        callback2();
+        store.set('isCommitting', true).set('isCommitting', false);
+        assert.ok(!query.is(Status.OBSOLETE));
+    });
+
+    test('keeps waiting while the change is still uncommitted', () => {
+        const wq = makeDirty();
+        const { store, query } = wq;
+        store.hasChanges = true;
+        store.set('isCommitting', true);
+        query.sourceWillFetchQuery().callback();
+
+        // A commit finishes, but the change is still queued behind it.
+        store.set('isCommitting', false);
+        assert.ok(!query.is(Status.OBSOLETE));
+        store.set('isCommitting', true);
+        store.hasChanges = false;
+        store.set('isCommitting', false);
+        assert.ok(query.is(Status.OBSOLETE));
+    });
+
+    test('stops waiting when destroyed', () => {
+        const wq = makeDirty();
+        const { store, query } = wq;
+        store.hasChanges = true;
+        query.sourceWillFetchQuery().callback();
+        query.destroy();
+        let refreshed = false;
+        query._refreshIfDirty = () => {
+            refreshed = true;
+        };
+        store.hasChanges = false;
+        store.set('isCommitting', true).set('isCommitting', false);
+        assert.ok(!refreshed);
+    });
+});

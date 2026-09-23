@@ -411,6 +411,7 @@ const WindowedQuery = Class({
         this._preemptiveUpdates = [];
 
         this._isAnExplicitIdFetch = false;
+        this._isAwaitingCommit = false;
 
         this.hasTotal = false;
 
@@ -1671,11 +1672,62 @@ const WindowedQuery = Class({
                         ~(WINDOW_LOADING | WINDOW_RECORDS_LOADING),
                 );
                 this.set('status', this.get('status') & ~LOADING);
-                if (this.is(DIRTY) && !this.is(OBSOLETE)) {
-                    this.setObsolete();
-                }
+                this._refreshIfDirty();
             },
         };
+    },
+
+    /**
+        Method (private): O.WindowedQuery#_refreshIfDirty
+
+        If a preemptive update was applied after the last refresh began, that
+        refresh may not reflect it, so we need another. But if the change is
+        still uncommitted in the store, the server hasn't seen it either:
+        refreshing now would get the same answer and leave us DIRTY, looping
+        every frame until the commit goes out (which can be seconds, if the
+        store is waiting on a slow commit to another source). So in that case
+        we wait for the store to finish committing before refreshing.
+    */
+    _refreshIfDirty() {
+        if (!this.is(DIRTY) || this.is(OBSOLETE)) {
+            return;
+        }
+        const store = this.get('store');
+        if (store.hasChangesForType(this.get('Type'))) {
+            if (!this._isAwaitingCommit) {
+                this._isAwaitingCommit = true;
+                store.addObserverForKey(
+                    'isCommitting',
+                    this,
+                    '_storeDidCommit',
+                );
+            }
+        } else {
+            this.setObsolete();
+        }
+    },
+
+    _storeDidCommit(store) {
+        if (!store.get('isCommitting')) {
+            this._stopAwaitingCommit();
+            this._refreshIfDirty();
+        }
+    },
+
+    _stopAwaitingCommit() {
+        if (this._isAwaitingCommit) {
+            this._isAwaitingCommit = false;
+            this.get('store').removeObserverForKey(
+                'isCommitting',
+                this,
+                '_storeDidCommit',
+            );
+        }
+    },
+
+    destroy() {
+        this._stopAwaitingCommit();
+        WindowedQuery.parent.destroy.call(this);
     },
 });
 

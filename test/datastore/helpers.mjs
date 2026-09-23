@@ -15,6 +15,7 @@
                         tests, which never touch real records.
 */
 import { Class } from '../../source/core/Core.js';
+import { Obj } from '../../source/foundation/Object.js';
 import * as RunLoop from '../../source/foundation/RunLoop.js';
 import { Store } from '../../source/datastore/store/Store.js';
 import { Source } from '../../source/datastore/source/Source.js';
@@ -120,14 +121,17 @@ export function seedRecords(store, Type, records, state = 'state-0') {
 // --- Lightweight mock store for WindowedQuery tests -------------------------
 //
 // O.WindowedQuery only calls a small surface on its store: getStoreKey,
-// getIdFromStoreKey, getRecordFromStoreKey, getStatus and hasChangesForType.
-// This avoids standing up real records just to test list maintenance.
+// getIdFromStoreKey, getRecordFromStoreKey, getStatus, hasChangesForType and
+// observing isCommitting. This avoids standing up real records just to test
+// list maintenance. Set `hasChanges` to control what hasChangesForType returns.
 
 export function makeMockStore() {
     let nextStoreKey = 1;
     const idToStoreKey = new Map();
     const storeKeyToId = new Map();
-    return {
+    return new Obj({
+        isCommitting: false,
+        hasChanges: false,
         getStoreKey(accountId, Type, id) {
             if (!idToStoreKey.has(id)) {
                 const storeKey = nextStoreKey;
@@ -147,7 +151,7 @@ export function makeMockStore() {
             return Status.READY;
         },
         hasChangesForType() {
-            return false;
+            return this.hasChanges;
         },
         addQuery() {},
         removeQuery() {},
@@ -160,7 +164,7 @@ export function makeMockStore() {
         // exposed for assertions
         _idToStoreKey: idToStoreKey,
         _storeKeyToId: storeKeyToId,
-    };
+    });
 }
 
 // A no-op Type constructor (WindowedQuery only needs an identity for guid()).
