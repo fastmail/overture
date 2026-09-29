@@ -73,9 +73,10 @@ class Database {
         return new Promise(async (resolve, reject) => {
             const transaction = db.transaction(storeNames, mode);
             this._transactions.add(transaction);
+            let fnError = null;
             transaction.onabort = () => {
                 this._transactions.delete(transaction);
-                reject(transaction.error);
+                reject(transaction.error || fnError);
             };
             transaction.oncomplete = () => {
                 this._transactions.delete(transaction);
@@ -101,9 +102,21 @@ class Database {
                 shouldKeepTransactionAlive = false;
                 transaction.commit();
             } catch (error) {
-                reject(error);
                 shouldKeepTransactionAlive = false;
-                transaction.abort();
+                if (error?.name === 'AbortError') {
+                    // The transaction was aborted, probably because another
+                    // request in it failed; onabort rejects with that error
+                    // (the root cause) instead.
+                    fnError = error;
+                    try {
+                        transaction.abort();
+                    } catch (abortError) {
+                        // Already aborted
+                    }
+                } else {
+                    reject(error);
+                    transaction.abort();
+                }
             }
         });
     }
