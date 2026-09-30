@@ -1,4 +1,4 @@
-/*global DOMParser, window, document */
+/*global CSSStyleDeclaration, DOMParser, window, document */
 
 const NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
 
@@ -357,6 +357,7 @@ const defangAttributes = function (node, options) {
 const isClobbered = function (node) {
     if (
         !(node.attributes instanceof NamedNodeMap) ||
+        !(node.style instanceof CSSStyleDeclaration) ||
         typeof node.removeAttribute !== 'function' ||
         typeof node.setAttribute !== 'function' ||
         typeof node.nodeName !== 'string' ||
