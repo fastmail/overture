@@ -292,6 +292,11 @@ const isValidAttribute = function (nodeName, name, value, options) {
     ) {
         return false;
     }
+    // A named form or img also becomes a property of window, so could shadow
+    // any global that isn't defined yet
+    if (name === 'name' && (nodeName === 'FORM' || nodeName === 'IMG')) {
+        return false;
+    }
     // Allow valid data-* attributes: At least one character after "-"
     // https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
     // XML-compatible (https://html.spec.whatwg.org/multipage/infrastructure.html#xml-compatible and http://www.w3.org/TR/xml/#d0e804)
