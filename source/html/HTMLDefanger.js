@@ -378,10 +378,7 @@ const defangElement = function (node, options) {
     // Anything with this many attributes is malicious - trying to sanitise the
     // attributes individually is pathologically slow in browsers, which
     // presumably do not optimise for this!
-    if (
-        node.nodeType === 1 /* Node.ELEMENT_NODE */ &&
-        node.attributes.length > 256
-    ) {
+    if (node.attributes.length > 256) {
         return false;
     }
     const nodeName = node.nodeName;
