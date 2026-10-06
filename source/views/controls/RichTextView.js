@@ -258,14 +258,16 @@ const RichTextView = Class({
     willLeaveDocument() {
         // If focused, save cursor position
         if (this.get('isFocused')) {
+            // Blurring removes any ZWS from the DOM; read the boundary points
+            // after it so the live range's offsets have been adjusted.
             const selection = this.get('editor').getSelection();
+            this.blur();
             this.set('savedSelection', {
                 sc: selection.startContainer,
                 so: selection.startOffset,
                 ec: selection.endContainer,
                 eo: selection.endOffset,
             });
-            this.blur();
         }
 
         return RichTextView.parent.willLeaveDocument.call(this);
