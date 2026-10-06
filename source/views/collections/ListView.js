@@ -243,6 +243,74 @@ const ListView = Class({
         };
     },
 
+    _reportModelBug(error, operation, state) {
+        const { layer, view, index, rendered, newRendered, currentViewIndex } =
+            state;
+        const list = this.get('content') || [];
+        const childViews = this.get('childViews');
+        const added = this._added;
+        const removed = this._removed;
+        const viewLayer = view.get('layer');
+        const parent = viewLayer && viewLayer.parentNode;
+        let layerParent;
+        if (!parent) {
+            layerParent = 'none';
+        } else if (parent === layer) {
+            layerParent = 'self';
+        } else if (parent.nodeType === 11) {
+            layerParent = 'document-fragment';
+        } else {
+            layerParent = 'other:' + parent.nodeName;
+        }
+        const getStoreKey = (content) =>
+            content && typeof content.get === 'function'
+                ? content.get('storeKey')
+                : content;
+        const storeKeys =
+            typeof list.getStoreKeys === 'function'
+                ? list.getStoreKeys().slice()
+                : null;
+        const renderRange = this._renderRange;
+        const renderedStoreKeys = [];
+        for (const renderedView of rendered.values()) {
+            renderedStoreKeys.push(getStoreKey(renderedView.get('content')));
+        }
+        const childViewsContent = childViews.map((v) => [
+            getStoreKey(v.get('content')),
+            v.get('index'),
+        ]);
+        didError({
+            name: 'Model bug',
+            details: {
+                operation,
+                log: list.get('log'),
+                where: list.get('where'),
+                sort: list.get('sort'),
+                index,
+                viewStoreKey: getStoreKey(view.get('content')),
+                itemStoreKey: getStoreKey(list.getObjectAt(index)),
+                storeKeys,
+                renderRangeStart: renderRange.start,
+                renderRangeEnd: renderRange.end,
+                listLength: list.get('length'),
+                renderedStoreKeys,
+                childViewsContent,
+                addedStoreKeys: added ? [...added] : null,
+                removedStoreKeys: removed ? [...removed] : null,
+                errorName: error && error.name,
+                errorMessage: error && error.message,
+                layerParent,
+                renderedSize: rendered.size,
+                newRenderedSize: newRendered.size,
+                childViewsLength: childViews.length,
+                currentViewIndex,
+                viewIsInChildViews: childViews.indexOf(view),
+                viewIsRemoved: view.get('isRemoved'),
+                viewIsDestroyed: !!view.isDestroyed,
+            },
+        });
+    },
+
     redrawLayer(layer) {
         const list = this.get('content') || [];
         const childViews = this.get('childViews');
@@ -307,67 +375,13 @@ const ListView = Class({
                     try {
                         layer.removeChild(view.get('layer'));
                     } catch (error) {
-                        const viewLayer = view.get('layer');
-                        const parent = viewLayer && viewLayer.parentNode;
-                        let layerParent;
-                        if (!parent) {
-                            layerParent = 'none';
-                        } else if (parent === layer) {
-                            layerParent = 'self';
-                        } else if (parent.nodeType === 11) {
-                            layerParent = 'document-fragment';
-                        } else {
-                            layerParent = 'other:' + parent.nodeName;
-                        }
-                        const getStoreKey = (content) =>
-                            content && typeof content.get === 'function'
-                                ? content.get('storeKey')
-                                : content;
-                        const viewContent = view.get('content');
-                        const itemAtI = list.getObjectAt(i);
-                        const storeKeys =
-                            typeof list.getStoreKeys === 'function'
-                                ? list.getStoreKeys().slice()
-                                : null;
-                        const renderRange = this._renderRange;
-                        const renderedStoreKeys = [];
-                        for (const renderedView of rendered.values()) {
-                            renderedStoreKeys.push(
-                                getStoreKey(renderedView.get('content')),
-                            );
-                        }
-                        const childViewsContent = childViews.map((v) => [
-                            getStoreKey(v.get('content')),
-                            v.get('index'),
-                        ]);
-                        didError({
-                            name: 'Model bug',
-                            details: {
-                                log: list.get('log'),
-                                where: list.get('where'),
-                                sort: list.get('sort'),
-                                index: i,
-                                viewStoreKey: getStoreKey(viewContent),
-                                itemStoreKey: getStoreKey(itemAtI),
-                                storeKeys,
-                                renderRangeStart: renderRange.start,
-                                renderRangeEnd: renderRange.end,
-                                listLength: list.get('length'),
-                                renderedStoreKeys,
-                                childViewsContent,
-                                addedStoreKeys: added ? [...added] : null,
-                                removedStoreKeys: removed ? [...removed] : null,
-                                errorName: error && error.name,
-                                errorMessage: error && error.message,
-                                layerParent,
-                                renderedSize: rendered.size,
-                                newRenderedSize: newRendered.size,
-                                childViewsLength: childViews.length,
-                                currentViewIndex,
-                                viewIsInChildViews: childViews.indexOf(view),
-                                viewIsRemoved: view.get('isRemoved'),
-                                viewIsDestroyed: !!view.isDestroyed,
-                            },
+                        this._reportModelBug(error, 'removeChild', {
+                            layer,
+                            view,
+                            index: i,
+                            rendered,
+                            newRendered,
+                            currentViewIndex,
                         });
                     }
                     if (isInDocument) {
@@ -381,7 +395,19 @@ const ListView = Class({
                 // If in correct position, all done
                 if (viewIsInCorrectPosition) {
                     if (frag) {
-                        layer.insertBefore(frag, view.get('layer'));
+                        try {
+                            layer.insertBefore(frag, view.get('layer'));
+                        } catch (error) {
+                            this._reportModelBug(error, 'insertBefore', {
+                                layer,
+                                view,
+                                index: i,
+                                rendered,
+                                newRendered,
+                                currentViewIndex,
+                            });
+                            throw error;
+                        }
                         frag = null;
                     }
                     currentViewIndex = getNextViewIndex(
