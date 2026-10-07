@@ -173,6 +173,15 @@ const RootView = Class({
             case 'scroll':
                 this._onScroll(event);
                 return;
+            case 'blur': {
+                const document = this.get('layer').ownerDocument;
+                if (
+                    event.target === document.activeElement &&
+                    event.target !== document.body
+                ) {
+                    event.target.blur();
+                }
+            }
         }
         ViewEventsController.handleEvent(event, null, this);
     }.invokeInRunLoop(),
