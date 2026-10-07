@@ -1,3 +1,4 @@
+import { toPlatformKey } from '../../application/toPlatformKey.js';
 import { Class, isEqual } from '../../core/Core.js';
 import { lookupKey } from '../../dom/DOMEvent.js';
 import { create as el, getRawBoundingClientRect } from '../../dom/Element.js';
@@ -47,7 +48,7 @@ const OverflowMenuView = Class({
                   const shortcut = view.get('shortcut');
                   if (shortcut) {
                       shortcut.split(' ').forEach((key) => {
-                          acc[key] = view;
+                          acc[toPlatformKey(key)] = view;
                       });
                   }
                   return acc;
