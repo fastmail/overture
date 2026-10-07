@@ -93,6 +93,23 @@ describe('Store: fetching records from the source', () => {
         assert.equal(store.getStoreKey(ACCOUNT_ID, Todo, 'new'), sk);
         assert.equal(store.getIdFromStoreKey(sk), 'new');
     });
+
+    test('sourceDidChangeIds onto a known id invalidates the moved record', () => {
+        const [realSK, localSK] = seedRecords(store, Todo, [
+            { id: 'real', title: 'one', done: false },
+            { id: '-local', title: 'one', done: true, priority: 3 },
+        ]);
+        const record = store.getRecordFromStoreKey(localSK);
+        assert.equal(record.get('done'), true);
+        assert.equal(record.get('priority'), 3);
+
+        store.sourceDidChangeIds(ACCOUNT_ID, Todo, { '-local': 'real' });
+
+        assert.equal(record.get('storeKey'), realSK);
+        assert.equal(record.get('done'), false);
+        // Not in the existing data, so falls back to the default
+        assert.equal(record.get('priority'), 0);
+    });
 });
 
 describe('Store: in-memory data mutation', () => {

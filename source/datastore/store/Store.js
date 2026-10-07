@@ -2450,6 +2450,14 @@ const Store = Class({
                     // destroyed via the normal changes flow, which then cleans
                     // up the tombstone.
                     this._changeRecordStoreKey(storeKey, existingStoreKey);
+                    // The records just moved still have values cached from
+                    // the local-id data, which may not match the data now
+                    // behind them.
+                    const attrKeys = Object.keys(meta(Type.prototype).attrs);
+                    this._notifyRecordOfChanges(existingStoreKey, attrKeys);
+                    for (const nested of this._nestedStores) {
+                        nested.parentDidSetData(existingStoreKey, attrKeys);
+                    }
                     continue;
                 }
                 // Don't delete the old idToSk mapping, as references to the
