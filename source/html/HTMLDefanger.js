@@ -341,30 +341,72 @@ const isValidAttribute = function (nodeName, name, value, options) {
     return false;
 };
 
-const defangAttributes = function (node, options) {
-    const attributes = Array.from(node.attributes);
-    const nodeName = node.nodeName;
-    for (let i = attributes.length - 1; i >= 0; i -= 1) {
-        const attr = attributes[i];
-        const name = attr.name.toLowerCase();
-        const value = attr.value;
-        if (
-            isValidAttribute(nodeName, name, value, options) &&
-            options.onAttribute.every((fn) =>
-                fn(name, value, node, nodeName, options),
-            )
-        ) {
-            continue;
+const isAllowedAttribute = (node, nodeName, name, value, options) =>
+    isValidAttribute(nodeName, name, value, options) &&
+    options.onAttribute.every((fn) => fn(name, value, node, nodeName, options));
+
+// The parser only makes unique, lowercase names, which getAttribute and
+// removeAttribute can address. A callback using setAttributeNS could add
+// others, which they can't. Most elements have only a few attributes, for
+// which scanning the list is cheaper than making a Set.
+const isAddressableByName = function (names) {
+    if (!names.every((name) => name === name.toLowerCase())) {
+        return false;
+    }
+    return names.length <= 16
+        ? names.every((name, index) => names.indexOf(name) === index)
+        : new Set(names).size === names.length;
+};
+
+const CLOBBERING_ATTRIBUTES = ['id', 'name'];
+
+// If return value is false, kill node. If true, keep node.
+const defangAttributes = function (node, nodeName, options) {
+    // Going by name is much faster than through node.attributes, which
+    // makes an object for each attribute
+    const names = node.getAttributeNames();
+    // This is way in excess of any reasonable number of attributes for a node.
+    // Anything with this many attributes is malicious - trying to sanitise the
+    // attributes individually is pathologically slow in browsers, which
+    // presumably do not optimise for this!
+    if (names.length > 256) {
+        return false;
+    }
+    if (isAddressableByName(names)) {
+        for (const name of names) {
+            const value = node.getAttribute(name);
+            // If null, an onAttribute callback has already removed it
+            if (
+                value !== null &&
+                !isAllowedAttribute(node, nodeName, name, value, options)
+            ) {
+                node.removeAttribute(name);
+            }
         }
-        node.removeAttributeNode(attr);
+    } else {
+        for (const attr of Array.from(node.attributes)) {
+            if (
+                attr.ownerElement === node &&
+                !isAllowedAttribute(
+                    node,
+                    nodeName,
+                    attr.name.toLowerCase(),
+                    attr.value,
+                    options,
+                )
+            ) {
+                node.removeAttributeNode(attr);
+            }
+        }
     }
     // Check the final values, as onAttribute callbacks may rewrite them
-    for (const name of ['id', 'name']) {
+    for (const name of CLOBBERING_ATTRIBUTES) {
         const value = node.getAttribute(name);
         if (value !== null && isClobbering(nodeName, name, value)) {
             node.removeAttribute(name);
         }
     }
+    return true;
 };
 
 // These shadow a property of their form by id. The parser can tie one to a
@@ -447,18 +489,10 @@ const stripClobbering = function (root) {
 // ---
 
 // If return value is false, kill node. If true, keep node.
-const defangElement = function (node, options) {
+const defangElement = function (node, nodeName, options) {
     if (node.nodeType === 8 /* COMMENT_NODE */) {
         return false;
     }
-    // This is way in excess of any reasonable number of attributes for a node.
-    // Anything with this many attributes is malicious - trying to sanitise the
-    // attributes individually is pathologically slow in browsers, which
-    // presumably do not optimise for this!
-    if (node.attributes.length > 256) {
-        return false;
-    }
-    const nodeName = node.nodeName;
     if (!options.onElement.every((fn) => fn(node, nodeName, options))) {
         return false;
     }
@@ -531,10 +565,10 @@ class HTMLDefanger {
         const clobberingIds = stripClobbering(documentElement);
         // Removing the root or body would blank the message, so swap in a
         // fresh element for one with too many attributes, keeping its content
-        if (documentElement.attributes.length > 256) {
+        if (documentElement.getAttributeNames().length > 256) {
             documentElement = replaceWithBare(documentElement);
         }
-        if (doc.body && doc.body.attributes.length > 256) {
+        if (doc.body && doc.body.getAttributeNames().length > 256) {
             replaceWithBare(doc.body);
         }
         const nodeIterator = doc.createNodeIterator(
@@ -547,7 +581,8 @@ class HTMLDefanger {
         while ((currentNode = nodeIterator.nextNode())) {
             // A form's nodeName may be shadowed until its controls' ids are
             // taken off
-            if (getNodeName.call(currentNode) === 'FORM') {
+            const nodeName = getNodeName.call(currentNode);
+            if (nodeName === 'FORM') {
                 // Once off, an id stays off until its control is reached,
                 // so this happens once
                 if (!idsStripped) {
@@ -562,7 +597,10 @@ class HTMLDefanger {
                     currentNode.setAttribute('id', id);
                 }
             }
-            if (!defangElement(currentNode, this)) {
+            if (
+                !defangElement(currentNode, nodeName, this) ||
+                !defangAttributes(currentNode, nodeName, this)
+            ) {
                 // Removing the root would leave nothing to return
                 if (currentNode === documentElement) {
                     for (const attr of Array.from(currentNode.attributes)) {
@@ -570,14 +608,13 @@ class HTMLDefanger {
                     }
                     continue;
                 }
-                if (!baseNode && currentNode.nodeName === 'BASE') {
+                if (!baseNode && nodeName === 'BASE') {
                     baseNode = currentNode;
                 } else {
                     currentNode.remove();
                 }
                 continue;
             }
-            defangAttributes(currentNode, this);
         }
         if (baseNode) {
             baseNode.remove();

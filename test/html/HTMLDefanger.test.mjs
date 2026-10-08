@@ -259,6 +259,36 @@ describe('HTMLDefanger', () => {
         );
     });
 
+    test('checks attributes a callback adds that are unreachable by name', () => {
+        const addAttributes = (node, nodeName) => {
+            if (nodeName === 'A') {
+                node.setAttributeNS(null, 'onClick', 'x()');
+                // eslint-disable-next-line no-script-url
+                node.setAttributeNS('urn:x', 'href', 'javascript:x()');
+            }
+            return true;
+        };
+        assert.equal(
+            defang('<a href="https://example.com/" title=t>a</a>', {
+                onElement: [addAttributes],
+            }),
+            '<a href="https://example.com/" title="t">a</a>',
+        );
+    });
+
+    test('copes with an onAttribute callback removing another attribute', () => {
+        const removeTitle = (name, value, node) => {
+            node.removeAttribute('title');
+            return true;
+        };
+        assert.equal(
+            defang('<p class=a title=b dir=ltr>a</p>', {
+                onAttribute: [removeTitle],
+            }),
+            '<p class="a" dir="ltr">a</p>',
+        );
+    });
+
     test('removes a <base>', () => {
         assert.equal(
             defang('<p>a</p><base href="https://example.com/"><p>b</p>'),

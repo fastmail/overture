@@ -196,20 +196,54 @@ class Element extends Node {
     get style() {
         return this._style;
     }
+    // As in a browser, the by-name methods lowercase the name on an HTML
+    // element, and act on the first attribute with that qualified name.
+    _qualifiedName(name) {
+        return this._namespaceURI === HTML_NS ? name.toLowerCase() : name;
+    }
+    getAttributeNames() {
+        return this._attrs.map((attr) => attr.name);
+    }
     getAttribute(name) {
+        name = this._qualifiedName(name);
         const attr = this._attrs.find((each) => each.name === name);
         return attr ? attr.value : null;
     }
     setAttribute(name, value) {
+        name = this._qualifiedName(name);
         const attr = this._attrs.find((each) => each.name === name);
         if (attr) {
             attr.value = String(value);
         } else {
-            this._attrs.push({ name, value: String(value) });
+            this._attrs.push({
+                name,
+                value: String(value),
+                namespaceURI: null,
+                ownerElement: this,
+            });
+        }
+    }
+    setAttributeNS(namespaceURI, name, value) {
+        const attr = this._attrs.find(
+            (each) => each.namespaceURI === namespaceURI && each.name === name,
+        );
+        if (attr) {
+            attr.value = String(value);
+        } else {
+            this._attrs.push({
+                name,
+                value: String(value),
+                namespaceURI,
+                ownerElement: this,
+            });
         }
     }
     removeAttribute(name) {
-        this._attrs = this._attrs.filter((attr) => attr.name !== name);
+        name = this._qualifiedName(name);
+        const attr = this._attrs.find((each) => each.name === name);
+        if (attr) {
+            this.removeAttributeNode(attr);
+        }
     }
     removeAttributeNode(attr) {
         const index = this._attrs.indexOf(attr);
@@ -217,6 +251,7 @@ class Element extends Node {
             throw new Error('NotFoundError');
         }
         this._attrs.splice(index, 1);
+        attr.ownerElement = null;
         return attr;
     }
     get innerHTML() {
