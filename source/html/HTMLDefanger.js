@@ -8,6 +8,7 @@
 const getterFor = (constructor, name) =>
     Object.getOwnPropertyDescriptor(constructor.prototype, name).get;
 const getNodeName = getterFor(Node, 'nodeName');
+const getNamespaceURI = getterFor(Element, 'namespaceURI');
 const getAttribute = Element.prototype.getAttribute;
 const removeAttribute = Element.prototype.removeAttribute;
 const getElementsByTagName = document.getElementsByTagName;
@@ -131,7 +132,6 @@ const TAGS_ALLOW = {
     TABLE: true,
     TBODY: true,
     TD: true,
-    TEMPLATE: true,
     TEXTAREA: true,
     TFOOT: true,
     TH: true,
@@ -152,13 +152,11 @@ const TAGS_FORBID_CONTENTS = {
     COLGROUP: true,
     HEAD: true,
     IFRAME: true,
-    MATH: true,
     NOEMBED: true,
     NOFRAMES: true,
     PLAINTEXT: true,
     SCRIPT: true,
     STYLE: true,
-    SVG: true,
     TEMPLATE: true,
     THEAD: true,
     TITLE: true,
@@ -296,6 +294,8 @@ const ATTR_SCRIPT_OR_DATA = /^(?:\w+script|data):/i;
 
 const formElement = document.createElement('form');
 
+const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+
 // A named element can shadow properties of the document or its form, and a
 // named form or img also becomes a property of window, so could shadow any
 // global that isn't defined yet.
@@ -391,9 +391,12 @@ const mayClobberById = function (element, nodeName, hasForm) {
     );
 };
 
-// The candidates: anything with a name, and the elements whose id can
+// The candidates: <svg> and <math>, the only ways the parser makes elements
+// in another namespace; anything with a name; and the elements whose id can
 // shadow a form. isClobbering and mayClobberById decide.
 const CLOBBERING_SELECTOR = [
+    'svg',
+    'math',
     '[name]',
     ...['IMG', ...Object.keys(FORM_GETTERS)].map(
         (nodeName) => `${nodeName.toLowerCase()}[id]`,
@@ -403,6 +406,7 @@ const CLOBBERING_SELECTOR = [
 // Runs before any callback, so they can use the document and its elements
 // normally. It must not read any property of a form, or the form remembers
 // the control it returned under that name even once the name is stripped.
+// It also strips SVG and MathML, with their contents.
 //
 // A control's id shadows only its own form's properties, and callbacks on
 // the root look ids up to inline and prune styles, so those ids stay on
@@ -415,6 +419,10 @@ const stripClobbering = function (root) {
     const ids = new Map();
     const hasForm = !!root.querySelector('form');
     for (const element of root.querySelectorAll(CLOBBERING_SELECTOR)) {
+        if (getNamespaceURI.call(element) !== HTML_NAMESPACE) {
+            element.remove();
+            continue;
+        }
         const nodeName = getNodeName.call(element);
         const id = getAttribute.call(element, 'id');
         if (

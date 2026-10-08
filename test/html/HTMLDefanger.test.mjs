@@ -164,6 +164,36 @@ describe('HTMLDefanger', () => {
         );
     });
 
+    test('strips SVG and MathML before any callback sees them', () => {
+        const seen = [];
+        const record = (node, nodeName) => {
+            seen.push(nodeName);
+            return true;
+        };
+        defang('<p>x</p><svg><title>T</title></svg><math><mi>y</mi></math>', {
+            onElement: [record],
+        });
+        assert.deepEqual(seen, ['HTML', 'HEAD', 'BODY', 'P']);
+    });
+
+    test('strips SVG and MathML along with their contents', () => {
+        assert.equal(
+            defang(
+                '<p>x</p><svg><style>a{}</style><title>T</title>' +
+                    '<script>alert(1)</script></svg>' +
+                    '<math><mi>y</mi></math><p>z</p>',
+            ),
+            '<p>x</p><p>z</p>',
+        );
+    });
+
+    test('strips templates along with their contents', () => {
+        assert.equal(
+            defang('<p>a</p><template><img src=x onerror=x()></template>'),
+            '<p>a</p>',
+        );
+    });
+
     test('strips ids that shadow properties the document inherits', () => {
         assert.equal(
             defang(
