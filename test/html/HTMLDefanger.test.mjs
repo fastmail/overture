@@ -178,7 +178,7 @@ describe('HTMLDefanger', () => {
             defang(
                 '<p>BEFORE</p><form id=x><input name=firstChild form=x>' +
                     '<b>in</b></form><p>AFTER</p>',
-                { forbidTags: { FORM: true } },
+                { forbidTags: new Set(['FORM']) },
             ),
             '<p>BEFORE</p><input><b>in</b><p>AFTER</p>',
         );
