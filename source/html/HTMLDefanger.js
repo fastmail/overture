@@ -292,15 +292,18 @@ const ATTR_WHITESPACE =
 
 const ATTR_SCRIPT_OR_DATA = /^(?:\w+script|data):/i;
 
-const formElement = document.createElement('form');
-
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+
+// The app's document has properties for its own named forms and frames,
+// which would make the check depend on what's on screen
+const inertDocument = document.implementation.createHTMLDocument('');
+const formElement = inertDocument.createElement('form');
 
 // A named element can shadow properties of the document or its form, and a
 // named form or img also becomes a property of window, so could shadow any
 // global that isn't defined yet.
 const isClobbering = (nodeName, name, value) =>
-    value in document ||
+    value in inertDocument ||
     value in formElement ||
     (name === 'name' && (nodeName === 'FORM' || nodeName === 'IMG'));
 

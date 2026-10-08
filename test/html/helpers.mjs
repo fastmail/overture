@@ -347,6 +347,9 @@ class Document extends Node {
     get head() {
         return this.getElementsByTagName('head')[0] || null;
     }
+    get implementation() {
+        return { createHTMLDocument: () => parse('') };
+    }
 }
 
 const getAttribute = (element, name) =>
