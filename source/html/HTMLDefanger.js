@@ -481,6 +481,18 @@ const defangElement = function (node, options) {
     return true;
 };
 
+// Removing attributes one by one is pathologically slow, so this replaces
+// the element with a copy without them.
+const replaceWithBare = function (element) {
+    const bare = element.ownerDocument.createElement(element.nodeName);
+    let child;
+    while ((child = element.firstChild)) {
+        bare.appendChild(child);
+    }
+    element.parentNode.replaceChild(bare, element);
+    return bare;
+};
+
 // ---
 
 const DOM = 1;
@@ -517,16 +529,13 @@ class HTMLDefanger {
             documentElement = doc.documentElement;
         }
         const clobberingIds = stripClobbering(documentElement);
-        // Removing this many attributes one by one is pathologically slow,
-        // so swap in a fresh root rather than strip them when it fails
+        // Removing the root or body would blank the message, so swap in a
+        // fresh element for one with too many attributes, keeping its content
         if (documentElement.attributes.length > 256) {
-            const root = doc.createElement('html');
-            let child;
-            while ((child = documentElement.firstChild)) {
-                root.appendChild(child);
-            }
-            doc.replaceChild(root, documentElement);
-            documentElement = root;
+            documentElement = replaceWithBare(documentElement);
+        }
+        if (doc.body && doc.body.attributes.length > 256) {
+            replaceWithBare(doc.body);
         }
         const nodeIterator = doc.createNodeIterator(
             documentElement,

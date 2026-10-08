@@ -237,6 +237,11 @@ describe('HTMLDefanger', () => {
         assert.equal(rejected.getElementsByTagName('p').length, 1);
     });
 
+    test('keeps the content of a body with too many attributes', () => {
+        const attrs = Array.from({ length: 257 }, (_, i) => ` a${i}`).join('');
+        assert.equal(defang(`<body${attrs}><p>a</p>`), '<p>a</p>');
+    });
+
     test('checks ids and names after onAttribute rewrites them', () => {
         const unprefix = (name, value, node) => {
             if (name === 'id' || name === 'name') {

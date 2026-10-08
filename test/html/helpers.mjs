@@ -13,7 +13,8 @@
     control stays reachable by that name after the attribute is removed,
     until it leaves the form. Each <img> with a name likewise shadows the
     document's same-named property, for as long as it has the name. As in a
-    browser, the attributes of an <html> tag in the markup go on the root.
+    browser, the attributes of an <html> or <body> tag in the markup go on
+    the root or body.
 */
 
 /*global EventTarget */
@@ -492,10 +493,14 @@ const parse = (html) => {
             if (nodeName === 'FORM') {
                 openForm = null;
             }
-        } else if (open && open.toLowerCase() === 'html') {
+        } else if (open && /^(?:html|body)$/i.test(open)) {
+            const element = open.toLowerCase() === 'html' ? root : body;
             for (const [, name, quoted, bare] of attrs.matchAll(ATTR)) {
-                if (root.getAttribute(name.toLowerCase()) === null) {
-                    root.setAttribute(name.toLowerCase(), quoted ?? bare ?? '');
+                if (element.getAttribute(name.toLowerCase()) === null) {
+                    element.setAttribute(
+                        name.toLowerCase(),
+                        quoted ?? bare ?? '',
+                    );
                 }
             }
         } else if (open) {
