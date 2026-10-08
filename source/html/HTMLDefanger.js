@@ -1,6 +1,16 @@
-/*global CSSStyleDeclaration, DOMParser, window, document */
+/*global DOMParser, Element, Node, document, HTMLButtonElement,
+    HTMLFieldSetElement, HTMLInputElement, HTMLObjectElement, HTMLOutputElement,
+    HTMLSelectElement, HTMLTextAreaElement */
 
-const NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
+// A <form> exposes its named controls as properties, shadowing any DOM
+// method or property of the same name, and the document likewise exposes
+// named elements. Until those names are stripped, use the prototype versions.
+const getterFor = (constructor, name) =>
+    Object.getOwnPropertyDescriptor(constructor.prototype, name).get;
+const getNodeName = getterFor(Node, 'nodeName');
+const getAttribute = Element.prototype.getAttribute;
+const removeAttribute = Element.prototype.removeAttribute;
+const getElementsByTagName = document.getElementsByTagName;
 
 /**
     All untrusted HTML (i.e. anything that's not a static string we wrote) MUST go through HTMLDefanger before being inserted into the DOM. The defang method returns a DOM node or fragment, which you can append directly.
@@ -8,6 +18,8 @@ const NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
     DO NOT get the HTML return type and set it as innerHTML. While this should be safe in theory, in practice browsers may reparse it differently so you end up with a different (potentially dangerous) DOM tree. This is called mXSS. DOMPurify tries to fix the mXSS bugs it knows about; I prefer the safer option of never doing the operation that can lead to it in the first place. The HTML return type is only for serialising into record state.
 
     The _INERT return type returns DOM nodes that are still in the inert document and not imported. If you use this and then want to insert it into the document after further transformations you MUST use `document.importNode(...)` to safely import it; DO NOT use document.adoptNode (or omit importing it), as this may leave shadow roots in place that can contain unsanitised content.
+
+    Any element's id becomes a property of window, shadowing any global that isn't defined yet, and an id, a label's `for` or a `usemap` can also reach the app's own elements once the output is in the document. The defanger only strips the ids and names that would shadow the document or a form while it works, so an onAttribute callback MUST prefix every id and idref (as jmapui's does) before the output goes anywhere near the live document.
 
     This defanger will strip all comments; they're not dangerous, just not necessary. If you have a usecase where you need them preserved, talk to neilj.
 
@@ -284,19 +296,15 @@ const ATTR_SCRIPT_OR_DATA = /^(?:\w+script|data):/i;
 
 const formElement = document.createElement('form');
 
+// A named element can shadow properties of the document or its form, and a
+// named form or img also becomes a property of window, so could shadow any
+// global that isn't defined yet.
+const isClobbering = (nodeName, name, value) =>
+    value in document ||
+    value in formElement ||
+    (name === 'name' && (nodeName === 'FORM' || nodeName === 'IMG'));
+
 const isValidAttribute = function (nodeName, name, value, options) {
-    // Check for clobbering
-    if (
-        (name === 'id' || name === 'name') &&
-        (value in document || value in formElement)
-    ) {
-        return false;
-    }
-    // A named form or img also becomes a property of window, so could shadow
-    // any global that isn't defined yet
-    if (name === 'name' && (nodeName === 'FORM' || nodeName === 'IMG')) {
-        return false;
-    }
     // Allow valid data-* attributes: At least one character after "-"
     // https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
     // XML-compatible (https://html.spec.whatwg.org/multipage/infrastructure.html#xml-compatible and http://www.w3.org/TR/xml/#d0e804)
@@ -350,28 +358,89 @@ const defangAttributes = function (node, options) {
         }
         node.removeAttributeNode(attr);
     }
+    // Check the final values, as onAttribute callbacks may rewrite them
+    for (const name of ['id', 'name']) {
+        const value = node.getAttribute(name);
+        if (value !== null && isClobbering(nodeName, name, value)) {
+            node.removeAttribute(name);
+        }
+    }
+};
+
+// These shadow a property of their form by id. The parser can tie one to a
+// form that isn't its ancestor, so ask the element which form it's in.
+const FORM_GETTERS = {
+    BUTTON: getterFor(HTMLButtonElement, 'form'),
+    FIELDSET: getterFor(HTMLFieldSetElement, 'form'),
+    INPUT: getterFor(HTMLInputElement, 'form'),
+    OBJECT: getterFor(HTMLObjectElement, 'form'),
+    OUTPUT: getterFor(HTMLOutputElement, 'form'),
+    SELECT: getterFor(HTMLSelectElement, 'form'),
+    TEXTAREA: getterFor(HTMLTextAreaElement, 'form'),
+};
+
+// An <img> can't say which form it's in, so it's in one if there are any.
+// An <object> also shadows the document's properties, so it always counts.
+const mayClobberById = function (element, nodeName, hasForm) {
+    if (nodeName === 'IMG') {
+        return hasForm;
+    }
+    const getForm = FORM_GETTERS[nodeName];
+    return (
+        !!getForm && (nodeName === 'OBJECT' || getForm.call(element) !== null)
+    );
+};
+
+// The candidates: anything with a name, and the elements whose id can
+// shadow a form. isClobbering and mayClobberById decide.
+const CLOBBERING_SELECTOR = [
+    '[name]',
+    ...['IMG', ...Object.keys(FORM_GETTERS)].map(
+        (nodeName) => `${nodeName.toLowerCase()}[id]`,
+    ),
+].join(',');
+
+// Runs before any callback, so they can use the document and its elements
+// normally. It must not read any property of a form, or the form remembers
+// the control it returned under that name even once the name is stripped.
+//
+// A control's id shadows only its own form's properties, and callbacks on
+// the root look ids up to inline and prune styles, so those ids stay on
+// until the walk reaches a form, and callbacks on other elements mustn't
+// read a property of a form. They're returned so the walk can take them
+// off, and put each back on its control just before its own callbacks run,
+// as those may rewrite it into something harmless, such as by prefixing it.
+// An <object>'s id shadows the document, so comes off here for good.
+const stripClobbering = function (root) {
+    const ids = new Map();
+    const hasForm = !!root.querySelector('form');
+    for (const element of root.querySelectorAll(CLOBBERING_SELECTOR)) {
+        const nodeName = getNodeName.call(element);
+        const id = getAttribute.call(element, 'id');
+        if (
+            id !== null &&
+            isClobbering(nodeName, 'id', id) &&
+            mayClobberById(element, nodeName, hasForm)
+        ) {
+            if (nodeName === 'OBJECT') {
+                removeAttribute.call(element, 'id');
+            } else {
+                ids.set(element, id);
+            }
+        }
+        const name = getAttribute.call(element, 'name');
+        if (name !== null && isClobbering(nodeName, 'name', name)) {
+            removeAttribute.call(element, 'name');
+        }
+    }
+    return ids;
 };
 
 // ---
 
-const isClobbered = function (node) {
-    if (
-        !(node.attributes instanceof NamedNodeMap) ||
-        !(node.style instanceof CSSStyleDeclaration) ||
-        typeof node.removeAttribute !== 'function' ||
-        typeof node.setAttribute !== 'function' ||
-        typeof node.nodeName !== 'string' ||
-        typeof node.removeChild !== 'function'
-    ) {
-        return true;
-    }
-
-    return false;
-};
-
 // If return value is false, kill node. If true, keep node.
 const defangElement = function (node, options) {
-    if (node.nodeType === 8 /* Node.COMMENT_NODE */ || isClobbered(node)) {
+    if (node.nodeType === 8 /* COMMENT_NODE */) {
         return false;
     }
     // This is way in excess of any reasonable number of attributes for a node.
@@ -389,11 +458,12 @@ const defangElement = function (node, options) {
         if (!TAGS_FORBID_CONTENTS[nodeName]) {
             // Unwrap at the DOM level; serialize+reparse is mXSS-prone.
             const parent = node.parentNode;
-            if (parent && typeof parent.insertBefore === 'function') {
+            if (parent) {
                 const after = node.nextSibling;
+                let child;
                 try {
-                    while (node.firstChild) {
-                        parent.insertBefore(node.firstChild, after);
+                    while ((child = node.firstChild)) {
+                        parent.insertBefore(child, after);
                     }
                 } catch (error) {}
             }
@@ -404,8 +474,6 @@ const defangElement = function (node, options) {
 };
 
 // ---
-
-const getElementsByTagName = document.getElementsByTagName;
 
 const DOM = 1;
 const FRAGMENT = 2;
@@ -433,45 +501,55 @@ class HTMLDefanger {
         try {
             doc = new DOMParser().parseFromString(html, 'text/html');
         } catch (error) {}
-        let documentElement =
-            doc && typeof doc.createNodeIterator === 'function'
-                ? getElementsByTagName.call(doc, 'html')[0]
-                : null;
+        let documentElement = doc
+            ? getElementsByTagName.call(doc, 'html')[0]
+            : null;
         if (!documentElement) {
             doc = document.implementation.createHTMLDocument('');
             documentElement = doc.documentElement;
         }
+        const clobberingIds = stripClobbering(documentElement);
         const nodeIterator = doc.createNodeIterator(
             documentElement,
             129, // NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT
         );
+        let idsStripped = false;
         let baseNode = null;
         let currentNode;
         while ((currentNode = nodeIterator.nextNode())) {
+            // A form's nodeName may be shadowed until its controls' ids are
+            // taken off
+            if (getNodeName.call(currentNode) === 'FORM') {
+                // Once off, an id stays off until its control is reached,
+                // so this happens once
+                if (!idsStripped) {
+                    for (const element of clobberingIds.keys()) {
+                        removeAttribute.call(element, 'id');
+                    }
+                    idsStripped = true;
+                }
+            } else if (idsStripped) {
+                const id = clobberingIds.get(currentNode);
+                if (id !== undefined) {
+                    currentNode.setAttribute('id', id);
+                }
+            }
             if (!defangElement(currentNode, this)) {
                 if (!baseNode && currentNode.nodeName === 'BASE') {
                     baseNode = currentNode;
-                } else if (typeof currentNode.remove === 'function') {
-                    currentNode.remove();
                 } else {
-                    try {
-                        currentNode.parentNode.removeChild(currentNode);
-                    } catch (error) {
-                        currentNode.outerHTML = '';
-                    }
+                    currentNode.remove();
                 }
                 continue;
             }
             defangAttributes(currentNode, this);
         }
         if (baseNode) {
-            baseNode.parentNode.removeChild(baseNode);
+            baseNode.remove();
         }
         if (!doc.body) {
             documentElement.appendChild(doc.createElement('body'));
         }
-        // We presume all DOM clobbering has been removed by this point, so we
-        // can use the standard properties/methods without issue.
         if (returnType === undefined) {
             returnType = this.returnType;
         }

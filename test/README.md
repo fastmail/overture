@@ -40,6 +40,9 @@ test/
     record/RecordAttribute.test.mjs    # attr, validation, toOne, toMany
     record/RecordResult.test.mjs       # getResult / ifSuccess promises
     record/ValidationError.test.mjs
+  html/
+    helpers.mjs                       # minimal DOM that models clobbering
+    HTMLDefanger.test.mjs
 ```
 
 ## Notes
