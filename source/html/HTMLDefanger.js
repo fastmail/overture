@@ -299,13 +299,33 @@ const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const inertDocument = document.implementation.createHTMLDocument('');
 const formElement = inertDocument.createElement('form');
 
-// A named element can shadow properties of the document or its form, and a
-// named form or img also becomes a property of window, so could shadow any
-// global that isn't defined yet.
-const isClobbering = (nodeName, name, value) =>
-    value in inertDocument ||
-    value in formElement ||
-    (name === 'name' && (nodeName === 'FORM' || nodeName === 'IMG'));
+// Elements whose name is a property of the document, and of window, so
+// could shadow any global that isn't defined yet
+const NAMED_BY_DOCUMENT = new Set(['EMBED', 'FORM', 'IFRAME', 'IMG', 'OBJECT']);
+
+// Elements whose id or name is a property of the form they're in
+const NAMED_BY_FORM = new Set([
+    'BUTTON',
+    'FIELDSET',
+    'IMG',
+    'INPUT',
+    'OBJECT',
+    'OUTPUT',
+    'SELECT',
+    'TEXTAREA',
+]);
+
+// A name on any other element, such as an <a> anchor, shadows nothing. An
+// id is checked against the document too, as an <object>'s shadows it.
+const isClobbering = (nodeName, name, value) => {
+    if (name === 'name') {
+        return (
+            NAMED_BY_DOCUMENT.has(nodeName) ||
+            (NAMED_BY_FORM.has(nodeName) && value in formElement)
+        );
+    }
+    return value in inertDocument || value in formElement;
+};
 
 const isValidAttribute = function (nodeName, name, value, options) {
     // Allow valid data-* attributes: At least one character after "-"
@@ -437,15 +457,15 @@ const mayClobberById = function (element, nodeName, hasForm) {
 };
 
 // The candidates: <svg> and <math>, the only ways the parser makes elements
-// in another namespace; anything with a name; and the elements whose id can
-// shadow a form. isClobbering and mayClobberById decide.
+// in another namespace, and the elements whose name or id can shadow the
+// document or a form. isClobbering and mayClobberById decide.
 const CLOBBERING_SELECTOR = [
     'svg',
     'math',
-    '[name]',
-    ...['IMG', ...Object.keys(FORM_GETTERS)].map(
-        (nodeName) => `${nodeName.toLowerCase()}[id]`,
+    ...[...new Set([...NAMED_BY_DOCUMENT, ...NAMED_BY_FORM])].map(
+        (nodeName) => `${nodeName.toLowerCase()}[name]`,
     ),
+    ...[...NAMED_BY_FORM].map((nodeName) => `${nodeName.toLowerCase()}[id]`),
 ].join(',');
 
 // Runs before any callback, so they can use the document and its elements

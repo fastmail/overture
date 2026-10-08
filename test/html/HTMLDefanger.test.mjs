@@ -140,6 +140,17 @@ describe('HTMLDefanger', () => {
         assert.deepEqual(seen, ['method', 'target']);
     });
 
+    test('keeps a name on an element whose name shadows nothing', () => {
+        assert.equal(
+            defang(
+                '<a name=title>a</a><map name=body></map>' +
+                    '<form><a name=target>b</a><input name=target></form>',
+            ),
+            '<a name="title">a</a><map name="body"></map>' +
+                '<form><a name="target">b</a><input></form>',
+        );
+    });
+
     test('strips a name a callback gives a form or img', () => {
         const addName = (name, value, node) => {
             node.setAttribute('name', 'foo');
