@@ -153,6 +153,15 @@ describe('HTMLDefanger', () => {
         );
     });
 
+    test('sanitises the children of an unwrapped element', () => {
+        assert.equal(
+            defang(
+                '<p>a</p><foo><b onclick=x()>b</b><bar onclick=x()>c</bar></foo>',
+            ),
+            '<p>a</p><b>b</b>c',
+        );
+    });
+
     test('unwraps a forbidden form whose child shadows firstChild', () => {
         assert.equal(
             defang(
@@ -209,6 +218,23 @@ describe('HTMLDefanger', () => {
             defang('<p>a</p><img name=createNodeIterator>'),
             '<p>a</p><img>',
         );
+    });
+
+    test('keeps the root when it fails, stripping its attributes', () => {
+        const attrs = Array.from({ length: 257 }, (_, i) => ` a${i}`).join('');
+        assert.equal(defang(`<html${attrs}><p>a</p>`), '<p>a</p>');
+        const root = new HTMLDefanger().defang(
+            `<html${attrs}><p>a</p>`,
+            DOM_INERT,
+        );
+        assert.equal(root.attributes.length, 0);
+        const rejectRoot = (node, nodeName) => nodeName !== 'HTML';
+        const rejected = new HTMLDefanger({ onElement: [rejectRoot] }).defang(
+            '<html lang=en><p>a</p>',
+            DOM_INERT,
+        );
+        assert.equal(rejected.attributes.length, 0);
+        assert.equal(rejected.getElementsByTagName('p').length, 1);
     });
 
     test('checks ids and names after onAttribute rewrites them', () => {

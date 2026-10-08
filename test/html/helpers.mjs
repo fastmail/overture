@@ -12,7 +12,8 @@
     form remembers each name it has returned in its past names map, so the
     control stays reachable by that name after the attribute is removed,
     until it leaves the form. Each <img> with a name likewise shadows the
-    document's same-named property, for as long as it has the name.
+    document's same-named property, for as long as it has the name. As in a
+    browser, the attributes of an <html> tag in the markup go on the root.
 */
 
 /*global EventTarget */
@@ -107,6 +108,10 @@ class Node extends EventTarget {
     }
     appendChild(node) {
         return this.insertBefore(node, null);
+    }
+    replaceChild(node, child) {
+        this.insertBefore(node, child);
+        return this.removeChild(child);
     }
     removeChild(node) {
         if (node._parent !== this) {
@@ -486,6 +491,12 @@ const parse = (html) => {
             }
             if (nodeName === 'FORM') {
                 openForm = null;
+            }
+        } else if (open && open.toLowerCase() === 'html') {
+            for (const [, name, quoted, bare] of attrs.matchAll(ATTR)) {
+                if (root.getAttribute(name.toLowerCase()) === null) {
+                    root.setAttribute(name.toLowerCase(), quoted ?? bare ?? '');
+                }
             }
         } else if (open) {
             const namespaceURI =

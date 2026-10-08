@@ -464,16 +464,16 @@ const defangElement = function (node, options) {
     }
     if (!options.allowTags[nodeName] || options.forbidTags[nodeName]) {
         if (!TAGS_FORBID_CONTENTS[nodeName]) {
-            // Unwrap at the DOM level; serialize+reparse is mXSS-prone.
+            // Unwrap at the DOM level; serialize+reparse is mXSS-prone. The
+            // root's children can't go in the document, and the root is
+            // kept anyway.
             const parent = node.parentNode;
-            if (parent) {
+            if (parent?.nodeType === 1 /* ELEMENT_NODE */) {
                 const after = node.nextSibling;
                 let child;
-                try {
-                    while ((child = node.firstChild)) {
-                        parent.insertBefore(child, after);
-                    }
-                } catch (error) {}
+                while ((child = node.firstChild)) {
+                    parent.insertBefore(child, after);
+                }
             }
         }
         return false;
@@ -517,6 +517,17 @@ class HTMLDefanger {
             documentElement = doc.documentElement;
         }
         const clobberingIds = stripClobbering(documentElement);
+        // Removing this many attributes one by one is pathologically slow,
+        // so swap in a fresh root rather than strip them when it fails
+        if (documentElement.attributes.length > 256) {
+            const root = doc.createElement('html');
+            let child;
+            while ((child = documentElement.firstChild)) {
+                root.appendChild(child);
+            }
+            doc.replaceChild(root, documentElement);
+            documentElement = root;
+        }
         const nodeIterator = doc.createNodeIterator(
             documentElement,
             129, // NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT
@@ -543,6 +554,13 @@ class HTMLDefanger {
                 }
             }
             if (!defangElement(currentNode, this)) {
+                // Removing the root would leave nothing to return
+                if (currentNode === documentElement) {
+                    for (const attr of Array.from(currentNode.attributes)) {
+                        currentNode.removeAttributeNode(attr);
+                    }
+                    continue;
+                }
                 if (!baseNode && currentNode.nodeName === 'BASE') {
                     baseNode = currentNode;
                 } else {
