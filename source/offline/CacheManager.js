@@ -1,7 +1,7 @@
 import { Database, promisify as _ } from './Database.js';
 
-/*global caches, fetch, setTimeout, Request, Response, navigator, IDBKeyRange,
-    console */
+/*global caches, fetch, setTimeout, Headers, Request, Response, navigator,
+    IDBKeyRange, console */
 
 const bearerParam = /[?&]access_token=[^&]+/;
 const downloadParam = /[?&]download=1\b/;
@@ -27,6 +27,15 @@ const processResponse = (request, response) => {
 const removeSearch = (url) => url.replace(/[?].*$/, '');
 
 const META_ID = '';
+
+// Only forward headers while their value is CORS-safelisted, so the rebuilt
+// request never needs a preflight. <video>/<audio> need Range passed through
+// to get the 206 Safari requires.
+const PASS_THROUGH_REQUEST_HEADERS = new Map([
+    ['Accept', (value) => value.length <= 128],
+    ['Accept-Language', (value) => value.length <= 128],
+    ['Range', (value) => /^bytes=\d+-\d*$/.test(value)],
+]);
 
 class CacheManager {
     constructor(rules) {
@@ -103,12 +112,22 @@ class CacheManager {
         const fetchUrl = ignoreSearch
             ? removeSearch(requestUrl)
             : requestUrl.replace(downloadParam, '');
-        if (request.mode === 'no-cors' || fetchUrl !== requestUrl) {
-            request = new Request(fetchUrl, {
-                mode: 'cors',
-                referrer: 'no-referrer',
-            });
+        // Don't pass through the intercepted request's headers: they may
+        // include browser-added ones (e.g. Firefox's "Prefer: safe" with
+        // parental controls), which force a CORS preflight the server rejects.
+        const headers = new Headers();
+        for (const [name, isSafe] of PASS_THROUGH_REQUEST_HEADERS) {
+            const value = request.headers.get(name);
+            if (value && isSafe(value)) {
+                headers.set(name, value);
+            }
         }
+        request = new Request(fetchUrl, {
+            mode: 'cors',
+            referrer: 'no-referrer',
+            headers,
+            signal: request.signal,
+        });
         let response = await fetch(request);
         // Cache if valid
         if (response && response.status === 200) {
