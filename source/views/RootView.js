@@ -1,6 +1,7 @@
 /*global window */
 
 import { Class } from '../core/Core.js';
+import { isIOS } from '../ua/UA.js';
 import { getViewFromNode } from './activeViews.js';
 import { AbstractControlView } from './controls/AbstractControlView.js';
 import { POINTER_DOWN, POINTER_MOVE, POINTER_UP, View } from './View.js';
@@ -174,12 +175,17 @@ const RootView = Class({
                 this._onScroll(event);
                 return;
             case 'blur': {
-                const document = this.get('layer').ownerDocument;
-                if (
-                    event.target === document.activeElement &&
-                    event.target !== document.body
-                ) {
-                    event.target.blur();
+                if (isIOS) {
+                    // In iOS, swiping down to dimiss the keyboard blurs the
+                    // input but doesn't remove it as active element.
+                    const document = this.get('layer').ownerDocument;
+                    if (
+                        event.target === document.activeElement &&
+                        event.target !== document.body &&
+                        document.hasFocus()
+                    ) {
+                        event.target.blur();
+                    }
                 }
             }
         }
