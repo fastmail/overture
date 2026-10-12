@@ -699,8 +699,9 @@ const WindowedQuery = Class({
             removedIndexes = removedIndexes.slice(i);
             removedStoreKeys = removedStoreKeys.slice(i);
         }
-        // But truncate at first gap.
-        const truncateAtFirstGap = !!i;
+        // They may have been in a gap in our list, shifting everything after
+        // it, so truncate at the first gap.
+        let truncateAtFirstGap = !!i;
 
         // Index removedStoreKeys by storeKey for O(1) lookup. The Map is
         // maintained alongside splices so subsequent lookups continue to see
@@ -722,6 +723,19 @@ const WindowedQuery = Class({
                 addedIndexes.push(index);
                 addedStoreKeys.push(storeKey);
             }
+        }
+
+        // Unless the new total shows none of them were in the list. This only
+        // holds if the update covers the whole list: with an upToId, changes
+        // past it count towards the total but aren't included.
+        if (
+            truncateAtFirstGap &&
+            !update.upToId &&
+            update.total !== undefined &&
+            update.total ===
+                this.get('length') - removedIndexes.length + addedIndexes.length
+        ) {
+            truncateAtFirstGap = false;
         }
 
         return {
@@ -1045,6 +1059,9 @@ const WindowedQuery = Class({
                    updates; any information past this id must be discarded, and
                    if the id can't be found the list must be reset.
         total    - {Number} (optional) The total number of records in the list.
+                   If given for an update to the whole list (no upToId), it is
+                   used to tell whether removed ids we don't have the index of
+                   were in the list at all.
 
         Parameters:
             update - {Object} The delta update (see description above).

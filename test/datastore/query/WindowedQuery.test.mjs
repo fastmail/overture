@@ -337,6 +337,104 @@ describe('WindowedQuery: update idempotency and gaps', () => {
     });
 });
 
+describe('WindowedQuery: removed ids we have no index for', () => {
+    // ids 0-4 and 20-24 loaded, with a gap between, as after jumping down the
+    // list without loading what's in between.
+    const makeGappedQuery = () => {
+        const wq = makeWindowedQuery({ windowSize: 5 });
+        wq.ids(range(0, 5), 0, 'qs1', 30);
+        wq.ids(range(20, 5), 20, 'qs1', 30);
+        return wq;
+    };
+
+    test('keeps the ids after a gap if the total shows they were not in the list', () => {
+        const wq = makeGappedQuery();
+        // E.g. undoing an archive: the restored message's old id is reported
+        // removed, though it wasn't in the list.
+        wq.sourceUpdate(
+            'qs1',
+            'qs2',
+            ['idGone'],
+            [{ index: 22, id: 'idNew' }],
+            31,
+            null,
+        );
+        const list = wq.query.getStoreKeys();
+        assert.equal(firstDuplicate(list), null);
+        assert.equal(wq.query.get('length'), 31);
+        assert.deepEqual(wq.idsAt(list.slice(20, 26)), [
+            'id20',
+            'id21',
+            'idNew',
+            'id22',
+            'id23',
+            'id24',
+        ]);
+    });
+
+    test('keeps every loaded section in place across several gaps', () => {
+        // Sections 0-4, 15-19 and 30-34 loaded out of 40.
+        const all = range(0, 40);
+        const wq = makeWindowedQuery({ windowSize: 5 });
+        wq.ids(all.slice(0, 5), 0, 'qs1', 40);
+        wq.ids(all.slice(15, 20), 15, 'qs1', 40);
+        wq.ids(all.slice(30, 35), 30, 'qs1', 40);
+        // Removals in two sections plus one that was never in the list, and
+        // additions in the first and last sections.
+        const removed = ['id2', 'idGone', 'id16'];
+        const added = [
+            { index: 1, id: 'idA' },
+            { index: 30, id: 'idB' },
+        ];
+        wq.sourceUpdate('qs1', 'qs2', removed, added, 40, null);
+
+        const expected = all.filter((id) => !removed.includes(id));
+        for (const { index, id } of added) {
+            expected.splice(index, 0, id);
+        }
+        const list = wq.query.getStoreKeys();
+        assert.equal(firstDuplicate(list), null);
+        assert.equal(wq.query.get('length'), 40);
+        let loaded = 0;
+        list.forEach((storeKey, index) => {
+            assert.equal(wq.idsAt([storeKey])[0], expected[index], index);
+            loaded += 1;
+        });
+        assert.equal(loaded, 15, 'no section was truncated');
+    });
+
+    test('truncates at the first gap if the total shows one was in the list', () => {
+        const wq = makeGappedQuery();
+        wq.sourceUpdate(
+            'qs1',
+            'qs2',
+            ['idGone'],
+            [{ index: 22, id: 'idNew' }],
+            30,
+            null,
+        );
+        const list = wq.query.getStoreKeys();
+        assert.equal(wq.query.get('length'), 30);
+        assert.equal(list[20], undefined);
+        assert.deepEqual(wq.idsAt(list.slice(0, 5)), range(0, 5));
+    });
+
+    test('truncates at the first gap if the update stops at an upToId', () => {
+        const wq = makeGappedQuery();
+        wq.sourceUpdate(
+            'qs1',
+            'qs2',
+            ['idGone'],
+            [{ index: 22, id: 'idNew' }],
+            31,
+            'id24',
+        );
+        const list = wq.query.getStoreKeys();
+        assert.equal(list[20], undefined);
+        assert.deepEqual(wq.idsAt(list.slice(0, 5)), range(0, 5));
+    });
+});
+
 describe('WindowedQuery: Sentry 7380278134 regression', () => {
     // Reproduces the exact event sequence that produced a duplicated run of
     // store keys (and a _storeKeys array longer than the query length), which
