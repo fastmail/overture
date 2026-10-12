@@ -75,8 +75,21 @@ class Database {
             this._transactions.add(transaction);
             let fnError = null;
             transaction.onabort = () => {
-                this._transactions.delete(transaction);
-                reject(transaction.error || fnError);
+                // WebKit aborts with no error if its indexedDB server drops
+                // the transaction; only close() should do that silently. Not
+                // a DOMException, as that may have a stack, and a stackless
+                // AbortError is how callers recognise a killed transaction.
+                const isClosing = !this._transactions.delete(transaction);
+                reject(
+                    transaction.error ||
+                        fnError ||
+                        (isClosing
+                            ? null
+                            : {
+                                  name: 'AbortError',
+                                  message: 'Transaction aborted without error',
+                              }),
+                );
             };
             transaction.oncomplete = () => {
                 this._transactions.delete(transaction);
@@ -125,6 +138,7 @@ class Database {
         const _db = this._db;
         if (_db) {
             this._transactions.forEach((transaction) => {
+                this._transactions.delete(transaction);
                 // This will throw an InvalidStateError if the transaction
                 // has already completed/aborted
                 try {
