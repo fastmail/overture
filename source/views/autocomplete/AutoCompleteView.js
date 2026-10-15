@@ -30,12 +30,14 @@ const AutocompleteSourceView = Class({
         const source = this.get('source');
         const suggestions = this.get('suggestions');
         const name = source.get('name');
-        const SuggestionListView =
-            suggestions.length > 25 ? ProgressiveListView : ListView;
-        const SuggestionOptionView =
-            suggestions.length > 25
-                ? ProgressiveAutocompleteOptionView
-                : AutoCompleteOptionView;
+        const isProgressive =
+            suggestions.length > 25 && !!source.get('itemHeight');
+        const SuggestionListView = isProgressive
+            ? ProgressiveListView
+            : ListView;
+        const SuggestionOptionView = isProgressive
+            ? ProgressiveAutocompleteOptionView
+            : AutoCompleteOptionView;
         return [
             name
                 ? el('div.v-AutoComplete-sourceName.u-flex.u-items-center', [
