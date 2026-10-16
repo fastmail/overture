@@ -249,7 +249,16 @@ const ToolbarView = Class({
                 if (leftConfig[i] === '-') {
                     i -= 1;
                 }
-                if (i > 0) {
+                // A spacer positions the buttons after it, so keep it in
+                // the toolbar rather than leave an empty row in the menu.
+                while (i < l && this._views[leftConfig[i]]?.get('isSpacer')) {
+                    i += 1;
+                }
+                // If only spacers were left, there's nothing for a More
+                // menu to hold.
+                if (i === l) {
+                    overflowConfig = null;
+                } else if (i > 0) {
                     overflowConfig = leftConfig.slice(i);
                     leftConfig = leftConfig.slice(0, i);
                     leftConfig.push('overflow');
@@ -280,7 +289,10 @@ const ToolbarView = Class({
                     showFilter: false,
                     options: overflowConfig
                         .map(toView, this)
-                        .filter((view) => view instanceof View),
+                        .filter(
+                            (view) =>
+                                view instanceof View && !view.get('isSpacer'),
+                        ),
                 }),
             );
         }
