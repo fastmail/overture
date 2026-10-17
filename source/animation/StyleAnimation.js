@@ -1,22 +1,139 @@
 import { setStyle } from '../dom/Element.js';
 import { cancel, invoke, invokeAfterDelay } from '../foundation/RunLoop.js';
 import { prefersReducedMotion } from './Animation.js';
-import { cubicBezier, ease } from './Easing.js';
+import { ease } from './Easing.js';
 
 // ---
 
-/*global CSS, Element */
+/*global Element */
 
 const supportsWebAnimations =
     typeof Element !== 'undefined' &&
     typeof Element.prototype.animate === 'function';
 
-const supportsLinearEasing =
-    typeof CSS !== 'undefined' &&
-    typeof CSS.supports === 'function' &&
-    CSS.supports('animation-timing-function', 'linear(0, 1)');
+// How far a spline piece may stray from the curve before it is split: under
+// half a pixel on a phone-width move.
+const SPLINE_TOLERANCE = 0.001;
 
-const LINEAR_EASING_SAMPLES = 40;
+// The shortest piece, so a curve the pieces can't follow still ends up with
+// a bounded number of keyframes.
+const SPLINE_MIN_LENGTH = 1 / 64;
+
+const SLOPE_STEP = 1e-4;
+
+const round = (number) => Math.round(number * 10000) / 10000;
+
+const slopeAt = (easing, x) => {
+    const x0 = Math.max(0, x - SLOPE_STEP);
+    const x1 = Math.min(1, x + SLOPE_STEP);
+    return (easing(x1) - easing(x0)) / (x1 - x0);
+};
+
+// The cubic going from 0 to 1 over u in [0..1] with the given slopes at each
+// end, as drawn by cubic-bezier(1/3, s0/3, 2/3, 1 - s1/3).
+const hermite = (s0, s1) => (u) => {
+    const u2 = u * u;
+    const u3 = u2 * u;
+    return 3 * u2 - 2 * u3 + s0 * (u3 - 2 * u2 + u) + s1 * (u3 - u2);
+};
+
+const identity = (u) => u;
+
+const evaluateSpline = (pieces) => (x) => {
+    const last = pieces.length - 1;
+    if (x <= 0) {
+        return pieces[0].progress;
+    }
+    if (x >= 1) {
+        return pieces[last].progress;
+    }
+    let index = 1;
+    while (pieces[index].offset <= x) {
+        index += 1;
+    }
+    const from = pieces[index - 1];
+    const to = pieces[index];
+    return (
+        from.progress +
+        (to.progress - from.progress) *
+            from.shape((x - from.offset) / (to.offset - from.offset))
+    );
+};
+
+/**
+    Function (private): O.StyleAnimation.splineEasing
+
+    Fits a spline to an easing function with no CSS form, such as the springs
+    from <O.SpringUtils>, so it can be played as keyframes: each piece is a
+    keyframe whose easing is the cubic bezier matching the curve's value and
+    slope at both ends, and pieces are split until they are within
+    SPLINE_TOLERANCE of the curve. Keyframes with bezier easings are used
+    rather than a CSS `linear()` timing function because WebKit will only
+    run an animation on the compositor with cubic bezier easings; a
+    `linear()` easing puts it back on the main thread. Each keyframe costs
+    the browser a style resolution when the animation starts, which is why
+    the pieces follow the curve's shape rather than being evenly spaced.
+
+    The spline is fitted once and stored on the function, along with the
+    curve the browser actually runs as `cssEquivalent`, so an interrupted
+    animation can work out where it had got to.
+
+    Parameters:
+        easing - {Function} An easing function taking a value in [0..1] and
+                 returning the progress at that point.
+
+    Returns:
+        {Object[]} One entry per keyframe in offset order, with `offset`,
+        `progress` and, on all but the last, the CSS `easing` to the next.
+*/
+const splineEasing = (easing) => {
+    let pieces = easing.spline;
+    if (!pieces) {
+        pieces = [];
+        const addPiece = (x0, y0, x1, y1) => {
+            const length = x1 - x0;
+            const rise = y1 - y0;
+            // Slopes in the piece's own coordinates, where it runs 0 to 1.
+            const s0 = (slopeAt(easing, x0) * length) / rise;
+            const s1 = (slopeAt(easing, x1) * length) / rise;
+            const isFlat = Math.abs(rise) < 1e-6;
+            const shape = isFlat ? identity : hermite(round(s0), round(s1));
+            const errorAt = (u) =>
+                Math.abs(y0 + rise * shape(u) - easing(x0 + length * u));
+            if (
+                length > SPLINE_MIN_LENGTH &&
+                Math.max(errorAt(1 / 3), errorAt(2 / 3)) > SPLINE_TOLERANCE
+            ) {
+                const xm = (x0 + x1) / 2;
+                const ym = round(easing(xm));
+                addPiece(x0, y0, xm, ym);
+                addPiece(xm, ym, x1, y1);
+            } else {
+                pieces.push({
+                    offset: x0,
+                    progress: y0,
+                    shape,
+                    easing: isFlat
+                        ? 'linear'
+                        : 'cubic-bezier(0.3333,' +
+                          round(s0 / 3) +
+                          ',0.6667,' +
+                          round(1 - s1 / 3) +
+                          ')',
+                });
+            }
+        };
+        const start = round(easing(0));
+        const end = round(easing(1));
+        addPiece(0, start, 1, end);
+        pieces.push({ offset: 1, progress: end });
+        easing.spline = pieces;
+        easing.cssEquivalent = evaluateSpline(pieces);
+    }
+    return pieces;
+};
+
+const LINEAR_SAMPLES = 40;
 
 const piecewiseLinear = (samples) => (x) => {
     const last = samples.length - 1;
@@ -34,97 +151,37 @@ const piecewiseLinear = (samples) => (x) => {
     );
 };
 
-const FIT_SAMPLES = 20;
-
 /**
-    Function (private): O.StyleAnimation.fitCubicBezier
+    Function (private): O.StyleAnimation.linearEasing
 
-    Finds the cubic bezier closest to an arbitrary easing function, for
-    browsers without CSS `linear()` (Safari before 17.2). The control points
-    are searched on a coarse grid, with the second point's y fixed at 1 so
-    the curve comes to rest like the springs it stands in for; the standard
-    `ease` and `ease-out` curves are more than 0.3 out on those springs,
-    where this gets within about 0.05. It runs once per easing function.
+    Samples an easing function with no CSS form into a CSS `linear()` timing
+    function, for keyframes that can't be split into a spline (see
+    <canSplitFrame>). The browser interpolates between the two end values
+    itself, so the curve is exact, but WebKit runs a `linear()` easing on
+    the main thread.
 
     Parameters:
         easing - {Function} An easing function taking a value in [0..1] and
                  returning the progress at that point.
 
     Returns:
-        {Function} A cubic bezier easing from <O.Easing.cubicBezier>.
+        {Object} The CSS easing as `cssName`, and the curve the browser
+        actually runs as `evaluate`.
 */
-const fitCubicBezier = (easing) => {
-    const target = [];
-    for (let i = 1; i < FIT_SAMPLES; i += 1) {
-        target.push(easing(i / FIT_SAMPLES));
-    }
-    let best = null;
-    let bestError = Infinity;
-    for (let x1 = 0; x1 <= 10; x1 += 1) {
-        for (let y1 = 0; y1 <= 10; y1 += 1) {
-            for (let x2 = 0; x2 <= 10; x2 += 1) {
-                const candidate = cubicBezier(x1 / 10, y1 / 10, x2 / 10, 1);
-                let error = 0;
-                for (let i = 0; i < target.length; i += 1) {
-                    error += Math.abs(
-                        candidate((i + 1) / FIT_SAMPLES) - target[i],
-                    );
-                    if (error >= bestError) {
-                        break;
-                    }
-                }
-                if (error < bestError) {
-                    bestError = error;
-                    best = candidate;
-                }
-            }
+const linearEasing = (easing) => {
+    let linear = easing.linear;
+    if (!linear) {
+        const samples = [];
+        for (let i = 0; i <= LINEAR_SAMPLES; i += 1) {
+            samples.push(round(easing(i / LINEAR_SAMPLES)));
         }
+        linear = easing.linear = {
+            cssName: 'linear(' + samples.join(', ') + ')',
+            evaluate: piecewiseLinear(samples),
+        };
     }
-    return best;
+    return linear;
 };
-
-/**
-    Function: O.StyleAnimation.cssEasing
-
-    Returns the CSS timing function equivalent to a JS easing function.
-
-    Cubic beziers (and linear) carry their exact CSS form on `cssName`.
-    Anything else, such as the springs from <O.SpringUtils>, is sampled into
-    a CSS `linear()` function where the browser supports it, otherwise the
-    closest cubic bezier is used (see <fitCubicBezier>). The JS curve matching
-    what the browser actually runs is stored on the function as
-    `cssEquivalent`, so an interrupted animation can work out where it had
-    got to.
-
-    Parameters:
-        easing - {Function} An easing function taking a value in [0..1] and
-                 returning the progress at that point.
-
-    Returns:
-        {String} A value for CSS `animation-timing-function`.
-*/
-const cssEasing = (easing) => {
-    if (!easing.cssName) {
-        if (supportsLinearEasing) {
-            const samples = [];
-            for (let i = 0; i <= LINEAR_EASING_SAMPLES; i += 1) {
-                samples.push(
-                    Math.round(easing(i / LINEAR_EASING_SAMPLES) * 10000) /
-                        10000,
-                );
-            }
-            easing.cssName = 'linear(' + samples.join(', ') + ')';
-            easing.cssEquivalent = piecewiseLinear(samples);
-        } else {
-            const bezier = fitCubicBezier(easing);
-            easing.cssName = bezier.cssName;
-            easing.cssEquivalent = bezier;
-        }
-    }
-    return easing.cssName;
-};
-
-const evaluateEasing = (easing, x) => (easing.cssEquivalent || easing)(x);
 
 // --- Values
 
@@ -175,8 +232,9 @@ const isNumeric = (value) =>
 const isPx = (value) =>
     typeof value === 'number' || /^-?[\d.]+(?:px)?$/.test(value);
 
+// A zero is the same length in any unit, so takes the other value's.
 const unitOf = (property, from, to) => {
-    for (const value of [from, to]) {
+    for (const value of parseFloat(from) === 0 ? [to, from] : [from, to]) {
         if (typeof value === 'string') {
             const unit = value.replace(numbersRe, '');
             if (unit) {
@@ -285,6 +343,57 @@ const interpolate = (property, from, to, position) => {
     );
 };
 
+const leadingUnitRe = /^[a-z%]*/i;
+
+// Transforms that only translate, rotate or skew are at rest when every
+// number in them is 0, which is how interpolateTransform treats 'none'.
+const zeroIsIdentityRe = /^(?:\s*(?:translate|rotate|skew)\w*\([^)]*\))+\s*$/;
+
+// Transforms the browser interpolates number by number when both ends have
+// the same functions. Others (matrix, rotate3d, perspective) are decomposed
+// and interpolated as a whole, following a different path.
+const perNumberRe =
+    /^(?:\s*(?:translate(?:[XYZ]|3d)?|scale(?:[XYZ]|3d)?|rotate[XYZ]?|skew[XY]?)\([^)]*\))+\s*$/;
+
+// Does interpolate() give the same value part way through this frame as the
+// browser would? Only then can it be played as spline keyframes.
+const canSplitFrame = ({ property, from, to }) => {
+    if (property !== 'transform') {
+        return (
+            parseFloat(from) === 0 ||
+            parseFloat(to) === 0 ||
+            unitOf(property, from, from) === unitOf(property, to, to)
+        );
+    }
+    from = cssString(property, from);
+    to = cssString(property, to);
+    if (from === 'none' || to === 'none') {
+        return zeroIsIdentityRe.test(from === 'none' ? to : from);
+    }
+    if (!perNumberRe.test(from)) {
+        return false;
+    }
+    const start = splitTransform(from);
+    const end = splitTransform(to);
+    if (start.length !== end.length || start[0] !== end[0]) {
+        return false;
+    }
+    // Each number's unit must match, though a bare 0 takes the other's.
+    for (let i = 2; i < start.length; i += 2) {
+        const startUnit = leadingUnitRe.exec(start[i])[0];
+        const endUnit = leadingUnitRe.exec(end[i])[0];
+        if (
+            start[i].slice(startUnit.length) !== end[i].slice(endUnit.length) ||
+            (startUnit !== endUnit &&
+                !(startUnit === '' && start[i - 1] === 0) &&
+                !(endUnit === '' && end[i - 1] === 0))
+        ) {
+            return false;
+        }
+    }
+    return true;
+};
+
 // --- StyleAnimation
 
 /**
@@ -362,6 +471,7 @@ class StyleAnimation {
 
         this._frames = null;
         this._animation = null;
+        this._evaluate = null;
         this._endStyles = null;
         this._timer = null;
 
@@ -480,18 +590,56 @@ class StyleAnimation {
         this._frames = keyframes;
 
         if (supportsWebAnimations && keyframes.length && duration) {
-            const start = {};
-            const end = {};
-            for (const frame of keyframes) {
-                const property = frame.property;
-                start[property] = cssString(property, frame.from);
-                end[property] = cssString(property, frame.to);
+            const curve = this.ease;
+            const options = { duration };
+            let webKeyframes;
+            if (curve.cssName || !keyframes.every(canSplitFrame)) {
+                const start = {};
+                const end = {};
+                for (const frame of keyframes) {
+                    const property = frame.property;
+                    start[property] = cssString(property, frame.from);
+                    end[property] = cssString(property, frame.to);
+                }
+                webKeyframes = [start, end];
+                if (curve.cssName) {
+                    options.easing = curve.cssName;
+                    this._evaluate = curve;
+                } else {
+                    const linear = linearEasing(curve);
+                    options.easing = linear.cssName;
+                    this._evaluate = linear.evaluate;
+                }
+            } else {
+                const pieces = splineEasing(curve);
+                const last = pieces.length - 1;
+                webKeyframes = pieces.map((piece, index) => {
+                    const keyframe = { offset: piece.offset };
+                    if (piece.easing) {
+                        keyframe.easing = piece.easing;
+                    }
+                    for (const frame of keyframes) {
+                        const property = frame.property;
+                        keyframe[property] = cssString(
+                            property,
+                            index === 0
+                                ? frame.from
+                                : index === last
+                                  ? frame.to
+                                  : interpolate(
+                                        property,
+                                        frame.from,
+                                        frame.to,
+                                        piece.progress,
+                                    ),
+                        );
+                    }
+                    return keyframe;
+                });
+                this._evaluate = curve.cssEquivalent;
             }
             try {
-                const animation = element.animate([start, end], {
-                    duration,
-                    easing: cssEasing(this.ease),
-                });
+                const animation = element.animate(webKeyframes, options);
                 animation.onfinish = () =>
                     invoke(this._animationDidFinish, this);
                 this._animation = animation;
@@ -595,7 +743,7 @@ class StyleAnimation {
         let position = 1;
         if (animation && duration) {
             const time = Number(animation.currentTime) || 0;
-            position = evaluateEasing(this.ease, Math.min(time / duration, 1));
+            position = this._evaluate(Math.min(time / duration, 1));
         }
         for (const { property, from, to } of this._frames) {
             const value = interpolate(property, from, to, position);
@@ -634,6 +782,7 @@ class StyleAnimation {
         this._endStyles = null;
         this._frames = null;
         this._animation = null;
+        this._evaluate = null;
         this._timer = null;
         this.isRunning = false;
 
@@ -658,8 +807,11 @@ StyleAnimation.prototype.duration = 300;
     Type: Function
     Default: O.Easing.ease
 
-    The easing function to use for the animation.
+    The easing function to use for the animation. Cubic beziers from
+    <O.Easing> are passed to the browser exactly; any other function is
+    fitted with keyframes (see <splineEasing>), or sampled into a CSS
+    `linear()` easing if the values can't be split (see <linearEasing>).
 */
 StyleAnimation.prototype.ease = ease;
 
-export { StyleAnimation, cssEasing, fitCubicBezier };
+export { StyleAnimation, splineEasing };

@@ -2,13 +2,12 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
 import {
-    cssEasing,
     Easing,
-    fitCubicBezier,
     isUnset,
     makeElement,
     makeObject,
     reducedMotionQuery,
+    splineEasing,
     SpringUtils,
     StyleAnimation,
     wait,
@@ -386,46 +385,156 @@ describe('StyleAnimation', () => {
     });
 });
 
-describe('cssEasing', () => {
-    test('passes cubic beziers through exactly', () => {
-        assert.equal(cssEasing(ease), 'cubic-bezier(0.25,0.1,0.25,1)');
-        assert.equal(cssEasing(linear), 'linear');
+describe('easing', () => {
+    test('passes cubic beziers to the browser exactly', () => {
+        const { element, animation } = setup({ opacity: 0 });
+        animation.animate({ opacity: 1 }, 100, ease);
+        const [webAnimation] = element.animations;
+        assert.equal(webAnimation.keyframes.length, 2);
+        assert.deepEqual(webAnimation.options, {
+            duration: 100,
+            easing: 'cubic-bezier(0.25,0.1,0.25,1)',
+        });
     });
 
-    test('samples other curves into linear() and evaluates the same curve', () => {
+    test('fits other curves with a few bezier pieces', () => {
+        const { createScreenTransition, createReleaseTransition } = SpringUtils;
+        for (const curve of [
+            createScreenTransition().easing,
+            createReleaseTransition(0, 1).easing,
+            createReleaseTransition(40, 1).easing,
+            createReleaseTransition(-10, 1).easing,
+        ]) {
+            const pieces = splineEasing(curve);
+            assert.equal(splineEasing(curve), pieces, 'cached on the function');
+            assert.ok(pieces.length <= 16, `few pieces (${pieces.length})`);
+            assert.equal(pieces[0].offset, 0);
+            assert.equal(pieces[pieces.length - 1].offset, 1);
+            assert.equal(pieces[pieces.length - 1].easing, undefined);
+            for (let i = 1; i < pieces.length; i += 1) {
+                assert.ok(pieces[i].offset > pieces[i - 1].offset, 'in order');
+                assert.match(pieces[i - 1].easing, /^cubic-bezier\(0\.3333,/);
+            }
+            for (let i = 0; i <= 400; i += 1) {
+                const x = i / 400;
+                assert.ok(
+                    Math.abs(curve.cssEquivalent(x) - curve(x)) < 0.0015,
+                    `follows the curve at ${x}`,
+                );
+            }
+        }
+    });
+
+    test('plays other curves as keyframes with bezier easings', () => {
         const spring = bouncelessSpring({ mass: 0.23, stiffness: 30 });
-        const css = cssEasing(spring);
-        const samples = css.slice('linear('.length, -1).split(', ');
+        const { element, animation } = setup({
+            transform: 'translate3d(100%,0,0)',
+            opacity: 0,
+        });
+        animation.animate(
+            { transform: 'translate3d(0,0,0)', opacity: 1 },
+            400,
+            spring,
+        );
+        const [webAnimation] = element.animations;
+        assert.deepEqual(webAnimation.options, { duration: 400 });
+        const pieces = splineEasing(spring);
+        assert.equal(webAnimation.keyframes.length, pieces.length);
+        assert.deepEqual(webAnimation.keyframes[0], {
+            offset: 0,
+            easing: pieces[0].easing,
+            transform: 'translate3d(100%,0,0)',
+            opacity: '0',
+        });
 
-        assert.equal(samples.length, 41);
-        assert.equal(samples[0], '0');
-        assert.equal(spring.cssName, css, 'cached on the function');
+        const middle = webAnimation.keyframes[2];
+        const piece = pieces[2];
+        assert.equal(middle.offset, piece.offset);
+        assert.equal(middle.easing, piece.easing);
+        assert.equal(middle.opacity, String(piece.progress));
+        const translate = /^translate3d\(([\d.]+)%,0,0\)$/.exec(
+            middle.transform,
+        );
+        assert.ok(translate, `a percentage translate (${middle.transform})`);
+        assert.ok(Math.abs(translate[1] - 100 * (1 - piece.progress)) < 1e-9);
 
-        for (const x of [0, 0.1, 0.33, 0.5125, 0.9, 1]) {
-            assert.ok(
-                Math.abs(spring.cssEquivalent(x) - spring(x)) < 0.01,
-                `matches the spring at ${x}`,
+        assert.deepEqual(webAnimation.keyframes.at(-1), {
+            offset: 1,
+            transform: 'translate3d(0,0,0)',
+            opacity: '1',
+        });
+
+        // Interrupting it reads where the fitted curve had got to.
+        webAnimation.currentTime = 200;
+        animation.animate({ opacity: 0 }, 400, spring);
+        assert.equal(
+            element.animations[1].keyframes[0].opacity,
+            String(spring.cssEquivalent(0.5)),
+        );
+    });
+
+    test('plays values it cannot split with a linear() easing', () => {
+        const spring = bouncelessSpring({ mass: 0.23, stiffness: 30 });
+        for (const [from, to] of [
+            [{ transform: 'none' }, { transform: 'scale(0.5)' }],
+            [
+                { transform: 'translate3d(10px,0,0)' },
+                { transform: 'translate3d(-30%,0,0)' },
+            ],
+            [{ transform: 'scale(1)' }, { transform: 'rotate(10deg)' }],
+            [
+                { transform: 'matrix(1,0,0,1,0,0)' },
+                { transform: 'matrix(0,1,-1,0,0,0)' },
+            ],
+            [
+                { transform: 'rotate3d(0,0,1,0deg)' },
+                { transform: 'rotate3d(0,1,0,90deg)' },
+            ],
+            [{ left: '10px' }, { left: '50%' }],
+        ]) {
+            const { element, animation } = setup(from);
+            animation.animate(to, 400, spring);
+            const [webAnimation] = element.animations;
+            assert.equal(webAnimation.keyframes.length, 2);
+            assert.match(webAnimation.options.easing, /^linear\(0, /);
+
+            // Interrupting it reads where the sampled curve had got to.
+            webAnimation.currentTime = 200;
+            animation.stop();
+            animation.current = { opacity: 0 };
+            animation.animate({ opacity: 1 }, 400, spring);
+            element.animations[1].currentTime = 200;
+            animation.animate({ opacity: 0 }, 400, spring);
+            assert.equal(
+                element.animations[2].keyframes[0].opacity,
+                String(spring.cssEquivalent(0.5)),
             );
         }
-        assert.equal(spring.cssEquivalent(0.5), Number(samples[20]));
     });
 
-    test('fits a cubic bezier to a spring for browsers without linear()', () => {
-        const maxError = (curve, spring) => {
-            let max = 0;
-            for (let i = 0; i <= 100; i += 1) {
-                max = Math.max(max, Math.abs(curve(i / 100) - spring(i / 100)));
-            }
-            return max;
-        };
-        for (const options of [
-            { velocity: 1, mass: 0.23, stiffness: 30 },
-            { mass: 0.8, stiffness: 60 },
+    test('splits translates from none and a bare 0 into any unit', () => {
+        const spring = bouncelessSpring({ mass: 0.23, stiffness: 30 });
+        for (const [from, to] of [
+            [{ transform: 'none' }, { transform: 'translate3d(-30%,0,0)' }],
+            [
+                { transform: 'translate3d(0,0,0)' },
+                { transform: 'translate3d(-30%,0,0)' },
+            ],
+            [{ left: 0 }, { left: '50%' }],
+            [{ left: '0px' }, { left: '50%' }],
         ]) {
-            const spring = bouncelessSpring(options);
-            const bezier = fitCubicBezier(spring);
-            assert.match(bezier.cssName, /^cubic-bezier\(/);
-            assert.ok(maxError(bezier, spring) < 0.06, 'close to the spring');
+            const { element, animation } = setup(from);
+            animation.animate(to, 400, spring);
+            const [webAnimation] = element.animations;
+            assert.equal(
+                webAnimation.keyframes.length,
+                splineEasing(spring).length,
+            );
+            assert.equal(webAnimation.options.easing, undefined);
+            for (const keyframe of webAnimation.keyframes.slice(1)) {
+                const value = keyframe.transform || keyframe.left;
+                assert.ok(value.includes('%'), value);
+            }
         }
     });
 });

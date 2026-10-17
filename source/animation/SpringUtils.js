@@ -67,9 +67,8 @@ const SCREEN_SETTLED = 0.001;
     screen transition. With no velocity or offset, the motion is the same as
     a UINavigationController push on iOS 26 and 27, and the duration ends
     once it is visibly finished. The velocity is rounded to the nearest
-    quarter so transitions can be shared: the CSS form of a spring is worked
-    out once per easing function, and that can take a few milliseconds just
-    as the animation starts.
+    quarter so transitions can be shared: the keyframes for a spring are
+    fitted once per easing function (see <O.StyleAnimation>).
 
     Parameters:
         velocity - {Number} (optional) see `O.Easing#bouncelessSpring`

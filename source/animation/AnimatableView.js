@@ -49,8 +49,7 @@ const AnimatableView = {
 
         The easing function to use for the animation of the view's layer styles.
         Cubic beziers from <O.Easing> are passed to the browser exactly; other
-        functions are approximated with a CSS `linear()` timing function, or
-        the closest cubic bezier where the browser lacks `linear()`.
+        functions are fitted with keyframes (see <O.StyleAnimation>).
     */
     animateLayerEasing: ease,
 
