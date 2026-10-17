@@ -9,6 +9,7 @@ import {
     makeElement,
     makeObject,
     reducedMotionQuery,
+    SpringUtils,
     StyleAnimation,
     wait,
 } from './helpers.mjs';
@@ -426,5 +427,58 @@ describe('cssEasing', () => {
             assert.match(bezier.cssName, /^cubic-bezier\(/);
             assert.ok(maxError(bezier, spring) < 0.06, 'close to the spring');
         }
+    });
+});
+
+describe('SpringUtils', () => {
+    const { createScreenTransition, createReleaseTransition } = SpringUtils;
+
+    // Speed in fractions of the distance per second at the start.
+    const startSpeed = ({ easing, duration }) =>
+        (easing(1e-4) - easing(0)) / ((1e-4 * duration) / 1000);
+
+    test('screen transitions match a native push', () => {
+        const { easing, duration } = createScreenTransition();
+        // Critically damped from rest at 22 radians per second.
+        const native = (t) => 1 - (1 + 22 * t) * Math.exp(-22 * t);
+        assert.ok(Math.abs(duration - 420) < 5, `about 420ms (${duration})`);
+        for (let i = 0; i <= 20; i += 1) {
+            const x = i / 20;
+            assert.ok(
+                Math.abs(easing(x) - native((x * duration) / 1000)) < 1e-6,
+            );
+        }
+        assert.ok(1 - easing(1) <= 0.001, 'ends within 0.1%');
+    });
+
+    test('a release carries on at the given speed and settles', () => {
+        for (const velocity of [0, 4, 15]) {
+            const transition = createReleaseTransition(velocity, 1);
+            const { easing } = transition;
+            assert.equal(easing(0), 0);
+            assert.ok(
+                Math.abs(startSpeed(transition) - velocity) < 0.05,
+                `starts at ${velocity}`,
+            );
+            assert.ok(Math.abs(1 - easing(1)) <= 0.001, 'ends within 0.1%');
+            let peak = 0;
+            for (let i = 0; i <= 200; i += 1) {
+                peak = Math.max(peak, easing(i / 200));
+            }
+            assert.ok(peak > 1, 'overshoots a little');
+        }
+        assert.ok(
+            createReleaseTransition(40, 1).easing(0.2) > 1.1,
+            'a fast flick overshoots further',
+        );
+    });
+
+    test('a release moving away turns round first', () => {
+        const { easing } = createReleaseTransition(-100, 10);
+        let lowest = 0;
+        for (let i = 0; i <= 200; i += 1) {
+            lowest = Math.min(lowest, easing(i / 200));
+        }
+        assert.ok(lowest < -0.05, `goes back first (${lowest})`);
     });
 });

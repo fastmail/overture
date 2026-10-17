@@ -12,6 +12,7 @@ export {
 export {
     createSpringTransition,
     createScreenTransition,
+    createReleaseTransition,
     defaultScreenTransition,
 } from './SpringUtils.js';
 export { StyleAnimation, cssEasing } from './StyleAnimation.js';

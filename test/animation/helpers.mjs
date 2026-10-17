@@ -45,8 +45,9 @@ globalThis.requestAnimationFrame = (fn) => setTimeout(() => fn(Date.now()), 16);
 const { StyleAnimation, cssEasing, fitCubicBezier } =
     await import('../../source/animation/StyleAnimation.js');
 const Easing = await import('../../source/animation/Easing.js');
+const SpringUtils = await import('../../source/animation/SpringUtils.js');
 
-export { StyleAnimation, cssEasing, fitCubicBezier, Easing };
+export { StyleAnimation, cssEasing, fitCubicBezier, Easing, SpringUtils };
 
 export const makeElement = () => {
     const element = {
