@@ -46,11 +46,30 @@ const createSpringTransition = (springOptions) => {
     return { duration, easing };
 };
 
+// The spring of a UINavigationController push on iOS 26 and 27, measured
+// from UIKit: critically damped, starting from rest, with this angular
+// frequency in radians per second.
+const SCREEN_FREQUENCY = 22;
+
+// The spring these transitions are expressed in, which sets the scale of
+// the velocity passed in: 1 is a speed of sqrt(30 / 0.23) times the
+// distance per second of spring time.
+const SCREEN_SPRING = { mass: 0.23, stiffness: 30 };
+
+// A transition ends this close to its destination, under half a pixel on
+// a phone-width move.
+const SCREEN_SETTLED = 0.001;
+
 /**
     Function: O.SpringUtils#createScreenTransition
 
-    Utility for creating an animation with good defaults for an iOS-like
-    stack navigator screen transition.
+    Utility for creating an animation that matches an iOS stack navigator
+    screen transition. With no velocity or offset, the motion is the same as
+    a UINavigationController push on iOS 26 and 27, and the duration ends
+    once it is visibly finished. The velocity is rounded to the nearest
+    quarter so transitions can be shared: the CSS form of a spring is worked
+    out once per easing function, and that can take a few milliseconds just
+    as the animation starts.
 
     Parameters:
         velocity - {Number} (optional) see `O.Easing#bouncelessSpring`
@@ -59,13 +78,38 @@ const createSpringTransition = (springOptions) => {
     Returns:
         {Object} see `O.SpringUtils#createSpringTransition
  */
-const createScreenTransition = (velocity = 1, offset = 0) =>
-    createSpringTransition({
-        velocity: limit(velocity, 0, 10),
-        offset,
-        mass: 0.23,
-        stiffness: 30,
-    });
+const screenTransitions = new Map();
+const createScreenTransition = (velocity = 0, offset = 0) => {
+    velocity = Math.round(limit(velocity, 0, 10) * 4) / 4;
+    const key = velocity + ',' + offset;
+    let transition = screenTransitions.get(key);
+    if (!transition) {
+        const spring = bouncelessSpring({
+            ...SCREEN_SPRING,
+            velocity,
+            offset,
+        });
+        // Find how long the spring takes to settle, in its own time, then
+        // play exactly that much of it, at the speed that gives the
+        // native frequency in real time.
+        let settled = 0;
+        do {
+            settled += 0.001;
+        } while (
+            Math.abs(1 - spring(settled)) >= SCREEN_SETTLED &&
+            settled < 5
+        );
+        const frequency = Math.sqrt(
+            SCREEN_SPRING.stiffness / SCREEN_SPRING.mass,
+        );
+        transition = {
+            duration: ((settled * frequency) / SCREEN_FREQUENCY) * 1000,
+            easing: (x) => spring(x * settled),
+        };
+        screenTransitions.set(key, transition);
+    }
+    return transition;
+};
 
 /**
     Property: O.SpringUtils#defaultScreenTransition
