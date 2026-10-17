@@ -4,6 +4,11 @@ import { StyleAnimation } from './StyleAnimation.js';
 /* { property } from */
 import '../foundation/Decorators.js';
 
+// Transform and opacity don't change the layout, so the view and its
+// children needn't be told they may have resized.
+const affectsLayout = (property) =>
+    property !== 'opacity' && property !== 'transform';
+
 /**
     Mixin: O.AnimatableView
 
@@ -81,10 +86,7 @@ const AnimatableView = {
         if (
             !this.get('animating') &&
             animation instanceof StyleAnimation &&
-            animation.animated.some(
-                (property) =>
-                    property !== 'opacity' && property !== 'transform',
-            )
+            animation.animated.some(affectsLayout)
         ) {
             this.parentViewDidResize();
         }
@@ -136,7 +138,16 @@ const AnimatableView = {
             }
         } else {
             layerAnimation.set(newStyles);
-            this.parentViewDidResize();
+            if (
+                !oldStyles ||
+                Object.keys(Object.assign({}, oldStyles, newStyles)).some(
+                    (property) =>
+                        oldStyles[property] !== newStyles[property] &&
+                        affectsLayout(property),
+                )
+            ) {
+                this.parentViewDidResize();
+            }
         }
     },
 
