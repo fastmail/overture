@@ -537,6 +537,68 @@ describe('easing', () => {
             }
         }
     });
+
+    test('holds the first keyframe before the motion', () => {
+        const spring = bouncelessSpring({ mass: 0.23, stiffness: 30 });
+        const { element, animation } = setup({
+            transform: 'translate3d(100%,0,0)',
+        });
+        animation.startHold = 40;
+        animation.animate({ transform: 'translate3d(0,0,0)' }, 360, spring);
+        const [webAnimation] = element.animations;
+        assert.deepEqual(webAnimation.options, { duration: 400 });
+        const pieces = splineEasing(spring);
+        const keyframes = webAnimation.keyframes;
+        assert.equal(keyframes.length, pieces.length + 1);
+        assert.deepEqual(keyframes[0], {
+            offset: 0,
+            easing: 'linear',
+            transform: 'translate3d(100%,0,0)',
+        });
+        assert.deepEqual(keyframes[1], {
+            offset: 0.1,
+            easing: pieces[0].easing,
+            transform: 'translate3d(100%,0,0)',
+        });
+        assert.ok(
+            Math.abs(keyframes[3].offset - (0.1 + 0.9 * pieces[2].offset)) <
+                1e-4,
+        );
+        assert.equal(keyframes.at(-1).offset, 1);
+
+        // Interrupting it counts time from the end of the hold.
+        webAnimation.currentTime = 20;
+        animation.animate({ transform: 'translate3d(50%,0,0)' }, 360, spring);
+        assert.equal(
+            element.animations[1].keyframes[0].transform,
+            'translate3d(100%,0,0)',
+        );
+        element.animations[1].currentTime = 220;
+        animation.animate({ transform: 'none' }, 360, spring);
+        const position = spring.cssEquivalent(0.5);
+        const expected = 100 + position * (50 - 100);
+        const transform = /^translate3d\(([\d.]+)%,0,0\)$/.exec(
+            element.animations[2].keyframes[0].transform,
+        );
+        assert.ok(Math.abs(transform[1] - expected) < 1e-9);
+    });
+
+    test('moves a whole-effect easing after the hold', () => {
+        const { element, animation } = setup({ opacity: 0 });
+        animation.startHold = 50;
+        animation.animate({ opacity: 1 }, 200, ease);
+        const [webAnimation] = element.animations;
+        assert.deepEqual(webAnimation.options, { duration: 250 });
+        assert.deepEqual(webAnimation.keyframes, [
+            { offset: 0, easing: 'linear', opacity: '0' },
+            {
+                offset: 0.2,
+                easing: 'cubic-bezier(0.25,0.1,0.25,1)',
+                opacity: '0',
+            },
+            { offset: 1, opacity: '1' },
+        ]);
+    });
 });
 
 describe('SpringUtils', () => {

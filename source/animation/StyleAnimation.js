@@ -1,5 +1,7 @@
+import { limit } from '../core/Math.js';
 import { setStyle } from '../dom/Element.js';
 import { cancel, invoke, invokeAfterDelay } from '../foundation/RunLoop.js';
+import { isIOS } from '../ua/UA.js';
 import { prefersReducedMotion } from './Animation.js';
 import { ease } from './Easing.js';
 
@@ -181,6 +183,31 @@ const linearEasing = (easing) => {
         };
     }
     return linear;
+};
+
+// Plays the first keyframe for `hold` ms before the rest, by remapping the
+// offsets into a longer duration. An easing for the whole effect moves to
+// the first real keyframe so it still spans just the motion.
+const withStartHold = (keyframes, options, hold) => {
+    const { duration, easing } = options;
+    const total = duration + hold;
+    const last = keyframes.length - 1;
+    const moving = keyframes.map((keyframe, index) => ({
+        ...keyframe,
+        offset: round(
+            (hold + (keyframe.offset ?? index / last) * duration) / total,
+        ),
+    }));
+    if (easing) {
+        moving[0].easing = easing;
+    }
+    return {
+        keyframes: [
+            { ...keyframes[0], offset: 0, easing: 'linear' },
+            ...moving,
+        ],
+        options: { duration: total },
+    };
 };
 
 // --- Values
@@ -472,6 +499,7 @@ class StyleAnimation {
         this._frames = null;
         this._animation = null;
         this._evaluate = null;
+        this._hold = 0;
         this._endStyles = null;
         this._timer = null;
 
@@ -591,7 +619,8 @@ class StyleAnimation {
 
         if (supportsWebAnimations && keyframes.length && duration) {
             const curve = this.ease;
-            const options = { duration };
+            const hold = (this._hold = this.startHold);
+            let options = { duration };
             let webKeyframes;
             if (curve.cssName || !keyframes.every(canSplitFrame)) {
                 const start = {};
@@ -637,6 +666,13 @@ class StyleAnimation {
                     return keyframe;
                 });
                 this._evaluate = curve.cssEquivalent;
+            }
+            if (hold) {
+                ({ keyframes: webKeyframes, options } = withStartHold(
+                    webKeyframes,
+                    options,
+                    hold,
+                ));
             }
             try {
                 const animation = element.animate(webKeyframes, options);
@@ -742,8 +778,8 @@ class StyleAnimation {
         const animation = this._animation;
         let position = 1;
         if (animation && duration) {
-            const time = Number(animation.currentTime) || 0;
-            position = this._evaluate(Math.min(time / duration, 1));
+            const time = (Number(animation.currentTime) || 0) - this._hold;
+            position = this._evaluate(limit(time / duration, 0, 1));
         }
         for (const { property, from, to } of this._frames) {
             const value = interpolate(property, from, to, position);
@@ -783,6 +819,7 @@ class StyleAnimation {
         this._frames = null;
         this._animation = null;
         this._evaluate = null;
+        this._hold = 0;
         this._timer = null;
         this.isRunning = false;
 
@@ -814,4 +851,38 @@ StyleAnimation.prototype.duration = 300;
 */
 StyleAnimation.prototype.ease = ease;
 
-export { StyleAnimation, splineEasing };
+/**
+    Property: O.StyleAnimation#startHold
+    Type: Number
+    Default: 40 on iOS, otherwise 0
+
+    How long, in milliseconds, to hold the first keyframe before the motion
+    starts. WebKit starts an animation's clock at the beginning of the frame
+    that creates it, but on iOS that frame reaches the screen 40-50ms later,
+    so without a hold the first frame seen is already a third of the way
+    through a screen transition. A delay or a future start time doesn't
+    help, as WebKit only hands the animation to the compositor once it has
+    started; a hold inside the keyframes is handed over at once, and spends
+    that latency standing still. 40ms covers most of it on a screen push,
+    leaving the first frame about as far in as a native UIKit animation's.
+    The hold lengthens the animation, so it finishes this much later.
+*/
+StyleAnimation.prototype.startHold = isIOS ? 40 : 0;
+
+/**
+    Function: O.StyleAnimation.playedDuration
+
+    How long an animation of the given duration takes from when it starts to
+    when it finishes, including the <O.StyleAnimation#startHold>. Time any
+    work that must wait for an animation to end by this.
+
+    Parameters:
+        duration - {Number} The animation's duration, in ms.
+
+    Returns:
+        {Number} The time until it finishes, in ms.
+*/
+const playedDuration = (duration) =>
+    duration ? duration + StyleAnimation.prototype.startHold : 0;
+
+export { StyleAnimation, splineEasing, playedDuration };
