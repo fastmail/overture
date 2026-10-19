@@ -564,6 +564,8 @@ class StyleAnimation {
         Type: String[]|null
 
         The properties changed by the current (or most recent) animation.
+        When an animation is interrupted by another, this includes the
+        properties the interrupted one changed too.
     */
 
     constructor(mixin) {
@@ -588,7 +590,9 @@ class StyleAnimation {
 
         Animate the element to the given styles. If an animation is already
         in progress it is stopped, and the new one starts from wherever the
-        element had got to.
+        element had got to. The object is not told the interrupted animation
+        finished: to it, the two are one continuous animation. If there is
+        nothing left to animate, it is told after this returns.
 
         Parameters:
             styles   - {Object} A map of style name to desired value. A value
@@ -601,7 +605,9 @@ class StyleAnimation {
     */
     animate(styles, duration, easing) {
         const element = this.element;
-        if (this.isRunning) {
+        const wasRunning = this.isRunning;
+        const interrupted = wasRunning ? this.animated : [];
+        if (wasRunning) {
             this._interrupt();
         }
         const from = this.current || {};
@@ -685,7 +691,17 @@ class StyleAnimation {
             }
         }
 
-        if (!animated.length) {
+        const hasChanges = !!animated.length;
+
+        // To the object this continues the interrupted animation, so
+        // report what either changed when it finishes.
+        for (const property of interrupted) {
+            if (!animated.includes(property)) {
+                animated.push(property);
+            }
+        }
+
+        if (!hasChanges && !wasRunning) {
             return this;
         }
 
@@ -714,11 +730,17 @@ class StyleAnimation {
             }
         }
         if (!this._animation) {
-            this._timer = invokeAfterDelay(this._finish, duration, this);
+            // An interrupt that left nothing to animate still finishes
+            // asynchronously, as the caller may be in the middle of a redraw.
+            this._timer = invokeAfterDelay(
+                this._finish,
+                hasChanges ? duration : 0,
+                this,
+            );
         }
 
         const object = this.object;
-        if (object && object.willAnimate) {
+        if (!wasRunning && object && object.willAnimate) {
             object.willAnimate(this);
         }
         return this;
@@ -799,7 +821,8 @@ class StyleAnimation {
     // interpolated values are written as its inline styles and to `current`,
     // so the next animation starts from them and `current` stays an exact
     // record of what is on the element. A deferred display or overflow
-    // change is dropped.
+    // change is dropped. The object is not told; the caller is about to
+    // start the next animation or tell it itself.
     _interrupt() {
         const element = this.element;
         const current = this.current;
@@ -816,7 +839,8 @@ class StyleAnimation {
             setStyle(element, property, value);
         }
         this._endStyles = null;
-        this._stop();
+        this._cancel();
+        this._settle();
     }
 
     _animationDidFinish() {
@@ -826,15 +850,24 @@ class StyleAnimation {
     }
 
     _stop() {
+        this._cancel();
+        this._finish();
+    }
+
+    _cancel() {
         const animation = this._animation;
         if (animation) {
             animation.onfinish = null;
             animation.cancel();
         }
-        this._finish();
     }
 
     _finish() {
+        this._settle();
+        this._didAnimate();
+    }
+
+    _settle() {
         const element = this.element;
         const endStyles = this._endStyles;
         for (const property in endStyles) {
@@ -851,7 +884,9 @@ class StyleAnimation {
         this._hold = 0;
         this._timer = null;
         this.isRunning = false;
+    }
 
+    _didAnimate() {
         const object = this.object;
         if (object && object.didAnimate) {
             object.didAnimate(this);

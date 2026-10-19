@@ -173,22 +173,90 @@ describe('StyleAnimation', () => {
             { opacity: '0.5' },
             { opacity: '0' },
         ]);
-        assert.deepEqual(object.events, ['will', 'did', 'will']);
+        assert.deepEqual(object.events, ['will']);
         assert.equal(object.animating, 1);
+
+        element.animations[1].finish();
+        assert.deepEqual(object.events, ['will', 'did']);
+        assert.equal(object.animating, 0);
     });
 
-    test('writes the interrupted value even when it is the new target', () => {
-        const { element, animation } = setup({ opacity: 0 });
+    test('reports an interrupted property when the next one finishes', () => {
+        const { element, object, animation } = setup({
+            height: 'auto',
+            opacity: 0,
+        });
+        let reported = null;
+        object.didAnimate = function (styleAnimation) {
+            this.animating -= 1;
+            reported = styleAnimation.animated.slice();
+        };
+        // Held, not interpolated, so the next animation leaves it alone.
+        animation.animate({ height: 100, opacity: 0 }, 100, linear);
+        animation.animate({ height: 100, opacity: 1 }, 100, linear);
+        assert.deepEqual(element.animations[0].keyframes, [
+            { opacity: '0' },
+            { opacity: '1' },
+        ]);
+        element.animations[0].finish();
+
+        assert.deepEqual(reported.sort(), ['height', 'opacity']);
+        assert.equal(object.animating, 0);
+    });
+
+    test('writes the interrupted value even when it is the new target', async () => {
+        const { element, object, animation } = setup({ opacity: 0 });
         animation.animate({ opacity: 1 }, 100, linear);
         assert.equal(element.style.opacity, 1);
 
         // Still play-pending, so visually at the start.
         animation.animate({ opacity: 0 }, 100, linear);
 
-        assert.equal(animation.isRunning, false, 'nothing to animate');
-        assert.equal(element.animations.length, 1);
+        assert.equal(element.animations.length, 1, 'nothing to animate');
         assert.equal(element.style.opacity, '0');
         assert.equal(animation.current.opacity, 0);
+        assert.deepEqual(object.events, ['will'], 'not told mid-call');
+
+        await wait(20);
+        assert.equal(animation.isRunning, false);
+        assert.deepEqual(object.events, ['will', 'did']);
+        assert.equal(object.animating, 0);
+    });
+
+    test('stop after a retarget reports finished once', () => {
+        const { object, animation } = setup({ opacity: 0 });
+        animation.animate({ opacity: 1 }, 100, linear);
+        animation.animate({ opacity: 0.5 }, 100, linear);
+        animation.stop();
+        animation.stop();
+        assert.deepEqual(object.events, ['will', 'did']);
+        assert.equal(object.animating, 0);
+    });
+
+    test('set after a retarget reports finished once', async () => {
+        const { object, animation } = setup({ opacity: 0 });
+        animation.animate({ opacity: 1 }, 100, linear);
+        animation.animate({ opacity: 0 }, 100, linear);
+        animation.set({ opacity: 1 });
+        await wait(20);
+        assert.deepEqual(object.events, ['will', 'did']);
+        assert.equal(object.animating, 0);
+    });
+
+    test('a retarget without Web Animations reports finished once', async () => {
+        reducedMotionQuery.set(true);
+        try {
+            const { object, animation } = setup({ opacity: 0 });
+            animation.animate({ opacity: 1 }, 300);
+            animation.animate({ opacity: 0.5 }, 300);
+            assert.deepEqual(object.events, ['will']);
+            await wait(20);
+            assert.equal(animation.isRunning, false);
+            assert.deepEqual(object.events, ['will', 'did']);
+            assert.equal(object.animating, 0);
+        } finally {
+            reducedMotionQuery.set(false);
+        }
     });
 
     test('restarts an interrupted top move from where the transform is', () => {
