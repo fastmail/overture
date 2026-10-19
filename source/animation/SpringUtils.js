@@ -1,29 +1,29 @@
 import { limit } from '../core/Math.js';
 import { bouncelessSpring } from './Easing.js';
 
-/**
-    Function (private): O.SpringUtils#estimateSpringDuration
+// A transition ends this close to its destination, under half a pixel on
+// a phone-width move.
+const SETTLED = 0.001;
 
-    Provides an estimated duration of the given easing function.
+// How long, in seconds, a spring takes to come within SETTLED of its
+// destination for good. Searching back from the end finds when a bouncy
+// spring last leaves that range, not when it first passes through it.
+const settleTime = (spring) => {
+    let time = 2;
+    while (time > 0 && Math.abs(1 - spring(time - 0.001)) < SETTLED) {
+        time -= 0.001;
+    }
+    return time;
+};
 
-    Parameters:
-        easing      - {Function} An easing function that takes a value in [0..1]
-                      and returns a value in [0..1]
-        maxDuration - {Number} A limit for the returned duration in milliseconds
-
-    Returns:
-        {Number} The estimated duration of the animation in milliseconds
- */
-const estimateSpringDuration = (easing, maxDuration = 1000) => {
-    maxDuration /= 1000;
-    const timestep = 1 / 120;
-    let elapsedDuration = 0;
-    let isDone = false;
-    do {
-        elapsedDuration += timestep;
-        isDone = Math.abs(1 - easing(elapsedDuration)) < timestep;
-    } while (!isDone && elapsedDuration < maxDuration);
-    return elapsedDuration * 1000;
+// Plays a spring, given as its progress at time t (seconds), in real time
+// until it settles.
+const springTransition = (spring) => {
+    const settled = settleTime(spring);
+    return {
+        duration: settled * 1000,
+        easing: (x) => spring(x * settled),
+    };
 };
 
 /**
@@ -37,23 +37,17 @@ const estimateSpringDuration = (easing, maxDuration = 1000) => {
     Returns:
         {Object} An object with easing and duration properties, described below:
 
-        - duration: {Number} the estimated duration of the animation
+        - duration: {Number} how long the spring takes to settle, in ms
         - easing: {Function} the easing function that describes the animation
  */
 const createSpringTransition = (springOptions) => {
-    const easing = bouncelessSpring(springOptions);
-    const duration = estimateSpringDuration(easing);
-    return { duration, easing };
+    return springTransition(bouncelessSpring(springOptions));
 };
 
 // The spring of a UINavigationController push on iOS 26 and 27, measured
 // from UIKit: critically damped, starting from rest, with this angular
 // frequency in radians per second.
 const SCREEN_FREQUENCY = 22;
-
-// A transition ends this close to its destination, under half a pixel on
-// a phone-width move.
-const SCREEN_SETTLED = 0.001;
 
 /**
     Property: O.SpringUtils#defaultScreenTransition
@@ -66,15 +60,7 @@ const SCREEN_SETTLED = 0.001;
 const defaultScreenTransition = (() => {
     const omega = SCREEN_FREQUENCY;
     // Progress at time t (seconds), starting at rest.
-    const spring = (t) => 1 - (1 + omega * t) * Math.exp(-omega * t);
-    let settled = 0;
-    do {
-        settled += 0.001;
-    } while (Math.abs(1 - spring(settled)) >= SCREEN_SETTLED);
-    return {
-        duration: settled * 1000,
-        easing: (x) => spring(x * settled),
-    };
+    return springTransition((t) => 1 - (1 + omega * t) * Math.exp(-omega * t));
 })();
 
 // The spring a page settles with after the finger lifts from an iOS swipe
@@ -132,17 +118,7 @@ const createReleaseTransition = (velocity, distance) => {
             Math.exp(-decay * t) *
                 (Math.cos(damped * t) +
                     ((decay - velocity) / damped) * Math.sin(damped * t));
-        let settled = 2;
-        while (
-            settled > 0 &&
-            Math.abs(1 - spring(settled - 0.001)) < SCREEN_SETTLED
-        ) {
-            settled -= 0.001;
-        }
-        transition = {
-            duration: settled * 1000,
-            easing: (x) => spring(x * settled),
-        };
+        transition = springTransition(spring);
         releaseTransitions.set(velocity, transition);
     }
     return transition;
