@@ -423,6 +423,81 @@ const canSplitFrame = ({ property, from, to }) => {
     return true;
 };
 
+/**
+    Function (private): O.StyleAnimation.webAnimation
+
+    Works out how to play the given frames with the Web Animations API. A
+    CSS easing is passed straight through; any other curve is fitted with
+    spline keyframes (see <splineEasing>), or sampled into a CSS `linear()`
+    easing if the values can't be split (see <canSplitFrame>). The first
+    keyframe is then held for `hold` ms (see <O.StyleAnimation#startHold>).
+
+    Parameters:
+        frames   - {Object[]} The properties to animate, each with
+                   `property`, `from` and `to`.
+        curve    - {Function} The easing function.
+        duration - {Number} The length of the motion in ms.
+        hold     - {Number} How long to hold the first keyframe, in ms.
+
+    Returns:
+        {Object} The `keyframes` and `options` for `Element#animate`, and
+        the curve the browser actually runs over the motion as `evaluate`.
+*/
+const webAnimation = (frames, curve, duration, hold) => {
+    let keyframes;
+    let options = { duration };
+    let evaluate;
+    if (curve.cssName || !frames.every(canSplitFrame)) {
+        const start = {};
+        const end = {};
+        for (const frame of frames) {
+            const property = frame.property;
+            start[property] = cssString(property, frame.from);
+            end[property] = cssString(property, frame.to);
+        }
+        keyframes = [start, end];
+        if (curve.cssName) {
+            options.easing = curve.cssName;
+            evaluate = curve;
+        } else {
+            const linear = linearEasing(curve);
+            options.easing = linear.cssName;
+            evaluate = linear.evaluate;
+        }
+    } else {
+        const spline = splineEasing(curve);
+        const last = spline.pieces.length - 1;
+        keyframes = spline.pieces.map((piece, index) => {
+            const keyframe = { offset: piece.offset };
+            if (piece.easing) {
+                keyframe.easing = piece.easing;
+            }
+            for (const frame of frames) {
+                const property = frame.property;
+                keyframe[property] = cssString(
+                    property,
+                    index === 0
+                        ? frame.from
+                        : index === last
+                          ? frame.to
+                          : interpolate(
+                                property,
+                                frame.from,
+                                frame.to,
+                                piece.progress,
+                            ),
+                );
+            }
+            return keyframe;
+        });
+        evaluate = spline.evaluate;
+    }
+    if (hold) {
+        ({ keyframes, options } = withStartHold(keyframes, options, hold));
+    }
+    return { keyframes, options, evaluate };
+};
+
 // --- StyleAnimation
 
 /**
@@ -620,64 +695,16 @@ class StyleAnimation {
         this._frames = keyframes;
 
         if (supportsWebAnimations && keyframes.length && duration) {
-            const curve = this.ease;
-            const hold = (this._hold = this.startHold);
-            let options = { duration };
-            let webKeyframes;
-            if (curve.cssName || !keyframes.every(canSplitFrame)) {
-                const start = {};
-                const end = {};
-                for (const frame of keyframes) {
-                    const property = frame.property;
-                    start[property] = cssString(property, frame.from);
-                    end[property] = cssString(property, frame.to);
-                }
-                webKeyframes = [start, end];
-                if (curve.cssName) {
-                    options.easing = curve.cssName;
-                    this._evaluate = curve;
-                } else {
-                    const linear = linearEasing(curve);
-                    options.easing = linear.cssName;
-                    this._evaluate = linear.evaluate;
-                }
-            } else {
-                const { pieces, evaluate } = splineEasing(curve);
-                const last = pieces.length - 1;
-                webKeyframes = pieces.map((piece, index) => {
-                    const keyframe = { offset: piece.offset };
-                    if (piece.easing) {
-                        keyframe.easing = piece.easing;
-                    }
-                    for (const frame of keyframes) {
-                        const property = frame.property;
-                        keyframe[property] = cssString(
-                            property,
-                            index === 0
-                                ? frame.from
-                                : index === last
-                                  ? frame.to
-                                  : interpolate(
-                                        property,
-                                        frame.from,
-                                        frame.to,
-                                        piece.progress,
-                                    ),
-                        );
-                    }
-                    return keyframe;
-                });
-                this._evaluate = evaluate;
-            }
-            if (hold) {
-                ({ keyframes: webKeyframes, options } = withStartHold(
-                    webKeyframes,
-                    options,
-                    hold,
-                ));
-            }
+            this._hold = this.startHold;
+            const web = webAnimation(
+                keyframes,
+                this.ease,
+                duration,
+                this._hold,
+            );
+            this._evaluate = web.evaluate;
             try {
-                const animation = element.animate(webKeyframes, options);
+                const animation = element.animate(web.keyframes, web.options);
                 animation.onfinish = () =>
                     invoke(this._animationDidFinish, this);
                 this._animation = animation;
