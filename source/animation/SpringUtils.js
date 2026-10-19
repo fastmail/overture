@@ -51,64 +51,31 @@ const createSpringTransition = (springOptions) => {
 // frequency in radians per second.
 const SCREEN_FREQUENCY = 22;
 
-// The spring these transitions are expressed in, which sets the scale of
-// the velocity passed in: 1 is a speed of sqrt(30 / 0.23) times the
-// distance per second of spring time.
-const SCREEN_SPRING = { mass: 0.23, stiffness: 30 };
-
 // A transition ends this close to its destination, under half a pixel on
 // a phone-width move.
 const SCREEN_SETTLED = 0.001;
 
 /**
-    Function: O.SpringUtils#createScreenTransition
+    Property: O.SpringUtils#defaultScreenTransition
+    Type: Object
 
-    Utility for creating an animation that matches an iOS stack navigator
-    screen transition. With no velocity or offset, the motion is the same as
-    a UINavigationController push on iOS 26 and 27, and the duration ends
-    once it is visibly finished. The velocity is rounded to the nearest
-    quarter so transitions can be shared: the keyframes for a spring are
-    fitted once per easing function (see <O.StyleAnimation>).
-
-    Parameters:
-        velocity - {Number} (optional) see `O.Easing#bouncelessSpring`
-        offset - {Number} (optional) see `O.Easing#bouncelessSpring`
-
-    Returns:
-        {Object} see `O.SpringUtils#createSpringTransition
+    An easing and duration matching an iOS stack navigator screen
+    transition: the same motion as a UINavigationController push on iOS 26
+    and 27, ending once it is visibly finished.
  */
-const screenTransitions = new Map();
-const createScreenTransition = (velocity = 0, offset = 0) => {
-    velocity = Math.round(limit(velocity, 0, 10) * 4) / 4;
-    const key = velocity + ',' + offset;
-    let transition = screenTransitions.get(key);
-    if (!transition) {
-        const spring = bouncelessSpring({
-            ...SCREEN_SPRING,
-            velocity,
-            offset,
-        });
-        // Find how long the spring takes to settle, in its own time, then
-        // play exactly that much of it, at the speed that gives the
-        // native frequency in real time.
-        let settled = 0;
-        do {
-            settled += 0.001;
-        } while (
-            Math.abs(1 - spring(settled)) >= SCREEN_SETTLED &&
-            settled < 5
-        );
-        const frequency = Math.sqrt(
-            SCREEN_SPRING.stiffness / SCREEN_SPRING.mass,
-        );
-        transition = {
-            duration: ((settled * frequency) / SCREEN_FREQUENCY) * 1000,
-            easing: (x) => spring(x * settled),
-        };
-        screenTransitions.set(key, transition);
-    }
-    return transition;
-};
+const defaultScreenTransition = (() => {
+    const omega = SCREEN_FREQUENCY;
+    // Progress at time t (seconds), starting at rest.
+    const spring = (t) => 1 - (1 + omega * t) * Math.exp(-omega * t);
+    let settled = 0;
+    do {
+        settled += 0.001;
+    } while (Math.abs(1 - spring(settled)) >= SCREEN_SETTLED);
+    return {
+        duration: settled * 1000,
+        easing: (x) => spring(x * settled),
+    };
+})();
 
 // The spring a page settles with after the finger lifts from an iOS swipe
 // back, measured from UIKit on iOS 27: its angular frequency in radians per
@@ -129,7 +96,8 @@ const RELEASE_MAX_VELOCITY = 60;
     carries on at the finger's speed, so a fast flick overshoots and settles
     back, and a release moving away from the destination turns round first.
     The velocity is rounded to the nearest quarter of the distance per
-    second so transitions can be shared (see <createScreenTransition>).
+    second so transitions can be shared: the keyframes for a spring are
+    fitted once per easing function (see <O.StyleAnimation>).
 
     Parameters:
         velocity - {Number} The page's speed at release, in px/s.
@@ -180,17 +148,8 @@ const createReleaseTransition = (velocity, distance) => {
     return transition;
 };
 
-/**
-    Property: O.SpringUtils#defaultScreenTransition
-    Type: Object
-
-    A default easing and duration for creating a screen transition animation
- */
-const defaultScreenTransition = createScreenTransition();
-
 export {
     createSpringTransition,
-    createScreenTransition,
     createReleaseTransition,
     defaultScreenTransition,
 };

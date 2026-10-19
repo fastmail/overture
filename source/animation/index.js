@@ -11,7 +11,6 @@ export {
 } from './Easing.js';
 export {
     createSpringTransition,
-    createScreenTransition,
     createReleaseTransition,
     defaultScreenTransition,
 } from './SpringUtils.js';

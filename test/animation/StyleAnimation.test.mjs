@@ -398,9 +398,10 @@ describe('easing', () => {
     });
 
     test('fits other curves with a few bezier pieces', () => {
-        const { createScreenTransition, createReleaseTransition } = SpringUtils;
+        const { defaultScreenTransition, createReleaseTransition } =
+            SpringUtils;
         for (const curve of [
-            createScreenTransition().easing,
+            defaultScreenTransition.easing,
             createReleaseTransition(0, 1).easing,
             createReleaseTransition(40, 1).easing,
             createReleaseTransition(-10, 1).easing,
@@ -603,14 +604,14 @@ describe('easing', () => {
 });
 
 describe('SpringUtils', () => {
-    const { createScreenTransition, createReleaseTransition } = SpringUtils;
+    const { defaultScreenTransition, createReleaseTransition } = SpringUtils;
 
     // Speed in fractions of the distance per second at the start.
     const startSpeed = ({ easing, duration }) =>
         (easing(1e-4) - easing(0)) / ((1e-4 * duration) / 1000);
 
     test('screen transitions match a native push', () => {
-        const { easing, duration } = createScreenTransition();
+        const { easing, duration } = defaultScreenTransition;
         // Critically damped from rest at 22 radians per second.
         const native = (t) => 1 - (1 + 22 * t) * Math.exp(-22 * t);
         assert.ok(Math.abs(duration - 420) < 5, `about 420ms (${duration})`);
