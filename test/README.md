@@ -43,6 +43,8 @@ test/
   html/
     helpers.mjs                       # minimal DOM that models clobbering
     HTMLDefanger.test.mjs
+  touch/
+    SwipeVelocity.test.mjs
 ```
 
 ## Notes
