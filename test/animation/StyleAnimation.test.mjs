@@ -405,8 +405,9 @@ describe('easing', () => {
             createReleaseTransition(40, 1).easing,
             createReleaseTransition(-10, 1).easing,
         ]) {
-            const pieces = splineEasing(curve);
-            assert.equal(splineEasing(curve), pieces, 'cached on the function');
+            const spline = splineEasing(curve);
+            assert.equal(splineEasing(curve), spline, 'cached on the function');
+            const { pieces, evaluate } = spline;
             assert.ok(pieces.length <= 16, `few pieces (${pieces.length})`);
             assert.equal(pieces[0].offset, 0);
             assert.equal(pieces[pieces.length - 1].offset, 1);
@@ -418,7 +419,7 @@ describe('easing', () => {
             for (let i = 0; i <= 400; i += 1) {
                 const x = i / 400;
                 assert.ok(
-                    Math.abs(curve.cssEquivalent(x) - curve(x)) < 0.0015,
+                    Math.abs(evaluate(x) - curve(x)) < 0.0015,
                     `follows the curve at ${x}`,
                 );
             }
@@ -438,7 +439,7 @@ describe('easing', () => {
         );
         const [webAnimation] = element.animations;
         assert.deepEqual(webAnimation.options, { duration: 400 });
-        const pieces = splineEasing(spring);
+        const { pieces, evaluate } = splineEasing(spring);
         assert.equal(webAnimation.keyframes.length, pieces.length);
         assert.deepEqual(webAnimation.keyframes[0], {
             offset: 0,
@@ -469,7 +470,7 @@ describe('easing', () => {
         animation.animate({ opacity: 0 }, 400, spring);
         assert.equal(
             element.animations[1].keyframes[0].opacity,
-            String(spring.cssEquivalent(0.5)),
+            String(evaluate(0.5)),
         );
     });
 
@@ -507,7 +508,7 @@ describe('easing', () => {
             animation.animate({ opacity: 0 }, 400, spring);
             assert.equal(
                 element.animations[2].keyframes[0].opacity,
-                String(spring.cssEquivalent(0.5)),
+                String(splineEasing(spring).evaluate(0.5)),
             );
         }
     });
@@ -528,7 +529,7 @@ describe('easing', () => {
             const [webAnimation] = element.animations;
             assert.equal(
                 webAnimation.keyframes.length,
-                splineEasing(spring).length,
+                splineEasing(spring).pieces.length,
             );
             assert.equal(webAnimation.options.easing, undefined);
             for (const keyframe of webAnimation.keyframes.slice(1)) {
@@ -547,7 +548,7 @@ describe('easing', () => {
         animation.animate({ transform: 'translate3d(0,0,0)' }, 360, spring);
         const [webAnimation] = element.animations;
         assert.deepEqual(webAnimation.options, { duration: 400 });
-        const pieces = splineEasing(spring);
+        const { pieces, evaluate } = splineEasing(spring);
         const keyframes = webAnimation.keyframes;
         assert.equal(keyframes.length, pieces.length + 1);
         assert.deepEqual(keyframes[0], {
@@ -575,7 +576,7 @@ describe('easing', () => {
         );
         element.animations[1].currentTime = 220;
         animation.animate({ transform: 'none' }, 360, spring);
-        const position = spring.cssEquivalent(0.5);
+        const position = evaluate(0.5);
         const expected = 100 + position * (50 - 100);
         const transform = /^translate3d\(([\d.]+)%,0,0\)$/.exec(
             element.animations[2].keyframes[0].transform,

@@ -76,22 +76,22 @@ const evaluateSpline = (pieces) => (x) => {
     the browser a style resolution when the animation starts, which is why
     the pieces follow the curve's shape rather than being evenly spaced.
 
-    The spline is fitted once and stored on the function, along with the
-    curve the browser actually runs as `cssEquivalent`, so an interrupted
-    animation can work out where it had got to.
+    The spline is fitted once and stored on the function.
 
     Parameters:
         easing - {Function} An easing function taking a value in [0..1] and
                  returning the progress at that point.
 
     Returns:
-        {Object[]} One entry per keyframe in offset order, with `offset`,
-        `progress` and, on all but the last, the CSS `easing` to the next.
+        {Object} The keyframes as `pieces`, one per keyframe in offset order
+        with `offset`, `progress` and, on all but the last, the CSS `easing`
+        to the next; and the curve the browser actually runs as `evaluate`,
+        so an interrupted animation can work out where it had got to.
 */
 const splineEasing = (easing) => {
-    let pieces = easing.spline;
-    if (!pieces) {
-        pieces = [];
+    let spline = easing.spline;
+    if (!spline) {
+        const pieces = [];
         const addPiece = (x0, y0, x1, y1) => {
             const length = x1 - x0;
             const rise = y1 - y0;
@@ -129,10 +129,12 @@ const splineEasing = (easing) => {
         const end = round(easing(1));
         addPiece(0, start, 1, end);
         pieces.push({ offset: 1, progress: end });
-        easing.spline = pieces;
-        easing.cssEquivalent = evaluateSpline(pieces);
+        spline = easing.spline = {
+            pieces,
+            evaluate: evaluateSpline(pieces),
+        };
     }
-    return pieces;
+    return spline;
 };
 
 const LINEAR_SAMPLES = 40;
@@ -640,7 +642,7 @@ class StyleAnimation {
                     this._evaluate = linear.evaluate;
                 }
             } else {
-                const pieces = splineEasing(curve);
+                const { pieces, evaluate } = splineEasing(curve);
                 const last = pieces.length - 1;
                 webKeyframes = pieces.map((piece, index) => {
                     const keyframe = { offset: piece.offset };
@@ -665,7 +667,7 @@ class StyleAnimation {
                     }
                     return keyframe;
                 });
-                this._evaluate = curve.cssEquivalent;
+                this._evaluate = evaluate;
             }
             if (hold) {
                 ({ keyframes: webKeyframes, options } = withStartHold(
