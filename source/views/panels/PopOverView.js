@@ -22,6 +22,7 @@ const PopOverView = Class({
         this.parentPopOverView = null;
         this.isVisible = false;
         this.options = {};
+        this._alignWithView = null;
         this._inResize = false;
         PopOverView.parent.init.apply(this, arguments);
     },
@@ -67,7 +68,10 @@ const PopOverView = Class({
             return;
         }
         const alignWithView = options.alignWithView;
-        if (!alignWithView.get('isInDocument')) {
+        if (
+            !alignWithView.get('isInDocument') ||
+            (options.atNode && !options.atNode.isConnected)
+        ) {
             this.hide();
             return;
         }
@@ -306,14 +310,7 @@ const PopOverView = Class({
             // We redraw layer styles as part of redrawing layer; don't get
             // stuck in infinite call stack!
             this._inResize = true;
-            const options = this.get('options');
-            if (options) {
-                if (options.alignWithView.get('isInDocument')) {
-                    this.redrawLayer();
-                } else {
-                    this.hide();
-                }
-            }
+            this.redrawLayer();
             this._inResize = false;
         }
     },
@@ -341,8 +338,17 @@ const PopOverView = Class({
         }
 
         this.hide();
+        if (!alignWithView.get('isInDocument')) {
+            return this;
+        }
         this.set('options', options);
         alignWithView.getParent(RootView).insertView(this);
+        this._alignWithView = alignWithView;
+        alignWithView.addObserverForKey(
+            'isInDocument',
+            this,
+            'alignWithViewDidChangeInDocument',
+        );
 
         if (!options.allowEventsOutside) {
             const eventHandler = this.get('eventHandler');
@@ -352,6 +358,12 @@ const PopOverView = Class({
 
         return this;
     },
+
+    // The view may just be moving, so wait for the run loop to settle before
+    // repositioning (or hiding, if it's really gone).
+    alignWithViewDidChangeInDocument: function () {
+        this.didResize();
+    }.queue('after'),
 
     didEnterDocument() {
         PopOverView.parent.didEnterDocument.call(this);
@@ -389,6 +401,12 @@ const PopOverView = Class({
             if (subPopOverView) {
                 subPopOverView.hide();
             }
+            this._alignWithView.removeObserverForKey(
+                'isInDocument',
+                this,
+                'alignWithViewDidChangeInDocument',
+            );
+            this._alignWithView = null;
             this.set('isVisible', false)
                 .detach()
                 .removeView(this.get('childViews')[0]);
