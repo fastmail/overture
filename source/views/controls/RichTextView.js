@@ -2,7 +2,10 @@
 
 import { formatKeyForPlatform } from '../../application/formatKeyForPlatform.js';
 import { Class, meta } from '../../core/Core.js';
-import { email as emailRegExp } from '../../core/RegExp.js';
+import {
+    controlChars as controlCharsRegExp,
+    email as emailRegExp,
+} from '../../core/RegExp.js';
 import { isClickModified, lookupKey } from '../../dom/DOMEvent.js';
 import {
     create as el,
@@ -978,7 +981,9 @@ const RichTextView = Class({
             confirm: loc('Add link'),
             popOver: richTextView.get('popOver'),
             add() {
-                let url = this.get('value').trim();
+                let url = this.get('value')
+                    .replace(controlCharsRegExp, '')
+                    .trim();
                 let email;
                 // Don't allow malicious links
                 if (/^(?:javascript|data):/i.test(url)) {
