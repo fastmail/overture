@@ -12,7 +12,12 @@ const domain = new RegExp('^' + domainPattern + '$', 'i');
     A regular expression for detecting an email address.
 */
 const emailPattern = '[\\w\\-.%+]+@' + domainPattern;
-const emailAndQueryParamsPattern =
+// The lookbehind only lets a match start at the beginning of a run of
+// local-part chars, or at its first word char so a leading \b can match
+// (e.g. john@example.com in -john@example.com); without it, a long run with
+// no @ is rescanned from every word boundary in it, which is quadratic.
+let emailAndQueryParamsPattern =
+    '(?<=(?:^|[^\\w\\-.%+])[\\-.%+]*)' +
     emailPattern +
     // Allow query parameters in the mailto: style
     '(?:' +
@@ -50,13 +55,14 @@ const email = new RegExp('(' + emailPattern + ')', 'i');
 // domain must end with a top-level domain of at least 2 letters.
 //
 // Part 1b: URLs without Protocol
-// (?:^|(?<=[({[=\\s\\n])){Domain-like}(?![@a-z0-9]))
+// (?:^|(?<=[<({[=\\s]))(?![\\w\\-.%+]*@){Domain-like}(?![@a-z0-9]))
 // This matches domain-like patterns without explicit protocols. The lookbehind
-// (?:^|(?<=[({[=\\s\\n])) and lookahead (?![@a-z0-9])) prevent matching email
-// addresses or file paths by ensuring the domain is preceded by an open bracket
-// and not followed by an @. This helps distinguish between example.com (a URL)
-// and user@example.com (an email), or /foo/bar.txt. The negative lookahead for
-// a-z0-9 is to prevent it backtracking and matching e.g. [john.do]e@example.com
+// (?:^|(?<=[<({[=\\s])) and lookaheads prevent matching email addresses or
+// file paths by ensuring the domain is preceded by an open bracket or space
+// and is not the start of a run of local-part chars ending in an @. This helps
+// distinguish between example.com (a URL) and user@example.com or
+// john.smith+x@example.com (emails), or /foo/bar.txt. The trailing negative
+// lookahead for a-z0-9 stops it ending inside a word, e.g. after a port.
 //
 // Part 2: Path and Query String (Optional)
 // (?:[/?#](?:[a-z0-9\-._~:/?#@!$&'*+,;=%]*[a-z0-9\-_~/$*=]|\([a-z0-9\-._~:/?#@!$&'*+,;=%\[\]]+?\))+)?
@@ -78,6 +84,7 @@ let urlPattern =
     domainAndPortPattern +
     '|' +
     '(?:^|(?<=[<({[=\\s]))' +
+    '(?![\\w\\-.%+]*@)' +
     domainAndPortPattern +
     '(?![@a-z0-9]))' +
     "(?:[/?#](?:[a-z0-9\\-._~:/?#@!$&'*+,;=%]*[a-z0-9\\-_~/$*=]|\\([a-z0-9\\-._~:/?#@!$&'*+,;=%\\[\\]]+?\\))+)?";
@@ -86,6 +93,10 @@ try {
 } catch (error) {
     // We still support a few old browsers that don't support lookbehind.
     urlPattern = urlPattern.replace('(?:^|(?<=[<({[=\\s]))', '');
+    emailAndQueryParamsPattern = emailAndQueryParamsPattern.replace(
+        '(?<=(?:^|[^\\w\\-.%+])[\\-.%+]*)',
+        '',
+    );
 }
 
 const url = new RegExp('\\b' + urlPattern, 'i');
