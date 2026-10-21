@@ -90,10 +90,13 @@ try {
 
 const url = new RegExp('\\b' + urlPattern, 'i');
 
+const controlChars = /[\u0000-\u001f\u007f]/g;
+
 export {
     domain,
     email,
     url,
+    controlChars,
     domainPattern,
     emailPattern,
     emailAndQueryParamsPattern,

@@ -18,6 +18,7 @@ export {
     domain as domainRegExp,
     email as emailRegExp,
     url as urlRegExp,
+    controlChars as controlCharsRegExp,
     domainPattern,
     emailPattern,
     emailAndQueryParamsPattern,
