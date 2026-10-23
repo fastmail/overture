@@ -483,7 +483,14 @@ const CLOBBERING_SELECTOR = [
 // off, and put each back on its control just before its own callbacks run,
 // as those may rewrite it into something harmless, such as by prefixing it.
 // An <object>'s id shadows the document, so comes off here for good.
+//
+// A form attribute ties a control to whichever form has that id, so a
+// callback rewriting an id could tie a control to a form after it's been
+// checked here. It's not an allowed attribute, so comes off first.
 const stripClobbering = function (root) {
+    for (const element of root.querySelectorAll('[form]')) {
+        removeAttribute.call(element, 'form');
+    }
     const ids = new Map();
     const hasForm = !!root.querySelector('form');
     for (const element of root.querySelectorAll(CLOBBERING_SELECTOR)) {

@@ -53,6 +53,21 @@ describe('HTMLDefanger', () => {
         );
     });
 
+    test('ties no control to a form whose id a callback rewrites', () => {
+        const prefixId = (name, value, node) => {
+            if (name === 'id') {
+                node.setAttribute(name, 'p-' + value);
+            }
+            return true;
+        };
+        assert.equal(
+            defang('<form id=x></form><input form=p-x id=getAttribute>', {
+                onAttribute: [prefixId],
+            }),
+            '<form id="p-x"></form><input id="p-getAttribute">',
+        );
+    });
+
     test('keeps a form once names shadowing its methods are stripped', () => {
         assert.equal(
             defang(
