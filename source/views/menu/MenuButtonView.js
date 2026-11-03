@@ -264,7 +264,7 @@ const MenuButtonView = Class({
             // If the isInMenu, the popOverView used will actually be a subview
             // of this popOverView, and is returned from the show method.
             popOverView = popOverView.show(popOverOptions);
-            if (menuOptionView) {
+            if (menuOptionView && popOverView.get('isVisible')) {
                 menuOptionView
                     .get('controller')
                     .addObserverForKey('focused', popOverView, 'hide');

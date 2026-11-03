@@ -13,6 +13,11 @@ import { ModalEventHandler } from './ModalEventHandler.js';
 /* { on } from */
 import '../../foundation/Decorators.js';
 
+// atNode may be a Range (e.g. the editor selection), which has no isConnected.
+const isAlignTargetInDocument = ({ alignWithView, atNode }) =>
+    alignWithView.get('isInDocument') &&
+    (!atNode || (atNode.startContainer || atNode).isConnected);
+
 const PopOverView = Class({
     Name: 'PopOverView',
 
@@ -68,10 +73,7 @@ const PopOverView = Class({
             return;
         }
         const alignWithView = options.alignWithView;
-        if (
-            !alignWithView.get('isInDocument') ||
-            (options.atNode && !options.atNode.isConnected)
-        ) {
+        if (!isAlignTargetInDocument(options)) {
             this.hide();
             return;
         }
@@ -338,7 +340,13 @@ const PopOverView = Class({
         }
 
         this.hide();
-        if (!alignWithView.get('isInDocument')) {
+        // Check before inserting: on first render, redrawLayer runs before
+        // we're visible, so its hide() can't undo the rest of show(). Callers
+        // may have set up state that they expect onHide to undo.
+        if (!isAlignTargetInDocument(options)) {
+            if (options.onHide) {
+                options.onHide(options, this);
+            }
             return this;
         }
         this.set('options', options);
