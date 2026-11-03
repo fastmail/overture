@@ -156,8 +156,12 @@ const SelectView = Class({
     syncBackValue: function () {
         const i = this._domControl.selectedIndex;
         const option = this.get('options').getObjectAt(i);
-        if (option) {
+        // The browser shouldn't let a disabled option be chosen, but Chrome
+        // on Windows sometimes does, and section titles have no real value.
+        if (option && !option.isDisabled) {
             this.userDidInput(option.value);
+        } else {
+            this.redrawValue();
         }
     }.on('change'),
 });
