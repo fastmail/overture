@@ -118,9 +118,8 @@ class Database {
             let fnError = null;
             transaction.onabort = () => {
                 // WebKit aborts with no error if its indexedDB server drops
-                // the transaction; only close() should do that silently. Not
-                // a DOMException, as that may have a stack, and a stackless
-                // AbortError is how callers recognise a killed transaction.
+                // the transaction, so reject with an AbortError, which
+                // callers treat as a transaction killed by the browser.
                 const isClosing = !this._transactions.delete(transaction);
                 reject(
                     isClosing
