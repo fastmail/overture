@@ -101,7 +101,8 @@ class Database {
 
     // Mode = readwrite or readonly
     async transaction(storeNames, mode, fn) {
-        const db = await this.open();
+        const _db = this.open();
+        const db = await _db;
         // Closed while we waited for it to open
         if (this.isClosed) {
             throw closedError();
@@ -111,10 +112,20 @@ class Database {
         } else if (typeof storeNames === 'string') {
             storeNames = [storeNames];
         }
+        let transaction;
+        try {
+            transaction = db.transaction(storeNames, mode);
+        } catch (error) {
+            // The browser force-closed the connection and we've not yet had
+            // the close event that would clear it, so open afresh next time
+            if (error.name === 'InvalidStateError' && this._db === _db) {
+                this._db = null;
+            }
+            throw error;
+        }
+        this._transactions.add(transaction);
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
-            const transaction = db.transaction(storeNames, mode);
-            this._transactions.add(transaction);
             let fnError = null;
             transaction.onabort = () => {
                 // WebKit aborts with no error if its indexedDB server drops
