@@ -72,27 +72,6 @@ LESS_TO_CSS := $(TOOLS)/csstools.js less
 # output file
 MAKE_SINGLE_CSS := $(TOOLS)/csstools.js makeSingleIncImages
 
-# Replace file names
-# Args:
-# var_args... List of file names
-# file in
-# file out
-REPLACE_FILE_NAMES := $(TOOLS)/module.js replaceFileNames
-
-# Args:
-# module set name
-# var_args... modules
-# input
-# output
-ADD_MODULE_LIST := $(TOOLS)/module.js addModuleList
-
-# Args:
-# themeManagerPath
-# theme
-# var_args... input files
-# output
-MAKE_MODULE := $(TOOLS)/module.js makeModule
-
 MAKE_TZ := $(TOOLS)/olsonParser.js
 
 UPDATE_LANG := $(TOOLS)/localise.js updateLang

@@ -12,5 +12,4 @@ export {
     focusIsInInput,
 } from './GlobalKeyboardShortcuts.js';
 export { Router } from './Router.js';
-export { ThemeManager } from './ThemeManager.js';
 export { WindowController } from './WindowController.js';

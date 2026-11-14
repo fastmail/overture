@@ -119,7 +119,6 @@ GlobalKeyboardShortcuts.ACTIVE_IN_INPUT = ACTIVE_IN_INPUT;
 GlobalKeyboardShortcuts.DISABLE_IN_INPUT = DISABLE_IN_INPUT;
 export { GlobalKeyboardShortcuts };
 export { Router } from './application/Router.js';
-export { ThemeManager } from './application/ThemeManager.js';
 export { WindowController } from './application/WindowController.js';
 
 export { RecordArray } from './datastore/query/RecordArray.js';
