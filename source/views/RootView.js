@@ -50,6 +50,7 @@ const RootView = Class({
         const win = doc.defaultView;
         [
             'click',
+            'auxclick',
             'dblclick',
             POINTER_DOWN,
             POINTER_UP,
