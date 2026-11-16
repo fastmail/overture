@@ -21,23 +21,6 @@ const addToSet = function (array, set) {
     return set;
 };
 
-const getNextViewIndex = function (childViews, newRendered, fromIndex) {
-    const length = childViews.length;
-    while (fromIndex < length) {
-        const view = childViews[fromIndex];
-        const item = view.get('content');
-        // Match by identity, not just by id. An animating-out view
-        // (kept in childViews until its slide-out completes) shares its
-        // content's id with any freshly-created replacement; treating it
-        // as the kept view here would desync currentViewIndex.
-        if (item && newRendered.get(item) === view) {
-            break;
-        }
-        fromIndex += 1;
-    }
-    return fromIndex;
-};
-
 const getRenderKey = (item, i) => {
     if (typeof item === 'object') {
         if (item === null) {
@@ -48,6 +31,23 @@ const getRenderKey = (item, i) => {
         }
     }
     return item;
+};
+
+const getNextViewIndex = function (childViews, newRendered, fromIndex) {
+    const length = childViews.length;
+    while (fromIndex < length) {
+        const view = childViews[fromIndex];
+        const item = view.get('content');
+        // Match by identity, not just by id. An animating-out view
+        // (kept in childViews until its slide-out completes) shares its
+        // content's id with any freshly-created replacement; treating it
+        // as the kept view here would desync currentViewIndex.
+        if (item && newRendered.get(getRenderKey(item)) === view) {
+            break;
+        }
+        fromIndex += 1;
+    }
+    return fromIndex;
 };
 
 const ListView = Class({
