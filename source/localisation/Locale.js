@@ -36,21 +36,10 @@ class Locale {
     constructor(mixin) {
         this.dateFormats = Object.create(this.dateFormats);
         merge(this, mixin);
-        if (typeof Intl.DisplayNames !== 'undefined') {
-            const displayNames = new Intl.DisplayNames(this.code, {
-                type: 'region',
-            });
-            this.getRegionName = (isoCode) => {
-                if (!isoCode) {
-                    return '';
-                }
-                const name = displayNames.of(isoCode);
-                return name === isoCode ? '' : name;
-            };
-        }
-        this._numberFormatter = new Intl.NumberFormat(this.code, {
-            useGrouping: 'always',
-        });
+        // The Intl objects are slow to create and rarely needed, so they're
+        // made on first use rather than here, which is on the startup path.
+        this._numberFormatter = null;
+        this._displayNames = null;
     }
 }
 
@@ -112,6 +101,11 @@ Object.assign(Locale.prototype, {
         // Use Intl to determine where the separators go, but keep the
         // locale pack's separator characters, which don't always match
         // CLDR's.
+        if (!this._numberFormatter) {
+            this._numberFormatter = new Intl.NumberFormat(this.code, {
+                useGrouping: 'always',
+            });
+        }
         return this._numberFormatter
             .formatToParts(string)
             .map((part) =>
@@ -364,7 +358,19 @@ Object.assign(Locale.prototype, {
             {String} The localised region name.
     */
     getRegionName(isoCode) {
-        return regionNames[isoCode] || '';
+        if (typeof Intl.DisplayNames === 'undefined') {
+            return regionNames[isoCode] || '';
+        }
+        if (!isoCode) {
+            return '';
+        }
+        if (!this._displayNames) {
+            this._displayNames = new Intl.DisplayNames(this.code, {
+                type: 'region',
+            });
+        }
+        const name = this._displayNames.of(isoCode);
+        return name === isoCode ? '' : name;
     },
 
     /**
