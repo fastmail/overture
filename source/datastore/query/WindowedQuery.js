@@ -259,11 +259,10 @@ const updateIsEqual = function (u1, u2) {
 };
 
 // A window is determined to be still required if there is a range observer that
-// intersects with any part of the window. The prefetch distance is added to the
+// intersects with any part of the window, once the margin is added to the
 // observer range.
-const windowIsStillInUse = function (index, windowSize, prefetch, ranges) {
+const windowIsStillInUse = function (index, windowSize, margin, ranges) {
     const start = index * windowSize;
-    const margin = prefetch * windowSize;
     for (let i = ranges.length - 1; i >= 0; i -= 1) {
         const range = ranges[i];
         if (!('end' in range)) {
@@ -1579,7 +1578,11 @@ const WindowedQuery = Class({
         const ranges = this.getObservedRanges();
         const fetchAllObservedIds =
             refreshRequested && !this.get('canGetDeltaUpdates');
-        const prefetch = this.get('prefetch');
+        const prefetchMargin = this.get('prefetch') * windowSize;
+        // fetchDataForObjectAt requests the next window once an observed
+        // index is within triggerPoint of it, and prefetches around that, so
+        // keep everything it could have asked for.
+        const requestedMargin = prefetchMargin + this.get('triggerPoint');
 
         this._isAnExplicitIdFetch = false;
         this._indexOfRequested = [];
@@ -1591,7 +1594,7 @@ const WindowedQuery = Class({
             if (windowStatus & (WINDOW_REQUESTED | WINDOW_RECORDS_REQUESTED)) {
                 const inUse =
                     !optimiseFetching ||
-                    windowIsStillInUse(i, windowSize, prefetch, ranges);
+                    windowIsStillInUse(i, windowSize, requestedMargin, ranges);
                 if (windowStatus & WINDOW_RECORDS_REQUESTED) {
                     windowStatus &= ~WINDOW_RECORDS_REQUESTED;
                     if (inUse) {
@@ -1638,7 +1641,7 @@ const WindowedQuery = Class({
                 const inUse = windowIsStillInUse(
                     i,
                     windowSize,
-                    prefetch,
+                    prefetchMargin,
                     ranges,
                 );
                 if (inUse) {
