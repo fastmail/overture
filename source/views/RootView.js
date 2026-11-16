@@ -62,13 +62,13 @@ const RootView = Class({
             'touchmove',
             'touchend',
             'touchcancel',
-            'wheel',
             'cut',
             'submit',
             'contextmenu',
         ].forEach((event) => {
             node.addEventListener(event, this, { passive: false });
         });
+        ViewEventsController.addWheelListener(node, this);
         // These events don't bubble: have to capture.
         // These events are automatically added to all inputs when created
         // instead.

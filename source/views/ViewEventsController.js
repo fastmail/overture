@@ -76,6 +76,10 @@ const ViewEventsController = {
         eventTargets.splice(index, 0, [priority, eventTarget]);
         this._eventTargets = eventTargets;
 
+        if (eventTarget.mayCancelWheel) {
+            this._setWheelCancelable(1);
+        }
+
         return this;
     },
 
@@ -93,10 +97,70 @@ const ViewEventsController = {
             {O.ViewEventsController} Returns self.
     */
     removeEventTarget(eventTarget) {
-        this._eventTargets = this._eventTargets.filter(
+        const eventTargets = this._eventTargets;
+        this._eventTargets = eventTargets.filter(
             (target) => target[1] !== eventTarget,
         );
+        if (eventTarget.mayCancelWheel) {
+            this._setWheelCancelable(
+                this._eventTargets.length - eventTargets.length,
+            );
+        }
         return this;
+    },
+
+    /**
+        Property (private): O.ViewEventsController#_wheelListeners
+        Type: [Node,(Function|Object)][]
+
+        Listeners added via <O.ViewEventsController#addWheelListener>.
+    */
+    _wheelListeners: [],
+
+    /**
+        Property (private): O.ViewEventsController#_cancelableWheelCount
+        Type: Number
+
+        The number of registered event targets with a truthy `mayCancelWheel`.
+    */
+    _cancelableWheelCount: 0,
+
+    /**
+        Method: O.ViewEventsController#addWheelListener
+
+        Adds a wheel event listener to the node. A non-passive wheel listener
+        makes the browser wait for the main thread before every scroll, so
+        this is passive except while an event target with a truthy
+        `mayCancelWheel` property (e.g. <O.ModalEventHandler>) is registered.
+        Anything else that needs to cancel wheel events must add its own
+        non-passive listener, scoped as narrowly as possible.
+
+        Parameters:
+            node     - {Node} The node to listen on.
+            listener - {(Function|Object)} The event listener.
+
+        Returns:
+            {O.ViewEventsController} Returns self.
+    */
+    addWheelListener(node, listener) {
+        this._wheelListeners.push([node, listener]);
+        node.addEventListener('wheel', listener, {
+            passive: !this._cancelableWheelCount,
+        });
+        return this;
+    },
+
+    _setWheelCancelable(delta) {
+        const oldCount = this._cancelableWheelCount;
+        const newCount = (this._cancelableWheelCount = oldCount + delta);
+        if (!oldCount !== !newCount) {
+            for (const [node, listener] of this._wheelListeners) {
+                node.removeEventListener('wheel', listener);
+                node.addEventListener('wheel', listener, {
+                    passive: !newCount,
+                });
+            }
+        }
     },
 
     /**

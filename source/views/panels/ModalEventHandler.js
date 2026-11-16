@@ -11,6 +11,10 @@ const ModalEventHandler = Class({
 
     Extends: Obj,
 
+    // While registered, wheel events are cancelable so handleMouse can stop
+    // what's under the modal from scrolling.
+    mayCancelWheel: true,
+
     init: function (/* ...mixins */) {
         ModalEventHandler.parent.constructor.apply(this, arguments);
         this._seenMouseDown = false;
